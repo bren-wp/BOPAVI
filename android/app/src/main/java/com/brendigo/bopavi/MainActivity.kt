@@ -177,9 +177,9 @@ class MainActivity : Activity() {
         // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
         val background=FrameLayout(this).apply {setBackgroundColor(0xff57c8f7.toInt())}
         val scene=ImageView(this).apply {
-            setImageResource(R.drawable.hero)
+            setImageResource(R.drawable.splash)
             scaleType=ImageView.ScaleType.CENTER_CROP
-            contentDescription="Nebeski krajolik s Bopijem i lebdećim otocima"
+            contentDescription="Ilustrirani BOPAVI svijet s Bopijem"
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         background.addView(scene,FrameLayout.LayoutParams(-1,-1))
@@ -194,20 +194,7 @@ class MainActivity : Activity() {
             setPadding(d(22),d(14),d(22),d(28))
         }
         background.addView(layout,FrameLayout.LayoutParams(-1,-1))
-        val logo=ImageView(this).apply {
-            setImageResource(R.drawable.logo)
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            contentDescription="BOPAVI — Mali let, velika avantura"
-        }
-        layout.addView(logo,LinearLayout.LayoutParams(-1,d(116)))
-        val message=TextView(this).apply{
-            text="MALI LET, VELIKA AVANTURA"
-            gravity=Gravity.CENTER
-            textSize=15f;setTextColor(Color.WHITE)
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-            setShadowLayer(5f,0f,d(2).toFloat(),0xff064277.toInt())
-        }
-        layout.addView(message,LinearLayout.LayoutParams(-1,d(40)))
+        // The portrait background already contains the logo and tagline. No duplicates.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         layout.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply{
             setMargins(0,0,0,d(12))

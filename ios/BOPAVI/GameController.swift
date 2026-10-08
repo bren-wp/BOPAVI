@@ -155,7 +155,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         backgroundGradient?.removeFromSuperlayer()
         backgroundGradient=nil
         view.backgroundColor=UIColor(red:0.17,green:0.65,blue:0.94,alpha:1)
-        if let artwork=UIImage(named:"Hero") {
+        if let artwork=UIImage(named:"LaunchArt") {
             let backdrop=UIImageView(image:artwork)
             backdrop.translatesAutoresizingMaskIntoConstraints=false
             backdrop.contentMode = .scaleAspectFill
@@ -171,17 +171,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
         }
         stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
-        if let brand=UIImage(named:"Logo") {
-            let logo=UIImageView(image:brand)
-            logo.contentMode = .scaleAspectFit
-            logo.heightAnchor.constraint(equalToConstant:116).isActive=true
-            logo.isAccessibilityElement=true
-            logo.accessibilityLabel="BOPAVI, mali let velika avantura"
-            stack.addArrangedSubview(logo)
-        }
-        let tagline=label("MALI LET, VELIKA AVANTURA",15,.white,stack)
-        tagline.layer.shadowColor=UIColor(red:0,green:0.18,blue:0.39,alpha:1).cgColor
-        tagline.layer.shadowRadius=4;tagline.layer.shadowOpacity=0.9
+        // LaunchArt is portrait and already includes the BOPAVI logo and slogan.
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
