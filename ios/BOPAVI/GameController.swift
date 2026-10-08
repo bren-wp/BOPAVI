@@ -325,14 +325,78 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         sound.effect("hit")
         progress.recordRun(g)
         gameNumber=g.displayLevel
-        let s=menu("Pokušaj ponovno","\(BopaviCore.names[gameWorld]) · Level \(gameNumber)")
-        label("🐦  BOPAVI  🐦",30,UIColor(red:1,green:0.82,blue:0.47,alpha:1),s)
-        label("Rezultat: \(g.score()) · Prolazi: \(g.passed)/\(g.level.gates.count)",17,.white,s)
-        label("\(BopaviCore.collectibles[gameWorld]): \(g.stars+g.coins) · Kovanice: \(progress.coins())",15,.white,s)
-        button("▶  PONOVO",in:s){self.startGame(self.gameWorld,self.gameNumber)}
-        button("OPREMA ZA KOVANICE",in:s,primary:false){self.showPerks()}
-        button("MAPA SVJETOVA",in:s,primary:false){self.showWorlds()}
-        button("POČETNI EKRAN",in:s,primary:false){self.showHome()}
+        clear()
+        view.backgroundColor=UIColor(red:0.09,green:0.39,blue:0.73,alpha:1)
+        if let image=UIImage(named:"World\(gameWorld)") {
+            let backdrop=UIImageView(image:image)
+            backdrop.contentMode = .scaleAspectFill
+            backdrop.clipsToBounds=true;backdrop.translatesAutoresizingMaskIntoConstraints=false
+            backdrop.isAccessibilityElement=false;view.addSubview(backdrop)
+            NSLayoutConstraint.activate([
+                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
+                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            ])
+        }
+        let dim=UIView()
+        dim.backgroundColor=UIColor(red:0.01,green:0.09,blue:0.23,alpha:0.67)
+        dim.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(dim)
+        NSLayoutConstraint.activate([
+            dim.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            dim.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+            dim.topAnchor.constraint(equalTo:view.topAnchor),
+            dim.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+        ])
+        let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
+        scroll.showsVerticalScrollIndicator=false
+        scroll.alwaysBounceVertical=true
+        view.addSubview(scroll)
+        NSLayoutConstraint.activate([
+            scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
+            scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+        ])
+        let stack=UIStackView()
+        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=10
+        stack.isLayoutMarginsRelativeArrangement=true
+        stack.layoutMargins=UIEdgeInsets(top:22,left:24,bottom:26,right:24)
+        stack.translatesAutoresizingMaskIntoConstraints=false
+        scroll.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
+            stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
+            stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor),
+            stack.heightAnchor.constraint(greaterThanOrEqualTo:scroll.frameLayoutGuide.heightAnchor)
+        ])
+        let header=UIImageView(image:UIImage(named:"Hero"))
+        header.contentMode = .scaleAspectFill;header.clipsToBounds=true
+        header.layer.cornerRadius=22;header.layer.borderWidth=2
+        header.layer.borderColor=UIColor.white.withAlphaComponent(0.45).cgColor
+        header.heightAnchor.constraint(equalToConstant:166).isActive=true
+        stack.addArrangedSubview(header)
+        label("LET ZAVRŠEN!",31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
+        let stats=UIStackView()
+        stats.axis = .vertical;stats.alignment = .fill;stats.spacing=8
+        stats.isLayoutMarginsRelativeArrangement=true
+        stats.layoutMargins=UIEdgeInsets(top:16,left:18,bottom:18,right:18)
+        stats.backgroundColor=UIColor(red:0.96,green:0.98,blue:1,alpha:1)
+        stats.layer.cornerRadius=22;stats.layer.borderWidth=2
+        stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
+        stack.addArrangedSubview(stats)
+        label("\(g.score())",43,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+        label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+        button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
+        button("OPREMA ZA KOVANICE",in:stack,primary:false){self.showPerks()}
+        button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
+        button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
     }
     private func showPerks(){
         let s=menu("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")
