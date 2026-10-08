@@ -34,7 +34,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
     private val pillars = intArrayOf(0xff20b96c.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
     private val pillarDark = intArrayOf(0xff096c46.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
-    private val sky = LinearGradient(0f,0f,0f,800f,skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+    private var viewportSky: LinearGradient? = null
+    override fun onSizeChanged(w:Int,h:Int,oldw:Int,oldh:Int){
+        super.onSizeChanged(w,h,oldw,oldh)
+        viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
+            skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+    }
     private var lastFrame = 0L
     private var fpsTimestamp = 0L
     private var sent = false
@@ -64,9 +69,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             if(game.completionCount>completedSeen){completedSeen=game.completionCount;onLevelCompleted(game.completedOrdinal)}
             if(game.coins+game.stars>pickupSeen){pickupSeen=game.coins+game.stars;performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);onCollect()}
         } else lastFrame=0L
-        canvas.drawColor(skyA[game.level.world]); val scale=min(width/480f,height/800f)
-        canvas.save(); canvas.translate((width-480f*scale)/2,(height-800f*scale)/2);canvas.scale(scale,scale)
-        fill(Color.WHITE);p.shader=sky;canvas.drawRect(0f,0f,480f,800f,p);p.shader=null
+        // Background extends through the display's letterbox regions. World physics
+        // remains in the unchanged 480x800 coordinate system without stretching.
+        canvas.drawColor(skyA[game.level.world])
+        fill(Color.WHITE)
+        p.shader=viewportSky
+        canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
+        p.shader=null
+        val scale=min(width/480f,height/800f)
+        canvas.save()
+        canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
+        canvas.scale(scale,scale)
         drawBackground(canvas)
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=g.x-game.distance
@@ -81,6 +94,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         if(paused){rect(canvas,40f,340f,440f,458f,0xe91b2b55.toInt(),24f);text(canvas,"PAUZA",240f,409f,36f,Color.WHITE,true)}
         canvas.restore()
+        val groundTop=(height-800f*scale)/2f+751f*scale
+        if(groundTop<height) {
+            rect(canvas,0f,groundTop,width.toFloat(),height.toFloat(),
+                if(game.level.world==5||game.level.world==7)0xff171f53.toInt() else 0xff64c881.toInt())
+        }
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
         if(!paused && !game.finished && isAttachedToWindow) postInvalidateOnAnimation()
     }

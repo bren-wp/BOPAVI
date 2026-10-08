@@ -67,11 +67,14 @@ final class GameCanvas: UIView {
     }
     override func draw(_ bound:CGRect){
         guard let c=UIGraphicsGetCurrentContext() else{return}
+        // Paint sky across the full screen before fitting the collision coordinate grid.
+        // No stretched characters or obstacles on tall or short devices.
+        if let gradient=cachedGradient {
+            c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),
+                end:CGPoint(x:0,y:bound.height),options:[])
+        }
         let s=min(bound.width/480,bound.height/800)
         c.saveGState();c.translateBy(x:(bound.width-480*s)/2,y:(bound.height-800*s)/2);c.scaleBy(x:s,y:s)
-        if let gradient=cachedGradient {
-            c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),end:CGPoint(x:0,y:800),options:[])
-        }
         background(c)
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(g.x-game.distance)
@@ -80,6 +83,11 @@ final class GameCanvas: UIView {
         }
         bird(c)
         c.restoreGState()
+        let groundTop=(bound.height-800*s)/2+751*s
+        if groundTop<bound.height {
+            rect(c,0,groundTop,bound.width,bound.height-groundTop,
+                game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
+        }
     }
     private func background(_ c:CGContext){
         let w=game.level.world;let night=w==5 || w==7
