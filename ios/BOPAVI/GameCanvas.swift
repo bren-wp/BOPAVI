@@ -53,9 +53,9 @@ final class GameCanvas: UIView {
         }
     }
     override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {super.touchesBegan(touches,with:event);if !paused && !game.finished {game.flap();onFlap?()}}
-    private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {UIColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha).cgColor}
+    private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
     private func rect(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ rad:CGFloat=0,_ alpha:CGFloat=1){
-        c.setFillColor(color(rgb,alpha));let r=CGRect(x:x,y:y,width:max(0,w),height:max(0,h));if rad>0 {c.addPath(UIBezierPath(roundedRect:r,cornerRadius:rad).cgPath);c.fillPath()} else {c.fill(r)}
+        c.setFillColor(color(rgb,alpha));let r=CGRect(x:x,y:y,width:max(0,w),height:max(0,h));if rad>0 {c.addPath(CGPath(roundedRect:r,cornerWidth:rad,cornerHeight:rad,transform:nil));c.fillPath()} else {c.fill(r)}
     }
     private func oval(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ alpha:CGFloat=1){c.setFillColor(color(rgb,alpha));c.fillEllipse(in:CGRect(x:x,y:y,width:w,height:h))}
     private func triangle(_ c:CGContext,_ a:CGPoint,_ b:CGPoint,_ d:CGPoint,_ rgb:UInt32){
@@ -129,12 +129,20 @@ final class GameCanvas: UIView {
         rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
-        case 0,2,6:for j in 0...2 {oval(c,x+CGFloat(j)*16,top-24+CGFloat(j)*7,13,7,shade)}
+        case 0:
+            for j in 0...2 {oval(c,x+CGFloat(j)*17,top-24,16,10,0x4ee882);oval(c,x+CGFloat(j)*19,bottom+6,12,6,0x2b934d)}
+        case 2,6:for j in 0...2 {oval(c,x+CGFloat(j)*16,top-24+CGFloat(j)*7,13,7,shade)}
         case 1:for j in 0...2 {oval(c,x+CGFloat(j)*18,bottom+6,12,6,0xffe6b4)}
-        case 3:rect(c,x,bottom+7,w,7,0xffd56d,3)
+        case 3:
+            rect(c,x,bottom+7,w,7,0xffd56d,3)
+            for j in 0...2 {oval(c,x+12+CGFloat(j)*18,bottom+16+CGFloat(j%2)*5,6,8,0xffa047)}
         case 4:for j in 0...2{rect(c,x+CGFloat(j)*16,top-19,7,14,0xfffff0,2)}
-        case 5:rect(c,x+11,top-16,8,11,0x9e83ef)
-        case 7:for j in 0...2 {oval(c,x+CGFloat(j)*17,bottom+3,9,9,0xc1a4ff)}
+        case 5:
+            rect(c,x+11,top-16,8,11,0x9e83ef)
+            for j in 0...2 {oval(c,x+14,bottom+8+CGFloat(j)*11,8,8,0xb1a0ff)}
+        case 7:
+            for j in 0...2 {oval(c,x+CGFloat(j)*17,bottom+3,9,9,0xc1a4ff)}
+            rect(c,x+14,top-21,11,7,0xb2ecff,3)
         default:break
         }
         let center=(top+bottom)*0.5,mid=x+w*0.5
@@ -142,6 +150,8 @@ final class GameCanvas: UIView {
             let hues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
             let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
             oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,hues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
+            let symbol=BopaviCore.collectibleIcons[g.kind] as NSString
+            symbol.draw(at:CGPoint(x:mid-10,y:center-11),withAttributes:[.font:UIFont.systemFont(ofSize:19,weight:.black),.foregroundColor:UIColor.white])
         }
         if g.star && game.starVisible(index) {star(c,mid+35,center-25,12,0xffe25d)}
         if g.power>0 && game.powerVisible(index) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
@@ -156,6 +166,18 @@ final class GameCanvas: UIView {
         c.closePath();c.fillPath()
     }
     private func bird(_ c:CGContext){
+        if game.collectPulse>0 {
+            let t=CGFloat(game.collectPulse)/0.36
+            let r:CGFloat=28+(1-t)*38
+            c.setStrokeColor(color(0xffe69c,0.75*t));c.setLineWidth(reducedMotion ? 2 : 3)
+            c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
+        }
+        if game.impactPulse>0 {
+            let t=CGFloat(game.impactPulse)/0.65
+            let r:CGFloat=35+(1-t)*28
+            c.setStrokeColor(color(0xb8efff,0.82*t));c.setLineWidth(5)
+            c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
+        }
         if !reducedMotion {
             for i in 1...3 {
                 let x:CGFloat = 126-CGFloat(i)*19-16
@@ -180,6 +202,8 @@ final class GameCanvas: UIView {
         oval(c,-28,-4,36,20,0x0c78dc);oval(c,-25,-6,29,11,0x4ac3ff);c.restoreGState()
         oval(c,-23,-24,49,49,0x095cc8);oval(c,-20,-25,43,48,feather[skinIndex])
         oval(c,-13,5,32,20,0xffffff)
+        oval(c,-14,-17,12,7,0xffffff,0.5)
+        oval(c,18,0,7,7,0xffa9ad)
         oval(c,-7,-16,14,19,0xffffff);oval(c,6,-15,14,19,0xffffff)
         let blink:CGFloat = !reducedMotion && game.time.truncatingRemainder(dividingBy:4.7)>4.57 ? 3 : 13
         oval(c,-2,-blink,7,blink+4,0x10224f);oval(c,10,-blink,7,blink+4,0x10224f)

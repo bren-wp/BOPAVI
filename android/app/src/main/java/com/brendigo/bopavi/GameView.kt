@@ -127,12 +127,25 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
         when(g.kind){
-            0,2,6->{ for(j in 0..2){val yy=top-24+j*7f;oval(c,x+j*16f,yy,x+j*16f+13f,yy+7f,shade)} }
+            0->{
+                for(j in 0..2){val xx=x+j*17f;oval(c,xx,top-24f,xx+16f,top-14f,0xff4ee882.toInt())}
+                for(j in 0..2){val xx=x+j*19f;oval(c,xx,bottom+6f,xx+12f,bottom+12f,0xff2b934d.toInt())}
+            }
+            2,6->{ for(j in 0..2){val yy=top-24+j*7f;oval(c,x+j*16f,yy,x+j*16f+13f,yy+7f,shade)} }
             1->{for(j in 0..2)oval(c,x+j*18f,bottom+6f,x+j*18f+12f,bottom+12f,0xffffe6b4.toInt())}
-            3->{rect(c,x,bottom+7f,x+w,bottom+14f,0xffffd56d.toInt(),3f)}
+            3->{
+                rect(c,x,bottom+7f,x+w,bottom+14f,0xffffd56d.toInt(),3f)
+                for(j in 0..2){val xx=x+12f+j*18f;oval(c,xx,bottom+16f+j%2*5f,xx+6f,bottom+24f+j%2*5f,0xffffa047.toInt())}
+            }
             4->{for(j in 0..2)rect(c,x+j*16f,top-19f,x+j*16f+7f,top-5f,0xfffffff0.toInt(),2f)}
-            5->{rect(c,x+11f,top-16f,x+19f,top-5f,0xff9e83ef.toInt())}
-            7->{for(j in 0..2)oval(c,x+j*17f,bottom+3f,x+j*17f+9f,bottom+12f,0xffc1a4ff.toInt())}
+            5->{
+                rect(c,x+11f,top-16f,x+19f,top-5f,0xff9e83ef.toInt())
+                for(j in 0..2){val yy=bottom+8f+j*11f;oval(c,x+14f,yy,x+22f,yy+8f,0xffb1a0ff.toInt())}
+            }
+            7->{
+                for(j in 0..2)oval(c,x+j*17f,bottom+3f,x+j*17f+9f,bottom+12f,0xffc1a4ff.toInt())
+                rect(c,x+14f,top-21f,x+25f,top-14f,0xffb2ecff.toInt(),3f)
+            }
         }
         val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
         if(g.coin && game.coinVisible(index)) {
@@ -146,6 +159,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(g.power!=0 && game.powerVisible(index)){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     private fun drawBird(c:Canvas){
+        if(game.collectPulse>0f){
+            val portion=game.collectPulse/.36f
+            fill(0xffffe69c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=if(reducedMotion)2f else 3f
+            p.alpha=(190f*portion).toInt().coerceIn(0,190)
+            c.drawCircle(126f,game.y,28f+(1f-portion)*38f,p)
+            p.style=Paint.Style.FILL;p.alpha=255
+        }
+        if(game.impactPulse>0f){
+            val portion=game.impactPulse/.65f
+            fill(0xffb8efff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=5f
+            p.alpha=(210f*portion).toInt().coerceIn(0,210)
+            c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
+            p.style=Paint.Style.FILL;p.alpha=255
+        }
         if(!reducedMotion){
             for(i in 1..3){
                 val ox=126f-i*19f-16f
@@ -171,6 +198,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,-23f,-24f,26f,25f,0xff095cc8.toInt())
         oval(c,-20f,-25f,23f,23f,feather[skinIndex.coerceIn(0,5)])
         oval(c,-13f,5f,19f,25f,Color.WHITE)
+        oval(c,-14f,-17f,-2f,-10f,0x80ffffff.toInt())
+        oval(c,18f,0f,25f,7f,0xffffa9ad.toInt())
         oval(c,-7f,-16f,7f,3f,Color.WHITE);oval(c,6f,-15f,20f,4f,Color.WHITE)
         val blink=if(!reducedMotion && (game.time%4.7f)>4.57f) 3f else 13f
         oval(c,-2f,-blink,5f,4f,0xff10224f.toInt());oval(c,10f,-blink,17f,4f,0xff10224f.toInt())
