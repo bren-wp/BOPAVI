@@ -79,7 +79,7 @@ enum BopaviCore {
         let delta = gate.movement > 0 ? sin(time*frequency + gate.phase)*gate.movement : 0
         let tide:Float = gate.kind == 1 ? sin(time*0.75+gate.phase)*5 : gate.kind == 5 ? sin(time*0.38+gate.phase)*5 : 0
         let center = gate.center + delta + tide
-        let pulse:Float = gate.movement>0 && [3,6,7].contains(gate.kind) ? (sin(time*1.35+gate.phase)+1)*2.5 : 0
+        let pulse:Float = gate.movement>0 && (gate.kind == 3 || gate.kind == 6 || gate.kind == 7) ? (sin(time*1.35+gate.phase)+1)*2.5 : 0
         let half = max(72.5, gate.gap*0.5-pulse)
         return Opening(top:center-half, bottom:center+half)
     }
