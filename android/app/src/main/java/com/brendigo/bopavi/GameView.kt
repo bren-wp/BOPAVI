@@ -2,6 +2,8 @@ package com.brendigo.bopavi
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.BitmapFactory
+import android.graphics.RectF
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -22,6 +24,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5)
+    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
+        BitmapFactory.Options().apply { inScaled=false })
+    private val birdRect=RectF(-50f,-50f,50f,50f)
     private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
@@ -36,7 +42,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var pickupSeen=0
     var paused = false
         set(v) { field = v; lastFrame = 0L; if(!v) postInvalidateOnAnimation() }
-    init { isClickable = true; importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES; contentDescription = "Dodirni za let Bopija" }
+    init {
+        isClickable = true
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+        contentDescription = "Dodirni za let Bopija"
+        p.isFilterBitmap = true
+    }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
     private fun rect(c: Canvas,l:Float,t:Float,r:Float,b:Float,color:Int,round:Float=0f){fill(color);c.drawRoundRect(l,t,r,b,round,round,p)}
     private fun oval(c:Canvas,l:Float,t:Float,r:Float,b:Float,color:Int){fill(color);c.drawOval(l,t,r,b,p)}
@@ -215,7 +226,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val phase=if(reducedMotion)0f else sin(game.time*19f)
         val squash=if(reducedMotion)1f else 1f+phase*.035f
         c.scale(1f,squash)
-        // animated scarf tail and feathers
+        if (birdBitmap != null) {
+            fill(Color.WHITE)
+            c.drawBitmap(birdBitmap,null,birdRect,p)
+            c.restore()
+            return
+        }
+        // Safe fallback if a damaged installation lacks sprite resources.
         path.reset();path.moveTo(-12f,11f);path.lineTo(-35f-3f*phase,22f);path.lineTo(-29f,5f);path.close();fill(0xffef385b.toInt());c.drawPath(path,p)
         oval(c,-30f,0f,-8f,16f,0xff1678d8.toInt())
         c.save();c.rotate(phase*26f,-13f,0f);oval(c,-28f,-4f,8f,16f,0xff0c78dc.toInt());oval(c,-25f,-6f,4f,5f,0xff4ac3ff.toInt());c.restore()
