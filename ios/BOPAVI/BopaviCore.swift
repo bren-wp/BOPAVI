@@ -109,6 +109,8 @@ final class GameSimulation {
     private(set) var stars = 0
     private(set) var shield = 0
     private(set) var magnetTime: Float = 0
+    private(set) var collectPulse: Float = 0
+    private(set) var impactPulse: Float = 0
     private(set) var invulnerable: Float = 0
     private(set) var flaps = 0
     private(set) var active = false
@@ -143,7 +145,7 @@ final class GameSimulation {
     func step(_ delta: Float) {
         guard active && !finished else { return }
         let dt = min(0.034, max(0, delta))
-        time += dt; invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt)
+        time += dt; invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
         velocity = min(365, velocity+(685+level.wind)*dt)
         y += velocity*dt
         distance += level.speed*dt
@@ -155,11 +157,11 @@ final class GameSimulation {
             let cx=x+gate.width*0.5
             let cy=(bounds.top+bounds.bottom)*0.5
             let magnetRange:Float = magnetTime>0 ? 108 : 23
-            if gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true}
-            if gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;collectedStars[i]=true}
+            if gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true;collectPulse=0.36}
+            if gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;collectedStars[i]=true;collectPulse=0.36}
             if gate.power != 0 && !collectedPowers[i] && abs(cx+39-birdX)<30 && abs(cy+39-y)<30 {
                 if gate.power==1 {shield=min(2,shield+1)} else {magnetTime=5}
-                collectedPowers[i]=true
+                collectedPowers[i]=true;collectPulse=0.36
             }
             if x < birdX+radius && x+gate.width > birdX-radius {
                 if y-radius < bounds.top || y+radius > bounds.bottom { damage(); if finished { return } }
@@ -183,7 +185,7 @@ final class GameSimulation {
     }
     private func damage() {
         if invulnerable > 0 { return }
-        if shield > 0 { shield -= 1; invulnerable = 1.25; velocity = -90 }
+        if shield > 0 { shield -= 1; invulnerable = 1.25; impactPulse=0.65; velocity = -90 }
         else { finished = true; active = false; won = false }
     }
     func rating() -> Int { !won ? 0 : 1+min(2,stars/max(1,level.gates.count/4)) }
