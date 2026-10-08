@@ -180,7 +180,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         wallet.layer.cornerRadius=20
         wallet.layer.borderWidth=1
         wallet.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
-        wallet.heightAnchor.constraint(equalToConstant:52).isActive=true
         let amount=UILabel()
         amount.translatesAutoresizingMaskIntoConstraints=false
         amount.text="●  \(progress.coins()) kovanica"
