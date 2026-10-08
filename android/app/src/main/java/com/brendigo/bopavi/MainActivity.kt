@@ -50,7 +50,7 @@ class MainActivity : Activity() {
     private fun showNativeView(root: View) {
         setContentView(root)
         // Android 15 edge-to-edge: reserve system-bar insets for physical controls.
-        if (android.os.Build.VERSION.SDK_INT >= 35 && root !is FrameLayout) {
+        if (android.os.Build.VERSION.SDK_INT >= 35 && (root !is FrameLayout || selectedScreen=="home")) {
             // Apply insets once to menu containers. Immersive gameplay must not
             // repeatedly change the FrameLayout padding as system bars animate.
             root.setOnApplyWindowInsetsListener { v, insets ->
