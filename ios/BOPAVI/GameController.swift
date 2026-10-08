@@ -52,9 +52,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         UIColor(red:0.38,green:0.94,blue:0.87,alpha:1), UIColor(red:0.76,green:0.70,blue:1,alpha:1)
     ]
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
+    override var prefersStatusBarHidden:Bool { canvas != nil }
+    override var prefersHomeIndicatorAutoHidden:Bool { canvas != nil }
     override func viewDidLoad(){super.viewDidLoad();sound.enabled=progress.soundEnabled;showHome()}
     private func clear() {
         canvas?.stop();canvas=nil;hud=nil;sound.stop()
+        setNeedsStatusBarAppearanceUpdate()
         backgroundGradient=nil
         view.subviews.forEach{$0.removeFromSuperview()}
         view.layer.sublayers?.forEach{$0.removeFromSuperlayer()}
@@ -88,8 +91,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
             stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor)])
-        label(title,34,UIColor(red:1,green:0.82,blue:0.47,alpha:1),stack)
-        label(subtitle,15,UIColor(red:0.74,green:0.87,blue:0.96,alpha:1),stack)
+        if title != "BOPAVI" {
+            label(title,34,UIColor(red:1,green:0.82,blue:0.47,alpha:1),stack)
+            if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.74,green:0.87,blue:0.96,alpha:1),stack)}
+        }
         return stack
     }
     override func viewDidLayoutSubviews(){super.viewDidLayoutSubviews();backgroundGradient?.frame=view.bounds}
@@ -129,10 +134,16 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(tile)
     }
     private func showHome(){
-        let s=menu("BOPAVI","Mali let, velika avantura")
+        let s=menu("BOPAVI","")
+        if let logoImage=UIImage(named:"Logo") {
+            let logo=UIImageView(image:logoImage);logo.contentMode = .scaleAspectFit
+            logo.heightAnchor.constraint(equalToConstant:94).isActive=true
+            logo.isAccessibilityElement=true;logo.accessibilityLabel="BOPAVI, mali let velika avantura"
+            s.addArrangedSubview(logo)
+        }
         if let image=UIImage(named:"Hero") {
             let hero=UIImageView(image:image);hero.contentMode = .scaleAspectFit
-            hero.heightAnchor.constraint(equalToConstant:235).isActive=true
+            hero.heightAnchor.constraint(equalToConstant:340).isActive=true
             hero.isAccessibilityElement=true;hero.accessibilityLabel="Bopi, plava ptica s pilotskim naočalama"
             s.addArrangedSubview(hero)
         }
@@ -212,6 +223,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex())
         canvas=gameCanvas
+        setNeedsStatusBarAppearanceUpdate()
         gameCanvas.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(gameCanvas)
         NSLayoutConstraint.activate([gameCanvas.topAnchor.constraint(equalTo:view.topAnchor),gameCanvas.bottomAnchor.constraint(equalTo:view.bottomAnchor),gameCanvas.leadingAnchor.constraint(equalTo:view.leadingAnchor),gameCanvas.trailingAnchor.constraint(equalTo:view.trailingAnchor)])

@@ -7,6 +7,27 @@ on:
 permissions:
   contents: read
 jobs:
+  graphics:
+    name: Render premium game art
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pillow cairosvg
+      - run: python tools/generate_images.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rendered-graphics
+          path: |
+            android/app/src/main/res/drawable-nodpi/hero.png
+            android/app/src/main/res/drawable-nodpi/logo.png
+            android/app/src/main/res/drawable-nodpi/splash.png
+            ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png
+            ios/BOPAVI/Assets.xcassets/Logo.imageset/
+            ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
+          if-no-files-found: error
   source-audit:
     name: Privacy and asset audit
     runs-on: ubuntu-latest
@@ -23,9 +44,14 @@ jobs:
           ! grep -R -E '^[[:space:]]*(import (android.webkit|WebKit|StoreKit)|<uses-permission[^>]*INTERNET)' android/app/src/main ios/BOPAVI --include='*.kt' --include='*.swift' --include='*.xml'
   android:
     name: Android APK + AAB
+    needs: [graphics]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: rendered-graphics
+          path: .
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -55,9 +81,14 @@ jobs:
           if-no-files-found: error
   ios:
     name: iOS simulator + unsigned device build
+    needs: [graphics]
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: rendered-graphics
+          path: .
       - name: Build simulator release
         run: |
           xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-sim" CODE_SIGNING_ALLOWED=NO build
@@ -76,7 +107,7 @@ jobs:
   publish:
     name: GitHub Release v0.1.2
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [source-audit, android, ios]
+    needs: [graphics, source-audit, android, ios]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -84,6 +115,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist
+          pattern: BOPAVI-*
           merge-multiple: true
       - name: Verify packaged artifacts
         run: |
