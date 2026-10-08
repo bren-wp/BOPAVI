@@ -102,7 +102,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val offset=if(reducedMotion)0f else game.distance*.035f
         val shift=offset%180f
         when(w){
-            0 -> for(i in 0..3){val x=i*166f-shift;oval(c,x,500f,x+104f,535f,0xff739c89.toInt());rect(c,x+8f,493f,x+96f,505f,0xff6fe579.toInt(),12f)}
+            0 -> for(i in 0..3){
+                val x=i*166f-shift
+                val y=505f+(i%2)*31f
+                // Floating grass islands instead of unrelated flat green ellipses.
+                path.reset();path.moveTo(x,y+12f);path.lineTo(x+104f,y+12f)
+                path.lineTo(x+70f,y+78f);path.lineTo(x+44f,y+98f);path.lineTo(x+20f,y+58f);path.close()
+                fill(0xffa78970.toInt());c.drawPath(path,p)
+                oval(c,x-5f,y-10f,x+109f,y+24f,0xff279f65.toInt())
+                oval(c,x+3f,y-15f,x+99f,y+11f,0xff8be66f.toInt())
+                rect(c,x+28f,y+24f,x+35f,y+65f,0x998feaff.toInt(),3f)
+                for(j in 0..2)oval(c,x+14f+j*29f,y-16f,x+32f+j*29f,y-6f,0xffbafb87.toInt())
+            }
             1 -> {
                 oval(c,365f,100f,432f,167f,0xffffec98.toInt())
                 for(i in 0..4){val x=i*138f-shift;oval(c,x,675f,x+108f,689f,0x885ae7fa.toInt());oval(c,x+28f,697f,x+115f,708f,0x66ffffff)}
@@ -221,7 +232,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,"${LevelEngine.collectibleIcons[game.level.world]} ${game.stars+game.coins}",225f,54f,20f,0xffffe39c.toInt())
         if(game.shield>0)text(c,"ŠTIT ×${game.shield}",22f,104f,17f,Color.WHITE)
         if(game.magnetTime>0)text(c,"MAGNET",22f,127f,17f,Color.WHITE)
-        text(c,"${LevelEngine.names[game.level.world]} · ${game.displayLevel}",240f,735f,18f,Color.WHITE,true)
+        // No small text printed over the foreground: HUD is kept at the top.
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
         if(event.actionMasked==MotionEvent.ACTION_DOWN){if(!paused && !game.finished){game.flap();onFlap();performClick();invalidate()};return true}

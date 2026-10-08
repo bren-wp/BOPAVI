@@ -106,7 +106,16 @@ final class GameCanvas: UIView {
     private func worldDetails(_ c:CGContext,_ w:Int){
         let shift:CGFloat = reducedMotion ? 0 : CGFloat(game.distance)*0.035
         switch w {
-        case 0:for i in 0...3 {let x=CGFloat(i)*166-shift.truncatingRemainder(dividingBy:180);oval(c,x,500,104,35,0x739c89);rect(c,x+8,493,88,12,0x6fe579,12)}
+        case 0:
+            for i in 0...3 {
+                let x=CGFloat(i)*166-shift.truncatingRemainder(dividingBy:180)
+                let y:CGFloat=505+CGFloat(i%2)*31
+                triangle(c,CGPoint(x:x,y:y+12),CGPoint(x:x+104,y:y+12),CGPoint(x:x+44,y:y+98),0xa78970)
+                oval(c,x-5,y-10,114,34,0x279f65)
+                oval(c,x+3,y-15,96,26,0x8be66f)
+                rect(c,x+28,y+24,7,41,0x8feaff,3,0.6)
+                for j in 0...2 {oval(c,x+14+CGFloat(j)*29,y-16,18,10,0xbafb87)}
+            }
         case 1:
             oval(c,365,100,67,67,0xffec98)
             for i in 0...4 {let x=CGFloat(i)*138-shift.truncatingRemainder(dividingBy:180);oval(c,x,675,108,14,0x5ae7fa,0.65);oval(c,x+28,697,87,11,0xffffff,0.4)}
