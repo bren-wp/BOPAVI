@@ -28,8 +28,8 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.2' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.2"' in (root/'android/app/build.gradle.kts').read_text()
+assert 'MARKETING_VERSION = 0.1.3' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+assert 'versionName = "0.1.3"' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
@@ -49,3 +49,16 @@ assert 'BopaviActionButton' in ios and 'RippleDrawable' in android
 for code in [android,ios]:
     assert '▶  IGRAJ' in code
 assert 'android.permission.INTERNET' not in manifest
+
+# Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
+android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'x - 7f < birdX + radius' in android
+assert 'x-7 < birdX+radius' in ios
+assert 'val radius = 23f' in android and 'let radius: Float = 23' in ios
+# Hero artwork must be an illustration, not a tiny screenshot/CTA embedded in a screenshot.
+hero=(root/'docs/assets/hero.svg').read_text()
+assert 'POLETI U AVANTURU!' not in hero and 'IGRAJ!' not in hero
+assert 'LaunchArt' in (root/'ios/BOPAVI/Info.plist').read_text()
+assert (root/'android/app/src/main/res/values-v31/styles.xml').exists()
+assert (root/'android/app/src/main/res/drawable/bopavi_startup.xml').exists()

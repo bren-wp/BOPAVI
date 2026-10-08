@@ -1,0 +1,11 @@
+<resources>
+    <style name="BopaviTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:statusBarColor">#09264A</item>
+        <item name="android:navigationBarColor">#09264A</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+    <style name="BopaviLaunchTheme" parent="BopaviTheme">
+        <item name="android:windowBackground">@drawable/bopavi_startup</item>
+    </style>
+</resources>

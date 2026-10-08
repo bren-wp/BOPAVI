@@ -37,7 +37,16 @@ class MainActivity : Activity() {
     private val ocean = 0xff17315c.toInt()
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xffffbb66.toInt(),0xffa5ecff.toInt(),0xffff8163.toInt(),0xffffd891.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
-    override fun onCreate(state: Bundle?) { super.onCreate(state);progress=ProgressStore(this);sound=Soundscape(this);sound.enabled=progress.soundEnabled();showHome() }
+    override fun onCreate(state: Bundle?) {
+        setTheme(R.style.BopaviTheme)
+        super.onCreate(state)
+        window.statusBarColor=0xff09264a.toInt()
+        window.navigationBarColor=0xff09264a.toInt()
+        window.decorView.systemUiVisibility=0
+        progress=ProgressStore(this);sound=Soundscape(this)
+        sound.enabled=progress.soundEnabled()
+        showHome()
+    }
     private fun showNativeView(root: View) {
         setContentView(root)
         // Android 15 edge-to-edge: reserve system-bar insets for physical controls.
@@ -75,6 +84,8 @@ class MainActivity : Activity() {
         contentDescription=label
     }
     private fun base(label:String,subtitle:String):LinearLayout {
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility=0
         gameView?.paused=true;gameView=null;sound.stop();selectedScreen=label
         val body=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
@@ -86,8 +97,8 @@ class MainActivity : Activity() {
             addView(body)
         }
         showNativeView(scroll)
-        title(body,label,32,gold)
-        title(body,subtitle,15,0xffbfe0f5.toInt())
+        if(label!="BOPAVI")title(body,label,32,gold)
+        if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,15,0xffbfe0f5.toInt())
         return body
     }
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
@@ -144,9 +155,11 @@ class MainActivity : Activity() {
         parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
     }
     private fun showHome(){
-        val b=base("BOPAVI","Mali let, velika avantura")
-        val hero=ImageView(this).apply{setImageResource(R.drawable.hero);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="Bopi, plava ptica s pilotskim naočalama"}
-        b.addView(hero,LinearLayout.LayoutParams(-1,d(235)))
+        val b=base("BOPAVI","")
+        val logo=ImageView(this).apply{setImageResource(R.drawable.logo);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="BOPAVI, mali let, velika avantura"}
+        b.addView(logo,LinearLayout.LayoutParams(-1,d(94)))
+        val hero=ImageView(this).apply{setImageResource(R.drawable.hero);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="Bopi u letu među lebdećim otocima"}
+        b.addView(hero,LinearLayout.LayoutParams(-1,d(340)))
         small(b,"Jedan dodir. Nova pustolovina.")
         b.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply {setMargins(0,d(12),0,d(10))})
         action(b,"▶  IGRAJ") {
@@ -206,6 +219,10 @@ class MainActivity : Activity() {
         back(b){showWorlds()}
     }
     private fun startGame(world:Int,number:Long){
+        // Immersive gameplay removes the large pale system navigation strip seen in device videos.
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
         currentWorld=world;currentLevel=number;selectedScreen="game"
         val boosts=progress.consumePerks()
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,number)

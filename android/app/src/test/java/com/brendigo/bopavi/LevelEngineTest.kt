@@ -5,6 +5,30 @@ import org.junit.Test
 
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
+
+    @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
+        // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
+        val level=LevelEngine.create(0,2)
+        val near=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val synthetic=level.copy(gates=listOf(near),speed=140f,wind=0f)
+        val flight=GameSimulation(synthetic)
+        flight.flap()
+        flight.step(1f/60f)
+        assertTrue("Visible cap overlap must end the run in the same simulation step",flight.finished)
+        assertFalse(flight.won)
+        assertEquals(0,flight.passed)
+    }
+
+    @Test fun shieldAbsorbsExactlyOneCapImpact() {
+        val level=LevelEngine.create(0,2)
+        val near=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val flight=GameSimulation(level.copy(gates=listOf(near),speed=140f,wind=0f),initialShield=1)
+        flight.flap()
+        flight.step(1f/60f)
+        assertFalse(flight.finished)
+        assertEquals(0,flight.shield)
+        assertTrue(flight.invulnerable>0f)
+    }
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)

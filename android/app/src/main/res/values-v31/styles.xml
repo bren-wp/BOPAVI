@@ -1,0 +1,7 @@
+<resources>
+    <style name="BopaviLaunchTheme" parent="BopaviTheme">
+        <item name="android:windowSplashScreenBackground">#135693</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/app_icon</item>
+        <item name="android:windowBackground">@drawable/bopavi_startup</item>
+    </style>
+</resources>

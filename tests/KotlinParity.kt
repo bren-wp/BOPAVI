@@ -38,5 +38,19 @@ fun main() {
     check(!s.active);s.flap();check(s.active && s.flaps==1)
     repeat(70){s.step(1f/60f)}
     check(s.time>0f);check(s.y.isFinite())
+
+    // Regression from a real device video: drawn cap enters the bird hitbox
+    // before the pillar shaft, and the run must end within this frame.
+    run {
+        val level=LevelEngine.create(0,2)
+        val hit=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val custom=level.copy(gates=listOf(hit),speed=140f,wind=0f)
+        val direct=GameSimulation(custom)
+        direct.flap();direct.step(1f/60f)
+        check(direct.finished && !direct.won && direct.passed==0) {"collider missed visible cap"}
+        val shielded=GameSimulation(custom,initialShield=1)
+        shielded.flap();shielded.step(1f/60f)
+        check(!shielded.finished && shielded.shield==0) {"shield must absorb one collision"}
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

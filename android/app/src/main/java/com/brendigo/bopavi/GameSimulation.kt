@@ -37,7 +37,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun starVisible(index: Int) = !collectedStars[index]
     fun powerVisible(index: Int) = !collectedPowers[index]
     val birdX = 126f
-    val radius = 16f
+    // Body sprite is about 49px wide; a 16px circle missed visible pillar caps.
+    val radius = 23f
     fun flap() {
         if (finished) return
         active = true
@@ -56,6 +57,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val gate = level.gates[i]; val x = gate.x - distance
             if (x > birdX + radius + 115f) break
             val bounds = LevelEngine.opening(gate, time)
+            // Collide with the actually DRAWN pillar cap (x-7 .. x+width+5), not
+            // only the thinner central shaft. Resolve impact before pickups.
+            if (x - 7f < birdX + radius && x + gate.width + 5f > birdX - radius &&
+                (y - radius < bounds.top || y + radius > bounds.bottom)) {
+                damage()
+                if (finished) return
+            }
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
             val magnetRange = if (magnetTime > 0f) 108f else 23f
@@ -64,9 +72,6 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             if(gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
                 if(gate.power==1)shield=min(2,shield+1) else magnetTime=5f
                 collectedPowers[i]=true;collectPulse=.36f
-            }
-            if (x < birdX + radius && x + gate.width > birdX - radius) {
-                if (y - radius < bounds.top || y + radius > bounds.bottom) { damage(); if (finished) return }
             }
             if (x + gate.width < birdX - radius && i == passed) {
                 passed++; totalPassed++

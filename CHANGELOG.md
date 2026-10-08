@@ -1,3 +1,13 @@
+## v0.1.3 — Pravi dodir (2026-10-08)
+- Popravljen dodir Bopija sa stvarno nacrtanim završnim kapicama stupova (Android i iOS).
+- Sudar bez štita završava pokušaj u istom koraku simulacije; štit štiti točno jedan udarac.
+- Automatizirani regresijski testovi kolizije dodani za Kotlin/JUnit i Swift.
+- Novi ilustrirani početni ekran, rasterizirani logotip i splash prikaz.
+- Android gameplay skriva sistemske trake, izbornici zadržavaju kontrastne tamne trake.
+- Redizajnirani lebdeći otoci, čitljiviji gameplay bez nepotrebnog natpisa na podlozi.
+- Grafika se generira u CI-ju i uključuje u Android/iOS build artefakte.
+- Ne tvrdimo da je završena provjera stabilnosti na svim fizičkim telefonima.
+
 ## v0.1.2 — Premium let (2026-10-08)
 - Android i iOS: premium stilsko ujednačavanje izbornika, gradijenata, tipografije, gumba i kartica svjetova.
 - Početni ekran ostaje usredotočen na Bopija, kovanice i jedan gumb IGRAJ.
