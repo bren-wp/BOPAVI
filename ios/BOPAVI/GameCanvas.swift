@@ -8,6 +8,7 @@ final class GameCanvas: UIView {
     private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
+    private let worldBackdrop:UIImage?
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
     var onLevelComplete: ((Int)->Void)?
@@ -32,6 +33,7 @@ final class GameCanvas: UIView {
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(5,max(0,skinIndex))
         self.birdSprite=UIImage(named:"Bopi\(min(5,max(0,skinIndex)))")
+        self.worldBackdrop=UIImage(named:"World\(game.level.world)")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
         accessibilityLabel="Dodirni za let Bopija"
@@ -75,7 +77,11 @@ final class GameCanvas: UIView {
         }
         let s=min(bound.width/480,bound.height/800)
         c.saveGState();c.translateBy(x:(bound.width-480*s)/2,y:(bound.height-800*s)/2);c.scaleBy(x:s,y:s)
-        background(c)
+        if let background=worldBackdrop {
+            background.draw(in:CGRect(x:0,y:0,width:480,height:800))
+        } else {
+            background(c)
+        }
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(g.x-game.distance)
             if x < -100 || x > 550 {continue}

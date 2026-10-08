@@ -49,3 +49,19 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Profiliranje na fizičkim telefonima i potpisani iOS IPA još nisu potvrđeni.
 
 - Provjeriti omjere 19.5:9, 20:9, 16:9 te iPhone s Dynamic Islandom: cijela površina neba i tla, bez bijelih ili plavih pruga.
+
+
+## v0.1.5 — premium vizual, titranje, stvarni launch QA
+- Android: `onDraw` uvijek završava crtanje; provjera vremena ograničava samo korak fizike.
+- Provjeriti 60/90/120 Hz zaslone, animaciju prve sekunde, dodir/pauzu/povratak iz pozadine, smanjene animacije 30 FPS.
+- Za Android i iOS generirati 8 zasebnih 960×1600 svjetskih ilustracija. Učitati jednu pozadinu po svijetu, bez dekodiranja u petlji crtanja.
+- Pokrenuti Android emulator i iOS Simulator; potvrditi pokretanje bez pada i spremiti screenshot početnog zaslona za ručni vizualni pregled.
+- Izričito provjeriti home nasuprot BOPAVI referenci, kontrast zelenog gumba, pozicioniranje logotipa, pune visine zaslona.
+- Testirati odabir levela, zaključavanje i spremanje napretka, sve svjetove, trenutni poraz pri sudaru bez štita.
+- Buildovi i screenshotovi simulatora nisu dokaz stvarne stabilnosti, GPU profiliranja i potpune 1:1 usklađenosti na fizičkim telefonima.
+
+- QA snimka iOS simulatora otkrila je preveliko uvećanje Bopija (landscape slika u portrait frameu) i dvostruki slogan. Prebačeno na istu portretnu kompoziciju koju koristi splash, bez drugog natpisa; provjeriti screenshotove obiju platformi nakon commita.
+
+- Android emulator screenshot v0.1.5: potvrđen launch i početni UI; pronađen i uklonjen pretjeran tamnoplavi prazan pojas uz donje kontrole te usklađene Android sistemske trake. Ponoviti screenshot nakon zadnjeg commita.
+
+- Android 90/120 Hz: usporediti položaj Bopija i brzinu prolaska kroz prepreke za jednako proteklo vrijeme; JUnit regresija simulira 60, 90 i 120 frejmova u sekundi.

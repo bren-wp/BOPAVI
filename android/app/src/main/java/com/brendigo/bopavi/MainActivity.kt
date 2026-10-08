@@ -50,10 +50,15 @@ class MainActivity : Activity() {
     private fun showNativeView(root: View) {
         setContentView(root)
         // Android 15 edge-to-edge: reserve system-bar insets for physical controls.
-        if (android.os.Build.VERSION.SDK_INT >= 35) {
+        if (android.os.Build.VERSION.SDK_INT >= 35 && (root !is FrameLayout || selectedScreen=="home")) {
+            // Apply insets once to menu containers. Immersive gameplay must not
+            // repeatedly change the FrameLayout padding as system bars animate.
             root.setOnApplyWindowInsetsListener { v, insets ->
-                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
-                v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                if(v.paddingLeft!=bars.left || v.paddingTop!=bars.top ||
+                    v.paddingRight!=bars.right || v.paddingBottom!=bars.bottom) {
+                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                }
                 insets
             }
             root.requestApplyInsets()
@@ -90,7 +95,7 @@ class MainActivity : Activity() {
         val body=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             setPadding(d(20),d(22),d(20),d(30))
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff081326.toInt(),0xff122c4b.toInt(),0xff0b4261.toInt()))
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff0a427b.toInt(),0xff096aaf.toInt(),0xff2b9ed9.toInt()))
         }
         val scroll=ScrollView(this).apply {
             isFillViewport=true;isVerticalScrollBarEnabled=false
@@ -115,13 +120,13 @@ class MainActivity : Activity() {
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(if(primary) 0xff122443.toInt() else Color.WHITE)
+            this.text=text;setTextColor(Color.WHITE)
             textSize=17f;isAllCaps=false
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             letterSpacing=.025f
             setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val normal=if(primary) gradient(0xffffdf93.toInt(),0xffffb944.toInt(),19)
-                else gradient(0xff214c76.toInt(),0xff163759.toInt(),19)
+            val normal=if(primary) gradient(0xff93f952.toInt(),0xff19b747.toInt(),19)
+                else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
             elevation=d(4).toFloat()
             contentDescription=text
@@ -143,6 +148,17 @@ class MainActivity : Activity() {
             contentDescription="$name, "+if(unlocked)"otključano" else "zaključano"
             setOnClickListener{sound.effect("click");onClick()}
         }
+        val preview=ImageView(this).apply{
+            val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+                R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+            setImageResource(art[world])
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            background=gradient(0xff126ca9.toInt(),0xff0e2b57.toInt(),17)
+            clipToOutline=true
+            contentDescription="Prikaz svijeta $name"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        row.addView(preview,LinearLayout.LayoutParams(-1,d(118)).apply{bottomMargin=d(10)})
         row.addView(TextView(this).apply{
             text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
             textSize=19f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
@@ -155,18 +171,41 @@ class MainActivity : Activity() {
         parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
     }
     private fun showHome(){
-        val b=base("BOPAVI","")
-        val logo=ImageView(this).apply{setImageResource(R.drawable.logo);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="BOPAVI, mali let, velika avantura"}
-        b.addView(logo,LinearLayout.LayoutParams(-1,d(94)))
-        val hero=ImageView(this).apply{setImageResource(R.drawable.hero);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="Bopi u letu među lebdećim otocima"}
-        b.addView(hero,LinearLayout.LayoutParams(-1,d(340)))
-        small(b,"Jedan dodir. Nova pustolovina.")
-        b.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply {setMargins(0,d(12),0,d(10))})
-        action(b,"▶  IGRAJ") {
-            val w=progress.chosenWorld()
-            startGame(w,progress.streamFrontier(w))
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility=0
+        gameView?.paused=true;gameView=null;sound.stop();selectedScreen="home"
+        // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
+        val background=FrameLayout(this).apply {setBackgroundColor(0xff123b6e.toInt())}
+        val scene=ImageView(this).apply {
+            setImageResource(R.drawable.splash)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            contentDescription="Ilustrirani BOPAVI svijet s Bopijem"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
+        background.addView(scene,FrameLayout.LayoutParams(-1,-1))
+        val shading=View(this).apply{
+            this.background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x330a52a5,0x000b6cbb,0x000b6cbb,0x22043979))
+        }
+        background.addView(shading,FrameLayout.LayoutParams(-1,-1))
+        val layout=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(22),d(14),d(22),d(28))
+        }
+        background.addView(layout,FrameLayout.LayoutParams(-1,-1))
+        // The portrait background already contains the logo and tagline. No duplicates.
+        layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        layout.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply{
+            setMargins(0,0,0,d(12))
+        })
+        action(layout,"▶  IGRAJ"){
+            val world=progress.chosenWorld()
+            startGame(world,progress.streamFrontier(world))
+        }
+        showNativeView(background)
     }
+
     private fun showWorlds(){
         val b=base("SVJETOVI","Odaberi svoj sljedeći let")
         for(w in 0 until 8){
@@ -201,14 +240,21 @@ class MainActivity : Activity() {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             for(col in 0 until 4){
                 val n=start+r*4+col
-                if(n>maxNumber)continue
+                if(n>LevelEngine.LEVELS_PER_WORLD)continue
+                val unlocked=n<=maxNumber
                 val cell=Button(this).apply{
-                    text="✦\n$n"
-                    setTextColor(gold);textSize=14f;isAllCaps=false
+                    text=if(!unlocked)"🔒\n$n" else if(n<maxNumber)"★\n$n" else "▶\n$n"
+                    setTextColor(if(unlocked)Color.WHITE else 0xff91a8c6.toInt())
+                    textSize=14f;isAllCaps=false
                     typeface=Typeface.DEFAULT_BOLD
-                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff204d72.toInt(),0xff112942.toInt(),16),null)
-                    contentDescription="Level $n"
-                    setOnClickListener{sound.effect("click");startGame(world,n.toLong())}
+                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
+                        if(unlocked)gradient(0xff268cf0.toInt(),0xff174aa8.toInt(),16)
+                        else gradient(0xff20395c.toInt(),0xff122641.toInt(),16),null)
+                    contentDescription="Level $n, ${if(unlocked) "otključan" else "zaključan"}"
+                    setOnClickListener{
+                        if(unlocked){sound.effect("click");startGame(world,n.toLong())}
+                        else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
+                    }
                 }
                 row.addView(cell,LinearLayout.LayoutParams(0,d(63),1f).apply{setMargins(d(3),d(3),d(3),d(3))})
             }

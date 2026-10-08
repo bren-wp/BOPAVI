@@ -28,6 +28,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
         BitmapFactory.Options().apply { inScaled=false })
     private val birdRect=RectF(-50f,-50f,50f,50f)
+    private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
+        R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
+        R.drawable.world6,R.drawable.world7)
+    private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
+        BitmapFactory.Options().apply{inScaled=false})
+    private val worldRect=RectF(0f,0f,480f,800f)
     private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
@@ -41,7 +47,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
     }
     private var lastFrame = 0L
-    private var fpsTimestamp = 0L
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
@@ -59,15 +64,28 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun text(c:Canvas,s:String,x:Float,y:Float,size:Float,color:Int,center:Boolean=false){fill(color);p.textSize=size;p.typeface=headerTypeface;p.textAlign=if(center) Paint.Align.CENTER else Paint.Align.LEFT;c.drawText(s,x,y,p)}
     override fun onDraw(canvas:Canvas) {
         super.onDraw(canvas)
+        // Never return before drawing a complete frame. A draw request may arrive
+        // sooner than the target interval (gesture, layout, OS redraw); skipping it
+        // caused intermittent blank/stale frames on real 60/90/120 Hz devices.
         val now=System.nanoTime()
-        val fps=if(reducedMotion) 30L else 60L
-        if(fpsTimestamp != 0L && now-fpsTimestamp < 1_000_000_000L/fps-1_500_000L) { postInvalidateDelayed(5); return }
-        fpsTimestamp=now
+        // Use actual vsync-to-vsync elapsed time at 60/90/120 Hz. The previous
+        // 3/4-of-60Hz threshold updated physics at only ~45 Hz on 90 Hz phones.
         if(!paused && !game.finished) {
-            if(lastFrame!=0L) game.step(((now-lastFrame)/1_000_000_000.0).toFloat())
-            lastFrame=now
-            if(game.completionCount>completedSeen){completedSeen=game.completionCount;onLevelCompleted(game.completedOrdinal)}
-            if(game.coins+game.stars>pickupSeen){pickupSeen=game.coins+game.stars;performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);onCollect()}
+            if(lastFrame==0L) lastFrame=now
+            val elapsed=(now-lastFrame).coerceAtLeast(0L)
+            if(elapsed>=1_000_000L) {
+                game.step((elapsed/1_000_000_000.0).toFloat())
+                lastFrame=now
+            }
+            if(game.completionCount>completedSeen) {
+                completedSeen=game.completionCount
+                onLevelCompleted(game.completedOrdinal)
+            }
+            if(game.coins+game.stars>pickupSeen) {
+                pickupSeen=game.coins+game.stars
+                performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                onCollect()
+            }
         } else lastFrame=0L
         // Background extends through the display's letterbox regions. World physics
         // remains in the unchanged 480x800 coordinate system without stretching.
@@ -82,7 +100,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         canvas.save()
         canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
         canvas.scale(scale,scale)
-        drawBackground(canvas)
+        if(worldBitmap!=null) {
+            fill(Color.WHITE)
+            canvas.drawBitmap(worldBitmap,null,worldRect,p)
+        } else drawBackground(canvas)
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=g.x-game.distance
             if(x < -100f || x>550f)continue
@@ -102,7 +123,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 if(game.level.world==5||game.level.world==7)0xff171f53.toInt() else 0xff64c881.toInt())
         }
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && !game.finished && isAttachedToWindow) postInvalidateOnAnimation()
+        if(!paused && !game.finished && isAttachedToWindow) {
+            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
+        }
     }
     private fun drawBackground(c:Canvas){
         val w=game.level.world;val t=if(reducedMotion)0f else game.time

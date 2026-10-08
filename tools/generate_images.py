@@ -14,13 +14,32 @@ brand.save(b/'Logo.imageset/logo.png',optimize=True)
 hero=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/hero.svg'),output_width=900))).convert('RGB')
 hero.save(a/'drawable-nodpi/hero.png',optimize=True)
 hero.save(b/'Hero.imageset/hero.png',optimize=True)
-launch=Image.new('RGB',(900,1600),(14,79,133))
+# Continuous bright sky below the floating islands instead of a flat navy band.
+launch=Image.new('RGB',(900,1600),(18,110,201))
 from PIL import ImageDraw
 draw=ImageDraw.Draw(launch)
+stops=[(0,(16,100,190)),(520,(45,168,240)),(1200,(105,208,247)),(1600,(51,152,219))]
 for y in range(1600):
-    t=y/1600
-    draw.line((0,y,900,y),fill=(int(13+20*t),int(110-55*t),int(191-75*t)))
-launch.paste(hero,(0,340))
+    for i in range(len(stops)-1):
+        y0,c0=stops[i];y1,c1=stops[i+1]
+        if y<=y1:
+            t=max(0.0,min(1.0,(y-y0)/(y1-y0)))
+            draw.line((0,y,900,y),fill=tuple(int(c0[j]+(c1[j]-c0[j])*t) for j in range(3)))
+            break
+clouds=Image.new('RGBA',launch.size,(0,0,0,0))
+cloud_draw=ImageDraw.Draw(clouds)
+for cx,cy,scale in [(-60,1270,1.0),(750,1330,.65),(220,1550,.85)]:
+    cloud_draw.ellipse((cx-120*scale,cy-24*scale,cx+175*scale,cy+56*scale),fill=(240,253,255,50))
+    cloud_draw.ellipse((cx-55*scale,cy-86*scale,cx+80*scale,cy+25*scale),fill=(245,252,255,60))
+launch=Image.alpha_composite(launch.convert('RGBA'),clouds).convert('RGB')
+# Feather the landscape edges into the portrait sky: no rectangular image seam.
+mask=Image.new('L',hero.size,0)
+mask_pixels=mask.load()
+for y in range(hero.height):
+    edge_alpha=min(1.0,y/95.0,(hero.height-1-y)/125.0)
+    value=int(255*max(0.0,edge_alpha))
+    for x in range(hero.width): mask_pixels[x,y]=value
+launch.paste(hero,(0,340),mask)
 logoCrop=brand.copy()
 logoCrop.thumbnail((740,250),Image.Resampling.LANCZOS)
 launch.paste(logoCrop,((900-logoCrop.width)//2,130),logoCrop)
@@ -68,4 +87,6 @@ for skin,hue in enumerate(palette):
     skinset.mkdir(exist_ok=True)
     variant.save(skinset/(name+'.png'),optimize=True)
     (skinset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-print('Generated native art: app icons, launch, hero, 6 transparent Bopi sprites')
+from generate_worlds import generate_worlds
+generate_worlds(a,b)
+print('Generated native art: icons, splash, Bopi sprites and 8 world backdrops')
