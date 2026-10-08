@@ -43,7 +43,8 @@ for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
 # Premium home: one launch button, themed world cards, compact selector.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios=(root/'ios/BOPAVI/GameController.swift').read_text()
-assert 'worldTile(b,w)' in android and 'worldTile(w,in:s)' in ios
+assert 'worldTile(row,w)' in android and 'worldTile(world,in:row)' in ios
+assert 'for(line in 0..3)' in android and 'for line in 0..<4' in ios
 assert 'for(r in 0 until 5)' in android and 'for rowNumber in 0..<5' in ios
 assert 'BopaviActionButton' in ios and 'RippleDrawable' in android
 for code in [android,ios]:
