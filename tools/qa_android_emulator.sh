@@ -47,7 +47,11 @@ adb shell pidof com.brendigo.bopavi
 capture android-gameplay-ready
 # First touch makes Bopi flap; without further taps a collision must lead to results.
 adb shell input tap "$center" "$((height*50/100))"
-sleep 3
+sleep 5
 adb shell pidof com.brendigo.bopavi
+# Do not accept a PNG containing Android's immersive onboarding dialog.
+# The game must really reach the result view with an actionable retry button.
+adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null
+adb shell cat /sdcard/bopavi-window.xml | grep -q 'PONOVO'
 capture android-result
 echo "PASS: full native Android visual flow captured without a process crash"

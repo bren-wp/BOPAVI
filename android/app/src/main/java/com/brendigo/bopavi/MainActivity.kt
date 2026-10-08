@@ -280,10 +280,13 @@ class MainActivity : Activity() {
         back(b){showWorlds()}
     }
     private fun startGame(world:Int,number:Long){
-        // Immersive gameplay removes the large pale system navigation strip seen in device videos.
+        // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
+        // triggers Android's full-screen onboarding popup on the first game.
+        // Keep the gesture navigation strip dark (theme sets its color) instead.
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+            View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
         val boosts=progress.consumePerks()
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,number)
