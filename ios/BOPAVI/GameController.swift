@@ -1,6 +1,40 @@
 import UIKit
 import UniformTypeIdentifiers
 
+/// Premium, self-contained control. The gradient resizes without a new image allocation.
+private final class BopaviActionButton: UIButton {
+    private let gradient = CAGradientLayer()
+    init(primary:Bool) {
+        super.init(frame:.zero)
+        gradient.colors = primary
+            ? [UIColor(red:1,green:0.88,blue:0.59,alpha:1).cgColor, UIColor(red:1,green:0.69,blue:0.25,alpha:1).cgColor]
+            : [UIColor(red:0.14,green:0.32,blue:0.49,alpha:1).cgColor, UIColor(red:0.07,green:0.18,blue:0.31,alpha:1).cgColor]
+        gradient.startPoint = CGPoint(x:0,y:0);gradient.endPoint=CGPoint(x:1,y:1)
+        layer.insertSublayer(gradient,at:0)
+        layer.cornerRadius=19
+        layer.borderWidth=1
+        layer.borderColor=UIColor.white.withAlphaComponent(0.24).cgColor
+        layer.shadowColor=UIColor.black.cgColor
+        layer.shadowOpacity=0.23
+        layer.shadowRadius=6
+        layer.shadowOffset=CGSize(width:0,height:4)
+        setTitleColor(primary ? UIColor(red:0.06,green:0.15,blue:0.28,alpha:1) : .white,for:.normal)
+        titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
+        titleLabel?.adjustsFontSizeToFitWidth=true
+        titleLabel?.minimumScaleFactor=0.72
+        titleLabel?.numberOfLines=1
+        contentEdgeInsets=UIEdgeInsets(top:8,left:12,bottom:8,right:12)
+        accessibilityTraits.insert(.button)
+    }
+    required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
+    override func layoutSubviews(){
+        super.layoutSubviews()
+        gradient.frame=bounds
+        gradient.cornerRadius=19
+        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:19).cgPath
+    }
+}
+
 /** Native UIKit menus and Core Graphics gameplay, no WKWebView. */
 final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let progress=ProgressStore()
@@ -10,6 +44,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private var gameNumber=1
     private var hud:UILabel?
     private var backgroundGradient:CAGradientLayer?
+    private let worldAccents:[UIColor] = [
+        UIColor(red:0.34,green:0.94,blue:0.68,alpha:1), UIColor(red:1,green:0.75,blue:0.43,alpha:1),
+        UIColor(red:0.65,green:0.92,blue:1,alpha:1), UIColor(red:1,green:0.51,blue:0.36,alpha:1),
+        UIColor(red:1,green:0.87,blue:0.57,alpha:1), UIColor(red:0.72,green:0.63,blue:1,alpha:1),
+        UIColor(red:0.38,green:0.94,blue:0.87,alpha:1), UIColor(red:0.76,green:0.70,blue:1,alpha:1)
+    ]
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     override func viewDidLoad(){super.viewDidLoad();sound.enabled=progress.soundEnabled;showHome()}
     private func clear() {
@@ -22,19 +62,24 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
         let gradient=CAGradientLayer()
-        gradient.colors=[UIColor(red:0.025,green:0.075,blue:0.20,alpha:1).cgColor,
-                         UIColor(red:0.07,green:0.27,blue:0.52,alpha:1).cgColor,
-                         UIColor(red:0.06,green:0.54,blue:0.73,alpha:1).cgColor]
+        gradient.colors=[UIColor(red:0.03,green:0.07,blue:0.14,alpha:1).cgColor,
+                         UIColor(red:0.07,green:0.18,blue:0.30,alpha:1).cgColor,
+                         UIColor(red:0.04,green:0.26,blue:0.38,alpha:1).cgColor]
         gradient.frame=view.bounds
         view.layer.insertSublayer(gradient,at:0);backgroundGradient=gradient
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
-        scroll.alwaysBounceVertical=true;view.addSubview(scroll)
+        scroll.alwaysBounceVertical=true
+        scroll.showsVerticalScrollIndicator=false
+        scroll.keyboardDismissMode = .interactive
+        view.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
             scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
             scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView();stack.axis = .vertical;stack.alignment = .fill;stack.spacing=12
-        stack.translatesAutoresizingMaskIntoConstraints=false;stack.layoutMargins=UIEdgeInsets(top:16,left:18,bottom:28,right:18);stack.isLayoutMarginsRelativeArrangement=true
+        stack.translatesAutoresizingMaskIntoConstraints=false
+        stack.layoutMargins=UIEdgeInsets(top:22,left:20,bottom:32,right:20)
+        stack.isLayoutMarginsRelativeArrangement=true
         scroll.addSubview(stack)
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
@@ -42,48 +87,79 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
             stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor)])
-        label(title,34,UIColor(red:1,green:0.78,blue:0.28,alpha:1),stack)
-        label(subtitle,15,UIColor(red:0.77,green:0.91,blue:1,alpha:1),stack)
+        label(title,34,UIColor(red:1,green:0.82,blue:0.47,alpha:1),stack)
+        label(subtitle,15,UIColor(red:0.74,green:0.87,blue:0.96,alpha:1),stack)
         return stack
     }
     override func viewDidLayoutSubviews(){super.viewDidLayoutSubviews();backgroundGradient?.frame=view.bounds}
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
-        let l=UILabel();l.numberOfLines=0;l.textAlignment = .center;l.text=text;l.font=UIFont.systemFont(ofSize:size,weight:.heavy);l.textColor=color
+        let l=UILabel()
+        l.numberOfLines=0;l.textAlignment = .center;l.text=text
+        l.font=UIFont.systemFont(ofSize:size,weight:size>=26 ? .black : .semibold)
+        l.adjustsFontForContentSizeCategory=true
+        l.textColor=color
         l.setContentCompressionResistancePriority(.required,for:.vertical);into.addArrangedSubview(l)
         return l
     }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
-        let b=UIButton(type:.system)
-        b.setTitle(title,for:.normal);b.titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
-        b.setTitleColor(.white,for:.normal)
-        b.backgroundColor=primary ? UIColor(red:0.12,green:0.72,blue:0.32,alpha:1) : UIColor(red:0.08,green:0.50,blue:0.82,alpha:1)
-        b.layer.cornerRadius=18;b.layer.borderWidth=1.5;b.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
-        b.heightAnchor.constraint(equalToConstant:54).isActive=true
+        let b=BopaviActionButton(primary:primary)
+        b.setTitle(title,for:.normal)
+        b.accessibilityLabel=title
+        b.heightAnchor.constraint(greaterThanOrEqualToConstant:58).isActive=true
         b.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(b)
+    }
+    private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
+        let unlocked=world<=progress.maxWorld()
+        let tile=BopaviActionButton(primary:false)
+        tile.layer.borderColor=worldAccents[world].withAlphaComponent(0.65).cgColor
+        tile.alpha=unlocked ? 1 : 0.60
+        tile.titleLabel?.numberOfLines=2
+        tile.titleLabel?.textAlignment = .center
+        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  \(unlocked ? "↗" : "🔒")"
+        let detail=unlocked ? "Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])" : "Otkrij novi svijet tijekom igranja"
+        let text=NSMutableAttributedString(string:headline+"\n"+detail)
+        text.addAttributes([.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
+        text.addAttributes([.font:UIFont.systemFont(ofSize:13,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
+        tile.setAttributedTitle(text,for:.normal)
+        tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
+        tile.heightAnchor.constraint(equalToConstant:87).isActive=true
+        tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
+        stack.addArrangedSubview(tile)
     }
     private func showHome(){
         let s=menu("BOPAVI","Mali let, velika avantura")
         if let image=UIImage(named:"Hero") {
             let hero=UIImageView(image:image);hero.contentMode = .scaleAspectFit
-            hero.heightAnchor.constraint(equalToConstant:180).isActive=true
+            hero.heightAnchor.constraint(equalToConstant:235).isActive=true
             hero.isAccessibilityElement=true;hero.accessibilityLabel="Bopi, plava ptica s pilotskim naočalama"
             s.addArrangedSubview(hero)
         }
-        label("Tapni, poleti i otkrivaj čudesne svjetove.",18,.white,s)
-        label("● \(progress.coins()) kovanica",22,UIColor(red:1,green:0.86,blue:0.36,alpha:1),s)
+        label("Jedan dodir. Nova pustolovina.",18,.white,s)
+        let wallet=UIView()
+        wallet.backgroundColor=UIColor(red:0.10,green:0.20,blue:0.34,alpha:0.96)
+        wallet.layer.cornerRadius=18
+        wallet.layer.borderWidth=1
+        wallet.layer.borderColor=UIColor.white.withAlphaComponent(0.18).cgColor
+        let amount=UILabel()
+        amount.translatesAutoresizingMaskIntoConstraints=false
+        amount.text="●  \(progress.coins()) kovanica"
+        amount.textAlignment = .center
+        amount.font=UIFont.systemFont(ofSize:17,weight:.bold)
+        amount.textColor=UIColor(red:1,green:0.83,blue:0.48,alpha:1)
+        wallet.addSubview(amount)
+        NSLayoutConstraint.activate([amount.leadingAnchor.constraint(equalTo:wallet.leadingAnchor,constant:12),amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor),wallet.heightAnchor.constraint(equalToConstant:52)])
+        s.addArrangedSubview(wallet)
         button("▶  IGRAJ",in:s){
             let w=self.progress.chosenWorld()
             self.startGame(w,self.progress.streamFrontier(w))
         }
-        label("Bez oglasa i kupnje za stvarni novac",13,UIColor(white:0.87,alpha:1),s)
     }
     private func showWorlds(){
         let s=menu("SVJETOVI","Odaberi svoj sljedeći let")
         for w in 0..<8 {
             let accessible=w<=progress.maxWorld()
-            let text="\(w+1). \(BopaviCore.names[w])  \(accessible ? "• \(progress.streamFrontier(w)-1) riješeno" : "🔒")"
-            button(text,in:s,primary:accessible){
+            worldTile(w,in:s){
                 if accessible {self.showLevels(w,page:1)} else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
             }
         }
@@ -138,14 +214,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let counter=UILabel();counter.text=" Level \(number) · \(BopaviCore.collectibleIcons[world]) 0 "
         counter.backgroundColor=UIColor(red:0.05,green:0.15,blue:0.38,alpha:0.85)
         counter.font=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
-        counter.textColor = .white;counter.layer.cornerRadius=13;counter.clipsToBounds=true
+        counter.textColor = .white;counter.layer.cornerRadius=15;counter.clipsToBounds=true
+        counter.adjustsFontSizeToFitWidth=true;counter.minimumScaleFactor=0.66
         counter.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(counter);hud=counter
-        NSLayoutConstraint.activate([counter.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),counter.leadingAnchor.constraint(equalTo:view.leadingAnchor,constant:14),counter.heightAnchor.constraint(equalToConstant:44)])
+        NSLayoutConstraint.activate([counter.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),counter.leadingAnchor.constraint(equalTo:view.leadingAnchor,constant:14),counter.trailingAnchor.constraint(lessThanOrEqualTo:view.trailingAnchor,constant:-91),counter.heightAnchor.constraint(equalToConstant:46)])
         gameCanvas.onHUDUpdate = { [weak counter] live in
             counter?.text=" Level \(live.displayLevel) · \(BopaviCore.collectibleIcons[world]) \(live.stars+live.coins) "
         }
         let pause=UIButton(type:.system);pause.setTitle("Ⅱ",for:.normal);pause.titleLabel?.font=UIFont.boldSystemFont(ofSize:24)
-        pause.backgroundColor=UIColor(red:0.10,green:0.35,blue:0.73,alpha:1);pause.setTitleColor(.white,for:.normal);pause.layer.cornerRadius=14
+        pause.backgroundColor=UIColor(red:0.11,green:0.24,blue:0.41,alpha:0.96);pause.setTitleColor(.white,for:.normal)
+        pause.layer.cornerRadius=16;pause.layer.borderWidth=1
+        pause.layer.borderColor=UIColor.white.withAlphaComponent(0.3).cgColor
         pause.accessibilityLabel="Izbornik tijekom igre";pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
         pause.addAction(UIAction{[weak self,weak gameCanvas] _ in
@@ -180,7 +259,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         progress.recordRun(g)
         gameNumber=g.displayLevel
         let s=menu("Pokušaj ponovno","\(BopaviCore.names[gameWorld]) · Level \(gameNumber)")
-        label("🐦",50,.white,s)
+        label("🐦  BOPAVI  🐦",30,UIColor(red:1,green:0.82,blue:0.47,alpha:1),s)
         label("Rezultat: \(g.score()) · Prolazi: \(g.passed)/\(g.level.gates.count)",17,.white,s)
         label("\(BopaviCore.collectibles[gameWorld]): \(g.stars+g.coins) · Kovanice: \(progress.coins())",15,.white,s)
         button("▶  PONOVO",in:s){self.startGame(self.gameWorld,self.gameNumber)}
@@ -229,11 +308,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
         let l=UILabel();l.text="Smanji animacije (30 FPS)";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
+        l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
         toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
         let audio=UISwitch();audio.isOn=progress.soundEnabled
         let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
         let audioLabel=UILabel();audioLabel.text="Glazba i zvučni efekti";audioLabel.font=UIFont.systemFont(ofSize:16,weight:.medium);audioLabel.textColor = .white
+        audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
         label("Bez oglasa, telemetrije, računa i mrežnih zahtjeva.",14,.white,s)
