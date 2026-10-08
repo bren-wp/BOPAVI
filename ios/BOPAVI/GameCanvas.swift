@@ -7,6 +7,7 @@ final class GameCanvas: UIView {
     let skinIndex: Int
     private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
+    private let birdSprite:UIImage?
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
     var onLevelComplete: ((Int)->Void)?
@@ -30,6 +31,7 @@ final class GameCanvas: UIView {
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(5,max(0,skinIndex))
+        self.birdSprite=UIImage(named:"Bopi\(min(5,max(0,skinIndex)))")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
         accessibilityLabel="Dodirni za let Bopija"
@@ -65,11 +67,14 @@ final class GameCanvas: UIView {
     }
     override func draw(_ bound:CGRect){
         guard let c=UIGraphicsGetCurrentContext() else{return}
+        // Paint sky across the full screen before fitting the collision coordinate grid.
+        // No stretched characters or obstacles on tall or short devices.
+        if let gradient=cachedGradient {
+            c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),
+                end:CGPoint(x:0,y:bound.height),options:[])
+        }
         let s=min(bound.width/480,bound.height/800)
         c.saveGState();c.translateBy(x:(bound.width-480*s)/2,y:(bound.height-800*s)/2);c.scaleBy(x:s,y:s)
-        if let gradient=cachedGradient {
-            c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),end:CGPoint(x:0,y:800),options:[])
-        }
         background(c)
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(g.x-game.distance)
@@ -78,6 +83,11 @@ final class GameCanvas: UIView {
         }
         bird(c)
         c.restoreGState()
+        let groundTop=(bound.height-800*s)/2+751*s
+        if groundTop<bound.height {
+            rect(c,0,groundTop,bound.width,bound.height-groundTop,
+                game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
+        }
     }
     private func background(_ c:CGContext){
         let w=game.level.world;let night=w==5 || w==7
@@ -215,6 +225,12 @@ final class GameCanvas: UIView {
         c.rotate(by:angle)
         let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))
         c.scaleBy(x:1,y:1+phase*0.035)
+        if let sprite=birdSprite {
+            sprite.draw(in:CGRect(x:-50,y:-50,width:100,height:100))
+            c.restoreGState()
+            return
+        }
+        // Asset fallback remains available if resources are missing.
         triangle(c,CGPoint(x:-12,y:11),CGPoint(x:-35-phase*3,y:22),CGPoint(x:-29,y:5),0xef385b)
         oval(c,-30,0,22,16,0x1678d8)
         c.saveGState();c.rotate(by:phase*26 * .pi/180)

@@ -52,5 +52,12 @@ fun main() {
         shielded.flap();shielded.step(1f/60f)
         check(!shielded.finished && shielded.shield==0) {"shield must absorb one collision"}
     }
+    run {
+        val level=LevelEngine.create(0,2)
+        val safe=level.gates[0].copy(x=154f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val run=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f))
+        run.flap();run.step(1f/60f)
+        check(!run.finished) {"False collision inside safe gap"}
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
