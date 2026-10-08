@@ -66,9 +66,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
         let gradient=CAGradientLayer()
-        gradient.colors=[UIColor(red:0.03,green:0.07,blue:0.14,alpha:1).cgColor,
-                         UIColor(red:0.07,green:0.18,blue:0.30,alpha:1).cgColor,
-                         UIColor(red:0.04,green:0.26,blue:0.38,alpha:1).cgColor]
+        gradient.colors=[UIColor(red:0.04,green:0.26,blue:0.48,alpha:1).cgColor,
+                         UIColor(red:0.04,green:0.42,blue:0.69,alpha:1).cgColor,
+                         UIColor(red:0.17,green:0.62,blue:0.85,alpha:1).cgColor]
         gradient.frame=view.bounds
         view.layer.insertSublayer(gradient,at:0);backgroundGradient=gradient
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false

@@ -95,7 +95,7 @@ class MainActivity : Activity() {
         val body=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             setPadding(d(20),d(22),d(20),d(30))
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff081326.toInt(),0xff122c4b.toInt(),0xff0b4261.toInt()))
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff0a427b.toInt(),0xff096aaf.toInt(),0xff2b9ed9.toInt()))
         }
         val scroll=ScrollView(this).apply {
             isFillViewport=true;isVerticalScrollBarEnabled=false
