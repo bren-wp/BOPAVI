@@ -7,7 +7,7 @@ private final class BopaviActionButton: UIButton {
     init(primary:Bool) {
         super.init(frame:.zero)
         gradient.colors = primary
-            ? [UIColor(red:1,green:0.88,blue:0.59,alpha:1).cgColor, UIColor(red:1,green:0.69,blue:0.25,alpha:1).cgColor]
+            ? [UIColor(red:0.58,green:0.97,blue:0.29,alpha:1).cgColor, UIColor(red:0.09,green:0.70,blue:0.25,alpha:1).cgColor]
             : [UIColor(red:0.14,green:0.32,blue:0.49,alpha:1).cgColor, UIColor(red:0.07,green:0.18,blue:0.31,alpha:1).cgColor]
         gradient.startPoint = CGPoint(x:0,y:0);gradient.endPoint=CGPoint(x:1,y:1)
         layer.insertSublayer(gradient,at:0)
@@ -18,7 +18,7 @@ private final class BopaviActionButton: UIButton {
         layer.shadowOpacity=0.23
         layer.shadowRadius=6
         layer.shadowOffset=CGSize(width:0,height:4)
-        setTitleColor(primary ? UIColor(red:0.06,green:0.15,blue:0.28,alpha:1) : .white,for:.normal)
+        setTitleColor(.white,for:.normal)
         titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
         titleLabel?.adjustsFontSizeToFitWidth=true
         titleLabel?.minimumScaleFactor=0.72
@@ -134,39 +134,66 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(tile)
     }
     private func showHome(){
-        let s=menu("BOPAVI","")
-        if let logoImage=UIImage(named:"Logo") {
-            let logo=UIImageView(image:logoImage);logo.contentMode = .scaleAspectFit
-            logo.heightAnchor.constraint(equalToConstant:94).isActive=true
-            logo.isAccessibilityElement=true;logo.accessibilityLabel="BOPAVI, mali let velika avantura"
-            s.addArrangedSubview(logo)
+        let stack=menu("BOPAVI","")
+        // Full-bleed hero artwork and transparent controls match the bright reference.
+        backgroundGradient?.removeFromSuperlayer()
+        backgroundGradient=nil
+        view.backgroundColor=UIColor(red:0.17,green:0.65,blue:0.94,alpha:1)
+        if let artwork=UIImage(named:"Hero") {
+            let backdrop=UIImageView(image:artwork)
+            backdrop.translatesAutoresizingMaskIntoConstraints=false
+            backdrop.contentMode = .scaleAspectFill
+            backdrop.clipsToBounds=true
+            backdrop.isUserInteractionEnabled=false
+            backdrop.accessibilityElementsHidden=true
+            view.insertSubview(backdrop,at:0)
+            NSLayoutConstraint.activate([
+                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
+                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            ])
         }
-        if let image=UIImage(named:"Hero") {
-            let hero=UIImageView(image:image);hero.contentMode = .scaleAspectFit
-            hero.heightAnchor.constraint(equalToConstant:340).isActive=true
-            hero.isAccessibilityElement=true;hero.accessibilityLabel="Bopi, plava ptica s pilotskim naočalama"
-            s.addArrangedSubview(hero)
+        stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
+        if let brand=UIImage(named:"Logo") {
+            let logo=UIImageView(image:brand)
+            logo.contentMode = .scaleAspectFit
+            logo.heightAnchor.constraint(equalToConstant:116).isActive=true
+            logo.isAccessibilityElement=true
+            logo.accessibilityLabel="BOPAVI, mali let velika avantura"
+            stack.addArrangedSubview(logo)
         }
-        label("Jedan dodir. Nova pustolovina.",18,.white,s)
+        let tagline=label("MALI LET, VELIKA AVANTURA",15,.white,stack)
+        tagline.layer.shadowColor=UIColor(red:0,green:0.18,blue:0.39,alpha:1).cgColor
+        tagline.layer.shadowRadius=4;tagline.layer.shadowOpacity=0.9
+        let spacer=UIView()
+        spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
+        stack.addArrangedSubview(spacer)
         let wallet=UIView()
-        wallet.backgroundColor=UIColor(red:0.10,green:0.20,blue:0.34,alpha:0.96)
-        wallet.layer.cornerRadius=18
+        wallet.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
+        wallet.layer.cornerRadius=20
         wallet.layer.borderWidth=1
-        wallet.layer.borderColor=UIColor.white.withAlphaComponent(0.18).cgColor
+        wallet.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
+        wallet.heightAnchor.constraint(equalToConstant:52).isActive=true
         let amount=UILabel()
         amount.translatesAutoresizingMaskIntoConstraints=false
         amount.text="●  \(progress.coins()) kovanica"
         amount.textAlignment = .center
-        amount.font=UIFont.systemFont(ofSize:17,weight:.bold)
-        amount.textColor=UIColor(red:1,green:0.83,blue:0.48,alpha:1)
+        amount.font=UIFont.systemFont(ofSize:18,weight:.heavy)
+        amount.textColor=UIColor(red:1,green:0.86,blue:0.44,alpha:1)
         wallet.addSubview(amount)
-        NSLayoutConstraint.activate([amount.leadingAnchor.constraint(equalTo:wallet.leadingAnchor,constant:12),amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor),wallet.heightAnchor.constraint(equalToConstant:52)])
-        s.addArrangedSubview(wallet)
-        button("▶  IGRAJ",in:s){
-            let w=self.progress.chosenWorld()
-            self.startGame(w,self.progress.streamFrontier(w))
+        NSLayoutConstraint.activate([
+            amount.leadingAnchor.constraint(equalTo:wallet.leadingAnchor,constant:12),
+            amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
+            amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
+        ])
+        stack.addArrangedSubview(wallet)
+        button("▶  IGRAJ",in:stack){
+            let world=self.progress.chosenWorld()
+            self.startGame(world,self.progress.streamFrontier(world))
         }
     }
+
     private func showWorlds(){
         let s=menu("SVJETOVI","Odaberi svoj sljedeći let")
         for w in 0..<8 {

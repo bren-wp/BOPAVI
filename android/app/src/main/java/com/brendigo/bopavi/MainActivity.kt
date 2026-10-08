@@ -120,13 +120,13 @@ class MainActivity : Activity() {
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(if(primary) 0xff122443.toInt() else Color.WHITE)
+            this.text=text;setTextColor(Color.WHITE)
             textSize=17f;isAllCaps=false
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             letterSpacing=.025f
             setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val normal=if(primary) gradient(0xffffdf93.toInt(),0xffffb944.toInt(),19)
-                else gradient(0xff214c76.toInt(),0xff163759.toInt(),19)
+            val normal=if(primary) gradient(0xff93f952.toInt(),0xff19b747.toInt(),19)
+                else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
             elevation=d(4).toFloat()
             contentDescription=text
@@ -160,18 +160,54 @@ class MainActivity : Activity() {
         parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
     }
     private fun showHome(){
-        val b=base("BOPAVI","")
-        val logo=ImageView(this).apply{setImageResource(R.drawable.logo);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="BOPAVI, mali let, velika avantura"}
-        b.addView(logo,LinearLayout.LayoutParams(-1,d(94)))
-        val hero=ImageView(this).apply{setImageResource(R.drawable.hero);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="Bopi u letu među lebdećim otocima"}
-        b.addView(hero,LinearLayout.LayoutParams(-1,d(340)))
-        small(b,"Jedan dodir. Nova pustolovina.")
-        b.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply {setMargins(0,d(12),0,d(10))})
-        action(b,"▶  IGRAJ") {
-            val w=progress.chosenWorld()
-            startGame(w,progress.streamFrontier(w))
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility=0
+        gameView?.paused=true;gameView=null;sound.stop();selectedScreen="home"
+        // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
+        val background=FrameLayout(this).apply {setBackgroundColor(0xff57c8f7.toInt())}
+        val scene=ImageView(this).apply {
+            setImageResource(R.drawable.hero)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            contentDescription="Nebeski krajolik s Bopijem i lebdećim otocima"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
+        background.addView(scene,FrameLayout.LayoutParams(-1,-1))
+        val shading=View(this).apply{
+            this.background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x660a52a5,0x000b6cbb,0x330b6cbb,0xaa043979.toInt()))
+        }
+        background.addView(shading,FrameLayout.LayoutParams(-1,-1))
+        val layout=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(22),d(14),d(22),d(28))
+        }
+        background.addView(layout,FrameLayout.LayoutParams(-1,-1))
+        val logo=ImageView(this).apply {
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            contentDescription="BOPAVI — Mali let, velika avantura"
+        }
+        layout.addView(logo,LinearLayout.LayoutParams(-1,d(116)))
+        val message=TextView(this).apply{
+            text="MALI LET, VELIKA AVANTURA"
+            gravity=Gravity.CENTER
+            textSize=15f;setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setShadowLayer(5f,0f,d(2).toFloat(),0xff064277.toInt())
+        }
+        layout.addView(message,LinearLayout.LayoutParams(-1,d(40)))
+        layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        layout.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply{
+            setMargins(0,0,0,d(12))
+        })
+        action(layout,"▶  IGRAJ"){
+            val world=progress.chosenWorld()
+            startGame(world,progress.streamFrontier(world))
+        }
+        showNativeView(background)
     }
+
     private fun showWorlds(){
         val b=base("SVJETOVI","Odaberi svoj sljedeći let")
         for(w in 0 until 8){
