@@ -149,7 +149,7 @@ final class GameCanvas: UIView {
     private func star(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ size:CGFloat,_ rgb:UInt32){
         c.setFillColor(color(rgb));c.beginPath()
         for i in 0..<10 {
-            let angle=CGFloat(i)*.pi/5-.pi/2;let r=(i%2==0 ? size : size*0.43)
+            let angle=CGFloat(i) * CGFloat.pi / 5 - CGFloat.pi / 2;let r=(i%2==0 ? size : size*0.43)
             let point=CGPoint(x:x+cos(angle)*r,y:y+sin(angle)*r)
             if i==0 {c.move(to:point)} else {c.addLine(to:point)}
         }
@@ -170,7 +170,7 @@ final class GameCanvas: UIView {
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
-        let angle=CGFloat(min(48,max(-24,game.velocity*0.06)))*.pi/180
+        let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * CGFloat.pi / 180
         c.rotate(by:angle)
         let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))
         c.scaleBy(x:1,y:1+phase*0.035)

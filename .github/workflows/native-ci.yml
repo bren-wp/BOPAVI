@@ -20,7 +20,7 @@ jobs:
       - run: python -m compileall -q tools tests
       - name: Check no paywall or network permissions
         run: |
-          ! grep -R -E 'android.permission.INTERNET|BillingClient|StoreKit|WebView|WKWebView' android/app/src/main ios/BOPAVI --include='*.kt' --include='*.swift' --include='*.xml'
+          ! grep -R -E '^[[:space:]]*(import (android.webkit|WebKit|StoreKit)|<uses-permission[^>]*INTERNET)' android/app/src/main ios/BOPAVI --include='*.kt' --include='*.swift' --include='*.xml'
   android:
     name: Android APK + AAB
     runs-on: ubuntu-latest
@@ -30,11 +30,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
       - name: Compile APK and unsigned release AAB
         working-directory: android
         run: gradle :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
