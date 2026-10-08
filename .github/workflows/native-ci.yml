@@ -111,7 +111,7 @@ jobs:
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
   android-smoke:
-    name: Android emulator launch and home screenshot
+    name: Android home, gameplay and collision visual QA
     needs: [android]
     runs-on: ubuntu-latest
     timeout-minutes: 18
@@ -141,8 +141,8 @@ jobs:
           script: sh tools/qa_android_emulator.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: QA-Android-home-screenshot
-          path: qa/screenshots/android-home.png
+          name: QA-Android-visual-flow
+          path: qa/screenshots/*.png
           if-no-files-found: error
   ios:
     name: iOS simulator + unsigned device build
