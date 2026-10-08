@@ -23,3 +23,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - iOS: Core Graphics boje i zaobljeni oblici bez stvaranja UIColor/UIBezierPath po svakom prolazu crtanja.
 - Build gate: Android APK + AAB, iOS simulator + nepotpisani device build, audit resursa i privatnosti.
 - Stvarni iPhone/Android uređaj, dugotrajan FPS/baterijski profil i potpisani IPA nisu potvrđeni.
+
+
+## v0.1.2 — premium mobilni UX
+- Android/iOS: provjeriti kartice svjetova, povratne gumbe, zaslon rezultata, zalihu pogodnosti i početni ekran.
+- Grid levela renderira najviše 20 dostupnih odabira i ne prikazuje neaktivne stranice.
+- Android provodi lintDebug i testDebugUnitTest prije APK/AAB.
+- iOS treba proći Simulator build i nepotpisani device build prije GitHub izdanja.
+- Dodatni profil FPS/memorije i uređajni smoke test nisu zamjena za uspješan CI.

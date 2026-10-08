@@ -28,8 +28,8 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.1' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.1"' in (root/'android/app/build.gradle.kts').read_text()
+assert 'MARKETING_VERSION = 0.1.2' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+assert 'versionName = "0.1.2"' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
@@ -39,3 +39,13 @@ for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
              'ios/BOPAVI/GameCanvas.swift']:
     code=(root/path).read_text()
     assert 'collectPulse' in code and 'impactPulse' in code,path
+
+# Premium home: one launch button, themed world cards, compact selector.
+android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios=(root/'ios/BOPAVI/GameController.swift').read_text()
+assert 'worldTile(b,w)' in android and 'worldTile(w,in:s)' in ios
+assert 'for(r in 0 until 5)' in android and 'for rowNumber in 0..<5' in ios
+assert 'BopaviActionButton' in ios and 'RippleDrawable' in android
+for code in [android,ios]:
+    assert '▶  IGRAJ' in code
+assert 'android.permission.INTERNET' not in manifest
