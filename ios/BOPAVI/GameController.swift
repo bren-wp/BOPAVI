@@ -39,6 +39,7 @@ private final class BopaviActionButton: UIButton {
 final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let progress=ProgressStore()
     private let sound=Soundscape()
+    private let collectHaptic=UISelectionFeedbackGenerator()
     private var canvas:GameCanvas?
     private var gameWorld=0
     private var gameNumber=1
@@ -216,7 +217,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         NSLayoutConstraint.activate([gameCanvas.topAnchor.constraint(equalTo:view.topAnchor),gameCanvas.bottomAnchor.constraint(equalTo:view.bottomAnchor),gameCanvas.leadingAnchor.constraint(equalTo:view.leadingAnchor),gameCanvas.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         gameCanvas.onFinished = { [weak self] g in self?.showResult(g) }
         gameCanvas.onFlap = { [weak self] in self?.sound.effect("tap") }
-        gameCanvas.onCollect = { [weak self] in self?.sound.effect("collect") }
+        gameCanvas.onCollect = { [weak self] in
+            self?.sound.effect("collect")
+            self?.collectHaptic.selectionChanged()
+        }
         gameCanvas.onLevelComplete = { [weak self] level in
             guard let self=self else{return}
             let reward=self.progress.completeLevel(world:world,number:level,score:game.score())

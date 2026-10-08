@@ -7,6 +7,8 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
+import android.graphics.Typeface
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.abs
@@ -19,6 +21,8 @@ import kotlin.math.sin
 class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}) : View(context) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
+    private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+    private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
@@ -36,7 +40,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
     private fun rect(c: Canvas,l:Float,t:Float,r:Float,b:Float,color:Int,round:Float=0f){fill(color);c.drawRoundRect(l,t,r,b,round,round,p)}
     private fun oval(c:Canvas,l:Float,t:Float,r:Float,b:Float,color:Int){fill(color);c.drawOval(l,t,r,b,p)}
-    private fun text(c:Canvas,s:String,x:Float,y:Float,size:Float,color:Int,center:Boolean=false){fill(color);p.textSize=size;p.typeface=android.graphics.Typeface.create("sans-serif-black",android.graphics.Typeface.BOLD);p.textAlign=if(center) Paint.Align.CENTER else Paint.Align.LEFT;c.drawText(s,x,y,p)}
+    private fun text(c:Canvas,s:String,x:Float,y:Float,size:Float,color:Int,center:Boolean=false){fill(color);p.textSize=size;p.typeface=headerTypeface;p.textAlign=if(center) Paint.Align.CENTER else Paint.Align.LEFT;c.drawText(s,x,y,p)}
     override fun onDraw(canvas:Canvas) {
         super.onDraw(canvas)
         val now=System.nanoTime()
@@ -47,7 +51,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             if(lastFrame!=0L) game.step(((now-lastFrame)/1_000_000_000.0).toFloat())
             lastFrame=now
             if(game.completionCount>completedSeen){completedSeen=game.completionCount;onLevelCompleted(game.completedOrdinal)}
-            if(game.coins+game.stars>pickupSeen){pickupSeen=game.coins+game.stars;onCollect()}
+            if(game.coins+game.stars>pickupSeen){pickupSeen=game.coins+game.stars;performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);onCollect()}
         } else lastFrame=0L
         canvas.drawColor(skyA[game.level.world]); val scale=min(width/480f,height/800f)
         canvas.save(); canvas.translate((width-480f*scale)/2,(height-800f*scale)/2);canvas.scale(scale,scale)
@@ -149,9 +153,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
         if(g.coin && game.coinVisible(index)) {
-            val hues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
             val pulse=if(reducedMotion)0f else sin(game.time*5f+g.phase)*2f
-            oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,hues[g.kind])
+            oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,pickupHues[g.kind])
             oval(c,middle-11f,center-11f,middle+11f,center+11f,0x66ffffff)
             text(c,LevelEngine.collectibleIcons[g.kind],middle,center+7f,18f,Color.WHITE,true)
         }
