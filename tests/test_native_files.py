@@ -108,7 +108,7 @@ assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 
 # Premium art and illustrated results must ship on Android/iOS.
-assert '#ff9b22' in (root/'docs/assets/logo.svg').read_text()
+assert '#ff871b' in (root/'docs/assets/logo.svg').read_text()
 assert 'id="wood"' in (root/'docs/assets/logo.svg').read_text()
 assert 'id="lens"' in (root/'docs/assets/hero.svg').read_text()
 assert 'def island(' in (root/'tools/generate_images.py').read_text()
