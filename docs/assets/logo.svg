@@ -1,1 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="660" height="190" viewBox="0 0 660 190"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#fff87c"/><stop offset=".5" stop-color="#ffb934"/><stop offset="1" stop-color="#f46b26"/></linearGradient><filter id="d"><feDropShadow dx="0" dy="9" stdDeviation="4" flood-color="#062147" flood-opacity=".65"/></filter></defs><g font-family="DejaVu Sans,Arial,sans-serif" font-weight="1000" font-size="100" letter-spacing="-5" text-anchor="middle" filter="url(#d)"><text x="330" y="116" stroke="#05143d" stroke-width="20" paint-order="stroke" fill="url(#g)">BOPAVI</text><text x="330" y="116" stroke="#177fd0" stroke-width="9" paint-order="stroke" fill="url(#g)">BOPAVI</text></g><text x="330" y="163" font-family="Arial,sans-serif" font-size="20" fill="#eff8ff" text-anchor="middle" font-weight="bold" letter-spacing="3">MALI LET, VELIKA AVANTURA</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230">
+<defs>
+ <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#fffba4"/><stop offset=".22" stop-color="#ffe840"/>
+  <stop offset=".55" stop-color="#ffc522"/><stop offset="1" stop-color="#f88023"/>
+ </linearGradient>
+ <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#ffffff" stop-opacity=".82"/>
+  <stop offset=".9" stop-color="#ffffff" stop-opacity="0"/>
+ </linearGradient>
+ <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+  <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+  <feOffset dy="11" result="offset"/>
+  <feMerge><feMergeNode in="offset"/><feMergeNode in="SourceGraphic"/></feMerge>
+ </filter>
+</defs>
+<g text-anchor="middle" font-family="DejaVu Sans,Arial Rounded MT Bold,Arial,sans-serif"
+   font-weight="1000" font-size="108" letter-spacing="-4">
+ <text x="380" y="147" stroke="#06204e" stroke-width="25"
+       stroke-linejoin="round" paint-order="stroke" fill="#0b2a6a">BOPAVI</text>
+ <text x="380" y="139" stroke="#07265b" stroke-width="23"
+       stroke-linejoin="round" paint-order="stroke" fill="#0e3781">BOPAVI</text>
+ <text x="380" y="135" stroke="#15a5f2" stroke-width="14"
+       stroke-linejoin="round" paint-order="stroke" fill="#ffc72a">BOPAVI</text>
+ <text x="380" y="132" stroke="#123c77" stroke-width="4"
+       stroke-linejoin="round" paint-order="stroke" fill="url(#face)">BOPAVI</text>
+ <text x="380" y="128" fill="url(#shine)" opacity=".28">BOPAVI</text>
+</g>
+<path d="M383 31l5 11 12 1-9 8 2 12-10-6-11 6 2-12-9-8 12-1z" fill="#fff3ac" stroke="#ad6b10" stroke-width="2"/>
+<rect x="190" y="169" width="380" height="40" rx="20" fill="#0b346e" stroke="#58c7ff" stroke-width="3"/>
+<text x="380" y="196" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif"
+ font-weight="bold" font-size="20" letter-spacing="1" fill="#ffffff">MALI LET, VELIKA AVANTURA</text>
+</svg>
