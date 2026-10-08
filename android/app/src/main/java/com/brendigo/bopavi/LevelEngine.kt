@@ -85,7 +85,7 @@ object LevelEngine {
         // Beach tides move gently; lava/crystal/meteor gates pulsate after activation.
         val tide = when(gate.kind) { 1 -> sin(time*.75f + gate.phase)*5f; 5 -> sin(time*.38f + gate.phase)*5f; else -> 0f }
         val middle = gate.center + delta + tide
-        val pulse = if(gate.movement > 0f && gate.kind in listOf(3,6,7))
+        val pulse = if(gate.movement > 0f && (gate.kind == 3 || gate.kind == 6 || gate.kind == 7))
             (sin(time * 1.35f + gate.phase)+1f)*2.5f else 0f
         // The same geometry drives drawing and collision; ≥145px always open.
         val half = max(72.5f, gate.gap * .5f - pulse)

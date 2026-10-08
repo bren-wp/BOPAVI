@@ -1,3 +1,17 @@
+# BOPAVI — referentna vizualna specifikacija
+
+Šest priloženih kompozitnih referenci služi kao vizualni cilj, ali nisu gotovi pojedinačni spriteovi ni dokaz da su postojeći zasloni identični. Ne kopirati tuđe oznake SkyHop ili Flybo, njihove trgovine stvarnim novcem, oglase ili online ljestvice. Originalni proizvod zadržava naziv BOPAVI i offline napredak.
+
+## Obvezna kompozicija
+- Splash: portret s plavim nebom do svih rubova, veliko narančasto-zlatno BOPAVI slovo s plavom 3D sjenom, Bopi s pilotskim naočalama i crvenim šalom, lebdeći travnati otoci, vodopadi i slojevi oblaka. Jedan logotip, bez ponavljanja.
+- Početni ekran: ilustrirani Bopi, čitljiv logo, mali brojač osvojenih kovanica i jedan dominantni zeleni **IGRAJ**. Bez izdvojenih gumba za svjetove, trgovinu, likove, nagrade, postavke ili poseban način leta.
+- Svjetovi: osam tematski različitih kartica i scena; vidljiva zaključanost, jasna navigacija, bez prikaza ukupnog broja svih levela.
+- Gameplay: Bopi s odvojenim krilima, jasne prepreke, predmeti i HUD, pouzdana kolizija. Kadriranje i sigurne zone moraju se usporediti na Android/iOS screenshotovima.
+- Pauza, rezultat, završetak levela i poraz: tamnoplave kartice, čitljiv bijeli tekst, zeleni primarni i plavi sekundarni gumbi, dostupne zone dodira i bez zasjenjenja informacija.
+
+## Kriterij vizualne provjere
+Usporediti zasebne snimke stvarne aplikacije, po ekranima, na jednakom omjeru zaslona. Ručno ocijeniti anatomiju lika, logo, osvjetljenje, dubinu, raspored kontrola i odsutnost praznih rubova. CI provjera dimenzija grafike i uspješan build **nisu** potvrda 1:1 izgleda.
+
 # BOPAVI — produkcijski vizualni smjer v0.5.0
 
 - Lik Bopi: pilotske naočale, crveni šal, animirani zamasi krila, treptanje, nagib tijela i čestice leta.

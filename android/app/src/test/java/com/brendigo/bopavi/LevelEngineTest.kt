@@ -112,6 +112,28 @@ class LevelEngineTest {
         assertEquals(0,LevelEngine.milestoneReward(61))
     }
 
+
+    @Test fun movingHazardsKeepSafeGeometryWithoutPerFrameAllocation() {
+        for (world in listOf(3, 6, 7)) {
+            val gate = LevelEngine.create(world, 120).gates[0].copy(movement=16f)
+            for (frame in 0..720) {
+                val bounds = LevelEngine.opening(gate, frame / 120f)
+                assertTrue(bounds.top.isFinite() && bounds.bottom.isFinite())
+                assertTrue("Animated opening must remain traversable", bounds.bottom - bounds.top >= 144.9f)
+            }
+        }
+    }
+
+    @Test fun shieldDoesNotConsumeMultipleChargesFromOneContinuousImpact() {
+        val level = LevelEngine.create(0, 2)
+        val obstacle = level.gates[0].copy(x=154f, center=510f, gap=160f, movement=0f, coin=false, star=false, power=0)
+        val game = GameSimulation(level.copy(gates=listOf(obstacle), speed=140f, wind=0f), initialShield=2)
+        game.flap()
+        repeat(8) { game.step(1f / 120f) }
+        assertEquals("One ongoing collision may only consume one shield charge", 1, game.shield)
+        assertFalse(game.finished)
+    }
+
     @Test fun boundaryValuesCannotGenerateInvalidLevels() {
         for(world in 0..7) {
             assertEquals(1,LevelEngine.create(world,1).number)
