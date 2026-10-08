@@ -72,10 +72,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Background extends through the display's letterbox regions. World physics
         // remains in the unchanged 480x800 coordinate system without stretching.
         canvas.drawColor(skyA[game.level.world])
-        fill(Color.WHITE)
-        p.shader=viewportSky
-        canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
-        p.shader=null
+        viewportSky?.let { background ->
+            fill(Color.WHITE)
+            p.shader=background
+            canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
+            p.shader=null
+        }
         val scale=min(width/480f,height/800f)
         canvas.save()
         canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
