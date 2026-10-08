@@ -1,0 +1,99 @@
+name: BOPAVI — Android / iOS
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-audit:
+    name: Privacy and asset audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pillow
+      - run: python tests/test_native_files.py
+      - run: python -m compileall -q tools tests
+      - name: Check no paywall or network permissions
+        run: |
+          ! grep -R -E 'android.permission.INTERNET|BillingClient|StoreKit|WebView|WKWebView' android/app/src/main ios/BOPAVI --include='*.kt' --include='*.swift' --include='*.xml'
+  android:
+    name: Android APK + AAB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Compile APK and unsigned release AAB
+        working-directory: android
+        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Android-APK
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Android-AAB-unsigned
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+  ios:
+    name: iOS simulator + unsigned device build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build simulator release
+        run: |
+          xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-sim" CODE_SIGNING_ALLOWED=NO build
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app" BOPAVI-iOS-Simulator.zip
+      - name: Compile unsigned iPhone device target
+        run: |
+          xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/BOPAVI-device" CODE_SIGNING_ALLOWED=NO build
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/BOPAVI-device/Build/Products/Release-iphoneos/BOPAVI.app" BOPAVI-iOS-unsigned-device.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-iOS-builds
+          path: |
+            BOPAVI-iOS-Simulator.zip
+            BOPAVI-iOS-unsigned-device.zip
+          if-no-files-found: error
+  publish:
+    name: GitHub Release v0.1.0
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [source-audit, android, ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Verify packaged artifacts
+        run: |
+          test -s dist/app-debug.apk
+          test -s dist/app-release.aab
+          test -s dist/BOPAVI-iOS-Simulator.zip
+          test -s dist/BOPAVI-iOS-unsigned-device.zip
+      - name: Publish first GitHub release after passing builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.0 exists: no duplicate release.'
+            exit 0
+          fi
+          gh release create v0.1.0 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.0 — Prvi let' --prerelease \
+            --notes 'Prvo razvojno izdanje za Android i iOS. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'
