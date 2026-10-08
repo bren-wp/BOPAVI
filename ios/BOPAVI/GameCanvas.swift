@@ -5,6 +5,8 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
+    private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
+    private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
     var onLevelComplete: ((Int)->Void)?
@@ -147,11 +149,9 @@ final class GameCanvas: UIView {
         }
         let center=(top+bottom)*0.5,mid=x+w*0.5
         if g.coin && game.coinVisible(index) {
-            let hues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
             let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
-            oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,hues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
-            let symbol=BopaviCore.collectibleIcons[g.kind] as NSString
-            symbol.draw(at:CGPoint(x:mid-10,y:center-11),withAttributes:[.font:UIFont.systemFont(ofSize:19,weight:.black),.foregroundColor:UIColor.white])
+            oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,pickupHues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
+            pickupSymbol.draw(at:CGPoint(x:mid-10,y:center-11))
         }
         if g.star && game.starVisible(index) {star(c,mid+35,center-25,12,0xffe25d)}
         if g.power>0 && game.powerVisible(index) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}

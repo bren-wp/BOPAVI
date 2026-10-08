@@ -1,3 +1,12 @@
+## v0.1.2 — Premium let (2026-10-08)
+- Android i iOS: premium stilsko ujednačavanje izbornika, gradijenata, tipografije, gumba i kartica svjetova.
+- Početni ekran ostaje usredotočen na Bopija, kovanice i jedan gumb IGRAJ.
+- Odabir otključanih levela sada koristi kompaktnu mrežu 4 × 5 s navigacijom bez beskorisnih gumba.
+- Bolja čitljivost HUD-a na manjim iPhoneima te prilagođeni tekstovi u postavkama.
+- Android JUnit testovi generatora i fizike prolaza, uz lint i build gate.
+- Bez oglasa i kupnji stvarnim novcem; po svjetu različiti zvukovi i blago.
+- Potpisivanje i testiranje na fizičkim telefonima još su potrebni.
+
 ## v0.1.1 — Uglancan let (2026-10-08)
 - Android/iOS: dodatne animacije Bopija pri skupljanju blaga i udarcu u štit.
 - Nove dekoracije prepreka za livade, vulkan, noć i svemir; kolizije koriste originalne granice prolaza.
