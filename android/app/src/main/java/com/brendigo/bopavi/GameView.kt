@@ -68,22 +68,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // sooner than the target interval (gesture, layout, OS redraw); skipping it
         // caused intermittent blank/stale frames on real 60/90/120 Hz devices.
         val now=System.nanoTime()
-        val frameInterval=if(reducedMotion) 33_333_333L else 16_666_667L
+        // Use actual vsync-to-vsync elapsed time at 60/90/120 Hz. The previous
+        // 3/4-of-60Hz threshold updated physics at only ~45 Hz on 90 Hz phones.
         if(!paused && !game.finished) {
             if(lastFrame==0L) lastFrame=now
-            val elapsed=now-lastFrame
-            if(elapsed >= frameInterval*3/4) {
+            val elapsed=(now-lastFrame).coerceAtLeast(0L)
+            if(elapsed>=1_000_000L) {
                 game.step((elapsed/1_000_000_000.0).toFloat())
                 lastFrame=now
-                if(game.completionCount>completedSeen) {
-                    completedSeen=game.completionCount
-                    onLevelCompleted(game.completedOrdinal)
-                }
-                if(game.coins+game.stars>pickupSeen) {
-                    pickupSeen=game.coins+game.stars
-                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                    onCollect()
-                }
+            }
+            if(game.completionCount>completedSeen) {
+                completedSeen=game.completionCount
+                onLevelCompleted(game.completedOrdinal)
+            }
+            if(game.coins+game.stars>pickupSeen) {
+                pickupSeen=game.coins+game.stars
+                performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                onCollect()
             }
         } else lastFrame=0L
         // Background extends through the display's letterbox regions. World physics
