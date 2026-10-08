@@ -21,7 +21,7 @@ jobs:
             exit 0
           fi
           base64 --decode bootstrap/source.b64 > "$RUNNER_TEMP/bopavi-source.tar.xz"
-          echo '8da781e2b1ad7fcd7a8952b115288b3ca34f7fb5608e95786e820e1743687d0d  '"$RUNNER_TEMP/bopavi-source.tar.xz" | sha256sum -c -
+          echo '77548e174d047d81a0dff96bb21bce922cb395fb3403f80e423ee0ac2e1d0c2c  '"$RUNNER_TEMP/bopavi-source.tar.xz" | sha256sum -c -
           tar --exclude='.github/workflows/native-ci.yml' -xJf "$RUNNER_TEMP/bopavi-source.tar.xz"
           python -m pip install --quiet pillow cairosvg
           python tools/generate_images.py
