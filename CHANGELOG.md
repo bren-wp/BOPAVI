@@ -1,3 +1,15 @@
+## v0.1.5 — Nebeski redizajn (2026-10-08)
+
+- **Titranje na Androidu:** uklonjeno rano prekidanje `onDraw()`; svaki zatraženi kadar sada se iscrta do kraja, dok se interval animacije primjenjuje na simulaciju.
+- **Android 15 / sistemske trake:** stabilizirane margine izbornika i uklonjena nepotrebna preraspodjela prikaza igre pri promjenama insets.
+- **Početni ekran:** svijetla BOPAVI ilustracija preko cijelog zaslona, zaseban logotip i veliki zeleni IGRAJ, na Androidu i iOS-u.
+- **Svjetovi:** osam različitih pozadina s tematskim krajolikom, lebdećim otocima i posebnim elementima; renderiraju se iz zajedničkog izvora bez mrežnog pristupa.
+- **Karte svjetova:** pregled s ilustriranim prikazima okruženja; svijet ima vlastite boje i nagrade.
+- **Leveli:** puni pregled 4×5 uključuje završene, dostupne i zaključane stavke umjesto gotovo praznog popisa.
+- **Uređajni QA:** automatizirano pokretanje Android/iOS simulatora i snimke početnih zaslona kao release gate.
+- Igra ostaje offline, bez oglasa i kupnji stvarnim novcem. Napredak i kovanice ostaju spremljeni.
+- Produkcijska 1:1 podudarnost i rad na svim fizičkim telefonima nisu još dokazani; referentni kolaži nisu izvorne pojedinačne 2D grafike.
+
 ## v0.1.4 — Bopi oživljava (2026-10-08)
 - Šest prozirnih ilustriranih likova, izvedenih iz postojećeg BOPAVI brendinga.
 - Android i iOS koriste jednaku ilustraciju Bopija, uz boje izgleda otključanih kovanicama.

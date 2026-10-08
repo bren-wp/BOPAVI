@@ -28,8 +28,8 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.4' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.4"' in (root/'android/app/build.gradle.kts').read_text()
+assert 'MARKETING_VERSION = 0.1.5' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+assert 'versionName = "0.1.5"' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
@@ -67,3 +67,20 @@ assert (root/'android/app/src/main/res/drawable/bopavi_startup.xml').exists()
 assert 'R.drawable.bopi0' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'UIImage(named:"Bopi' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 assert 'bird_svg' in (root/'tools/generate_images.py').read_text()
+ 
+# Frame-pacing regression from the supplied Android device recording.
+renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'postInvalidateDelayed(5); return' not in renderer
+assert 'frameInterval' in renderer and 'postInvalidateOnAnimation()' in renderer
+assert 'worldBitmap' in renderer and 'R.drawable.world0' in renderer
+assert 'UIImage(named:"World' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
+worlds=(root/'tools/generate_worlds.py').read_text()
+assert 'THEMES =' in worlds and 'range(8)' in worlds and 'generate_worlds' in worlds
+android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios=(root/'ios/BOPAVI/GameController.swift').read_text()
+assert 'CENTER_CROP' in android and 'MALI LET, VELIKA AVANTURA' in android
+assert 'scaleAspectFill' in ios and 'MALI LET, VELIKA AVANTURA' in ios
+for source in (android,ios):
+    assert '🔒' in source and '▶  IGRAJ' in source
+ci=(root/'.github/workflows/native-ci.yml').read_text()
+assert 'android-smoke:' in ci and 'xcrun simctl launch' in ci
