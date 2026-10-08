@@ -71,7 +71,8 @@ assert 'bird_svg' in (root/'tools/generate_images.py').read_text()
 # Frame-pacing regression from the supplied Android device recording.
 renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'postInvalidateDelayed(5); return' not in renderer
-assert 'frameInterval' in renderer and 'postInvalidateOnAnimation()' in renderer
+assert 'val elapsed=(now-lastFrame).coerceAtLeast(0L)' in renderer and 'postInvalidateOnAnimation()' in renderer
+assert 'frameInterval*3/4' not in renderer
 assert 'worldBitmap' in renderer and 'R.drawable.world0' in renderer
 assert 'UIImage(named:"World' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 worlds=(root/'tools/generate_worlds.py').read_text()

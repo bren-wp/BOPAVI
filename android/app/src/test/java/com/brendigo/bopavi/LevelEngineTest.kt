@@ -36,6 +36,25 @@ class LevelEngineTest {
         run.flap();run.step(1f/60f)
         assertFalse("Do not kill bird when its body remains inside visible opening",run.finished)
     }
+    @Test fun sameMotionAcross60_90_120HzFrames() {
+        val level=LevelEngine.create(0,2)
+        val at60=GameSimulation(level)
+        val at90=GameSimulation(level)
+        val at120=GameSimulation(level)
+        at60.flap();at90.flap();at120.flap()
+        repeat(36){at60.step(1f/60f)}
+        repeat(54){at90.step(1f/90f)}
+        repeat(72){at120.step(1f/120f)}
+        assertFalse(at60.finished)
+        assertFalse(at90.finished)
+        assertFalse(at120.finished)
+        assertEquals(at60.distance,at90.distance,0.2f)
+        assertEquals(at60.distance,at120.distance,0.2f)
+        // Semi-implicit integration permits small bounded displacement differences.
+        assertEquals(at60.y,at90.y,4f)
+        assertEquals(at60.y,at120.y,4f)
+    }
+
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)
