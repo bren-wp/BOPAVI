@@ -24,8 +24,8 @@ for y in range(1600):
 mask=Image.new('L',hero.size,0)
 mask_pixels=mask.load()
 for y in range(hero.height):
-    a=min(1.0,y/95.0,(hero.height-1-y)/125.0)
-    value=int(255*max(0.0,a))
+    edge_alpha=min(1.0,y/95.0,(hero.height-1-y)/125.0)
+    value=int(255*max(0.0,edge_alpha))
     for x in range(hero.width): mask_pixels[x,y]=value
 launch.paste(hero,(0,340),mask)
 logoCrop=brand.copy()
