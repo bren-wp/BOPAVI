@@ -66,7 +66,10 @@ assert (root/'android/app/src/main/res/drawable/bopavi_startup.xml').exists()
 # Source and rendering integration for the illustrated game character.
 assert 'R.drawable.bopi0' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'UIImage(named:"Bopi' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
-assert 'bird_svg' in (root/'tools/generate_images.py').read_text()
+assert 'wing_shapes' in (root/'tools/generate_images.py').read_text()
+assert 'original_wings' in (root/'tools/generate_images.py').read_text()
+assert 'R.drawable.bopileft0' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'UIImage(named:"BopiLeft' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
  
 # Frame-pacing regression from the supplied Android device recording.
 renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
@@ -91,3 +94,11 @@ assert 'android-smoke:' in ci and 'xcrun simctl launch' in ci
 for source in (android,ios):
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     assert 'MALI LET, VELIKA AVANTURA' not in home
+
+# No pause or distance reset at level boundaries.
+andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'levelOrigin=distance+300f-next.gates.first().x' in andr
+assert 'levelOrigin=distance+300-next.gates[0].x' in swift
+assert 'distance = 0f; passed = 0' not in andr
+assert 'distance=0;passed=0' not in swift

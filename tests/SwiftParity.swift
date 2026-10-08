@@ -61,6 +61,16 @@ struct SwiftParity {
             run.flap();run.step(1/60)
             precondition(!run.finished,"False collision inside safe gap")
         }
+        do {
+            let level=BopaviCore.create(0,2)
+            let g=level.gates[0]
+            let safe=BopaviCore.Gate(x:20,center:366,gap:220,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let game=GameSimulation(BopaviCore.Level(world:0,number:2,zone:level.zone,speed:140,wind:0,gates:[safe],type:level.type),endless:true)
+            game.flap();game.step(1/60)
+            precondition(game.completionCount==1 && game.displayLevel==3)
+            precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-300)<0.01)
+            precondition(game.active && !game.finished)
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

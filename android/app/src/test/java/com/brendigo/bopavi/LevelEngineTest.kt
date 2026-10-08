@@ -55,6 +55,20 @@ class LevelEngineTest {
         assertEquals(at60.y,at120.y,4f)
     }
 
+    @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {
+        val level=LevelEngine.create(0,2)
+        val safe=level.gates.first().copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val game=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f),endless=true)
+        game.flap(); game.step(1f/60f)
+        assertEquals(1,game.completionCount)
+        assertEquals(3L,game.displayLevel)
+        assertTrue("Global distance must remain monotonic",game.distance>0f)
+        assertEquals("Next gate should already be in view",300f,game.gateX(game.level.gates[0]),0.01f)
+        assertTrue(game.levelTransition>0f)
+        assertTrue(game.active)
+        assertFalse(game.finished)
+    }
+
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)
