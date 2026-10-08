@@ -31,3 +31,12 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Android provodi lintDebug i testDebugUnitTest prije APK/AAB.
 - iOS treba proći Simulator build i nepotpisani device build prije GitHub izdanja.
 - Dodatni profil FPS/memorije i uređajni smoke test nisu zamjena za uspješan CI.
+
+## v0.1.3 — QA prema korisničkom videu
+- Provjeriti frontalni dodir glavne cijevi, preklop široke završne kapice, dodir s donje i gornje strane.
+- Bez kupljenog štita poraz mora nastupiti odmah; početni štit troši se jednokratno.
+- Grafički i kolizijski promjer Bopija povećan je istovremeno.
+- Android i iOS imaju isti kriterij sudara, uključujući bočno proširenje kapice.
+- Novi home treba prikazati zaseban BOPAVI logo i veliku ilustraciju bez lažnog gumba unutar slike.
+- Android splash i iOS LaunchArt prikaz bez bijele pozadine; sistemske trake u igri skrivene na Androidu.
+- Stvarni uređajni smoke test i potpisani iOS IPA još se ne mogu potvrditi samo pomoću CI-ja.
