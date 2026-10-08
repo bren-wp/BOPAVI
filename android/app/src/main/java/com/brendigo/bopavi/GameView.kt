@@ -105,12 +105,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawBitmap(worldBitmap,null,worldRect,p)
         } else drawBackground(canvas)
         for(i in game.level.gates.indices) {
-            val g=game.level.gates[i];val x=g.x-game.distance
+            val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
         drawHud(canvas)
+        if(game.levelTransition>0f){
+            val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
+            // Small nonblocking level ribbon; no pause or separate screen.
+            val color=(alpha*215f).toInt().coerceIn(0,215) shl 24 or 0x103b76
+            rect(canvas,135f,111f,345f,157f,color,18f)
+            text(canvas,"LEVEL ${game.displayLevel}",240f,141f,20f,Color.WHITE,true)
+        }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)

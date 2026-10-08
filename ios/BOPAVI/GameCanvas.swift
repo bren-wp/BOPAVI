@@ -83,11 +83,19 @@ final class GameCanvas: UIView {
             background(c)
         }
         for (i,g) in game.level.gates.enumerated() {
-            let x=CGFloat(g.x-game.distance)
+            let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
             gate(c,g,x,i)
         }
         bird(c)
+        if game.levelTransition>0 {
+            let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
+            rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
+            let title="LEVEL \(game.displayLevel)" as NSString
+            title.draw(at:CGPoint(x:174,y:120),withAttributes:[
+                .font:UIFont.systemFont(ofSize:20,weight:.heavy),
+                .foregroundColor:UIColor.white.withAlphaComponent(opacity)])
+        }
         c.restoreGState()
         let groundTop=(bound.height-800*s)/2+751*s
         if groundTop<bound.height {
