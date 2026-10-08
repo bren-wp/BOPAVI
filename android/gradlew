@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Minimal one-time bootstrap to generate the official Gradle wrapper via `./gradlew wrapper`.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+HOME_DIR="${GRADLE_USER_HOME:-${HOME}/.gradle}/bopavi-bootstrap"
+VERSION="8.11.1"
+GRADLE="$HOME_DIR/gradle-$VERSION/bin/gradle"
+if [ ! -x "$GRADLE" ]; then
+    mkdir -p "$HOME_DIR"
+    ZIP="$HOME_DIR/gradle-$VERSION-bin.zip"
+    URL="https://services.gradle.org/distributions/gradle-$VERSION-bin.zip"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL --retry 2 "$URL" -o "$ZIP"
+        curl -fsSL "$URL.sha256" -o "$ZIP.sha256"
+    else
+        echo 'Za prvi build potreban je curl i internetska veza.' >&2
+        exit 1
+    fi
+    if command -v sha256sum >/dev/null 2>&1; then
+        echo "$(cat "$ZIP.sha256")  $ZIP" | sha256sum -c - >/dev/null
+    elif command -v shasum >/dev/null 2>&1; then
+        echo "$(cat "$ZIP.sha256")  $ZIP" | shasum -a 256 -c - >/dev/null
+    else
+        echo 'Za sigurnu provjeru Gradle arhive potreban je sha256sum ili shasum.' >&2
+        exit 1
+    fi
+    unzip -oq "$ZIP" -d "$HOME_DIR"
+fi
+cd "$HERE"
+exec "$GRADLE" "$@"
