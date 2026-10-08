@@ -175,7 +175,7 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility=0
         gameView?.paused=true;gameView=null;sound.stop();selectedScreen="home"
         // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
-        val background=FrameLayout(this).apply {setBackgroundColor(0xff57c8f7.toInt())}
+        val background=FrameLayout(this).apply {setBackgroundColor(0xff123b6e.toInt())}
         val scene=ImageView(this).apply {
             setImageResource(R.drawable.splash)
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -185,7 +185,7 @@ class MainActivity : Activity() {
         background.addView(scene,FrameLayout.LayoutParams(-1,-1))
         val shading=View(this).apply{
             this.background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x660a52a5,0x000b6cbb,0x330b6cbb,0xaa043979.toInt()))
+                intArrayOf(0x330a52a5,0x000b6cbb,0x000b6cbb,0x22043979))
         }
         background.addView(shading,FrameLayout.LayoutParams(-1,-1))
         val layout=LinearLayout(this).apply{
