@@ -130,19 +130,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int){
         val a=LevelEngine.opening(g,game.time)
-        val w=g.width;val color=pillars[g.kind];val shade=pillarDark[g.kind]
+        val w=g.width
+        val color=if(g.kind==0)0xffad8c71.toInt() else pillars[g.kind]
+        val shade=if(g.kind==0)0xff6e5c63.toInt() else pillarDark[g.kind]
+        val cap=if(g.kind==0)0xff55ce6c.toInt() else color
         val top=a.top;val bottom=a.bottom
         rect(c,x+7f,0f,x+w-5f,top,shade,7f)
         rect(c,x,0f,x+w-13f,top,color,8f)
-        rect(c,x-7f,top-28f,x+w+5f,top,color,7f)
+        rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
         rect(c,x+7f,bottom,x+w-5f,755f,shade,7f)
         rect(c,x,bottom,x+w-13f,755f,color,7f)
-        rect(c,x-7f,bottom,x+w+5f,bottom+27f,color,7f)
+        rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
         when(g.kind){
             0->{
+                // Layered rock with grassy ledges. Textures stay within the shaft/cap collider.
+                for(j in 0..2){
+                    val yy=60f+j*110f
+                    if(yy+18f<top-29f)rect(c,x+12f,yy,x+47f,yy+8f,0x77906a5c,3f)
+                    val by=bottom+38f+j*115f
+                    if(by+18f<755f)rect(c,x+9f,by,x+44f,by+8f,0x77906a5c,3f)
+                }
                 for(j in 0..2){val xx=x+j*17f;oval(c,xx,top-24f,xx+16f,top-14f,0xff4ee882.toInt())}
                 for(j in 0..2){val xx=x+j*19f;oval(c,xx,bottom+6f,xx+12f,bottom+12f,0xff2b934d.toInt())}
             }

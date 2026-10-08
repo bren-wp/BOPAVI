@@ -132,16 +132,26 @@ final class GameCanvas: UIView {
     }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
-        let w=CGFloat(g.width),hue=pillars[g.kind],shade=dark[g.kind]
+        let w=CGFloat(g.width)
+        let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
+        let shade:UInt32 = g.kind==0 ? 0x6e5c63 : dark[g.kind]
+        let cap:UInt32 = g.kind==0 ? 0x55ce6c : hue
         rect(c,x+7,0,w-12,top,shade,7);rect(c,x,0,w-13,top,hue,8)
-        rect(c,x-7,top-28,w+12,28,hue,7)
+        rect(c,x-7,top-28,w+12,28,cap,7)
         rect(c,x+7,bottom,w-12,755-bottom,shade,7);rect(c,x,bottom,w-13,755-bottom,hue,7)
-        rect(c,x-7,bottom,w+12,27,hue,7)
+        rect(c,x-7,bottom,w+12,27,cap,7)
         rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
         case 0:
-            for j in 0...2 {oval(c,x+CGFloat(j)*17,top-24,16,10,0x4ee882);oval(c,x+CGFloat(j)*19,bottom+6,12,6,0x2b934d)}
+            for j in 0...2 {
+                let yy:CGFloat=60+CGFloat(j)*110
+                if yy+18<top-29 {rect(c,x+12,yy,35,8,0x906a5c,3,0.48)}
+                let by=bottom+38+CGFloat(j)*115
+                if by+18<755 {rect(c,x+9,by,35,8,0x906a5c,3,0.48)}
+                oval(c,x+CGFloat(j)*17,top-24,16,10,0x4ee882)
+                oval(c,x+CGFloat(j)*19,bottom+6,12,6,0x2b934d)
+            }
         case 2,6:for j in 0...2 {oval(c,x+CGFloat(j)*16,top-24+CGFloat(j)*7,13,7,shade)}
         case 1:for j in 0...2 {oval(c,x+CGFloat(j)*18,bottom+6,12,6,0xffe6b4)}
         case 3:
