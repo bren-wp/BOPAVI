@@ -15,7 +15,7 @@ Spoznaj koliko daleko možeš poletjeti! **BOPAVI** je šarena igra spretnosti u
 - 🎵 **Zvuk svakog svijeta.** Od veselih livada do tajanstvenog svemira.
 - ❤️ **Bez oglasa i kupnji za novac.** Igra koja se otkriva igranjem.
 
-<p align="center"><img src="docs/assets/icon.svg" width="160" alt="BOPAVI ikona"><br><em>Jedan mali let. Bezbroj novih otkrića.</em></p>
+<p align="center"><img src="docs/assets/icon.svg" width="160" alt="BOPAVI ikona"><em>Jedan mali let. Bezbroj novih otkrića.</em></p>
 
 ## 🌈 Svjetovi avanture
 
