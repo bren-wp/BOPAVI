@@ -41,7 +41,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
     }
     private var lastFrame = 0L
-    private var fpsTimestamp = 0L
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
@@ -59,15 +58,27 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun text(c:Canvas,s:String,x:Float,y:Float,size:Float,color:Int,center:Boolean=false){fill(color);p.textSize=size;p.typeface=headerTypeface;p.textAlign=if(center) Paint.Align.CENTER else Paint.Align.LEFT;c.drawText(s,x,y,p)}
     override fun onDraw(canvas:Canvas) {
         super.onDraw(canvas)
+        // Never return before drawing a complete frame. A draw request may arrive
+        // sooner than the target interval (gesture, layout, OS redraw); skipping it
+        // caused intermittent blank/stale frames on real 60/90/120 Hz devices.
         val now=System.nanoTime()
-        val fps=if(reducedMotion) 30L else 60L
-        if(fpsTimestamp != 0L && now-fpsTimestamp < 1_000_000_000L/fps-1_500_000L) { postInvalidateDelayed(5); return }
-        fpsTimestamp=now
+        val frameInterval=if(reducedMotion) 33_333_333L else 16_666_667L
         if(!paused && !game.finished) {
-            if(lastFrame!=0L) game.step(((now-lastFrame)/1_000_000_000.0).toFloat())
-            lastFrame=now
-            if(game.completionCount>completedSeen){completedSeen=game.completionCount;onLevelCompleted(game.completedOrdinal)}
-            if(game.coins+game.stars>pickupSeen){pickupSeen=game.coins+game.stars;performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);onCollect()}
+            if(lastFrame==0L) lastFrame=now
+            val elapsed=now-lastFrame
+            if(elapsed >= frameInterval*3/4) {
+                game.step((elapsed/1_000_000_000.0).toFloat())
+                lastFrame=now
+                if(game.completionCount>completedSeen) {
+                    completedSeen=game.completionCount
+                    onLevelCompleted(game.completedOrdinal)
+                }
+                if(game.coins+game.stars>pickupSeen) {
+                    pickupSeen=game.coins+game.stars
+                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                    onCollect()
+                }
+            }
         } else lastFrame=0L
         // Background extends through the display's letterbox regions. World physics
         // remains in the unchanged 480x800 coordinate system without stretching.
@@ -102,7 +113,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 if(game.level.world==5||game.level.world==7)0xff171f53.toInt() else 0xff64c881.toInt())
         }
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && !game.finished && isAttachedToWindow) postInvalidateOnAnimation()
+        if(!paused && !game.finished && isAttachedToWindow) {
+            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
+        }
     }
     private fun drawBackground(c:Canvas){
         val w=game.level.world;val t=if(reducedMotion)0f else game.time
