@@ -125,8 +125,12 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             letterSpacing=.025f
             setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val normal=if(primary) gradient(0xff93f952.toInt(),0xff19b747.toInt(),19)
-                else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
+            val normal=if(primary) GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xffc5ff7a.toInt(),0xff6cec43.toInt(),0xff13b742.toInt())).apply{
+                    cornerRadius=d(23).toFloat()
+                    setStroke(d(2),0xffd5ffab.toInt())
+                } else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
             elevation=d(4).toFloat()
             contentDescription=text
@@ -158,17 +162,20 @@ class MainActivity : Activity() {
             contentDescription="Prikaz svijeta $name"
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        row.addView(preview,LinearLayout.LayoutParams(-1,d(118)).apply{bottomMargin=d(10)})
+        row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
             text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
-            textSize=19f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
+            textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER_HORIZONTAL
         })
         row.addView(TextView(this).apply{
             text=if(unlocked)"Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}" else "Otkrij novi svijet tijekom igranja"
-            textSize=13f;setTextColor(0xffd0e6f5.toInt())
+            textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER_HORIZONTAL
             setPadding(0,d(5),0,0)
         })
-        parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
+        parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
+            setMargins(d(4),d(5),d(4),d(7))
+        })
     }
     private fun showHome(){
         @Suppress("DEPRECATION")
@@ -196,9 +203,9 @@ class MainActivity : Activity() {
         background.addView(layout,FrameLayout.LayoutParams(-1,-1))
         // The portrait background already contains the logo and tagline. No duplicates.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        layout.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply{
-            setMargins(0,0,0,d(12))
-        })
+        // Coins are a compact top-right HUD, not a full-width footer panel.
+        background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
+            Gravity.TOP or Gravity.RIGHT).apply{setMargins(d(16),d(16),d(17),0)})
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
             startGame(world,progress.streamFrontier(world))
@@ -207,11 +214,19 @@ class MainActivity : Activity() {
     }
 
     private fun showWorlds(){
-        val b=base("SVJETOVI","Odaberi svoj sljedeći let")
-        for(w in 0 until 8){
-            val accessible=w<=progress.maxWorld()
-            worldTile(b,w){
-                if(accessible) showLevels(w,1) else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
+        val b=base("SVJETOVI","Osam različitih avantura")
+        for(line in 0..3) {
+            val row=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.TOP
+            }
+            b.addView(row,LinearLayout.LayoutParams(-1,-2))
+            for(col in 0..1){
+                val w=line*2+col
+                val accessible=w<=progress.maxWorld()
+                worldTile(row,w){
+                    if(accessible) showLevels(w,1)
+                    else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
+                }
             }
         }
         back(b){showHome()}
@@ -265,10 +280,13 @@ class MainActivity : Activity() {
         back(b){showWorlds()}
     }
     private fun startGame(world:Int,number:Long){
-        // Immersive gameplay removes the large pale system navigation strip seen in device videos.
+        // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
+        // triggers Android's full-screen onboarding popup on the first game.
+        // Keep the gesture navigation strip dark (theme sets its color) instead.
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+            View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
         val boosts=progress.consumePerks()
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,number)
@@ -311,14 +329,70 @@ class MainActivity : Activity() {
         sound.effect("hit")
         progress.recordRun(g)
         currentLevel=g.displayLevel
-        val b=base("Pokušaj ponovno",LevelEngine.names[currentWorld]+" · Level $currentLevel")
-        title(b,if(g.shield>0)"✦  BOPI  ✦" else "🐦  BOPAVI  🐦",35,gold)
-        small(b,"Prolazi: ${g.passed}/${g.level.gates.size} · Rezultat: ${g.score()}")
-        small(b,"${LevelEngine.collectibles[currentWorld]}: ${g.coins+g.stars} · Kovanice: ${progress.coins()}")
-        action(b,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
-        action(b,"OPREMA ZA KOVANICE",false){showPerks()}
-        action(b,"MAPA SVJETOVA",false){showWorlds()}
-        action(b,"POČETNI EKRAN",false){showHome()}
+        gameView?.paused=true;gameView=null;selectedScreen="result"
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility=0
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
+        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val backdrop=ImageView(this).apply{
+            setImageResource(scenes[currentWorld]);scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
+        root.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x9903183a.toInt(),0x660a3464,0xcc061c42.toInt()))
+        },FrameLayout.LayoutParams(-1,-1))
+        val scroll=ScrollView(this).apply{
+            isFillViewport=true;isVerticalScrollBarEnabled=false
+            clipToPadding=false
+        }
+        val panel=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(24),d(28),d(24),d(26))
+        }
+        scroll.addView(panel)
+        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        val artwork=ImageView(this).apply{
+            setImageResource(R.drawable.hero)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            background=gradient(0xff218fe3.toInt(),0xff74d9fa.toInt(),24)
+            clipToOutline=true
+            contentDescription="Bopi iznad čarobnih otoka"
+        }
+        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(9)})
+        title(panel,"LET ZAVRŠEN!",31,0xffffdc62.toInt())
+        val stats=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(18),d(16),d(18),d(17))
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xfffffff9.toInt(),0xffe6f5ff.toInt())).apply{
+                cornerRadius=d(22).toFloat();setStroke(d(2),0xffffd779.toInt())
+            }
+            elevation=d(5).toFloat()
+        }
+        val score=TextView(this).apply{
+            text="${g.score()}";textSize=43f;setTextColor(0xff0b3777.toInt())
+            gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            contentDescription="Rezultat ${g.score()}"
+        }
+        stats.addView(score,LinearLayout.LayoutParams(-1,-2))
+        fun detail(value:String){
+            stats.addView(TextView(this).apply{
+                text=value;textSize=16f;gravity=Gravity.CENTER
+                setTextColor(0xff17477e.toInt());setPadding(0,d(5),0,d(5))
+                typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+            })
+        }
+        detail("Level $currentLevel   ·   Prolazi ${g.passed}/${g.level.gates.size}")
+        detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
+        panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
+        action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
+        action(panel,"OPREMA ZA KOVANICE",false){showPerks()}
+        action(panel,"MAPA SVJETOVA",false){showWorlds()}
+        action(panel,"POČETNI EKRAN",false){showHome()}
+        showNativeView(root)
     }
     private fun showPerks(){
         val b=base("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")

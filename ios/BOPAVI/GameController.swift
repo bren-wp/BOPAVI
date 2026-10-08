@@ -7,13 +7,16 @@ private final class BopaviActionButton: UIButton {
     init(primary:Bool) {
         super.init(frame:.zero)
         gradient.colors = primary
-            ? [UIColor(red:0.58,green:0.97,blue:0.29,alpha:1).cgColor, UIColor(red:0.09,green:0.70,blue:0.25,alpha:1).cgColor]
-            : [UIColor(red:0.14,green:0.32,blue:0.49,alpha:1).cgColor, UIColor(red:0.07,green:0.18,blue:0.31,alpha:1).cgColor]
-        gradient.startPoint = CGPoint(x:0,y:0);gradient.endPoint=CGPoint(x:1,y:1)
+            ? [UIColor(red:0.77,green:1.00,blue:0.49,alpha:1).cgColor,
+               UIColor(red:0.40,green:0.91,blue:0.27,alpha:1).cgColor,
+               UIColor(red:0.07,green:0.72,blue:0.26,alpha:1).cgColor]
+            : [UIColor(red:0.14,green:0.55,blue:0.95,alpha:1).cgColor,
+               UIColor(red:0.07,green:0.22,blue:0.62,alpha:1).cgColor]
+        gradient.startPoint=CGPoint(x:0.5,y:0);gradient.endPoint=CGPoint(x:0.5,y:1)
         layer.insertSublayer(gradient,at:0)
         layer.cornerRadius=19
-        layer.borderWidth=1
-        layer.borderColor=UIColor.white.withAlphaComponent(0.24).cgColor
+        layer.borderWidth=primary ? 2 : 1
+        layer.borderColor=UIColor.white.withAlphaComponent(primary ? 0.72 : 0.24).cgColor
         layer.shadowColor=UIColor.black.cgColor
         layer.shadowOpacity=0.23
         layer.shadowRadius=6
@@ -124,7 +127,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             preview.translatesAutoresizingMaskIntoConstraints=false
             preview.contentMode = .scaleAspectFill
             preview.clipsToBounds=true
-            preview.alpha=0.46
+            preview.alpha=0.76
             preview.isUserInteractionEnabled=false
             tile.insertSubview(preview,at:0)
             NSLayoutConstraint.activate([
@@ -136,16 +139,16 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.clipsToBounds=true
         }
         tile.alpha=unlocked ? 1 : 0.60
-        tile.titleLabel?.numberOfLines=2
+        tile.titleLabel?.numberOfLines=3
         tile.titleLabel?.textAlignment = .center
         let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  \(unlocked ? "↗" : "🔒")"
         let detail=unlocked ? "Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])" : "Otkrij novi svijet tijekom igranja"
         let text=NSMutableAttributedString(string:headline+"\n"+detail)
-        text.addAttributes([.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
-        text.addAttributes([.font:UIFont.systemFont(ofSize:13,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
+        text.addAttributes([.font:UIFont.systemFont(ofSize:15,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
+        text.addAttributes([.font:UIFont.systemFont(ofSize:11,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
         tile.setAttributedTitle(text,for:.normal)
         tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
-        tile.heightAnchor.constraint(equalToConstant:110).isActive=true
+        tile.heightAnchor.constraint(equalToConstant:178).isActive=true
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
     }
@@ -172,9 +175,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
         // LaunchArt is portrait and already includes the BOPAVI logo and slogan.
-        let spacer=UIView()
-        spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
-        stack.addArrangedSubview(spacer)
         let wallet=UIView()
         wallet.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
         wallet.layer.cornerRadius=20
@@ -193,7 +193,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
             amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
         ])
-        stack.addArrangedSubview(wallet)
+        // Compact top-right counter, while the primary CTA remains at the bottom.
+        let walletRow=UIStackView()
+        walletRow.axis = .horizontal;walletRow.alignment = .center
+        walletRow.addArrangedSubview(UIView())
+        wallet.widthAnchor.constraint(equalToConstant:175).isActive=true
+        wallet.heightAnchor.constraint(equalToConstant:46).isActive=true
+        walletRow.addArrangedSubview(wallet)
+        stack.addArrangedSubview(walletRow)
+        let spacer=UIView()
+        spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
+        stack.addArrangedSubview(spacer)
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
             self.startGame(world,self.progress.streamFrontier(world))
@@ -201,14 +211,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
 
     private func showWorlds(){
-        let s=menu("SVJETOVI","Odaberi svoj sljedeći let")
-        for w in 0..<8 {
-            let accessible=w<=progress.maxWorld()
-            worldTile(w,in:s){
-                if accessible {self.showLevels(w,page:1)} else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
+        let stack=menu("SVJETOVI","Osam različitih avantura")
+        for line in 0..<4 {
+            let row=UIStackView()
+            row.axis = .horizontal;row.alignment = .fill
+            row.distribution = .fillEqually;row.spacing=10
+            stack.addArrangedSubview(row)
+            for col in 0..<2 {
+                let world=line*2+col
+                let accessible=world<=progress.maxWorld()
+                worldTile(world,in:row){
+                    if accessible {self.showLevels(world,page:1)}
+                    else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
+                }
             }
         }
-        button("‹  Natrag",in:s,primary:false){self.showHome()}
+        button("‹  Natrag",in:stack,primary:false){self.showHome()}
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
@@ -325,14 +343,78 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         sound.effect("hit")
         progress.recordRun(g)
         gameNumber=g.displayLevel
-        let s=menu("Pokušaj ponovno","\(BopaviCore.names[gameWorld]) · Level \(gameNumber)")
-        label("🐦  BOPAVI  🐦",30,UIColor(red:1,green:0.82,blue:0.47,alpha:1),s)
-        label("Rezultat: \(g.score()) · Prolazi: \(g.passed)/\(g.level.gates.count)",17,.white,s)
-        label("\(BopaviCore.collectibles[gameWorld]): \(g.stars+g.coins) · Kovanice: \(progress.coins())",15,.white,s)
-        button("▶  PONOVO",in:s){self.startGame(self.gameWorld,self.gameNumber)}
-        button("OPREMA ZA KOVANICE",in:s,primary:false){self.showPerks()}
-        button("MAPA SVJETOVA",in:s,primary:false){self.showWorlds()}
-        button("POČETNI EKRAN",in:s,primary:false){self.showHome()}
+        clear()
+        view.backgroundColor=UIColor(red:0.09,green:0.39,blue:0.73,alpha:1)
+        if let image=UIImage(named:"World\(gameWorld)") {
+            let backdrop=UIImageView(image:image)
+            backdrop.contentMode = .scaleAspectFill
+            backdrop.clipsToBounds=true;backdrop.translatesAutoresizingMaskIntoConstraints=false
+            backdrop.isAccessibilityElement=false;view.addSubview(backdrop)
+            NSLayoutConstraint.activate([
+                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
+                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            ])
+        }
+        let dim=UIView()
+        dim.backgroundColor=UIColor(red:0.01,green:0.09,blue:0.23,alpha:0.67)
+        dim.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(dim)
+        NSLayoutConstraint.activate([
+            dim.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            dim.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+            dim.topAnchor.constraint(equalTo:view.topAnchor),
+            dim.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+        ])
+        let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
+        scroll.showsVerticalScrollIndicator=false
+        scroll.alwaysBounceVertical=true
+        view.addSubview(scroll)
+        NSLayoutConstraint.activate([
+            scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
+            scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+        ])
+        let stack=UIStackView()
+        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=10
+        stack.isLayoutMarginsRelativeArrangement=true
+        stack.layoutMargins=UIEdgeInsets(top:22,left:24,bottom:26,right:24)
+        stack.translatesAutoresizingMaskIntoConstraints=false
+        scroll.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
+            stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
+            stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor),
+            stack.heightAnchor.constraint(greaterThanOrEqualTo:scroll.frameLayoutGuide.heightAnchor)
+        ])
+        let header=UIImageView(image:UIImage(named:"Hero"))
+        header.contentMode = .scaleAspectFill;header.clipsToBounds=true
+        header.layer.cornerRadius=22;header.layer.borderWidth=2
+        header.layer.borderColor=UIColor.white.withAlphaComponent(0.45).cgColor
+        header.heightAnchor.constraint(equalToConstant:166).isActive=true
+        stack.addArrangedSubview(header)
+        label("LET ZAVRŠEN!",31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
+        let stats=UIStackView()
+        stats.axis = .vertical;stats.alignment = .fill;stats.spacing=8
+        stats.isLayoutMarginsRelativeArrangement=true
+        stats.layoutMargins=UIEdgeInsets(top:16,left:18,bottom:18,right:18)
+        stats.backgroundColor=UIColor(red:0.96,green:0.98,blue:1,alpha:1)
+        stats.layer.cornerRadius=22;stats.layer.borderWidth=2
+        stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
+        stack.addArrangedSubview(stats)
+        label("\(g.score())",43,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+        label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+        button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
+        button("OPREMA ZA KOVANICE",in:stack,primary:false){self.showPerks()}
+        button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
+        button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
     }
     private func showPerks(){
         let s=menu("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")

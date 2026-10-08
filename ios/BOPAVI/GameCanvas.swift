@@ -194,7 +194,32 @@ final class GameCanvas: UIView {
             rect(c,x+14,top-21,11,7,0xb2ecff,3)
         default:break
         }
-        let center=(top+bottom)*0.5,mid=x+w*0.5
+        // Same rock strata and biome-specific highlights as Android.
+        let seam:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
+                           0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]
+        func courses(_ start:CGFloat,_ end:CGFloat){
+            var y=start
+            var n=0
+            while y+16<end && n<12 {
+                rect(c,x+8+CGFloat(n%3)*4,y,34+CGFloat(n%2)*6,3,seam[g.kind],2)
+                if n%2==0 {
+                    c.setStrokeColor(color(shade,0.49))
+                    c.setLineWidth(2.5)
+                    c.move(to:CGPoint(x:x+25,y:y+5))
+                    c.addLine(to:CGPoint(x:x+18,y:y+18))
+                    c.addLine(to:CGPoint(x:x+34,y:y+29))
+                    c.strokePath()
+                }
+                if g.kind==0 && n%3==0 {
+                    oval(c,x+34,y+5,10,13,0x67d87d)
+                }
+                y += 57;n += 1
+            }
+        }
+        courses(32,top-34);courses(bottom+34,744)
+        rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
+        rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
+                let center=(top+bottom)*0.5,mid=x+w*0.5
         if g.coin && game.coinVisible(index) {
             let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
             oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,pickupHues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)

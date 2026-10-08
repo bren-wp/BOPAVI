@@ -241,7 +241,35 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 rect(c,x+14f,top-21f,x+25f,top-14f,0xffb2ecff.toInt(),3f)
             }
         }
-        val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
+        // Stone courses, mineral seams and edge lighting add biome-specific
+        // depth without textures decoded or allocated inside the frame loop.
+        val seam=when(g.kind){
+            0->0xff685e5e.toInt();1->0xffb57852.toInt()
+            2->0xffe7fbff.toInt();3->0xffff973e.toInt()
+            4->0xffffe9ab.toInt();5->0xffa693ed.toInt()
+            6->0xff89fff0.toInt();else->0xffb7b2ff.toInt()
+        }
+        fun courses(yStart:Float,yEnd:Float){
+            var row=yStart
+            var n=0
+            while(row+16f<yEnd && n<12){
+                rect(c,x+8f+(n%3)*4f,row,x+42f+(n%2)*6f,row+3f,seam,2f)
+                if(n%2==0){
+                    path.reset();path.moveTo(x+25f,row+5f)
+                    path.lineTo(x+18f,row+18f);path.lineTo(x+34f,row+29f)
+                    fill(shade);p.style=Paint.Style.STROKE;p.strokeWidth=2.5f
+                    p.alpha=125;c.drawPath(path,p);p.style=Paint.Style.FILL;p.alpha=255
+                }
+                if(g.kind==0 && n%3==0){
+                    oval(c,x+34f,row+5f,x+44f,row+18f,0xff67d87d.toInt())
+                }
+                row+=57f;n++
+            }
+        }
+        courses(32f,top-34f);courses(bottom+34f,744f)
+        rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
+        rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
+                val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
         if(g.coin && game.coinVisible(index)) {
             val pulse=if(reducedMotion)0f else sin(game.time*5f+g.phase)*2f
             oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,pickupHues[g.kind])

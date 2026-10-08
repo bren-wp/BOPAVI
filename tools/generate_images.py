@@ -40,6 +40,50 @@ for y in range(hero.height):
     value=int(255*max(0.0,edge_alpha))
     for x in range(hero.width): mask_pixels[x,y]=value
 launch.paste(hero,(0,340),mask)
+# Fill the formerly empty lower third with detailed foreground scenery.
+# This is painted only once during the build, never inside game frame loops.
+scene=ImageDraw.Draw(launch,"RGBA")
+def island(cx,top,width,depth,seed):
+    from math import sin
+    left=cx-width//2
+    # Back rim and stacked shaded rock facets.
+    scene.ellipse((left-14,top-5,left+width+15,top+40),fill=(23,95,112,48))
+    scene.polygon([(left+5,top+13),(left+width-3,top+12),(cx+width*.23,top+depth*.72),
+        (cx-6,top+depth),(cx-width*.31,top+depth*.72)],fill=(102,103,116,240))
+    scene.polygon([(left+8,top+18),(cx-9,top+depth*.9),(cx-width*.3,top+depth*.65)],
+        fill=(181,144,114,234))
+    scene.polygon([(cx,top+25),(left+width-6,top+18),(cx+width*.23,top+depth*.67)],
+        fill=(91,91,111,215))
+    for k in range(8):
+        x=left+24+(k*71+seed*17)%(max(25,width-42))
+        ya=top+31+(k*37)%max(30,depth//2)
+        scene.line((x,ya,x-14,ya+12,x-5,ya+27),fill=(68,70,92,100),width=4)
+    # Bright lush turf with a reflective lime highlight.
+    scene.ellipse((left,top-18,left+width,top+32),fill=(28,128,77,255))
+    scene.ellipse((left+7,top-21,left+width-7,top+22),fill=(93,214,88,255))
+    scene.arc((left+13,top-20,left+width-14,top+17),180,350,fill=(191,254,135,235),width=7)
+    # Flowers and clumps of leaves make the island readable at 5-inch size.
+    for k in range(7):
+        x=left+19+(k*49+seed*11)%(max(20,width-34))
+        y=top-13+(k%3)*4
+        scene.ellipse((x-9,y-6,x+11,y+10),fill=(23,142,65,240))
+        scene.ellipse((x-7,y-10,x+7,y+5),fill=(98,231,104,255))
+        if k%3==0:
+            scene.ellipse((x+8,y-7,x+14,y-1),fill=(255,220,74,255))
+    if seed%2==0:
+        wx=left+width*.58
+        for off in range(0,20,4):
+            scene.line((wx+off,top+25,wx+off-12,top+depth*.73),
+                fill=(218,252,255,190-off*6),width=5)
+        scene.ellipse((wx-26,top+depth*.69,wx+50,top+depth*.78),fill=(197,255,255,63))
+island(115,1210,280,178,2)
+island(758,1285,275,210,3)
+island(439,1497,330,161,5)
+# Fluffy foreground clouds create depth and a seamless safe area for controls.
+for cx,cy,sc in [(-35,1570,1.1),(900,1530,1.1),(360,1620,1.4)]:
+    for dx,dy,rx,ry in [(-86,5,138,58),(38,11,156,48),(-18,-40,92,80)]:
+        x=cx+dx*sc; y=cy+dy*sc
+        scene.ellipse((x-rx*sc,y-ry*sc,x+rx*sc,y+ry*sc),fill=(250,255,255,113))
 logoCrop=brand.copy()
 logoCrop.thumbnail((740,250),Image.Resampling.LANCZOS)
 launch.paste(logoCrop,((900-logoCrop.width)//2,130),logoCrop)

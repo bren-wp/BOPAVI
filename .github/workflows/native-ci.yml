@@ -33,6 +33,11 @@ jobs:
           worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
           assert all(im.size==(960,1600) for im in worlds)
           assert len({im.resize((80,120)).tobytes() for im in worlds})==8
+          # Guard against the previous pale-yellow logo rasterization bug.
+          logo=Image.open('android/app/src/main/res/drawable-nodpi/logo.png').convert('RGBA')
+          pixels=logo.getdata()
+          orange=sum(1 for r,g,b,a in pixels if a>180 and r>205 and 80<=g<200 and b<90)
+          assert orange>400, f'BOPAVI orange lettering vanished: {orange} pixels'
           wings=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA') for skin in range(6) for side in ('left','right')]
           assert len(wings)==12 and all(im.size==(512,512) and im.getbbox() for im in wings)
           print('PASS: 6 body sprites, 12 animated wing sprites and 8 distinct 960x1600 biomes')
@@ -106,7 +111,7 @@ jobs:
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
   android-smoke:
-    name: Android emulator launch and home screenshot
+    name: Android home, gameplay and collision visual QA
     needs: [android]
     runs-on: ubuntu-latest
     timeout-minutes: 18
@@ -136,8 +141,8 @@ jobs:
           script: sh tools/qa_android_emulator.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: QA-Android-home-screenshot
-          path: qa/screenshots/android-home.png
+          name: QA-Android-visual-flow
+          path: qa/screenshots/*.png
           if-no-files-found: error
   ios:
     name: iOS simulator + unsigned device build
@@ -186,7 +191,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.6
+    name: GitHub Release v0.1.7
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -208,10 +213,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.6 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.6 exists: no duplicate release.'
+          if gh release view v0.1.7 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.7 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.6 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.6 — Krila i neprekinuti let' --prerelease \
+          gh release create v0.1.7 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.7 — Vizualna dorada' --prerelease \
             --notes 'Stvarna animacija odvojenih Bopijevih krila i neprekinuti prelazak numeriranih levela. Android/iOS screenshot QA, testovi kolizije i vremenske simulacije; bez oglasa i kupnje novcem. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'

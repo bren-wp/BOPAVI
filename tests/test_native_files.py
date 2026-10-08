@@ -28,8 +28,8 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.6' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.6"' in (root/'android/app/build.gradle.kts').read_text()
+assert 'MARKETING_VERSION = 0.1.7' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+assert 'versionName = "0.1.7"' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
@@ -43,7 +43,8 @@ for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
 # Premium home: one launch button, themed world cards, compact selector.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios=(root/'ios/BOPAVI/GameController.swift').read_text()
-assert 'worldTile(b,w)' in android and 'worldTile(w,in:s)' in ios
+assert 'worldTile(row,w)' in android and 'worldTile(world,in:row)' in ios
+assert 'for(line in 0..3)' in android and 'for line in 0..<4' in ios
 assert 'for(r in 0 until 5)' in android and 'for rowNumber in 0..<5' in ios
 assert 'BopaviActionButton' in ios and 'RippleDrawable' in android
 for code in [android,ios]:
@@ -106,3 +107,17 @@ assert 'distance=0;passed=0' not in swift
 # Keep fixed body raster dimensions; only separated wings may rotate.
 assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
+
+# Premium art and illustrated results must ship on Android/iOS.
+assert '#ff871b' in (root/'docs/assets/logo.svg').read_text()
+assert 'id="wood"' in (root/'docs/assets/logo.svg').read_text()
+assert 'id="lens"' in (root/'docs/assets/hero.svg').read_text()
+assert 'def island(' in (root/'tools/generate_images.py').read_text()
+assert 'LET ZAVRŠEN!' in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+assert 'LET ZAVRŠEN!' in (root/'ios/BOPAVI/GameController.swift').read_text()
+assert 'fun courses(' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'func courses(' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
+
+# First play must not show Android's immersive tutorial over gameplay.
+assert 'View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text().replace('// triggers Android\'s full-screen onboarding popup','')
+assert "uiautomator dump" in (root/'tools/qa_android_emulator.sh').read_text()
