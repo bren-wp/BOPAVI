@@ -19,6 +19,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var stars = 0; private set
     var shield = initialShield.coerceIn(0,2); private set
     var magnetTime = initialMagnet.coerceIn(0f,12f); private set
+    var collectPulse = 0f; private set
+    var impactPulse = 0f; private set
     var completionCount = 0; private set
     var completedLevelNumber = 0; private set
     var displayLevel = initialOrdinal;private set
@@ -45,7 +47,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun step(delta: Float) {
         if (!active || finished) return
         val dt = delta.coerceIn(0f, 0.034f)
-        time += dt; invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt)
+        time += dt; invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
         velocity = min(365f, velocity + (685f + level.wind) * dt)
         y += velocity * dt
         distance += level.speed * dt
@@ -57,11 +59,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
             val magnetRange = if (magnetTime > 0f) 108f else 23f
-            if(gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true}
-            if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;collectedStars[i]=true}
+            if(gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
+            if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;collectedStars[i]=true;collectPulse=.36f}
             if(gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
                 if(gate.power==1)shield=min(2,shield+1) else magnetTime=5f
-                collectedPowers[i]=true
+                collectedPowers[i]=true;collectPulse=.36f
             }
             if (x < birdX + radius && x + gate.width > birdX - radius) {
                 if (y - radius < bounds.top || y + radius > bounds.bottom) { damage(); if (finished) return }
@@ -85,7 +87,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     private fun damage() {
         if (invulnerable > 0f) return
-        if (shield > 0) { shield--; invulnerable = 1.25f; velocity = -90f }
+        if (shield > 0) { shield--; invulnerable = 1.25f; impactPulse = .65f; velocity = -90f }
         else { finished = true; active = false; won = false }
     }
     fun rating(): Int = if(!won)0 else (1+min(2,stars / max(1,level.gates.size/4)))

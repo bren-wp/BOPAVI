@@ -32,7 +32,7 @@ Spoznaj koliko daleko možeš poletjeti! **BOPAVI** je šarena igra spretnosti u
 
 ## 🏆 Putovanje koje se nastavlja
 
-Prođi prepreke, skupljaj predmete i osvajaj kovanice na posebnim levelima. Kovanice možeš potrošiti na štit, magnet i nove izglede Bopija. Svijet nastavlja stvarati nove izazove dokle god želiš igrati — bez posebnog načina igre i bez potrebe za dodatnom kupnjom.
+Prođi prepreke, skupljaj predmete i osvajaj kovanice na posebnim levelima. Kovanice možeš potrošiti na štit, magnet i nove izglede Bopija. Svaki svijet otkriva nove prepreke i nagrade, bez dodatnog načina igre ili plaćanja.
 
 ## 📱 Android i iPhone
 

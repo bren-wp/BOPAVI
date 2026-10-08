@@ -15,3 +15,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 7. **Pristupačnost:** VoiceOver/TalkBack, kontrole najmanje 44 pt/48 dp, dinamički tekst, kontrast i smanjeno kretanje.
 
 **Release gate:** ne označavati izdanje produkcijski spremnim dok Android i iOS buildovi, QA na stvarnim telefonima i crash/performance provjere ne budu stvarno prošli.
+
+
+## v0.1.1 — vizualno i performansno poliranje
+- Novi vizualni odziv skupljanja i aktivacije štita na obje platforme.
+- Osam tematskih simbola i detalja prepreka; grafika ostaje unutar kolizijskih granica.
+- iOS: Core Graphics boje i zaobljeni oblici bez stvaranja UIColor/UIBezierPath po svakom prolazu crtanja.
+- Build gate: Android APK + AAB, iOS simulator + nepotpisani device build, audit resursa i privatnosti.
+- Stvarni iPhone/Android uređaj, dugotrajan FPS/baterijski profil i potpisani IPA nisu potvrđeni.
