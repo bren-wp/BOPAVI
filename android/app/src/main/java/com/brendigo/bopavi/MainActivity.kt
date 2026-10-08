@@ -162,17 +162,20 @@ class MainActivity : Activity() {
             contentDescription="Prikaz svijeta $name"
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        row.addView(preview,LinearLayout.LayoutParams(-1,d(118)).apply{bottomMargin=d(10)})
+        row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
             text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
-            textSize=19f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
+            textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER_HORIZONTAL
         })
         row.addView(TextView(this).apply{
             text=if(unlocked)"Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}" else "Otkrij novi svijet tijekom igranja"
-            textSize=13f;setTextColor(0xffd0e6f5.toInt())
+            textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER_HORIZONTAL
             setPadding(0,d(5),0,0)
         })
-        parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
+        parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
+            setMargins(d(4),d(5),d(4),d(7))
+        })
     }
     private fun showHome(){
         @Suppress("DEPRECATION")
@@ -211,11 +214,19 @@ class MainActivity : Activity() {
     }
 
     private fun showWorlds(){
-        val b=base("SVJETOVI","Odaberi svoj sljedeći let")
-        for(w in 0 until 8){
-            val accessible=w<=progress.maxWorld()
-            worldTile(b,w){
-                if(accessible) showLevels(w,1) else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
+        val b=base("SVJETOVI","Osam različitih avantura")
+        for(line in 0..3) {
+            val row=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.TOP
+            }
+            b.addView(row,LinearLayout.LayoutParams(-1,-2))
+            for(col in 0..1){
+                val w=line*2+col
+                val accessible=w<=progress.maxWorld()
+                worldTile(row,w){
+                    if(accessible) showLevels(w,1)
+                    else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
+                }
             }
         }
         back(b){showHome()}

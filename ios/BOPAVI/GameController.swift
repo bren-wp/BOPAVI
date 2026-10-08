@@ -127,7 +127,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             preview.translatesAutoresizingMaskIntoConstraints=false
             preview.contentMode = .scaleAspectFill
             preview.clipsToBounds=true
-            preview.alpha=0.46
+            preview.alpha=0.76
             preview.isUserInteractionEnabled=false
             tile.insertSubview(preview,at:0)
             NSLayoutConstraint.activate([
@@ -139,16 +139,16 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.clipsToBounds=true
         }
         tile.alpha=unlocked ? 1 : 0.60
-        tile.titleLabel?.numberOfLines=2
+        tile.titleLabel?.numberOfLines=3
         tile.titleLabel?.textAlignment = .center
         let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  \(unlocked ? "↗" : "🔒")"
         let detail=unlocked ? "Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])" : "Otkrij novi svijet tijekom igranja"
         let text=NSMutableAttributedString(string:headline+"\n"+detail)
-        text.addAttributes([.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
-        text.addAttributes([.font:UIFont.systemFont(ofSize:13,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
+        text.addAttributes([.font:UIFont.systemFont(ofSize:15,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
+        text.addAttributes([.font:UIFont.systemFont(ofSize:11,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
         tile.setAttributedTitle(text,for:.normal)
         tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
-        tile.heightAnchor.constraint(equalToConstant:110).isActive=true
+        tile.heightAnchor.constraint(equalToConstant:178).isActive=true
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
     }
@@ -211,14 +211,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
 
     private func showWorlds(){
-        let s=menu("SVJETOVI","Odaberi svoj sljedeći let")
-        for w in 0..<8 {
-            let accessible=w<=progress.maxWorld()
-            worldTile(w,in:s){
-                if accessible {self.showLevels(w,page:1)} else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
+        let stack=menu("SVJETOVI","Osam različitih avantura")
+        for line in 0..<4 {
+            let row=UIStackView()
+            row.axis = .horizontal;row.alignment = .fill
+            row.distribution = .fillEqually;row.spacing=10
+            stack.addArrangedSubview(row)
+            for col in 0..<2 {
+                let world=line*2+col
+                let accessible=world<=progress.maxWorld()
+                worldTile(world,in:row){
+                    if accessible {self.showLevels(world,page:1)}
+                    else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
+                }
             }
         }
-        button("‹  Natrag",in:s,primary:false){self.showHome()}
+        button("‹  Natrag",in:stack,primary:false){self.showHome()}
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
