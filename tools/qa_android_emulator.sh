@@ -47,11 +47,31 @@ adb shell pidof com.brendigo.bopavi
 capture android-gameplay-ready
 # First touch makes Bopi flap; without further taps a collision must lead to results.
 adb shell input tap "$center" "$((height*50/100))"
-sleep 5
-adb shell pidof com.brendigo.bopavi
-# Do not accept a PNG containing Android's immersive onboarding dialog.
-# The game must really reach the result view with an actionable retry button.
-adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null
-adb shell cat /sdcard/bopavi-window.xml | grep -q 'PONOVO'
+# Wait for the actual result UI rather than assuming every runner reaches it in 5s.
+# A game crash or a missing retry button is still a hard failure.
+result_ready=0
+attempt=1
+while [ "$attempt" -le 15 ]; do
+  if ! adb shell pidof com.brendigo.bopavi >/dev/null; then
+    echo "FAIL: BOPAVI process exited during gameplay" >&2
+    adb logcat -d -t 250 | tail -n 100 || true
+    exit 1
+  fi
+  if adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1 &&
+     adb shell cat /sdcard/bopavi-window.xml | grep -q 'PONOVO'; then
+    result_ready=1
+    break
+  fi
+  echo "Waiting for Android result and PONOVO button ($attempt/15)"
+  attempt=$((attempt+1))
+  sleep 2
+done
+if [ "$result_ready" -ne 1 ]; then
+  capture android-result-diagnostic || true
+  echo "FAIL: gameplay did not expose the PONOVO action within 30 seconds" >&2
+  adb shell cat /sdcard/bopavi-window.xml | head -c 5000 || true
+  adb logcat -d -t 250 | tail -n 100 || true
+  exit 1
+fi
 capture android-result
 echo "PASS: full native Android visual flow captured without a process crash"
