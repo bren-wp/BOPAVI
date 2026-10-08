@@ -6,6 +6,11 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# A superseded pull-request build should not occupy multiple emulators while
+# a newer BOPAVI visual revision is being tested.
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   graphics:
     name: Render premium game art
@@ -100,6 +105,7 @@ jobs:
     name: Android emulator launch and home screenshot
     needs: [android]
     runs-on: ubuntu-latest
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -131,6 +137,7 @@ jobs:
     name: iOS simulator + unsigned device build
     needs: [graphics]
     runs-on: macos-15
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
