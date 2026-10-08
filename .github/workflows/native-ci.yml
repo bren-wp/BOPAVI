@@ -33,6 +33,11 @@ jobs:
           worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
           assert all(im.size==(960,1600) for im in worlds)
           assert len({im.resize((80,120)).tobytes() for im in worlds})==8
+          # Guard against the previous pale-yellow logo rasterization bug.
+          logo=Image.open('android/app/src/main/res/drawable-nodpi/logo.png').convert('RGBA')
+          pixels=logo.getdata()
+          orange=sum(1 for r,g,b,a in pixels if a>180 and r>205 and 80<=g<200 and b<90)
+          assert orange>400, f'BOPAVI orange lettering vanished: {orange} pixels'
           wings=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA') for skin in range(6) for side in ('left','right')]
           assert len(wings)==12 and all(im.size==(512,512) and im.getbbox() for im in wings)
           print('PASS: 6 body sprites, 12 animated wing sprites and 8 distinct 960x1600 biomes')
