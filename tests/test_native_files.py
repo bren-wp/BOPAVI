@@ -102,3 +102,7 @@ assert 'levelOrigin=distance+300f-next.gates.first().x' in andr
 assert 'levelOrigin=distance+300-next.gates[0].x' in swift
 assert 'distance = 0f; passed = 0' not in andr
 assert 'distance=0;passed=0' not in swift
+
+# Keep fixed body raster dimensions; only separated wings may rotate.
+assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()

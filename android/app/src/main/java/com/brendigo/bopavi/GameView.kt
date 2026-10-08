@@ -282,8 +282,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.save();c.translate(126f,game.y)
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
         val phase=if(reducedMotion)0f else sin(game.time*19f)
-        val squash=if(reducedMotion)1f else 1f+phase*.035f
-        c.scale(1f,squash)
+        // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
             val flap=if(reducedMotion)0f else sin(game.time*19f)*23f

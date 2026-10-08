@@ -242,7 +242,7 @@ final class GameCanvas: UIView {
         let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * .pi / 180
         c.rotate(by:angle)
         let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))
-        c.scaleBy(x:1,y:1+phase*0.035)
+        // No whole-body stretching: moving wings provide the animation.
         if let sprite=birdSprite {
             let wingAngle:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19)) * 23 * .pi / 180
             if let left=leftWing {
