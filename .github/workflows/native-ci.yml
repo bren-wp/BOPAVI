@@ -33,7 +33,9 @@ jobs:
           worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
           assert all(im.size==(960,1600) for im in worlds)
           assert len({im.resize((80,120)).tobytes() for im in worlds})==8
-          print('PASS: 6 Bopi sprites and 8 distinct 960x1600 illustrated world backgrounds')
+          wings=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA') for skin in range(6) for side in ('left','right')]
+          assert len(wings)==12 and all(im.size==(512,512) and im.getbbox() for im in wings)
+          print('PASS: 6 body sprites, 12 animated wing sprites and 8 distinct 960x1600 biomes')
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -46,6 +48,8 @@ jobs:
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
             android/app/src/main/res/drawable-nodpi/bopi*.png
+            ios/BOPAVI/Assets.xcassets/BopiLeft*.imageset/
+            ios/BOPAVI/Assets.xcassets/BopiRight*.imageset/
             android/app/src/main/res/drawable-nodpi/world*.png
             ios/BOPAVI/Assets.xcassets/World*.imageset/
             ios/BOPAVI/Assets.xcassets/Bopi*.imageset/
