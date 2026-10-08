@@ -96,6 +96,37 @@ jobs:
           name: BOPAVI-Android-AAB-unsigned
           path: android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
+  android-smoke:
+    name: Android emulator launch and home screenshot
+    needs: [android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: BOPAVI-Android-APK
+          path: qa/apk
+      - name: Set up native Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            mkdir -p qa/screenshots
+            adb install -r qa/apk/app-debug.apk
+            adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+            sleep 4
+            adb shell pidof com.brendigo.bopavi
+            adb shell screencap -p /sdcard/bopavi-home.png
+            adb pull /sdcard/bopavi-home.png qa/screenshots/android-home.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QA-Android-home-screenshot
+          path: qa/screenshots/android-home.png
+          if-no-files-found: error
   ios:
     name: iOS simulator + unsigned device build
     needs: [graphics]
@@ -110,6 +141,22 @@ jobs:
         run: |
           xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-sim" CODE_SIGNING_ALLOWED=NO build
           ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app" BOPAVI-iOS-Simulator.zip
+      - name: iOS simulator launch smoke and screenshot
+        run: |
+          UDID="$(xcrun simctl list -j devices available | python3 -c 'import json,sys;d=json.load(sys.stdin);print(next(x["udid"] for ds in d["devices"].values() for x in ds if "iPhone" in x["name"] and x.get("isAvailable",True)))')"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app"
+          xcrun simctl launch "$UDID" com.brendigo.bopavi
+          sleep 4
+          xcrun simctl io "$UDID" screenshot BOPAVI-iOS-home.png
+          test -s BOPAVI-iOS-home.png
+          xcrun simctl shutdown "$UDID"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QA-iOS-home-screenshot
+          path: BOPAVI-iOS-home.png
+          if-no-files-found: error
       - name: Core physics collision regression on iOS
         run: |
           swiftc -O ios/BOPAVI/BopaviCore.swift ios/BOPAVI/ProgressStore.swift tests/SwiftParity.swift -o "$RUNNER_TEMP/bopavi-core-tests"
@@ -128,7 +175,7 @@ jobs:
   publish:
     name: GitHub Release v0.1.4
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, ios]
+    needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
     permissions:
       contents: write
