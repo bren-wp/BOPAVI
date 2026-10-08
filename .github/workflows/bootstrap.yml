@@ -1,0 +1,42 @@
+name: Import initial BOPAVI source
+on:
+  push:
+    branches: [main]
+    paths: ['bootstrap/source.b64']
+permissions:
+  contents: write
+  actions: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify and unpack native source
+        run: |
+          if [ ! -f bootstrap/source.b64 ]; then
+            echo 'Initial import already complete.'
+            exit 0
+          fi
+          base64 --decode bootstrap/source.b64 > "$RUNNER_TEMP/bopavi-source.tar.xz"
+          echo '8da781e2b1ad7fcd7a8952b115288b3ca34f7fb5608e95786e820e1743687d0d  '"$RUNNER_TEMP/bopavi-source.tar.xz" | sha256sum -c -
+          tar --exclude='.github/workflows/native-ci.yml' -xJf "$RUNNER_TEMP/bopavi-source.tar.xz"
+          python -m pip install --quiet pillow cairosvg
+          python tools/generate_images.py
+          python tools/generate_audio.py
+          python tests/test_native_files.py
+      - name: Commit imported source to main
+        run: |
+          if [ ! -f bootstrap/source.b64 ]; then exit 0; fi
+          rm bootstrap/source.b64
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: import BOPAVI native Android and iOS game v0.1.0'
+          git push
+      - name: Run full Android/iOS build and release gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run native-ci.yml --ref main
