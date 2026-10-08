@@ -1,4 +1,4 @@
-# BOPAVI — QA izdanja v0.1.0
+# BOPAVI — produkcijski QA
 
 ## Automatski testovi
 
@@ -65,3 +65,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Android emulator screenshot v0.1.5: potvrđen launch i početni UI; pronađen i uklonjen pretjeran tamnoplavi prazan pojas uz donje kontrole te usklađene Android sistemske trake. Ponoviti screenshot nakon zadnjeg commita.
 
 - Android 90/120 Hz: usporediti položaj Bopija i brzinu prolaska kroz prepreke za jednako proteklo vrijeme; JUnit regresija simulira 60, 90 i 120 frejmova u sekundi.
+
+## v0.1.7 — referentna vizualna kontrola
+- Provjeriti razliku između dostavljenih konceptnih fotografija i stvarnih screenshotova: položaj logotipa, omjer Bopijeva tijela, detalji naočala, volumetrija otoka, slojevite prepreke i gumbi.
+- Svaki grafički build mora potvrditi da logo PNG sadrži stvarne zasićene narančaste piksele; prethodni SVG gradijent proizvodio je presvijetlu plohu iako je izvorna paleta bila ispravna.
+- Android i iOS karta svjetova mora imati četiri reda po dvije ilustrirane kartice, s preglednim nazivima i zaključanim stanjima.
+- Pregledati završetak leta na svakoj platformi, prilagodbu rezultatske kartice malim ekranima, sve akcije (ponovno, oprema, mapa, početak) i čitljivost tijekom promjena orijentacije sustavnih traka.
+- Obvezno: generiranje svih resursa, native audit, Android lint/JUnit/APK/AAB, Android emulator/screenshot, iOS Simulator build/launch/screenshot, Swift fizika/paritet i unsigned iPhone device build.
+- Za stvarnu piksel-po-piksel jednakost potrebni su zasebni završni slojevi ilustracija i usporedni prikazi na fizičkim uređajima. Kolaži sami nisu zasebni spritesheetovi.
