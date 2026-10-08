@@ -40,6 +40,22 @@ for y in range(hero.height):
     value=int(255*max(0.0,edge_alpha))
     for x in range(hero.width): mask_pixels[x,y]=value
 launch.paste(hero,(0,340),mask)
+# Atmospheric perspective: layered mountains and distant sky islands.
+# All effects are rendered at build time into the same portrait raster for both platforms.
+from math import sin, pi
+atmosphere=ImageDraw.Draw(launch, 'RGBA')
+for band, baseline, amplitude, tint in [
+    (0, 1170, 52, (163,224,244,52)),
+    (1, 1240, 66, (86,178,214,64)),
+    (2, 1380, 82, (28,119,176,55)),
+]:
+    ridge=[(x, baseline + int(sin((x + 63*band)/107)*amplitude + sin(x/39 + band)*amplitude*.17)) for x in range(-20, 921, 15)]
+    atmosphere.polygon([(-20,1600), *ridge, (920,1600)], fill=tint)
+# Soft sunbeams remain below the interactive logo and do not obscure typography.
+for k in range(9):
+    x=75+k*108
+    atmosphere.polygon([(445,445),(x-44,1180),(x+12,1180)], fill=(255,245,181,8))
+
 # Fill the formerly empty lower third with detailed foreground scenery.
 # This is painted only once during the build, never inside game frame loops.
 scene=ImageDraw.Draw(launch,"RGBA")
