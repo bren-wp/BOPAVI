@@ -7,7 +7,7 @@
  <radialGradient id="sun"><stop stop-color="#fffed3"/><stop offset="1" stop-color="#fffed3" stop-opacity="0"/></radialGradient>
  <filter id="shadow" x="-60%" y="-60%" width="220%" height="240%"><feGaussianBlur stdDeviation="14"/></filter>
 </defs>
-<rect width="900" height="760" rx="46" fill="url(#sky)"/>
+<rect width="900" height="760" fill="url(#sky)"/>
 <circle cx="704" cy="140" r="168" fill="url(#sun)" opacity=".82"/>
 <g fill="white" opacity=".82">
  <ellipse cx="170" cy="140" rx="122" ry="34"/><ellipse cx="126" cy="111" rx="68" ry="51"/><ellipse cx="215" cy="104" rx="66" ry="59"/>
