@@ -39,8 +39,12 @@ hero_markup=(r/'docs/assets/hero.svg').read_text()
 bird=re.search(r'<g transform="translate\(454 336\) rotate\(-12\)">([\s\S]*?)</g>',hero_markup)
 if bird is None:
     raise RuntimeError('Bird group missing from hero art')
+defs=re.search(r'<defs>([\\s\\S]*?)</defs>',hero_markup)
+if defs is None:
+    raise RuntimeError('Hero gradient definitions missing')
 bird_svg=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
-          'viewBox="-260 -260 520 520"><g>'+bird.group(1)+'</g></svg>')
+          'viewBox="-260 -260 520 520"><defs>'+defs.group(1)+'</defs><g>'
+          +bird.group(1)+'</g></svg>')
 original=Image.open(io.BytesIO(cairosvg.svg2png(bytestring=bird_svg.encode(),output_width=512,output_height=512))).convert('RGBA')
 # Recolor only the saturated blue feathers and body; retain goggles, beak and scarf.
 palette=[None,.145,.975,.75,.46,.60]
