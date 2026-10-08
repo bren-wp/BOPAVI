@@ -21,7 +21,7 @@
  <text x="380" y="147" fill="#061745" stroke="#062051" stroke-width="37" paint-order="stroke">BOPAVI</text>
  <text x="380" y="139" fill="#064da8" stroke="#0860bb" stroke-width="30" paint-order="stroke">BOPAVI</text>
  <text x="380" y="134" fill="#1282e7" stroke="#158de8" stroke-width="19" paint-order="stroke">BOPAVI</text>
- <text x="380" y="127" fill="url(#gold)" stroke="#102b6e" stroke-width="7" paint-order="stroke">BOPAVI</text>
+ <text x="380" y="127" fill="#ff991a" stroke="#102b6e" stroke-width="7" paint-order="stroke">BOPAVI</text>
 </g>
 <path d="M365 64l6 12 13 2-10 9 2 14-11-7-13 7 3-14-11-9 14-2Z" fill="#ffef61" stroke="#d96a0b" stroke-width="3"/>
 <path d="M172 164Q369 150 586 163L594 204Q393 219 163 201Z" fill="#3d210f" stroke="#1c2853" stroke-width="6"/>
