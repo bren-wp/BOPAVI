@@ -29,6 +29,13 @@ class LevelEngineTest {
         assertEquals(0,flight.shield)
         assertTrue(flight.invulnerable>0f)
     }
+    @Test fun illustratedBirdSurvivesSafeCapOverlap() {
+        val level=LevelEngine.create(0,2)
+        val safe=level.gates[0].copy(x=154f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val run=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f))
+        run.flap();run.step(1f/60f)
+        assertFalse("Do not kill bird when its body remains inside visible opening",run.finished)
+    }
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)
