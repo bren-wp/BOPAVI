@@ -39,7 +39,7 @@ hero_markup=(r/'docs/assets/hero.svg').read_text()
 bird=re.search(r'<g transform="translate\(454 336\) rotate\(-12\)">([\s\S]*?)</g>',hero_markup)
 if bird is None:
     raise RuntimeError('Bird group missing from hero art')
-defs=re.search(r'<defs>([\\s\\S]*?)</defs>',hero_markup)
+defs=re.search(r'<defs>(.*?)</defs>',hero_markup,re.S)
 if defs is None:
     raise RuntimeError('Hero gradient definitions missing')
 bird_svg=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
