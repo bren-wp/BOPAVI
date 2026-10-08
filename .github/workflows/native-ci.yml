@@ -121,7 +121,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.3
+    name: GitHub Release v0.1.4
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, ios]
     runs-on: ubuntu-latest
@@ -143,10 +143,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.3 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.3 exists: no duplicate release.'
+          if gh release view v0.1.4 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.4 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.3 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.3 — Pravi dodir' --prerelease \
-            --notes 'Usklađena kolizija s vidljivim kapicama prepreka, provjere instant poraza i štita, redizajnirana ilustracija Bopija, splash ekran i napredniji prikaz igre. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'
+          gh release create v0.1.4 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.4 — Bopi oživljava' --prerelease \
+            --notes 'Šest ilustriranih spriteova Bopija, različite boje i animirani let na obje platforme uz testove kolizije. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'

@@ -40,3 +40,10 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Novi home treba prikazati zaseban BOPAVI logo i veliku ilustraciju bez lažnog gumba unutar slike.
 - Android splash i iOS LaunchArt prikaz bez bijele pozadine; sistemske trake u igri skrivene na Androidu.
 - Stvarni uređajni smoke test i potpisani iOS IPA još se ne mogu potvrditi samo pomoću CI-ja.
+
+
+## v0.1.4 — ilustrirani likovi i testovi
+- Provjeriti 6 jedinstvenih prozirnih spriteova 512 × 512, bez dekodiranja unutar petlje crtanja.
+- Provjeriti da štit, skupljanje i dodir kapice rade i s novom grafikom.
+- Zadržati Android lint/JVM/APK/AAB i iOS Simulator/device/Swift fizikalne regresijske testove.
+- Profiliranje na fizičkim telefonima i potpisani iOS IPA još nisu potvrđeni.
