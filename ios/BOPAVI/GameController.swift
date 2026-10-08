@@ -242,15 +242,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             row.distribution = .fillEqually
             for column in 0..<4 {
                 let n=start+rowNumber*4+column
-                if n>maxNumber {break}
+                if n>BopaviCore.levelsPerWorld {break}
+                let unlocked=n<=maxNumber
                 let cell=BopaviActionButton(primary:false)
-                cell.setTitle("✦\n\(n)",for:.normal)
+                cell.setTitle("\(unlocked ? (n<maxNumber ? "★" : "▶") : "🔒")\n\(n)",for:.normal)
+                cell.alpha=unlocked ? 1 : 0.60
                 cell.titleLabel?.numberOfLines=2
                 cell.titleLabel?.textAlignment = .center
                 cell.titleLabel?.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.bold)
                 cell.accessibilityLabel="Level \(n)"
                 cell.heightAnchor.constraint(equalToConstant:63).isActive=true
-                cell.addAction(UIAction{_ in self.sound.effect("click");self.startGame(world,n)},for:.touchUpInside)
+                cell.addAction(UIAction{_ in
+                    self.sound.effect("click")
+                    if unlocked {self.startGame(world,n)}
+                    else {self.alert("Zaključano","Prvo dovrši prethodni level.")}
+                },for:.touchUpInside)
                 row.addArrangedSubview(cell)
             }
             if !row.arrangedSubviews.isEmpty {s.addArrangedSubview(row)}

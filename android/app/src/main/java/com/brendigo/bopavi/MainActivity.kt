@@ -253,14 +253,21 @@ class MainActivity : Activity() {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             for(col in 0 until 4){
                 val n=start+r*4+col
-                if(n>maxNumber)continue
+                if(n>LevelEngine.LEVELS_PER_WORLD)continue
+                val unlocked=n<=maxNumber
                 val cell=Button(this).apply{
-                    text="✦\n$n"
-                    setTextColor(gold);textSize=14f;isAllCaps=false
+                    text=if(!unlocked)"🔒\n$n" else if(n<maxNumber)"★\n$n" else "▶\n$n"
+                    setTextColor(if(unlocked)Color.WHITE else 0xff91a8c6.toInt())
+                    textSize=14f;isAllCaps=false
                     typeface=Typeface.DEFAULT_BOLD
-                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff204d72.toInt(),0xff112942.toInt(),16),null)
-                    contentDescription="Level $n"
-                    setOnClickListener{sound.effect("click");startGame(world,n.toLong())}
+                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
+                        if(unlocked)gradient(0xff268cf0.toInt(),0xff174aa8.toInt(),16)
+                        else gradient(0xff20395c.toInt(),0xff122641.toInt(),16),null)
+                    contentDescription="Level $n, ${if(unlocked) "otključan" else "zaključan"}"
+                    setOnClickListener{
+                        if(unlocked){sound.effect("click");startGame(world,n.toLong())}
+                        else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
+                    }
                 }
                 row.addView(cell,LinearLayout.LayoutParams(0,d(63),1f).apply{setMargins(d(3),d(3),d(3),d(3))})
             }
