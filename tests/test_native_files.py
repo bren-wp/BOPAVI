@@ -121,3 +121,7 @@ assert 'func courses(' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 # First play must not show Android's immersive tutorial over gameplay.
 assert 'View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text().replace('// triggers Android\'s full-screen onboarding popup','')
 assert "uiautomator dump" in (root/'tools/qa_android_emulator.sh').read_text()
+
+# iOS home wallet must have exactly one fixed height constraint.
+ios_home=(root/'ios/BOPAVI/GameController.swift').read_text().split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
+assert ios_home.count('wallet.heightAnchor.constraint(equalToConstant:') == 1
