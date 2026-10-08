@@ -17,7 +17,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --quiet pillow cairosvg
       - run: python tools/generate_images.py
-      - name: Verify transparent sprite sizes and six unique looks
+      - name: Verify transparent sprite sizes, biomes and six unique looks
         run: |
           python - <<'PY'
           from PIL import Image
@@ -25,7 +25,10 @@ jobs:
           sprites=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{i}.png').convert('RGBA') for i in range(6)]
           assert all(im.size==(512,512) and im.getextrema()[3][0]==0 and im.getextrema()[3][1]==255 for im in sprites)
           assert len({im.tobytes() for im in sprites})==6
-          print('PASS: six unique 512px transparent Bopi character sprites')
+          worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
+          assert all(im.size==(960,1600) for im in worlds)
+          assert len({im.resize((80,120)).tobytes() for im in worlds})==8
+          print('PASS: 6 Bopi sprites and 8 distinct 960x1600 illustrated world backgrounds')
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -38,6 +41,8 @@ jobs:
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
             android/app/src/main/res/drawable-nodpi/bopi*.png
+            android/app/src/main/res/drawable-nodpi/world*.png
+            ios/BOPAVI/Assets.xcassets/World*.imageset/
             ios/BOPAVI/Assets.xcassets/Bopi*.imageset/
           if-no-files-found: error
   source-audit:

@@ -28,6 +28,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
         BitmapFactory.Options().apply { inScaled=false })
     private val birdRect=RectF(-50f,-50f,50f,50f)
+    private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
+        R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
+        R.drawable.world6,R.drawable.world7)
+    private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
+        BitmapFactory.Options().apply{inScaled=false})
+    private val worldRect=RectF(0f,0f,480f,800f)
     private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
@@ -93,7 +99,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         canvas.save()
         canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
         canvas.scale(scale,scale)
-        drawBackground(canvas)
+        if(worldBitmap!=null) {
+            fill(Color.WHITE)
+            canvas.drawBitmap(worldBitmap,null,worldRect,p)
+        } else drawBackground(canvas)
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=g.x-game.distance
             if(x < -100f || x>550f)continue

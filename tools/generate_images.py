@@ -68,4 +68,6 @@ for skin,hue in enumerate(palette):
     skinset.mkdir(exist_ok=True)
     variant.save(skinset/(name+'.png'),optimize=True)
     (skinset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-print('Generated native art: app icons, launch, hero, 6 transparent Bopi sprites')
+from generate_worlds import generate_worlds
+generate_worlds(a,b)
+print('Generated native art: icons, splash, Bopi sprites and 8 world backdrops')
