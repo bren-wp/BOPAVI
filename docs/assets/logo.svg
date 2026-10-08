@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230">
 <defs>
- <linearGradient id="gold" x1="0" y1="0" x2=".12" y2="1">
-  <stop offset="0" stop-color="#fffebb"/><stop offset=".20" stop-color="#ffe947"/>
-  <stop offset=".48" stop-color="#ffc329"/><stop offset=".75" stop-color="#ff9b22"/>
+ <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0" stop-color="#ffe85f"/><stop offset=".20" stop-color="#ffcc2a"/>
+  <stop offset=".48" stop-color="#ffae1c"/><stop offset=".75" stop-color="#ff871b"/>
   <stop offset="1" stop-color="#ef6b11"/>
  </linearGradient>
  <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
@@ -22,11 +22,8 @@
  <text x="380" y="139" fill="#064da8" stroke="#0860bb" stroke-width="30" paint-order="stroke">BOPAVI</text>
  <text x="380" y="134" fill="#1282e7" stroke="#158de8" stroke-width="19" paint-order="stroke">BOPAVI</text>
  <text x="380" y="127" fill="url(#gold)" stroke="#102b6e" stroke-width="7" paint-order="stroke">BOPAVI</text>
- <text x="380" y="116" fill="url(#gloss)" opacity=".36">BOPAVI</text>
 </g>
-<path d="M282 62q-24 -20 -29 -45q20 9 32 27q8-30 23-37q-4 33 -15 49" fill="#c6f8ff" stroke="#146fca" stroke-width="4" opacity=".95"/>
 <path d="M365 64l6 12 13 2-10 9 2 14-11-7-13 7 3-14-11-9 14-2Z" fill="#ffef61" stroke="#d96a0b" stroke-width="3"/>
-<path d="M530 41c12-29 28-34 39-33-12 16-21 24-39 33Z" fill="#e4fdff" opacity=".92"/>
 <path d="M172 164Q369 150 586 163L594 204Q393 219 163 201Z" fill="#3d210f" stroke="#1c2853" stroke-width="6"/>
 <rect x="170" y="164" width="420" height="43" rx="18" fill="url(#wood)" stroke="#d69a50" stroke-width="3"/>
 <path d="M199 172Q382 163 561 172" fill="none" stroke="#ffd68a" stroke-width="3" opacity=".32"/>
