@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -31,6 +33,9 @@ class MainActivity : Activity() {
     private var selectedScreen = "home"
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
+    private val gold = 0xffffce77.toInt()
+    private val ocean = 0xff17315c.toInt()
+    private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xffffbb66.toInt(),0xffa5ecff.toInt(),0xffff8163.toInt(),0xffffd891.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     override fun onCreate(state: Bundle?) { super.onCreate(state);progress=ProgressStore(this);sound=Soundscape(this);sound.enabled=progress.soundEnabled();showHome() }
     private fun showNativeView(root: View) {
@@ -55,35 +60,95 @@ class MainActivity : Activity() {
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
     }
-    private fun gradient(a:Int,b:Int,rad:Int=20):GradientDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(a,b)).apply{cornerRadius=d(rad).toFloat();setStroke(d(2),0x6688daff)}
+    private fun gradient(a:Int,b:Int,rad:Int=20):GradientDrawable = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(a,b)).apply{
+        cornerRadius=d(rad).toFloat()
+        setStroke(d(1),0x66c6eaff)
+    }
+    private fun chip(label:String):TextView = TextView(this).apply {
+        text=label
+        setTextColor(gold)
+        textSize=16f
+        typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+        gravity=Gravity.CENTER
+        setPadding(d(16),d(13),d(16),d(13))
+        background=gradient(0xff192d50.toInt(),0xff203c65.toInt(),18)
+        contentDescription=label
+    }
     private fun base(label:String,subtitle:String):LinearLayout {
         gameView?.paused=true;gameView=null;sound.stop();selectedScreen=label
-        val body=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(d(18),d(16),d(18),d(20));background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff071634.toInt(),0xff164881.toInt(),0xff1583bf.toInt())) }
-        val scroll=ScrollView(this).apply {isFillViewport=true;addView(body)}
+        val body=LinearLayout(this).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(20),d(22),d(20),d(30))
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff081326.toInt(),0xff122c4b.toInt(),0xff0b4261.toInt()))
+        }
+        val scroll=ScrollView(this).apply {
+            isFillViewport=true;isVerticalScrollBarEnabled=false
+            addView(body)
+        }
         showNativeView(scroll)
-        title(body,label,31,0xffffc44a.toInt())
-        title(body,subtitle,15,0xffd5efff.toInt())
+        title(body,label,32,gold)
+        title(body,subtitle,15,0xffbfe0f5.toInt())
         return body
     }
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
-        parent.addView(TextView(this).apply {text=s;textSize=size.toFloat();setTextColor(color);typeface=Typeface.create("sans-serif-black",Typeface.BOLD);gravity=Gravity.CENTER;setPadding(d(3),d(10),d(3),d(10))},LinearLayout.LayoutParams(-1,-2))
+        parent.addView(TextView(this).apply {
+            text=s
+            textSize=size.toFloat()
+            setTextColor(color)
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            gravity=Gravity.CENTER
+            setPadding(d(6),d(10),d(6),d(10))
+            setAutoSizeTextTypeUniformWithConfiguration((size*.72f).toInt(),size,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,-2))
     }
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(Color.WHITE);textSize=17f;isAllCaps=false;typeface=Typeface.DEFAULT_BOLD
-            background=if(primary) gradient(0xff60d94e.toInt(),0xff109b50.toInt()) else gradient(0xff26aeef.toInt(),0xff1265af.toInt())
+            this.text=text;setTextColor(if(primary) 0xff122443.toInt() else Color.WHITE)
+            textSize=17f;isAllCaps=false
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            letterSpacing=.025f
+            setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+            val normal=if(primary) gradient(0xffffdf93.toInt(),0xffffb944.toInt(),19)
+                else gradient(0xff214c76.toInt(),0xff163759.toInt(),19)
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
+            elevation=d(4).toFloat()
+            contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
         }
-        parent.addView(button,LinearLayout.LayoutParams(-1,d(54)).apply {setMargins(0,d(6),0,d(6))})
+        parent.addView(button,LinearLayout.LayoutParams(-1,d(58)).apply {setMargins(0,d(7),0,d(7))})
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
+    private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
+        val unlocked=world<=progress.maxWorld()
+        val name=LevelEngine.names[world]
+        val row=LinearLayout(this).apply {
+            orientation=LinearLayout.VERTICAL
+            background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20)
+            setPadding(d(16),d(14),d(16),d(14))
+            alpha=if(unlocked)1f else .58f
+            elevation=d(3).toFloat()
+            isClickable=true;isFocusable=true
+            contentDescription="$name, "+if(unlocked)"otključano" else "zaključano"
+            setOnClickListener{sound.effect("click");onClick()}
+        }
+        row.addView(TextView(this).apply{
+            text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
+            textSize=19f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
+        })
+        row.addView(TextView(this).apply{
+            text=if(unlocked)"Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}" else "Otkrij novi svijet tijekom igranja"
+            textSize=13f;setTextColor(0xffd0e6f5.toInt())
+            setPadding(0,d(5),0,0)
+        })
+        parent.addView(row,LinearLayout.LayoutParams(-1,-2).apply{setMargins(0,d(7),0,d(7))})
+    }
     private fun showHome(){
         val b=base("BOPAVI","Mali let, velika avantura")
         val hero=ImageView(this).apply{setImageResource(R.drawable.hero);scaleType=ImageView.ScaleType.FIT_CENTER;contentDescription="Bopi, plava ptica s pilotskim naočalama"}
-        b.addView(hero,LinearLayout.LayoutParams(-1,d(180)))
-        small(b,"Tapni, poleti i otkrivaj čudesne svjetove.")
-        title(b,"● ${progress.coins()} kovanica",22,0xffffdd70.toInt())
+        b.addView(hero,LinearLayout.LayoutParams(-1,d(235)))
+        small(b,"Jedan dodir. Nova pustolovina.")
+        b.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply {setMargins(0,d(12),0,d(10))})
         action(b,"▶  IGRAJ") {
             val w=progress.chosenWorld()
             startGame(w,progress.streamFrontier(w))
@@ -93,7 +158,7 @@ class MainActivity : Activity() {
         val b=base("SVJETOVI","Odaberi svoj sljedeći let")
         for(w in 0 until 8){
             val accessible=w<=progress.maxWorld()
-            action(b,"${w+1}. ${LevelEngine.names[w]}  ${if(accessible)"• ${progress.streamFrontier(w)-1} riješeno" else "🔒"}",accessible){
+            worldTile(b,w){
                 if(accessible) showLevels(w,1) else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
             }
         }
@@ -157,7 +222,10 @@ class MainActivity : Activity() {
             onCollect={sound.effect("collect")})
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
-            text="Ⅱ";textSize=23f;setTextColor(Color.WHITE);background=gradient(0xff246dd7.toInt(),0xff113f87.toInt());contentDescription="Izbornik tijekom igre"
+            text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
+            elevation=d(5).toFloat()
+            contentDescription="Izbornik tijekom igre"
             setOnClickListener{
                 game.paused=true;sound.pause()
                 android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza")
@@ -181,7 +249,7 @@ class MainActivity : Activity() {
         progress.recordRun(g)
         currentLevel=g.displayLevel
         val b=base("Pokušaj ponovno",LevelEngine.names[currentWorld]+" · Level $currentLevel")
-        title(b,"🐦",52)
+        title(b,if(g.shield>0)"✦  BOPI  ✦" else "🐦  BOPAVI  🐦",35,gold)
         small(b,"Prolazi: ${g.passed}/${g.level.gates.size} · Rezultat: ${g.score()}")
         small(b,"${LevelEngine.collectibles[currentWorld]}: ${g.coins+g.stars} · Kovanice: ${progress.coins()}")
         action(b,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
