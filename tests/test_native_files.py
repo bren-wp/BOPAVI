@@ -78,9 +78,15 @@ worlds=(root/'tools/generate_worlds.py').read_text()
 assert 'THEMES =' in worlds and 'range(8)' in worlds and 'generate_worlds' in worlds
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios=(root/'ios/BOPAVI/GameController.swift').read_text()
-assert 'CENTER_CROP' in android and 'MALI LET, VELIKA AVANTURA' in android
-assert 'scaleAspectFill' in ios and 'MALI LET, VELIKA AVANTURA' in ios
+assert 'R.drawable.splash' in android and 'CENTER_CROP' in android
+assert 'UIImage(named:"LaunchArt")' in ios and 'scaleAspectFill' in ios
 for source in (android,ios):
     assert '🔒' in source and '▶  IGRAJ' in source
 ci=(root/'.github/workflows/native-ci.yml').read_text()
 assert 'android-smoke:' in ci and 'xcrun simctl launch' in ci
+
+# Regression from the first real iOS simulator screenshot: no giant zoomed Bopi
+# and no second tagline above the portrait illustration.
+for source in (android,ios):
+    home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
+    assert 'MALI LET, VELIKA AVANTURA' not in home

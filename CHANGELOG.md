@@ -2,7 +2,7 @@
 
 - **Titranje na Androidu:** uklonjeno rano prekidanje `onDraw()`; svaki zatraženi kadar sada se iscrta do kraja, dok se interval animacije primjenjuje na simulaciju.
 - **Android 15 / sistemske trake:** stabilizirane margine izbornika i uklonjena nepotrebna preraspodjela prikaza igre pri promjenama insets.
-- **Početni ekran:** svijetla BOPAVI ilustracija preko cijelog zaslona, zaseban logotip i veliki zeleni IGRAJ, na Androidu i iOS-u.
+- **Početni ekran:** portretna ilustracija preko cijelog zaslona s uklopljenim logotipom i velikim zelenim IGRAJ; nakon QA snimke uklonjeni su uvećani izrez Bopija i duplicirani slogan.
 - **Svjetovi:** osam različitih pozadina s tematskim krajolikom, lebdećim otocima i posebnim elementima; renderiraju se iz zajedničkog izvora bez mrežnog pristupa.
 - **Karte svjetova:** pregled s ilustriranim prikazima okruženja; svijet ima vlastite boje i nagrade.
 - **Leveli:** puni pregled 4×5 uključuje završene, dostupne i zaključane stavke umjesto gotovo praznog popisa.
