@@ -50,10 +50,6 @@ class MainActivity : Activity() {
         sound.pause()
         super.onPause()
     }
-    override fun onResume() {
-        super.onResume()
-        if (::sound.isInitialized && selectedScreen == "game" && gameView?.paused == false) sound.resume()
-    }
     override fun onDestroy() {
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
@@ -63,7 +59,7 @@ class MainActivity : Activity() {
     private fun base(label:String,subtitle:String):LinearLayout {
         gameView?.paused=true;gameView=null;sound.stop();selectedScreen=label
         val body=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(d(18),d(16),d(18),d(20));background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff071634.toInt(),0xff164881.toInt(),0xff1583bf.toInt())) }
-        val scroll=ScrollView(this).apply {fillViewport=true;addView(body)}
+        val scroll=ScrollView(this).apply {isFillViewport=true;addView(body)}
         showNativeView(scroll)
         title(body,label,31,0xffffc44a.toInt())
         title(body,subtitle,15,0xffd5efff.toInt())
@@ -243,8 +239,6 @@ class MainActivity : Activity() {
             if(requestCode==43)showHome()
         }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
     }
-    override fun onPause(){super.onPause();gameView?.paused=true;sound.pause()}
-    override fun onDestroy(){sound.close();super.onDestroy()}
     @Deprecated("Back navigation compatibility")
     override fun onBackPressed(){if(selectedScreen=="game"){gameView?.paused=true;showWorlds()}else if(selectedScreen=="BOPAVI")super.onBackPressed() else showHome()}
 }
