@@ -47,3 +47,5 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Provjeriti da štit, skupljanje i dodir kapice rade i s novom grafikom.
 - Zadržati Android lint/JVM/APK/AAB i iOS Simulator/device/Swift fizikalne regresijske testove.
 - Profiliranje na fizičkim telefonima i potpisani iOS IPA još nisu potvrđeni.
+
+- Provjeriti omjere 19.5:9, 20:9, 16:9 te iPhone s Dynamic Islandom: cijela površina neba i tla, bez bijelih ili plavih pruga.

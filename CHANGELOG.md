@@ -3,6 +3,7 @@
 - Android i iOS koriste jednaku ilustraciju Bopija, uz boje izgleda otključanih kovanicama.
 - Spriteovi se generiraju prije mobilnih buildova i učitavaju jednom po prikazu.
 - Animirani nagib, trag leta i efekti nagrada ostaju; postojeći geometrijski prikaz je fallback.
+- Nebo i tlo sada vizualno pokrivaju cijeli zaslon visokih i širokih mobitela, bez razvlačenja svijeta ili hitboxa.
 - Dodatne provjere zaštite od lažnog sudara u otvorenom prolazu.
 - Nema kupnji za novac, oglasa ni prikaza ukupnog broja levela.
 - Završna potvrda izgleda i rada na svim fizičkim uređajima još je potrebna.
