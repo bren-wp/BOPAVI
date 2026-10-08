@@ -129,29 +129,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: |
-            mkdir -p qa/screenshots
-            adb install -r qa/apk/app-debug.apk
-            adb shell am start -W -n com.brendigo.bopavi/.MainActivity
-            sleep 4
-            adb shell pidof com.brendigo.bopavi
-            # Direct PNG streaming avoids SD-card screenshot connection aborts.
-            success=0
-            for attempt in 1 2 3; do
-              if adb exec-out screencap -p > qa/screenshots/android-home.png &&
-                 python3 -c 'from pathlib import Path; p=Path("qa/screenshots/android-home.png"); assert p.stat().st_size>2000 and p.read_bytes()[:8]==bytes.fromhex("89504e470d0a1a0a")'; then
-                success=1
-                break
-              fi
-              echo "Screenshot attempt $attempt failed; retrying"
-              sleep 3
-            done
-            if [ "$success" -ne 1 ]; then
-              echo "Emulator screenshot failed after 3 attempts" >&2
-              adb logcat -d -t 160 | tail -n 70 || true
-              exit 1
-            fi
-            echo "PASS: Android home screen displayed and captured successfully"
+          script: sh tools/qa_android_emulator.sh
       - uses: actions/upload-artifact@v4
         with:
           name: QA-Android-home-screenshot
