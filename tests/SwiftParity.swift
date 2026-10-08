@@ -39,6 +39,20 @@ struct SwiftParity {
         s.flap();precondition(s.active && s.flaps==1)
         for _ in 0..<70 {s.step(1/60)}
         precondition(s.time>0 && s.y.isFinite)
+
+        // Identical visible-cap collision regression for UIKit simulation.
+        do {
+            let l=BopaviCore.create(0,2)
+            let g=l.gates[0]
+            let hit=BopaviCore.Gate(x:154,center:510,gap:160,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let custom=BopaviCore.Level(world:0,number:2,zone:l.zone,speed:140,wind:0,gates:[hit],type:l.type)
+            let direct=GameSimulation(custom)
+            direct.flap();direct.step(1/60)
+            precondition(direct.finished && !direct.won && direct.passed==0,"collider missed cap")
+            let shielded=GameSimulation(custom,initialShield:1)
+            shielded.flap();shielded.step(1/60)
+            precondition(!shielded.finished && shielded.shield==0,"shield must absorb one impact")
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

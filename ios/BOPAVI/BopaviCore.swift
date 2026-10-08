@@ -123,7 +123,8 @@ final class GameSimulation {
     func starVisible(_ index:Int) -> Bool { !collectedStars[index] }
     func powerVisible(_ index:Int) -> Bool { !collectedPowers[index] }
     let birdX: Float = 126
-    let radius: Float = 16
+    // Match the visible Bopi body and pillar cap widths.
+    let radius: Float = 23
     var completionCount = 0
     var completedLevelNumber = 0
     var displayLevel:Int
@@ -154,6 +155,12 @@ final class GameSimulation {
             let gate = level.gates[i]; let x = gate.x-distance
             if x > birdX+radius+115 { break }
             let bounds = BopaviCore.opening(gate, time)
+            // Same hit area as the visible cap, including its left and right overhang.
+            if x-7 < birdX+radius && x+gate.width+5 > birdX-radius &&
+                (y-radius < bounds.top || y+radius > bounds.bottom) {
+                damage()
+                if finished { return }
+            }
             let cx=x+gate.width*0.5
             let cy=(bounds.top+bounds.bottom)*0.5
             let magnetRange:Float = magnetTime>0 ? 108 : 23
@@ -162,9 +169,6 @@ final class GameSimulation {
             if gate.power != 0 && !collectedPowers[i] && abs(cx+39-birdX)<30 && abs(cy+39-y)<30 {
                 if gate.power==1 {shield=min(2,shield+1)} else {magnetTime=5}
                 collectedPowers[i]=true;collectPulse=0.36
-            }
-            if x < birdX+radius && x+gate.width > birdX-radius {
-                if y-radius < bounds.top || y+radius > bounds.bottom { damage(); if finished { return } }
             }
             if x+gate.width < birdX-radius && i == passed {
                 passed += 1; totalPassed += 1
