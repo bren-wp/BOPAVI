@@ -125,8 +125,12 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             letterSpacing=.025f
             setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val normal=if(primary) gradient(0xff93f952.toInt(),0xff19b747.toInt(),19)
-                else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
+            val normal=if(primary) GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xffc5ff7a.toInt(),0xff6cec43.toInt(),0xff13b742.toInt())).apply{
+                    cornerRadius=d(23).toFloat()
+                    setStroke(d(2),0xffd5ffab.toInt())
+                } else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
             elevation=d(4).toFloat()
             contentDescription=text
@@ -196,9 +200,9 @@ class MainActivity : Activity() {
         background.addView(layout,FrameLayout.LayoutParams(-1,-1))
         // The portrait background already contains the logo and tagline. No duplicates.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        layout.addView(chip("●  ${progress.coins()} kovanica"),LinearLayout.LayoutParams(-1,-2).apply{
-            setMargins(0,0,0,d(12))
-        })
+        // Coins are a compact top-right HUD, not a full-width footer panel.
+        background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
+            Gravity.TOP or Gravity.RIGHT).apply{setMargins(d(16),d(16),d(17),0)})
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
             startGame(world,progress.streamFrontier(world))

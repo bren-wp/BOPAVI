@@ -7,13 +7,16 @@ private final class BopaviActionButton: UIButton {
     init(primary:Bool) {
         super.init(frame:.zero)
         gradient.colors = primary
-            ? [UIColor(red:0.58,green:0.97,blue:0.29,alpha:1).cgColor, UIColor(red:0.09,green:0.70,blue:0.25,alpha:1).cgColor]
-            : [UIColor(red:0.14,green:0.32,blue:0.49,alpha:1).cgColor, UIColor(red:0.07,green:0.18,blue:0.31,alpha:1).cgColor]
-        gradient.startPoint = CGPoint(x:0,y:0);gradient.endPoint=CGPoint(x:1,y:1)
+            ? [UIColor(red:0.77,green:1.00,blue:0.49,alpha:1).cgColor,
+               UIColor(red:0.40,green:0.91,blue:0.27,alpha:1).cgColor,
+               UIColor(red:0.07,green:0.72,blue:0.26,alpha:1).cgColor]
+            : [UIColor(red:0.14,green:0.55,blue:0.95,alpha:1).cgColor,
+               UIColor(red:0.07,green:0.22,blue:0.62,alpha:1).cgColor]
+        gradient.startPoint=CGPoint(x:0.5,y:0);gradient.endPoint=CGPoint(x:0.5,y:1)
         layer.insertSublayer(gradient,at:0)
         layer.cornerRadius=19
-        layer.borderWidth=1
-        layer.borderColor=UIColor.white.withAlphaComponent(0.24).cgColor
+        layer.borderWidth=primary ? 2 : 1
+        layer.borderColor=UIColor.white.withAlphaComponent(primary ? 0.72 : 0.24).cgColor
         layer.shadowColor=UIColor.black.cgColor
         layer.shadowOpacity=0.23
         layer.shadowRadius=6
@@ -172,9 +175,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
         // LaunchArt is portrait and already includes the BOPAVI logo and slogan.
-        let spacer=UIView()
-        spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
-        stack.addArrangedSubview(spacer)
         let wallet=UIView()
         wallet.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
         wallet.layer.cornerRadius=20
@@ -193,7 +193,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
             amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
         ])
-        stack.addArrangedSubview(wallet)
+        // Compact top-right counter, while the primary CTA remains at the bottom.
+        let walletRow=UIStackView()
+        walletRow.axis = .horizontal;walletRow.alignment = .center
+        walletRow.addArrangedSubview(UIView())
+        wallet.widthAnchor.constraint(equalToConstant:175).isActive=true
+        wallet.heightAnchor.constraint(equalToConstant:46).isActive=true
+        walletRow.addArrangedSubview(wallet)
+        stack.addArrangedSubview(walletRow)
+        let spacer=UIView()
+        spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
+        stack.addArrangedSubview(spacer)
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
             self.startGame(world,self.progress.streamFrontier(world))
