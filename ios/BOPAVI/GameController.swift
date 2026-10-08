@@ -119,6 +119,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let unlocked=world<=progress.maxWorld()
         let tile=BopaviActionButton(primary:false)
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(0.65).cgColor
+        if let illustration=UIImage(named:"World\(world)") {
+            let preview=UIImageView(image:illustration)
+            preview.translatesAutoresizingMaskIntoConstraints=false
+            preview.contentMode = .scaleAspectFill
+            preview.clipsToBounds=true
+            preview.alpha=0.46
+            preview.isUserInteractionEnabled=false
+            tile.insertSubview(preview,at:0)
+            NSLayoutConstraint.activate([
+                preview.leadingAnchor.constraint(equalTo:tile.leadingAnchor),
+                preview.trailingAnchor.constraint(equalTo:tile.trailingAnchor),
+                preview.topAnchor.constraint(equalTo:tile.topAnchor),
+                preview.bottomAnchor.constraint(equalTo:tile.bottomAnchor)
+            ])
+            tile.clipsToBounds=true
+        }
         tile.alpha=unlocked ? 1 : 0.60
         tile.titleLabel?.numberOfLines=2
         tile.titleLabel?.textAlignment = .center
@@ -129,7 +145,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         text.addAttributes([.font:UIFont.systemFont(ofSize:13,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
         tile.setAttributedTitle(text,for:.normal)
         tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
-        tile.heightAnchor.constraint(equalToConstant:87).isActive=true
+        tile.heightAnchor.constraint(equalToConstant:110).isActive=true
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
     }

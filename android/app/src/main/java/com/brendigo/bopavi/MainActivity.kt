@@ -148,6 +148,17 @@ class MainActivity : Activity() {
             contentDescription="$name, "+if(unlocked)"otključano" else "zaključano"
             setOnClickListener{sound.effect("click");onClick()}
         }
+        val preview=ImageView(this).apply{
+            val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+                R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+            setImageResource(art[world])
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            background=gradient(0xff126ca9.toInt(),0xff0e2b57.toInt(),17)
+            clipToOutline=true
+            contentDescription="Prikaz svijeta $name"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        row.addView(preview,LinearLayout.LayoutParams(-1,d(118)).apply{bottomMargin=d(10)})
         row.addView(TextView(this).apply{
             text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
             textSize=19f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
