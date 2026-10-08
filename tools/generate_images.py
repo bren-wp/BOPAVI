@@ -61,32 +61,54 @@ if bird is None:
 defs=re.search(r'<defs>(.*?)</defs>',hero_markup,re.S)
 if defs is None:
     raise RuntimeError('Hero gradient definitions missing')
-bird_svg=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
-          'viewBox="-260 -260 520 520"><defs>'+defs.group(1)+'</defs><g>'
-          +bird.group(1)+'</g></svg>')
-original=Image.open(io.BytesIO(cairosvg.svg2png(bytestring=bird_svg.encode(),output_width=512,output_height=512))).convert('RGBA')
+# Separate the four original blue feather paths into rear wing layers.
+# The main body no longer contains static wings, so flapping moves real pixels.
+feathers=list(re.finditer(r'<path d="[^"]+" fill="[^"]+"\s*/>',bird.group(1)))
+if len(feathers)<4:
+    raise RuntimeError('Cannot extract Bopi wing silhouettes')
+wing_shapes=[bird.group(1)[m.start():m.end()] for m in feathers[:4]]
+body_markup=bird.group(1)
+for shape in wing_shapes:
+    body_markup=body_markup.replace(shape,'',1)
+def raster(part):
+    xml=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
+         'viewBox="-260 -260 520 520"><defs>'+defs.group(1)+'</defs><g>'
+         +part+'</g></svg>')
+    return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
+original=raster(body_markup)
+original_wings=[raster(''.join(wing_shapes[:2])),raster(''.join(wing_shapes[2:4]))]
+def recolor(original_image,hue):
+    if hue is None:
+        return original_image.copy()
+    variant=original_image.copy()
+    pixels=variant.load()
+    for yy in range(variant.height):
+        for xx in range(variant.width):
+            red,green,blue,alpha=pixels[xx,yy]
+            if alpha<12: continue
+            h,s,v=colorsys.rgb_to_hsv(red/255,green/255,blue/255)
+            if 0.49<=h<=0.72 and s>=0.34 and blue>red*1.16:
+                nr,ng,nb=colorsys.hsv_to_rgb(hue,s,v)
+                pixels[xx,yy]=(int(nr*255),int(ng*255),int(nb*255),alpha)
+    return variant
 # Recolor only the saturated blue feathers and body; retain goggles, beak and scarf.
 palette=[None,.145,.975,.75,.46,.60]
 for skin,hue in enumerate(palette):
-    if hue is None:
-        variant=original
-    else:
-        variant=original.copy()
-        pixels=variant.load()
-        for yy in range(variant.height):
-            for xx in range(variant.width):
-                red,green,blue,alpha=pixels[xx,yy]
-                if alpha<12: continue
-                h,s,v=colorsys.rgb_to_hsv(red/255,green/255,blue/255)
-                if 0.49<=h<=0.72 and s>=0.34 and blue>red*1.16:
-                    nr,ng,nb=colorsys.hsv_to_rgb(hue,s,v)
-                    pixels[xx,yy]=(int(nr*255),int(ng*255),int(nb*255),alpha)
+    variant=recolor(original,hue)
     name=f'bopi{skin}'
     variant.save(a/'drawable-nodpi'/f'{name}.png',optimize=True)
     skinset=b/(f'Bopi{skin}.imageset')
     skinset.mkdir(exist_ok=True)
     variant.save(skinset/(name+'.png'),optimize=True)
     (skinset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
+    for label,original_wing in zip(('Left','Right'),original_wings):
+        wing_name=f'bopi{label.lower()}{skin}'
+        wing=recolor(original_wing,hue)
+        wing.save(a/'drawable-nodpi'/(wing_name+'.png'),optimize=True)
+        catalog=b/(f'Bopi{label}{skin}.imageset')
+        catalog.mkdir(exist_ok=True)
+        wing.save(catalog/(wing_name+'.png'),optimize=True)
+        (catalog/'Contents.json').write_text(json.dumps({'images':[{'filename':wing_name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 from generate_worlds import generate_worlds
 generate_worlds(a,b)
-print('Generated native art: icons, splash, Bopi sprites and 8 world backdrops')
+print('Generated native art: 6 bodies, 12 separately animated wings and 8 biomes')

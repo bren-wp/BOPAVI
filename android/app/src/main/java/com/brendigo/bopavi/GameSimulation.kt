@@ -14,6 +14,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var velocity = 0f; private set
     var time = 0f; private set
     var distance = 0f; private set
+    private var levelOrigin = 0f
+    fun gateX(gate: LevelEngine.Gate):Float = gate.x + levelOrigin - distance
+    var levelTransition = 0f; private set
     var passed = 0; private set
     var coins = 0; private set
     var stars = 0; private set
@@ -48,13 +51,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun step(delta: Float) {
         if (!active || finished) return
         val dt = delta.coerceIn(0f, 0.034f)
-        time += dt; invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
+        time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
         velocity = min(365f, velocity + (685f + level.wind) * dt)
         y += velocity * dt
         distance += level.speed * dt
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
         for (i in passed until level.gates.size) {
-            val gate = level.gates[i]; val x = gate.x - distance
+            val gate = level.gates[i]; val x = gateX(gate)
             if (x > birdX + radius + 115f) break
             val bounds = LevelEngine.opening(gate, time)
             // Collide with the actually DRAWN pillar cap (x-7 .. x+width+5), not
@@ -79,8 +82,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                     if(endless) {
                         completedLevelNumber = level.number;completedOrdinal=displayLevel;completionCount++
                         displayLevel=(displayLevel+1).coerceAtMost(Long.MAX_VALUE-2)
-                        level = LevelEngine.createStream(level.world,displayLevel)
-                        distance = 0f; passed = 0
+                        val next=LevelEngine.createStream(level.world,displayLevel)
+                        // Keep global distance continuous: background and wing trails
+                        // must not jump when the next numbered level begins.
+                        levelOrigin=distance+300f-next.gates.first().x
+                        level=next
+                        levelTransition=0.78f
+                        passed = 0
                         collectedCoins = BooleanArray(level.gates.size)
                         collectedStars = BooleanArray(level.gates.size)
                         collectedPowers = BooleanArray(level.gates.size)

@@ -59,5 +59,14 @@ fun main() {
         run.flap();run.step(1f/60f)
         check(!run.finished) {"False collision inside safe gap"}
     }
+    run {
+        val level=LevelEngine.create(0,2)
+        val safe=level.gates[0].copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val game=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f),endless=true)
+        game.flap();game.step(1f/60f)
+        check(game.completionCount==1 && game.displayLevel==3L)
+        check(game.distance>0 && kotlin.math.abs(game.gateX(game.level.gates[0])-300f)<0.01f)
+        check(game.active && !game.finished)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

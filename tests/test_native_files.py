@@ -28,8 +28,8 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.5' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.5"' in (root/'android/app/build.gradle.kts').read_text()
+assert 'MARKETING_VERSION = 0.1.6' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+assert 'versionName = "0.1.6"' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
@@ -66,7 +66,10 @@ assert (root/'android/app/src/main/res/drawable/bopavi_startup.xml').exists()
 # Source and rendering integration for the illustrated game character.
 assert 'R.drawable.bopi0' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'UIImage(named:"Bopi' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
-assert 'bird_svg' in (root/'tools/generate_images.py').read_text()
+assert 'wing_shapes' in (root/'tools/generate_images.py').read_text()
+assert 'original_wings' in (root/'tools/generate_images.py').read_text()
+assert 'R.drawable.bopileft0' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'UIImage(named:"BopiLeft' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
  
 # Frame-pacing regression from the supplied Android device recording.
 renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
@@ -91,3 +94,15 @@ assert 'android-smoke:' in ci and 'xcrun simctl launch' in ci
 for source in (android,ios):
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     assert 'MALI LET, VELIKA AVANTURA' not in home
+
+# No pause or distance reset at level boundaries.
+andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'levelOrigin=distance+300f-next.gates.first().x' in andr
+assert 'levelOrigin=distance+300-next.gates[0].x' in swift
+assert 'distance = 0f; passed = 0' not in andr
+assert 'distance=0;passed=0' not in swift
+
+# Keep fixed body raster dimensions; only separated wings may rotate.
+assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()

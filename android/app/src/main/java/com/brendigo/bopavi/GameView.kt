@@ -28,6 +28,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
         BitmapFactory.Options().apply { inScaled=false })
     private val birdRect=RectF(-50f,-50f,50f,50f)
+    private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
+        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5)
+    private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
+        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5)
+    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[skinIndex.coerceIn(0,5)],
+        BitmapFactory.Options().apply{inScaled=false})
+    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[skinIndex.coerceIn(0,5)],
+        BitmapFactory.Options().apply{inScaled=false})
     private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
         R.drawable.world6,R.drawable.world7)
@@ -105,12 +113,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawBitmap(worldBitmap,null,worldRect,p)
         } else drawBackground(canvas)
         for(i in game.level.gates.indices) {
-            val g=game.level.gates[i];val x=g.x-game.distance
+            val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
         drawHud(canvas)
+        if(game.levelTransition>0f){
+            val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
+            // Small nonblocking level ribbon; no pause or separate screen.
+            val color=(alpha*215f).toInt().coerceIn(0,215) shl 24 or 0x103b76
+            rect(canvas,135f,111f,345f,157f,color,18f)
+            text(canvas,"LEVEL ${game.displayLevel}",240f,141f,20f,Color.WHITE,true)
+        }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
@@ -267,10 +282,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.save();c.translate(126f,game.y)
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
         val phase=if(reducedMotion)0f else sin(game.time*19f)
-        val squash=if(reducedMotion)1f else 1f+phase*.035f
-        c.scale(1f,squash)
+        // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
+            val flap=if(reducedMotion)0f else sin(game.time*19f)*23f
+            wingLeftBitmap?.let { wing ->
+                c.save();c.rotate(flap,-16f,5f)
+                c.drawBitmap(wing,null,birdRect,p);c.restore()
+            }
+            wingRightBitmap?.let { wing ->
+                c.save();c.rotate(-flap,15f,-4f)
+                c.drawBitmap(wing,null,birdRect,p);c.restore()
+            }
             c.drawBitmap(birdBitmap,null,birdRect,p)
             c.restore()
             return

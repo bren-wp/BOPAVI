@@ -8,6 +8,8 @@ final class GameCanvas: UIView {
     private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
+    private let leftWing:UIImage?
+    private let rightWing:UIImage?
     private let worldBackdrop:UIImage?
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
@@ -33,6 +35,8 @@ final class GameCanvas: UIView {
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(5,max(0,skinIndex))
         self.birdSprite=UIImage(named:"Bopi\(min(5,max(0,skinIndex)))")
+        self.leftWing=UIImage(named:"BopiLeft\(min(5,max(0,skinIndex)))")
+        self.rightWing=UIImage(named:"BopiRight\(min(5,max(0,skinIndex)))")
         self.worldBackdrop=UIImage(named:"World\(game.level.world)")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
@@ -83,11 +87,19 @@ final class GameCanvas: UIView {
             background(c)
         }
         for (i,g) in game.level.gates.enumerated() {
-            let x=CGFloat(g.x-game.distance)
+            let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
             gate(c,g,x,i)
         }
         bird(c)
+        if game.levelTransition>0 {
+            let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
+            rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
+            let title="LEVEL \(game.displayLevel)" as NSString
+            title.draw(at:CGPoint(x:174,y:120),withAttributes:[
+                .font:UIFont.systemFont(ofSize:20,weight:.heavy),
+                .foregroundColor:UIColor.white.withAlphaComponent(opacity)])
+        }
         c.restoreGState()
         let groundTop=(bound.height-800*s)/2+751*s
         if groundTop<bound.height {
@@ -230,8 +242,17 @@ final class GameCanvas: UIView {
         let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * .pi / 180
         c.rotate(by:angle)
         let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))
-        c.scaleBy(x:1,y:1+phase*0.035)
+        // No whole-body stretching: moving wings provide the animation.
         if let sprite=birdSprite {
+            let wingAngle:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19)) * 23 * .pi / 180
+            if let left=leftWing {
+                c.saveGState();c.translateBy(x:-16,y:5);c.rotate(by:wingAngle)
+                left.draw(in:CGRect(x:-34,y:-55,width:100,height:100));c.restoreGState()
+            }
+            if let right=rightWing {
+                c.saveGState();c.translateBy(x:15,y:-4);c.rotate(by:-wingAngle)
+                right.draw(in:CGRect(x:-65,y:-46,width:100,height:100));c.restoreGState()
+            }
             sprite.draw(in:CGRect(x:-50,y:-50,width:100,height:100))
             c.restoreGState()
             return

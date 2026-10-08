@@ -104,6 +104,9 @@ final class GameSimulation {
     private(set) var velocity: Float = 0
     private(set) var time: Float = 0
     private(set) var distance: Float = 0
+    private var levelOrigin: Float = 0
+    func gateX(_ gate:BopaviCore.Gate)->Float { gate.x+levelOrigin-distance }
+    private(set) var levelTransition: Float = 0
     private(set) var passed = 0
     private(set) var coins = 0
     private(set) var stars = 0
@@ -146,13 +149,13 @@ final class GameSimulation {
     func step(_ delta: Float) {
         guard active && !finished else { return }
         let dt = min(0.034, max(0, delta))
-        time += dt; invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
+        time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
         velocity = min(365, velocity+(685+level.wind)*dt)
         y += velocity*dt
         distance += level.speed*dt
         if y < radius+5 || y > 753-radius { damage(); y = min(753-radius, max(radius+5, y)); return }
         for i in passed..<level.gates.count {
-            let gate = level.gates[i]; let x = gate.x-distance
+            let gate = level.gates[i]; let x = gateX(gate)
             if x > birdX+radius+115 { break }
             let bounds = BopaviCore.opening(gate, time)
             // Same hit area as the visible cap, including its left and right overhang.
@@ -176,8 +179,12 @@ final class GameSimulation {
                     if endless {
                         completedLevelNumber=level.number;completedOrdinal=displayLevel;completionCount += 1
                         displayLevel=min(Int.max-2,displayLevel+1)
-                        level=BopaviCore.createStream(level.world,displayLevel)
-                        distance=0;passed=0
+                        let next=BopaviCore.createStream(level.world,displayLevel)
+                        // World position remains monotonic across level transitions.
+                        levelOrigin=distance+300-next.gates[0].x
+                        level=next
+                        levelTransition=0.78
+                        passed=0
                         collectedCoins=Array(repeating:false,count:level.gates.count)
                         collectedStars=Array(repeating:false,count:level.gates.count)
                         collectedPowers=Array(repeating:false,count:level.gates.count)
