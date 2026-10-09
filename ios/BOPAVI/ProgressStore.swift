@@ -187,10 +187,9 @@ final class ProgressStore {
         guard (0...100_000).contains(importedClaimed) else {
             throw NSError(domain:"BOPAVI",code:7,userInfo:[NSLocalizedDescriptionKey:"Neispravna nagrada za bodove."])
         }
-        defaults.set(maxWorld,forKey:"max_world");defaults.set(min(maxWorld,max(0,s["chosenWorld"] as? Int ?? maxWorld)),forKey:"chosen_world");defaults.set(c,forKey:"coins")
-        // An old backup must not re-award coins already redeemed on this device.
-        let priorClaimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
-        defaults.set(max(priorClaimed,importedClaimed),forKey:"score_coins_claimed")
+        // Validate the full save before mutating any persisted progress.
+        // Previously coins and the claimed-reward marker changed before
+        // rejection of a malformed v5 stream-frontier entry.
         var streamFrontiers=frontiers
         if version>=5,let strs=s["streamFrontiers"] as? [String] {
             guard strs.count==8 else {throw NSError(domain:"BOPAVI",code:5,userInfo:[NSLocalizedDescriptionKey:"Neispravan nastavak levela."])}
@@ -199,6 +198,13 @@ final class ProgressStore {
                 streamFrontiers[w]=n
             }
         }
+        // COMMIT: all validations that may throw have now completed.
+        defaults.set(maxWorld,forKey:"max_world")
+        defaults.set(min(maxWorld,max(0,s["chosenWorld"] as? Int ?? maxWorld)),forKey:"chosen_world")
+        defaults.set(c,forKey:"coins")
+        // An old backup must not re-award coins already redeemed on this device.
+        let priorClaimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
+        defaults.set(max(priorClaimed,importedClaimed),forKey:"score_coins_claimed")
         for w in 0..<8 {defaults.set(frontiers[w],forKey:"frontier_\(w)");defaults.set(streamFrontiers[w],forKey:"stream_frontier_\(w)")}
         if let scores=s["worldBest"] as? [Int], scores.count==8 {
             for w in 0..<8 { defaults.set(min(100_000_000,max(0,scores[w])),forKey:"best_\(w)") }

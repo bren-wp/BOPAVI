@@ -704,3 +704,23 @@ assert 'resumeIdlePreview' in ios_menu
 assert 'backgroundPause' not in ios_menu
 assert 'store.previewPerks().magnet==8' in swift_saves
 print('PASS: nine pilot previews, first-flap boost accounting, interruption-safe idle previews')
+
+# v0.1.29: no iOS save mutations until invalid v5 streams are rejected.
+ios_import=ios_save.split('func importData(_ data:Data) throws {',1)[1]
+assert ios_import.index('guard let n=Int(strs[w])') < ios_import.index('defaults.set(maxWorld,forKey:"max_world")')
+assert 'afterCorrupt==beforeCorrupt' in swift_saves
+assert 'badSave["streamFrontiers"]' in swift_saves
+# Marathon result must use the global gate count, which never resets between levels.
+android_result=android_menu.split('private fun showResult(',1)[1].split('private fun showPerks()',1)[0]
+ios_result=ios_menu.split('private func showResult(',1)[1].split('private func showPerks()',1)[0]
+assert 'Ukupno prolaza: ${g.totalPassed}' in android_result
+assert r'Ukupno prolaza: \(g.totalPassed)' in ios_result
+assert 'Prolazi ${g.passed}' not in android_result
+assert r'Prolazi \(g.passed)' not in ios_result
+# Android hardware Back invokes the normal, already-tested pause dialog.
+android_back=android_menu.split('override fun onBackPressed()',1)[1]
+assert 'current.active -> gamePauseButton?.performClick()' in android_back
+assert 'else -> showPilotPicker(currentWorld,currentLevel)' in android_back
+assert 'else if(selectedScreen=="home") super.onBackPressed()' in android_back
+assert 'gamePauseButton=pause' in android_start
+print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause')

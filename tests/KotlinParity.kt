@@ -68,6 +68,7 @@ fun main() {
         check(game.completionCount==1 && game.displayLevel==3L)
         check(game.distance>0 && kotlin.math.abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01f)
         check(game.active && !game.finished)
+        check(game.totalPassed==1 && game.passed==0) {"Global pass count reset across levels"}
     }
     run {
         val base=LevelEngine.create(0,2)

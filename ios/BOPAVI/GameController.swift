@@ -655,7 +655,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("\(g.score()) BODOVA",37,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
         label("🏆  Najbolji rezultat: \(progress.bestPoints())",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
-        label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
+        label("Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)

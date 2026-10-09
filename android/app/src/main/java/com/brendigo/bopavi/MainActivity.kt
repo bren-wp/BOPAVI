@@ -28,6 +28,7 @@ class MainActivity : Activity() {
     private var currentWorld = 0
     private var currentLevel = 1L
     private var gameView: GameView? = null
+    private var gamePauseButton: Button? = null
     private var selectedScreen = "home"
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
@@ -94,7 +95,7 @@ class MainActivity : Activity() {
     private fun base(label:String,subtitle:String):LinearLayout {
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=0
-        gameView?.paused=true;gameView=null;sound.stop();selectedScreen=label
+        gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen=label
         val body=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             setPadding(d(20),d(22),d(20),d(30))
@@ -198,7 +199,7 @@ class MainActivity : Activity() {
     private fun showHome(){
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=0
-        gameView?.paused=true;gameView=null;sound.stop();selectedScreen="home"
+        gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
         val background=FrameLayout(this).apply {setBackgroundColor(0xff123b6e.toInt())}
         val scene=ImageView(this).apply {
@@ -477,6 +478,7 @@ class MainActivity : Activity() {
             }
         }
         pauseButton=pause
+        gamePauseButton=pause
         frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
         showNativeView(frame)
     }
@@ -485,7 +487,7 @@ class MainActivity : Activity() {
         val headline=ResultHeadline.label(g.score(),progress.bestPoints(),g.won)
         progress.recordRun(g)
         currentLevel=g.displayLevel
-        gameView?.paused=true;gameView=null;selectedScreen="result"
+        gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=0
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
@@ -542,7 +544,7 @@ class MainActivity : Activity() {
             })
         }
         detail("🏆  Najbolji rezultat: ${progress.bestPoints()}")
-        detail("Level $currentLevel   ·   Prolazi ${g.passed}/${g.level.gates.size}")
+        detail("Level $currentLevel · Ukupno prolaza: ${g.totalPassed}")
         detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
@@ -690,5 +692,16 @@ class MainActivity : Activity() {
         }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
     }
     @Deprecated("Back navigation compatibility")
-    override fun onBackPressed(){if(selectedScreen=="game"){gameView?.paused=true;showWorlds()}else if(selectedScreen=="BOPAVI")super.onBackPressed() else showHome()}
+    override fun onBackPressed() {
+        if(selectedScreen=="game") {
+            val current=gameView?.game
+            when {
+                current == null -> showHome()
+                current.finished -> showResult(current)
+                current.active -> gamePauseButton?.performClick() // Do not discard live runs.
+                else -> showPilotPicker(currentWorld,currentLevel) // No purchased gear spent yet.
+            }
+        } else if(selectedScreen=="home") super.onBackPressed()
+        else showHome()
+    }
 }
