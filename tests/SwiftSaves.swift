@@ -12,7 +12,7 @@ struct SwiftSaves {
         let bytes=try JSONSerialization.data(withJSONObject:backup)
         try store.importData(bytes)
         precondition(store.frontier(0)==31 && store.frontier(1)==15 && store.frontier(2)==4)
-        precondition(store.maxWorld()==2 && store.coins()==314 && store.skinIndex()==1)
+        precondition(store.maxWorld()==7 && store.coins()==314 && store.skinIndex()==1)
         precondition(store.endlessBest()==57 && store.wins()==29)
         let exported=try store.exportData()
         try store.importData(exported)
@@ -27,7 +27,7 @@ struct SwiftSaves {
         precondition(rejected)
         let old:[String:Any]=["format":"bopavi-save","exportVersion":2,"save":["version":2,"unlocked":361,"coins":44]]
         try store.importData(JSONSerialization.data(withJSONObject:old))
-        precondition(store.frontier(0)==361 && store.maxWorld()==1 && store.frontier(1)==1 && store.coins()==44)
+        precondition(store.frontier(0)==361 && store.maxWorld()==7 && store.frontier(1)==1 && store.coins()==44)
         let v5:[String:Any] = ["format":"bopavi-save","exportVersion":5,"save":[
             "version":5,"maxWorld":0,"frontiers":[5,1,1,1,1,1,1,1],
             "streamFrontiers":["5","1","1","1","1","1","1","1"],
@@ -44,9 +44,11 @@ struct SwiftSaves {
         precondition(used.shield==1 && store.perkCount(0)==0)
         let again=store.consumePerks()
         precondition(again.shield==0)
+        store.hapticEnabled=false
         let roundtrip=try store.exportData()
         try store.importData(roundtrip)
         precondition(store.streamFrontier(0)==6 && store.coins()==40)
+        precondition(!store.hapticEnabled, "Haptics preference must survive save export/import")
         print("PASS: Swift v0.2-v0.5 migration, first-clear-only coins, purchase/consume, save round-trip and invalid backup rejection")
     }
 }
