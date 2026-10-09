@@ -299,7 +299,7 @@ for source in (android_menu,ios_menu):
     assert "progress.soundEnabled" in source
     assert "Težina:" in source
 for canvas in (android_canvas,ios_canvas):
-    assert "DODIRNI Ⅱ ZA NASTAVAK" in canvas
+    assert "ODABERI NASTAVI LET" in canvas
     assert "PAUZA" in canvas
 android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
 ios_sim=(root/"ios/BOPAVI/BopaviCore.swift").read_text()
