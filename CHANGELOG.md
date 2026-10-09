@@ -1,3 +1,10 @@
+## v0.1.8 — Integracija slike i igre, otključani svjetovi
+- Svih osam svjetova dostupno odmah, uz očuvani individualni napredak.
+- Lokalni profil igrača s izvozom i uvozom spremljenog imena, autorske informacije i regresijske provjere.
+- Dorade CI-ja za stabilnije čekanje rezultatskog ekrana i Android/iOS kontrole fizičkih prepreka.
+- Izdanje se objavljuje isključivo nakon zelenog CI-ja za main, s Android i iOS artefaktima.
+- Podudarnost 1:1 s referencama nije potvrđena; potrebno je testiranje na fizičkim uređajima.
+
 ## Razvoj v0.1.8 — optimizacija fizike i regresijski testovi (neobjavljeno)
 - Android: uklonjena privremena lista iz izračuna pulsirajućih prepreka u aktivnoj petlji simulacije, uz očuvanu geometriju i pravila kolizije.
 - Dodani JUnit regresijski scenariji za 120 Hz pomične prepreke i sprečavanje višestrukog trošenja štita tijekom istog kontakta.

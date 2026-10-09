@@ -33,6 +33,54 @@ PY
 }
 
 capture android-home
+# Find the real accessible IGRAJ view instead of guessing a screen percentage.
+dump_ui(){
+  adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1
+  adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml
+  test -s qa/screenshots/android-current-ui.xml
+}
+tap_play(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re, subprocess, sys, xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and 'IGRAJ' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(buttons)!=1:
+    raise SystemExit(f'FAIL: expected one clickable IGRAJ button, got {len(buttons)}')
+match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
+if not match:
+    raise SystemExit('FAIL: invalid accessible IGRAJ bounds')
+l,t,r,b=map(int,match.groups())
+if r<=l or b<=t:
+    raise SystemExit('FAIL: empty accessible IGRAJ bounds')
+x,y=(l+r)//2,(t+b)//2
+print(f'Tap IGRAJ at {x},{y}',flush=True)
+subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
+PY
+}
+gameplay_ready=0
+attempt=1
+while [ "$attempt" -le 3 ]; do
+  dump_ui
+  if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+    gameplay_ready=1
+    break
+  fi
+  tap_play
+  sleep 2
+  attempt=$((attempt+1))
+done
+dump_ui
+if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+  gameplay_ready=1
+fi
+if [ "$gameplay_ready" -ne 1 ]; then
+  capture android-navigation-diagnostic || true
+  echo "FAIL: IGRAJ tap did not open the game" >&2
+  head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
+  adb logcat -d -t 200 | tail -n 100 || true
+  exit 1
+fi
+echo "PASS: IGRAJ enters interactive gameplay"
 # Coordinates derived from the emulator resolution, not a hard-coded device size.
 size=$(adb shell wm size | tail -n 1 | sed 's/.*: //' | tr -d '\r')
 width=${size%x*}
@@ -41,8 +89,6 @@ case "$width:$height" in
   *[!0-9:]*|:*) echo "Invalid Android screen dimensions: $size" >&2; exit 1;;
 esac
 center=$((width/2))
-adb shell input tap "$center" "$((height*88/100))"
-sleep 1
 adb shell pidof com.brendigo.bopavi
 capture android-gameplay-ready
 # First touch makes Bopi flap; without further taps a collision must lead to results.
@@ -57,8 +103,7 @@ while [ "$attempt" -le 15 ]; do
     adb logcat -d -t 250 | tail -n 100 || true
     exit 1
   fi
-  if adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1 &&
-     adb shell cat /sdcard/bopavi-window.xml | grep -q 'PONOVO'; then
+  if dump_ui && grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
     result_ready=1
     break
   fi
@@ -69,7 +114,7 @@ done
 if [ "$result_ready" -ne 1 ]; then
   capture android-result-diagnostic || true
   echo "FAIL: gameplay did not expose the PONOVO action within 30 seconds" >&2
-  adb shell cat /sdcard/bopavi-window.xml | head -c 5000 || true
+  head -c 5000 qa/screenshots/android-current-ui.xml || true
   adb logcat -d -t 250 | tail -n 100 || true
   exit 1
 fi
