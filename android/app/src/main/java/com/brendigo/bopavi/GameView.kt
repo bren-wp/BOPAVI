@@ -27,7 +27,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Only rebuild the textual progress label when a gate is passed or a new
     // endless level begins; the renderer draws its bar each frame without allocation.
     private var lastProgressPassed = -1
-    private var lastProgressTotal = -1
     private var progressTitle = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
