@@ -6,6 +6,12 @@ import org.json.JSONObject
 
 /** Offline wallet: coins are earned once, on designated newly completed levels. */
 class ProgressStore(context: Context) {
+    companion object {
+        /** Pure milestone math, independently testable without an Android Context. */
+        fun claimableRecordCoins(bestScore:Int,claimed:Int,coinBalance:Int):Int =
+            (bestScore.coerceIn(0,100000000)/1000-claimed.coerceIn(0,100000))
+                .coerceAtLeast(0).coerceAtMost(100000000-coinBalance.coerceIn(0,100000000))
+    }
     private val prefs = context.getSharedPreferences("bopavi_native_v4", Context.MODE_PRIVATE)
     fun frontier(world: Int): Int = prefs.getInt("frontier_$world", 1).coerceIn(1, LevelEngine.LEVELS_PER_WORLD + 1)
     fun streamFrontier(world:Int):Long {
@@ -23,7 +29,7 @@ class ProgressStore(context: Context) {
         leaderboard().maxOfOrNull { it.score } ?: 0).coerceIn(0,100000000)
     fun bonusCoinsAvailable():Int {
         val claimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
-        return (bestPoints()/1000-claimed).coerceAtLeast(0).coerceAtMost(100000000-coins())
+        return claimableRecordCoins(bestPoints(),claimed,coins())
     }
     fun claimBonusCoins():Int {
         val awarded=bonusCoinsAvailable()
