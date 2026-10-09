@@ -48,11 +48,10 @@ class ProgressStore(context: Context) {
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */
     fun completeLevel(world:Int, number:Long, score:Int):Int {
-        if(world !in 0..7 || number != streamFrontier(world) || world > maxWorld() || number < 1L || number >= Long.MAX_VALUE-2) return 0
+        if(world !in 0..7 || number != streamFrontier(world) || number < 1L || number >= Long.MAX_VALUE-2) return 0
         val reward=LevelEngine.milestoneReward(number)
         val e=prefs.edit().putLong("stream_frontier_$world",number+1)
             .putInt("frontier_$world",(number+1).coerceAtMost(LevelEngine.LEVELS_PER_WORLD.toLong()+1).toInt())
-        if(world==maxWorld() && number>=30 && world<7)e.putInt("max_world",world+1)
         e.putInt("best_$world",maxOf(best(world),score)).putInt("wins",wins()+1)
         e.putInt("coins",(coins().toLong()+reward).coerceAtMost(100000000L).toInt()).apply()
         return reward
