@@ -171,3 +171,9 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Za lik Noa (indeks 7) i Any (indeks 8) provjeriti da render tijekom igre pokazuje izvorno tijelo i OBA izvorna krila, a ne dijelove Portantina (indeks 6).
 - CI mora provjeriti identične 512×512 RGBA resurse između Android drawable-nodpi i iOS imageset za devet tijela i osamnaest krila.
 - Vizualno pregledati zamah oba krila na oba sustava, aktivno/smanjeno gibanje i povratak s pauze; napredak i otključavanja ostaju nepromijenjeni.
+
+## v0.1.28 — regresija premium likova, kupljene opreme i povratka iz pozadine
+- Android: odabrati Nou i Any i otvoriti zaslon **ODABERI LIKA**; provjeriti stvarne ilustracije bez pada i pravilno pokretanje leta.
+- Android/iOS: kupiti štit i magnet, otvoriti mirujući let, zaključati uređaj, vratiti se i odustati bez zamaha; broj kupljenih predmeta mora ostati nepromijenjen. Pri prvom stvarnom zamahu svaka prisutna pogodnost troši se jednom.
+- Započeti let, premjestiti aplikaciju u pozadinu i vratiti se: let mora ostati pauziran dok korisnik izričito ne odabere nastavak. Mirujući pregled mora primati dodire bez nevidljive pauze.
+- Automatski CI obuhvaća Kotlin i Swift testove, Python audit, Android emulator, iOS simulator i oba builda. Testovi na fizičkim uređajima i tržišno potpisani paketi nisu potvrđeni.

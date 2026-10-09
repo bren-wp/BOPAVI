@@ -547,7 +547,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause,weak counter] in
             guard let self=self, self.canvas === gameCanvas else{return}
             // The pre-flight preview never spends purchased equipment.
-            self.progress.consumePerks()
+            _ = self.progress.consumePerks()
             pause?.isHidden=false
             counter?.isHidden=false
         }

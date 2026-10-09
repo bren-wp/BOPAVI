@@ -218,7 +218,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.27
+    name: GitHub Release v0.1.28
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -240,10 +240,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.27 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.27 exists: no duplicate release.'
+          if gh release view v0.1.28 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.28 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.27 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.27 — Ispravne animacije Noe i Any' --prerelease \
-            --notes 'Android i iOS: ispravljeno učitavanje izvornih ilustracija Noe i Any tijekom stvarnog leta. Tijelo, lijevo i desno krilo uvijek koriste isti odabrani indeks 0–8, bez pogrešnog preuzimanja Portantinove grafike. CI provjerava identične RGBA pixele svih 9 tijela i 18 krila na Androidu/iOS-u, zasebnu grafiku premium likova, Android/iOS buildove i smoke testove. Fizika, kolizije, bodovi, novčanik, spremljeni napredak i neprekinuti leveli nisu promijenjeni. Priloženi razvojni APK, nepotpisani AAB i iOS Simulator/unsigned-device ZIP nisu potpisani za javne trgovine.'
+          gh release create v0.1.28 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.28 — Stabilni premium likovi i očuvana oprema' --prerelease \
+            --notes 'v0.1.28: Android odabir premium likova Noa i Any ne može srušiti aplikaciju zbog indeksa izvan polja. Android i iOS čuvaju štit i magnet tijekom mirujućeg pregleda te ih troše tek prvim zamahom. Povratak iz pozadine ne blokira mirujući let; započeti let ostaje pauziran. CI provjerava portrete, zalihe, privatnost, sve grafike, buildove i smoke testove. Fizika, kolizije i spremljeni napredak nisu promijenjeni. Android APK/AAB i iOS ZIP razvojni su artefakti koji nisu potpisani za javne trgovine.'

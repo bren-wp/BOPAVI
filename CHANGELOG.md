@@ -1,3 +1,10 @@
+## v0.1.28 — stabilan izbor Noe/Any i poštena potrošnja opreme
+- **Ispravljen pad Android aplikacije:** zaslon ODABERI LIKA imao je sedam slika u polju, a indeks odabranog lika mogao je biti 7 ili 8 (Noa/Any). Pregled sada koristi svih devet portreta i ne pristupa polju izvan granica.
+- **Štit i magnet čuvaju se do početka leta:** Android i iOS koriste previewPerks() bez trošenja zaliha na mirujućem prikazu, a consumePerks() poziva se točno jednom na prvi stvarni zamah. Odustajanje prije zamaha ne troši kupljene predmete.
+- **Povratak iz pozadine:** pozivi, zaključavanje i prebacivanje aplikacije pauziraju započeti let, ali ne zamrzavaju mirujući pregled bez tipke pauze. iOS uklanja suvišnog drugog lifecycle promatrača i obnavlja zvuk na mirujućem zaslonu.
+- Regresijski Python audit provjerava indeks svih devet Android portreta, sigurnu potrošnju i lifecycle. Swift save test potvrđuje da pregled ne smanjuje broj štitova ili magneta, a prvi let ih troši.
+- Android versionCode 29, iOS build 29, verzija 0.1.28. Sačuvani napredak, fizika, kolizije i neprekinuti leveli ostaju nepromijenjeni. Testiranje fizičkih uređaja i dalje je potrebno.
+
 ## v0.1.27 — originalni Noa i Any tijekom stvarnog leta
 - **Ispravljena konkretna regresija iz v0.1.26:** Android je za Nou i Any prikazivao Portantinova krila, dok je iOS prikazivao i Portantinovo tijelo. Tijelo, lijevo i desno krilo na obje platforme sada koriste jedinstveni validirani indeks 0–8.
 - CI uspoređuje stvarne generirane Android/iOS PNG spriteove **piksel po piksel** za svih devet likova i osamnaest krila, te provjerava da krila Noe i Any nisu Portantinova.
