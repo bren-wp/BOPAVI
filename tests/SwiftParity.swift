@@ -71,6 +71,17 @@ struct SwiftParity {
             precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-300)<0.01)
             precondition(game.active && !game.finished)
         }
+        do {
+            let level=BopaviCore.create(0,2)
+            let easy=GameSimulation(level,difficulty:0)
+            let normal=GameSimulation(level,difficulty:1)
+            let hard=GameSimulation(level,difficulty:2)
+            for sim in [easy,normal,hard] {sim.flap();sim.step(1/60)}
+            precondition(easy.distance < normal.distance && normal.distance < hard.distance)
+            precondition(easy.y < normal.y && normal.y < hard.y)
+            precondition(easy.level.gates.count == hard.level.gates.count)
+            precondition(GameSimulation(level,difficulty:42).difficulty == 2)
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
