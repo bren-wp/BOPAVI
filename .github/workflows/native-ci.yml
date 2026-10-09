@@ -40,7 +40,23 @@ jobs:
           assert orange>400, f'BOPAVI orange lettering vanished: {orange} pixels'
           wings=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA') for skin in range(9) for side in ('left','right')]
           assert len(wings)==18 and all(im.size==(512,512) and im.getbbox() for im in wings)
-          print('PASS: 9 body sprites, 18 animated wing sprites and 8 distinct 960x1600 biomes')
+          # Both operating systems must ship the exact same pixels for every
+          # character's body and each wing, not only the same resource names.
+          for skin in range(9):
+              for side in ('','left','right'):
+                  name=f'bopi{side}{skin}.png'
+                  android=Path('android/app/src/main/res/drawable-nodpi')/name
+                  ios=Path('ios/BOPAVI/Assets.xcassets')/f'Bopi{side.capitalize()}{skin}.imageset'/name
+                  assert android.is_file() and ios.is_file(), (skin,side,'missing asset')
+                  assert Image.open(android).convert('RGBA').tobytes()==Image.open(ios).convert('RGBA').tobytes(), (skin,side,'different pixels')
+          # Premium characters must have genuinely unique wings, not merely
+          # different labels attached to Portantin's wing asset.
+          for side in ('left','right'):
+              portantin=Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}6.png').convert('RGBA').tobytes()
+              for skin in (7,8):
+                  premium=Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA').tobytes()
+                  assert premium!=portantin, (skin,side,'duplicated Portantin wing')
+          print('PASS: 9 body sprites, 18 Android/iOS pixel-identical animated wings and 8 biomes')
           PY
       - uses: actions/upload-artifact@v4
         with:
@@ -202,7 +218,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.26
+    name: GitHub Release v0.1.27
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +240,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.26 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.26 exists: no duplicate release.'
+          if gh release view v0.1.27 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.27 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.26 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.26 — Noa i Any, premium letači' --prerelease \
-            --notes 'Android i iOS: dodana dva izvorna premium lika Noa i Any — ukupno devet likova i osamnaest odvojenih animiranih krila. Noa i Any otključavaju se lokalno osvojenim kovanicama (220/240), nakon eksplicitne potvrde. Nema kupnje stvarnim novcem. V5 sigurnosne kopije, prethodni likovi i besplatni Portantin ostaju kompatibilni. Fizika leta i neprekinuti leveli nisu promijenjeni. Testovi provjeravaju spriteove i otključavanje na obje platforme. Paketi su razvojni Android APK, nepotpisani AAB i nepotpisani iOS simulator/device ZIP. Za službene trgovine potrebno je potpisivanje i fizički vizualni QA.'
+          gh release create v0.1.27 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.27 — Ispravne animacije Noe i Any' --prerelease \
+            --notes 'Android i iOS: ispravljeno učitavanje izvornih ilustracija Noe i Any tijekom stvarnog leta. Tijelo, lijevo i desno krilo uvijek koriste isti odabrani indeks 0–8, bez pogrešnog preuzimanja Portantinove grafike. CI provjerava identične RGBA pixele svih 9 tijela i 18 krila na Androidu/iOS-u, zasebnu grafiku premium likova, Android/iOS buildove i smoke testove. Fizika, kolizije, bodovi, novčanik, spremljeni napredak i neprekinuti leveli nisu promijenjeni. Priloženi razvojni APK, nepotpisani AAB i iOS Simulator/unsigned-device ZIP nisu potpisani za javne trgovine.''

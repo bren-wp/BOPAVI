@@ -667,3 +667,17 @@ for index in ('7','8'):
     assert f'{index} ->' in android_picker and f'case {index}:' in ios_picker
 for gallery in (android_gallery,ios_gallery):
     assert 'PREMIUM' in gallery and 'Potrošit ćeš' in gallery
+
+# v0.1.27: loading the correct three sprite resources is mandatory in gameplay.
+# v0.1.26 generated Noa/Any art but the actual renderer selected Portantin.
+android_loader=android_render.split('private val selectedSkin=',1)[1].split('private val worldBitmaps=',1)[0]
+assert android_loader.startswith('skinIndex.coerceIn(0,8)')
+for source in ('birdSprites','leftWings','rightWings'):
+    assert f'{source}[selectedSkin]' in android_loader,source
+assert 'skinIndex.coerceIn(0,6)' not in android_loader
+swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int)',1)[1].split('super.init(frame:',1)[0]
+assert 'let selectedSkin=min(8,max(0,skinIndex))' in swift_loader
+for asset in ('Bopi','BopiLeft','BopiRight'):
+    assert f'{asset}\\(selectedSkin)' in swift_loader,asset
+assert 'min(6,max(0,skinIndex))' not in swift_loader
+print('PASS: nine pilot bodies and both matching animated wings on Android/iOS')

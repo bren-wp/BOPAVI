@@ -1,3 +1,9 @@
+## v0.1.27 — originalni Noa i Any tijekom stvarnog leta
+- **Ispravljena konkretna regresija iz v0.1.26:** Android je za Nou i Any prikazivao Portantinova krila, dok je iOS prikazivao i Portantinovo tijelo. Tijelo, lijevo i desno krilo na obje platforme sada koriste jedinstveni validirani indeks 0–8.
+- CI uspoređuje stvarne generirane Android/iOS PNG spriteove **piksel po piksel** za svih devet likova i osamnaest krila, te provjerava da krila Noe i Any nisu Portantinova.
+- Source audit provjerava točno učitavanje tri spritea te sprječava ponovnu pojavu ograničenja na sedam likova.
+- Android v0.1.27 (versionCode 28) i iOS v0.1.27 (build 28). Napredak, postavke, kupnje virtualnim kovanicama, fizika, sudari i neprekinuti let nisu mijenjani. Merge i izdanje dopušteni su tek nakon zelenog CI-ja.
+
 ## v0.1.26 — Noa i Any, dva premium lika
 - **Noa** i **Any** dodani su kao osmi i deveti lik. Noa je mladi nebeski istraživač s električno plavim krilima i pilotskim vizirom; Any je djevojčica s ljubičasto-ružičastim krilima, zvjezdanom tijarom i čarobnom haljinom. Izvori `docs/assets/noa.svg` i `docs/assets/any.svg` su zasebne ilustracije, ne preslikane Bopijeve boje.
 - Oba lika dobivaju odvojene animirane spriteove lijevog i desnog krila iz istog SVG-a na Androidu i iOS-u. Galerija prikazuje devet pravih portreta i oznake premium cijena.

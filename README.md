@@ -46,7 +46,7 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 <img src="docs/assets/any.svg" width="240" alt="Any — čarobnica sa zvjezdanom tijarom i ružičastim krilima">
 </p>
 
-**Noa i Any — dva premium letača, dvije različite avanture.** Noa istražuje granice neba; Any donosi čaroliju zvijezda. Oba lika imaju vlastite siluete tijela i dva odvojena, animirana krila. Kao i svi drugi likovi, igraju po jednakim pravilima: bez prednosti u brzini, fizici ili kolizijama, bez plaćanja stvarnim novcem.
+**Noa i Any — dva premium letača, dvije različite avanture.** Noa istražuje granice neba; Any donosi čaroliju zvijezda. Oba lika imaju vlastite siluete tijela i dva odvojena, animirana krila, a tijekom stvarnog leta prikazuju se upravo njihovi odgovarajući spriteovi na Androidu i iOS-u. Kao i svi drugi likovi, igraju po jednakim pravilima: bez prednosti u brzini, fizici ili kolizijama, bez plaćanja stvarnim novcem.
 
 ## 🌍 Osam svjetova — jedan neprekinuti let
 
