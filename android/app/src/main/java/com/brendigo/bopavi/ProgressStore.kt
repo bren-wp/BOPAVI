@@ -193,7 +193,7 @@ class ProgressStore(context: Context) {
             val ix=skins.indexOf(ownedArray.optString(i));if(ix>=0)mask=mask or (1 shl ix)
         }
         val selected=skins.indexOf(s.optString("skin","bopi"))
-        e.putInt("owned_mask",mask).putInt("skin_index",if(selected>=0 && (mask and (1 shl selected))!=0)selected else 0)
+        e.putInt("owned_mask",mask).putInt("skin_index",if(selected==6 || (selected>=0 && (mask and (1 shl selected))!=0))selected else 0)
         e.putInt("wins",s.optInt("wins",0).coerceIn(0,100000000))
         e.putInt("deaths",s.optInt("deaths",0).coerceIn(0,100000000))
         e.putLong("flaps",s.optLong("flaps",0).coerceIn(0L,100000000L))
