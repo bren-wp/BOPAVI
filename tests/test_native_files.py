@@ -63,6 +63,34 @@ for code in [android,ios]:
     assert '▶  IGRAJ' in code
 assert 'android.permission.INTERNET' not in manifest
 
+# v0.1.19: three genuine animated environment depths on both native surfaces.
+# No static screen replacement; effects are sourced from flight distance and
+# frozen under reduced-motion while collision and score core stays unchanged.
+android_render=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_render=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+android_levels=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+ios_core=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'private fun drawParallaxIslands(c:Canvas)' in android_render
+assert 'private func drawParallaxIslands(_ c:CGContext)' in ios_render
+assert 'drawParallaxIslands(canvas)' in android_render
+assert 'drawParallaxIslands(c)' in ios_render
+assert 'ParallaxScenery.offset(game.distance,layer,reducedMotion)' in android_render
+assert 'ParallaxScenery.offset(game.distance,layer:layer,' in ios_render
+assert 'internal object ParallaxScenery' in android_levels
+assert 'enum ParallaxScenery' in ios_core
+for src in [android_levels,ios_core]:
+    for rate in ('0.07','0.15','0.24'):
+        assert rate in src or rate.replace('0.','.0') in src,(rate,src[:120])
+assert '0x47000000 or (glowHues[world] and 0x00ffffff)' in android_render
+assert 'glowHues[world] and 0x00ffffff)' in android_render
+assert 'endRadius:185' in ios_render
+# No world map locks (level progression can still unlock individual levels).
+for source in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
+               root/'ios/BOPAVI/GameController.swift'):
+    menu=source.read_text()
+    worlds=menu.split('private fun showWorlds()',1)[1].split('private fun showLevels(',1)[0] if source.suffix=='.kt' else menu.split('private func showWorlds()',1)[1].split('private func showLevels(',1)[0]
+    assert '🔒' not in worlds and 'worldTile' in worlds
+
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
