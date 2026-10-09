@@ -91,6 +91,16 @@ assert 'window?.screen.maximumFramesPerSecond' in (root/'ios/BOPAVI/GameCanvas.s
 assert 'preferredFrameRateRange' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 assert plistlib.load(open(root/'ios/BOPAVI/Info.plist','rb'))['CADisableMinimumFrameDurationOnPhone'] is True
 
+# The emulator may show a system Pixel Launcher ANR after boot; do not
+# mistake it for a game bug, and never waive the real settings navigation.
+qa_script=(root/'tools/qa_android_emulator.sh').read_text()
+assert "recover_launcher_anr()" in qa_script
+assert "Pixel Launcher isn't responding" in qa_script
+assert "settings_ready=1" in qa_script
+assert 'if [ "$settings_ready" -ne 1 ]; then' in qa_script
+assert 'adb shell pidof com.brendigo.bopavi' in qa_script
+assert 'capture android-settings-diagnostic' in qa_script
+
 # Frame-pacing regression from the supplied Android device recording.
 renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'postInvalidateDelayed(5); return' not in renderer
