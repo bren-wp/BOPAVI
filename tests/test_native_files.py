@@ -28,8 +28,20 @@ for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt',
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
-assert 'MARKETING_VERSION = 0.1.8' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
-assert 'versionName = "0.1.7"' in (root/'android/app/build.gradle.kts').read_text()
+# Validate platform/release version parity instead of hardcoding a stale version.
+import re
+gradle=(root/'android/app/build.gradle.kts').read_text()
+xcode=(root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+android_versions=re.findall(r'versionName\\s*=\\s*"(\\d+\\.\\d+\\.\\d+)"',gradle)
+android_builds=re.findall(r'versionCode\\s*=\\s*(\\d+)',gradle)
+ios_versions=re.findall(r'MARKETING_VERSION\\s*=\\s*(\\d+\\.\\d+\\.\\d+)',xcode)
+ios_builds=re.findall(r'CURRENT_PROJECT_VERSION\\s*=\\s*(\\d+)',xcode)
+assert len(android_versions)==1 and len(android_builds)==1, "Android version missing or ambiguous"
+assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions missing"
+assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
+assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
+assert f'gh release create v{android_versions[0]}' in workflow, "Release workflow tag mismatches builds"
 print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
