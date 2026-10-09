@@ -9,7 +9,6 @@ final class GameCanvas: UIView {
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
     private var progressLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
-    private var lastProgressTotal = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
