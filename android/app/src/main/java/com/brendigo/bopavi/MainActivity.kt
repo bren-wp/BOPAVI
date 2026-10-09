@@ -316,6 +316,68 @@ class MainActivity : Activity() {
         if(start+20<=maxNumber)action(b,"Sljedećih 20 →",false){showLevels(world,start+20)}
         back(b){showWorlds()}
     }
+    /** Seven true character portraits in a reusable, accessible two-column gallery. */
+    private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
+        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+        for(start in progress.skinNames.indices step 2) {
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            parent.addView(row,LinearLayout.LayoutParams(-1,-2))
+            for(i in start until minOf(start+2,progress.skinNames.size)) {
+                val selected=progress.skin()==i
+                val owned=progress.owned(i)
+                val cost=progress.costs[i]
+                val status=if(selected)"✓ ODABRAN" else if(owned)"DOSTUPAN" else "$cost KOVANICA"
+                val card=LinearLayout(this).apply {
+                    orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
+                    isClickable=true;isFocusable=true
+                    val face=gradient(if(selected)0xff287cb3.toInt() else 0xff173c71.toInt(),
+                        if(selected)0xff18527b.toInt() else 0xff102a50.toInt(),19)
+                    face.setStroke(d(if(selected)3 else 1),
+                        if(selected)gold else 0xff5680b4.toInt())
+                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
+                    contentDescription="${progress.skinNames[i]}, $status"
+                    setPadding(d(7),d(6),d(7),d(6))
+                    setOnClickListener {
+                        sound.effect("click")
+                        if(owned) {
+                            progress.selectOrBuy(i);refresh()
+                        } else if(progress.coins()<cost) {
+                            Toast.makeText(this@MainActivity,"Nedovoljno kovanica za ${progress.skinNames[i]}.",
+                                Toast.LENGTH_SHORT).show()
+                        } else {
+                            android.app.AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Otključati ${progress.skinNames[i]}?")
+                                .setMessage("Potrošit ćeš $cost osvojenih kovanica. Potvrdi otključavanje.")
+                                .setNegativeButton("ODUSTANI",null)
+                                .setPositiveButton("OTKLJUČAJ"){_,_ ->
+                                    if(progress.selectOrBuy(i))refresh()
+                                }.show()
+                        }
+                    }
+                }
+                card.addView(ImageView(this).apply {
+                    setImageResource(portraits[i]);scaleType=ImageView.ScaleType.FIT_CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(96)))
+                card.addView(TextView(this).apply {
+                    text=progress.skinNames[i];textSize=16f
+                    typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(23)))
+                card.addView(TextView(this).apply {
+                    text=status;textSize=12f;gravity=Gravity.CENTER
+                    setTextColor(if(selected)gold else 0xffbce6ff.toInt())
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(22)))
+                row.addView(card,LinearLayout.LayoutParams(0,d(155),1f).apply{
+                    setMargins(d(4),d(5),d(4),d(5))
+                })
+            }
+            if(start==progress.skinNames.size-1)
+                row.addView(View(this),LinearLayout.LayoutParams(0,d(155),1f))
+        }
+    }
     /** Mandatory pre-flight character choice; boosts are consumed only at launch. */
     private fun showPilotPicker(world:Int,number:Long) {
         currentWorld=world;currentLevel=number
@@ -337,18 +399,8 @@ class MainActivity : Activity() {
             else "Izaberi boju Bopija ili besplatnog Portantina. Odabir ostaje na uređaju.")
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
         action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
-        for(i in progress.skinNames.indices) {
-            val status=when {
-                progress.skin()==i -> "✓ ODABRAN"
-                progress.owned(i) -> "DOSTUPAN"
-                else -> "${progress.costs[i]} kovanica"
-            }
-            action(b,"${if(i==6)"🪽" else "🐦"}  ${progress.skinNames[i]}  ·  $status",
-                progress.skin()==i) {
-                if(progress.selectOrBuy(i))showPilotPicker(world,number)
-                else Toast.makeText(this,"Nedovoljno osvojenih kovanica.",Toast.LENGTH_SHORT).show()
-            }
-        }
+        sectionHeading(b,"ODABERI SVOG LETAČA")
+        characterGallery(b){showPilotPicker(world,number)}
         back(b){showLevels(world,number.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())}
     }
     private fun startGame(world:Int,number:Long){
@@ -510,19 +562,13 @@ class MainActivity : Activity() {
             }
         }
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
-        action(b,"🎨  BOJE BOPIJA",false){showSkins()}
+        action(b,"🎨  LIKOVI",false){showSkins()}
         back(b){showSettings()}
     }
     private fun showSkins(){
         val b=base("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
         small(b,"Stanje: ${progress.coins()} kovanica")
-        for(i in progress.skinNames.indices){
-            val label=when {progress.skin()==i->"✓ ODABRAN";progress.owned(i)->"OTKLJUČAN";else->"${progress.costs[i]} kovanica"}
-            action(b,"${if(i==6) "🪽" else "🐦"} ${progress.skinNames[i]}  ·  $label",progress.skin()==i){
-                if(!progress.selectOrBuy(i))Toast.makeText(this,"Nema dovoljno kovanica.",Toast.LENGTH_LONG).show()
-                showSkins()
-            }
-        }
+        characterGallery(b){showSkins()}
         back(b){showSettings()}
     }
     private fun showLeaderboard(){
@@ -589,7 +635,7 @@ class MainActivity : Activity() {
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
         sectionHeading(b,"DODATNE OPCIJE")
-        action(b,"🐤  IZGLED BOPIJA",false){showSkins()}
+        action(b,"🐤  LIKOVI",false){showSkins()}
         action(b,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
         sectionHeading(b,"PODACI I PRIVATNOST")
