@@ -88,7 +88,7 @@ final class ProgressStore {
     func exportData() throws -> Data {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
-                                 "coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
+                                 "playerName":playerName,"coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
                                  "owned":(0..<6).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
@@ -143,6 +143,7 @@ final class ProgressStore {
         }
         if let arr=s["perks"] as? [Int],arr.count==2 {for n in 0..<2 {defaults.set(min(99,max(0,arr[n])),forKey:"perk_\(n)")}}
         if let arr=s["collectibles"] as? [Int],arr.count==8 {for n in 0..<8 {defaults.set(min(100_000_000,max(0,arr[n])),forKey:"collectibles_\(n)")}}
+        playerName = s["playerName"] as? String ?? "Igrač"
         soundEnabled = s["soundEnabled"] as? Bool ?? true
         lessMotion = s["lessMotion"] as? Bool ?? false
     }
