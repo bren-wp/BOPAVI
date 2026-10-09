@@ -405,6 +405,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showResult(_ g:GameSimulation){
         sound.effect("hit")
+        let headline=ResultHeadline.label(score:g.score(),previousBest:progress.bestPoints(),won:g.won)
         progress.recordRun(g)
         gameNumber=g.displayLevel
         clear()
@@ -461,7 +462,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.layer.borderColor=UIColor.white.withAlphaComponent(0.45).cgColor
         header.heightAnchor.constraint(equalToConstant:166).isActive=true
         stack.addArrangedSubview(header)
-        label("LET ZAVRŠEN!",31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
+        label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         let stats=UIStackView()
         stats.axis = .vertical;stats.alignment = .fill;stats.spacing=8
         stats.isLayoutMarginsRelativeArrangement=true
@@ -471,6 +472,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
         stack.addArrangedSubview(stats)
         label("\(g.score()) BODOVA",37,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("🏆  Najbolji rezultat: \(progress.bestPoints())",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
