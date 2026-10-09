@@ -80,7 +80,7 @@ assert 'internal object ParallaxScenery' in android_levels
 assert 'enum ParallaxScenery' in ios_core
 for src in [android_levels,ios_core]:
     for rate in ('0.07','0.15','0.24'):
-        assert rate in src or rate.replace('0.','.0') in src,(rate,src[:120])
+        assert rate in src or rate.replace('0.','.') in src,(rate,src[:120])
 assert '0x47000000 or (glowHues[world] and 0x00ffffff)' in android_render
 assert 'glowHues[world] and 0x00ffffff)' in android_render
 assert 'endRadius:185' in ios_render
