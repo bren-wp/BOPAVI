@@ -102,6 +102,7 @@ final class GameCanvas: UIView {
             gate(c,g,x,i)
         }
         bird(c)
+        drawBoostHUD(c)
         if game.levelTransition>0 {
             let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
             rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
@@ -127,6 +128,21 @@ final class GameCanvas: UIView {
         if groundTop<bound.height {
             rect(c,0,groundTop,bound.width,bound.height-groundTop,
                 game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
+        }
+    }
+    // Drawn in the same unscaled 480x800 game coordinates as Android.
+    // Lightweight rounded chips reveal actual remaining protection and magnet time.
+    private func drawBoostHUD(_ c:CGContext) {
+        let font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        let attributes:[NSAttributedString.Key:Any]=[.font:font,.foregroundColor:UIColor.white]
+        if game.shield>0 {
+            rect(c,14,79,124,31,0x183e75,14,0.87)
+            ("ŠTIT ×\\(game.shield)" as NSString).draw(at:CGPoint(x:25,y:86),withAttributes:attributes)
+        }
+        if game.magnetTime>0 {
+            rect(c,14,114,137,31,0x183e75,14,0.87)
+            let seconds=Int(ceil(Double(game.magnetTime)))
+            ("MAGNET \\(seconds)s" as NSString).draw(at:CGPoint(x:25,y:121),withAttributes:attributes)
         }
     }
     private func background(_ c:CGContext){
