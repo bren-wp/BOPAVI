@@ -13,7 +13,6 @@ object LevelEngine {
     val collectibles = listOf("Zvjezdice", "Školjke", "Pahulje", "Iskre", "Perje", "Mjesečev prah", "Kristali", "Zvjezdani prah")
     val collectibleIcons = listOf("★", "◉", "❄", "✦", "❖", "☾", "◆", "✧")
     val hazards = listOf("trnje", "valovi", "sige", "lava", "stupovi", "sjene", "kristali", "meteori")
-    private val offset = intArrayOf(-9, -3, 3, 9)
     data class Gate(val x: Float, val center: Float, val gap: Float, val width: Float, val movement: Float, val phase: Float, val kind: Int, val coin: Boolean, val star: Boolean, val power: Int)
     data class Level(val world: Int, val number: Int, val zone: Int, val speed: Float, val wind: Float, val gates: List<Gate>, val type: Int)
     data class Opening(val top: Float, val bottom: Float)
@@ -94,5 +93,4 @@ object LevelEngine {
     fun signature(level: Level): String = level.gates.take(10).joinToString(":") { it.center.toInt().toString() }
     /** Fixed first-clear grants. No repeat-farming, no in-app payments. */
     fun milestoneReward(number:Int):Int = milestoneReward(number.toLong())
-    fun accessible(frontier: Int, number: Int): Boolean = number in 1..min(frontier, LEVELS_PER_WORLD)
 }
