@@ -38,6 +38,22 @@ dump_ui(){
   adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml
   test -s qa/screenshots/android-current-ui.xml
 }
+verify_three_home_actions(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys, xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+names=("IGRAJ","SVJETOVI","POSTAVKE")
+nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
+for name in names:
+    matches=[n for n in nodes if name in (n.get('text','')+' '+n.get('content-desc',''))]
+    if len(matches)!=1:
+        raise SystemExit(f'FAIL: home must expose one accessible clickable {name}, got {len(matches)}')
+    bounds=matches[0].get('bounds','')
+    if not bounds or bounds.startswith('[0,0][0,0]'):
+        raise SystemExit(f'FAIL: {name} has invalid button bounds')
+print('PASS: 3 accessible home buttons IGRAJ, SVJETOVI, POSTAVKE',flush=True)
+PY
+}
 tap_play(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import re, subprocess, sys, xml.etree.ElementTree as ET
@@ -81,6 +97,7 @@ while [ "$attempt" -le 6 ]; do
   fi
   if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
     capture android-home
+    verify_three_home_actions
     home_captured=1
   fi
   tap_play
