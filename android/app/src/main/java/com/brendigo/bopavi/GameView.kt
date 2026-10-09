@@ -112,6 +112,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(Color.WHITE)
             canvas.drawBitmap(worldBitmap,null,worldRect,p)
         } else drawBackground(canvas)
+        // Light atmospheric layer moves independently of the static painted backdrop.
+        // Reuses one Paint and generates no bitmaps or sprite allocations per frame.
+        val drift=if(reducedMotion)0f else (game.distance*.075f)%580f
+        val mist=if(game.level.world==5 || game.level.world==7)0x228cbbff else 0x38ffffff
+        for(i in 0..3) {
+            val x=((i*174f+75f-drift+580f)%580f)-95f
+            val y=146f+(i%3)*148f
+            oval(canvas,x,y,x+106f,y+24f,mist)
+            oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
+        }
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
