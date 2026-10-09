@@ -68,5 +68,21 @@ fun main() {
         check(game.distance>0 && kotlin.math.abs(game.gateX(game.level.gates[0])-300f)<0.01f)
         check(game.active && !game.finished)
     }
+    run {
+        val base=LevelEngine.create(0,2)
+        val smooth=GameSimulation(base)
+        val delayed=GameSimulation(base)
+        smooth.flap();delayed.flap()
+        repeat(6){smooth.step(1f/60f)}
+        delayed.step(0.10f)
+        check(kotlin.math.abs(smooth.distance-delayed.distance)<.02f)
+        check(kotlin.math.abs(smooth.y-delayed.y)<3f)
+        val paused=GameSimulation(base)
+        paused.flap();paused.step(8f)
+        check(kotlin.math.abs(paused.time-.10f)<.0001f)
+        val invalid=GameSimulation(base)
+        invalid.flap();invalid.step(Float.NaN)
+        check(invalid.time==0f && invalid.distance==0f)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
