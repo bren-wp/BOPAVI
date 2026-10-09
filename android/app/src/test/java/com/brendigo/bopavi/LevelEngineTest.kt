@@ -6,6 +6,30 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun eachTapRetriggersCosmeticWingbeatWithoutChangingPhysics() {
+        val flight=GameSimulation(LevelEngine.create(0,2))
+        assertEquals(0f,flight.flapPulse,0f)
+        flight.flap()
+        assertEquals(.24f,flight.flapPulse,0f)
+        assertEquals(-255f,flight.velocity,0f)
+        flight.step(.08f)
+        assertEquals(.16f,flight.flapPulse,.0001f)
+        val velocity=flight.velocity
+        val distance=flight.distance
+        flight.step(Float.NaN)
+        flight.step(-1f)
+        assertEquals(.16f,flight.flapPulse,.0001f)
+        assertEquals(velocity,flight.velocity,0f)
+        assertEquals(distance,flight.distance,0f)
+        flight.flap()
+        assertEquals(.24f,flight.flapPulse,0f)
+        assertEquals(-255f,flight.velocity,0f)
+        repeat(3){flight.step(.10f)}
+        assertEquals(0f,flight.flapPulse,.00001f)
+        assertFalse(flight.finished)
+        assertEquals(2,flight.flaps)
+    }
+
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
