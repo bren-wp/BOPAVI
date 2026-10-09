@@ -54,6 +54,21 @@ for name in names:
 print('PASS: 3 accessible home buttons IGRAJ, SVJETOVI, POSTAVKE',flush=True)
 PY
 }
+# Exercise the real settings destination, not only the home button labels.
+tap_settings(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re, subprocess, sys, xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and
+         'POSTAVKE' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(buttons)!=1:
+    raise SystemExit(f'FAIL: expected one accessible POSTAVKE shortcut, found {len(buttons)}')
+match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
+if not match: raise SystemExit('FAIL: invalid settings shortcut bounds')
+l,t,r,b=map(int,match.groups())
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+PY
+}
 tap_play(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import re, subprocess, sys, xml.etree.ElementTree as ET
@@ -98,6 +113,21 @@ while [ "$attempt" -le 6 ]; do
   if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
     capture android-home
     verify_three_home_actions
+    # Confirm settings can open and Android Back returns to the same 3 actions.
+    tap_settings
+    sleep 2
+    dump_ui
+    if ! grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+      capture android-settings-diagnostic || true
+      echo "FAIL: POSTAVKE did not open the settings screen" >&2
+      exit 1
+    fi
+    capture android-settings
+    adb shell input keyevent 4
+    sleep 1
+    dump_ui
+    verify_three_home_actions
+    echo "PASS: settings opens and returns to the three-button home"
     home_captured=1
   fi
   tap_play
