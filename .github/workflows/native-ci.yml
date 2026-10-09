@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.25
+    name: GitHub Release v0.1.26
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.25 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.25 exists: no duplicate release.'
+          if gh release view v0.1.26 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.26 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.25 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.25 — Galerija likova i neprekinut ritam leta' --prerelease \
-            --notes 'Android i iOS: svih sedam likova, uključujući originalnog Portantina, prikazano je vizualnim karticama u izboru prije leta i Postavkama. Nema trošenja virtualnih kovanica bez dodatne potvrde za zaključanog lika; već kupljeni likovi i besplatni Portantin ostaju dostupni. Neprekinuti endless let dodatno usklađuje udaljenost prvog sljedećeg stupa sa stvarnim razmakom prepreka tekuće zone, a ne fiksnih 242 jedinice. Prošireni Kotlin JUnit, Kotlin/Swift parity i izvorni audit pokrivaju svih osam svjetova i šest zona, galeriju, pristupačnost i potvrdu trošenja. Fizika, sudari, spremanje, valuta i osam slobodnih svjetova ostaju nepromijenjeni. Offline bez računa, oglasa, trackera i mrežnih poziva. Prerelease s razvojnim APK-om, nepotpisanim AAB-om i iOS Simulator/device ZIP paketima, nije potpisano za trgovine. Vizualna 1:1 podudarnost svih ekrana s referencama nije potvrđena na fizičkim uređajima.'
+          gh release create v0.1.26 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.26 — Noa i Any, premium letači' --prerelease \
+            --notes 'Android i iOS: dodana dva izvorna premium lika Noa i Any — ukupno devet likova i osamnaest odvojenih animiranih krila. Noa i Any otključavaju se lokalno osvojenim kovanicama (220/240), nakon eksplicitne potvrde. Nema kupnje stvarnim novcem. V5 sigurnosne kopije, prethodni likovi i besplatni Portantin ostaju kompatibilni. Fizika leta i neprekinuti leveli nisu promijenjeni. Testovi provjeravaju spriteove i otključavanje na obje platforme. Paketi su razvojni Android APK, nepotpisani AAB i nepotpisani iOS simulator/device ZIP. Za službene trgovine potrebno je potpisivanje i fizički vizualni QA.'
