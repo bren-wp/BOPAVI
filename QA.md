@@ -117,3 +117,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - `reducedMotion` uklanja oba nova animirana elementa, a glasnoća, vibracije, igranje bez interneta i pohrana napretka ostaju netaknuti.
 - Kotlin JUnit i Swift/Kotlin parity testovi pokrivaju impuls, ponovno pokretanje, vrijeme i trajanje. Source audit provjerava renderere i reduced-motion.
 - Potrebno potvrditi PR CI na Android emulatoru i iOS simulatoru, zatim main CI i sva četiri release artefakta. Bez fizičkih uređaja nije moguće tvrditi punu 1:1 podudarnost prema slikama.
+
+
+## v0.1.21 — kartice svjetova i autentični lokalni rekord
+- Izvorna iOS kartica imala je naslov/natpis položen preko ilustracije bez sigurnog kontrasta. UI je preuređen u odvojeni gornji preview (137 pt) i dva natpisa na tamnoplavoj podlozi; Android već koristi tu podjelu.
+- Obje platforme jasno ističu trenutačno odabrani svijet i zadržavaju zasebnu pristupačnu oznaku za cijelu karticu; svih 8 svjetova otključano je odmah.
+- `ResultHeadline` na Kotlinu/Swiftu koristi `score`, `previousBest` i `won`: nula/izjednačenje nije novi rekord; pobjeda ima prednost; novi rekord mora biti strogo veći od ranijeg. UI dohvati prijašnji rekord prije `recordRun`; nakon spremanja prikazuje ažurirani osobni najbolji rezultat.
+- JUnit i Swift/Kotlin parity testovi provjeravaju iste ulaze; source audit provjerava strukturu kartica, redoslijed snimanja i dostupnost osam svjetova.
+- CI treba dokazati Android lint/JUnit/build, emulator gameplay QA, iOS simulator/Swift/save/device build prije mergea, zatim iste poslove na main i 4 release artefakta. Bez fizičkih uređaja nije potvrđena vizualna identičnost 1:1.

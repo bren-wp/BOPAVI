@@ -156,11 +156,13 @@ class MainActivity : Activity() {
         val name=LevelEngine.names[world]
         val row=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
-            background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20)
+            background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20).apply {
+                if(world==progress.chosenWorld()) setStroke(d(3),worldAccents[world])
+            }
             setPadding(d(16),d(14),d(16),d(14))
             elevation=d(3).toFloat()
             isClickable=true;isFocusable=true
-            contentDescription="$name, otključano"
+            contentDescription="$name, otključano${if(world==progress.chosenWorld()) ", odabrano" else ""}"
             setOnClickListener{sound.effect("click");onClick()}
         }
         val preview=ImageView(this).apply{
@@ -175,7 +177,7 @@ class MainActivity : Activity() {
         }
         row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
-            text="${LevelEngine.collectibleIcons[world]}  $name   ↗"
+            text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  $name   ↗"
             textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
             gravity=Gravity.CENTER_HORIZONTAL
         })
@@ -360,6 +362,7 @@ class MainActivity : Activity() {
     }
     private fun showResult(g:GameSimulation){
         sound.effect("hit")
+        val headline=ResultHeadline.label(g.score(),progress.bestPoints(),g.won)
         progress.recordRun(g)
         currentLevel=g.displayLevel
         gameView?.paused=true;gameView=null;selectedScreen="result"
@@ -395,7 +398,7 @@ class MainActivity : Activity() {
             contentDescription="Bopi iznad čarobnih otoka"
         }
         panel.addView(artwork,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(9)})
-        title(panel,"LET ZAVRŠEN!",31,0xffffdc62.toInt())
+        title(panel,headline,31,0xffffdc62.toInt())
         val stats=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(18),d(16),d(18),d(17))
@@ -418,6 +421,7 @@ class MainActivity : Activity() {
                 typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
             })
         }
+        detail("🏆  Najbolji rezultat: ${progress.bestPoints()}")
         detail("Level $currentLevel   ·   Prolazi ${g.passed}/${g.level.gates.size}")
         detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")

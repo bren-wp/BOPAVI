@@ -106,3 +106,12 @@ internal object ParallaxScenery {
         return ((travelled + PERIOD) % PERIOD)
     }
 }
+
+/** A truthful result headline based on the best score BEFORE saving this run. */
+internal object ResultHeadline {
+    fun label(score:Int, previousBest:Int, won:Boolean):String = when {
+        won -> "LEVEL DOVRŠEN!"
+        score > 0 && score > previousBest -> "NOVI REKORD!"
+        else -> "LET ZAVRŠEN!"
+    }
+}

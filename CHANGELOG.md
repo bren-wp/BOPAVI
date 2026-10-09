@@ -1,3 +1,12 @@
+## v0.1.21 — čitljive kartice svjetova i pošten prikaz rezultata (Android / iOS)
+- iOS kartice svih osam svjetova sada razdvajaju ilustraciju (gornji dio) i dva čitljiva tekstualna reda (naziv, stvarni otključani level i vrsta predmeta), po uzoru na postojeće Android kartice. Kartica i dalje ima jednu jasnu dodirnu površinu; ilustracija i unutarnji natpisi nisu samostalni, dupli accessibility elementi.
+- Android i iOS označavaju trenutačno odabrani svijet naglašenim tematskim rubom i oznakom ✓. Odabir je samo vizualna orijentacija; svih osam svjetova i dalje je dostupno odmah i ne uvode se lokoti na svjetovima.
+- Rezultati sada razlikuju **NOVI REKORD!** (rezultat veći od prethodnog lokalnog rekorda), **LEVEL DOVRŠEN!** (stvarna pobjeda) i **LET ZAVRŠEN!** (ostali pokušaji). Pobjeda ima prednost pred naslovom rekorda, a nula bodova i izjednačenja nisu prikazani kao novi rekord.
+- Obje platforme nakon spremanja pokušaja prikazuju ažurirani **Najbolji rezultat**, uz osvojene bodove, odigrani level i kovanice. Logika naslova uspoređuje stari rekord *prije* upisa novog, čime izbjegava lažne oznake rekorda.
+- Kotlin JUnit, Kotlin/Swift parity testovi i Python audit pokrivaju izjednačenje, novi rekord, pobjedu, redoslijed spremanja i čitljive kartice.
+- Android versionCode 22 / 0.1.21 i iOS build 22 / 0.1.21. Nisu mijenjani format pohrane, rezultati, mehanika leta, kolizije, virtualna valuta ni offline arhitektura.
+- Referentne slike su vizualni smjer; ovo izdanje ne dokazuje potpunu podudarnost svih zaslona 1:1 na fizičkim uređajima.
+
 ## v0.1.20 — Bopi reagira na dodir, življi zamasi krila
 - Android Canvas i iOS Core Graphics sada povezuju zamah Bopijevih odvojenih krila sa stvarnim ulazom igrača. Svaki dodir kratko podiže krila do dodatnih 17° i postupno vraća pokret u osnovnu petlju, bez istezanja ilustracije tijela.
 - Novi 240 ms vizualni impuls generira lagani obojeni val i čestice leta usklađene s temom trenutnog svijeta. Novi dodir obnavlja impuls umjesto da čeka završetak prethodnog.

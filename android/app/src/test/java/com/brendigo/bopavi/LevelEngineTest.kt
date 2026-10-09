@@ -30,6 +30,15 @@ class LevelEngineTest {
         assertEquals(2,flight.flaps)
     }
 
+    @Test fun resultHeadlinesUseOnlyRealEarlierLocalRecords() {
+        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(0,0,false))
+        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(120,120,false))
+        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(80,120,false))
+        assertEquals("NOVI REKORD!",ResultHeadline.label(121,120,false))
+        assertEquals("LEVEL DOVRŠEN!",ResultHeadline.label(121,120,true))
+        assertEquals("LEVEL DOVRŠEN!",ResultHeadline.label(0,0,true))
+    }
+
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
