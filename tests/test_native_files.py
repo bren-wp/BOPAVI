@@ -414,7 +414,7 @@ assert 'sound.pause()' in ios_menu.split('private func pauseForInterruption(',1)
 for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
-    assert 'best(' in home
+    assert 'bestPoints()' in home
     assert 'showPerks()' not in home and 'showSkins()' not in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
@@ -441,3 +441,23 @@ assert 'SPREMI KOPIJU NAPRETKA' in android_settings and 'SPREMI KOPIJU NAPRETKA'
 # No payment integrations; all transactions use the validated in-game wallet.
 assert 'buyPerk(n)' in android_shop and 'buyPerk(n)' in ios_shop
 assert 'StoreKit' not in ios_menu and 'BillingClient' not in android_menu
+
+# Offline score-to-coin exchange: one reward per new 1000-point record threshold.
+for store in (android_save,ios_save):
+    for marker in ("bestPoints","bonusCoinsAvailable","claimBonusCoins",
+                   "score_coins_claimed","scoreCoinsClaimed"):
+        assert marker in store, marker
+    assert "1000" in store or "1_000" in store
+    assert '"coins"' in store and '"local_leaderboard"' in store
+assert "claimableRecordCoins" in android_save
+assert "claimableRecordCoins(5000,5,0)" in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+swift_saves=(root/"tests/SwiftSaves.swift").read_text()
+assert "store.claimBonusCoins()==0" in swift_saves
+assert "try store.importData(claimedBackup)" in swift_saves
+for menu_source in (android_menu,ios_menu):
+    assert "Za svakih novih 1.000 bodova" in menu_source
+    assert "PREUZMI " in menu_source and "KOVANICA ZA BODOVE" in menu_source
+    assert "claimBonusCoins()" in menu_source
+qa=(root/"tools/qa_android_emulator.sh").read_text()
+assert "tap_settings" in qa and "android-settings" in qa
+assert "settings opens and returns to the three-button home" in qa
