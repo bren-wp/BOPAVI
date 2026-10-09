@@ -26,7 +26,7 @@ for platform in ['android/app/src/main/res/raw','ios/BOPAVI/Audio']:
 for control in ['android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt','ios/BOPAVI/GameController.swift']:
     source=(root/control).read_text()
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if control.endswith('.kt') else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
-    for banned in ['BESKONAČNI','SVJETOVI','DNEVNA NAGRADA','POSTAVKE','1.048.576','8.388.608']:
+    for banned in ['BESKONAČNI','DNEVNA NAGRADA','1.048.576','8.388.608']:
         assert banned not in home,(control,banned)
 # Validate platform/release version parity instead of hardcoding a stale version.
 import re
@@ -42,7 +42,7 @@ assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions 
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
 assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
 assert f'gh release create v{android_versions[0]}' in workflow, "Release workflow tag mismatches builds"
-print('PASS: native source inventory, 28 audio assets, single-action home, manifest, icons, no web engine/network permission')
+print('PASS: native source inventory, 28 audio assets, three-action home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
 for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
@@ -155,7 +155,7 @@ for source in (android_save,ios_save):
     assert 'playerName' in source
 for source in (android,ios):
     assert 'SPREMI IME' in source
-    assert 'Razvoj: Brendigo' in source
+    assert 'Stvorio Brendigo' in source
 
 # v0.1.9 gameplay/difficulty and offline leaderboard parity + dead code audit.
 android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
@@ -370,3 +370,94 @@ for gates in (1,11,12,15,17):
 # a zero numerator even when both levels contain equal gate counts.
 assert "passed = 0" in android_sim or "passed = 0" in android_sim.replace("passed=0","passed = 0")
 assert "passed=0" in ios_sim or "passed = 0" in ios_sim
+
+# v0.1.17: illustrated home shows exactly three deliberate actions, on both
+# platforms, with IGRAJ first and with cosmetics/equipment under settings.
+android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
+ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
+for home in (android_home,ios_home):
+    assert home.count('▶  IGRAJ') == 1
+    assert home.count('🌍  SVJETOVI') == 1
+    assert home.count('⚙  POSTAVKE') == 1
+    assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
+    assert 'showWorlds()' in home and 'showSettings()' in home
+    assert 'showPerks()' not in home and 'showSkins()' not in home
+android_settings=android_menu.split("private fun showSettings()",1)[1].split("override fun onActivityResult",1)[0]
+ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
+for settings in (android_settings,ios_settings):
+    for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
+                  "IZGLED BOPIJA","TRGOVINA KOVANICAMA","LOKALNA LJESTVICA"):
+        assert title in settings
+    assert 'showSkins()' in settings and 'showPerks()' in settings
+    assert 'showLeaderboard()' in settings and 'showHome()' in settings
+    assert 'SPREMI IME' in settings and 'Vibracije pri igranju' in settings
+    assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
+
+# Shield impact must generate exactly one callback per nonzero pulse,
+# and a backgrounded iOS flight must not continue moving without confirmation.
+android_feedback=android_canvas.split("if(game.impactPulse>0f && !shieldImpactNotified)",1)[1].split("} else lastFrame=0L",1)[0]
+ios_feedback=ios_canvas.split("if game.impactPulse>0 && !shieldImpactNotified",1)[1].split("setNeedsDisplay()",1)[0]
+for feedback in (android_feedback,ios_feedback):
+    assert 'shieldImpactNotified=true' in feedback
+    assert 'shieldImpactNotified=false' in feedback
+    assert 'onShieldImpact' in feedback
+assert 'HapticFeedbackConstants.LONG_PRESS' in android_feedback
+assert 'hapticEnabled' in android_feedback
+assert 'onShieldImpact={sound.effect("hit")}' in android_menu
+assert 'UIImpactFeedbackGenerator(style:.medium)' in ios_menu
+assert 'if self.progress.hapticEnabled' in ios_menu
+assert 'UIApplication.willResignActiveNotification' in ios_menu
+assert 'activeCanvas.paused=true' in ios_menu
+assert 'sound.pause()' in ios_menu.split('private func pauseForInterruption(',1)[1].split('private func clear(',1)[0]
+
+# v0.1.17: user-friendly premium navigation, genuine earned currency and scores.
+for home in (android_home,ios_home):
+    assert 'SVJETOVI' in home and 'POSTAVKE' in home
+    assert '🏆' in home and 'coins()' in home
+    assert 'bestPoints()' in home
+    assert 'showPerks()' not in home and 'showSkins()' not in home
+for ui in (android_menu,ios_menu):
+    for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
+                  'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
+                  'Tvoje ime','Bez oglasa i kupnje stvarnim novcem',
+                  'KUPI ','KOVANICA','BODOVA','Stvorio Brendigo'):
+        assert label in ui, label
+    for deprecated in ('Smanji animacije (30 FPS)','(v0.1–v0.5)',
+                       'Razvoj: Brendigo','telemetrije'):
+        assert deprecated not in ui, deprecated
+    assert 'showPerks()' in ui and 'showSkins()' in ui
+android_shop=android_menu.split('private fun showPerks()',1)[1].split('private fun showSkins()',1)[0]
+ios_shop=ios_menu.split('private func showPerks()',1)[1].split('private func showSkins()',1)[0]
+for shop in (android_shop,ios_shop):
+    assert 'Za kovanice osvojene igrom — bez stvarnog novca' in shop
+    assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
+    assert 'buyPerk(' in shop and 'showSkins()' in shop
+    assert 'progress.coins()' in shop and 'showSettings()' in shop
+assert 'cornerRadius=d(31)' in android_menu
+assert 'gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),29)' in android_menu
+assert 'layer.cornerRadius=29' in ios_menu
+assert 'gradient.cornerRadius=29' in ios_menu
+assert 'SPREMI KOPIJU NAPRETKA' in android_settings and 'SPREMI KOPIJU NAPRETKA' in ios_settings
+# No payment integrations; all transactions use the validated in-game wallet.
+assert 'buyPerk(n)' in android_shop and 'buyPerk(n)' in ios_shop
+assert 'StoreKit' not in ios_menu and 'BillingClient' not in android_menu
+
+# Offline score-to-coin exchange: one reward per new 1000-point record threshold.
+for store in (android_save,ios_save):
+    for marker in ("bestPoints","bonusCoinsAvailable","claimBonusCoins",
+                   "score_coins_claimed","scoreCoinsClaimed"):
+        assert marker in store, marker
+    assert "1000" in store or "1_000" in store
+    assert '"coins"' in store and '"local_leaderboard"' in store
+assert "claimableRecordCoins" in android_save
+assert "claimableRecordCoins(5000,5,0)" in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+swift_saves=(root/"tests/SwiftSaves.swift").read_text()
+assert "store.claimBonusCoins()==0" in swift_saves
+assert "try store.importData(claimedBackup)" in swift_saves
+for menu_source in (android_menu,ios_menu):
+    assert "Za svakih novih 1.000 bodova" in menu_source
+    assert "PREUZMI " in menu_source and "KOVANICA ZA BODOVE" in menu_source
+    assert "claimBonusCoins()" in menu_source
+qa=(root/"tools/qa_android_emulator.sh").read_text()
+assert "tap_settings" in qa and "android-settings" in qa
+assert "settings opens and returns to the three-button home" in qa

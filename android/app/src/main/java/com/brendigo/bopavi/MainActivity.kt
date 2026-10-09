@@ -72,7 +72,7 @@ class MainActivity : Activity() {
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
     }
-    private fun gradient(a:Int,b:Int,rad:Int=20):GradientDrawable = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(a,b)).apply{
+    private fun gradient(a:Int,b:Int,rad:Int=27):GradientDrawable = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(a,b)).apply{
         cornerRadius=d(rad).toFloat()
         setStroke(d(1),0x66c6eaff)
     }
@@ -83,7 +83,7 @@ class MainActivity : Activity() {
         typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
         gravity=Gravity.CENTER
         setPadding(d(16),d(13),d(16),d(13))
-        background=gradient(0xff192d50.toInt(),0xff203c65.toInt(),18)
+        background=gradient(0xff192d50.toInt(),0xff203c65.toInt(),24)
         contentDescription=label
     }
     private fun base(label:String,subtitle:String):LinearLayout {
@@ -116,6 +116,21 @@ class MainActivity : Activity() {
         },LinearLayout.LayoutParams(-1,-2))
     }
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
+    private fun sectionHeading(parent:LinearLayout,heading:String){
+        val label=TextView(this).apply{
+            text=heading;setTextColor(Color.WHITE);textSize=15f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            letterSpacing=.06f
+            gravity=Gravity.CENTER_VERTICAL or Gravity.START
+            setPadding(d(18),d(11),d(16),d(11))
+            background=gradient(0xff224e89.toInt(),0xff153760.toInt(),23)
+            contentDescription=heading
+        }
+        parent.addView(label,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(17);bottomMargin=d(7)
+        })
+    }
+
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
             this.text=text;setTextColor(Color.WHITE)
@@ -126,15 +141,15 @@ class MainActivity : Activity() {
             val normal=if(primary) GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0xffc5ff7a.toInt(),0xff6cec43.toInt(),0xff13b742.toInt())).apply{
-                    cornerRadius=d(23).toFloat()
+                    cornerRadius=d(31).toFloat()
                     setStroke(d(2),0xffd5ffab.toInt())
-                } else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),19)
+                } else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),29)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
-            elevation=d(4).toFloat()
+            elevation=d(5).toFloat()
             contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
         }
-        parent.addView(button,LinearLayout.LayoutParams(-1,d(58)).apply {setMargins(0,d(7),0,d(7))})
+        parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)64 else 56)).apply {setMargins(0,d(6),0,d(6))})
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
@@ -199,13 +214,29 @@ class MainActivity : Activity() {
         background.addView(layout,FrameLayout.LayoutParams(-1,-1))
         // The portrait background already contains the logo and tagline. No duplicates.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        // Coins are a compact top-right HUD, not a full-width footer panel.
+        // Two compact counters: actual stored best score and earned coins.
+        val bestScore=progress.bestPoints()
+        background.addView(chip("🏆  $bestScore"),FrameLayout.LayoutParams(-2,-2,
+            Gravity.TOP or Gravity.LEFT).apply{setMargins(d(16),d(16),0,0)})
         background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
-            Gravity.TOP or Gravity.RIGHT).apply{setMargins(d(16),d(16),d(17),0)})
+            Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(16),d(17),0)})
+        // Three clear home actions, with IGRAJ dominant and two equal shortcuts.
+        // Leave the illustrated logo and Bopi free of extra text or opaque tiles.
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
             startGame(world,progress.streamFrontier(world))
         }
+        val shortcuts=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+        }
+        layout.addView(shortcuts,LinearLayout.LayoutParams(-1,-2))
+        val worldsColumn=LinearLayout(this)
+        val settingsColumn=LinearLayout(this)
+        shortcuts.addView(worldsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(6)})
+        shortcuts.addView(settingsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(6)})
+        action(worldsColumn,"🌍  SVJETOVI",false){showWorlds()}
+        action(settingsColumn,"⚙  POSTAVKE",false){showSettings()}
         showNativeView(background)
     }
 
@@ -292,7 +323,8 @@ class MainActivity : Activity() {
                 if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()
             },
             onFlap={sound.effect("tap")},
-            onCollect={sound.effect("collect")})
+            onCollect={sound.effect("collect")},
+            onShieldImpact={sound.effect("hit")})
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
@@ -374,7 +406,7 @@ class MainActivity : Activity() {
             elevation=d(5).toFloat()
         }
         val score=TextView(this).apply{
-            text="${g.score()}";textSize=43f;setTextColor(0xff0b3777.toInt())
+            text="${g.score()} BODOVA";textSize=38f;setTextColor(0xff0b3777.toInt())
             gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             contentDescription="Rezultat ${g.score()}"
         }
@@ -392,25 +424,33 @@ class MainActivity : Activity() {
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
         action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
         action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
-        action(panel,"OPREMA ZA KOVANICE",false){showPerks()}
+        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
         action(panel,"POČETNI EKRAN",false){showHome()}
         showNativeView(root)
     }
     private fun showPerks(){
-        val b=base("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")
-        small(b,"Tvoje kovanice: ${progress.coins()}")
-        small(b,"Nagrada: svaki 5., 15., 30. i 60. prvi put dovršen level")
+        val b=base("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
+        title(b,"●  ${progress.coins()} KOVANICA",24,gold)
+        small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
+        val bonus=progress.bonusCoinsAvailable()
+        if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
+            val earned=progress.claimBonusCoins()
+            if(earned>0){sound.effect("purchase");showPerks()}
+        }
+
+        small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         for(n in 0..1){
-            val explanation=if(n==0)"Zaštita od jednog udarca" else "Privlači predmete osam sekundi"
-            small(b,"${progress.perkNames[n]} · $explanation · u zalihi ${progress.perkCount(n)}")
-            action(b,"KUPI ZA ${progress.perkPrices[n]} KOVANICA",false){
+            val explanation=if(n==0)"Čuva Bopija od jednog sudara" else "Privlači kovanice i predmete 8 sekundi"
+            small(b,"${if(n==0) "🛡 ŠTIT" else "🧲 MAGNET"} · $explanation\nU torbi: ${progress.perkCount(n)}")
+            action(b,"KUPI ${if(n==0) "ŠTIT" else "MAGNET"} · ${progress.perkPrices[n]} KOVANICA",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks()}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
         }
-        small(b,"Kupljene pogodnosti uključuju se automatski pri sljedećem letu.")
-        back(b){showWorlds()}
+        small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
+        action(b,"🎨  BOJE BOPIJA",false){showSkins()}
+        back(b){showSettings()}
     }
     private fun showSkins(){
         val b=base("LIKOVI","Skupljaj kovanice i otključaj nove Bopijeve boje")
@@ -422,7 +462,7 @@ class MainActivity : Activity() {
                 showSkins()
             }
         }
-        back(b){showWorlds()}
+        back(b){showSettings()}
     }
     private fun showLeaderboard(){
         val b=base("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
@@ -433,7 +473,7 @@ class MainActivity : Activity() {
             small(b,"${LevelEngine.names[item.world]} · ${progress.difficultyNames[item.difficulty]} · ${item.gates} prolaza")
         }
         action(b,"POSTIGNUĆA",false){showAchievements()}
-        back(b){showWorlds()}
+        back(b){showSettings()}
     }
     private fun showAchievements(){
         val b=base("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
@@ -442,11 +482,12 @@ class MainActivity : Activity() {
         val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
         small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[furthest]}")
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
-        back(b){showWorlds()}
+        back(b){showSettings()}
     }
     private fun showSettings(){
-        val b=base("POSTAVKE","Privatnost, animacije i sigurnosna kopija")
-        val low=Switch(this).apply{text="Smanji animacije (30 FPS)";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
+        val b=base("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
+        sectionHeading(b,"IZGLED I ZVUK")
+        val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         b.addView(audio)
@@ -457,6 +498,7 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
         }
         b.addView(haptic)
+        sectionHeading(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
         for(mode in 0..2) {
@@ -472,10 +514,8 @@ class MainActivity : Activity() {
         }
         b.addView(modes,LinearLayout.LayoutParams(-1,-2))
         small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
-        action(b,"LOKALNA LJESTVICA",false){showLeaderboard()}
-
         val player=EditText(this).apply {
-            hint="Ime igrača (lokalno)"
+            hint="Tvoje ime"
             setSingleLine(true)
             setText(progress.playerName())
             setTextColor(Color.WHITE)
@@ -487,17 +527,22 @@ class MainActivity : Activity() {
             progress.setPlayerName(player.text.toString())
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
-        small(b,"BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.")
-        small(b,"Bez oglasa, telemetrije, računa i mrežnih zahtjeva.")
-        action(b,"IZVEZI NAPREDAK",false){
+        sectionHeading(b,"DODATNE OPCIJE")
+        action(b,"🐤  IZGLED BOPIJA",false){showSkins()}
+        action(b,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
+        action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
+        sectionHeading(b,"PODACI I PRIVATNOST")
+        small(b,"BOPAVI — Mali let, velika avantura. Stvorio Brendigo.")
+        small(b,"Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.")
+        action(b,"SPREMI KOPIJU NAPRETKA",false){
             val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json";putExtra(Intent.EXTRA_TITLE,"bopavi-save.json")}
             startActivityForResult(intent,42)
         }
-        action(b,"UVEZI NAPREDAK (v0.1–v0.5)",false){
+        action(b,"VRATI NAPREDAK IZ KOPIJE",false){
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
-        back(b){showWorlds()}
+        back(b){showHome()}
     }
     @Deprecated("Activity result callbacks are used for a dependency-free Android sample")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){

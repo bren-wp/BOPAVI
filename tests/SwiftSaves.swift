@@ -49,6 +49,24 @@ struct SwiftSaves {
         try store.importData(roundtrip)
         precondition(store.streamFrontier(0)==6 && store.coins()==40)
         precondition(!store.hapticEnabled, "Haptics preference must survive save export/import")
-        print("PASS: Swift v0.2-v0.5 migration, first-clear-only coins, purchase/consume, save round-trip and invalid backup rejection")
+        // A saved personal record generates claimable virtual coins only once.
+        let defaults=UserDefaults.standard
+        defaults.set(5_000,forKey:"best_0")
+        defaults.set(0,forKey:"score_coins_claimed")
+        precondition(store.bestPoints()==5_000)
+        precondition(store.bonusCoinsAvailable()==5)
+        precondition(store.claimBonusCoins()==5)
+        precondition(store.coins()==45 && store.bonusCoinsAvailable()==0)
+        precondition(store.claimBonusCoins()==0, "Reopening the store must not mint coins")
+        let claimedBackup=try store.exportData()
+        try store.importData(claimedBackup)
+        precondition(store.claimBonusCoins()==0,"Claim marker must survive export/import")
+        // Importing a legacy save without a claim marker must not reopen the reward.
+        try store.importData(roundtrip)
+        defaults.set(5_000,forKey:"best_0")
+        precondition(store.claimBonusCoins()==0,"Legacy backup must not duplicate rewards")
+        precondition(store.coins()==40)
+
+        print("PASS: Swift v0.2-v0.5 migration, first-clear-only coins, purchase/consume, one-time score coins, save round-trip and invalid backup rejection")
     }
 }

@@ -13,6 +13,25 @@ final class ProgressStore {
     func chooseWorld(_ world:Int){if (0...maxWorld()).contains(world){defaults.set(world,forKey:"chosen_world")}}
     func maxWorld() -> Int { 7 /* All worlds open; preserve legacy save data. */ }
     func coins() -> Int { max(0,min(100_000_000,defaults.integer(forKey:"coins"))) }
+    // One bonus coin per newly achieved 1,000-point record milestone.
+    // The points remain on the local leaderboard; only unclaimed milestones pay out.
+    func bestPoints()->Int {
+        let worldRecord=(0..<8).map{max(0,min(100_000_000,best($0)))}.max() ?? 0
+        let runRecord=leaderboard().map{$0.score}.max() ?? 0
+        return max(0,min(100_000_000,max(worldRecord,runRecord)))
+    }
+    func bonusCoinsAvailable()->Int {
+        let claimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
+        return max(0,min(bestPoints()/1000-claimed,100_000_000-coins()))
+    }
+    @discardableResult func claimBonusCoins()->Int {
+        let awarded=bonusCoinsAvailable()
+        guard awarded>0 else{return 0}
+        let claimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
+        defaults.set(coins()+awarded,forKey:"coins")
+        defaults.set(claimed+awarded,forKey:"score_coins_claimed")
+        return awarded
+    }
     func best(_ world:Int) -> Int { defaults.integer(forKey:"best_\(world)") }
     let skins=["bopi","sunny","berry","luna","mint","shadow"]
     let skinNames=["Bopi","Sunny","Berry","Luna","Mint","Shadow"]
@@ -133,7 +152,7 @@ final class ProgressStore {
     func exportData() throws -> Data {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
-                                 "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
+                                 "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"scoreCoinsClaimed":max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed"))),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
                                  "owned":(0..<6).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
@@ -161,7 +180,14 @@ final class ProgressStore {
         }
         let c=s["coins"] as? Int ?? 0
         guard (0...100_000_000).contains(c) else { throw NSError(domain:"BOPAVI",code:3,userInfo:[NSLocalizedDescriptionKey:"Neispravno stanje kovanica."]) }
+        let importedClaimed=s["scoreCoinsClaimed"] as? Int ?? 0
+        guard (0...100_000).contains(importedClaimed) else {
+            throw NSError(domain:"BOPAVI",code:7,userInfo:[NSLocalizedDescriptionKey:"Neispravna nagrada za bodove."])
+        }
         defaults.set(maxWorld,forKey:"max_world");defaults.set(min(maxWorld,max(0,s["chosenWorld"] as? Int ?? maxWorld)),forKey:"chosen_world");defaults.set(c,forKey:"coins")
+        // An old backup must not re-award coins already redeemed on this device.
+        let priorClaimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
+        defaults.set(max(priorClaimed,importedClaimed),forKey:"score_coins_claimed")
         var streamFrontiers=frontiers
         if version>=5,let strs=s["streamFrontiers"] as? [String] {
             guard strs.count==8 else {throw NSError(domain:"BOPAVI",code:5,userInfo:[NSLocalizedDescriptionKey:"Neispravan nastavak levela."])}

@@ -14,12 +14,12 @@ private final class BopaviActionButton: UIButton {
                UIColor(red:0.07,green:0.22,blue:0.62,alpha:1).cgColor]
         gradient.startPoint=CGPoint(x:0.5,y:0);gradient.endPoint=CGPoint(x:0.5,y:1)
         layer.insertSublayer(gradient,at:0)
-        layer.cornerRadius=19
+        layer.cornerRadius=29
         layer.borderWidth=primary ? 2 : 1
         layer.borderColor=UIColor.white.withAlphaComponent(primary ? 0.72 : 0.24).cgColor
         layer.shadowColor=UIColor.black.cgColor
         layer.shadowOpacity=0.23
-        layer.shadowRadius=6
+        layer.shadowRadius=8
         layer.shadowOffset=CGSize(width:0,height:4)
         setTitleColor(.white,for:.normal)
         titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
@@ -33,8 +33,8 @@ private final class BopaviActionButton: UIButton {
     override func layoutSubviews(){
         super.layoutSubviews()
         gradient.frame=bounds
-        gradient.cornerRadius=19
-        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:19).cgPath
+        gradient.cornerRadius=29
+        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:29).cgPath
     }
 }
 
@@ -43,6 +43,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let progress=ProgressStore()
     private let sound=Soundscape()
     private let collectHaptic=UISelectionFeedbackGenerator()
+    private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
     private var gameWorld=0
     private var gameNumber=1
@@ -57,7 +58,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     override var prefersStatusBarHidden:Bool { canvas != nil }
     override var prefersHomeIndicatorAutoHidden:Bool { canvas != nil }
-    override func viewDidLoad(){super.viewDidLoad();sound.enabled=progress.soundEnabled;showHome()}
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        NotificationCenter.default.addObserver(self,selector:#selector(pauseForInterruption(_:)),
+            name:UIApplication.willResignActiveNotification,object:nil)
+        sound.enabled=progress.soundEnabled
+        showHome()
+    }
+    deinit { NotificationCenter.default.removeObserver(self) }
+    @objc private func pauseForInterruption(_ note:Notification) {
+        // Keep an active flight exactly where the user left it on call, lock or app switch.
+        // Never auto-resume physics or audio in the background.
+        guard let activeCanvas=canvas else {return}
+        activeCanvas.paused=true
+        sound.pause()
+    }
     private func clear() {
         canvas?.stop();canvas=nil;hud=nil;sound.stop()
         setNeedsStatusBarAppearanceUpdate()
@@ -109,6 +124,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         l.textColor=color
         l.setContentCompressionResistancePriority(.required,for:.vertical);into.addArrangedSubview(l)
         return l
+    }
+    private func sectionHeading(_ title:String,in stack:UIStackView) {
+        let heading=label("   "+title,15,.white,stack)
+        heading.textAlignment = .left
+        heading.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+        heading.backgroundColor=UIColor(red:0.08,green:0.23,blue:0.45,alpha:0.94)
+        heading.layer.cornerRadius=22
+        heading.clipsToBounds=true
+        heading.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true
     }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
         let b=BopaviActionButton(primary:primary)
@@ -190,21 +214,56 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
             amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
         ])
-        // Compact top-right counter, while the primary CTA remains at the bottom.
+        // Both counters reflect actual local progress, not online purchases.
+        let bestScore=progress.bestPoints()
+        let bestChip=UIView()
+        bestChip.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
+        bestChip.layer.cornerRadius=23
+        bestChip.layer.borderWidth=1
+        bestChip.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
+        let score=UILabel()
+        score.translatesAutoresizingMaskIntoConstraints=false
+        score.text="🏆  \(bestScore)"
+        score.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        score.adjustsFontSizeToFitWidth=true
+        score.minimumScaleFactor=0.65
+        score.textAlignment = .center
+        score.textColor = .white
+        bestChip.addSubview(score)
+        NSLayoutConstraint.activate([
+            score.leadingAnchor.constraint(equalTo:bestChip.leadingAnchor,constant:6),
+            score.trailingAnchor.constraint(equalTo:bestChip.trailingAnchor,constant:-6),
+            score.centerYAnchor.constraint(equalTo:bestChip.centerYAnchor)
+        ])
+        amount.text="●  \(progress.coins())"
+        amount.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        amount.adjustsFontSizeToFitWidth=true
+        amount.minimumScaleFactor=0.65
         let walletRow=UIStackView()
-        walletRow.axis = .horizontal;walletRow.alignment = .center
-        walletRow.addArrangedSubview(UIView())
-        wallet.widthAnchor.constraint(equalToConstant:175).isActive=true
+        walletRow.axis = .horizontal;walletRow.alignment = .fill
+        walletRow.distribution = .fillEqually;walletRow.spacing=12
+        bestChip.heightAnchor.constraint(equalToConstant:46).isActive=true
         wallet.heightAnchor.constraint(equalToConstant:46).isActive=true
+        walletRow.addArrangedSubview(bestChip)
         walletRow.addArrangedSubview(wallet)
         stack.addArrangedSubview(walletRow)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
+        // Three primary home destinations: a dominant play CTA and two equal
+        // blue shortcuts. All other functions remain available through settings.
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
             self.startGame(world,self.progress.streamFrontier(world))
         }
+        let shortcuts=UIStackView()
+        shortcuts.axis = .horizontal
+        shortcuts.alignment = .fill
+        shortcuts.distribution = .fillEqually
+        shortcuts.spacing=12
+        stack.addArrangedSubview(shortcuts)
+        button("🌍  SVJETOVI",in:shortcuts,primary:false){self.showWorlds()}
+        button("⚙  POSTAVKE",in:shortcuts,primary:false){self.showSettings()}
     }
 
     private func showWorlds(){
@@ -282,6 +341,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onCollect = { [weak self] in
             self?.sound.effect("collect")
             if self?.progress.hapticEnabled == true {self?.collectHaptic.selectionChanged()}
+        }
+        gameCanvas.onShieldImpact = { [weak self] in
+            guard let self=self else {return}
+            self.sound.effect("hit")
+            if self.progress.hapticEnabled {self.shieldHaptic.impactOccurred()}
         }
         gameCanvas.onLevelComplete = { [weak self] level in
             guard let self=self else{return}
@@ -406,7 +470,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stats.layer.cornerRadius=22;stats.layer.borderWidth=2
         stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
         stack.addArrangedSubview(stats)
-        label("\(g.score())",43,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("\(g.score()) BODOVA",37,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
         label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
@@ -415,24 +479,34 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
         button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
-        button("OPREMA ZA KOVANICE",in:stack,primary:false){self.showPerks()}
+        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
         button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
     }
     private func showPerks(){
-        let s=menu("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")
-        label("Tvoje kovanice: \(progress.coins())",20,.white,s)
-        label("Kovanice osvajaš prvim prelaskom nagradnih levela.",15,.white,s)
+        let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
+        label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
+        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",15,.white,s)
+        let bonus=progress.bonusCoinsAvailable()
+        if bonus>0 {
+            button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
+                let earned=self.progress.claimBonusCoins()
+                if earned>0 {self.sound.effect("purchase");self.showPerks()}
+            }
+        }
+
+        label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
         for n in 0..<2 {
-            let extra=n==0 ? "Štiti od jednog udarca" : "Privlači predmete osam sekundi"
-            label("\(progress.perkNames[n]) · \(extra) · u zalihi \(progress.perkCount(n))",16,.white,s)
-            button("KUPI ZA \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
+            let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
+            label("\(n==0 ? "🛡 ŠTIT" : "🧲 MAGNET") · \(extra) · U torbi: \(progress.perkCount(n))",16,.white,s)
+            button("KUPI \(n==0 ? "ŠTIT" : "MAGNET") · \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
                 if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks()}
                 else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
             }
         }
-        label("Kupljene pogodnosti aktiviraju se pri sljedećem letu.",14,.white,s)
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
+        button("🎨  BOJE BOPIJA",in:s,primary:false){self.showSkins()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
         let s=menu("LIKOVI","Skupljaj kovanice i otključaj nove Bopijeve boje")
@@ -444,7 +518,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 else {self.showSkins()}
             }
         }
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showLeaderboard(){
         let s=menu("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
@@ -455,7 +529,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty]) · \(item.gates) prolaza",14,.white,s)
         }
         button("POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showAchievements(){
         let s=menu("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
@@ -464,13 +538,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("Pobjede: \(progress.wins()) · Pokušaji bez pobjede: \(progress.deaths())",17,.white,s)
         label("Napredak je spremljen samo na ovom uređaju.",17,.white,s)
         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSettings(){
-        let s=menu("POSTAVKE","Privatnost, animacije i sigurnosna kopija")
+        let s=menu("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
+        sectionHeading("IZGLED I ZVUK",in:s)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
-        let l=UILabel();l.text="Smanji animacije (30 FPS)";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
+        let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
         l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
         toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
@@ -489,6 +564,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.addArrangedSubview(hapticLabel);hapticRow.addArrangedSubview(haptic)
         s.addArrangedSubview(hapticRow)
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
+        sectionHeading("IGRAČ I TEŽINA",in:s)
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
         let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
         difficulty.selectedSegmentIndex=progress.difficulty
@@ -496,10 +572,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         difficulty.addAction(UIAction{_ in self.progress.difficulty=difficulty.selectedSegmentIndex},for:.valueChanged)
         s.addArrangedSubview(difficulty)
         label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
-        button("LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
         let player=UITextField()
         player.text=progress.playerName
-        player.placeholder="Ime igrača (lokalno)"
+        player.placeholder="Tvoje ime"
         player.textColor = .white
         player.backgroundColor=UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
         player.layer.cornerRadius=12
@@ -510,9 +585,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.progress.playerName=player.text ?? ""
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
-        label("BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.",14,.white,s)
-        label("Bez oglasa, telemetrije, računa i mrežnih zahtjeva.",14,.white,s)
-        button("IZVEZI NAPREDAK",in:s,primary:false){
+        sectionHeading("DODATNE OPCIJE",in:s)
+        button("🐤  IZGLED BOPIJA",in:s,primary:false){self.showSkins()}
+        button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
+        button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
+        sectionHeading("PODACI I PRIVATNOST",in:s)
+        label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,s)
+        label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,s)
+        button("SPREMI KOPIJU NAPRETKA",in:s,primary:false){
             do {
                 let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
                 try self.progress.exportData().write(to:url,options:.atomic)
@@ -521,11 +601,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
         }
-        button("UVEZI NAPREDAK (v0.1–v0.5)",in:s,primary:false){
+        button("VRATI NAPREDAK IZ KOPIJE",in:s,primary:false){
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
     func documentPicker(_ controller:UIDocumentPickerViewController,didPickDocumentsAt urls:[URL]) {
         guard let url=urls.first else{return}

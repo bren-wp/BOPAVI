@@ -21,7 +21,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}) : View(context) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Only rebuild the textual progress label when a gate is passed or a new
@@ -81,6 +81,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
+    private var shieldImpactNotified=false
     var paused = false
         set(v) { field = v; lastFrame = 0L; postInvalidateOnAnimation() }
     init {
@@ -116,6 +117,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 pickupSeen=game.coins+game.stars
                 if(hapticEnabled)performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 onCollect()
+            }
+            // Rising-edge notification: one impact effect per consumed shield,
+            // never one per frame while the invulnerability pulse remains active.
+            if(game.impactPulse>0f && !shieldImpactNotified) {
+                shieldImpactNotified=true
+                if(hapticEnabled)performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                onShieldImpact()
+            } else if(game.impactPulse<=0f) {
+                shieldImpactNotified=false
             }
         } else lastFrame=0L
         // Background extends through the display's letterbox regions. World physics

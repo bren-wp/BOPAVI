@@ -6,6 +6,12 @@ import org.json.JSONObject
 
 /** Offline wallet: coins are earned once, on designated newly completed levels. */
 class ProgressStore(context: Context) {
+    companion object {
+        /** Pure milestone math, independently testable without an Android Context. */
+        fun claimableRecordCoins(bestScore:Int,claimed:Int,coinBalance:Int):Int =
+            (bestScore.coerceIn(0,100000000)/1000-claimed.coerceIn(0,100000))
+                .coerceAtLeast(0).coerceAtMost(100000000-coinBalance.coerceIn(0,100000000))
+    }
     private val prefs = context.getSharedPreferences("bopavi_native_v4", Context.MODE_PRIVATE)
     fun frontier(world: Int): Int = prefs.getInt("frontier_$world", 1).coerceIn(1, LevelEngine.LEVELS_PER_WORLD + 1)
     fun streamFrontier(world:Int):Long {
@@ -16,6 +22,23 @@ class ProgressStore(context: Context) {
     fun chooseWorld(world:Int){if(world in 0..maxWorld())prefs.edit().putInt("chosen_world",world).apply()}
     fun maxWorld(): Int = 7 // All eight worlds are available; stored progress remains untouched.
     fun coins(): Int = prefs.getInt("coins", 0).coerceIn(0,100000000)
+    /** Best validated offline score, not a spendable balance. Each 1,000-point
+     * record milestone can grant one virtual coin, at most once.
+     */
+    fun bestPoints():Int = maxOf((0..7).maxOf { best(it).coerceIn(0,100000000) },
+        leaderboard().maxOfOrNull { it.score } ?: 0).coerceIn(0,100000000)
+    fun bonusCoinsAvailable():Int {
+        val claimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
+        return claimableRecordCoins(bestPoints(),claimed,coins())
+    }
+    fun claimBonusCoins():Int {
+        val awarded=bonusCoinsAvailable()
+        if(awarded<=0)return 0
+        val claimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
+        prefs.edit().putInt("coins",coins()+awarded)
+            .putInt("score_coins_claimed",claimed+awarded).apply()
+        return awarded
+    }
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
     val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow")
     val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow")
@@ -111,6 +134,7 @@ class ProgressStore(context: Context) {
         s.put("frontiers", JSONArray((0..7).map { frontier(it) }))
         s.put("streamFrontiers",JSONArray((0..7).map { streamFrontier(it).toString() }))
         s.put("maxWorld", maxWorld()); s.put("chosenWorld",chosenWorld()); s.put("playerName",playerName()); s.put("coins", coins()); s.put("lessMotion", lessMotion())
+        s.put("scoreCoinsClaimed",prefs.getInt("score_coins_claimed",0).coerceIn(0,100000))
         s.put("difficulty",difficulty()); s.put("leaderboard",JSONArray(leaderboard().map { JSONObject().put("name",it.name).put("score",it.score).put("world",it.world).put("difficulty",it.difficulty).put("gates",it.gates) }))
         s.put("worldBest", JSONArray((0..7).map { best(it) }))
         s.put("owned",JSONArray((0..5).filter{owned(it)}.map{skins[it]}))
@@ -144,6 +168,12 @@ class ProgressStore(context: Context) {
         val importedCoins = s.optInt("coins", 0); require(importedCoins in 0..100000000)
         val chosen=s.optInt("chosenWorld",maxWorld).coerceIn(0,maxWorld)
         val e = prefs.edit().putInt("max_world", maxWorld).putInt("chosen_world",chosen).putInt("coins", importedCoins)
+        // Never reopen a redeemed high-score milestone when importing an older
+        // backup onto the same device. Legacy backups default to zero.
+        val importedClaimed=s.optInt("scoreCoinsClaimed",0)
+        require(importedClaimed in 0..100000)
+        val priorClaimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
+        e.putInt("score_coins_claimed",maxOf(priorClaimed,importedClaimed))
         val streams=s.optJSONArray("streamFrontiers")
         val streamValues=LongArray(8){frontiers[it].toLong()}
         if(v>=5 && streams!=null){
