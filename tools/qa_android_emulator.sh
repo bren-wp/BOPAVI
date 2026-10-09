@@ -157,9 +157,32 @@ def refresh_ui():
         ['adb','exec-out','cat','/sdcard/bopavi-window.xml']))
 
 def swipe_gallery(root,up=True):
-    candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']
-    if not candidates:
-        raise SystemExit('FAIL: character gallery screen is not scrollable')
+    # Pixel Launcher occasionally overlays the fully loaded pilot picker with
+    # its own system ANR dialog after a cold boot. Retry only the exact known
+    # system dialog; never dismiss a BOPAVI ANR or accept missing pilot cards.
+    for recovery_attempt in range(6):
+        candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']
+        if candidates:
+            break
+        titles=[n.get('text','') for n in root.iter('node')
+                if n.get('resource-id')=='android:id/alertTitle']
+        waits=[n for n in root.iter('node')
+               if n.get('resource-id')=='android:id/aerr_wait'
+               and n.get('text')=='Wait' and n.get('clickable')=='true']
+        if titles:
+            if titles!=["Pixel Launcher isn't responding"] or len(waits)!=1:
+                raise SystemExit(f'FAIL: unexpected system ANR over pilot picker: {titles}')
+            m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get('bounds',''))
+            if not m: raise SystemExit('FAIL: invalid Pixel Launcher Wait button bounds')
+            left,top,right,bottom=map(int,m.groups())
+            print('Recovering exact Pixel Launcher ANR over pilot gallery',flush=True)
+            subprocess.run(['adb','shell','input','tap',str((left+right)//2),
+                            str((top+bottom)//2)],check=True)
+        time.sleep(1.0)
+        root=refresh_ui()
+    else:
+        labels=node_labels(root)
+        raise SystemExit(f'FAIL: character gallery remained non-scrollable after bounded checks; labels={labels[:14]}')
     m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',candidates[0].get('bounds',''))
     if not m: raise SystemExit('FAIL: invalid gallery scrolling bounds')
     l,t,r,b=map(int,m.groups())

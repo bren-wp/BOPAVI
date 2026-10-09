@@ -724,3 +724,14 @@ assert 'else -> showPilotPicker(currentWorld,currentLevel)' in android_back
 assert 'else if(selectedScreen=="home") super.onBackPressed()' in android_back
 assert 'gamePauseButton=pause' in android_start
 print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause')
+
+# v0.1.29: Android emulator must recover only the exact Pixel Launcher ANR.
+# It must still assert real scrollable pilot cards and fail on BOPAVI/system errors.
+android_qa=(root/'tools/qa_android_emulator.sh').read_text()
+gallery_qa=android_qa.split('def swipe_gallery(root,up=True):',1)[1].split('root=ET.parse(sys.argv[1])',1)[0]
+assert 'for recovery_attempt in range(6):' in gallery_qa
+assert 'Pixel Launcher isn\'t responding' in gallery_qa
+assert "raise SystemExit(f'FAIL: character gallery remained non-scrollable" in gallery_qa
+assert "candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']" in gallery_qa
+assert 'required={\'Portantin\',\'Noa\',\'Any\'}' in android_qa
+print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')

@@ -183,3 +183,4 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Android/iOS: dovršiti barem jedan level u neprekinutom letu, potom završiti pokušaj. Zaslon rezultata mora prikazati ukupan broj prolaza iz svih levela u tom pokušaju.
 - Android: u aktivnom letu pritisnuti tipku ili gestu Natrag — mora se otvoriti izbornik pauze, a odabirom Nastavi let isti pokušaj mora nastaviti. U mirujućem letu Natrag vraća izbor lika i ne troši opremu; na početnom zaslonu izlazi iz aplikacije.
 - CI mora potvrditi Android/JVM, Swift save i physics testove, izvorni audit, Android emulator i iOS simulator/build. Testiranje fizičkih uređaja i potpisane trgovinske instalacije i dalje su zasebni uvjeti.
+- Android CI: Pixel Launcher ANR smije se oporaviti samo nakon provjere naslova, sistemskog ID-a gumba Wait i koordinata; zatim treba ponovno ispisati stvarni UI te pronaći sve premium kartice. Ako ScrollView ostane nedostupan ili BOPAVI padne, test mora pasti.

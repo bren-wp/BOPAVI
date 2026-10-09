@@ -2,6 +2,7 @@
 - iOS import sada validira cijeli v5 niz streamFrontiers prije bilo kakve promjene spremljenog stanja. Ranije je neispravan niz mogao ostaviti prepisane kovanice, odabrani svijet i markere već preuzetih nagrada. Swift regresijski test uspoređuje potpunu sigurnosnu kopiju prije i nakon odbijenog uvoza.
 - Završni zaslon Androida i iOS-a prikazuje totalPassed kroz sve neprekinute levele, a ne passed koji se resetira pri svakom novom levelu. Kotlin, Swift i JVM testovi dodatno potvrđuju očuvanje globalnog brojača.
 - Android tipka Natrag tijekom aktivnog leta otvara postojeći izbornik pauze umjesto prekida i gubitka pokušaja. Prije prvog zamaha vraća se izbor lika bez trošenja opreme; na početnom zaslonu Natrag standardno zatvara aktivnost.
+- Android emulator: stabilizirana provjera stvarno pomične galerije nakon potvrđenog Pixel Launcher ANR-a. Dopušten je samo strogo prepoznat sustavni oporavak, bez preskakanja provjere Portantina, Noe i Any ili zataškavanja pada aplikacije.
 - Proširen Python audit i QA upute; Android/iOS verzija 0.1.29, build 30. Fizika, sudari, grafika likova i format spremljenih podataka nisu mijenjani.
 - Potpunu vizualnu podudarnost na fizičkim uređajima treba posebno potvrditi.
 
