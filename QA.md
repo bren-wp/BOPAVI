@@ -100,3 +100,12 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - PR workflow `37947986426` potvrdio je uspješne Android buildove i privacy/art audit, ali emulator se nije mogao ni instalirati: `system-images;android-35;default;x86_64` vraća `Error on ZipFile unknown archive` prije pokretanja aplikacije. Nije riječ o gameplay testu niti padu BOPAVI procesa.
 - Vraćen je provjereno instalabilan emulator `target: google_apis`. Važan popravak ostaje: Android Back nakon Postavki ponovno se provjerava uz ograničenu obnovu samo potvrđenog Pixel Launcher ANR, ponovno slanje Back tipke samo ako je i dalje vidljiv zaslon Postavki te strogu provjeru sva tri početna gumba.
 - Nema slabljenja smoke testa i release ostaje blokiran do zelenog stvarnog Android emulator gameplay QA na posljednjem commitu.
+
+
+## v0.1.19 — vizualni parallax, lighting parity i regresije
+- Uspoređeni Android `GameView.kt` i iOS `GameCanvas.swift`: nova tri sloja malih plutajućih otoka iscrtavaju se preko ilustrirane pozadine, a ispod prepreka i Bopija. Nema novog dekodiranja bitmapa unutar render petlje.
+- Konkretan bug: Android `glowShaders` imao je vanjski prsten neprozirne boje; iOS vanjski alpha = 0. Androidov vanjski alpha kanal sada je 0.
+- Parallax dijeli raspon 696 na pločice širine 174; tri stope pomaka 0.07/0.15/0.24 jednake su na obje platforme. Smanjene animacije zadržavaju okoliš, ali ga čine statičnim. Neispravna udaljenost ne pokreće pomak.
+- Kotlin JUnit + Kotlin/Swift parity testovi provjeravaju pomake, granice i reduced-motion; Python audit potvrđuje oba renderera i da su svi svjetovi dostupni. Prije mergea CI mora potvrditi Android emulator i iOS simulator.
+- Kolizije, bodovanje, migracije, novčanik, lokalna ljestvica, izvoz i uvoz nisu mijenjani. Osam svjetova odmah je dostupno; pojedinačni leveli napreduju zasebno.
+- Tehnički testovi ne dokazuju vizualnu identičnost 1:1 s dostavljenim kompozitnim referencama. Potrebno je testirati zasebne ekrane i fizičke uređaje.
