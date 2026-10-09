@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.19
+    name: GitHub Release v0.1.20
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.19 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.19 exists: no duplicate release.'
+          if gh release view v0.1.20 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.20 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.19 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.19 — Živi svjetovi i skladno osvjetljenje' --prerelease \
-            --notes 'Android i iOS: nova tri proceduralno nacrtana sloja lebdećih otoka u svih osam svjetova, s kretanjem uz udaljenost i nepomičnim prikazom kada su smanjene animacije. Ispravljen Androidov gradijent rasipanja svjetla tako da odgovara mekom iOS svjetlu. Dodani Kotlin JUnit i Swift/Kotlin regresijski parity testovi te source audit. Fizika, sudari, rezultati i korisnički podaci nisu mijenjani. Reference su smjernice, ne potvrda 1:1 vizualne podudarnosti. Paketi: razvojni Android APK, nepotpisani AAB, iOS Simulator ZIP i nepotpisani iOS device ZIP; nisu potpisani za mobilne trgovine.'
+          gh release create v0.1.20 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.20 — Bopi reagira na svaki dodir' --prerelease \
+            --notes 'Android i iOS: Bopijeva odvojena krila reagiraju na stvarni dodir dodatnim zamahom od 17 stupnjeva i kratkim obojenim tragom leta, koji traje 240 ms. Svaki novi dodir obnavlja impuls, a smanjene animacije ga isključuju. Dodani Kotlin JUnit, Kotlin/Swift parity i statički audit za ponavljanje dodira, vremenske prekide i pristupačnost. Nisu mijenjani sudari, fizika, pohrana, kovanice ni svi odmah dostupni svjetovi. Paket uključuje razvojni APK, nepotpisani Android AAB i dvije nepotpisane iOS ZIP datoteke. Izdanje je prerelease, nije potpisano za trgovine i cjelovita vizualna podudarnost 1:1 nije potvrđena.'
