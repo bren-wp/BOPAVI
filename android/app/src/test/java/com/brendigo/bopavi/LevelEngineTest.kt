@@ -55,6 +55,27 @@ class LevelEngineTest {
         assertEquals(at60.y,at120.y,4f)
     }
 
+    @Test fun shortDisplayStallsKeepFlightTimeAndRejectInvalidDeltas() {
+        val level = LevelEngine.create(0, 2)
+        val smooth = GameSimulation(level)
+        val stalled = GameSimulation(level)
+        smooth.flap(); stalled.flap()
+        repeat(6) { smooth.step(1f / 60f) }
+        stalled.step(0.10f)
+        assertFalse(smooth.finished)
+        assertFalse(stalled.finished)
+        assertEquals(smooth.distance, stalled.distance, 0.02f)
+        assertEquals(smooth.velocity, stalled.velocity, 0.1f)
+        assertEquals(smooth.y, stalled.y, 3f)
+        val interrupted = GameSimulation(level)
+        interrupted.flap(); interrupted.step(10f)
+        assertEquals(0.10f, interrupted.time, 0.0001f)
+        val invalid = GameSimulation(level)
+        invalid.flap(); invalid.step(Float.NaN); invalid.step(-1f)
+        assertEquals(0f, invalid.time, 0f)
+        assertEquals(0f, invalid.distance, 0f)
+    }
+
     @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {
         val level=LevelEngine.create(0,2)
         val safe=level.gates.first().copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)

@@ -52,7 +52,16 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     fun step(delta: Float) {
         if (!active || finished) return
-        val dt = delta.coerceIn(0f, 0.034f)
+        // Preserve short frame stalls; a long background interruption is bounded.
+        if (!delta.isFinite() || delta <= 0f) return
+        var remaining = min(delta, 0.10f)
+        while (remaining > 0.000001f && !finished) {
+            val slice = min(remaining, 0.034f)
+            advance(slice)
+            remaining -= slice
+        }
+    }
+    private fun advance(dt: Float) {
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
         velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt

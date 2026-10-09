@@ -151,7 +151,16 @@ final class GameSimulation {
     }
     func step(_ delta: Float) {
         guard active && !finished else { return }
-        let dt = min(0.034, max(0, delta))
+        // Keep parity with Android: replay up to 100 ms after short frame stalls.
+        guard delta.isFinite && delta > 0 else { return }
+        var remaining = min(delta, 0.10)
+        while remaining > 0.000001 && !finished {
+            let slice = min(remaining, 0.034)
+            advance(slice)
+            remaining -= slice
+        }
+    }
+    private func advance(_ dt: Float) {
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
         velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
         y += velocity*dt

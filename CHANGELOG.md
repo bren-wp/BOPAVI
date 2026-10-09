@@ -1,3 +1,11 @@
+## v0.1.18 — stabilniji let i viša frekvencija osvježavanja na iOS-u
+- Android/iOS: do 100 ms proteklog vremena nakon zastoja prikaza nadoknađuje se u ograničenim simulacijskim koracima od najviše 34 ms. Prethodni kod odbacivao je vrijeme iznad 34 ms.
+- Ulazni NaN, beskonačne, nulte i negativne vremenske vrijednosti ne mijenjaju simulaciju. Dulji prekidi ograničeni su na 100 ms radi sprečavanja preskakanja prepreka.
+- iOS CADisplayLink koristi maksimalno osvježavanje uređaja do 120 Hz (umjesto prisilnih 60 Hz), dok smanjene animacije ostaju na 30 Hz; iz frame callbacka uklonjena je redundantna provjera pauze.
+- Kotlin JUnit i Kotlin/Swift parity testovi provjeravaju nadoknadu kratkog zastoja, sigurnu granicu nakon prekida i neispravne vremenske korake.
+- Android versionCode 19 / 0.1.18 i iOS build 19 / 0.1.18; CI mora proći prije mergea i objave.
+- Format spremljenog napretka, kovanica, rezultata i sigurnosnih kopija nije mijenjan. Vizualna usporedba 1:1 s referencama ostaje nepotvrđena.
+
 ## v0.1.17 — tri gumba, pregledne postavke i reakcija štita
 - Android i iOS: početni ekran ima točno tri jasna gumba: veliki zeleni IGRAJ te dva plava SVJETOVI i POSTAVKE.
 - Unutar postavki opcije su raspoređene u četiri cjeline: Izgled i zvuk, Igrač i težina, Dodatne opcije te Podaci i privatnost. Oprema, izgled Bopija i lokalna ljestvica dostupni su izravno iz postavki, uz povratak na početni ekran.
