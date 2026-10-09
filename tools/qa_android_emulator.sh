@@ -143,6 +143,24 @@ if any('Izbornik tijekom igre' in x for x in labels):
 print('PASS: idle flight preview shows no pause button',flush=True)
 PY
 }
+tap_selected_pilot(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+texts=[(n.get('text','')+' '+n.get('content-desc','')) for n in root.iter('node')]
+if not any('Portantin' in x for x in texts):
+    raise SystemExit('FAIL: new Portantin must be listed before the flight')
+buttons=[n for n in root.iter('node') if n.get('clickable')=='true'
+         and 'POLETI S' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(buttons)!=1:
+    raise SystemExit(f'FAIL: expected exactly one flight confirmation, got {len(buttons)}')
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
+if not m: raise SystemExit('FAIL: invalid pilot launch bounds')
+l,t,r,b=map(int,m.groups())
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+print('PASS: pilot choice appears before flight, including Portantin',flush=True)
+PY
+}
 gameplay_ready=0
 home_captured=0
 attempt=1
@@ -153,6 +171,12 @@ while [ "$attempt" -le 6 ]; do
     verify_idle_preview
     gameplay_ready=1
     break
+  fi
+  if grep -q 'POLETI S' qa/screenshots/android-current-ui.xml; then
+    capture android-pilot-picker
+    tap_selected_pilot
+    sleep 2
+    continue
   fi
   if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
     capture android-home
