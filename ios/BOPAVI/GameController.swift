@@ -43,6 +43,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let progress=ProgressStore()
     private let sound=Soundscape()
     private let collectHaptic=UISelectionFeedbackGenerator()
+    private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
     private var gameWorld=0
     private var gameNumber=1
@@ -57,7 +58,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     override var prefersStatusBarHidden:Bool { canvas != nil }
     override var prefersHomeIndicatorAutoHidden:Bool { canvas != nil }
-    override func viewDidLoad(){super.viewDidLoad();sound.enabled=progress.soundEnabled;showHome()}
+    override func viewDidLoad(){
+        super.viewDidLoad()
+        NotificationCenter.default.addObserver(self,selector:#selector(pauseForInterruption(_:)),
+            name:UIApplication.willResignActiveNotification,object:nil)
+        sound.enabled=progress.soundEnabled
+        showHome()
+    }
+    deinit { NotificationCenter.default.removeObserver(self) }
+    @objc private func pauseForInterruption(_ note:Notification) {
+        // Keep an active flight exactly where the user left it on call, lock or app switch.
+        // Never auto-resume physics or audio in the background.
+        guard let activeCanvas=canvas else {return}
+        activeCanvas.paused=true
+        sound.pause()
+    }
     private func clear() {
         canvas?.stop();canvas=nil;hud=nil;sound.stop()
         setNeedsStatusBarAppearanceUpdate()
@@ -282,6 +297,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onCollect = { [weak self] in
             self?.sound.effect("collect")
             if self?.progress.hapticEnabled == true {self?.collectHaptic.selectionChanged()}
+        }
+        gameCanvas.onShieldImpact = { [weak self] in
+            guard let self=self else {return}
+            self.sound.effect("hit")
+            if self.progress.hapticEnabled {self.shieldHaptic.impactOccurred()}
         }
         gameCanvas.onLevelComplete = { [weak self] level in
             guard let self=self else{return}
