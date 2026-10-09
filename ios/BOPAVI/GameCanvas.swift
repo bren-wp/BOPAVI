@@ -140,6 +140,11 @@ final class GameCanvas: UIView {
             oval(c,x+24,y-12,50,36,mist,mistAlpha)
         }
         drawWorldAtmosphere(c)
+        // The next gates are already moving through the same world space.
+        for (i,g) in game.upcomingGates.enumerated() {
+            let x=CGFloat(game.upcomingGateX(g))
+            if x >= -100 && x <= 550 {gate(c,g,x,i,true)}
+        }
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
@@ -151,7 +156,7 @@ final class GameCanvas: UIView {
             drawBoostHUD(c)
             drawLevelProgress(c)
         }
-        if game.levelTransition>0 {
+        if false && game.levelTransition>0 {
             let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
             rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
             let title="LEVEL \(game.displayLevel)" as NSString
@@ -363,7 +368,7 @@ final class GameCanvas: UIView {
         rect(c,x+8+offset,bottom+15,13,5,hue,2,opacity)
         rect(c,right,bottom+15,13,5,hue,2,opacity)
     }
-    private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int){
+    private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
         let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
@@ -426,13 +431,13 @@ final class GameCanvas: UIView {
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
                 let center=(top+bottom)*0.5,mid=x+w*0.5
-        if g.coin && game.coinVisible(index) {
+        if g.coin && (incoming || game.coinVisible(index)) {
             let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
             oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,pickupHues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
             pickupSymbol.draw(at:CGPoint(x:mid-10,y:center-11))
         }
-        if g.star && game.starVisible(index) {star(c,mid+35,center-25,12,0xffe25d)}
-        if g.power>0 && game.powerVisible(index) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
+        if g.star && (incoming || game.starVisible(index)) {star(c,mid+35,center-25,12,0xffe25d)}
+        if g.power>0 && (incoming || game.powerVisible(index)) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
     }
     private func star(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ size:CGFloat,_ rgb:UInt32){
         c.setFillColor(color(rgb));c.beginPath()
