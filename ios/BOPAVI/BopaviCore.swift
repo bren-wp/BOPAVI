@@ -132,7 +132,6 @@ final class GameSimulation {
     // Match the visible Bopi body and pillar cap widths.
     let radius: Float = 23
     var completionCount = 0
-    var completedLevelNumber = 0
     var displayLevel:Int
     var completedOrdinal=0
     init(_ level: BopaviCore.Level, endless:Bool = false, initialShield:Int = 0, initialMagnet:Float = 0, difficulty:Int = 1, initialOrdinal:Int? = nil) {
@@ -181,7 +180,7 @@ final class GameSimulation {
                 passed += 1; totalPassed += 1
                 if passed == level.gates.count {
                     if endless {
-                        completedLevelNumber=level.number;completedOrdinal=displayLevel;completionCount += 1
+                        completedOrdinal=displayLevel;completionCount += 1
                         displayLevel=min(Int.max-2,displayLevel+1)
                         let next=BopaviCore.createStream(level.world,displayLevel)
                         // World position remains monotonic across level transitions.
