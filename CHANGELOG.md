@@ -1,3 +1,11 @@
+## v0.1.26 — Noa i Any, dva premium lika
+- **Noa** i **Any** dodani su kao osmi i deveti lik. Noa je mladi nebeski istraživač s električno plavim krilima i pilotskim vizirom; Any je djevojčica s ljubičasto-ružičastim krilima, zvjezdanom tijarom i čarobnom haljinom. Izvori `docs/assets/noa.svg` i `docs/assets/any.svg` su zasebne ilustracije, ne preslikane Bopijeve boje.
+- Oba lika dobivaju odvojene animirane spriteove lijevog i desnog krila iz istog SVG-a na Androidu i iOS-u. Galerija prikazuje devet pravih portreta i oznake premium cijena.
+- Noa košta **220**, Any **240** lokalno osvojenih kovanica. Kupnja se potvrđuje prije potrošnje; već kupljeni izgled bira se bez nove naplate. Nema trgovine stvarnim novcem.
+- Sačuvan je redoslijed postojećih sedam likova te v5 JSON pohrana i bitmaska vlasništva. Dodani su izvorni audit, novi iOS testovi kupnje/obnove i CI provjera 9 raznih spriteova s 18 odvojenih krila.
+- Android i iOS verzija **0.1.26**, build **27**. Nisu mijenjani fizika leta, rezultat, lokalni napredak, osam svjetova ili režim bez interneta.
+- Potpuna 1:1 podudarnost svih zaslona na stvarnim uređajima tek se treba potvrditi vizualnim QA-om.
+
 ## v0.1.25 — galerija svih likova i precizan ritam prepreka
 - Android i iOS više ne prikazuju samo tekstualne gumbe za Bopija, Sunny, Berry, Luna, Mint, Shadow i Portantina: izbor prije leta i Postavke koriste zajedničku galeriju od sedam ilustriranih kartica u dva stupca. Svaka kartica sadrži stvarni sprite, ime i status, a odabrani lik ima istaknut obrub. Čitači zaslona vide jednu jasnu akciju po kartici umjesto dvostrukih natpisa.
 - **Potvrda trošenja kovanica**: odabir zaključanog lika s dovoljno lokalno osvojenih kovanica otvara dijalog s točnom cijenom i mogućnošću odustajanja. Tek izričitom potvrdom provodi se postojeća atomarna operacija `selectOrBuy`. Dostupni likovi i besplatni Portantin biraju se bez plaćanja i ostaju spremljeni. Nema stvarnih novčanih uplata ni zahtjeva za mrežom.
