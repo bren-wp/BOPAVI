@@ -297,7 +297,7 @@ assert "drawMovingGateRimCues(c,g,x,top,bottom)" in android_canvas
 assert "drawMovingGateRimCues(c,g,x,top,bottom)" in ios_canvas
 # World accent hues now match exactly between Android and iOS for gate cues and pickups.
 import re
-android_colors=re.search(r'private val pickupHues=intArrayOf\(([^)]*)\)',android_canvas).group(1)
+android_colors=re.search(r'private val pickupHues=intArrayOf\(([^\n]*)\)',android_canvas).group(1)
 ios_colors=re.search(r'private let pickupHues:\[UInt32\]=\[([^]]*)\]',ios_canvas).group(1)
 android_hues=[int(x.strip().split(".")[0],16)&0xffffff for x in android_colors.split(",")]
 ios_hues=[int(x.strip(),16) for x in ios_colors.split(",")]
