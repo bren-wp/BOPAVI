@@ -5,6 +5,7 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
+    private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
     private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
@@ -133,8 +134,7 @@ final class GameCanvas: UIView {
     // Drawn in the same unscaled 480x800 game coordinates as Android.
     // Lightweight rounded chips reveal actual remaining protection and magnet time.
     private func drawBoostHUD(_ c:CGContext) {
-        let font=UIFont.systemFont(ofSize:16,weight:.heavy)
-        let attributes:[NSAttributedString.Key:Any]=[.font:font,.foregroundColor:UIColor.white]
+        let attributes:[NSAttributedString.Key:Any]=[.font:boostFont,.foregroundColor:UIColor.white]
         if game.shield>0 {
             rect(c,14,79,124,31,0x183e75,14,0.87)
             ("ŠTIT ×\(game.shield)" as NSString).draw(at:CGPoint(x:25,y:86),withAttributes:attributes)
