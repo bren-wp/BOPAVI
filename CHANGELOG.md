@@ -1,3 +1,12 @@
+## v0.1.22 — razlike među levelima i jasnija navigacija (Android + iOS)
+- Kartice pojedinačnih levela sada prikazuju **Normalni ●, Izazovni ⚡, Bonus ✦ ili Elitni ♛** na temelju stvarnog `LevelEngine.create` / `BopaviCore.create` tipa levela. Vrste nisu izmišljene i ne mijenjaju generator, pravila ni razinu težine.
+- Android bojom razlikuje otključane kategorije, a iOS naglašava odgovarajući tematski rub. Na obje platforme zaključani leveli prikazuju lokot; pristupačni opis razlikuje vrstu i status (dovršen/otključan/zaključan).
+- Iznad mreže prikazuje se stvarna zona i raspon 20 ponuđenih levela uz legendu četiri vrste. Stranice i ručni unos levela rade s postojećim ograničenjima napretka.
+- Android i iOS pauza u naslovu prikazuje aktualni level i u pozadini ispravno upućuje igrača da odabere „Nastavi let” umjesto netočne upute o samom dodirom na tipku.
+- Dodani Kotlin JUnit, Kotlin i Swift parity testovi za 4 vrste, uključujući granične levele 15, 30, 60, 90, 120 i 360, te provjere UI integracije na obje platforme.
+- Android `versionCode 23`, iOS `CURRENT_PROJECT_VERSION 23`; oba `0.1.22`. Format spremanja, coins, shield, magnet, najbolje bodove, kolizije, gravitaciju i sav napredak ostavljamo netaknutima; svih osam svjetova ostaje odmah dostupno.
+- Referentne slike služe kao vizualne smjernice, ali potpuna potvrda 1:1 svakog ekrana na stvarnim telefonima još nije provedena.
+
 ## v0.1.21 — čitljive kartice svjetova i pošten prikaz rezultata (Android / iOS)
 - iOS kartice svih osam svjetova sada razdvajaju ilustraciju (gornji dio) i dva čitljiva tekstualna reda (naziv, stvarni otključani level i vrsta predmeta), po uzoru na postojeće Android kartice. Kartica i dalje ima jednu jasnu dodirnu površinu; ilustracija i unutarnji natpisi nisu samostalni, dupli accessibility elementi.
 - Android i iOS označavaju trenutačno odabrani svijet naglašenim tematskim rubom i oznakom ✓. Odabir je samo vizualna orijentacija; svih osam svjetova i dalje je dostupno odmah i ne uvode se lokoti na svjetovima.
