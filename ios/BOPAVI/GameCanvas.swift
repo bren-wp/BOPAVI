@@ -86,6 +86,16 @@ final class GameCanvas: UIView {
         } else {
             background(c)
         }
+        // Shared lightweight atmospheric depth, rendered above the fixed landscape.
+        let drift:CGFloat = reducedMotion ? 0 : (CGFloat(game.distance)*0.075).truncatingRemainder(dividingBy:580)
+        let mist:UInt32 = (game.level.world == 5 || game.level.world == 7) ? 0x8cbbff : 0xffffff
+        let mistAlpha:CGFloat = (game.level.world == 5 || game.level.world == 7) ? 0.13 : 0.22
+        for i in 0...3 {
+            let x=(CGFloat(i)*174+75-drift+580).truncatingRemainder(dividingBy:580)-95
+            let y:CGFloat=146+CGFloat(i%3)*148
+            oval(c,x,y,106,24,mist,mistAlpha)
+            oval(c,x+24,y-12,50,36,mist,mistAlpha)
+        }
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
