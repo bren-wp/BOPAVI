@@ -48,6 +48,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
     private val pillars = intArrayOf(0xff20b96c.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
     private val pillarDark = intArrayOf(0xff096c46.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
+
+    // Per-world pollen, embers, snow, stardust and sea sparkle. Drawn rather than loaded.
+    private val atmosphereHues=intArrayOf(0xffffedab.toInt(),0xffffdea0.toInt(),0xffeaffff.toInt(),
+        0xffffbd67.toInt(),0xffd3fff1.toInt(),0xffcab7ff.toInt(),0xff8dfff1.toInt(),0xffc5d1ff.toInt())
+    private val foregroundHues=intArrayOf(0xff63e1a1.toInt(),0xffffce81.toInt(),0xffa6e8ff.toInt(),
+        0xffff834f.toInt(),0xffe0fff0.toInt(),0xffa395ec.toInt(),0xff6ef0da.toInt(),0xff8fa5f1.toInt())
     private var viewportSky: LinearGradient? = null
     override fun onSizeChanged(w:Int,h:Int,oldw:Int,oldh:Int){
         super.onSizeChanged(w,h,oldw,oldh)
@@ -122,6 +128,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(canvas,x,y,x+106f,y+24f,mist)
             oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
         }
+        drawWorldAtmosphere(canvas)
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
@@ -151,6 +158,45 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(!paused && !game.finished && isAttachedToWindow) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
         }
+    }
+
+    /** Tiny animated details above the painted landscape, behind collidable obstacles.
+     * Pure Canvas primitives: no per-frame bitmap decoding, allocation or physics changes.
+     * Motion freezes entirely with the reduced-motion accessibility preference.
+     */
+    private fun drawWorldAtmosphere(c:Canvas) {
+        val world=game.level.world
+        val distance=if(reducedMotion)0f else game.distance
+        val t=if(reducedMotion)0f else game.time
+        val dust=atmosphereHues[world]
+        for(i in 0 until 12) {
+            val x=((i*113f+29f-distance*.11f)%560f+560f)%560f-45f
+            val shimmer=if(reducedMotion)0f else sin(t*(1.45f+(i%3)*.19f)+i*.87f)
+            val y=175f+((i*83)%430).toFloat()+shimmer*4f
+            fill(dust)
+            p.alpha=if(reducedMotion)108 else (106f+42f*shimmer).toInt().coerceIn(45,150)
+            c.drawCircle(x,y,2.3f+(i%3)*.65f,p)
+            if(i%4==0) {
+                p.alpha=27
+                c.drawCircle(x,y,8f,p)
+            }
+        }
+        val near=foregroundHues[world]
+        for(i in 0 until 9) {
+            val x=((i*85f+32f-distance*.31f)%680f+680f)%680f-60f
+            val y=700f+(i%3)*12f
+            val sway=if(reducedMotion)0f else sin(t*1.75f+i.toFloat())*3f
+            fill(near)
+            p.alpha=83
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=2.5f
+            c.drawLine(x,y+21f,x+sway+6f,y-5f,p)
+            p.style=Paint.Style.FILL
+            p.alpha=110
+            c.drawOval(x+sway-1f,y-9f,x+sway+15f,y+1f,p)
+        }
+        p.alpha=255
+        p.style=Paint.Style.FILL
     }
     private fun drawBackground(c:Canvas){
         val w=game.level.world;val t=if(reducedMotion)0f else game.time
