@@ -219,8 +219,11 @@ assert '#ff871b' in (root/'docs/assets/logo.svg').read_text()
 assert 'id="wood"' in (root/'docs/assets/logo.svg').read_text()
 assert 'id="lens"' in (root/'docs/assets/hero.svg').read_text()
 assert 'def island(' in (root/'tools/generate_images.py').read_text()
-assert 'LET ZAVRŠEN!' in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
-assert 'LET ZAVRŠEN!' in (root/'ios/BOPAVI/GameController.swift').read_text()
+# Dynamic result headings live in the tested core, not hardcoded in the UI.
+for core in (android_levels,ios_core):
+    assert 'LET ZAVRŠEN!' in core
+for controller in (android_menu,ios_menu):
+    assert 'ResultHeadline.label(' in controller
 assert 'fun courses(' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'func courses(' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 
