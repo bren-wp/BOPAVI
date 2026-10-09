@@ -11,7 +11,7 @@ final class ProgressStore {
     }
     func chosenWorld()->Int {max(0,min(maxWorld(),defaults.integer(forKey:"chosen_world")))}
     func chooseWorld(_ world:Int){if (0...maxWorld()).contains(world){defaults.set(world,forKey:"chosen_world")}}
-    func maxWorld() -> Int { max(0,min(7,defaults.integer(forKey:"max_world"))) }
+    func maxWorld() -> Int { 7 /* All worlds open; preserve legacy save data. */ }
     func coins() -> Int { max(0,min(100_000_000,defaults.integer(forKey:"coins"))) }
     func best(_ world:Int) -> Int { defaults.integer(forKey:"best_\(world)") }
     let skins=["bopi","sunny","berry","luna","mint","shadow"]
@@ -72,6 +72,15 @@ final class ProgressStore {
         return (a>0 ? 1 : 0,b>0 ? 8 : 0)
     }
     func collectibles(_ world:Int)->Int { (0..<8).contains(world) ? max(0,defaults.integer(forKey:"collectibles_\(world)")) : 0 }
+    var playerName:String {
+        get { defaults.string(forKey:"player_name") ?? "Igrač" }
+        set {
+            let allowed = newValue.trimmingCharacters(in:.whitespacesAndNewlines).filter {
+                $0.isLetter || $0.isNumber || $0 == " " || $0 == "_" || $0 == "-"
+            }
+            defaults.set(allowed.isEmpty ? "Igrač" : String(allowed.prefix(24)),forKey:"player_name")
+        }
+    }
     var soundEnabled:Bool {
         get {defaults.object(forKey:"sound_enabled") as? Bool ?? true}
         set {defaults.set(newValue,forKey:"sound_enabled")}
