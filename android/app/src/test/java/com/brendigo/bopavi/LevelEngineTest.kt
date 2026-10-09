@@ -142,6 +142,25 @@ class LevelEngineTest {
         assertEquals(0f, invalid.distance, 0f)
     }
 
+    @Test fun streamingKeepsRealGateRhythmAcrossEveryChallengeZone() {
+        // The per-level gate interval is smaller in tougher zones. Incoming
+        // obstacles must inherit that interval instead of a fixed 242px gap.
+        for(world in 0 until LevelEngine.WORLD_COUNT) {
+            for(number in listOf(2,62,122,182,242,302,360)) {
+                val level=LevelEngine.create(world,number)
+                val stream=GameSimulation(level,endless=true)
+                val oldLast=stream.gateX(level.gates.last())
+                val lastSpacing=level.gates.last().x-level.gates[level.gates.lastIndex-1].x
+                val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
+                assertEquals("world=$world level=$number",lastSpacing,firstNext-oldLast,0.001f)
+                assertEquals(0f,stream.distance,0f)
+                assertFalse(stream.active)
+            }
+        }
+        val normal=GameSimulation(LevelEngine.create(0,122))
+        assertTrue("Single-level mode must not precompute unnecessary gates",normal.upcomingGates().isEmpty())
+    }
+
     @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {
         val level=LevelEngine.create(0,2)
         val safe=level.gates.first().copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
