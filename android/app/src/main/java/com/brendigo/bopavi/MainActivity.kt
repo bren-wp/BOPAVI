@@ -391,7 +391,7 @@ class MainActivity : Activity() {
             elevation=d(5).toFloat()
         }
         val score=TextView(this).apply{
-            text="${g.score()}";textSize=43f;setTextColor(0xff0b3777.toInt())
+            text="${g.score()} BODOVA";textSize=38f;setTextColor(0xff0b3777.toInt())
             gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             contentDescription="Rezultat ${g.score()}"
         }
@@ -409,7 +409,7 @@ class MainActivity : Activity() {
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
         action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
         action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
-        action(panel,"OPREMA ZA KOVANICE",false){showPerks()}
+        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
         action(panel,"POČETNI EKRAN",false){showHome()}
         showNativeView(root)
@@ -427,6 +427,7 @@ class MainActivity : Activity() {
             }
         }
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
+        action(b,"🎨  BOJE BOPIJA",false){showSkins()}
         back(b){showSettings()}
     }
     private fun showSkins(){
