@@ -1,3 +1,20 @@
+# v0.1.20: the real touch impulse drives the visual wingbeat on both OSes.
+# Motion-sensitive users never receive a gust/wing animation.
+for sim_path in ('android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
+                 'ios/BOPAVI/BopaviCore.swift'):
+    core=(root/sim_path).read_text()
+    assert 'flapPulse' in core and '0.24' in core or '.24f' in core
+    assert 'flapPulse' in core.split('fun flap()',1)[1] if sim_path.endswith('.kt') else 'flapPulse' in core.split('func flap()',1)[1]
+for renderer_path in ('android/app/src/main/java/com/brendigo/bopavi/GameView.kt',
+                      'ios/BOPAVI/GameCanvas.swift'):
+    view=(root/renderer_path).read_text()
+    assert 'drawFlapWake(' in view and view.count('drawFlapWake(')==2
+    assert 'game.flapPulse' in view
+    assert 'reducedMotion' in view.split('drawFlapWake(',1)[1]
+    assert 'flapStrength' in view
+assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
+assert 'flapStrength*17' in ios_render
+
 #!/usr/bin/env python3
 from pathlib import Path
 from PIL import Image
