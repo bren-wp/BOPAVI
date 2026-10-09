@@ -18,7 +18,18 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var time = 0f; private set
     var distance = 0f; private set
     private var levelOrigin = 0f
+    private var nextLevel:LevelEngine.Level? = null
+    private var nextOrigin = 0f
+    /** Incoming gates retain the same world coordinates before and after promotion. */
     fun gateX(gate: LevelEngine.Gate):Float = gate.x + levelOrigin - distance
+    fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
+    fun upcomingGateX(gate:LevelEngine.Gate):Float = gate.x + nextOrigin - distance
+    private fun prepareNext() {
+        if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
+        val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
+        nextOrigin=levelOrigin+level.gates.last().x+242f-upcoming.gates.first().x
+        nextLevel=upcoming
+    }
     var levelTransition = 0f; private set
     var passed = 0; private set
     var coins = 0; private set
@@ -37,6 +48,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var active = false; private set
     var finished = false; private set
     var won = false; private set
+    init { prepareNext() }
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
@@ -96,12 +108,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                     if(endless) {
                         completedOrdinal=displayLevel;completionCount++
                         displayLevel=(displayLevel+1).coerceAtMost(Long.MAX_VALUE-2)
-                        val next=LevelEngine.createStream(level.world,displayLevel)
-                        // Keep global distance continuous: background and wing trails
-                        // must not jump when the next numbered level begins.
-                        levelOrigin=distance+300f-next.gates.first().x
-                        level=next
-                        levelTransition=0.78f
+                        // Upcoming gates have already entered the viewport.
+                        // Promote the exact cached world position; no spawn or jump.
+                        val incoming=nextLevel ?: LevelEngine.createStream(level.world,displayLevel)
+                        levelOrigin=nextOrigin
+                        level=incoming
+                        prepareNext()
+                        levelTransition=0f
                         passed = 0
                         collectedCoins = BooleanArray(level.gates.size)
                         collectedStars = BooleanArray(level.gates.size)
