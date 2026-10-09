@@ -134,6 +134,19 @@ class LevelEngineTest {
         assertFalse(game.finished)
     }
 
+    @Test fun difficultyModesAdjustPhysicsButRetainSafeOpening() {
+        val level=LevelEngine.create(0,2)
+        val easy=GameSimulation(level,difficulty=0)
+        val normal=GameSimulation(level,difficulty=1)
+        val hard=GameSimulation(level,difficulty=2)
+        for(game in listOf(easy,normal,hard)){game.flap();game.step(1f/60f)}
+        assertTrue(easy.distance < normal.distance && normal.distance < hard.distance)
+        assertTrue(easy.y < normal.y && normal.y < hard.y)
+        assertEquals(level.gates.size,easy.level.gates.size)
+        assertEquals(level.gates.size,hard.level.gates.size)
+        assertEquals(2,GameSimulation(level,difficulty=42).difficulty
+    }
+
     @Test fun boundaryValuesCannotGenerateInvalidLevels() {
         for(world in 0..7) {
             assertEquals(1,LevelEngine.create(world,1).number)
