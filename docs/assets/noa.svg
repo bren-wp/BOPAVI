@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="-65 -65 130 130" role="img" aria-labelledby="title desc">
+ <title id="title">Noa — nebeski istraživač</title><desc id="desc">Premium dječak s električno plavim krilima, safirnim pilotskim odijelom, vizir-naočalama i zvijezdom na prsima.</desc>
+ <defs><linearGradient id="w" x2="1" y2="1"><stop stop-color="#f0fdff"/><stop offset=".5" stop-color="#49d6ff"/><stop offset="1" stop-color="#2461e9"/></linearGradient>
+ <linearGradient id="s" x2="1" y2="1"><stop stop-color="#49d6ff"/><stop offset="1" stop-color="#173879"/></linearGradient>
+ <linearGradient id="f" x2=".8" y2="1"><stop stop-color="#ffeac8"/><stop offset="1" stop-color="#eeb18b"/></linearGradient></defs>
+ <g id="wing-left"><path d="M-13 7 Q-39 -50 -57 -38 Q-65 -26 -49 -16 Q-64 -8 -51 3 Q-56 17 -39 17 Q-42 26 -24 17 L-9 12Z" fill="url(#w)" stroke="#173879" stroke-width="3.3" stroke-linejoin="round"/><path d="M-53 -32 Q-34 -11 -19 13 M-52 -9 Q-34 1 -19 15 M-43 8 L-27 17" stroke="#f0fdff" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="-48" cy="-23" r="3" fill="#ffdf94"/></g>
+ <g id="wing-right"><path d="M13 7 Q39 -50 57 -38 Q65 -26 49 -16 Q64 -8 51 3 Q56 17 39 17 Q42 26 24 17 L9 12Z" fill="url(#w)" stroke="#173879" stroke-width="3.3" stroke-linejoin="round"/><path d="M53 -32 Q34 -11 19 13 M52 -9 Q34 1 19 15 M43 8 L27 17" stroke="#f0fdff" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="48" cy="-23" r="3" fill="#ffdf94"/></g>
+ <path d="M-20 7 Q0 0 20 7 L23 31 Q15 43 0 42 Q-15 43 -23 31Z" fill="url(#s)" stroke="#163879" stroke-width="3.3"/>
+<path d="M0 9 L4 16 L12 17 L6 23 L8 30 L0 26 L-8 30 L-6 23 L-12 17 L-4 16Z" fill="#ffe09c" stroke="#edaa43" stroke-width="1.6"/>
+ <path d="M-22 13 Q-37 20 -31 33 M22 13 Q37 20 31 33" fill="none" stroke="#49d6ff" stroke-width="8" stroke-linecap="round"/>
+ <circle cx="-31" cy="32" r="6" fill="#ffe1ce" stroke="#173879" stroke-width="2"/><circle cx="31" cy="32" r="6" fill="#ffe1ce" stroke="#173879" stroke-width="2"/>
+ <path d="M-12 36 L-14 46 M12 36 L14 46" stroke="#173879" stroke-width="8" stroke-linecap="round"/>
+ <path d="M-20 46 Q-12 41 -5 47 M5 47 Q12 41 20 46" stroke="#f0fdff" stroke-width="7" stroke-linecap="round"/>
+ <ellipse cx="0" cy="-11" rx="25" ry="27" fill="url(#f)" stroke="#173879" stroke-width="3"/>
+ <path d="M-26 -16 Q-31 -42 -12 -42 Q0 -51 11 -40 Q27 -42 27 -16 Q14 -29 5 -24 L-6 -31 L-19 -16Z" fill="#243457" stroke="#173879" stroke-width="3"/>
+ <path d="M-25 -18 Q0 -25 25 -18 L22 -3 Q0 2 -22 -3Z" fill="#1b6aaf" stroke="#143f86" stroke-width="3"/>
+<rect x="-22" y="-17" width="44" height="14" rx="6" fill="#99f5ff" opacity=".9" stroke="#e5ffff" stroke-width="2.6"/>
+<path d="M-13 -13 L-1 -13 M4 -13 L14 -13" stroke="white" stroke-width="3" opacity=".8" stroke-linecap="round"/>
+<path d="M-7 4 Q-5 8 -2 4 M3 4 Q6 8 9 4" fill="none" stroke="#223d6b" stroke-width="2.6"/>
+<path d="M-7 14 Q0 20 7 14" fill="none" stroke="#a7535e" stroke-width="2.7"/>
+<path d="M-27 -17 L-33 -11 M27 -17 L33 -11" stroke="#ffe396" stroke-width="5"/>
+ </svg>

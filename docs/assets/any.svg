@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="-65 -65 130 130" role="img" aria-labelledby="title desc">
+ <title id="title">Any — zvjezdana čarobnica</title><desc id="desc">Premium djevojčica s ružičasto-ljubičastim krilima, ljubičastom kosom, zvjezdanom tijarom i svjetlucavom haljinom.</desc>
+ <defs><linearGradient id="w" x2="1" y2="1"><stop stop-color="#fff1fd"/><stop offset=".5" stop-color="#ffa2e7"/><stop offset="1" stop-color="#9349d9"/></linearGradient>
+ <linearGradient id="s" x2="1" y2="1"><stop stop-color="#ffa2e7"/><stop offset="1" stop-color="#663596"/></linearGradient>
+ <linearGradient id="f" x2=".8" y2="1"><stop stop-color="#ffeac8"/><stop offset="1" stop-color="#edb0aa"/></linearGradient></defs>
+ <g id="wing-left"><path d="M-13 7 Q-39 -50 -57 -38 Q-65 -26 -49 -16 Q-64 -8 -51 3 Q-56 17 -39 17 Q-42 26 -24 17 L-9 12Z" fill="url(#w)" stroke="#663596" stroke-width="3.3" stroke-linejoin="round"/><path d="M-53 -32 Q-34 -11 -19 13 M-52 -9 Q-34 1 -19 15 M-43 8 L-27 17" stroke="#fff1fd" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="-48" cy="-23" r="3" fill="#ffdf94"/></g>
+ <g id="wing-right"><path d="M13 7 Q39 -50 57 -38 Q65 -26 49 -16 Q64 -8 51 3 Q56 17 39 17 Q42 26 24 17 L9 12Z" fill="url(#w)" stroke="#663596" stroke-width="3.3" stroke-linejoin="round"/><path d="M53 -32 Q34 -11 19 13 M52 -9 Q34 1 19 15 M43 8 L27 17" stroke="#fff1fd" stroke-width="2.7" fill="none" stroke-linecap="round"/><circle cx="48" cy="-23" r="3" fill="#ffdf94"/></g>
+ <path d="M-18 -29 Q-38 -20 -35 5 Q-34 18 -24 17 L-18 2 M18 -29 Q38 -20 35 5 Q34 18 24 17 L18 2" fill="#b47ad9" stroke="#5c328a" stroke-width="3"/>
+<path d="M-19 7 Q0 0 19 7 L30 37 Q0 51 -30 37Z" fill="url(#s)" stroke="#663596" stroke-width="3.5"/>
+<path d="M-25 34 Q0 47 25 34" stroke="#fff0fb" stroke-width="4" fill="none" stroke-linecap="round"/>
+<path d="M0 14 L4 21 L12 22 L6 27 L7 35 L0 30 L-7 35 L-6 27 L-12 22 L-4 21Z" fill="#fff0b2" stroke="#e2b468" stroke-width="1.5"/>
+ <path d="M-22 13 Q-37 20 -31 33 M22 13 Q37 20 31 33" fill="none" stroke="#ffa2e7" stroke-width="8" stroke-linecap="round"/>
+ <circle cx="-31" cy="32" r="6" fill="#ffe1ce" stroke="#663596" stroke-width="2"/><circle cx="31" cy="32" r="6" fill="#ffe1ce" stroke="#663596" stroke-width="2"/>
+ <path d="M-12 36 L-14 46 M12 36 L14 46" stroke="#663596" stroke-width="8" stroke-linecap="round"/>
+ <path d="M-20 46 Q-12 41 -5 47 M5 47 Q12 41 20 46" stroke="#fff1fd" stroke-width="7" stroke-linecap="round"/>
+ <ellipse cx="0" cy="-11" rx="25" ry="27" fill="url(#f)" stroke="#663596" stroke-width="3"/>
+ <path d="M-26 -16 Q-31 -42 -12 -42 Q0 -51 11 -40 Q27 -42 27 -16 Q14 -29 5 -24 L-6 -31 L-19 -16Z" fill="#824ab7" stroke="#663596" stroke-width="3"/>
+ <path d="M-17 -31 Q0 -39 17 -31" fill="none" stroke="#ffe3a0" stroke-width="4"/>
+<path d="M0 -48 L4 -41 L11 -39 L6 -34 L7 -27 L0 -31 L-7 -27 L-6 -34 L-11 -39 L-4 -41Z" fill="#ffe4a3" stroke="#e7a153" stroke-width="1.7"/>
+<ellipse cx="-10" cy="-9" rx="5" ry="6.5" fill="#34265d"/><ellipse cx="10" cy="-9" rx="5" ry="6.5" fill="#34265d"/>
+<circle cx="-11" cy="-12" r="2" fill="white"/><circle cx="8" cy="-12" r="2" fill="white"/>
+<ellipse cx="-18" cy="2" rx="5" ry="3" fill="#f38da9" opacity=".65"/><ellipse cx="18" cy="2" rx="5" ry="3" fill="#f38da9" opacity=".65"/>
+<path d="M-7 6 Q0 14 7 6" fill="none" stroke="#aa5188" stroke-width="2.7"/>
+<circle cx="-23" cy="-2" r="3" fill="#ffe9a3"/><circle cx="23" cy="-2" r="3" fill="#ffe9a3"/>
+ </svg>
