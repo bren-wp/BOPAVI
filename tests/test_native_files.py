@@ -643,3 +643,27 @@ for menu_source in (android_menu,ios_menu):
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "tap_settings" in qa and "android-settings" in qa
 assert "settings opens and returns to the three-button home" in qa
+
+# v0.1.26: nine unique premium silhouettes, wing layers and offline inventory.
+from xml.etree import ElementTree as ET
+catalogs=[(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text(),
+          (root/'ios/BOPAVI/ProgressStore.swift').read_text()]
+for inventory in catalogs:
+    for text in ('"Noa"','"Any"','"noa"','"any"','220','240','owned_mask','skin_index'):
+        assert text in inventory,text
+    assert '0..8' in inventory or '0...8' in inventory
+for index,character in ((7,'noa'),(8,'any')):
+    document=ET.parse(root/'docs/assets'/f'{character}.svg').getroot()
+    assert document.attrib['viewBox']=='-65 -65 130 130'
+    identifiers=[element.get('id') for element in document.iter()]
+    assert identifiers.count('wing-left')==1 and identifiers.count('wing-right')==1
+    assert f"'{character}'" in artgen
+    for key in (f'R.drawable.bopi{index}',f'R.drawable.bopileft{index}',f'R.drawable.bopiright{index}'):
+        assert key in android_render
+    assert f'R.drawable.bopi{index}' in android_gallery
+assert 'min(8,max(0,skinIndex))' in ios_render
+assert '9 characters, 18 detached wings' in artgen
+for index in ('7','8'):
+    assert f'{index} ->' in android_picker and f'case {index}:' in ios_picker
+for gallery in (android_gallery,ios_gallery):
+    assert 'PREMIUM' in gallery and 'Potrošit ćeš' in gallery

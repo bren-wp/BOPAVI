@@ -67,6 +67,26 @@ struct SwiftSaves {
         precondition(store.claimBonusCoins()==0,"Legacy backup must not duplicate rewards")
         precondition(store.coins()==40)
 
+        // Noa and Any charge earned coins once, then survive a v5 backup round-trip.
+        let premium:[String:Any]=["format":"bopavi-save","exportVersion":5,"save":[
+            "version":5,"maxWorld":0,"frontiers":[1,1,1,1,1,1,1,1],
+            "streamFrontiers":["1","1","1","1","1","1","1","1"],
+            "coins":500,"owned":["bopi"],"skin":"bopi"
+        ] as [String:Any]]
+        try store.importData(JSONSerialization.data(withJSONObject:premium))
+        precondition(store.skins.count == 9 && store.skinNames.count == 9)
+        precondition(store.costs[7] == 220 && store.costs[8] == 240)
+        precondition(!store.owned(7) && !store.owned(8))
+        precondition(store.selectOrBuy(7) && store.coins() == 280 && store.skinIndex() == 7)
+        precondition(store.selectOrBuy(7) && store.coins() == 280, "Noa must not be charged twice")
+        precondition(store.selectOrBuy(8) && store.coins() == 40 && store.skinIndex() == 8)
+        precondition(!store.selectOrBuy(9), "Invalid character is not selectable")
+        let premiumSave = try store.exportData()
+        try store.importData(premiumSave)
+        precondition(store.owned(7) && store.owned(8) && store.skinIndex() == 8 && store.coins() == 40)
+        try store.importData(bytes)
+        precondition(store.skinIndex() == 1 && store.owned(1) && !store.owned(7))
+
         print("PASS: Swift v0.2-v0.5 migration, first-clear-only coins, purchase/consume, one-time score coins, save round-trip and invalid backup rejection")
     }
 }
