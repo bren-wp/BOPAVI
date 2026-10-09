@@ -1,3 +1,13 @@
+## v0.1.15 — ambijentalno osvjetljenje svih osam svjetova
+
+- Android i iOS: zasebno nježno ambijentalno osvjetljenje za svih osam svjetova, s toplijim tonovima plaže/vulkana, hladnijim ledom/kristalima i diskretnim osvjetljenjem noćnih svjetova.
+- Slika svijeta i Canvas/Core Graphics animacije sada se vizualno povezuju slojem radijalnog osvjetljenja koji se crta u istom koordinatnom sustavu.
+- Android koristi osam unaprijed stvorenih RadialGradient shader objekata, a iOS osam predmemoriranih CGGradient objekata; tijekom crtanja ne stvaraju se nove slike ni gradijenti.
+- Osvjetljenje ostaje potpuno statično kada su uključene smanjene animacije. Kolizije, brzine, otključani svjetovi i spremljeni napredak nisu promijenjeni.
+- Source audit provjerava jednakost svih osam boja i centara, raspon osvjetljenja i odsutnost bitmap alokacija u render petlji.
+- Android build 16 / 0.1.15 i iOS build 16 / 0.1.15. GitHub pre-release objavljuje se samo nakon zelenog CI-ja na main.
+- Podudarnost 1:1 prema dostavljenim referencama i dalje zahtijeva vizualnu usporedbu na fizičkim uređajima.
+
 ## v0.1.14 — pokretne prepreke i ujednačene boje
 - Pokretni stupovi i ostale dinamičke prepreke dobivaju diskretne pulsirajuće oznake unutar gornjeg i donjeg ruba; statičke prepreke ne dobivaju lažne indikatore gibanja.
 - U modu smanjenih animacija oznake ostaju vidljive, ali miruju. Dinamičke oznake ne mijenjaju širinu otvora, hitboxove ni brzinu gameplaya.
