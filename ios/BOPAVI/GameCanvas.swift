@@ -36,8 +36,10 @@ final class GameCanvas: UIView {
     var onLevelComplete: ((Int)->Void)?
     var onFlap:(()->Void)?
     var onCollect:(()->Void)?
+    var onShieldImpact:(()->Void)?
     private var completedSeen=0
     private var pickupSeen=0
+    private var shieldImpactNotified=false
     var onHUDUpdate: ((GameSimulation) -> Void)?
     private var lastHUD:CFTimeInterval = 0
     private var link: CADisplayLink?
@@ -78,6 +80,13 @@ final class GameCanvas: UIView {
             completedSeen=game.completionCount;onLevelComplete?(game.completedOrdinal)
         }
         if game.coins+game.stars>pickupSeen {pickupSeen=game.coins+game.stars;onCollect?()}
+        // One callback on shield consumption, not each frame of the impact pulse.
+        if game.impactPulse>0 && !shieldImpactNotified {
+            shieldImpactNotified=true
+            onShieldImpact?()
+        } else if game.impactPulse<=0 {
+            shieldImpactNotified=false
+        }
         setNeedsDisplay()
         if l.timestamp-lastHUD > 0.35 {lastHUD=l.timestamp;onHUDUpdate?(game)}
         if game.finished && !reported {
