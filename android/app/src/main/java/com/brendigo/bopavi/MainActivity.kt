@@ -316,10 +316,10 @@ class MainActivity : Activity() {
         if(start+20<=maxNumber)action(b,"Sljedećih 20 →",false){showLevels(world,start+20)}
         back(b){showWorlds()}
     }
-    /** Seven true character portraits in a reusable, accessible two-column gallery. */
+    /** Nine true character portraits in a reusable, accessible two-column gallery. */
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
-            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
         for(start in progress.skinNames.indices step 2) {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             parent.addView(row,LinearLayout.LayoutParams(-1,-2))
@@ -327,7 +327,7 @@ class MainActivity : Activity() {
                 val selected=progress.skin()==i
                 val owned=progress.owned(i)
                 val cost=progress.costs[i]
-                val status=if(selected)"✓ ODABRAN" else if(owned)"DOSTUPAN" else "$cost KOVANICA"
+                val status=if(selected)"✓ ODABRAN" else if(owned)"DOSTUPAN" else if(i>=7)"PREMIUM · $cost KOVANICA" else "$cost KOVANICA"
                 val card=LinearLayout(this).apply {
                     orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
                     isClickable=true;isFocusable=true
@@ -394,9 +394,12 @@ class MainActivity : Activity() {
         }
         b.addView(portrait,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(8)})
         title(b,progress.skinNames[idx],25,gold)
-        small(b,if(idx==6)
-            "Portantin: krilati čovječuljak s naočalama, zaštitnom maskicom i rukavicama nosi suputnika na leđima."
-            else "Izaberi boju Bopija ili besplatnog Portantina. Odabir ostaje na uređaju.")
+        small(b,when(idx) {
+            6 -> "Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom."
+            7 -> "Noa: premium nebeski istraživač s električno plavim krilima, vizir-naočalama i zvjezdanim oklopom."
+            8 -> "Any: premium čarobnica s ružičastim krilima, zvjezdanom tijarom i ljubičastom haljinom."
+            else -> "Izaberi svog letača. Odabir se čuva na uređaju."
+        })
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
         action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
         sectionHeading(b,"ODABERI SVOG LETAČA")
@@ -566,7 +569,7 @@ class MainActivity : Activity() {
         back(b){showSettings()}
     }
     private fun showSkins(){
-        val b=base("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
+        val b=base("LIKOVI","Devet letača, uključujući Nou i Any")
         small(b,"Stanje: ${progress.coins()} kovanica")
         characterGallery(b){showSkins()}
         back(b){showSettings()}

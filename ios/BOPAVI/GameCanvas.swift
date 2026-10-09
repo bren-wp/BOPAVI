@@ -58,7 +58,7 @@ final class GameCanvas: UIView {
     }()
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
-        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(6,max(0,skinIndex))
+        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(8,max(0,skinIndex))
         self.birdSprite=UIImage(named:"Bopi\(min(6,max(0,skinIndex)))")
         self.leftWing=UIImage(named:"BopiLeft\(min(6,max(0,skinIndex)))")
         self.rightWing=UIImage(named:"BopiRight\(min(6,max(0,skinIndex)))")

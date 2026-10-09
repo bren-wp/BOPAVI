@@ -33,13 +33,13 @@ final class ProgressStore {
         return awarded
     }
     func best(_ world:Int) -> Int { defaults.integer(forKey:"best_\(world)") }
-    let skins=["bopi","sunny","berry","luna","mint","shadow","portantin"]
-    let skinNames=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Portantin"]
-    let costs=[0,60,80,110,130,160,0]
-    func skinIndex()->Int { min(6,max(0,defaults.integer(forKey:"skin_index"))) }
-    func owned(_ index:Int)->Bool { index == 6 || ((0...5).contains(index) && ((defaults.integer(forKey:"owned_mask") == 0 ? 1 : defaults.integer(forKey:"owned_mask")) & (1 << index)) != 0) }
+    let skins=["bopi","sunny","berry","luna","mint","shadow","portantin","noa","any"]
+    let skinNames=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Portantin","Noa","Any"]
+    let costs=[0,60,80,110,130,160,0,220,240]
+    func skinIndex()->Int { min(8,max(0,defaults.integer(forKey:"skin_index"))) }
+    func owned(_ index:Int)->Bool { index == 6 || ((0...8).contains(index) && ((defaults.integer(forKey:"owned_mask") == 0 ? 1 : defaults.integer(forKey:"owned_mask")) & (1 << index)) != 0) }
     @discardableResult func selectOrBuy(_ index:Int)->Bool {
-        guard (0...6).contains(index) else {return false}
+        guard (0...8).contains(index) else {return false}
         if owned(index) {defaults.set(index,forKey:"skin_index");return true}
         if coins()<costs[index] {return false}
         defaults.set(coins()-costs[index],forKey:"coins")
@@ -153,7 +153,7 @@ final class ProgressStore {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
                                  "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"scoreCoinsClaimed":max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed"))),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
-                                 "owned":(0..<7).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
+                                 "owned":(0..<9).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
                                  "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),

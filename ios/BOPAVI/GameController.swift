@@ -383,7 +383,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 let selected=progress.skinIndex()==i
                 let owned=progress.owned(i)
                 let cost=progress.costs[i]
-                let status=selected ? "✓ ODABRAN" : owned ? "DOSTUPAN" : "\(cost) KOVANICA"
+                let status=selected ? "✓ ODABRAN" : owned ? "DOSTUPAN" : i >= 7 ? "PREMIUM · \(cost) KOVANICA" : "\(cost) KOVANICA"
                 let card=BopaviActionButton(primary:selected)
                 card.setTitle("",for:.normal)
                 card.layer.borderWidth=selected ? 3 : 1
@@ -471,10 +471,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         preview.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
         s.addArrangedSubview(preview)
         label(progress.skinNames[selected],26,UIColor(red:1,green:0.86,blue:0.49,alpha:1),s)
-        if selected==6 {
-            label("Portantin: krilati čovječuljak s naočalama, kirurškom maskicom i rukavicama nosi suputnika na leđima.",15,.white,s)
-        } else {
-            label("Izaberi Bopijevu boju ili besplatnog Portantina. Odabir ostaje na uređaju.",15,.white,s)
+        switch selected {
+        case 6: label("Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom.",15,.white,s)
+        case 7: label("Noa: premium nebeski istraživač s električno plavim krilima, vizir-naočalama i zvjezdanim oklopom.",15,.white,s)
+        case 8: label("Any: premium čarobnica s ružičastim krilima, zvjezdanom tijarom i ljubičastom haljinom.",15,.white,s)
+        default: label("Izaberi svog letača. Odabir se čuva na uređaju.",15,.white,s)
         }
         label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
         button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
@@ -685,7 +686,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
-        let s=menu("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
+        let s=menu("LIKOVI","Devet letača, uključujući Nou i Any")
         label("Stanje: \(progress.coins()) kovanica",20,.white,s)
         characterGallery(in:s){self.showSkins()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
