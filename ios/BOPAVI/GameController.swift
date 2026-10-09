@@ -284,7 +284,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // blue shortcuts. All other functions remain available through settings.
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
-            self.startGame(world,self.progress.streamFrontier(world))
+            self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
         let shortcuts=UIStackView()
         shortcuts.axis = .horizontal
@@ -315,7 +315,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let s=menu(BopaviCore.names[world],"Odaberi otključani level")
         let maxNumber=min(BopaviCore.levelsPerWorld,progress.frontier(world))
         label("Otključano do levela \(maxNumber)",18,.white,s)
-        button("▶  NASTAVI LET",in:s){self.startGame(world,self.progress.streamFrontier(world))}
+        button("▶  NASTAVI LET",in:s){self.showPilotPicker(world,self.progress.streamFrontier(world))}
         let field=UITextField()
         field.keyboardType = .numberPad;field.text=String(page);field.placeholder="Broj levela"
         field.textAlignment = .center;field.textColor = .white;field.backgroundColor = UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
@@ -324,7 +324,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("▶  POKRENI ODABRANI LEVEL",in:s){
             field.resignFirstResponder()
             guard let n=Int(field.text ?? ""), (1...maxNumber).contains(n) else {self.alert("Nedostupan level","Odaberi otključan level iz raspona 1–\(maxNumber).");return}
-            self.startGame(world,n)
+            self.showPilotPicker(world,n)
         }
         let start=((max(1,min(page,BopaviCore.levelsPerWorld))-1)/20)*20+1
         let zone=BopaviCore.create(world,start).zone
@@ -360,7 +360,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 cell.heightAnchor.constraint(equalToConstant:63).isActive=true
                 cell.addAction(UIAction{_ in
                     self.sound.effect("click")
-                    if unlocked {self.startGame(world,n)}
+                    if unlocked {self.showPilotPicker(world,n)}
                     else {self.alert("Zaključano","Prvo dovrši prethodni level.")}
                 },for:.touchUpInside)
                 row.addArrangedSubview(cell)
@@ -371,6 +371,43 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         if start+20<=maxNumber {button("Sljedećih 20 →",in:s,primary:false){self.showLevels(world,page:start+20)}}
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
     }
+    /// Character choice is a deliberate step before gameplay or boost consumption.
+    private func showPilotPicker(_ world:Int,_ number:Int) {
+        gameWorld=world;gameNumber=number
+        let s=menu("ODABERI LIKA","Izaberi letača prije početka svakog leta")
+        let selected=progress.skinIndex()
+        let preview=UIImageView(image:UIImage(named:"Bopi\(selected)"))
+        preview.translatesAutoresizingMaskIntoConstraints=false
+        preview.contentMode = .scaleAspectFit
+        preview.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.61,alpha:0.88)
+        preview.layer.cornerRadius=21
+        preview.clipsToBounds=true
+        preview.heightAnchor.constraint(equalToConstant:168).isActive=true
+        preview.isAccessibilityElement=true
+        preview.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
+        s.addArrangedSubview(preview)
+        label(progress.skinNames[selected],26,UIColor(red:1,green:0.86,blue:0.49,alpha:1),s)
+        if selected==6 {
+            label("Portantin: krilati čovječuljak s naočalama, kirurškom maskicom i rukavicama nosi suputnika na leđima.",15,.white,s)
+        } else {
+            label("Izaberi Bopijevu boju. Odabir se sprema samo na ovom uređaju.",15,.white,s)
+        }
+        label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
+        button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
+            self.startGame(world,number)
+        }
+        for i in progress.skinNames.indices {
+            let status=progress.skinIndex()==i ? "✓ ODABRAN" :
+                progress.owned(i) ? "DOSTUPAN" : "\(progress.costs[i]) kovanica"
+            button("\(i==6 ? "🪽" : "🐦")  \(progress.skinNames[i]) · \(status)",
+                   in:s,primary:progress.skinIndex()==i) {
+                if self.progress.selectOrBuy(i) {self.showPilotPicker(world,number)}
+                else {self.alert("Nedovoljno kovanica","Nove boje otključavaju se igranjem. Portantin je besplatan.")}
+            }
+        }
+        button("‹  LEVELI",in:s,primary:false){self.showLevels(world,page:min(number,BopaviCore.levelsPerWorld))}
+    }
+
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
         let boosts=progress.consumePerks()
@@ -539,7 +576,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
-        button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
+        button("▶  PONOVO",in:stack){self.showPilotPicker(self.gameWorld,self.gameNumber)}
         button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
         button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
@@ -571,11 +608,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
-        let s=menu("LIKOVI","Skupljaj kovanice i otključaj nove Bopijeve boje")
+        let s=menu("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
         label("Stanje: \(progress.coins()) kovanica",20,.white,s)
-        for i in 0..<6 {
+        for i in progress.skinNames.indices {
             let description=progress.skinIndex()==i ? "✓ ODABRAN" : progress.owned(i) ? "OTKLJUČAN" : "\(progress.costs[i]) kovanica"
-            button("🐦 \(progress.skinNames[i]) · \(description)",in:s,primary:progress.skinIndex()==i){
+            button("\(i==6 ? "🪽" : "🐦") \(progress.skinNames[i]) · \(description)",in:s,primary:progress.skinIndex()==i){
                 if !self.progress.selectOrBuy(i){self.alert("Nedovoljno kovanica","Skupljaj kovanice tijekom leta.")}
                 else {self.showSkins()}
             }
