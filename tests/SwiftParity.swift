@@ -111,6 +111,17 @@ struct SwiftParity {
             let off=ParallaxScenery.offset(999999,layer:layer,reducedMotion:false)
             precondition(off>=0 && off<696)
         }
+        // v0.1.25: identical zone-specific gate rhythm through an endless boundary.
+        for world in 0..<8 {
+            for number in [2,62,122,182,242,302,360] {
+                let base=BopaviCore.create(world,number)
+                let stream=GameSimulation(base,endless:true)
+                let firstNext=stream.upcomingGateX(stream.upcomingGates[0])
+                let oldLast=stream.gateX(base.gates[base.gates.count-1])
+                let interval=base.gates[base.gates.count-1].x-base.gates[base.gates.count-2].x
+                precondition(abs(firstNext-oldLast-interval)<0.01)
+            }
+        }
         // v0.1.20: same bounded, retriggerable cosmetic wingbeat as Kotlin.
         do {
             let b=GameSimulation(BopaviCore.create(0,2))
