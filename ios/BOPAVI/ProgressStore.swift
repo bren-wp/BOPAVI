@@ -180,11 +180,11 @@ final class ProgressStore {
         }
         let c=s["coins"] as? Int ?? 0
         guard (0...100_000_000).contains(c) else { throw NSError(domain:"BOPAVI",code:3,userInfo:[NSLocalizedDescriptionKey:"Neispravno stanje kovanica."]) }
-        defaults.set(maxWorld,forKey:"max_world");defaults.set(min(maxWorld,max(0,s["chosenWorld"] as? Int ?? maxWorld)),forKey:"chosen_world");defaults.set(c,forKey:"coins")
         let importedClaimed=s["scoreCoinsClaimed"] as? Int ?? 0
         guard (0...100_000).contains(importedClaimed) else {
             throw NSError(domain:"BOPAVI",code:7,userInfo:[NSLocalizedDescriptionKey:"Neispravna nagrada za bodove."])
         }
+        defaults.set(maxWorld,forKey:"max_world");defaults.set(min(maxWorld,max(0,s["chosenWorld"] as? Int ?? maxWorld)),forKey:"chosen_world");defaults.set(c,forKey:"coins")
         // An old backup must not re-award coins already redeemed on this device.
         let priorClaimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
         defaults.set(max(priorClaimed,importedClaimed),forKey:"score_coins_claimed")
