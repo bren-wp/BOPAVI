@@ -222,3 +222,25 @@ for surface in (android_canvas,ios_canvas):
 workflow=(root/".github/workflows/native-ci.yml").read_text()
 assert "tests/SwiftSaves.swift" in workflow
 assert "Verify legacy save migration and haptics round-trip" in workflow
+
+# v0.1.12: static illustration is complemented by real bounded runtime scenery.
+# Both renderers apply equal cardinality, scrolling factors and reduced-motion guard.
+android_world=android_canvas.split("private fun drawWorldAtmosphere(",1)[1].split("private fun drawBackground(",1)[0]
+ios_world=ios_canvas.split("private func drawWorldAtmosphere(",1)[1].split("private func background(",1)[0]
+assert "drawWorldAtmosphere(canvas)" in android_canvas
+assert "drawWorldAtmosphere(c)" in ios_canvas
+assert "atmosphereHues" in android_canvas and "foregroundHues" in android_canvas
+assert "atmosphereHues" in ios_canvas and "foregroundHues" in ios_canvas
+for source in (android_world,ios_world):
+    assert "reducedMotion" in source and "distance" in source
+    assert "12" in source and "9" in source
+    assert "113" in source and "85" in source
+    assert ".11" in source or "0.11" in source
+    assert ".31" in source or "0.31" in source
+    assert "time" in source
+    assert "BitmapFactory" not in source and "UIImage(" not in source
+for source in (android_canvas,ios_canvas):
+    assert "game.active" in source and "game.finished" in source
+    assert "107" in source and "27" in source
+    assert "quadTo" in source or "addQuadCurve" in source
+    assert "reducedMotion" in source
