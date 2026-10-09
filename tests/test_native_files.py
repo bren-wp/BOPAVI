@@ -103,7 +103,7 @@ assert 'capture android-settings-diagnostic' in qa_script
 assert 'home_ready=1' in qa_script
 assert 'if [ "$home_ready" -ne 1 ]; then' in qa_script
 assert 'capture android-home-return-diagnostic' in qa_script
-assert 'target: default' in (root/'.github/workflows/native-ci.yml').read_text()
+assert 'target: google_apis' in (root/'.github/workflows/native-ci.yml').read_text()
 import subprocess
 subprocess.run(['sh', '-n', str(root/'tools/qa_android_emulator.sh')],check=True)
 
