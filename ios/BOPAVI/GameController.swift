@@ -119,7 +119,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(b)
     }
     private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
-        let unlocked=world<=progress.maxWorld()
         let tile=BopaviActionButton(primary:false)
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(0.65).cgColor
         if let illustration=UIImage(named:"World\(world)") {
@@ -138,16 +137,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
             tile.clipsToBounds=true
         }
-        tile.alpha=unlocked ? 1 : 0.60
         tile.titleLabel?.numberOfLines=3
         tile.titleLabel?.textAlignment = .center
-        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  \(unlocked ? "↗" : "🔒")"
-        let detail=unlocked ? "Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])" : "Otkrij novi svijet tijekom igranja"
+        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  ↗"
+        let detail="Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])"
         let text=NSMutableAttributedString(string:headline+"\n"+detail)
         text.addAttributes([.font:UIFont.systemFont(ofSize:15,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
         text.addAttributes([.font:UIFont.systemFont(ofSize:11,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
         tile.setAttributedTitle(text,for:.normal)
-        tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
+        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano"
         tile.heightAnchor.constraint(equalToConstant:178).isActive=true
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
@@ -218,11 +216,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.addArrangedSubview(row)
             for col in 0..<2 {
                 let world=line*2+col
-                let accessible=world<=progress.maxWorld()
-                worldTile(world,in:row){
-                    if accessible {self.showLevels(world,page:1)}
-                    else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
-                }
+                worldTile(world,in:row){self.showLevels(world,page:1)}
             }
         }
         button("‹  Natrag",in:stack,primary:false){self.showHome()}
