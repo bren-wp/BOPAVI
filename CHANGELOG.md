@@ -1,3 +1,12 @@
+## v0.1.23 — prvi dodir započinje let, pauza više ne smeta uvodnom ekranu
+- Ispravljen stvarni uzrok prijevremenog pojavljivanja gumba pauze: i Android i iOS sada ga stvaraju skrivenog i otkrivaju tek na događaju **prvog uspješnog zamaha krila**, kada simulacija prijeđe iz mirovanja u aktivan let.
+- Uvodni zaslon leta više ne prikazuje HUD, status zaštite ni napredak kroz prepreke prije prvog dodira; nakon prvog zamaha svi potrebni pokazatelji postaju dostupni. Početni izbornik nema gameplay kontrole.
+- Android `GameView.onFlightStarted` i iOS `GameCanvas.onFlightStarted` su jednokratne promjene stanja koje ne mijenjaju ubrzanje, kolizije, početni broj zamaha ni pravila bodovanja. Ponovljeni dodiri ne kreiraju nove gumbe pauze.
+- Android ignorira zastarjele `onFinished` povratne pozive kad se igrač već nalazi izvan tog leta. iOS također provjerava trenutačni `GameCanvas` prije rezultatskog prijelaza.
+- Android emulator gameplay QA sada provjerava četiri stvarna UI stanja: početni izbornik bez pauze, mirujući let bez pauze, aktivni let s pauzom i završni rezultat bez pauze. Uz to su prošireni Kotlin JUnit, Kotlin/Swift parity i Python source audit.
+- Android `versionCode 24` / iOS build `24`, oba `0.1.23`. Sačuvane su lokalne postavke, spremljeni napredak, svih osam otvorenih svjetova, novčanik, rezultat i potpuno offline izvođenje.
+- Priloženi referentni dizajni ostaju cilj; bez usporednih snimki svih zaslona na fizičkim uređajima nije opravdano tvrditi potpunu 1:1 podudarnost.
+
 ## v0.1.22 — razlike među levelima i jasnija navigacija (Android + iOS)
 - Kartice pojedinačnih levela sada prikazuju **Normalni ●, Izazovni ⚡, Bonus ✦ ili Elitni ♛** na temelju stvarnog `LevelEngine.create` / `BopaviCore.create` tipa levela. Vrste nisu izmišljene i ne mijenjaju generator, pravila ni razinu težine.
 - Android bojom razlikuje otključane kategorije, a iOS naglašava odgovarajući tematski rub. Na obje platforme zaključani leveli prikazuju lokot; pristupačni opis razlikuje vrstu i status (dovršen/otključan/zaključan).
