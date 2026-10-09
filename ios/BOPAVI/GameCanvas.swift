@@ -326,12 +326,21 @@ final class GameCanvas: UIView {
             c.setStrokeColor(color(0xb8efff,0.82*t));c.setLineWidth(5)
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
-        if !reducedMotion {
-            for i in 1...3 {
-                let x:CGFloat = 126-CGFloat(i)*19-16
-                let y:CGFloat = CGFloat(game.y)+8+CGFloat(sin(game.time*9-Float(i)))*4
-                oval(c,x,y,18-CGFloat(i)*3,8-CGFloat(i)*1.5,0x95eaff,0.34)
+        // Motion ribbons make the sprite feel embedded in the world, not pasted on.
+        if !reducedMotion && game.active && !game.finished {
+            for i in 0..<5 {
+                let x:CGFloat=107-CGFloat(i)*16
+                let y=CGFloat(game.y)+CGFloat(i%3-1)*13+CGFloat(sin(game.time*5+Float(i)))*3
+                c.setStrokeColor(color(0xb4edff,CGFloat(130-i*18)/255))
+                c.setLineWidth(2.8-CGFloat(i)*0.32)
+                c.setLineCap(.round)
+                c.beginPath()
+                c.move(to:CGPoint(x:x,y:y))
+                c.addQuadCurve(to:CGPoint(x:x-27-CGFloat(i)*2,y:y+2),
+                               control:CGPoint(x:x-13,y:y-5))
+                c.strokePath()
             }
+            c.setLineCap(.butt)
         }
         if game.magnetTime>0 {oval(c,92,CGFloat(game.y)-34,68,68,0x4fdfff,0.27)}
         if game.shield>0 {
