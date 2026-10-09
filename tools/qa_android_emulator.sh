@@ -38,6 +38,29 @@ dump_ui(){
   adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml
   test -s qa/screenshots/android-current-ui.xml
 }
+# The hosted Pixel emulator can show a *system launcher* ANR over a healthy
+# BOPAVI Activity. Recover only that exact dialog; never dismiss a BOPAVI ANR.
+# The next assertion still requires the real destination screen to be visible.
+recover_launcher_anr(){
+  adb shell pidof com.brendigo.bopavi >/dev/null || return 1
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re, subprocess, sys, xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+titles=[n.get("text","") for n in root.iter("node")
+        if n.get("resource-id")=="android:id/alertTitle"]
+waits=[n for n in root.iter("node") if n.get("resource-id")=="android:id/aerr_wait"
+       and n.get("text")=="Wait" and n.get("clickable")=="true"]
+if titles != ["Pixel Launcher isn't responding"] or len(waits)!=1:
+    sys.exit(1)
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
+if not m:
+    raise SystemExit("FAIL: invalid system launcher Wait button bounds")
+left,top,right,bottom=map(int,m.groups())
+print("Recovering confirmed Pixel Launcher ANR while BOPAVI remains running",flush=True)
+subprocess.run(["adb","shell","input","tap",str((left+right)//2),
+                str((top+bottom)//2)],check=True)
+PY
+}
 verify_three_home_actions(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys, xml.etree.ElementTree as ET
@@ -114,12 +137,36 @@ while [ "$attempt" -le 6 ]; do
     capture android-home
     verify_three_home_actions
     # Confirm settings can open and Android Back returns to the same 3 actions.
-    tap_settings
-    sleep 2
-    dump_ui
-    if ! grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+    # Retry only after verifying actual UI state. A system Pixel Launcher ANR
+    # can intercept the first settings tap after boot, even if game is healthy.
+    settings_ready=0
+    settings_attempt=1
+    while [ "$settings_attempt" -le 4 ]; do
+      adb shell pidof com.brendigo.bopavi >/dev/null || {
+        echo "FAIL: BOPAVI exited during settings navigation" >&2; exit 1;
+      }
+      dump_ui
+      if grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+        settings_ready=1
+        break
+      fi
+      if recover_launcher_anr; then
+        sleep 2
+      elif grep -q 'POSTAVKE' qa/screenshots/android-current-ui.xml &&
+           grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+        tap_settings
+        sleep 2
+      else
+        echo "Unexpected foreground window while opening POSTAVKE" >&2
+        break
+      fi
+      settings_attempt=$((settings_attempt+1))
+    done
+    if [ "$settings_ready" -ne 1 ]; then
       capture android-settings-diagnostic || true
-      echo "FAIL: POSTAVKE did not open the settings screen" >&2
+      head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
+      adb logcat -d -t 100 | tail -n 80 || true
+      echo "FAIL: POSTAVKE did not open after verified, bounded retries" >&2
       exit 1
     fi
     capture android-settings
