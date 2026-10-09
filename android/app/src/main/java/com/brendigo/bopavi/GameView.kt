@@ -20,7 +20,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}) : View(context) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
@@ -91,7 +91,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
             if(game.coins+game.stars>pickupSeen) {
                 pickupSeen=game.coins+game.stars
-                performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                if(hapticEnabled)performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 onCollect()
             }
         } else lastFrame=0L
@@ -361,8 +361,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,"LEVEL ${game.displayLevel}",26f,55f,20f,Color.WHITE)
         rect(c,210f,22f,350f,71f,0xcc15285c.toInt(),20f)
         text(c,"${LevelEngine.collectibleIcons[game.level.world]} ${game.stars+game.coins}",225f,54f,20f,0xffffe39c.toInt())
-        if(game.shield>0)text(c,"ŠTIT ×${game.shield}",22f,104f,17f,Color.WHITE)
-        if(game.magnetTime>0)text(c,"MAGNET",22f,127f,17f,Color.WHITE)
+        if(game.shield>0){
+            rect(c,14f,79f,138f,110f,0xdd183e75.toInt(),14f)
+            text(c,"ŠTIT ×${game.shield}",25f,101f,16f,Color.WHITE)
+        }
+        if(game.magnetTime>0f){
+            rect(c,14f,114f,151f,145f,0xdd183e75.toInt(),14f)
+            val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt()
+            text(c,"MAGNET ${seconds}s",25f,136f,16f,Color.WHITE)
+        }
         // No small text printed over the foreground: HUD is kept at the top.
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
