@@ -27,6 +27,9 @@ final class GameCanvas: UIView {
     var paused = false { didSet { previous = 0;setNeedsDisplay() } }
     private let skyA: [UInt32] = [0x159df7,0x18b5e7,0x418ddc,0x6e287e,0x45aaf6,0x131a4b,0x123969,0x0b123f]
     private let skyB: [UInt32] = [0xd0f8ff,0xffe3b2,0xedfbff,0xffa36d,0xffe9b6,0x7461bc,0x60f6d5,0x5955a9]
+    // Biome-specific glints and near-field leaves drawn with Core Graphics.
+    private let atmosphereHues:[UInt32]=[0xffedab,0xffdea0,0xeaffff,0xffbd67,0xd3fff1,0xcab7ff,0x8dfff1,0xc5d1ff]
+    private let foregroundHues:[UInt32]=[0x63e1a1,0xffce81,0xa6e8ff,0xff834f,0xe0fff0,0xa395ec,0x6ef0da,0x8fa5f1]
     private let pillars: [UInt32] = [0x20b96c,0xf5a65b,0x8ad8f5,0xe65b35,0xe9d9b5,0x57459a,0x5fdddc,0x7973f3]
     private lazy var cachedGradient:CGGradient? = {
         let pair=[UIColor(rgb:skyA[game.level.world]).cgColor,UIColor(rgb:skyB[game.level.world]).cgColor] as CFArray
@@ -97,6 +100,7 @@ final class GameCanvas: UIView {
             oval(c,x,y,106,24,mist,mistAlpha)
             oval(c,x+24,y-12,50,36,mist,mistAlpha)
         }
+        drawWorldAtmosphere(c)
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
@@ -143,6 +147,40 @@ final class GameCanvas: UIView {
             rect(c,14,114,137,31,0x183e75,14,0.87)
             let seconds=Int(ceil(Double(game.magnetTime)))
             ("MAGNET \(seconds)s" as NSString).draw(at:CGPoint(x:25,y:121),withAttributes:attributes)
+        }
+    }
+    /// Procedural scenery over the illustration and behind real collision geometry.
+    /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
+    /// Reduced motion freezes offsets and sway without hiding environmental detail.
+    private func drawWorldAtmosphere(_ c:CGContext) {
+        let world=game.level.world
+        let distance:CGFloat=reducedMotion ? 0 : CGFloat(game.distance)
+        let t:CGFloat=reducedMotion ? 0 : CGFloat(game.time)
+        let dust=atmosphereHues[world]
+        for i in 0..<12 {
+            let x=(CGFloat(i)*113+29-distance*0.11+560)
+                .truncatingRemainder(dividingBy:560)-45
+            let shimmer:CGFloat=reducedMotion ? 0 : sin(t*(1.45+CGFloat(i%3)*0.19)+CGFloat(i)*0.87)
+            let y=CGFloat(175+(i*83)%430)+shimmer*4
+            c.setFillColor(color(dust,reducedMotion ? 108.0/255 : max(45,min(150,106+42*shimmer))/255))
+            c.fillEllipse(in:CGRect(x:x-(2.3+CGFloat(i%3)*0.65),y:y-(2.3+CGFloat(i%3)*0.65),
+                                    width:2*(2.3+CGFloat(i%3)*0.65),height:2*(2.3+CGFloat(i%3)*0.65)))
+            if i%4 == 0 {
+                oval(c,x-8,y-8,16,16,dust,27.0/255)
+            }
+        }
+        let near=foregroundHues[world]
+        for i in 0..<9 {
+            let x=(CGFloat(i)*85+32-distance*0.31+680)
+                .truncatingRemainder(dividingBy:680)-60
+            let y=CGFloat(700+(i%3)*12)
+            let sway:CGFloat=reducedMotion ? 0 : sin(t*1.75+CGFloat(i))*3
+            c.setStrokeColor(color(near,83.0/255))
+            c.setLineWidth(2.5)
+            c.move(to:CGPoint(x:x,y:y+21))
+            c.addLine(to:CGPoint(x:x+sway+6,y:y-5))
+            c.strokePath()
+            oval(c,x+sway-1,y-9,16,10,near,110.0/255)
         }
     }
     private func background(_ c:CGContext){
