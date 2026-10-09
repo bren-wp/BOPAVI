@@ -40,13 +40,13 @@ class ProgressStore(context: Context) {
         return awarded
     }
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
-    val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow", "portantin")
-    val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow", "Portantin")
-    val costs = listOf(0, 60, 80, 110, 130, 160, 0)
-    fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 6)
-    fun owned(index: Int): Boolean = index == 6 || (index in 0..5 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
+    val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow", "portantin", "noa", "any")
+    val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow", "Portantin", "Noa", "Any")
+    val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)
+    fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
+    fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
     fun selectOrBuy(index: Int): Boolean {
-        if(index !in 0..6)return false
+        if(index !in 0..8)return false
         if(owned(index)) {prefs.edit().putInt("skin_index",index).apply();return true}
         if(coins() < costs[index])return false
         prefs.edit().putInt("coins",coins()-costs[index]).putInt("owned_mask",prefs.getInt("owned_mask",1) or (1 shl index)).putInt("skin_index",index).apply()
@@ -137,7 +137,7 @@ class ProgressStore(context: Context) {
         s.put("scoreCoinsClaimed",prefs.getInt("score_coins_claimed",0).coerceIn(0,100000))
         s.put("difficulty",difficulty()); s.put("leaderboard",JSONArray(leaderboard().map { JSONObject().put("name",it.name).put("score",it.score).put("world",it.world).put("difficulty",it.difficulty).put("gates",it.gates) }))
         s.put("worldBest", JSONArray((0..7).map { best(it) }))
-        s.put("owned",JSONArray((0..6).filter{owned(it)}.map{skins[it]}))
+        s.put("owned",JSONArray((0..8).filter{owned(it)}.map{skins[it]}))
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
         s.put("wins",wins());s.put("deaths",deaths());s.put("flaps",prefs.getLong("flaps",0L))
         s.put("endlessBest",endlessBest());s.put("endlessRuns",prefs.getInt("endless_runs",0))

@@ -17,9 +17,9 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 
 ## ✨ Odaberi svog letača
 
-**Prije svakog leta** odaberi lik na zasebnom ekranu s pravim ilustriranim karticama svih sedam letača. I Bopi i Portantin imaju vlastiti prepoznatljiv izgled; izbor potvrđuješ gumbom **POLETI S...**. Odabrani izgled ostaje spremljen. Postojeće boje kupljene kovanicama ne gube se prilikom ažuriranja.
+**Prije svakog leta** odaberi lik na zasebnom ekranu s pravim ilustriranim karticama svih devet letača. I Bopi i Portantin imaju vlastiti prepoznatljiv izgled; izbor potvrđuješ gumbom **POLETI S...**. Odabrani izgled ostaje spremljen. Postojeće boje kupljene kovanicama ne gube se prilikom ažuriranja.
 
-**Pošteno otključavanje:** ako želiš novog lika koji se otključava virtualnim kovanicama, prije trošenja dobivaš poseban dijalog s točnom cijenom. Možeš odustati bez promjene salda. Već otključani likovi i Portantin mogu se birati bez naknade.
+**Pošteno otključavanje:** ako želiš novog lika koji se otključava virtualnim kovanicama, prije trošenja dobivaš poseban dijalog s točnom cijenom. Možeš odustati bez promjene salda. Već otključani likovi i Portantin mogu se birati bez naknade. **Noa (220)** i **Any (240)** otključavaju se kovanicama osvojenima u igri.
 
 <figure>
   <img src="docs/assets/portantin.svg" alt="Portantin: krilati čovječuljak sa zaštitnim naočalama, kirurškom maskicom i rukavicama nosi drugog čovječuljka na leđima" width="260">
@@ -38,6 +38,15 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 | 🌿 **Mint** | Mentol-zelene nijanse | Kovanice iz igre |
 | 🌑 **Shadow** | Tamne nijanse | Kovanice iz igre |
 | 🪽 **Portantin** | Krilati nosač sa suputnikom i zaštitnom opremom | **Besplatan od početka** |
+| ⚡ **Noa** | Nebeski istraživač sa safirnim pilotskim odijelom, vizir-naočalama i električno plavim krilima | **220 kovanica** |
+| ✨ **Any** | Zvjezdana čarobnica s ljubičastom kosom, zvjezdanom tijarom, haljinom i ružičastim krilima | **240 kovanica** |
+
+<p align="center">
+<img src="docs/assets/noa.svg" width="240" alt="Noa — nebeski istraživač s električno plavim krilima">
+<img src="docs/assets/any.svg" width="240" alt="Any — čarobnica sa zvjezdanom tijarom i ružičastim krilima">
+</p>
+
+**Noa i Any — dva premium letača, dvije različite avanture.** Noa istražuje granice neba; Any donosi čaroliju zvijezda. Oba lika imaju vlastite siluete tijela i dva odvojena, animirana krila. Kao i svi drugi likovi, igraju po jednakim pravilima: bez prednosti u brzini, fizici ili kolizijama, bez plaćanja stvarnim novcem.
 
 ## 🌍 Osam svjetova — jedan neprekinuti let
 
@@ -52,7 +61,7 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 | 💎 **Kristalna šuma** | Kristali | Svjetleći kristali |
 | 🪐 **Svemirski let** | Zvjezdani prah | Planeti i zvjezdano nebo |
 
-**Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar uz **isti stvarni razmak prepreka tekuće zone**, čak i kad se težina mijenja; Bopi ili Portantin ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
+**Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar uz **isti stvarni razmak prepreka tekuće zone**, čak i kad se težina mijenja; odabrani lik ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
 
 ## 🎮 Kako igrati
 

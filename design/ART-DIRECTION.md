@@ -28,3 +28,8 @@ Vizualni prikazi u aplikaciji su implementirani putem Android Canvas i iOS Core 
 - Lebdeći otoci nisu samo dio statične pozadine: tri dubinska sloja pomiču se uz prijeđenu udaljenost leta, a pozadinski sjaj ima isti pad prozirnosti na Androidu i iOS-u.
 - Natpisi tuđih brendova na referencama (Flybo, SkyBop, SkyHop) nisu identitet igre. Koristiti isključivo BOPAVI i Bopija.
 - Svih osam svjetova odmah je otvoreno. Nikakve globalne izmišljene ljestvice ili kupnje za pravi novac iz referenci.
+
+## v0.1.26 — novi originalni premium likovi
+- Noa: safirno pilotsko odijelo, vizir, električno plava krila, zlatni znak zvijezde; izvor `docs/assets/noa.svg`.
+- Any: ljubičasta kosa, zvjezdana tijara, ružičasto-ljubičasta krila i haljina; izvor `docs/assets/any.svg`.
+- Krila su samostalne SVG grupe `wing-left` i `wing-right`; generator daje iste izvore tijela/krila na Androidu i iOS-u. Kolizijski radijus i fizika se ne mijenjaju. Premium oznaka znači otključavanje lokalnim kovanicama, bez kupnje stvarnim novcem ili prednosti u igri.

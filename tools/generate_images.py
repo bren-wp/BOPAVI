@@ -192,6 +192,30 @@ for part,name,catalog in ((port_body,'bopi6','Bopi6'),
     assetset.mkdir(exist_ok=True)
     sprite.save(assetset/(name+'.png'),optimize=True)
     (assetset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
+# Unique premium Noa / Any silhouettes and separately flapping SVG wing groups.
+# All Android/iOS sprites are rendered from the same checked-in sources.
+for skin,character in ((7,'noa'),(8,'any')):
+    source=(r/'docs/assets'/f'{character}.svg').read_text()
+    definitions=re.search(r'<defs>(.*?)</defs>',source,re.S)
+    wings=[re.search(r'<g id="wing-'+side+r'">.*?</g>',source,re.S) for side in ('left','right')]
+    if definitions is None or any(w is None for w in wings):
+        raise RuntimeError(f'{character}: missing wing layers or gradients')
+    body=re.sub(r'<g id="wing-(?:left|right)">.*?</g>','',source,flags=re.S)
+    layers=((body,f'bopi{skin}',f'Bopi{skin}'),
+            ('<defs>'+definitions.group(1)+'</defs>'+wings[0].group(0),f'bopileft{skin}',f'BopiLeft{skin}'),
+            ('<defs>'+definitions.group(1)+'</defs>'+wings[1].group(0),f'bopiright{skin}',f'BopiRight{skin}'))
+    for part,name,catalog in layers:
+        sprite=render_portantin(part)
+        if sprite.getbbox() is None:
+            raise RuntimeError(f'{character}: empty sprite {name}')
+        sprite.save(a/'drawable-nodpi'/(name+'.png'),optimize=True)
+        assetset=b/(catalog+'.imageset')
+        assetset.mkdir(exist_ok=True)
+        sprite.save(assetset/(name+'.png'),optimize=True)
+        (assetset/'Contents.json').write_text(json.dumps({
+            'images':[{'filename':name+'.png','idiom':'universal'}],
+            'info':{'author':'xcode','version':1}
+        }))
 from generate_worlds import generate_worlds
 generate_worlds(a,b)
-print('Generated native art: 7 characters, 14 detached wings and 8 biomes')
+print('Generated native art: 9 characters, 18 detached wings and 8 biomes')

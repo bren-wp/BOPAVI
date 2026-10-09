@@ -159,3 +159,10 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Obje platforme koriste galeriju svih sedam stvarnih likova s dva stupca i čitljivim natpisima; Android koristi `R.drawable.bopi0..6`, iOS `Bopi0..6`. Portantin ostaje dostupan odmah. Preskakanje pre-flight odabira nije dodano.
 - Potvrda virtualne kupnje je obvezna: novi zaključani lik ne smije smanjiti broj osvojenih kovanica na prvi dodir. Dijalog mora navesti točnu cijenu i omogućiti odustajanje. Već otključani likovi ne naplaćuju se ponovno; preostale kovanice i skin izbor spremaju se lokalno.
 - Python audit provjerava prisutnost ilustracija, odvojenu pristupačnost kartica, uvjetovano trošenje i obje galerije. Prije spajanja i objave obvezni su svi Android/iOS CI koraci, Android emulator smoke QA, iOS simulator/Swift/backup testovi i potvrda sva četiri stvarna artefakta. Nije potvrđena apsolutna pixel-perfect jednakost 1:1 na fizičkim uređajima.
+
+## v0.1.26 — Noa i Any
+- Provjeriti da se Noa i Any nalaze u izboru lika prije svakog leta te među svih devet kartica u Postavkama Androida i iOS-a.
+- Potvrditi svaki portret i odvojeno gibanje lijevog/desnog krila pri dodiru, uključujući smanjene animacije i mali ekran.
+- Otključati Nou za 220 te Any za 240 kovanica, odbiti potvrdu bez trošenja i ponovno izabrati otključani lik bez druge naplate.
+- Provjeriti da v3 i v5 JSON kopije ne gube postojeće likove, saldo ni spremljeni izbor te da v5 pohranjuje nove premium likove.
+- CI mora potvrditi svih devet nepraznih, međusobno različitih RGBA tijela 512×512 te osamnaest zasebnih krila i ispravne Android/iOS pakete.
