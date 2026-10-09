@@ -256,3 +256,27 @@ for distance in (0, 500, 50_000, 2_000_000):
     for i in range(9):
         x=((i*85+32-distance*0.31)%680+680)%680-60
         assert -60 <= x < 620
+
+# v0.1.13: pickups and shield impacts have matched deterministic visual feedback.
+# The original calm pulse rings remain for reduced-motion users.
+for source,signature in ((android_canvas,"private fun drawFeedbackSparkles("),
+                         (ios_canvas,"private func drawFeedbackSparkles(")):
+    assert source.count("drawFeedbackSparkles(") == 2
+    assert signature in source
+    effect=source.split(signature,1)[1].split("private ",1)[0]
+    assert "reducedMotion" in effect
+    assert "collectPulse" in effect and "impactPulse" in effect
+    assert "pickupHues" in effect and "game.level.world" in effect
+    assert "10" in effect and "12" in effect
+    assert "6.2831853" in effect
+    assert "BitmapFactory" not in effect and "UIImage(" not in effect
+    assert "24" in effect and "42" in effect and "33" in effect and "48" in effect
+assert "p.alpha=255" in android_canvas.split("private fun drawFeedbackSparkles(",1)[1].split("private fun drawBird(",1)[0]
+assert "c.setLineCap(.butt)" in ios_canvas.split("private func drawFeedbackSparkles(",1)[1].split("private func bird(",1)[0]
+# Opacity and radius must stay finite/non-negative throughout the event lifetime.
+for duration,base,travel in ((0.36,24,42),(0.65,33,48)):
+    for step in range(101):
+        remaining=duration*step/100
+        progress=max(0,min(1,1-remaining/duration))
+        assert base<=base+travel*progress<=base+travel
+        assert 0 <= (1-progress) <= 1
