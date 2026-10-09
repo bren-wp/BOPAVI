@@ -160,6 +160,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
         }
         drawWorldAtmosphere(canvas)
+        // Upcoming gates enter from the right BEFORE the previous level ends.
+        // Cache is produced by the simulation; no per-frame level generation.
+        for((i,g) in game.upcomingGates().withIndex()) {
+            val x=game.upcomingGateX(g)
+            if(x >= -100f && x<=550f)drawGate(canvas,g,x,i,true)
+        }
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
@@ -172,7 +178,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawHud(canvas)
             drawLevelProgress(canvas)
         }
-        if(game.levelTransition>0f){
+        if(false && game.levelTransition>0f){
             val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
             // Small nonblocking level ribbon; no pause or separate screen.
             val color=(alpha*215f).toInt().coerceIn(0,215) shl 24 or 0x103b76
@@ -358,7 +364,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+8f+offset,bottom+15f,x+21f+offset,bottom+20f,color,2f)
         rect(c,right,bottom+15f,right+13f,bottom+20f,color,2f)
     }
-    private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int){
+    private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
         val color=if(g.kind==0)0xffad8c71.toInt() else pillars[g.kind]
@@ -432,14 +438,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
                 val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
-        if(g.coin && game.coinVisible(index)) {
+        if(g.coin && (incoming || game.coinVisible(index))) {
             val pulse=if(reducedMotion)0f else sin(game.time*5f+g.phase)*2f
             oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,pickupHues[g.kind])
             oval(c,middle-11f,center-11f,middle+11f,center+11f,0x66ffffff)
             text(c,LevelEngine.collectibleIcons[g.kind],middle,center+7f,18f,Color.WHITE,true)
         }
-        if(g.star && game.starVisible(index)){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
-        if(g.power!=0 && game.powerVisible(index)){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
+        if(g.star && (incoming || game.starVisible(index))){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
+        if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
      * Deterministic Canvas particles are bounded and allocate no sprites each frame.
