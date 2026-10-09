@@ -6,7 +6,7 @@ final class GameCanvas: UIView {
     let reducedMotion: Bool
     let skinIndex: Int
     private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
-    private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
+    private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
     private let leftWing:UIImage?
@@ -236,6 +236,24 @@ final class GameCanvas: UIView {
         default:break
         }
     }
+    /// Subtle moving-gate warnings drawn within existing lip bounds.
+    /// Purely decorative; the BopaviCore collision opening remains unchanged.
+    /// Reduced motion keeps the hints visible but completely still.
+    private func drawMovingGateRimCues(_ c:CGContext,_ g:BopaviCore.Gate,
+                                         _ x:CGFloat,_ top:CGFloat,_ bottom:CGFloat) {
+        if g.movement<=0 {return}
+        let pulse:CGFloat = reducedMotion ? 0.5 :
+            (sin(CGFloat(game.time)*2.3+CGFloat(g.phase))+1)*0.5
+        let offset:CGFloat = reducedMotion ? 4.5 : pulse*9
+        let opacity:CGFloat = (70+125*pulse)/255
+        let hue=pickupHues[g.kind]
+        let right=x+CGFloat(g.width)-23-offset
+        // Lip rectangles are [top-28, top] and [bottom, bottom+27].
+        rect(c,x+8+offset,top-22,13,5,hue,2,opacity)
+        rect(c,right,top-22,13,5,hue,2,opacity)
+        rect(c,x+8+offset,bottom+15,13,5,hue,2,opacity)
+        rect(c,right,bottom+15,13,5,hue,2,opacity)
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -272,6 +290,7 @@ final class GameCanvas: UIView {
             rect(c,x+14,top-21,11,7,0xb2ecff,3)
         default:break
         }
+        drawMovingGateRimCues(c,g,x,top,bottom)
         // Same rock strata and biome-specific highlights as Android.
         let seam:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
                            0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]

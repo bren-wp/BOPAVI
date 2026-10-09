@@ -253,6 +253,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             7 -> {oval(c,324f,110f,453f,239f,0xffba79d9.toInt());oval(c,347f,122f,422f,168f,0x886cdfeb.toInt());fill(0x99f8e3ff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=7f;c.drawOval(303f,142f,473f,206f,p);p.style=Paint.Style.FILL;for(i in 0..11){val x=(i*103+31)%460f;val y=(i*173+61)%500f;oval(c,x,y,x+3f,y+3f,0xffffffff.toInt())}}
         }
     }
+    /** Moving obstacle warning glints stay strictly inside existing cap geometry.
+     * These are cosmetic: actual opening/collision values are never modified.
+     * Reduced motion preserves stationary cues instead of animated flashing.
+     */
+    private fun drawMovingGateRimCues(c:Canvas,g:LevelEngine.Gate,x:Float,top:Float,bottom:Float) {
+        if(g.movement<=0f) return
+        val pulse=if(reducedMotion)0.5f else (sin(game.time*2.3f+g.phase)+1f)*0.5f
+        val offset=if(reducedMotion)4.5f else pulse*9f
+        val alpha=(70f+125f*pulse).toInt().coerceIn(70,195)
+        val color=(alpha shl 24) or (pickupHues[g.kind] and 0x00ffffff)
+        val right=x+g.width-23f-offset
+        // Top lip occupies [top-28,top], bottom lip occupies [bottom,bottom+27].
+        rect(c,x+8f+offset,top-22f,x+21f+offset,top-17f,color,2f)
+        rect(c,right,top-22f,right+13f,top-17f,color,2f)
+        rect(c,x+8f+offset,bottom+15f,x+21f+offset,bottom+20f,color,2f)
+        rect(c,right,bottom+15f,right+13f,bottom+20f,color,2f)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -297,6 +314,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 rect(c,x+14f,top-21f,x+25f,top-14f,0xffb2ecff.toInt(),3f)
             }
         }
+        drawMovingGateRimCues(c,g,x,top,bottom)
         // Stone courses, mineral seams and edge lighting add biome-specific
         // depth without textures decoded or allocated inside the frame loop.
         val seam=when(g.kind){
