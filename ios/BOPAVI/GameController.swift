@@ -407,6 +407,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         counter.font=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
         counter.textColor = .white;counter.layer.cornerRadius=15;counter.clipsToBounds=true
         counter.adjustsFontSizeToFitWidth=true;counter.minimumScaleFactor=0.66
+        counter.isHidden=true
         counter.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(counter);hud=counter
         NSLayoutConstraint.activate([counter.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),counter.leadingAnchor.constraint(equalTo:view.leadingAnchor,constant:14),counter.trailingAnchor.constraint(lessThanOrEqualTo:view.trailingAnchor,constant:-91),counter.heightAnchor.constraint(equalToConstant:46)])
         gameCanvas.onHUDUpdate = { [weak counter] live in
@@ -420,9 +421,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // Keep pause out of the idle flight preview and VoiceOver tree.
         pause.isHidden=true
         pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
-        gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause] in
+        gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause,weak counter] in
             guard let self=self, self.canvas === gameCanvas else{return}
             pause?.isHidden=false
+            counter?.isHidden=false
         }
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
         pause.addAction(UIAction{[weak self,weak gameCanvas] _ in
