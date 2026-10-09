@@ -42,7 +42,7 @@ class ProgressStore(context: Context) {
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
     val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow", "portantin", "noa", "any")
     val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow", "Portantin", "Noa", "Any")
-    val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240
+    val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)
     fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
     fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
     fun selectOrBuy(index: Int): Boolean {
