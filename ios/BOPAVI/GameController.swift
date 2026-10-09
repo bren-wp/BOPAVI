@@ -216,10 +216,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
+        // Three primary home destinations: a dominant play CTA and two equal
+        // blue shortcuts. All other functions remain available through settings.
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
             self.startGame(world,self.progress.streamFrontier(world))
         }
+        let shortcuts=UIStackView()
+        shortcuts.axis = .horizontal
+        shortcuts.alignment = .fill
+        shortcuts.distribution = .fillEqually
+        shortcuts.spacing=12
+        stack.addArrangedSubview(shortcuts)
+        button("🌍  SVJETOVI",in:shortcuts,primary:false){self.showWorlds()}
+        button("⚙  POSTAVKE",in:shortcuts,primary:false){self.showSettings()}
     }
 
     private func showWorlds(){
@@ -487,7 +497,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
     }
     private func showSettings(){
-        let s=menu("POSTAVKE","Privatnost, animacije i sigurnosna kopija")
+        let s=menu("POSTAVKE","Sve opcije na jednom mjestu")
+        label("IZGLED I ZVUK",18,.white,s)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
         let l=UILabel();l.text="Smanji animacije (30 FPS)";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
@@ -509,6 +520,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.addArrangedSubview(hapticLabel);hapticRow.addArrangedSubview(haptic)
         s.addArrangedSubview(hapticRow)
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
+        label("IGRAČ I TEŽINA",18,.white,s)
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
         let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
         difficulty.selectedSegmentIndex=progress.difficulty
@@ -516,7 +528,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         difficulty.addAction(UIAction{_ in self.progress.difficulty=difficulty.selectedSegmentIndex},for:.valueChanged)
         s.addArrangedSubview(difficulty)
         label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
-        button("LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
         let player=UITextField()
         player.text=progress.playerName
         player.placeholder="Ime igrača (lokalno)"
@@ -530,6 +541,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.progress.playerName=player.text ?? ""
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
+        label("DODATNE OPCIJE",18,.white,s)
+        button("🐤  IZGLED BOPIJA",in:s,primary:false){self.showSkins()}
+        button("🛡  ŠTITOVI I OPREMA",in:s,primary:false){self.showPerks()}
+        button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
+        label("PODACI I PRIVATNOST",18,.white,s)
         label("BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.",14,.white,s)
         label("Bez oglasa, telemetrije, računa i mrežnih zahtjeva.",14,.white,s)
         button("IZVEZI NAPREDAK",in:s,primary:false){
@@ -545,7 +561,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
     func documentPicker(_ controller:UIDocumentPickerViewController,didPickDocumentsAt urls:[URL]) {
         guard let url=urls.first else{return}
