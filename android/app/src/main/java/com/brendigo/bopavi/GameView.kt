@@ -478,6 +478,28 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL
         p.strokeCap=Paint.Cap.BUTT
     }
+    /** A tap pushes a short, world-colored gust away from Bopi's wings.
+     * Uses the real flap event rather than a looping decorative timer.
+     * The burst is cosmetic and deliberately disabled for reduced motion.
+     */
+    private fun drawFlapWake(c:Canvas) {
+        if(reducedMotion || game.flapPulse<=0f) return
+        val strength=(game.flapPulse/.24f).coerceIn(0f,1f)
+        val progress=1f-strength
+        val hue=pickupHues[game.level.world] and 0x00ffffff
+        val radius=28f+27f*progress
+        fill(((105f*strength).toInt().coerceIn(0,105) shl 24) or hue)
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=2.5f
+        c.drawCircle(126f,game.y,radius,p)
+        p.style=Paint.Style.FILL
+        for(i in 0 until 7) {
+            val x=101f-i*9f-30f*progress
+            val y=game.y+(i%3-1)*19f+sin(game.time*13f+i*1.7f)*4f
+            fill(((190f*strength).toInt().coerceIn(0,190) shl 24) or hue)
+            c.drawCircle(x,y,2.4f+(i%3)*.7f,p)
+        }
+    }
     private fun drawBird(c:Canvas){
         if(game.collectPulse>0f){
             val portion=game.collectPulse/.36f
@@ -494,6 +516,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.style=Paint.Style.FILL;p.alpha=255
         }
         drawFeedbackSparkles(c)
+        drawFlapWake(c)
         // Flight ribbons keep the sprite visually connected to the wind and world.
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
@@ -519,11 +542,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         c.save();c.translate(126f,game.y)
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
-        val phase=if(reducedMotion)0f else sin(game.time*19f)
+        val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
+        val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
-            val flap=if(reducedMotion)0f else sin(game.time*19f)*23f
+            // Immediate upward wing response on touch, then a 240 ms return.
+            val flap=if(reducedMotion)0f else sin(game.time*19f)*23f+flapStrength*17f
             wingLeftBitmap?.let { wing ->
                 c.save();c.rotate(flap,-16f,5f)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
