@@ -5,7 +5,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** Fixed-coordinate game simulation; Android Canvas is presentation only. */
-class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = false, initialShield: Int = 0, initialMagnet: Float = 0f, initialOrdinal:Long = initialLevel.number.toLong()) {
+class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = false, initialShield: Int = 0, initialMagnet: Float = 0f, difficulty: Int = 1, initialOrdinal:Long = initialLevel.number.toLong()) {
+    val difficulty = difficulty.coerceIn(0,2)
+    private val speedFactor = when(this.difficulty) { 0 -> .9f; 2 -> 1.12f; else -> 1f }
+    private val gravityFactor = when(this.difficulty) { 0 -> .87f; 2 -> 1.12f; else -> 1f }
     var level = initialLevel
         private set
     var totalPassed = 0
@@ -52,9 +55,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if (!active || finished) return
         val dt = delta.coerceIn(0f, 0.034f)
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
-        velocity = min(365f, velocity + (685f + level.wind) * dt)
+        velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
-        distance += level.speed * dt
+        distance += level.speed * speedFactor * dt
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
         for (i in passed until level.gates.size) {
             val gate = level.gates[i]; val x = gateX(gate)
