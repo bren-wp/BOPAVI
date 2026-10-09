@@ -62,6 +62,7 @@ jobs:
         with:
           name: rendered-graphics
           path: |
+            android/app/src/main/res/drawable/app_icon.png
             android/app/src/main/res/drawable-nodpi/hero.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
@@ -112,10 +113,12 @@ jobs:
           if [ ! -x "$SDKM" ]; then SDKM="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"; fi
           test -x "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
-          "$SDKM" --install 'platforms;android-35' 'build-tools;35.0.0'
+          "$SDKM" --install 'platforms;android-36' 'platforms;android-35' 'build-tools;35.0.0'
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
         run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
+      - name: Verify Play API 36 and unsigned bundle structure
+        run: python tools/verify_play_release.py --aab android/app/build/outputs/bundle/release/app-release.aab
       - uses: actions/upload-artifact@v4
         with:
           name: BOPAVI-Android-APK
@@ -167,6 +170,30 @@ jobs:
             qa/screenshots/*.png
             qa/screenshots/*.xml
           if-no-files-found: warn
+  play-listing:
+    name: Package authentic Google Play preview assets
+    needs: [graphics, android-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: rendered-graphics
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: QA-Android-visual-flow
+          path: qa/screenshots
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pillow
+      - run: python tools/create_play_listing_assets.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Google-Play-listing
+          path: dist/BOPAVI-Google-Play-listing-v0.1.30.zip
+          if-no-files-found: error
   ios:
     name: iOS simulator + unsigned device build
     needs: [graphics]
@@ -218,9 +245,9 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.29
+    name: GitHub Release v0.1.30
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, android-smoke, ios]
+    needs: [graphics, source-audit, android, android-smoke, ios, play-listing]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -234,16 +261,17 @@ jobs:
         run: |
           test -s dist/app-debug.apk
           test -s dist/app-release.aab
+          test -s dist/BOPAVI-Google-Play-listing-v0.1.30.zip
           test -s dist/BOPAVI-iOS-Simulator.zip
           test -s dist/BOPAVI-iOS-unsigned-device.zip
       - name: Publish first GitHub release after passing builds
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.29 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.29 exists: no duplicate release.'
+          if gh release view v0.1.30 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.30 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.29 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.29 — Siguran napredak i pouzdana pauza' --prerelease \
-            --notes 'v0.1.29: iOS sada validira sve stream levele prije bilo kakvog upisa u lokalno spremljeni napredak, pa neispravna kopija ne mijenja kovanice, otključavanja niti marker preuzetih nagrada. Android i iOS prikazuju ukupan broj prolaza kroz cijeli neprekinuti let. Android tipka Natrag otvara pauzu umjesto prekidanja aktivnog leta, a prije prvog zamaha vraća izbor lika. CI obuhvaća sigurnost, grafiku, Android lint/JVM/APK/AAB/emulator, iOS simulator i Swift testove te nepotpisani device build. Fizika, kolizije, format podataka i likovi ostaju isti. Priloženi paketi nisu potpisani za trgovine.'
+          gh release create v0.1.30 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.30 — Google Play API 36 i sigurniji Android' --prerelease \
+            --notes 'v0.1.30: Android 16 (API 36) target, podrška prediktivnoj gesti Natrag i usklađen prikaz leta/pauze, sigurni opcionalni upload-key signing za Google Play. Razvojni AAB u ovom GitHub izdanju namjerno je NEPOTPISAN i ne može se izravno prenijeti u Play Console. Uključeni su stvarni Android emulator screenshotovi, 512px ikona, 1024x500 grafika i dokumentacija. Za potpisani AAB aktivirati zaseban ručni Google Play workflow nakon konfiguracije GitHub Environment tajni i provjere računa. CI pokriva lint, Kotlin/Swift testove, Android emulator, iOS simulator, privatnost, APK/AAB i iOS build. Ne tvrdi se potvrđena objava u trgovini.'
