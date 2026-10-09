@@ -87,7 +87,10 @@ class ProgressStore(context: Context) {
         prefs.edit().putInt("coins",coins()-perkPrices[index]).putInt("perk_$index",perkCount(index)+1).apply()
         return true
     }
-    /** Bought perks are consumed once per new flight, including retry. */
+    /** Inspect boosts without spending them while the bird is still idle. */
+    fun previewPerks():Pair<Int,Float> = Pair(if(perkCount(0)>0)1 else 0,
+        if(perkCount(1)>0)8f else 0f)
+    /** Bought perks are consumed once on the first flap, including retry. */
     fun consumePerks():Pair<Int,Float> {
         val shield=perkCount(0); val magnet=perkCount(1)
         prefs.edit().putInt("perk_0",maxOf(0,shield-1)).putInt("perk_1",maxOf(0,magnet-1)).apply()

@@ -68,7 +68,7 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 1. Na početnom ekranu odaberi **IGRAJ** ili najprije pogledaj **SVJETOVI**.
 2. **Izaberi lika** i potvrdi **POLETI S...**; promjena lika ne troši kovanice ako je već dostupan.
 3. **Dodirni ekran** da Bopi ili Portantin zamahne krilima. Izbjegavaj prepreke i skupljaj predmete.
-4. Pauza i HUD pojavljuju se **tek nakon prvog stvarnog zamaha**. Svaki dovršeni level vodi u sljedeći bez prekida.
+4. Pauza i HUD pojavljuju se **tek nakon prvog stvarnog zamaha**. Kupljeni štit i magnet troše se tek tim zamahom, ne otvaranjem pregleda leta. Svaki dovršeni level vodi u sljedeći bez prekida.
 5. Napredak, lokalna ljestvica, postignuća i sigurnosna kopija dostupni su kroz **POSTAVKE**.
 
 **Normalni ●**, **izazovni ⚡**, **bonus ✦** i **elitni ♛** leveli različite su vrste postojećeg proceduralnog generatora. Osvojene virtualne kovanice služe samo za otključavanje boja i dodataka poput štita ili magneta.

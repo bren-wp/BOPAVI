@@ -40,10 +40,18 @@ struct SwiftSaves {
         precondition(store.completeLevel(world:0,number:5,score:200)==0)
         precondition(store.streamFrontier(0)==6 && store.coins()==120)
         precondition(store.buyPerk(0) && store.coins()==40 && store.perkCount(0)==1)
+        let idle=store.previewPerks()
+        precondition(idle.shield==1 && idle.magnet==0 && store.perkCount(0)==1,
+                     "Idle flight preview must not consume equipment")
+        precondition(store.previewPerks().shield==1 && store.perkCount(0)==1)
         let used=store.consumePerks()
         precondition(used.shield==1 && store.perkCount(0)==0)
         let again=store.consumePerks()
         precondition(again.shield==0)
+        UserDefaults.standard.set(1,forKey:"perk_1")
+        precondition(store.previewPerks().magnet==8 && store.perkCount(1)==1)
+        precondition(store.consumePerks().magnet==8 && store.perkCount(1)==0)
+        precondition(store.previewPerks().magnet==0)
         store.hapticEnabled=false
         let roundtrip=try store.exportData()
         try store.importData(roundtrip)

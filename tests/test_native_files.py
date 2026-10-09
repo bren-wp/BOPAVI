@@ -681,3 +681,26 @@ for asset in ('Bopi','BopiLeft','BopiRight'):
     assert f'{asset}\\(selectedSkin)' in swift_loader,asset
 assert 'min(6,max(0,skinIndex))' not in swift_loader
 print('PASS: nine pilot bodies and both matching animated wings on Android/iOS')
+
+# v0.1.28: selected Noa/Any must resolve inside a full nine-image Android picker.
+android_preview=android_picker.split('val portraits=intArrayOf(',1)[1].split(')',1)[0]
+assert android_preview.count('R.drawable.bopi') == 9, 'Android premium pilot preview missing'
+for index in range(9):
+    assert f'R.drawable.bopi{index}' in android_preview
+assert 'setImageResource(portraits[idx])' in android_picker
+# Boosts are spent only on the first flap, not when viewing the idle game.
+android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
+ios_start=ios_menu.split('private func startGame(',1)[1].split('private func showToast(',1)[0]
+for source in (android_start,ios_start):
+    assert 'progress.previewPerks()' in source
+    assert 'progress.consumePerks()' in source.split('onFlightStarted',1)[1]
+    assert 'val boosts=progress.consumePerks()' not in source
+    assert 'let boosts=progress.consumePerks()' not in source
+for source in (android_save,ios_save):
+    assert 'previewPerks()' in source and 'consumePerks()' in source
+assert 'if(gameView?.game?.active == true) gameView?.paused = true' in android_menu
+assert 'if activeCanvas.game.active {activeCanvas.paused=true}' in ios_menu
+assert 'resumeIdlePreview' in ios_menu
+assert 'backgroundPause' not in ios_menu
+assert 'store.previewPerks().magnet==8' in swift_saves
+print('PASS: nine pilot previews, first-flap boost accounting, interruption-safe idle previews')

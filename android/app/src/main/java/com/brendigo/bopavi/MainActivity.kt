@@ -63,9 +63,14 @@ class MainActivity : Activity() {
         }
     }
     override fun onPause() {
-        gameView?.paused = true
+        // An idle preview has no visible pause button; only pause active flights.
+        if(gameView?.game?.active == true) gameView?.paused = true
         sound.pause()
         super.onPause()
+    }
+    override fun onResume() {
+        super.onResume()
+        if(gameView?.game?.active == false && gameView?.paused == false) sound.resume()
     }
     override fun onDestroy() {
         gameView?.paused = true
@@ -378,13 +383,13 @@ class MainActivity : Activity() {
                 row.addView(View(this),LinearLayout.LayoutParams(0,d(155),1f))
         }
     }
-    /** Mandatory pre-flight character choice; boosts are consumed only at launch. */
+    /** Mandatory pre-flight character choice; boosts are consumed only on the first flap. */
     private fun showPilotPicker(world:Int,number:Long) {
         currentWorld=world;currentLevel=number
         val b=base("ODABERI LIKA","Svaki let započinje tvojim izborom letača")
         val idx=progress.skin()
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
-            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
         val portrait=ImageView(this).apply {
             setImageResource(portraits[idx])
             scaleType=ImageView.ScaleType.FIT_CENTER
@@ -415,7 +420,7 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
-        val boosts=progress.consumePerks()
+        val boosts=progress.previewPerks()
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
@@ -431,8 +436,11 @@ class MainActivity : Activity() {
             },
             onFlap={sound.effect("tap")},
             onFlightStarted={
-                if(selectedScreen=="game" && gameView?.game === simulation)
+                if(selectedScreen=="game" && gameView?.game === simulation) {
+                    // Charge exactly once when the player actually starts flying.
+                    progress.consumePerks()
                     pauseButton?.visibility=View.VISIBLE
+                }
             },
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")})

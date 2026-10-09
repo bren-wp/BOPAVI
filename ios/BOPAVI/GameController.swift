@@ -62,6 +62,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self,selector:#selector(pauseForInterruption(_:)),
             name:UIApplication.willResignActiveNotification,object:nil)
+        NotificationCenter.default.addObserver(self,selector:#selector(resumeIdlePreview(_:)),
+            name:UIApplication.didBecomeActiveNotification,object:nil)
         sound.enabled=progress.soundEnabled
         showHome()
     }
@@ -70,8 +72,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // Keep an active flight exactly where the user left it on call, lock or app switch.
         // Never auto-resume physics or audio in the background.
         guard let activeCanvas=canvas else {return}
-        activeCanvas.paused=true
+        if activeCanvas.game.active {activeCanvas.paused=true}
         sound.pause()
+    }
+    @objc private func resumeIdlePreview(_ note:Notification) {
+        // Idle preview has no pause button; restore its soundtrack on return.
+        if let activeCanvas=canvas, !activeCanvas.game.active && !activeCanvas.paused {
+            sound.resume()
+        }
     }
     private func clear() {
         canvas?.stop();canvas=nil;hud=nil;sound.stop()
@@ -488,7 +496,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
-        let boosts=progress.consumePerks()
+        let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex())
@@ -538,6 +546,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
         gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause,weak counter] in
             guard let self=self, self.canvas === gameCanvas else{return}
+            // The pre-flight preview never spends purchased equipment.
+            _ = self.progress.consumePerks()
             pause?.isHidden=false
             counter?.isHidden=false
         }
@@ -564,10 +574,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             dialog.popoverPresentationController?.sourceRect=pause.bounds
             self.present(dialog,animated:true)
         },for:.touchUpInside)
-        NotificationCenter.default.removeObserver(self,name:UIApplication.willResignActiveNotification,object:nil)
-        NotificationCenter.default.addObserver(self,selector:#selector(backgroundPause),name:UIApplication.willResignActiveNotification,object:nil)
     }
-    @objc private func backgroundPause(){canvas?.paused=true;sound.pause()}
     private func showToast(_ message:String){
         guard view.window != nil else{return}
         let notice=UILabel();notice.text=message;notice.textAlignment = .center;notice.textColor = .white
