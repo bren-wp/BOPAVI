@@ -1,3 +1,11 @@
+## v0.1.20 — Bopi reagira na dodir, življi zamasi krila
+- Android Canvas i iOS Core Graphics sada povezuju zamah Bopijevih odvojenih krila sa stvarnim ulazom igrača. Svaki dodir kratko podiže krila do dodatnih 17° i postupno vraća pokret u osnovnu petlju, bez istezanja ilustracije tijela.
+- Novi 240 ms vizualni impuls generira lagani obojeni val i čestice leta usklađene s temom trenutnog svijeta. Novi dodir obnavlja impuls umjesto da čeka završetak prethodnog.
+- Prilikom uključivanja smanjenih animacija dinamički zamah i čestice su isključeni. Čestice se crtaju proceduralno, bez novih bitmapa, slika ili mrežnih zahtjeva tijekom animacije.
+- Kotlin JUnit, zasebni Kotlin/Swift parity testovi i source audit provjeravaju trajanje, ponavljanje, ignoriranje nevaljanog delta vremena te prisutnost smanjenih animacija na obje platforme.
+- Android versionCode 21 / 0.1.20 i iOS build 21 / 0.1.20. Fizika leta, sudari, bodovanje, pohrana napretka i sigurnosne kopije nisu mijenjani. Svih osam svjetova ostaje odmah dostupno.
+- CI i stvarne snimke zaslona potvrđuju samo ono što su odradili; vizualna identičnost 1:1 s referentnim kompozitima još nije potvrđena.
+
 ## v0.1.19 — živi lebdeći otoci i usklađeno osvjetljenje (Android + iOS)
 - U svih osam svjetova renderiraju se tri nova dubinska sloja lebdećih otoka s tematskim bojama, prozirnošću i brzinama pomaka. Android Canvas i iOS Core Graphics crtaju ih iznad ilustrirane pozadine i iza prepreka i Bopija — nisu statični screenshotovi.
 - Deterministički izračun dubinskog pomaka (0,07 / 0,15 / 0,24 udaljenosti) ponavlja se nakon 696 virtualnih jedinica. Smanjene animacije zamrzavaju okoliš, a neispravna udaljenost vraća pomak na nulu.
