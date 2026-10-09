@@ -167,6 +167,7 @@ final class GameCanvas: UIView {
                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
             lastProgressTotal=total
+            if game.active {accessibilityLabel="Bopi leti. Prolazi \(passed) od \(total)"}
         }
         rect(c,180,160,286,47,0x18305d,16,0.85)
         progressLabel.draw(at:CGPoint(x:193,y:163))
