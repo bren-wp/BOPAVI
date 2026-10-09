@@ -107,6 +107,15 @@ enum ParallaxScenery {
     }
 }
 
+/// The displayed record must be compared BEFORE a run is stored locally.
+enum ResultHeadline {
+    static func label(score:Int,previousBest:Int,won:Bool)->String {
+        if won { return "LEVEL DOVRŠEN!" }
+        if score > 0 && score > previousBest { return "NOVI REKORD!" }
+        return "LET ZAVRŠEN!"
+    }
+}
+
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
