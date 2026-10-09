@@ -147,6 +147,14 @@ class LevelEngineTest {
         assertEquals(2,GameSimulation(level,difficulty=42).difficulty)
     }
 
+    @Test fun marathonScoreIsCappedWithoutIntegerOverflow() {
+        val game=GameSimulation(LevelEngine.create(0,1))
+        val field=GameSimulation::class.java.getDeclaredField("totalPassed")
+        field.isAccessible=true
+        field.setInt(game,Int.MAX_VALUE)
+        assertEquals("Marathon score must remain valid for local leaderboard",100_000_000,game.score())
+    }
+
     @Test fun boundaryValuesCannotGenerateInvalidLevels() {
         for(world in 0..7) {
             assertEquals(1,LevelEngine.create(world,1).number)
