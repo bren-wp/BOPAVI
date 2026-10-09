@@ -144,7 +144,7 @@ class LevelEngineTest {
         assertTrue(easy.y < normal.y && normal.y < hard.y)
         assertEquals(level.gates.size,easy.level.gates.size)
         assertEquals(level.gates.size,hard.level.gates.size)
-        assertEquals(2,GameSimulation(level,difficulty=42).difficulty
+        assertEquals(2,GameSimulation(level,difficulty=42).difficulty)
     }
 
     @Test fun boundaryValuesCannotGenerateInvalidLevels() {
