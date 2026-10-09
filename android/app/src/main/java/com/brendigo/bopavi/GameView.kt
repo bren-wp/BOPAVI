@@ -55,7 +55,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val glowY=floatArrayOf(180f,132f,154f,180f,146f,169f,181f,170f)
     private val glowShaders=Array(8) { world ->
         RadialGradient(glowX[world],glowY[world],185f,
-            intArrayOf(0x47000000 or glowHues[world],glowHues[world]),
+            // Match the translucent-center-to-transparent-edge iOS glow.
+            intArrayOf(0x47000000 or (glowHues[world] and 0x00ffffff),
+                glowHues[world] and 0x00ffffff),
             floatArrayOf(0f,1f),Shader.TileMode.CLAMP)
     }
 
@@ -146,6 +148,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawBitmap(worldBitmap,null,worldRect,p)
         } else drawBackground(canvas)
         drawWorldLighting(canvas)
+        drawParallaxIslands(canvas)
         // Light atmospheric layer moves independently of the static painted backdrop.
         // Reuses one Paint and generates no bitmaps or sprite allocations per frame.
         val drift=if(reducedMotion)0f else (game.distance*.075f)%580f
@@ -204,6 +207,46 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.alpha=255
         c.drawCircle(glowX[world],glowY[world],185f,p)
         p.shader=null
+    }
+    // Three animated depths sit over the painted environment, behind every gate.
+    // Geometry is illustrative only: it cannot change physics or hitboxes.
+    // All values are computed from distance; no sprite, Path or shader allocations.
+    private val islandTopHues = intArrayOf(0xff83e575.toInt(),0xffffd98a.toInt(),
+        0xffc3f3ff.toInt(),0xffffac58.toInt(),0xffffe7ae.toInt(),
+        0xffaa95e6.toInt(),0xff71edda.toInt(),0xffbcb4ff.toInt())
+    private val islandRockHues = intArrayOf(0xff9e7e70.toInt(),0xffb88a69.toInt(),
+        0xff83b9d4.toInt(),0xff914455.toInt(),0xffb39b88.toInt(),
+        0xff51417f.toInt(),0xff4578a9.toInt(),0xff55538f.toInt())
+    private fun drawParallaxIslands(c:Canvas) {
+        val world = game.level.world
+        for(layer in 0..2) {
+            val drift=ParallaxScenery.offset(game.distance,layer,reducedMotion)
+            val width=83f-layer*9f
+            val height=38f+layer*13f
+            val alpha=if(layer==0)78 else if(layer==1)105 else 132
+            val rock=(alpha shl 24) or (islandRockHues[world] and 0x00ffffff)
+            val top=(alpha shl 24) or (islandTopHues[world] and 0x00ffffff)
+            val gleam=(min(145,alpha+24) shl 24) or 0x00ffffff
+            for(i in 0..8) {
+                val x=i*174f+layer*53f-drift-118f
+                if(x < -110f || x > 530f) continue
+                val y=416f+layer*92f+(i%2)*26f
+                path.reset()
+                path.moveTo(x+6f,y+5f)
+                path.lineTo(x+width-6f,y+5f)
+                path.lineTo(x+width*.70f,y+height)
+                path.lineTo(x+width*.42f,y+height+11f)
+                path.lineTo(x+width*.18f,y+height*.75f)
+                path.close()
+                fill(rock);c.drawPath(path,p)
+                oval(c,x-5f,y-11f,x+width+5f,y+11f,top)
+                rect(c,x+13f,y-9f,x+width-13f,y-5f,gleam,2f)
+                if(world==0 || world==4) {
+                    rect(c,x+width*.52f,y+15f,x+width*.55f,y+height+8f,
+                        (min(120,alpha) shl 24) or 0x00b9f4ff,2f)
+                }
+            }
+        }
     }
     private fun drawWorldAtmosphere(c:Canvas) {
         val world=game.level.world
