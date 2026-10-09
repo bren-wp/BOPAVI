@@ -17,7 +17,9 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 
 ## ✨ Odaberi svog letača
 
-**Prije svakog leta** odaberi lik na zasebnom ekranu, pogledaj njegov izgled i potvrdi gumbom **POLETI S...**. Odabrani izgled ostaje spremljen. Postojeće boje kupljene kovanicama ne gube se prilikom ažuriranja.
+**Prije svakog leta** odaberi lik na zasebnom ekranu s pravim ilustriranim karticama svih sedam letača. I Bopi i Portantin imaju vlastiti prepoznatljiv izgled; izbor potvrđuješ gumbom **POLETI S...**. Odabrani izgled ostaje spremljen. Postojeće boje kupljene kovanicama ne gube se prilikom ažuriranja.
+
+**Pošteno otključavanje:** ako želiš novog lika koji se otključava virtualnim kovanicama, prije trošenja dobivaš poseban dijalog s točnom cijenom. Možeš odustati bez promjene salda. Već otključani likovi i Portantin mogu se birati bez naknade.
 
 <figure>
   <img src="docs/assets/portantin.svg" alt="Portantin: krilati čovječuljak sa zaštitnim naočalama, kirurškom maskicom i rukavicama nosi drugog čovječuljka na leđima" width="260">
@@ -50,7 +52,7 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 | 💎 **Kristalna šuma** | Kristali | Svjetleći kristali |
 | 🪐 **Svemirski let** | Zvjezdani prah | Planeti i zvjezdano nebo |
 
-**Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar; Bopi ili Portantin ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
+**Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar uz **isti stvarni razmak prepreka tekuće zone**, čak i kad se težina mijenja; Bopi ili Portantin ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
 
 ## 🎮 Kako igrati
 
