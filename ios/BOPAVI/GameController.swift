@@ -281,7 +281,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onFlap = { [weak self] in self?.sound.effect("tap") }
         gameCanvas.onCollect = { [weak self] in
             self?.sound.effect("collect")
-            self?.collectHaptic.selectionChanged()
+            if self?.progress.hapticEnabled == true {self?.collectHaptic.selectionChanged()}
         }
         gameCanvas.onLevelComplete = { [weak self] level in
             guard let self=self else{return}
@@ -480,6 +480,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
+        let haptic=UISwitch();haptic.isOn=progress.hapticEnabled
+        let hapticRow=UIStackView();hapticRow.axis = .horizontal;hapticRow.spacing=12
+        let hapticLabel=UILabel();hapticLabel.text="Vibracije pri igranju"
+        hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
+        hapticLabel.textColor = .white;hapticLabel.numberOfLines=0
+        hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+        hapticRow.addArrangedSubview(hapticLabel);hapticRow.addArrangedSubview(haptic)
+        s.addArrangedSubview(hapticRow)
+        haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
         let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
         difficulty.selectedSegmentIndex=progress.difficulty
