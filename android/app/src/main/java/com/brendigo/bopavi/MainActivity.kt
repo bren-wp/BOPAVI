@@ -289,7 +289,7 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
         val boosts=progress.consumePerks()
-        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,number)
+        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),
@@ -389,6 +389,7 @@ class MainActivity : Activity() {
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
         action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
+        action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
         action(panel,"OPREMA ZA KOVANICE",false){showPerks()}
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
         action(panel,"POČETNI EKRAN",false){showHome()}
@@ -421,11 +422,23 @@ class MainActivity : Activity() {
         }
         back(b){showWorlds()}
     }
+    private fun showLeaderboard(){
+        val b=base("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
+        val entries=progress.leaderboard()
+        if(entries.isEmpty()) small(b,"Još nema rezultata. Odigraj let i osvoji bodove!")
+        for((index,item) in entries.withIndex()){
+            small(b,"${index+1}. ${item.name} · ${item.score} bodova")
+            small(b,"${LevelEngine.names[item.world]} · ${progress.difficultyNames[item.difficulty]} · ${item.gates} prolaza")
+        }
+        action(b,"POSTIGNUĆA",false){showAchievements()}
+        back(b){showWorlds()}
+    }
     private fun showAchievements(){
         val b=base("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
         small(b,"Dovršeni leveli: ${((0..7).sumOf { (progress.frontier(it)-1).toLong() })}")
         small(b,"Pobjede: ${progress.wins()}  ·  Pokušaji bez pobjede: ${progress.deaths()}")
-        small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[progress.maxWorld()]}")
+        val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
+        small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[furthest]}")
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
         back(b){showWorlds()}
     }
@@ -435,6 +448,23 @@ class MainActivity : Activity() {
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         b.addView(audio)
+        small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
+        val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
+        for(mode in 0..2) {
+            val item=android.widget.RadioButton(this).apply {
+                text=progress.difficultyNames[mode]
+                setTextColor(Color.WHITE)
+                textSize=17f
+                id=View.generateViewId()
+                isChecked=progress.difficulty()==mode
+                setOnClickListener { progress.setDifficulty(mode) }
+            }
+            modes.addView(item,LinearLayout.LayoutParams(-1,d(48)))
+        }
+        b.addView(modes,LinearLayout.LayoutParams(-1,-2))
+        small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
+        action(b,"LOKALNA LJESTVICA",false){showLeaderboard()}
+
         val player=EditText(this).apply {
             hint="Ime igrača (lokalno)"
             setSingleLine(true)
