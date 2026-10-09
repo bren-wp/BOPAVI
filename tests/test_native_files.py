@@ -308,3 +308,36 @@ for width in (64,70,80):
         offset=step*0.09
         strips=((8+offset,21+offset),(width-23-offset,width-10-offset))
         assert all(0 <= start < end <= width for start,end in strips)
+
+# v0.1.15: blend static illustrations and live renderers with the same cached
+# eight-world radial illumination. Static light remains calm in reduced-motion mode.
+import re as _light_re
+def _world_lighting_values(source, marker, opener, closer, parser):
+    area=source.split(marker,1)[1].split(closer,1)[0]
+    matched=_light_re.search(opener,area)
+    assert matched is not None, marker
+    return [parser(token.strip()) for token in matched.group(1).split(",")]
+for array_name in ("glowHues","glowX","glowY"):
+    a=_world_lighting_values(
+        android_canvas, "private val "+array_name+"=", r'\(([^)]*)\)',
+        "\n",lambda token:int(token,16) if array_name=="glowHues" else float(token[:-1]))
+    b=_world_lighting_values(
+        ios_canvas, "private let "+array_name+":", r'=\[([^]]*)\]',
+        "\n",lambda token:float(token) if array_name!="glowHues" else int(token,16))
+    assert len(a)==len(b)==8 and a==b, (array_name,a,b)
+for source in (android_canvas,ios_canvas):
+    assert source.count("drawWorldLighting(")==2
+    assert "185" in source
+    assert "drawWorldAtmosphere" in source
+android_light=android_canvas.split("private fun drawWorldLighting(",1)[1].split("private fun drawWorldAtmosphere(",1)[0]
+ios_light=ios_canvas.split("private func drawWorldLighting(",1)[1].split("private func drawWorldAtmosphere(",1)[0]
+assert "glowShaders[world]" in android_light and "p.shader=null" in android_light
+assert "RadialGradient(" in android_canvas and "private val glowShaders=Array(8)" in android_canvas
+assert "CGGradient(" in ios_canvas and "private lazy var glowGradients" in ios_canvas
+assert "drawRadialGradient(" in ios_light
+for light in (android_light,ios_light):
+    assert "BitmapFactory" not in light and "UIImage(" not in light
+    assert "new " not in light
+# Ensure static glow is not linked to animation time or camera distance.
+for light in (android_light,ios_light):
+    assert "game.time" not in light and "game.distance" not in light

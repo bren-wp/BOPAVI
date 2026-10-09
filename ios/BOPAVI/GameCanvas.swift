@@ -6,6 +6,21 @@ final class GameCanvas: UIView {
     let reducedMotion: Bool
     let skinIndex: Int
     private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
+    // Same 8 biome colors, centers and 185pt radius as Android.
+    // Cached gradients avoid allocating colors or shader arrays every frame.
+    private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
+    private let glowX:[CGFloat]=[350,390,395,360,380,396,370,365]
+    private let glowY:[CGFloat]=[180,132,154,180,146,169,181,170]
+    private lazy var glowGradients:[CGGradient?] = {
+        let space=CGColorSpaceCreateDeviceRGB()
+        return glowHues.map { hue in
+            CGGradient(colorsSpace:space,
+                colors:[UIColor(rgb:hue).withAlphaComponent(0.278).cgColor,
+                        UIColor(rgb:hue).withAlphaComponent(0).cgColor] as CFArray,
+                locations:[0,1])
+        }
+    }()
+
     private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
@@ -90,6 +105,7 @@ final class GameCanvas: UIView {
         } else {
             background(c)
         }
+        drawWorldLighting(c)
         // Shared lightweight atmospheric depth, rendered above the fixed landscape.
         let drift:CGFloat = reducedMotion ? 0 : (CGFloat(game.distance)*0.075).truncatingRemainder(dividingBy:580)
         let mist:UInt32 = (game.level.world == 5 || game.level.world == 7) ? 0x8cbbff : 0xffffff
@@ -152,6 +168,15 @@ final class GameCanvas: UIView {
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
     /// Reduced motion freezes offsets and sway without hiding environmental detail.
+    /// Biome glow unifies illustrated backgrounds and dynamic geometry.
+    /// A cached CGGradient is reused on every frame, including reduced-motion mode.
+    private func drawWorldLighting(_ c:CGContext) {
+        let world=game.level.world
+        guard let gradient=glowGradients[world] else{return}
+        let center=CGPoint(x:glowX[world],y:glowY[world])
+        c.drawRadialGradient(gradient,startCenter:center,startRadius:0,
+                             endCenter:center,endRadius:185,options:[])
+    }
     private func drawWorldAtmosphere(_ c:CGContext) {
         let world=game.level.world
         let distance:CGFloat=reducedMotion ? 0 : CGFloat(game.distance)
