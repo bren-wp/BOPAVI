@@ -327,6 +327,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.startGame(world,n)
         }
         let start=((max(1,min(page,BopaviCore.levelsPerWorld))-1)/20)*20+1
+        let zone=BopaviCore.create(world,start).zone
+        label("ZONA \(zone) · LEVELI \(start)–\(min(start+19,BopaviCore.levelsPerWorld))",16,.white,s)
+        label("● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI",13,.white,s)
         for rowNumber in 0..<5 {
             let row=UIStackView();row.axis = .horizontal;row.spacing=6
             row.distribution = .fillEqually
@@ -334,13 +337,26 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 let n=start+rowNumber*4+column
                 if n>BopaviCore.levelsPerWorld {break}
                 let unlocked=n<=maxNumber
+                // Derive the badge from the actual existing procedural level.
+                let kind=BopaviCore.create(world,n).type
                 let cell=BopaviActionButton(primary:false)
-                cell.setTitle("\(unlocked ? (n<maxNumber ? "★" : "▶") : "🔒")\n\(n)",for:.normal)
+                cell.setTitle("\(unlocked ? LevelKind.icon(kind) : "🔒")\n\(n)",for:.normal)
                 cell.alpha=unlocked ? 1 : 0.60
                 cell.titleLabel?.numberOfLines=2
                 cell.titleLabel?.textAlignment = .center
                 cell.titleLabel?.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.bold)
-                cell.accessibilityLabel="Level \(n)"
+                let accent:UIColor
+                switch kind {
+                case 1: accent=UIColor(red:1,green:0.67,blue:0.33,alpha:1)
+                case 2: accent=UIColor(red:1,green:0.87,blue:0.34,alpha:1)
+                case 3: accent=UIColor(red:0.81,green:0.63,blue:1,alpha:1)
+                default: accent=UIColor(red:0.55,green:0.84,blue:1,alpha:1)
+                }
+                cell.layer.borderColor=(unlocked ? accent : UIColor.white.withAlphaComponent(0.18)).cgColor
+                cell.layer.borderWidth=unlocked && n==maxNumber ? 3 : 1
+                let status = !unlocked ? "zaključan" : (n<maxNumber ? "dovršen" : "otključan")
+                cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(status)"
+                cell.accessibilityHint=unlocked ? "Pokreni level" : "Prvo dovrši prethodni level"
                 cell.heightAnchor.constraint(equalToConstant:63).isActive=true
                 cell.addAction(UIAction{_ in
                     self.sound.effect("click")
@@ -402,7 +418,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pause.addAction(UIAction{[weak self,weak gameCanvas] _ in
             guard let self=self,let canvas=gameCanvas else{return}
             canvas.paused=true;self.sound.pause()
-            let dialog=UIAlertController(title:"Pauza",message:nil,preferredStyle:.actionSheet)
+            let dialog=UIAlertController(title:"Pauza · Level \(canvas.game.displayLevel)",message:nil,preferredStyle:.actionSheet)
             dialog.addAction(UIAlertAction(title:"Nastavi let",style:.default){_ in canvas.paused=false;self.sound.resume()})
             dialog.addAction(UIAlertAction(title:self.progress.soundEnabled ? "🔇 Isključi zvuk" : "🔊 Uključi zvuk",style:.default){_ in
                 let enabled = !self.progress.soundEnabled
