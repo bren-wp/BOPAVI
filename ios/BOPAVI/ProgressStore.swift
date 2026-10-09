@@ -84,6 +84,9 @@ final class ProgressStore {
         defaults.set(perkCount(index)+1,forKey:"perk_\(index)")
         return true
     }
+    func previewPerks()->(shield:Int,magnet:Float) {
+        return (perkCount(0)>0 ? 1 : 0,perkCount(1)>0 ? 8 : 0)
+    }
     func consumePerks()->(shield:Int,magnet:Float) {
         let a=perkCount(0),b=perkCount(1)
         defaults.set(max(0,a-1),forKey:"perk_0")
