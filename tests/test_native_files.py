@@ -735,3 +735,33 @@ assert "raise SystemExit(f'FAIL: character gallery remained non-scrollable" in g
 assert "candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']" in gallery_qa
 assert 'required={\'Portantin\',\'Noa\',\'Any\'}' in android_qa
 print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
+
+# v0.1.30 Google Play readiness: actual API level and signing workflow gates.
+assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
+assert "versionCode = 31" in gradle and 'versionName = "0.1.30"' in gradle
+assert 'applicationId = "com.brendigo.bopavi"' in gradle
+assert 'android:appCategory="game"' in manifest
+assert 'android:enableOnBackInvokedCallback="true"' in manifest
+assert "OnBackInvokedDispatcher.PRIORITY_DEFAULT" in android
+assert "registerOnBackInvokedCallback" in android and "unregisterOnBackInvokedCallback" in android
+assert "private fun navigateBack()" in android and "override fun onBackPressed() = navigateBack()" in android
+assert "BOPAVI_UPLOAD_KEYSTORE_PATH" in gradle
+assert "System.getenv(\"BOPAVI_UPLOAD_STORE_PASSWORD\")" in gradle
+assert "Signing environment" not in gradle  # No checked-in secret values.
+play_workflow=(root/'.github/workflows/google-play-upload.yml').read_text()
+assert "workflow_dispatch:" in play_workflow and "environment: google-play" in play_workflow
+assert "BOPAVI_UPLOAD_KEYSTORE_B64" in play_workflow
+assert "BOPAVI_UPLOAD_STORE_PASSWORD" in play_workflow
+assert "BOPAVI_UPLOAD_KEY_ALIAS" in play_workflow
+assert "BOPAVI_UPLOAD_KEY_PASSWORD" in play_workflow
+assert "jarsigner" in (root/'tools/verify_play_release.py').read_text()
+assert "BOPAVI-Google-Play-listing-v0.1.30.zip" in workflow
+for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
+             "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
+             "play/RELEASE-CHECKLIST.md"):
+    assert (root/'docs'/name).is_file(), name
+artwork=(root/'tools/create_play_listing_assets.py').read_text()
+for source in ("android-home.png","android-pilot-picker.png","android-gameplay-ready.png","android-result.png"):
+    assert source in artwork and "qa/screenshots" in artwork
+assert "ImageOps.fit" in artwork and "1080x1920" in artwork
+print("PASS: Play API36, real screenshots, signing isolation and publishing docs")

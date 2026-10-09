@@ -194,6 +194,39 @@ jobs:
           name: BOPAVI-Google-Play-listing
           path: dist/BOPAVI-Google-Play-listing-v0.1.30.zip
           if-no-files-found: error
+  android16-smoke:
+    name: Android 16 API36 system image smoke
+    needs: [android]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: BOPAVI-Android-APK
+          path: qa/apk
+      - name: Enable Android KVM
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+      - name: Verify UI and navigation on Android 16
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          script: sh tools/qa_android_emulator.sh
+      - name: Preserve Android16 emulator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: QA-Android16-visual-flow
+          path: |
+            qa/screenshots/*.png
+            qa/screenshots/*.xml
+          if-no-files-found: warn
   ios:
     name: iOS simulator + unsigned device build
     needs: [graphics]
@@ -247,7 +280,7 @@ jobs:
   publish:
     name: GitHub Release v0.1.30
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, android-smoke, ios, play-listing]
+    needs: [graphics, source-audit, android, android-smoke, android16-smoke, ios, play-listing]
     runs-on: ubuntu-latest
     permissions:
       contents: write
