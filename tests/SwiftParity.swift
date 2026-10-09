@@ -125,6 +125,12 @@ struct SwiftParity {
             for _ in 0..<3 {b.step(0.10)}
             precondition(b.flapPulse==0 && !b.finished)
         }
+        // v0.1.21: identical result headline logic on both native platforms.
+        precondition(ResultHeadline.label(score:0,previousBest:0,won:false)=="LET ZAVRŠEN!")
+        precondition(ResultHeadline.label(score:100,previousBest:100,won:false)=="LET ZAVRŠEN!")
+        precondition(ResultHeadline.label(score:99,previousBest:100,won:false)=="LET ZAVRŠEN!")
+        precondition(ResultHeadline.label(score:101,previousBest:100,won:false)=="NOVI REKORD!")
+        precondition(ResultHeadline.label(score:101,previousBest:100,won:true)=="LEVEL DOVRŠEN!")
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
