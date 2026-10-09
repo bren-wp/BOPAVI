@@ -169,22 +169,18 @@ for skin,hue in enumerate(palette):
         catalog.mkdir(exist_ok=True)
         wing.save(catalog/(wing_name+'.png'),optimize=True)
         (catalog/'Contents.json').write_text(json.dumps({'images':[{'filename':wing_name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-# Portantin is authored once as editable SVG in the repository. The same
-# transparent body and detached wings are rasterized for both native clients.
+# Portantin is maintained as one source SVG. Split transparent body and wings
+# before rasterizing to exactly matching Android/iOS sprite assets.
 port_source=(r/'docs/assets/portantin.svg').read_text()
 port_defs=re.search(r'<defs>(.*?)</defs>',port_source,re.S)
-port_l=re.search(r'<g id="wing-left">[\\s\\S]*?</g>',port_source)
-port_r=re.search(r'<g id="wing-right">[\\s\\S]*?</g>',port_source)
+port_l=re.search(r'<g id="wing-left">.*?</g>',port_source,re.S)
+port_r=re.search(r'<g id="wing-right">.*?</g>',port_source,re.S)
 if port_defs is None or port_l is None or port_r is None:
     raise RuntimeError('Portantin SVG has missing body/wing layers')
-port_body=re.sub(r'<g id="wing-(?:left|right)">[\\s\\S]*?</g>','',port_source)
+port_body=re.sub(r'<g id="wing-(?:left|right)">.*?</g>','',port_source,flags=re.S)
 def render_portantin(part):
-    # The content keeps its -65..65 coordinates from the source SVG.
     part=re.sub(r'^.*?<svg[^>]*>','',part,count=1,flags=re.S)
-    part=re.sub(r'</svg>.*
-generate_worlds(a,b)
-print('Generated native art: 7 characters, 14 detached wings and 8 biomes')
-,'',part,flags=re.S)
+    part=re.sub(r'</svg>.*','',part,flags=re.S)
     xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-65 -65 130 130" width="512" height="512">'+part+'</svg>'
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
 for part,name,catalog in ((port_body,'bopi6','Bopi6'),
@@ -198,4 +194,4 @@ for part,name,catalog in ((port_body,'bopi6','Bopi6'),
     (assetset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 from generate_worlds import generate_worlds
 generate_worlds(a,b)
-print('Generated native art: 6 bodies, 12 separately animated wings and 8 biomes')
+print('Generated native art: 7 characters, 14 detached wings and 8 biomes')
