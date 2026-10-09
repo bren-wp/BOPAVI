@@ -350,12 +350,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
-        if(!reducedMotion){
-            for(i in 1..3){
-                val ox=126f-i*19f-16f
-                val oy=game.y+8f+sin(game.time*9f-i)*4f
-                oval(c,ox,oy,ox+18f-i*3f,oy+8f-i*1.5f,0x5595eaff)
+        // Flight ribbons keep the sprite visually connected to the wind and world.
+        // No temporary bitmaps or Paint instances in the render loop.
+        if(!reducedMotion && game.active && !game.finished) {
+            for(i in 0 until 5) {
+                val x=107f-i*16f
+                val y=game.y+(i%3-1)*13f+sin(game.time*5f+i)*3f
+                fill(0xffb4edff.toInt())
+                p.style=Paint.Style.STROKE
+                p.strokeWidth=2.8f-i*.32f
+                p.strokeCap=Paint.Cap.ROUND
+                p.alpha=130-i*18
+                path.reset();path.moveTo(x,y)
+                path.quadTo(x-13f,y-5f,x-27f-i*2f,y+2f)
+                c.drawPath(path,p)
             }
+            p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT;p.alpha=255
         }
         if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
         if(game.shield>0){
