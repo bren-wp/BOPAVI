@@ -133,6 +133,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
+          # Google APIs Android 35 is known to install on hosted runners.
+          # Keep strict Pixel Launcher ANR recovery in qa_android_emulator.sh:
+          # the AOSP default system image failed to unpack on GitHub hosts.
           target: google_apis
           arch: x86_64
           profile: pixel_6
