@@ -137,12 +137,12 @@ final class GameCanvas: UIView {
         let attributes:[NSAttributedString.Key:Any]=[.font:font,.foregroundColor:UIColor.white]
         if game.shield>0 {
             rect(c,14,79,124,31,0x183e75,14,0.87)
-            ("ŠTIT ×\\(game.shield)" as NSString).draw(at:CGPoint(x:25,y:86),withAttributes:attributes)
+            ("ŠTIT ×\(game.shield)" as NSString).draw(at:CGPoint(x:25,y:86),withAttributes:attributes)
         }
         if game.magnetTime>0 {
             rect(c,14,114,137,31,0x183e75,14,0.87)
             let seconds=Int(ceil(Double(game.magnetTime)))
-            ("MAGNET \\(seconds)s" as NSString).draw(at:CGPoint(x:25,y:121),withAttributes:attributes)
+            ("MAGNET \(seconds)s" as NSString).draw(at:CGPoint(x:25,y:121),withAttributes:attributes)
         }
     }
     private func background(_ c:CGContext){
