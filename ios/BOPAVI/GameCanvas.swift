@@ -156,14 +156,6 @@ final class GameCanvas: UIView {
             drawBoostHUD(c)
             drawLevelProgress(c)
         }
-        if false && game.levelTransition>0 {
-            let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
-            rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
-            let title="LEVEL \(game.displayLevel)" as NSString
-            title.draw(at:CGPoint(x:174,y:120),withAttributes:[
-                .font:UIFont.systemFont(ofSize:20,weight:.heavy),
-                .foregroundColor:UIColor.white.withAlphaComponent(opacity)])
-        }
         if paused {
             rect(c,40,340,400,118,0x1b2b55,24,0.91)
             let pauseTitle="PAUZA" as NSString
@@ -183,26 +175,17 @@ final class GameCanvas: UIView {
                 game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
         }
     }
-    /// One small gate-progress rail; labels are rebuilt only when gate counts change.
-    /// The same 480x800 logical coordinates and fill fraction are used on Android.
-    /// This is purely presentation: BopaviCore owns all gate progress and transitions.
+    /// A cumulative counter never jumps back to zero as levels stream past.
     private func drawLevelProgress(_ c:CGContext) {
-        let total=max(1,game.level.gates.count)
-        let passed=max(0,min(total,game.passed))
-        if passed != lastProgressPassed || total != lastProgressTotal {
-            progressLabel=NSAttributedString(string:"PROLAZI \(passed)/\(total)",
+        let passed=game.totalPassed
+        if passed != lastProgressPassed {
+            progressLabel=NSAttributedString(string:"PROLAZI UKUPNO  \(passed)",
                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
-            lastProgressTotal=total
-            if game.active {accessibilityLabel="Bopi leti. Prolazi \(passed) od \(total)"}
+            accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
         }
-        rect(c,180,160,286,47,0x18305d,16,0.85)
-        progressLabel.draw(at:CGPoint(x:193,y:163))
-        rect(c,193,188,260,7,0x4f7baf,3.5,0.47)
-        if passed>0 {
-            let fill=260*CGFloat(passed)/CGFloat(total)
-            rect(c,193,188,fill,7,pickupHues[game.level.world],3.5)
-        }
+        rect(c,180,160,286,36,0x18305d,16,0.85)
+        progressLabel.draw(at:CGPoint(x:193,y:165))
     }
     // Drawn in the same unscaled 480x800 game coordinates as Android.
     // Lightweight rounded chips reveal actual remaining protection and magnet time.
