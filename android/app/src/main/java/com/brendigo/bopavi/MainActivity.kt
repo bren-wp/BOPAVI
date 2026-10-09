@@ -202,10 +202,23 @@ class MainActivity : Activity() {
         // Coins are a compact top-right HUD, not a full-width footer panel.
         background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
             Gravity.TOP or Gravity.RIGHT).apply{setMargins(d(16),d(16),d(17),0)})
+        // Three clear home actions, with IGRAJ dominant and two equal shortcuts.
+        // Leave the illustrated logo and Bopi free of extra text or opaque tiles.
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
             startGame(world,progress.streamFrontier(world))
         }
+        val shortcuts=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+        }
+        layout.addView(shortcuts,LinearLayout.LayoutParams(-1,-2))
+        val worldsColumn=LinearLayout(this)
+        val settingsColumn=LinearLayout(this)
+        shortcuts.addView(worldsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(6)})
+        shortcuts.addView(settingsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(6)})
+        action(worldsColumn,"🌍  SVJETOVI",false){showWorlds()}
+        action(settingsColumn,"⚙  POSTAVKE",false){showSettings()}
         showNativeView(background)
     }
 
@@ -446,7 +459,8 @@ class MainActivity : Activity() {
         back(b){showWorlds()}
     }
     private fun showSettings(){
-        val b=base("POSTAVKE","Privatnost, animacije i sigurnosna kopija")
+        val b=base("POSTAVKE","Sve opcije na jednom mjestu")
+        small(b,"IZGLED I ZVUK")
         val low=Switch(this).apply{text="Smanji animacije (30 FPS)";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
@@ -458,6 +472,7 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
         }
         b.addView(haptic)
+        small(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
         for(mode in 0..2) {
@@ -473,8 +488,6 @@ class MainActivity : Activity() {
         }
         b.addView(modes,LinearLayout.LayoutParams(-1,-2))
         small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
-        action(b,"LOKALNA LJESTVICA",false){showLeaderboard()}
-
         val player=EditText(this).apply {
             hint="Ime igrača (lokalno)"
             setSingleLine(true)
@@ -488,6 +501,11 @@ class MainActivity : Activity() {
             progress.setPlayerName(player.text.toString())
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
+        small(b,"DODATNE OPCIJE")
+        action(b,"🐤  IZGLED BOPIJA",false){showSkins()}
+        action(b,"🛡  ŠTITOVI I OPREMA",false){showPerks()}
+        action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
+        small(b,"PODACI I PRIVATNOST")
         small(b,"BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.")
         small(b,"Bez oglasa, telemetrije, računa i mrežnih zahtjeva.")
         action(b,"IZVEZI NAPREDAK",false){
@@ -498,7 +516,7 @@ class MainActivity : Activity() {
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
-        back(b){showWorlds()}
+        back(b){showHome()}
     }
     @Deprecated("Activity result callbacks are used for a dependency-free Android sample")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
