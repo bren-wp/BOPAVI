@@ -94,5 +94,20 @@ fun main() {
         val off=ParallaxScenery.offset(999999f,layer,false)
         check(off>=0f && off<696f)
     }
+    // v0.1.20: a new tap triggers a 240 ms cosmetic upstroke.
+    run {
+        val b=GameSimulation(LevelEngine.create(0,2))
+        check(b.flapPulse==0f)
+        b.flap()
+        check(b.flapPulse==.24f && b.flaps==1)
+        b.step(.08f)
+        check(kotlin.math.abs(b.flapPulse-.16f)<.0001f)
+        b.step(Float.NaN)
+        check(kotlin.math.abs(b.flapPulse-.16f)<.0001f)
+        b.flap()
+        check(b.flapPulse==.24f && b.flaps==2)
+        repeat(3){b.step(.10f)}
+        check(b.flapPulse==0f && !b.finished)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

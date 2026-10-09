@@ -467,6 +467,26 @@ final class GameCanvas: UIView {
             c.setLineCap(.butt)
         }
     }
+    /// Real tap-response gust; never changes collision or physics and does not
+    /// allocate sprite resources inside CADisplayLink. Reduced motion stays calm.
+    private func drawFlapWake(_ c:CGContext) {
+        guard !reducedMotion && game.flapPulse>0 else {return}
+        let strength:CGFloat=max(0,min(1,CGFloat(game.flapPulse)/0.24))
+        let progress=1-strength
+        let hue=pickupHues[game.level.world]
+        let radius:CGFloat=28+27*progress
+        c.setStrokeColor(color(hue,105*strength/255))
+        c.setLineWidth(2.5)
+        c.strokeEllipse(in:CGRect(x:126-radius,y:CGFloat(game.y)-radius,
+                                  width:radius*2,height:radius*2))
+        c.setFillColor(color(hue,190*strength/255))
+        for i in 0..<7 {
+            let x:CGFloat=101-CGFloat(i)*9-30*progress
+            let y:CGFloat=CGFloat(game.y)+CGFloat(i%3-1)*19+sin(CGFloat(game.time)*13+CGFloat(i)*1.7)*4
+            let r:CGFloat=2.4+CGFloat(i%3)*0.7
+            c.fillEllipse(in:CGRect(x:x-r,y:y-r,width:2*r,height:2*r))
+        }
+    }
     private func bird(_ c:CGContext){
         if game.collectPulse>0 {
             let t=CGFloat(game.collectPulse)/0.36
@@ -481,6 +501,7 @@ final class GameCanvas: UIView {
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         drawFeedbackSparkles(c)
+        drawFlapWake(c)
         // Motion ribbons make the sprite feel embedded in the world, not pasted on.
         if !reducedMotion && game.active && !game.finished {
             for i in 0..<5 {
@@ -506,10 +527,13 @@ final class GameCanvas: UIView {
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
         let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * .pi / 180
         c.rotate(by:angle)
-        let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))
+        let flapStrength:CGFloat = reducedMotion ? 0 : max(0,min(1,CGFloat(game.flapPulse)/0.24))
+        let phase:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19))+flapStrength*0.65
         // No whole-body stretching: moving wings provide the animation.
         if let sprite=birdSprite {
-            let wingAngle:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*19)) * 23 * .pi / 180
+            // Real touch adds a crisp 17-degree upstroke that eases away in 240 ms.
+            let wingAngle:CGFloat = reducedMotion ? 0 :
+                (CGFloat(sin(game.time*19))*23+flapStrength*17) * .pi / 180
             if let left=leftWing {
                 c.saveGState();c.translateBy(x:-16,y:5);c.rotate(by:wingAngle)
                 left.draw(in:CGRect(x:-34,y:-55,width:100,height:100));c.restoreGState()

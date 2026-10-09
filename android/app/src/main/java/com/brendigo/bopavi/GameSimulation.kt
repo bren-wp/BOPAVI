@@ -27,6 +27,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var magnetTime = initialMagnet.coerceIn(0f,12f); private set
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
+    // Presentation-only impulse: responsive wing beat, no effect on collision or score.
+    var flapPulse = 0f; private set
     var completionCount = 0; private set
     var displayLevel = initialOrdinal;private set
     var completedOrdinal = 0L;private set
@@ -48,6 +50,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if (finished) return
         active = true
         velocity = -255f
+        flapPulse = .24f
         flaps++
     }
     fun step(delta: Float) {
@@ -62,7 +65,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         }
     }
     private fun advance(dt: Float) {
-        time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt)
+        time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
         velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
         distance += level.speed * speedFactor * dt
