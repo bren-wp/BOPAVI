@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.22
+    name: GitHub Release v0.1.23
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.22 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.22 exists: no duplicate release.'
+          if gh release view v0.1.23 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.23 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.22 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.22 — Leveli s karakterom' --prerelease \
-            --notes 'Android i iOS: izbornik levela pokazuje četiri već postojeće vrste levela — normalni, izazovni, bonus i elitni — izravno prema proceduralnom generatoru. Polja i oznake pristupačnosti razlikuju stvarni tip i zaključani, otključani ili dovršeni status, a prikaz uključuje zonu i raspon stranice. Pauza prikazuje trenutačni broj levela i točnu uputu za nastavak leta. Dodani Kotlin JUnit, Swift/Kotlin parity i UI source audit. Fizika, sudari, nagrade, napredak, valuta, pohrana i osam otključanih svjetova nisu mijenjani. Razvojni Android APK i nepotpisani AAB, iOS Simulator ZIP i nepotpisani iOS device ZIP nisu paketi potpisani za trgovine. Vizualna identičnost 1:1 prema referencama nije potvrđena.'
+          gh release create v0.1.23 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.23 — Čist početak leta i popravljena pauza' --prerelease \
+            --notes 'Android i iOS: ispravljen problem prijevremenog prikaza gumba pauze na uvodnom zaslonu leta. Početni izbornik i čekanje prvog dodira nemaju pauzu ni HUD; kontrole se pojavljuju tek nakon stvarnog početka leta. Pri prelasku na druge zaslone kontrole se uklanjaju, a zakašnjeli rezultatski povratni poziv ne može zamijeniti početni ekran. Unaprijeđen Android emulator QA: potvrđuje početni izbornik bez pauze, mirujući uvodni ekran bez pauze, aktivni let s pauzom i rezultat bez pauze. Dodani Kotlin JUnit, Swift/Kotlin parity i statički audit. Fizika, sudari, 8 dostupnih svjetova, novčići, lokalni rezultati, spremanje i offline način rada ostaju netaknuti. Paketi su razvojni APK, nepotpisani AAB i nepotpisani iOS Simulator/device ZIP, nisu potpisani za trgovine. Potpuna pixel-perfect identičnost svih prikaza s referentnim slikama još nije potvrđena.'
