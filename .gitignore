@@ -9,3 +9,12 @@
 *.xcuserdata/
 *.jar
 *.so
+
+# Play upload credentials must never enter Git history.
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+**/keystore.properties
+**/signing.properties

@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,7 @@ class MainActivity : Activity() {
     private var currentLevel = 1L
     private var gameView: GameView? = null
     private var gamePauseButton: Button? = null
+    private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
@@ -44,6 +46,13 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility=0
         progress=ProgressStore(this);sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
+        // Android 16 no longer routes predictive Back through onBackPressed().
+        if (Build.VERSION.SDK_INT >= 33) {
+            val callback = android.window.OnBackInvokedCallback { navigateBack() }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            platformBackCallback = callback
+        }
         showHome()
     }
     private fun showNativeView(root: View) {
@@ -74,6 +83,10 @@ class MainActivity : Activity() {
         if(gameView?.game?.active == false && gameView?.paused == false) sound.resume()
     }
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            platformBackCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
+            platformBackCallback = null
+        }
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
@@ -691,8 +704,12 @@ class MainActivity : Activity() {
             if(requestCode==43)showHome()
         }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
     }
-    @Deprecated("Back navigation compatibility")
-    override fun onBackPressed() {
+    // The same navigation semantics apply to Android 8-12 hardware Back and
+    // Android 13-16 predictive Back, without losing the current flight.
+    @Deprecated("Back navigation compatibility on Android 12 and older")
+    override fun onBackPressed() = navigateBack()
+
+    private fun navigateBack() {
         if(selectedScreen=="game") {
             val current=gameView?.game
             when {
@@ -701,7 +718,8 @@ class MainActivity : Activity() {
                 current.active -> gamePauseButton?.performClick() // Do not discard live runs.
                 else -> showPilotPicker(currentWorld,currentLevel) // No purchased gear spent yet.
             }
-        } else if(selectedScreen=="home") super.onBackPressed()
-        else showHome()
+        } else if(selectedScreen=="home") {
+            if (Build.VERSION.SDK_INT >= 33) finish() else super.onBackPressed()
+        } else showHome()
     }
 }
