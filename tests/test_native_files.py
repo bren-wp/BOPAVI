@@ -108,6 +108,30 @@ for renderer_path in ('android/app/src/main/java/com/brendigo/bopavi/GameView.kt
 assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
 assert 'flapStrength*17' in ios_render
 
+# v0.1.21: names and local progress readable *outside* the world art.
+android_tile=android_menu.split('private fun worldTile(',1)[1].split('private fun showHome()',1)[0]
+ios_tile=ios_menu.split('private func worldTile(',1)[1].split('private func showHome()',1)[0]
+for card in (android_tile,ios_tile):
+    assert 'chosenWorld()' in card
+    assert 'streamFrontier(world)' in card
+    assert 'collectibles[world]' in card
+    assert 'otključano' in card
+assert 'row.addView(preview' in android_tile
+assert 'row.addView(TextView(this)' in android_tile
+assert 'preview.heightAnchor.constraint(equalToConstant:137)' in ios_tile
+assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150)' in ios_tile
+assert 'detail.topAnchor.constraint(equalTo:headline.bottomAnchor' in ios_tile
+assert 'tile.accessibilityLabel' in ios_tile
+for source,signature in ((android_menu,'private fun showResult('),(ios_menu,'private func showResult(')):
+    result=source.split(signature,1)[1]
+    assert 'ResultHeadline.label(' in result
+    assert result.index('ResultHeadline.label(')<result.index('progress.recordRun(g)')
+    assert 'Najbolji rezultat:' in result
+for core in (android_levels,ios_core):
+    assert 'ResultHeadline' in core
+    for text in ('NOVI REKORD!','LEVEL DOVRŠEN!','LET ZAVRŠEN!'):
+        assert text in core
+
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
