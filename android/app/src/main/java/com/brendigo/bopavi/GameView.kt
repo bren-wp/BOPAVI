@@ -514,6 +514,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             progressTitle="PROLAZI "+passed+"/"+total
             lastProgressPassed=passed
             lastProgressTotal=total
+            if(game.active) contentDescription="Bopi leti. Prolazi "+passed+" od "+total
         }
         rect(c,180f,160f,466f,207f,0xd918305d.toInt(),16f)
         text(c,progressTitle,193f,180f,16f,Color.WHITE)
