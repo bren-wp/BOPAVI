@@ -6,7 +6,7 @@ final class GameCanvas: UIView {
     let reducedMotion: Bool
     let skinIndex: Int
     private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
-    private let pickupHues:[UInt32]=[0xffe25d,0xffca91,0xb4f7ff,0xff9a46,0xf8f4b6,0xb4a5e9,0x8ffff1,0xd7bbff]
+    private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private lazy var pickupSymbol:NSAttributedString=NSAttributedString(string:BopaviCore.collectibleIcons[game.level.world],attributes:[.font:UIFont.systemFont(ofSize:19,weight:.heavy),.foregroundColor:UIColor.white])
     private let birdSprite:UIImage?
     private let leftWing:UIImage?
