@@ -493,6 +493,20 @@ class MainActivity : Activity() {
         pauseButton=pause
         gamePauseButton=pause
         frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
+        // Keep the pause button clear of notches/cutouts on edge-to-edge phones.
+        if (Build.VERSION.SDK_INT >= 35) {
+            frame.setOnApplyWindowInsetsListener { _, insets ->
+                val cutout = insets.getInsets(android.view.WindowInsets.Type.displayCutout())
+                val params = pause.layoutParams as FrameLayout.LayoutParams
+                val top = maxOf(d(24),cutout.top+d(8))
+                val right = maxOf(d(15),cutout.right+d(10))
+                if (params.topMargin!=top || params.rightMargin!=right) {
+                    params.topMargin=top;params.rightMargin=right
+                    pause.layoutParams=params
+                }
+                insets
+            }
+        }
         showNativeView(frame)
     }
     private fun showResult(g:GameSimulation){
@@ -525,6 +539,15 @@ class MainActivity : Activity() {
         }
         scroll.addView(panel)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        // Android 16 enforces edge-to-edge: keep result actions out of the
+        // gesture-navigation/status-bar regions, while art remains full bleed.
+        if (Build.VERSION.SDK_INT >= 35) {
+            scroll.setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                insets
+            }
+        }
         val artwork=ImageView(this).apply{
             setImageResource(R.drawable.hero)
             scaleType=ImageView.ScaleType.CENTER_CROP

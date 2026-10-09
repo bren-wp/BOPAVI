@@ -194,6 +194,44 @@ jobs:
           name: BOPAVI-Google-Play-listing
           path: dist/BOPAVI-Google-Play-listing-v0.1.30.zip
           if-no-files-found: error
+  signing-smoke:
+    name: Verify Android Play signing integration with ephemeral QA key
+    needs: [graphics]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: rendered-graphics
+          path: .
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install API 36
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager"
+          if [ ! -x "$SDKM" ]; then SDKM="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"; fi
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" --install 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build signed test AAB with disposable local-only key
+        working-directory: android
+        env:
+          BOPAVI_UPLOAD_STORE_PASSWORD: local-ci-only-password
+          BOPAVI_UPLOAD_KEY_ALIAS: test-bopavi
+          BOPAVI_UPLOAD_KEY_PASSWORD: local-ci-only-password
+        run: |
+          set -euo pipefail
+          export BOPAVI_UPLOAD_KEYSTORE_PATH="$RUNNER_TEMP/test-only-upload-key.jks"
+          trap 'rm -f "$BOPAVI_UPLOAD_KEYSTORE_PATH"' EXIT
+          keytool -genkeypair -noprompt -keystore "$BOPAVI_UPLOAD_KEYSTORE_PATH" -storepass "$BOPAVI_UPLOAD_STORE_PASSWORD" -keypass "$BOPAVI_UPLOAD_KEY_PASSWORD" -alias "$BOPAVI_UPLOAD_KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 2 -dname "CN=BOPAVI disposable CI key"
+          gradle :app:bundleRelease --no-daemon
+          python ../tools/verify_play_release.py --aab app/build/outputs/bundle/release/app-release.aab --signed
+          echo 'PASS: ephemeral test-key signature; NEVER upload this AAB to Play or releases'
+      # Deliberately NO upload-artifact: the test key has no publication value.
   android16-smoke:
     name: Android 16 API36 system image smoke
     needs: [android]
@@ -280,7 +318,7 @@ jobs:
   publish:
     name: GitHub Release v0.1.30
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, android-smoke, android16-smoke, ios, play-listing]
+    needs: [graphics, source-audit, android, android-smoke, android16-smoke, signing-smoke, ios, play-listing]
     runs-on: ubuntu-latest
     permissions:
       contents: write
