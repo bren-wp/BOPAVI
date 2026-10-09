@@ -128,6 +128,8 @@ final class GameSimulation {
     private(set) var magnetTime: Float = 0
     private(set) var collectPulse: Float = 0
     private(set) var impactPulse: Float = 0
+    // Presentation-only impulse for the physical wing beat; no collision changes.
+    private(set) var flapPulse: Float = 0
     private(set) var invulnerable: Float = 0
     private(set) var flaps = 0
     private(set) var active = false
@@ -158,7 +160,7 @@ final class GameSimulation {
     }
     func flap() {
         guard !finished else { return }
-        active = true; velocity = -255; flaps += 1
+        active = true; velocity = -255; flapPulse = 0.24; flaps += 1
     }
     func step(_ delta: Float) {
         guard active && !finished else { return }
@@ -172,7 +174,7 @@ final class GameSimulation {
         }
     }
     private func advance(_ dt: Float) {
-        time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
+        time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt); flapPulse = max(0,flapPulse-dt)
         velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
         y += velocity*dt
         distance += level.speed*speedFactor*dt
