@@ -202,5 +202,5 @@ final class GameSimulation {
         if shield > 0 { shield -= 1; invulnerable = 1.25; impactPulse=0.65; velocity = -90 }
         else { finished = true; active = false; won = false }
     }
-    func score() -> Int { totalPassed*100 + coins*10 + stars*25 }
+    func score() -> Int { Int(min(100_000_000, max(0,Int64(totalPassed)*100 + Int64(coins)*10 + Int64(stars)*25))) }
 }
