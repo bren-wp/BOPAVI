@@ -244,3 +244,15 @@ for source in (android_canvas,ios_canvas):
     assert "107" in source and "27" in source
     assert "quadTo" in source or "addQuadCurve" in source
     assert "reducedMotion" in source
+
+# Endlessly growing distance must not place iOS motes outside their wrap range.
+# Swift truncatingRemainder requires the second positive modulo like Kotlin.
+assert ".truncatingRemainder(dividingBy:560)+560)" in ios_world
+assert ".truncatingRemainder(dividingBy:680)+680)" in ios_world
+for distance in (0, 500, 50_000, 2_000_000):
+    for i in range(12):
+        x=((i*113+29-distance*0.11)%560+560)%560-45
+        assert -45 <= x < 515
+    for i in range(9):
+        x=((i*85+32-distance*0.31)%680+680)%680-60
+        assert -60 <= x < 620
