@@ -115,3 +115,19 @@ internal object ResultHeadline {
         else -> "LET ZAVRŠEN!"
     }
 }
+
+/** Names/icons for the generator's four existing level types, with no gameplay changes. */
+internal object LevelKind {
+    fun name(type:Int):String = when(type) {
+        1 -> "Izazovni"
+        2 -> "Bonus"
+        3 -> "Elitni"
+        else -> "Normalni"
+    }
+    fun icon(type:Int):String = when(type) {
+        1 -> "⚡"
+        2 -> "✦"
+        3 -> "♛"
+        else -> "●"
+    }
+}
