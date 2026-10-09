@@ -461,7 +461,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stats.layer.cornerRadius=22;stats.layer.borderWidth=2
         stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
         stack.addArrangedSubview(stats)
-        label("\(g.score())",43,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("\(g.score()) BODOVA",37,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
         label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
@@ -470,7 +470,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
         button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
-        button("OPREMA ZA KOVANICE",in:stack,primary:false){self.showPerks()}
+        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
         button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
     }
@@ -487,6 +487,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
+        button("🎨  BOJE BOPIJA",in:s,primary:false){self.showSkins()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
