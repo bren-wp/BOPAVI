@@ -6,6 +6,10 @@ final class GameCanvas: UIView {
     let reducedMotion: Bool
     let skinIndex: Int
     private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
+    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
+    private var progressLabel=NSAttributedString(string:"")
+    private var lastProgressPassed = -1
+    private var lastProgressTotal = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
@@ -124,6 +128,7 @@ final class GameCanvas: UIView {
         }
         bird(c)
         drawBoostHUD(c)
+        drawLevelProgress(c)
         if game.levelTransition>0 {
             let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
             rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
@@ -149,6 +154,26 @@ final class GameCanvas: UIView {
         if groundTop<bound.height {
             rect(c,0,groundTop,bound.width,bound.height-groundTop,
                 game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
+        }
+    }
+    /// One small gate-progress rail; labels are rebuilt only when gate counts change.
+    /// The same 480x800 logical coordinates and fill fraction are used on Android.
+    /// This is purely presentation: BopaviCore owns all gate progress and transitions.
+    private func drawLevelProgress(_ c:CGContext) {
+        let total=max(1,game.level.gates.count)
+        let passed=max(0,min(total,game.passed))
+        if passed != lastProgressPassed || total != lastProgressTotal {
+            progressLabel=NSAttributedString(string:"PROLAZI \(passed)/\(total)",
+                attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+            lastProgressPassed=passed
+            lastProgressTotal=total
+        }
+        rect(c,180,160,286,47,0x18305d,16,0.85)
+        progressLabel.draw(at:CGPoint(x:193,y:163))
+        rect(c,193,188,260,7,0x4f7baf,3.5,0.47)
+        if passed>0 {
+            let fill=260*CGFloat(passed)/CGFloat(total)
+            rect(c,193,188,fill,7,pickupHues[game.level.world],3.5)
         }
     }
     // Drawn in the same unscaled 480x800 game coordinates as Android.
