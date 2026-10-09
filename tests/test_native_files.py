@@ -485,6 +485,35 @@ for gates in (1,11,12,15,17):
 assert "passed = 0" in android_sim or "passed = 0" in android_sim.replace("passed=0","passed = 0")
 assert "passed=0" in ios_sim or "passed = 0" in ios_sim
 
+# v0.1.23: never show gameplay controls on home or before the first flap.
+# The visible pause is created per-session and revealed only by an actual
+# inactive->active transition, not by selecting the IGRAJ menu action.
+android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
+ios_start=ios_menu.split('private func startGame(',1)[1].split('private func showToast(',1)[0]
+android_touch=android_render.split('override fun onTouchEvent(',1)[1].split('override fun performClick(',1)[0]
+ios_touch=ios_render.split('override func touchesBegan(',1)[1].split('private func color(',1)[0]
+assert 'val firstFlap=!game.active' in android_touch
+assert 'if(firstFlap && game.active)onFlightStarted()' in android_touch
+assert 'let firstFlap = !game.active' in ios_touch
+assert 'if firstFlap && game.active {onFlightStarted?()}' in ios_touch
+assert 'visibility=View.INVISIBLE' in android_start
+assert 'pauseButton?.visibility=View.VISIBLE' in android_start
+assert 'pause.isHidden=true' in ios_start
+assert 'pause?.isHidden=false' in ios_start
+assert 'counter.isHidden=true' in ios_start and 'counter?.isHidden=false' in ios_start
+assert 'selectedScreen=="game" && gameView?.game === it' in android_start
+assert 'self.canvas === gameCanvas' in ios_start
+assert 'if(game.active && !game.finished)' in android_render
+assert 'if game.active && !game.finished' in ios_render
+for source in (android_menu.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0],
+               ios_menu.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]):
+    assert 'Izbornik tijekom igre' not in source and 'Ⅱ' not in source
+qa_lifecycle=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'verify_idle_preview' in qa_lifecycle
+assert 'FAIL: pause button visible before first flap' in qa_lifecycle
+assert 'FAIL: gameplay pause control leaked onto result screen' in qa_lifecycle
+assert 'FAIL: pause did not appear after actual first flight flap' in qa_lifecycle
+
 # v0.1.17: illustrated home shows exactly three deliberate actions, on both
 # platforms, with IGRAJ first and with cosmetics/equipment under settings.
 android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
