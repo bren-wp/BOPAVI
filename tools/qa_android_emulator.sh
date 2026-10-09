@@ -74,7 +74,12 @@ for name in names:
     bounds=matches[0].get('bounds','')
     if not bounds or bounds.startswith('[0,0][0,0]'):
         raise SystemExit(f'FAIL: {name} has invalid button bounds')
-print('PASS: 3 accessible home buttons IGRAJ, SVJETOVI, POSTAVKE',flush=True)
+# A pause control or gameplay status on the first screen is always a regression.
+for n in root.iter('node'):
+    label=(n.get('text','')+' '+n.get('content-desc',''))
+    if 'Izbornik tijekom igre' in label or 'Bopi leti' in label:
+        raise SystemExit('FAIL: gameplay control/status leaked onto initial home')
+print('PASS: 3 accessible home buttons and no gameplay pause/HUD',flush=True)
 PY
 }
 # Exercise the real settings destination, not only the home button labels.
@@ -123,13 +128,29 @@ print(f'Tap IGRAJ at {x},{y}',flush=True)
 subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
 PY
 }
+# The first play tap must reach the *idle* game preview, NOT an already
+# active flight. A visible pause button before a first flap is a hard failure.
+verify_idle_preview(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+nodes=list(root.iter('node'))
+labels=[n.get('text','')+' '+n.get('content-desc','') for n in nodes]
+if not any('Dodirni za let Bopija' in x for x in labels):
+    raise SystemExit('FAIL: expected idle Bopi game view before any flap')
+if any('Izbornik tijekom igre' in x for x in labels):
+    raise SystemExit('FAIL: pause button visible before first flap')
+print('PASS: idle flight preview shows no pause button',flush=True)
+PY
+}
 gameplay_ready=0
 home_captured=0
 attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited" >&2;exit 1; }
   dump_ui
-  if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'Dodirni za let Bopija' qa/screenshots/android-current-ui.xml; then
+    verify_idle_preview
     gameplay_ready=1
     break
   fi
@@ -215,7 +236,8 @@ while [ "$attempt" -le 6 ]; do
   attempt=$((attempt+1))
 done
 dump_ui
-if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+if grep -q 'Dodirni za let Bopija' qa/screenshots/android-current-ui.xml; then
+  verify_idle_preview
   gameplay_ready=1
 fi
 if [ "$gameplay_ready" -ne 1 ]; then
@@ -225,7 +247,7 @@ if [ "$gameplay_ready" -ne 1 ]; then
   adb logcat -d -t 200 | tail -n 100 || true
   exit 1
 fi
-echo "PASS: IGRAJ enters interactive gameplay"
+echo "PASS: IGRAJ opens idle flight without a premature pause button"
 # Coordinates derived from the emulator resolution, not a hard-coded device size.
 size=$(adb shell wm size | tail -n 1 | sed 's/.*: //' | tr -d '\r')
 width=${size%x*}
@@ -245,8 +267,19 @@ while [ "$attempt" -le 6 ]; do
   adb shell input tap "$center" "$((height*50/100))"
   sleep 1
   dump_ui
-  if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml ||
-     grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
+    if ! grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+      echo "FAIL: pause did not appear after actual first flight flap" >&2
+      exit 1
+    fi
+    flight_started=1
+    break
+  fi
+  if grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
+    if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+      echo "FAIL: pause leaked into completed result screen" >&2
+      exit 1
+    fi
     flight_started=1
     break
   fi
@@ -290,4 +323,9 @@ if [ "$result_ready" -ne 1 ]; then
   exit 1
 fi
 capture android-result
-echo "PASS: full native Android visual flow captured without a process crash"
+dump_ui
+if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+  echo "FAIL: gameplay pause control leaked onto result screen" >&2
+  exit 1
+fi
+echo "PASS: home / idle flight / active flight / result pause lifecycle verified"
