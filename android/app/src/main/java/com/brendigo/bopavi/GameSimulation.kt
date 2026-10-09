@@ -28,7 +28,6 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
     var completionCount = 0; private set
-    var completedLevelNumber = 0; private set
     var displayLevel = initialOrdinal;private set
     var completedOrdinal = 0L;private set
     var invulnerable = 0f; private set
@@ -83,7 +82,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                 passed++; totalPassed++
                 if (passed == level.gates.size) {
                     if(endless) {
-                        completedLevelNumber = level.number;completedOrdinal=displayLevel;completionCount++
+                        completedOrdinal=displayLevel;completionCount++
                         displayLevel=(displayLevel+1).coerceAtMost(Long.MAX_VALUE-2)
                         val next=LevelEngine.createStream(level.world,displayLevel)
                         // Keep global distance continuous: background and wing trails
