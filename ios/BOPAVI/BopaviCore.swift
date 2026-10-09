@@ -156,7 +156,11 @@ final class GameSimulation {
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
-        nextOrigin=levelOrigin+level.gates[level.gates.count-1].x+242-next.gates[0].x
+        // The latest gate interval varies by challenge zone; keep that exact
+        // spacing through the level boundary instead of inserting 242px.
+        let last=level.gates.count-1
+        let spacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
+        nextOrigin=levelOrigin+level.gates[last].x+spacing-next.gates[0].x
         nextLevel=next
     }
     private(set) var levelTransition: Float = 0
