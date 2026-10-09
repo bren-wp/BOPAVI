@@ -1,3 +1,11 @@
+## v0.1.25 — galerija svih likova i precizan ritam prepreka
+- Android i iOS više ne prikazuju samo tekstualne gumbe za Bopija, Sunny, Berry, Luna, Mint, Shadow i Portantina: izbor prije leta i Postavke koriste zajedničku galeriju od sedam ilustriranih kartica u dva stupca. Svaka kartica sadrži stvarni sprite, ime i status, a odabrani lik ima istaknut obrub. Čitači zaslona vide jednu jasnu akciju po kartici umjesto dvostrukih natpisa.
+- **Potvrda trošenja kovanica**: odabir zaključanog lika s dovoljno lokalno osvojenih kovanica otvara dijalog s točnom cijenom i mogućnošću odustajanja. Tek izričitom potvrdom provodi se postojeća atomarna operacija `selectOrBuy`. Dostupni likovi i besplatni Portantin biraju se bez plaćanja i ostaju spremljeni. Nema stvarnih novčanih uplata ni zahtjeva za mrežom.
+- **Kontinuitet svake zone**: sljedeći proceduralni level unaprijed se priprema kao i prije, ali uvodni razmak sada nasljeđuje stvarnu udaljenost između posljednje dvije prepreke tekuće zone. Ranijih fiksnih 242 virtualne jedinice uzrokovalo je sitan skok razmaka na višim zonama. Ni pozadina ni ukupna prijeđena udaljenost ni igrač ne resetiraju se.
+- Dodani Kotlin JUnit i Kotlin/Swift parity testovi za sve osam svjetova i šest izazovnih zona, uključujući posljednji level ciklusa. Python statički audit provjerava novi model galerije, sedam stvarnih spriteova, pristupačnost i eksplicitnu potvrdu virtualne kupnje.
+- Android `versionCode 26` i iOS build `26` (oba `0.1.25`). Očuvani su format sigurnosnih kopija, lokalni najbolji rezultati, vlasništvo likova, nagrade, fizika, kolizije i svih osam slobodno dostupnih svjetova.
+- Za tvrdnju o potpunoj vizualnoj jednakosti svih zaslona 1:1 još je potrebna provjera na fizičkim Android/iOS uređajima.
+
 ## v0.1.24 — Portantin, izbor lika i neprekinuti leveli
 - Android i iOS beskrajni let sada unaprijed generira sljedeći level i iscrtava njegove prepreke prije nego prethodni završi. Predaja između levela koristi unaprijed izračunate pozicije prepreka umjesto stvaranja novih usred ekrana; zadržani su kamera, udaljenost, fizika, bodovi, novčići i krila.
 - Uklonjen je vizualni prijelazni natpis i napredak po levelu koji se vraćao na nulu. Prikazuje se **ukupan broj prolaza u tekućem letu** koji raste bez prekida.
