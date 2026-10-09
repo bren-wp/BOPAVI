@@ -109,6 +109,8 @@ assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
 assert 'flapStrength*17' in ios_render
 
 # v0.1.21: names and local progress readable *outside* the world art.
+android_menu=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios_menu=(root/'ios/BOPAVI/GameController.swift').read_text()
 android_tile=android_menu.split('private fun worldTile(',1)[1].split('private fun showHome()',1)[0]
 ios_tile=ios_menu.split('private func worldTile(',1)[1].split('private func showHome()',1)[0]
 for card in (android_tile,ios_tile):
