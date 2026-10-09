@@ -482,8 +482,7 @@ final class GameCanvas: UIView {
         c.setFillColor(color(hue,190*strength/255))
         for i in 0..<7 {
             let x:CGFloat=101-CGFloat(i)*9-30*progress
-            let y:CGFloat=CGFloat(game.y)+CGFloat(i%3-1)*19
-                +sin(CGFloat(game.time)*13+CGFloat(i)*1.7)*4
+            let y:CGFloat=CGFloat(game.y)+CGFloat(i%3-1)*19+sin(CGFloat(game.time)*13+CGFloat(i)*1.7)*4
             let r:CGFloat=2.4+CGFloat(i%3)*0.7
             c.fillEllipse(in:CGRect(x:x-r,y:y-r,width:2*r,height:2*r))
         }
