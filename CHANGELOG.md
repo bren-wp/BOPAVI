@@ -1,3 +1,12 @@
+## v0.1.17 — tri gumba, pregledne postavke i reakcija štita
+- Android i iOS: početni ekran ima točno tri jasna gumba: veliki zeleni IGRAJ te dva plava SVJETOVI i POSTAVKE.
+- Unutar postavki opcije su raspoređene u četiri cjeline: Izgled i zvuk, Igrač i težina, Dodatne opcije te Podaci i privatnost. Oprema, izgled Bopija i lokalna ljestvica dostupni su izravno iz postavki, uz povratak na početni ekran.
+- Pri stvarnoj potrošnji štita Android i iOS pokreću samo jedan zvučni odziv i, ako je omogućeno, jednu vibraciju. Trajanje neranjivosti ne ponavlja obavijesti svakog kadra.
+- iOS automatski pauzira gameplay i zvuk pri odlasku aplikacije u pozadinu. Let se ne nastavlja samostalno po povratku.
+- Dodatni regresijski audit provjerava tri gumba, izbornike, povratnu navigaciju, reakcije štita i iOS lifecycle.
+- Android versionCode 18 / 0.1.17, iOS build 18 / 0.1.17; GitHub izdanje uvjetovano uspješnim Android i iOS buildovima i emulator QA.
+- Izgled 1:1 prema svim referencama nije potvrđen na fizičkim uređajima.
+
 ## v0.1.16 — neprekinut let i pokazatelj prolaza
 - Android i iOS: novi kompaktni pokazatelj napretka trenutnog levela, sa stvarnim brojem prijeđenih prepreka, ukupnim brojem prepreka i trakom u boji odgovarajućeg svijeta.
 - Pokazatelj se automatski vraća na 0 pri neprimjetnom prijelazu na sljedeći numerirani level; nema pauze, modalnog prozora ni dodatnog dodira.
