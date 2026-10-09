@@ -125,3 +125,15 @@ assert "uiautomator dump" in (root/'tools/qa_android_emulator.sh').read_text()
 # iOS home wallet must have exactly one fixed height constraint.
 ios_home=(root/'ios/BOPAVI/GameController.swift').read_text().split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
 assert ios_home.count('wallet.heightAnchor.constraint(equalToConstant:') == 1
+
+# All eight biomes are available immediately; a saved frontier is per-world.
+android_save=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+ios_save=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+assert 'fun maxWorld(): Int = 7' in android_save
+assert 'func maxWorld() -> Int { 7' in ios_save
+for source in (android_save,ios_save):
+    assert 'player_name' in source
+    assert 'playerName' in source
+for source in (android,ios):
+    assert 'SPREMI IME' in source
+    assert 'Razvoj: Brendigo' in source

@@ -465,6 +465,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
+        let player=UITextField()
+        player.text=progress.playerName
+        player.placeholder="Ime igrača (lokalno)"
+        player.textColor = .white
+        player.backgroundColor=UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
+        player.layer.cornerRadius=12
+        player.heightAnchor.constraint(equalToConstant:52).isActive=true
+        s.addArrangedSubview(player)
+        button("SPREMI IME",in:s,primary:false){
+            player.resignFirstResponder()
+            self.progress.playerName=player.text ?? ""
+            self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
+        }
+        label("BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.",14,.white,s)
         label("Bez oglasa, telemetrije, računa i mrežnih zahtjeva.",14,.white,s)
         button("IZVEZI NAPREDAK",in:s,primary:false){
             do {

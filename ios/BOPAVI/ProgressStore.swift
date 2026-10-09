@@ -11,7 +11,7 @@ final class ProgressStore {
     }
     func chosenWorld()->Int {max(0,min(maxWorld(),defaults.integer(forKey:"chosen_world")))}
     func chooseWorld(_ world:Int){if (0...maxWorld()).contains(world){defaults.set(world,forKey:"chosen_world")}}
-    func maxWorld() -> Int { max(0,min(7,defaults.integer(forKey:"max_world"))) }
+    func maxWorld() -> Int { 7 /* All worlds open; preserve legacy save data. */ }
     func coins() -> Int { max(0,min(100_000_000,defaults.integer(forKey:"coins"))) }
     func best(_ world:Int) -> Int { defaults.integer(forKey:"best_\(world)") }
     let skins=["bopi","sunny","berry","luna","mint","shadow"]
@@ -72,6 +72,15 @@ final class ProgressStore {
         return (a>0 ? 1 : 0,b>0 ? 8 : 0)
     }
     func collectibles(_ world:Int)->Int { (0..<8).contains(world) ? max(0,defaults.integer(forKey:"collectibles_\(world)")) : 0 }
+    var playerName:String {
+        get { defaults.string(forKey:"player_name") ?? "Igrač" }
+        set {
+            let allowed = newValue.trimmingCharacters(in:.whitespacesAndNewlines).filter {
+                $0.isLetter || $0.isNumber || $0 == " " || $0 == "_" || $0 == "-"
+            }
+            defaults.set(allowed.isEmpty ? "Igrač" : String(allowed.prefix(24)),forKey:"player_name")
+        }
+    }
     var soundEnabled:Bool {
         get {defaults.object(forKey:"sound_enabled") as? Bool ?? true}
         set {defaults.set(newValue,forKey:"sound_enabled")}
@@ -79,7 +88,7 @@ final class ProgressStore {
     func exportData() throws -> Data {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
-                                 "coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
+                                 "playerName":playerName,"coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
                                  "owned":(0..<6).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
@@ -134,6 +143,7 @@ final class ProgressStore {
         }
         if let arr=s["perks"] as? [Int],arr.count==2 {for n in 0..<2 {defaults.set(min(99,max(0,arr[n])),forKey:"perk_\(n)")}}
         if let arr=s["collectibles"] as? [Int],arr.count==8 {for n in 0..<8 {defaults.set(min(100_000_000,max(0,arr[n])),forKey:"collectibles_\(n)")}}
+        playerName = s["playerName"] as? String ?? "Igrač"
         soundEnabled = s["soundEnabled"] as? Bool ?? true
         lessMotion = s["lessMotion"] as? Bool ?? false
     }
