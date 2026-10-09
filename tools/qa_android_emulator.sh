@@ -109,8 +109,34 @@ esac
 center=$((width/2))
 adb shell pidof com.brendigo.bopavi
 capture android-gameplay-ready
-# First touch makes Bopi flap; without further taps a collision must lead to results.
-adb shell input tap "$center" "$((height*50/100))"
+# Hosted emulator can consume the first input during launcher recovery.
+# Check actual GameView accessibility state before waiting for collision results.
+flight_started=0
+attempt=1
+while [ "$attempt" -le 6 ]; do
+  adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
+  adb shell input tap "$center" "$((height*50/100))"
+  sleep 1
+  dump_ui
+  if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml ||
+     grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
+    flight_started=1
+    break
+  fi
+  if grep -q "Pixel Launcher isn't responding" qa/screenshots/android-current-ui.xml; then
+    tap_play
+  fi
+  echo "Waiting for Bopi to start flying ($attempt/6)"
+  attempt=$((attempt+1))
+done
+if [ "$flight_started" -ne 1 ]; then
+  capture android-flight-start-diagnostic || true
+  echo "FAIL: gameplay did not acknowledge the first flight gesture" >&2
+  head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
+  exit 1
+fi
+echo "PASS: first flight gesture acknowledged by GameView"
+# A real collision must lead to results; never treat an idle game as success.
 # Wait for the actual result UI rather than assuming every runner reaches it in 5s.
 # A game crash or a missing retry button is still a hard failure.
 result_ready=0
