@@ -366,7 +366,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // No small text printed over the foreground: HUD is kept at the top.
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        if(event.actionMasked==MotionEvent.ACTION_DOWN){if(!paused && !game.finished){game.flap();onFlap();performClick();invalidate()};return true}
+        if(event.actionMasked==MotionEvent.ACTION_DOWN){if(!paused && !game.finished){game.flap();contentDescription="Bopi leti";onFlap();performClick();invalidate()};return true}
         return true
     }
     override fun performClick():Boolean {super.performClick();return true}
