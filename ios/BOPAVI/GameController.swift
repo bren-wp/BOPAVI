@@ -215,7 +215,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
         ])
         // Both counters reflect actual local progress, not online purchases.
-        let bestScore=(0..<8).map{progress.best($0)}.max() ?? 0
+        let bestScore=progress.bestPoints()
         let bestChip=UIView()
         bestChip.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
         bestChip.layer.cornerRadius=23
@@ -486,6 +486,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func showPerks(){
         let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
         label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
+        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",15,.white,s)
+        let bonus=progress.bonusCoinsAvailable()
+        if bonus>0 {
+            button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
+                let earned=self.progress.claimBonusCoins()
+                if earned>0 {self.sound.effect("purchase");self.showPerks()}
+            }
+        }
+
         label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
         for n in 0..<2 {
             let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
