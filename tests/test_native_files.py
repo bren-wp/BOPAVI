@@ -320,7 +320,7 @@ def _world_lighting_values(source, marker, opener, closer, parser):
 for array_name in ("glowHues","glowX","glowY"):
     a=_world_lighting_values(
         android_canvas, "private val "+array_name+"=", r'\(([^)]*)\)',
-        "\n",lambda token:float(token[:-1]) if token.endswith("f") else int(token,16))
+        "\n",lambda token:int(token,16) if array_name=="glowHues" else float(token[:-1]))
     b=_world_lighting_values(
         ios_canvas, "private let "+array_name+":", r'=\[([^]]*)\]',
         "\n",lambda token:float(token) if array_name!="glowHues" else int(token,16))
