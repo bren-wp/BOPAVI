@@ -390,7 +390,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         if selected==6 {
             label("Portantin: krilati čovječuljak s naočalama, kirurškom maskicom i rukavicama nosi suputnika na leđima.",15,.white,s)
         } else {
-            label("Izaberi Bopijevu boju. Odabir se sprema samo na ovom uređaju.",15,.white,s)
+            label("Izaberi Bopijevu boju ili besplatnog Portantina. Odabir ostaje na uređaju.",15,.white,s)
         }
         label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
         button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
