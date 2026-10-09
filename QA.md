@@ -88,3 +88,10 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Hijerarhija prikazuje sistemski dijalog `Pixel Launcher isn't responding` s opcijama `Close app` i `Wait`, iznad aktivnog BOPAVI početnog zaslona. BOPAVI proces ostao je aktivan; automatizirani dodir u Postavke preuzela je sistemska ANR komponenta.
 - QA skripta sada može prepoznati i oporaviti samo **točan** Pixel Launcher ANR pritiskom na sistemsko `Wait`; zahtijeva da BOPAVI proces i dalje radi, ograničava pokušaje i nakon svakog koraka ponovno provjerava stvarni UI.
 - Ako BOPAVI padne, pojavi se drukčiji dijalog ili se ekran Postavki i dalje ne otvori, test i dalje pada i pohranjuje screenshot, hijerarhiju i logcat. Nema preskakanja provjere ni lažno pozitivnih prolazaka.
+
+## v0.1.18 — drugi produkcijski pad i AOSP emulator
+- Workflow `37946675563`, Android smoke job `113875733201`: nakon uspješnog otvaranja Postavki ponovna provjera IGRAJ nije prošla. Spremljena XML hijerarhija iz QA artefakta `11623647855` potvrđuje da je opet prikazan isključivo sistemski dijalog `Pixel Launcher isn't responding`. Postavke su se prethodno zaista otvorile, a BOPAVI proces nije prijavljen kao ugašen.
+- Android emulator QA prebačen je na službenu AOSP (`target: default`) sliku Androida 35, jer igra nema Google servise niti mrežne dozvole i ne treba Googleov Pixel Launcher koji redovito podiže ANR.
+- Povratak iz Postavki sada se provjerava pet puta uz provjeru BOPAVI procesa. Oporavlja se samo točno prepoznat sistemski Pixel Launcher ANR; ako dijalog potroši Android Back, povratak se ponavlja tek nakon provjere da su Postavke i dalje otvorene.
+- Test mora na kraju pronaći stvarna tri dostupna početna gumba ili jasno pasti, uz screenshot/XML/logcat. Nije dopušteno prihvatiti screenshot Postavki kao dokaz ispravnog povratka na početni zaslon.
+- U audit dodana provjera sintakse shell QA skripte i prisutnosti AOSP emulator konfiguracije.

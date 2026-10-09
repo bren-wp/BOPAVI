@@ -172,8 +172,41 @@ while [ "$attempt" -le 6 ]; do
     capture android-settings
     adb shell input keyevent 4
     sleep 1
-    dump_ui
-    verify_three_home_actions
+    # The system launcher can raise an ANR *while navigating back*, too.
+    # Do not mistake a covered UI for a broken BOPAVI navigation path.
+    # A healthy BOPAVI process and actual three-button home are still mandatory.
+    home_ready=0
+    return_attempt=1
+    while [ "$return_attempt" -le 5 ]; do
+      adb shell pidof com.brendigo.bopavi >/dev/null || {
+        echo "FAIL: BOPAVI exited while returning from settings" >&2; exit 1;
+      }
+      dump_ui
+      if grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml &&
+         grep -q 'POSTAVKE' qa/screenshots/android-current-ui.xml; then
+        verify_three_home_actions
+        home_ready=1
+        break
+      fi
+      if recover_launcher_anr; then
+        # Android Back might have been consumed by the system ANR dialog.
+        sleep 2
+      elif grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+        adb shell input keyevent 4
+        sleep 1
+      else
+        echo "Unexpected UI after returning from settings" >&2
+        break
+      fi
+      return_attempt=$((return_attempt+1))
+    done
+    if [ "$home_ready" -ne 1 ]; then
+      capture android-home-return-diagnostic || true
+      head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
+      adb logcat -d -t 100 | tail -n 80 || true
+      echo "FAIL: three-button home did not reappear after POSTAVKE" >&2
+      exit 1
+    fi
     echo "PASS: settings opens and returns to the three-button home"
     home_captured=1
   fi
