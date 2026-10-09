@@ -310,6 +310,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             canvas.paused=true;self.sound.pause()
             let dialog=UIAlertController(title:"Pauza",message:nil,preferredStyle:.actionSheet)
             dialog.addAction(UIAlertAction(title:"Nastavi let",style:.default){_ in canvas.paused=false;self.sound.resume()})
+            dialog.addAction(UIAlertAction(title:self.progress.soundEnabled ? "🔇 Isključi zvuk" : "🔊 Uključi zvuk",style:.default){_ in
+                let enabled = !self.progress.soundEnabled
+                self.progress.soundEnabled = enabled
+                self.sound.enabled = enabled
+                canvas.paused = false
+                if enabled {self.sound.resume()}
+            })
             dialog.addAction(UIAlertAction(title:"Mapa svjetova",style:.default){_ in self.showWorlds()})
             dialog.addAction(UIAlertAction(title:"Oprema za kovanice",style:.default){_ in self.showPerks()})
             dialog.addAction(UIAlertAction(title:"Izgled Bopija",style:.default){_ in self.showSkins()})
@@ -401,6 +408,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(stats)
         label("\(g.score())",43,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
         label("Level \(gameNumber) · Prolazi \(g.passed)/\(g.level.gates.count)",16,
+              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+        label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
