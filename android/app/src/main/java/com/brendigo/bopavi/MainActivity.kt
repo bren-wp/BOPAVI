@@ -611,7 +611,23 @@ class MainActivity : Activity() {
         if(resultCode!=RESULT_OK || data?.data==null)return
         try {
             if(requestCode==42){contentResolver.openOutputStream(data.data!!)?.bufferedWriter(Charsets.UTF_8)?.use{it.write(progress.exportJson())}}
-            if(requestCode==43){val input=contentResolver.openInputStream(data.data!!) ?: error("Datoteka nije dostupna.");val text=input.bufferedReader().use{it.readText().take(550001)};progress.importJson(text);sound.enabled=progress.soundEnabled()}
+            if(requestCode==43){
+                val input=contentResolver.openInputStream(data.data!!) ?: error("Datoteka nije dostupna.")
+                // Reject oversized and hostile document-provider data while reading,
+                // rather than loading the entire untrusted file into memory.
+                val text=input.bufferedReader(Charsets.UTF_8).use { reader ->
+                    val out=StringBuilder()
+                    val chunk=CharArray(8192)
+                    while(out.length<=550000) {
+                        val count=reader.read(chunk)
+                        if(count<0)break
+                        out.append(chunk,0,count)
+                    }
+                    require(out.length<=550000){"Sigurnosna kopija je prevelika."}
+                    out.toString()
+                }
+                progress.importJson(text);sound.enabled=progress.soundEnabled()
+            }
             Toast.makeText(this,"Napredak uspješno ${if(requestCode==42)"izvezen" else "uvezen"}.",Toast.LENGTH_LONG).show()
             if(requestCode==43)showHome()
         }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
