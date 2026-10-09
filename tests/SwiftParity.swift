@@ -110,6 +110,21 @@ struct SwiftParity {
             let off=ParallaxScenery.offset(999999,layer:layer,reducedMotion:false)
             precondition(off>=0 && off<696)
         }
+        // v0.1.20: same bounded, retriggerable cosmetic wingbeat as Kotlin.
+        do {
+            let b=GameSimulation(BopaviCore.create(0,2))
+            precondition(b.flapPulse==0)
+            b.flap()
+            precondition(b.flapPulse==0.24 && b.flaps==1)
+            b.step(0.08)
+            precondition(abs(b.flapPulse-0.16)<0.0001)
+            b.step(Float.nan)
+            precondition(abs(b.flapPulse-0.16)<0.0001)
+            b.flap()
+            precondition(b.flapPulse==0.24 && b.flaps==2)
+            for _ in 0..<3 {b.step(0.10)}
+            precondition(b.flapPulse==0 && !b.finished)
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
