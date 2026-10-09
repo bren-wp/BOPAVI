@@ -116,6 +116,11 @@ final class GameCanvas: UIView {
             let textSize=pauseTitle.size(withAttributes:[.font:UIFont.systemFont(ofSize:36,weight:.heavy)])
             pauseTitle.draw(at:CGPoint(x:(480-textSize.width)/2,y:378),withAttributes:[
                 .font:UIFont.systemFont(ofSize:36,weight:.heavy),.foregroundColor:UIColor.white])
+            let resumeHint="DODIRNI Ⅱ ZA NASTAVAK" as NSString
+            let hintFont=UIFont.systemFont(ofSize:16,weight:.bold)
+            let hintWidth=resumeHint.size(withAttributes:[.font:hintFont]).width
+            resumeHint.draw(at:CGPoint(x:(480-hintWidth)/2,y:420),withAttributes:[
+                .font:hintFont,.foregroundColor:UIColor.white])
         }
         c.restoreGState()
         let groundTop=(bound.height-800*s)/2+751*s
