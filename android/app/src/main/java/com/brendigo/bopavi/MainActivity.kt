@@ -215,7 +215,7 @@ class MainActivity : Activity() {
         // The portrait background already contains the logo and tagline. No duplicates.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         // Two compact counters: actual stored best score and earned coins.
-        val bestScore=(0..7).maxOf { progress.best(it) }
+        val bestScore=progress.bestPoints()
         background.addView(chip("🏆  $bestScore"),FrameLayout.LayoutParams(-2,-2,
             Gravity.TOP or Gravity.LEFT).apply{setMargins(d(16),d(16),0,0)})
         background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
@@ -432,6 +432,13 @@ class MainActivity : Activity() {
     private fun showPerks(){
         val b=base("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
         title(b,"●  ${progress.coins()} KOVANICA",24,gold)
+        small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
+        val bonus=progress.bonusCoinsAvailable()
+        if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
+            val earned=progress.claimBonusCoins()
+            if(earned>0){sound.effect("purchase");showPerks()}
+        }
+
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         for(n in 0..1){
             val explanation=if(n==0)"Čuva Bopija od jednog sudara" else "Privlači kovanice i predmete 8 sekundi"
