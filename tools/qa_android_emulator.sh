@@ -171,7 +171,7 @@ def swipe_gallery(root,up=True):
     time.sleep(.4)
 
 root=ET.parse(sys.argv[1]).getroot()
-if not any('ODABERI LIKA' in s for s in node_labels(root)):
+if not any('ODABERI LIKA' in s or 'POLETI S' in s for s in node_labels(root)):
     raise SystemExit('FAIL: mandatory pre-flight picker missing')
 
 # The nine cards extend beyond the emulator viewport. Verify actual rendered
@@ -196,7 +196,8 @@ print('PASS: scrolled actual character gallery and found Portantin, Noa and Any'
 for attempt in range(8):
     buttons=[n for n in root.iter('node') if n.get('clickable')=='true'
              and 'POLETI S' in (n.get('text','')+' '+n.get('content-desc',''))]
-    if len(buttons)==1: break
+    if len(buttons)==1 and any('ODABERI LIKA' in s for s in node_labels(root)):
+        break
     swipe_gallery(root,up=False)
     root=refresh_ui()
 else:
@@ -204,8 +205,23 @@ else:
 m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
 if not m: raise SystemExit('FAIL: invalid pilot launch bounds')
 l,t,r,b=map(int,m.groups())
-subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
-print('PASS: mandatory character picker and flight confirmation completed',flush=True)
+# A scroll may still be settling: tap only after the full title and button
+# are simultaneously visible, then verify actual navigation before succeeding.
+time.sleep(.8)
+x,y=(l+r)//2,(t+b)//2
+for attempt in range(3):
+    subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
+    time.sleep(.8)
+    state=refresh_ui()
+    labels=node_labels(state)
+    if any('Dodirni za let Bopija' in value for value in labels):
+        print('PASS: mandatory character picker launched the idle flight',flush=True)
+        break
+    if not any('POLETI S' in value for value in labels):
+        print('PASS: pilot choice left the picker; outer QA verifies gameplay state',flush=True)
+        break
+else:
+    raise SystemExit('FAIL: launch button did not leave pilot selection after verified taps')
 PY
 }
 gameplay_ready=0
