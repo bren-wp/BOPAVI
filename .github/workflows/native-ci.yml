@@ -116,7 +116,27 @@ jobs:
           "$SDKM" --install 'platforms;android-36' 'platforms;android-35' 'build-tools;35.0.0'
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
-        run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
+        run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
+      - name: Capture unsigned release APK and SDK signing tools for local user signing
+        run: |
+          set -euo pipefail
+          test -s android/app/build/outputs/apk/release/app-release-unsigned.apk
+          mkdir -p dist/apk-signing-kit
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk dist/
+          cp "$ANDROID_HOME/build-tools/35.0.0/apksigner" dist/apk-signing-kit/
+          cp -a "$ANDROID_HOME/build-tools/35.0.0/lib" dist/apk-signing-kit/
+          cp "$ANDROID_HOME/build-tools/35.0.0/zipalign" dist/apk-signing-kit/
+          tar -czf dist/android-apk-signing-kit.tar.gz -C dist/apk-signing-kit .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Android-Release-APK-unsigned
+          path: dist/app-release-unsigned.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Android-SDK-Signing-Tools
+          path: dist/android-apk-signing-kit.tar.gz
+          if-no-files-found: error
       - name: Verify Play API 36 and unsigned bundle structure
         run: python tools/verify_play_release.py --aab android/app/build/outputs/bundle/release/app-release.aab
       - uses: actions/upload-artifact@v4
