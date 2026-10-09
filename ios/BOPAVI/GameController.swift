@@ -125,6 +125,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         l.setContentCompressionResistancePriority(.required,for:.vertical);into.addArrangedSubview(l)
         return l
     }
+    private func sectionHeading(_ title:String,in stack:UIStackView) {
+        let heading=label("   "+title,15,.white,stack)
+        heading.textAlignment = .left
+        heading.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+        heading.backgroundColor=UIColor(red:0.08,green:0.23,blue:0.45,alpha:0.94)
+        heading.layer.cornerRadius=22
+        heading.clipsToBounds=true
+        heading.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true
+    }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
         let b=BopaviActionButton(primary:primary)
         b.setTitle(title,for:.normal)
@@ -524,7 +533,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showSettings(){
         let s=menu("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
-        label("IZGLED I ZVUK",18,.white,s)
+        sectionHeading("IZGLED I ZVUK",in:s)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
         let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
@@ -546,7 +555,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.addArrangedSubview(hapticLabel);hapticRow.addArrangedSubview(haptic)
         s.addArrangedSubview(hapticRow)
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
-        label("IGRAČ I TEŽINA",18,.white,s)
+        sectionHeading("IGRAČ I TEŽINA",in:s)
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
         let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
         difficulty.selectedSegmentIndex=progress.difficulty
@@ -567,11 +576,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.progress.playerName=player.text ?? ""
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
-        label("DODATNE OPCIJE",18,.white,s)
+        sectionHeading("DODATNE OPCIJE",in:s)
         button("🐤  IZGLED BOPIJA",in:s,primary:false){self.showSkins()}
         button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
         button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
-        label("PODACI I PRIVATNOST",18,.white,s)
+        sectionHeading("PODACI I PRIVATNOST",in:s)
         label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,s)
         label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,s)
         button("SPREMI KOPIJU NAPRETKA",in:s,primary:false){
