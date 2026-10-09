@@ -88,6 +88,8 @@ assert 'UIImage(named:"BopiLeft' in (root/'ios/BOPAVI/GameCanvas.swift').read_te
 assert 'min(delta, 0.10f)' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'min(delta, 0.10)' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'window?.screen.maximumFramesPerSecond' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
+assert 'preferredFrameRateRange' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
+assert plistlib.load(open(root/'ios/BOPAVI/Info.plist','rb'))['CADisableMinimumFrameDurationOnPhone'] is True
 
 # Frame-pacing regression from the supplied Android device recording.
 renderer=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
