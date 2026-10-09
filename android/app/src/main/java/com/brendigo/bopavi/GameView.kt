@@ -59,7 +59,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var completedSeen=0
     private var pickupSeen=0
     var paused = false
-        set(v) { field = v; lastFrame = 0L; if(!v) postInvalidateOnAnimation() }
+        set(v) { field = v; lastFrame = 0L; postInvalidateOnAnimation() }
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -140,7 +140,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
         }
-        if(paused){rect(canvas,40f,340f,440f,458f,0xe91b2b55.toInt(),24f);text(canvas,"PAUZA",240f,409f,36f,Color.WHITE,true)}
+        if(paused){rect(canvas,40f,340f,440f,458f,0xe91b2b55.toInt(),24f);text(canvas,"PAUZA",240f,390f,36f,Color.WHITE,true);text(canvas,"DODIRNI Ⅱ ZA NASTAVAK",240f,425f,16f,Color.WHITE,true)}
         canvas.restore()
         val groundTop=(height-800f*scale)/2f+751f*scale
         if(groundTop<height) {

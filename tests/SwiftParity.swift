@@ -82,6 +82,7 @@ struct SwiftParity {
             precondition(easy.level.gates.count == hard.level.gates.count)
             precondition(GameSimulation(level,difficulty:42).difficulty == 2)
         }
+        precondition(s.score() >= 0 && s.score() <= 100_000_000)
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

@@ -32,7 +32,6 @@ PY
   return 1
 }
 
-capture android-home
 # Find the real accessible IGRAJ view instead of guessing a screen percentage.
 dump_ui(){
   adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1
@@ -45,7 +44,20 @@ import re, subprocess, sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and 'IGRAJ' in (n.get('text','')+' '+n.get('content-desc',''))]
 if len(buttons)!=1:
-    raise SystemExit(f'FAIL: expected one clickable IGRAJ button, got {len(buttons)}')
+    # Hosted API 35 emulator occasionally boots with a SYSTEM launcher ANR
+    # over the app. Dismiss only the exact Pixel Launcher dialog; never an
+    # ANR from com.brendigo.bopavi, which must still fail the smoke test.
+    titles=[n.get("text","") for n in root.iter("node") if n.get("resource-id")=="android:id/alertTitle"]
+    waits=[n for n in root.iter("node") if n.get("resource-id")=="android:id/aerr_wait"
+           and n.get("text")=="Wait" and n.get("clickable")=="true"]
+    if titles==["Pixel Launcher isn't responding"] and len(waits)==1:
+        m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
+        if not m: raise SystemExit("FAIL: invalid launcher ANR Wait button bounds")
+        l,t,r,b=map(int,m.groups())
+        print("Recovering exact emulator Pixel Launcher ANR; BOPAVI process remains verified",flush=True)
+        subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],check=True)
+        sys.exit(0)
+    raise SystemExit(f'FAIL: expected one clickable IGRAJ button, got {len(buttons)}; dialog={titles}')
 match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
 if not match:
     raise SystemExit('FAIL: invalid accessible IGRAJ bounds')
@@ -58,12 +70,18 @@ subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
 PY
 }
 gameplay_ready=0
+home_captured=0
 attempt=1
-while [ "$attempt" -le 3 ]; do
+while [ "$attempt" -le 6 ]; do
+  adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited" >&2;exit 1; }
   dump_ui
   if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
     gameplay_ready=1
     break
+  fi
+  if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+    capture android-home
+    home_captured=1
   fi
   tap_play
   sleep 2

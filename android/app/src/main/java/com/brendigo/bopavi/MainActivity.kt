@@ -20,8 +20,6 @@ import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 /** Fully native Android activity, controls and GPU Canvas game surface. */
 class MainActivity : Activity() {
@@ -304,14 +302,23 @@ class MainActivity : Activity() {
             setOnClickListener{
                 game.paused=true;sound.pause()
                 android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza")
-                    .setItems(arrayOf("Nastavi let","Mapa svjetova","Oprema za kovanice","Izgled Bopija","Zvuk i prikaz")) { _,choice ->
+                    .setItems(arrayOf("Nastavi let",
+                        if(progress.soundEnabled()) "🔇 Isključi zvuk" else "🔊 Uključi zvuk",
+                        "Mapa svjetova","Oprema za kovanice","Izgled Bopija","Zvuk i prikaz")) { _,choice ->
                         sound.effect("click")
                         when(choice){
                             0 -> {game.paused=false;sound.resume()}
-                            1 -> showWorlds()
-                            2 -> showPerks()
-                            3 -> showSkins()
-                            4 -> showSettings()
+                            1 -> {
+                                val enabled=!progress.soundEnabled()
+                                progress.setSoundEnabled(enabled)
+                                sound.enabled=enabled
+                                game.paused=false
+                                if(enabled)sound.resume()
+                            }
+                            2 -> showWorlds()
+                            3 -> showPerks()
+                            4 -> showSkins()
+                            5 -> showSettings()
                         }
                     }.setOnCancelListener{game.paused=false;sound.resume()}.show()
             }
@@ -380,6 +387,7 @@ class MainActivity : Activity() {
             })
         }
         detail("Level $currentLevel   ·   Prolazi ${g.passed}/${g.level.gates.size}")
+        detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
         action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}

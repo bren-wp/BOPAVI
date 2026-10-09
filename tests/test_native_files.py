@@ -175,3 +175,28 @@ assert "if(accessible)" not in android and "if accessible" not in ios
 engine=(root/"android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt").read_text()
 assert "private val offset" not in engine
 assert "fun accessible(" not in engine
+
+# v0.1.10: audio controls must be accessible without abandoning a live game.
+android_menu=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
+ios_menu=(root/"ios/BOPAVI/GameController.swift").read_text()
+android_canvas=(root/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
+ios_canvas=(root/"ios/BOPAVI/GameCanvas.swift").read_text()
+for source in (android_menu,ios_menu):
+    assert "Isključi zvuk" in source and "Uključi zvuk" in source
+    assert "progress.soundEnabled" in source
+    assert "Težina:" in source
+for canvas in (android_canvas,ios_canvas):
+    assert "DODIRNI Ⅱ ZA NASTAVAK" in canvas
+    assert "PAUZA" in canvas
+android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
+ios_sim=(root/"ios/BOPAVI/BopaviCore.swift").read_text()
+assert "100_000_000L" in android_sim and "100_000_000" in ios_sim
+
+# Hosted Android emulator occasionally shows a Pixel Launcher ANR (not an app ANR).
+# Permit ONLY the exact known system dialog and keep real gameplay ANRs fatal.
+qa=(root/"tools/qa_android_emulator.sh").read_text()
+assert 'Pixel Launcher isn\'t responding' in qa
+assert 'android:id/aerr_wait' in qa
+assert 'titles==["Pixel Launcher isn\'t responding"]' in qa
+assert 'BOPAVI exited' in qa
+assert 'capture android-home' in qa and 'home_captured' in qa
