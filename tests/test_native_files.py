@@ -482,7 +482,7 @@ assert "upcomingGateX" in android_render and "upcomingGateX" in ios_render
 
 # v0.1.24: pre-flight choice and original editable Portantin art on both OSes.
 port_svg=(root/'docs/assets/portantin.svg').read_text()
-for element in ('wing-left','wing-right','Kirur','mask','maskicom','rukavice','Portantin'):
+for element in ('wing-left','wing-right','Kirur','mask','maskicom','rukavic','Portantin'):
     assert element.lower() in port_svg.lower(),element
 artgen=(root/'tools/generate_images.py').read_text()
 for resource in ('bopi6','bopileft6','bopiright6','Bopi6','BopiLeft6','BopiRight6'):
