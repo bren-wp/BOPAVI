@@ -9,7 +9,6 @@ final class GameCanvas: UIView {
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
     private var progressLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
-    private var lastProgressTotal = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
@@ -59,10 +58,10 @@ final class GameCanvas: UIView {
     }()
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
-        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(5,max(0,skinIndex))
-        self.birdSprite=UIImage(named:"Bopi\(min(5,max(0,skinIndex)))")
-        self.leftWing=UIImage(named:"BopiLeft\(min(5,max(0,skinIndex)))")
-        self.rightWing=UIImage(named:"BopiRight\(min(5,max(0,skinIndex)))")
+        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(6,max(0,skinIndex))
+        self.birdSprite=UIImage(named:"Bopi\(min(6,max(0,skinIndex)))")
+        self.leftWing=UIImage(named:"BopiLeft\(min(6,max(0,skinIndex)))")
+        self.rightWing=UIImage(named:"BopiRight\(min(6,max(0,skinIndex)))")
         self.worldBackdrop=UIImage(named:"World\(game.level.world)")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
@@ -140,6 +139,11 @@ final class GameCanvas: UIView {
             oval(c,x+24,y-12,50,36,mist,mistAlpha)
         }
         drawWorldAtmosphere(c)
+        // The next gates are already moving through the same world space.
+        for (i,g) in game.upcomingGates.enumerated() {
+            let x=CGFloat(game.upcomingGateX(g))
+            if x >= -100 && x <= 550 {gate(c,g,x,i,true)}
+        }
         for (i,g) in game.level.gates.enumerated() {
             let x=CGFloat(game.gateX(g))
             if x < -100 || x > 550 {continue}
@@ -150,14 +154,6 @@ final class GameCanvas: UIView {
         if game.active && !game.finished {
             drawBoostHUD(c)
             drawLevelProgress(c)
-        }
-        if game.levelTransition>0 {
-            let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
-            rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
-            let title="LEVEL \(game.displayLevel)" as NSString
-            title.draw(at:CGPoint(x:174,y:120),withAttributes:[
-                .font:UIFont.systemFont(ofSize:20,weight:.heavy),
-                .foregroundColor:UIColor.white.withAlphaComponent(opacity)])
         }
         if paused {
             rect(c,40,340,400,118,0x1b2b55,24,0.91)
@@ -178,26 +174,17 @@ final class GameCanvas: UIView {
                 game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
         }
     }
-    /// One small gate-progress rail; labels are rebuilt only when gate counts change.
-    /// The same 480x800 logical coordinates and fill fraction are used on Android.
-    /// This is purely presentation: BopaviCore owns all gate progress and transitions.
+    /// A cumulative counter never jumps back to zero as levels stream past.
     private func drawLevelProgress(_ c:CGContext) {
-        let total=max(1,game.level.gates.count)
-        let passed=max(0,min(total,game.passed))
-        if passed != lastProgressPassed || total != lastProgressTotal {
-            progressLabel=NSAttributedString(string:"PROLAZI \(passed)/\(total)",
+        let passed=game.totalPassed
+        if passed != lastProgressPassed {
+            progressLabel=NSAttributedString(string:"PROLAZI UKUPNO  \(passed)",
                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
-            lastProgressTotal=total
-            if game.active {accessibilityLabel="Bopi leti. Prolazi \(passed) od \(total)"}
+            accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
         }
-        rect(c,180,160,286,47,0x18305d,16,0.85)
-        progressLabel.draw(at:CGPoint(x:193,y:163))
-        rect(c,193,188,260,7,0x4f7baf,3.5,0.47)
-        if passed>0 {
-            let fill=260*CGFloat(passed)/CGFloat(total)
-            rect(c,193,188,fill,7,pickupHues[game.level.world],3.5)
-        }
+        rect(c,180,160,286,36,0x18305d,16,0.85)
+        progressLabel.draw(at:CGPoint(x:193,y:165))
     }
     // Drawn in the same unscaled 480x800 game coordinates as Android.
     // Lightweight rounded chips reveal actual remaining protection and magnet time.
@@ -363,7 +350,7 @@ final class GameCanvas: UIView {
         rect(c,x+8+offset,bottom+15,13,5,hue,2,opacity)
         rect(c,right,bottom+15,13,5,hue,2,opacity)
     }
-    private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int){
+    private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
         let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
@@ -426,13 +413,13 @@ final class GameCanvas: UIView {
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
                 let center=(top+bottom)*0.5,mid=x+w*0.5
-        if g.coin && game.coinVisible(index) {
+        if g.coin && (incoming || game.coinVisible(index)) {
             let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
             oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,pickupHues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
             pickupSymbol.draw(at:CGPoint(x:mid-10,y:center-11))
         }
-        if g.star && game.starVisible(index) {star(c,mid+35,center-25,12,0xffe25d)}
-        if g.power>0 && game.powerVisible(index) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
+        if g.star && (incoming || game.starVisible(index)) {star(c,mid+35,center-25,12,0xffe25d)}
+        if g.power>0 && (incoming || game.powerVisible(index)) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
     }
     private func star(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ size:CGFloat,_ rgb:UInt32){
         c.setFillColor(color(rgb));c.beginPath()
@@ -563,7 +550,7 @@ final class GameCanvas: UIView {
         oval(c,-30,0,22,16,0x1678d8)
         c.saveGState();c.rotate(by:phase*26 * .pi/180)
         oval(c,-28,-4,36,20,0x0c78dc);oval(c,-25,-6,29,11,0x4ac3ff);c.restoreGState()
-        oval(c,-23,-24,49,49,0x095cc8);oval(c,-20,-25,43,48,feather[skinIndex])
+        oval(c,-23,-24,49,49,0x095cc8);oval(c,-20,-25,43,48,feather[min(5,skinIndex)])
         oval(c,-13,5,32,20,0xffffff)
         oval(c,-14,-17,12,7,0xffffff,0.5)
         oval(c,18,0,7,7,0xffa9ad)

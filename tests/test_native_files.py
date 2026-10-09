@@ -221,8 +221,10 @@ for source in (android,ios):
 # No pause or distance reset at level boundaries.
 andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'levelOrigin=distance+300f-next.gates.first().x' in andr
-assert 'levelOrigin=distance+300-next.gates[0].x' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x+242f-upcoming.gates.first().x' in andr
+assert 'nextOrigin=levelOrigin+level.gates[level.gates.count-1].x+242-next.gates[0].x' in swift
+assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
+assert 'levelTransition=0f' in andr and 'levelTransition=0' in swift
 assert 'distance = 0f; passed = 0' not in andr
 assert 'distance=0;passed=0' not in swift
 
@@ -462,28 +464,46 @@ ios_progress=ios_canvas.split("private func drawLevelProgress(",1)[1].split("pri
 for source in (android_canvas,ios_canvas):
     assert source.count("drawLevelProgress(")==2
 for source in (android_progress,ios_progress):
-    assert "game.level.gates" in source and "game.passed" in source
-    assert "lastProgressPassed" in source and "lastProgressTotal" in source
-    assert "PROLAZI " in source
-    assert "Bopi leti. Prolazi " in source
-    assert "pickupHues[game.level.world]" in source
-    assert "160" in source and "188" in source
+    assert "game.totalPassed" in source
+    assert "lastProgressPassed" in source
+    assert "PROLAZI UKUPNO" in source
+    assert "Bopi leti. Prolazi ukupno" in source
+    assert "160" in source
     assert "UIImage(" not in source and "BitmapFactory" not in source
-assert "rect(c,193f,188f,453f,195f" in android_progress
-assert "rect(c,193,188,260,7" in ios_progress
-assert "260f*passed.toFloat()/total" in android_progress
-assert "260*CGFloat(passed)/CGFloat(total)" in ios_progress
-# The visual bar represents actual completed gates, not distance or score.
-for gates in (1,11,12,15,17):
-    for passed in range(gates+1):
-        fill=260*passed/gates
-        assert 0<=fill<=260
-        if passed==0: assert fill==0
-        if passed==gates: assert fill==260
-# A seamless transition replaces the entire gate list, and the next draw uses
-# a zero numerator even when both levels contain equal gate counts.
-assert "passed = 0" in android_sim or "passed = 0" in android_sim.replace("passed=0","passed = 0")
-assert "passed=0" in ios_sim or "passed = 0" in ios_sim
+    assert "game.passed" not in source
+assert "260f*passed.toFloat()/total" not in android_progress
+assert "260*CGFloat(passed)/CGFloat(total)" not in ios_progress
+# No old-world gate progress resetting bar or level-flash overlay.
+assert "if(game.levelTransition>0f)" not in android_render
+assert "if game.levelTransition>0" not in ios_render
+assert "upcomingGates().withIndex()" in android_render
+assert "upcomingGates.enumerated()" in ios_render
+assert "upcomingGateX" in android_render and "upcomingGateX" in ios_render
+
+# v0.1.24: pre-flight choice and original editable Portantin art on both OSes.
+port_svg=(root/'docs/assets/portantin.svg').read_text()
+for element in ('wing-left','wing-right','Kirur','mask','maskicom','rukavic','Portantin'):
+    assert element.lower() in port_svg.lower(),element
+artgen=(root/'tools/generate_images.py').read_text()
+for resource in ('bopi6','bopileft6','bopiright6','Bopi6','BopiLeft6','BopiRight6'):
+    assert resource in artgen
+assert "R.drawable.bopi6" in android_render and 'UIImage(named:"Bopi' in ios_render
+android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun startGame(',1)[0]
+ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func startGame(',1)[0]
+for view in (android_picker,ios_picker):
+    assert 'POLETI S' in view and 'ODABERI LIKA' in view
+    assert 'skinNames.indices' in view and 'Portantin' in view
+    assert 'selectOrBuy(i)' in view
+    assert 'startGame(' in view
+for source in (android_menu,ios_menu):
+    home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
+    assert 'showPilotPicker(' in home and 'startGame(' not in home
+qa=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'tap_selected_pilot' in qa and 'android-pilot-picker' in qa
+for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt','ios/BOPAVI/ProgressStore.swift'):
+    store=(root/path).read_text()
+    assert 'portantin' in store and 'Portantin' in store
+    assert 'skin_index' in store
 
 # v0.1.23: never show gameplay controls on home or before the first flap.
 # The visible pause is created per-session and revealed only by an actual

@@ -27,20 +27,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Only rebuild the textual progress label when a gate is passed or a new
     // endless level begins; the renderer draws its bar each frame without allocation.
     private var lastProgressPassed = -1
-    private var lastProgressTotal = -1
     private var progressTitle = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5)
-    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
+    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply { inScaled=false })
     private val birdRect=RectF(-50f,-50f,50f,50f)
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
-        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5)
+        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
-        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5)
-    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[skinIndex.coerceIn(0,5)],
+        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5,R.drawable.bopiright6)
+    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply{inScaled=false})
-    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[skinIndex.coerceIn(0,5)],
+    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply{inScaled=false})
     private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
@@ -160,6 +159,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
         }
         drawWorldAtmosphere(canvas)
+        // Upcoming gates enter from the right BEFORE the previous level ends.
+        // Cache is produced by the simulation; no per-frame level generation.
+        for((i,g) in game.upcomingGates().withIndex()) {
+            val x=game.upcomingGateX(g)
+            if(x >= -100f && x<=550f)drawGate(canvas,g,x,i,true)
+        }
         for(i in game.level.gates.indices) {
             val g=game.level.gates[i];val x=game.gateX(g)
             if(x < -100f || x>550f)continue
@@ -171,13 +176,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.active && !game.finished) {
             drawHud(canvas)
             drawLevelProgress(canvas)
-        }
-        if(game.levelTransition>0f){
-            val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
-            // Small nonblocking level ribbon; no pause or separate screen.
-            val color=(alpha*215f).toInt().coerceIn(0,215) shl 24 or 0x103b76
-            rect(canvas,135f,111f,345f,157f,color,18f)
-            text(canvas,"LEVEL ${game.displayLevel}",240f,141f,20f,Color.WHITE,true)
         }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
@@ -358,7 +356,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+8f+offset,bottom+15f,x+21f+offset,bottom+20f,color,2f)
         rect(c,right,bottom+15f,right+13f,bottom+20f,color,2f)
     }
-    private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int){
+    private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
         val color=if(g.kind==0)0xffad8c71.toInt() else pillars[g.kind]
@@ -432,14 +430,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
                 val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
-        if(g.coin && game.coinVisible(index)) {
+        if(g.coin && (incoming || game.coinVisible(index))) {
             val pulse=if(reducedMotion)0f else sin(game.time*5f+g.phase)*2f
             oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,pickupHues[g.kind])
             oval(c,middle-11f,center-11f,middle+11f,center+11f,0x66ffffff)
             text(c,LevelEngine.collectibleIcons[g.kind],middle,center+7f,18f,Color.WHITE,true)
         }
-        if(g.star && game.starVisible(index)){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
-        if(g.power!=0 && game.powerVisible(index)){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
+        if(g.star && (incoming || game.starVisible(index))){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
+        if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
      * Deterministic Canvas particles are bounded and allocate no sprites each frame.
@@ -585,26 +583,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
-    /** Small nonblocking progress rail, positioned beneath the level ribbon.
-     * Updates from actual passed gates; seamless level rotation resets it to zero.
-     * All rectangles remain in fixed 480x800 world coordinates.
-     */
+    /** Cumulative progress never resets when a new level joins the same flight. */
     private fun drawLevelProgress(c:Canvas) {
-        val total=game.level.gates.size.coerceAtLeast(1)
-        val passed=game.passed.coerceIn(0,total)
-        if(passed!=lastProgressPassed || total!=lastProgressTotal) {
-            progressTitle="PROLAZI "+passed+"/"+total
+        val passed=game.totalPassed
+        if(passed!=lastProgressPassed) {
+            progressTitle="PROLAZI UKUPNO  $passed"
             lastProgressPassed=passed
-            lastProgressTotal=total
-            if(game.active) contentDescription="Bopi leti. Prolazi "+passed+" od "+total
+            contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        rect(c,180f,160f,466f,207f,0xd918305d.toInt(),16f)
-        text(c,progressTitle,193f,180f,16f,Color.WHITE)
-        rect(c,193f,188f,453f,195f,0x774f7baf,3.5f)
-        if(passed>0) {
-            val width=260f*passed.toFloat()/total
-            rect(c,193f,188f,193f+width,195f,pickupHues[game.level.world],3.5f)
-        }
+        rect(c,180f,160f,466f,196f,0xd918305d.toInt(),16f)
+        text(c,progressTitle,193f,184f,16f,Color.WHITE)
     }
     private fun drawHud(c:Canvas){
         rect(c,14f,22f,197f,71f,0xcc15285c.toInt(),20f)

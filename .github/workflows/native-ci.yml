@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.23
+    name: GitHub Release v0.1.24
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.23 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.23 exists: no duplicate release.'
+          if gh release view v0.1.24 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.24 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.23 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.23 — Čist početak leta i popravljena pauza' --prerelease \
-            --notes 'Android i iOS: ispravljen problem prijevremenog prikaza gumba pauze na uvodnom zaslonu leta. Početni izbornik i čekanje prvog dodira nemaju pauzu ni HUD; kontrole se pojavljuju tek nakon stvarnog početka leta. Pri prelasku na druge zaslone kontrole se uklanjaju, a zakašnjeli rezultatski povratni poziv ne može zamijeniti početni ekran. Unaprijeđen Android emulator QA: potvrđuje početni izbornik bez pauze, mirujući uvodni ekran bez pauze, aktivni let s pauzom i rezultat bez pauze. Dodani Kotlin JUnit, Swift/Kotlin parity i statički audit. Fizika, sudari, 8 dostupnih svjetova, novčići, lokalni rezultati, spremanje i offline način rada ostaju netaknuti. Paketi su razvojni APK, nepotpisani AAB i nepotpisani iOS Simulator/device ZIP, nisu potpisani za trgovine. Potpuna pixel-perfect identičnost svih prikaza s referentnim slikama još nije potvrđena.'
+          gh release create v0.1.24 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.24 — Portantin i neprekinuti let' --prerelease \
+            --notes 'Android i iOS: neprekinuti niz levela — sljedeće prepreke ulaze u vidno polje prije završetka prethodnog levela, bez poskakivanja i bez rezanja prikaza; ukupni broj prolaza ne resetira se. Prije svakog leta novi izbor jednog od sedam likova, uključujući besplatnog originalnog krilatog Portantina koji nosi suputnika, s naočalama, kirurškom maskicom i rukavicama. Portantin i odvojena krila nastaju iz jednog izvornog SVG-a na obje platforme; stari spremljeni i kupljeni Bopijevi izgledi ostaju sačuvani. Unos sigurnosnih kopija ograničen je na 550 KB tijekom čitanja; nema mreže, oglasa ni kupnje. Ažurirani testovi Android/iOS i marketinški README. Paketi su razvojni APK, nepotpisani AAB te nepotpisani iOS simulator/device ZIP, ne produkcijski potpisani za trgovine. Vizualna identičnost svih prikaza 1:1 na stvarnim uređajima još nije potvrđena.'

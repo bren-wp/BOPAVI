@@ -1,3 +1,12 @@
+## v0.1.24 — Portantin, izbor lika i neprekinuti leveli
+- Android i iOS beskrajni let sada unaprijed generira sljedeći level i iscrtava njegove prepreke prije nego prethodni završi. Predaja između levela koristi unaprijed izračunate pozicije prepreka umjesto stvaranja novih usred ekrana; zadržani su kamera, udaljenost, fizika, bodovi, novčići i krila.
+- Uklonjen je vizualni prijelazni natpis i napredak po levelu koji se vraćao na nulu. Prikazuje se **ukupan broj prolaza u tekućem letu** koji raste bez prekida.
+- Novi **ODABERI LIKA** prikazuje se prije svakog leta na obje platforme. Svi likovi imaju pregled i spremaju se lokalno; boosteri se troše tek po potvrdi **POLETI S...**.
+- **Portantin** — besplatan, originalni krilati čovječuljak s naočalama, zaštitnom maskicom i rukavicama koji nosi suputnika na leđima. Uređivi izvor `docs/assets/portantin.svg` generira tijelo i dva odvojena krila za Android i iOS. Dosadašnjih šest Bopijevih oblika ostaje i cijene/kupljeni izgledi se ne resetiraju.
+- Uvoz nepoznate JSON kopije na Androidu i iOS-u čita najviše 550001 znak/bajt prije parsiranja, umjesto neograničenog `readText`/`Data(contentsOf:)`. Validacija formata i raspona ostaje.
+- Kotlin JUnit, Kotlin/Swift parity, Android emulator odabira lika i audit izvornih resursa prošireni su za kontinuirani let, spremanje odabranog lika i zaštitu privatnosti. Obnovljen glavni README s vizualima, opisima sedam likova i uputama.
+- Android 0.1.24 / versionCode 25, iOS 0.1.24 / build 25. Ovo izdanje ne predstavlja potvrdu potpune 1:1 usporedbe svih ekrana na fizičkim uređajima.
+
 ## v0.1.23 — prvi dodir započinje let, pauza više ne smeta uvodnom ekranu
 - Ispravljen stvarni uzrok prijevremenog pojavljivanja gumba pauze: i Android i iOS sada ga stvaraju skrivenog i otkrivaju tek na događaju **prvog uspješnog zamaha krila**, kada simulacija prijeđe iz mirovanja u aktivan let.
 - Uvodni zaslon leta više ne prikazuje HUD, status zaštite ni napredak kroz prepreke prije prvog dodira; nakon prvog zamaha svi potrebni pokazatelji postaju dostupni. Početni izbornik nema gameplay kontrole.

@@ -148,7 +148,17 @@ final class GameSimulation {
     private(set) var time: Float = 0
     private(set) var distance: Float = 0
     private var levelOrigin: Float = 0
+    private var nextLevel:BopaviCore.Level?
+    private var nextOrigin:Float = 0
     func gateX(_ gate:BopaviCore.Gate)->Float { gate.x+levelOrigin-distance }
+    var upcomingGates:[BopaviCore.Gate] {nextLevel?.gates ?? []}
+    func upcomingGateX(_ gate:BopaviCore.Gate)->Float {gate.x+nextOrigin-distance}
+    private func prepareNext() {
+        guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
+        let next=BopaviCore.createStream(level.world,displayLevel+1)
+        nextOrigin=levelOrigin+level.gates[level.gates.count-1].x+242-next.gates[0].x
+        nextLevel=next
+    }
     private(set) var levelTransition: Float = 0
     private(set) var passed = 0
     private(set) var coins = 0
@@ -186,6 +196,7 @@ final class GameSimulation {
         collectedCoins=Array(repeating:false,count:level.gates.count)
         collectedStars=Array(repeating:false,count:level.gates.count)
         collectedPowers=Array(repeating:false,count:level.gates.count)
+        prepareNext()
     }
     func flap() {
         guard !finished else { return }
@@ -233,11 +244,12 @@ final class GameSimulation {
                     if endless {
                         completedOrdinal=displayLevel;completionCount += 1
                         displayLevel=min(Int.max-2,displayLevel+1)
-                        let next=BopaviCore.createStream(level.world,displayLevel)
-                        // World position remains monotonic across level transitions.
-                        levelOrigin=distance+300-next.gates[0].x
-                        level=next
-                        levelTransition=0.78
+                        // Upcoming gates are already on screen before promotion.
+                        let incoming=nextLevel ?? BopaviCore.createStream(level.world,displayLevel)
+                        levelOrigin=nextOrigin
+                        level=incoming
+                        prepareNext()
+                        levelTransition=0
                         passed=0
                         collectedCoins=Array(repeating:false,count:level.gates.count)
                         collectedStars=Array(repeating:false,count:level.gates.count)
