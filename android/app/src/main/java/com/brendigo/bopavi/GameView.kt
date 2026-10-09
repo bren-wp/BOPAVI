@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.RectF
 import android.graphics.Color
 import android.graphics.LinearGradient
+import android.graphics.RadialGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
@@ -42,6 +43,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
         BitmapFactory.Options().apply{inScaled=false})
     private val worldRect=RectF(0f,0f,480f,800f)
+    // Prebuilt world-specific sunlight, moonshine and crystal glow.
+    // Cached shaders are reused across frames; no bitmap or shader creation while drawing.
+    private val glowHues=intArrayOf(0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff)
+    private val glowX=floatArrayOf(350f,390f,395f,360f,380f,396f,370f,365f)
+    private val glowY=floatArrayOf(180f,132f,154f,180f,146f,169f,181f,170f)
+    private val glowShaders=Array(8) { world ->
+        RadialGradient(glowX[world],glowY[world],185f,
+            intArrayOf(0x47000000 or glowHues[world],glowHues[world]),
+            floatArrayOf(0f,1f),Shader.TileMode.CLAMP)
+    }
+
     private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
@@ -118,6 +130,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(Color.WHITE)
             canvas.drawBitmap(worldBitmap,null,worldRect,p)
         } else drawBackground(canvas)
+        drawWorldLighting(canvas)
         // Light atmospheric layer moves independently of the static painted backdrop.
         // Reuses one Paint and generates no bitmaps or sprite allocations per frame.
         val drift=if(reducedMotion)0f else (game.distance*.075f)%580f
@@ -164,6 +177,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Pure Canvas primitives: no per-frame bitmap decoding, allocation or physics changes.
      * Motion freezes entirely with the reduced-motion accessibility preference.
      */
+
+    /** Blend painted backdrops into real-time primitives with a soft biome glow.
+     * Stable under reduced-motion and cached once per GameView instance.
+     */
+    private fun drawWorldLighting(c:Canvas) {
+        val world=game.level.world
+        p.shader=glowShaders[world]
+        p.color=Color.WHITE
+        p.alpha=255
+        c.drawCircle(glowX[world],glowY[world],185f,p)
+        p.shader=null
+    }
     private fun drawWorldAtmosphere(c:Canvas) {
         val world=game.level.world
         val distance=if(reducedMotion)0f else game.distance
