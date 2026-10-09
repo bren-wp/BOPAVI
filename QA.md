@@ -151,3 +151,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - **Grafika:** jedan uređivi SVG Portantina u `docs/assets/portantin.svg`, s dvije izdvojive grupe krila; isti generirani 512 px prozirni spriteovi na obje platforme. Generator ruši build ako grafički slojevi nedostaju.
 - **Sigurnost:** nijedan import ne smije neograničeno učitavati datoteku od vanjskog pružatelja; granica 550000 na obje platforme provjerava se i prije i nakon čitanja. Nema novih mrežnih dozvola ni telemetrije.
 - **Quality gate:** Android lint/JUnit/APK/AAB, emulator stvarni tijek IGRAJ→ODABERI LIKA→POLETI i sudar, Swift simulator/physics/save/device build te source/privacy audit. Nakon svih zelenih PR poslova slijedi merge, puni main CI i provjera četiri GitHub Release artefakta. Fizički 1:1 screenshot audit još nije automatiziran.
+
+
+## v0.1.25 — zona bez skoka i ilustrirani odabir lika
+- Kotlin i Swift `prepareNext` izračunavaju ulazni razmak na temelju `lastGate.x - previousGate.x`; samo sintetski level s jednom preprekom zadržava sigurnu zadanu udaljenost od 242. Položaj unaprijed nacrtanih prepreka ne mijenja se prilikom promocije sljedećeg levela. Globalna udaljenost, prolazi, scena i kamera ostaju kontinuirani.
+- Kotlin JUnit i Kotlin/Swift parity provjeravaju sva osam svijeta te levele 2, 62, 122, 182, 242, 302 i 360, uključujući šest izazovnih zona i završetak ciklusa. Testovi uspoređuju razmak stvarnog prethodnog niza s prvim stupom unaprijed pripremljenog sljedećeg levela.
+- Obje platforme koriste galeriju svih sedam stvarnih likova s dva stupca i čitljivim natpisima; Android koristi `R.drawable.bopi0..6`, iOS `Bopi0..6`. Portantin ostaje dostupan odmah. Preskakanje pre-flight odabira nije dodano.
+- Potvrda virtualne kupnje je obvezna: novi zaključani lik ne smije smanjiti broj osvojenih kovanica na prvi dodir. Dijalog mora navesti točnu cijenu i omogućiti odustajanje. Već otključani likovi ne naplaćuju se ponovno; preostale kovanice i skin izbor spremaju se lokalno.
+- Python audit provjerava prisutnost ilustracija, odvojenu pristupačnost kartica, uvjetovano trošenje i obje galerije. Prije spajanja i objave obvezni su svi Android/iOS CI koraci, Android emulator smoke QA, iOS simulator/Swift/backup testovi i potvrda sva četiri stvarna artefakta. Nije potvrđena apsolutna pixel-perfect jednakost 1:1 na fizičkim uređajima.

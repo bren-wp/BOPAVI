@@ -371,6 +371,90 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         if start+20<=maxNumber {button("Sljedećih 20 →",in:s,primary:false){self.showLevels(world,page:start+20)}}
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
     }
+    /// Shared image gallery: every player sees the actual unlocked/locked cast.
+    /// A new virtual-coin purchase always requires a second explicit approval.
+    private func characterGallery(in stack:UIStackView,refresh:@escaping()->Void) {
+        for start in stride(from:0,to:progress.skinNames.count,by:2) {
+            let row=UIStackView()
+            row.axis = .horizontal;row.alignment = .fill
+            row.distribution = .fillEqually;row.spacing=10
+            stack.addArrangedSubview(row)
+            for i in start..<min(start+2,progress.skinNames.count) {
+                let selected=progress.skinIndex()==i
+                let owned=progress.owned(i)
+                let cost=progress.costs[i]
+                let status=selected ? "✓ ODABRAN" : owned ? "DOSTUPAN" : "\(cost) KOVANICA"
+                let card=BopaviActionButton(primary:selected)
+                card.setTitle("",for:.normal)
+                card.layer.borderWidth=selected ? 3 : 1
+                card.layer.borderColor=(selected
+                    ? UIColor(red:1,green:0.84,blue:0.34,alpha:1)
+                    : UIColor(red:0.43,green:0.72,blue:0.94,alpha:0.7)).cgColor
+                card.accessibilityLabel="\(progress.skinNames[i]), \(status)"
+                card.heightAnchor.constraint(equalToConstant:157).isActive=true
+                let portrait=UIImageView(image:UIImage(named:"Bopi\(i)"))
+                portrait.translatesAutoresizingMaskIntoConstraints=false
+                portrait.contentMode = .scaleAspectFit
+                portrait.isUserInteractionEnabled=false
+                portrait.accessibilityElementsHidden=true
+                card.addSubview(portrait)
+                let name=UILabel()
+                name.translatesAutoresizingMaskIntoConstraints=false
+                name.text=progress.skinNames[i]
+                name.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+                name.textColor = .white;name.textAlignment = .center
+                name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.7
+                name.accessibilityElementsHidden=true
+                card.addSubview(name)
+                let price=UILabel()
+                price.translatesAutoresizingMaskIntoConstraints=false
+                price.text=status;price.font=UIFont.systemFont(ofSize:12,weight:.bold)
+                price.textColor=selected
+                    ? UIColor(red:1,green:0.86,blue:0.40,alpha:1)
+                    : UIColor(red:0.82,green:0.93,blue:1,alpha:1)
+                price.textAlignment = .center
+                price.adjustsFontSizeToFitWidth=true;price.minimumScaleFactor=0.72
+                price.accessibilityElementsHidden=true
+                card.addSubview(price)
+                NSLayoutConstraint.activate([
+                    portrait.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:8),
+                    portrait.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-8),
+                    portrait.topAnchor.constraint(equalTo:card.topAnchor,constant:3),
+                    portrait.heightAnchor.constraint(equalToConstant:100),
+                    name.topAnchor.constraint(equalTo:portrait.bottomAnchor,constant:1),
+                    name.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
+                    name.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
+                    name.heightAnchor.constraint(equalToConstant:22),
+                    price.topAnchor.constraint(equalTo:name.bottomAnchor,constant:1),
+                    price.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
+                    price.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
+                    price.heightAnchor.constraint(equalToConstant:21)
+                ])
+                card.addAction(UIAction{ [weak self] _ in
+                    guard let self=self else{return}
+                    self.sound.effect("click")
+                    if owned {
+                        _=self.progress.selectOrBuy(i)
+                        refresh()
+                    } else if self.progress.coins()<cost {
+                        self.alert("Nedovoljno kovanica","Prikupi još kovanica za \(self.progress.skinNames[i]).")
+                    } else {
+                        let confirmation=UIAlertController(
+                            title:"Otključati \(self.progress.skinNames[i])?",
+                            message:"Potrošit ćeš \(cost) osvojenih kovanica. Potvrdi otključavanje.",
+                            preferredStyle:.alert)
+                        confirmation.addAction(UIAlertAction(title:"Odustani",style:.cancel))
+                        confirmation.addAction(UIAlertAction(title:"Otključaj",style:.default){_ in
+                            if self.progress.selectOrBuy(i) {refresh()}
+                        })
+                        self.present(confirmation,animated:true)
+                    }
+                },for:.touchUpInside)
+                row.addArrangedSubview(card)
+            }
+            if start==progress.skinNames.count-1 {row.addArrangedSubview(UIView())}
+        }
+    }
     /// Character choice is a deliberate step before gameplay or boost consumption.
     private func showPilotPicker(_ world:Int,_ number:Int) {
         gameWorld=world;gameNumber=number
@@ -396,15 +480,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
             self.startGame(world,number)
         }
-        for i in progress.skinNames.indices {
-            let status=progress.skinIndex()==i ? "✓ ODABRAN" :
-                progress.owned(i) ? "DOSTUPAN" : "\(progress.costs[i]) kovanica"
-            button("\(i==6 ? "🪽" : "🐦")  \(progress.skinNames[i]) · \(status)",
-                   in:s,primary:progress.skinIndex()==i) {
-                if self.progress.selectOrBuy(i) {self.showPilotPicker(world,number)}
-                else {self.alert("Nedovoljno kovanica","Nove boje otključavaju se igranjem. Portantin je besplatan.")}
-            }
-        }
+        sectionHeading("ODABERI SVOG LETAČA",in:s)
+        characterGallery(in:s){self.showPilotPicker(world,number)}
         button("‹  LEVELI",in:s,primary:false){self.showLevels(world,page:min(number,BopaviCore.levelsPerWorld))}
     }
 
@@ -604,19 +681,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
-        button("🎨  BOJE BOPIJA",in:s,primary:false){self.showSkins()}
+        button("🎨  LIKOVI",in:s,primary:false){self.showSkins()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
         let s=menu("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
         label("Stanje: \(progress.coins()) kovanica",20,.white,s)
-        for i in progress.skinNames.indices {
-            let description=progress.skinIndex()==i ? "✓ ODABRAN" : progress.owned(i) ? "OTKLJUČAN" : "\(progress.costs[i]) kovanica"
-            button("\(i==6 ? "🪽" : "🐦") \(progress.skinNames[i]) · \(description)",in:s,primary:progress.skinIndex()==i){
-                if !self.progress.selectOrBuy(i){self.alert("Nedovoljno kovanica","Skupljaj kovanice tijekom leta.")}
-                else {self.showSkins()}
-            }
-        }
+        characterGallery(in:s){self.showSkins()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showLeaderboard(){
@@ -685,7 +756,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
         sectionHeading("DODATNE OPCIJE",in:s)
-        button("🐤  IZGLED BOPIJA",in:s,primary:false){self.showSkins()}
+        button("🐤  LIKOVI",in:s,primary:false){self.showSkins()}
         button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
         button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
         sectionHeading("PODACI I PRIVATNOST",in:s)

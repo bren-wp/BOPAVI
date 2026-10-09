@@ -27,7 +27,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
-        nextOrigin=levelOrigin+level.gates.last().x+242f-upcoming.gates.first().x
+        // Match the *current* level's actual gate spacing, which varies
+        // by zone. A constant 242px creates a subtle rhythm jump in later zones.
+        val spacing=if(level.gates.size>=2)
+            level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 242f
+        nextOrigin=levelOrigin+level.gates.last().x+spacing-upcoming.gates.first().x
         nextLevel=upcoming
     }
     var levelTransition = 0f; private set

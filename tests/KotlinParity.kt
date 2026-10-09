@@ -95,6 +95,15 @@ fun main() {
         val off=ParallaxScenery.offset(999999f,layer,false)
         check(off>=0f && off<696f)
     }
+    // v0.1.25: preserve the actual inter-gate spacing in all six zone tiers.
+    for (world in 0 until 8) for (number in listOf(2,62,122,182,242,302,360)) {
+        val base=LevelEngine.create(world,number)
+        val stream=GameSimulation(base,endless=true)
+        val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
+        val oldLast=stream.gateX(base.gates.last())
+        val interval=base.gates.last().x-base.gates[base.gates.lastIndex-1].x
+        check(kotlin.math.abs(firstNext-oldLast-interval)<0.01f)
+    }
     // v0.1.20: a new tap triggers a 240 ms cosmetic upstroke.
     run {
         val b=GameSimulation(LevelEngine.create(0,2))
