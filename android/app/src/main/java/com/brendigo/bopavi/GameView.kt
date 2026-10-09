@@ -30,17 +30,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastProgressTotal = -1
     private var progressTitle = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5)
-    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
+    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply { inScaled=false })
     private val birdRect=RectF(-50f,-50f,50f,50f)
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
-        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5)
+        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
-        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5)
-    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[skinIndex.coerceIn(0,5)],
+        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5,R.drawable.bopiright6)
+    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply{inScaled=false})
-    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[skinIndex.coerceIn(0,5)],
+    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[skinIndex.coerceIn(0,6)],
         BitmapFactory.Options().apply{inScaled=false})
     private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
