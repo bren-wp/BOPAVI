@@ -106,6 +106,5 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if (shield > 0) { shield--; invulnerable = 1.25f; impactPulse = .65f; velocity = -90f }
         else { finished = true; active = false; won = false }
     }
-    fun rating(): Int = if(!won)0 else (1+min(2,stars / max(1,level.gates.size/4)))
     fun score(): Int = totalPassed * 100 + coins * 10 + stars * 25
 }
