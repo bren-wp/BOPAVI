@@ -226,7 +226,7 @@ class MainActivity : Activity() {
         // Leave the illustrated logo and Bopi free of extra text or opaque tiles.
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
-            startGame(world,progress.streamFrontier(world))
+            showPilotPicker(world,progress.streamFrontier(world))
         }
         val shortcuts=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -262,7 +262,7 @@ class MainActivity : Activity() {
         val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
         val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
         small(b,"Otključano do levela $maxNumber")
-        action(b,"▶  NASTAVI LET"){startGame(world,progress.streamFrontier(world))}
+        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
         val input=EditText(this).apply{
             inputType=android.text.InputType.TYPE_CLASS_NUMBER
             setSingleLine(true);hint="Broj otključanog levela"
@@ -273,7 +273,7 @@ class MainActivity : Activity() {
         action(b,"▶  POKRENI ODABRANI LEVEL") {
             val n=input.text.toString().toIntOrNull()
             if(n==null||n !in 1..maxNumber)Toast.makeText(this,"Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
-            else startGame(world,n.toLong())
+            else showPilotPicker(world,n.toLong())
         }
         val start=((safePage-1)/20)*20+1
         val zone=LevelEngine.create(world,start).zone
@@ -304,7 +304,7 @@ class MainActivity : Activity() {
                     val status=if(!unlocked)"zaključan" else if(n<maxNumber)"dovršen" else "otključan"
                     contentDescription="Level $n, ${LevelKind.name(kind)}, $status"
                     setOnClickListener{
-                        if(unlocked){sound.effect("click");startGame(world,n.toLong())}
+                        if(unlocked){sound.effect("click");showPilotPicker(world,n.toLong())}
                         else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -315,6 +315,41 @@ class MainActivity : Activity() {
         if(start>1)action(b,"← Prethodnih 20",false){showLevels(world,start-20)}
         if(start+20<=maxNumber)action(b,"Sljedećih 20 →",false){showLevels(world,start+20)}
         back(b){showWorlds()}
+    }
+    /** Mandatory pre-flight character choice; boosts are consumed only at launch. */
+    private fun showPilotPicker(world:Int,number:Long) {
+        currentWorld=world;currentLevel=number
+        val b=base("ODABERI LIKA","Svaki let započinje tvojim izborom letača")
+        val idx=progress.skin()
+        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6)
+        val portrait=ImageView(this).apply {
+            setImageResource(portraits[idx])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            background=gradient(0xff23699d.toInt(),0xff102f61.toInt(),25)
+            contentDescription="Pregled lika ${progress.skinNames[idx]}"
+            setPadding(d(18),d(8),d(18),d(8))
+        }
+        b.addView(portrait,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(8)})
+        title(b,progress.skinNames[idx],25,gold)
+        small(b,if(idx==6)
+            "Portantin: krilati čovječuljak s naočalama, zaštitnom maskicom i rukavicama nosi suputnika na leđima."
+            else "Izaberi boju Bopija. Odabir se sprema samo na ovom uređaju.")
+        small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
+        action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
+        for(i in progress.skinNames.indices) {
+            val status=when {
+                progress.skin()==i -> "✓ ODABRAN"
+                progress.owned(i) -> "DOSTUPAN"
+                else -> "${progress.costs[i]} kovanica"
+            }
+            action(b,"${if(i==6)"🪽" else "🐦"}  ${progress.skinNames[i]}  ·  $status",
+                progress.skin()==i) {
+                if(progress.selectOrBuy(i))showPilotPicker(world,number)
+                else Toast.makeText(this,"Nedovoljno osvojenih kovanica.",Toast.LENGTH_SHORT).show()
+            }
+        }
+        back(b){showLevels(world,number.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())}
     }
     private fun startGame(world:Int,number:Long){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
@@ -448,7 +483,7 @@ class MainActivity : Activity() {
         detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
-        action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
+        action(panel,"▶  PONOVO"){showPilotPicker(currentWorld,currentLevel)}
         action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
         action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
@@ -479,11 +514,11 @@ class MainActivity : Activity() {
         back(b){showSettings()}
     }
     private fun showSkins(){
-        val b=base("LIKOVI","Skupljaj kovanice i otključaj nove Bopijeve boje")
+        val b=base("LIKOVI","Odaberi Bopijeve boje ili besplatnog Portantina")
         small(b,"Stanje: ${progress.coins()} kovanica")
-        for(i in 0..5){
+        for(i in progress.skinNames.indices){
             val label=when {progress.skin()==i->"✓ ODABRAN";progress.owned(i)->"OTKLJUČAN";else->"${progress.costs[i]} kovanica"}
-            action(b,"🐦 ${progress.skinNames[i]}  ·  $label",progress.skin()==i){
+            action(b,"${if(i==6) "🪽" else "🐦"} ${progress.skinNames[i]}  ·  $label",progress.skin()==i){
                 if(!progress.selectOrBuy(i))Toast.makeText(this,"Nema dovoljno kovanica.",Toast.LENGTH_LONG).show()
                 showSkins()
             }
