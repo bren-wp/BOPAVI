@@ -134,6 +134,22 @@ for core in (android_levels,ios_core):
     for text in ('NOVI REKORD!','LEVEL DOVRŠEN!','LET ZAVRŠEN!'):
         assert text in core
 
+# v0.1.22: per-level type badges must come from each generated level.
+android_levels_menu=android_menu.split('private fun showLevels(',1)[1].split('private fun startGame(',1)[0]
+ios_levels_menu=ios_menu.split('private func showLevels(',1)[1].split('private func startGame(',1)[0]
+assert 'LevelKind.name(' in android_levels and 'LevelKind.icon(' in android_levels
+assert 'LevelKind.name(' in ios_core and 'LevelKind.icon(' in ios_core
+assert 'LevelEngine.create(world,n).type' in android_levels_menu
+assert 'BopaviCore.create(world,n).type' in ios_levels_menu
+assert 'LevelKind.icon(kind)' in android_levels_menu and 'LevelKind.icon(kind)' in ios_levels_menu
+assert 'LevelKind.name(kind)' in android_levels_menu and 'LevelKind.name(kind)' in ios_levels_menu
+assert 'ZONA $zone' in android_levels_menu and 'ZONA \\(zone)' in ios_levels_menu
+assert 'NORMALNI · ⚡ IZAZOVNI' in android_levels_menu and 'NORMALNI · ⚡ IZAZOVNI' in ios_levels_menu
+assert 'contentDescription=' in android_levels_menu and 'accessibilityLabel=' in ios_levels_menu
+assert 'Pauza · Level' in android_menu and 'Pauza · Level' in ios_menu
+assert 'ODABERI NASTAVI LET' in android_render and 'ODABERI NASTAVI LET' in ios_render
+assert 'DODIRNI Ⅱ ZA NASTAVAK' not in android_render and 'DODIRNI Ⅱ ZA NASTAVAK' not in ios_render
+
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
