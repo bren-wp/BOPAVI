@@ -568,7 +568,7 @@ android_settings=android_menu.split("private fun showSettings()",1)[1].split("ov
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
     for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
-                  "IZGLED BOPIJA","TRGOVINA KOVANICAMA","LOKALNA LJESTVICA"):
+                  "LIKOVI","TRGOVINA KOVANICAMA","LOKALNA LJESTVICA"):
         assert title in settings
     assert 'showSkins()' in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
