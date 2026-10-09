@@ -23,7 +23,7 @@ final class GameCanvas: UIView {
     private var link: CADisplayLink?
     private var previous: CFTimeInterval = 0
     private var reported = false
-    var paused = false { didSet { previous = 0 } }
+    var paused = false { didSet { previous = 0;setNeedsDisplay() } }
     private let skyA: [UInt32] = [0x159df7,0x18b5e7,0x418ddc,0x6e287e,0x45aaf6,0x131a4b,0x123969,0x0b123f]
     private let skyB: [UInt32] = [0xd0f8ff,0xffe3b2,0xedfbff,0xffa36d,0xffe9b6,0x7461bc,0x60f6d5,0x5955a9]
     private let pillars: [UInt32] = [0x20b96c,0xf5a65b,0x8ad8f5,0xe65b35,0xe9d9b5,0x57459a,0x5fdddc,0x7973f3]
@@ -109,6 +109,13 @@ final class GameCanvas: UIView {
             title.draw(at:CGPoint(x:174,y:120),withAttributes:[
                 .font:UIFont.systemFont(ofSize:20,weight:.heavy),
                 .foregroundColor:UIColor.white.withAlphaComponent(opacity)])
+        }
+        if paused {
+            rect(c,40,340,400,118,0x1b2b55,24,0.91)
+            let pauseTitle="PAUZA" as NSString
+            let textSize=pauseTitle.size(withAttributes:[.font:UIFont.systemFont(ofSize:36,weight:.heavy)])
+            pauseTitle.draw(at:CGPoint(x:(480-textSize.width)/2,y:378),withAttributes:[
+                .font:UIFont.systemFont(ofSize:36,weight:.heavy),.foregroundColor:UIColor.white])
         }
         c.restoreGState()
         let groundTop=(bound.height-800*s)/2+751*s
