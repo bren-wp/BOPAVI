@@ -166,3 +166,8 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Otključati Nou za 220 te Any za 240 kovanica, odbiti potvrdu bez trošenja i ponovno izabrati otključani lik bez druge naplate.
 - Provjeriti da v3 i v5 JSON kopije ne gube postojeće likove, saldo ni spremljeni izbor te da v5 pohranjuje nove premium likove.
 - CI mora potvrditi svih devet nepraznih, međusobno različitih RGBA tijela 512×512 te osamnaest zasebnih krila i ispravne Android/iOS pakete.
+
+## v0.1.27 — stvarna grafika premium likova
+- Za lik Noa (indeks 7) i Any (indeks 8) provjeriti da render tijekom igre pokazuje izvorno tijelo i OBA izvorna krila, a ne dijelove Portantina (indeks 6).
+- CI mora provjeriti identične 512×512 RGBA resurse između Android drawable-nodpi i iOS imageset za devet tijela i osamnaest krila.
+- Vizualno pregledati zamah oba krila na oba sustava, aktivno/smanjeno gibanje i povratak s pauze; napredak i otključavanja ostaju nepromijenjeni.
