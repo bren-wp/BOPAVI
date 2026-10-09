@@ -94,3 +94,15 @@ object LevelEngine {
     /** Fixed first-clear grants. No repeat-farming, no in-app payments. */
     fun milestoneReward(number:Int):Int = milestoneReward(number.toLong())
 }
+
+
+/** Presentation-only deterministic drift shared with Swift. Never modifies collisions. */
+internal object ParallaxScenery {
+    private const val PERIOD = 696f // Four tiles of 174 logical pixels.
+    fun offset(distance: Float, layer: Int, reducedMotion: Boolean): Float {
+        if (reducedMotion || !distance.isFinite()) return 0f
+        val speed = when(layer) { 0 -> .07f; 1 -> .15f; else -> .24f }
+        val travelled = (distance * speed) % PERIOD
+        return ((travelled + PERIOD) % PERIOD)
+    }
+}

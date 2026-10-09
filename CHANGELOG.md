@@ -1,3 +1,11 @@
+## v0.1.19 — živi lebdeći otoci i usklađeno osvjetljenje (Android + iOS)
+- U svih osam svjetova renderiraju se tri nova dubinska sloja lebdećih otoka s tematskim bojama, prozirnošću i brzinama pomaka. Android Canvas i iOS Core Graphics crtaju ih iznad ilustrirane pozadine i iza prepreka i Bopija — nisu statični screenshotovi.
+- Deterministički izračun dubinskog pomaka (0,07 / 0,15 / 0,24 udaljenosti) ponavlja se nakon 696 virtualnih jedinica. Smanjene animacije zamrzavaju okoliš, a neispravna udaljenost vraća pomak na nulu.
+- Ispravljen Androidov radijalni gradijent: mekani sjaj nestaje prema rubovima kao na iOS-u, umjesto da postaje neproziran.
+- Prošireni Android JUnit, Kotlin i Swift parity testovi te Python audit prikaza, osvjetljenja i otključanog odabira osam svjetova.
+- Android versionCode 20 / 0.1.19, iOS build 20 / 0.1.19. Nisu mijenjani sudari, gravitacija, brzina, rezultati ni pohrana profila, kovanica i sigurnosnih kopija.
+- Referentne slike daju vizualni smjer, ali cjelovita usporedba 1:1 na fizičkim uređajima još nije potvrđena.
+
 ## v0.1.18 — stabilniji let i viša frekvencija osvježavanja na iOS-u
 - Android/iOS: do 100 ms proteklog vremena nakon zastoja prikaza nadoknađuje se u ograničenim simulacijskim koracima od najviše 34 ms. Prethodni kod odbacivao je vrijeme iznad 34 ms.
 - Ulazni NaN, beskonačne, nulte i negativne vremenske vrijednosti ne mijenjaju simulaciju. Dulji prekidi ograničeni su na 100 ms radi sprečavanja preskakanja prepreka.

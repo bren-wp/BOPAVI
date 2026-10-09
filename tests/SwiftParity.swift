@@ -100,6 +100,16 @@ struct SwiftParity {
             invalid.flap();invalid.step(Float.nan)
             precondition(invalid.time==0 && invalid.distance==0)
         }
+        // Deterministic visual parallax must match the Kotlin scene-depth contract.
+        for layer in 0..<3 {
+            let expected:[Float]=[70,150,240]
+            precondition(abs(ParallaxScenery.offset(1000,layer:layer,reducedMotion:false)-expected[layer])<0.001)
+            precondition(ParallaxScenery.offset(1000,layer:layer,reducedMotion:true)==0)
+            precondition(ParallaxScenery.offset(Float.nan,layer:layer,reducedMotion:false)==0)
+            precondition(ParallaxScenery.offset(Float.infinity,layer:layer,reducedMotion:false)==0)
+            let off=ParallaxScenery.offset(999999,layer:layer,reducedMotion:false)
+            precondition(off>=0 && off<696)
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

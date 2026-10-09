@@ -84,5 +84,15 @@ fun main() {
         invalid.flap();invalid.step(Float.NaN)
         check(invalid.time==0f && invalid.distance==0f)
     }
+    // Exact scene-depth contract, with no change to the flight simulation.
+    for (layer in 0..2) {
+        val expected=floatArrayOf(70f,150f,240f)[layer]
+        check(kotlin.math.abs(ParallaxScenery.offset(1000f,layer,false)-expected)<.001f)
+        check(ParallaxScenery.offset(1000f,layer,true)==0f)
+        check(ParallaxScenery.offset(Float.NaN,layer,false)==0f)
+        check(ParallaxScenery.offset(Float.POSITIVE_INFINITY,layer,false)==0f)
+        val off=ParallaxScenery.offset(999999f,layer,false)
+        check(off>=0f && off<696f)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

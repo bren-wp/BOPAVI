@@ -91,6 +91,21 @@ class LevelEngineTest {
         assertFalse(game.finished)
     }
 
+    @Test fun threeDepthSceneryIsDeterministicAndSafeForReducedMotion() {
+        val expected=floatArrayOf(70f,150f,240f)
+        for (layer in 0..2) {
+            assertEquals(expected[layer],ParallaxScenery.offset(1000f,layer,false),0.001f)
+            assertEquals(0f,ParallaxScenery.offset(1000f,layer,true),0f)
+            assertEquals(0f,ParallaxScenery.offset(Float.NaN,layer,false),0f)
+            assertEquals(0f,ParallaxScenery.offset(Float.POSITIVE_INFINITY,layer,false),0f)
+            for (distance in listOf(0f,10f,12345f,999999f)) {
+                val d=ParallaxScenery.offset(distance,layer,false)
+                assertTrue("Parallax wrap must remain bounded",d>=0f && d<696f)
+                assertEquals(d,ParallaxScenery.offset(distance,layer,false),0f)
+            }
+        }
+    }
+
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)

@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.18
+    name: GitHub Release v0.1.19
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.18 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.18 exists: no duplicate release.'
+          if gh release view v0.1.19 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.19 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.18 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.18 — Kontinuitet leta i iOS 120 Hz' --prerelease \
-            --notes 'Android i iOS: kratki zastoji prikaza do 100 ms nadoknađuju se u ograničenim koracima; negativni i neispravni vremenski koraci ignoriraju se. iOS podržava osvježavanje do 120 Hz, uz smanjene animacije na 30 Hz. Dodani Kotlin JUnit, Swift i parity testovi. Format lokalne pohrane i napredak igrača nisu mijenjani. Svih osam svjetova ostaje otvoreno. Artefakti: razvojni Android APK, nepotpisani Android AAB, iOS Simulator ZIP i nepotpisani iOS device ZIP; nisu spremni za trgovine bez potpisivanja. Vizualna podudarnost 1:1 nije potvrđena bez slikovnih referenci i testiranja na fizičkim uređajima.'
+          gh release create v0.1.19 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.19 — Živi svjetovi i skladno osvjetljenje' --prerelease \
+            --notes 'Android i iOS: nova tri proceduralno nacrtana sloja lebdećih otoka u svih osam svjetova, s kretanjem uz udaljenost i nepomičnim prikazom kada su smanjene animacije. Ispravljen Androidov gradijent rasipanja svjetla tako da odgovara mekom iOS svjetlu. Dodani Kotlin JUnit i Swift/Kotlin regresijski parity testovi te source audit. Fizika, sudari, rezultati i korisnički podaci nisu mijenjani. Reference su smjernice, ne potvrda 1:1 vizualne podudarnosti. Paketi: razvojni Android APK, nepotpisani AAB, iOS Simulator ZIP i nepotpisani iOS device ZIP; nisu potpisani za mobilne trgovine.'

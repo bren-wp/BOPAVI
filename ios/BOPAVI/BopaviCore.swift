@@ -96,6 +96,17 @@ enum BopaviCore {
     }
 }
 
+/// Presentation-only parallax: no gameplay state, allocations or randomness.
+enum ParallaxScenery {
+    private static let period:Float = 696 // Four tiles of 174 logical points.
+    static func offset(_ distance:Float,layer:Int,reducedMotion:Bool)->Float {
+        guard !reducedMotion && distance.isFinite else {return 0}
+        let speed:Float = layer == 0 ? 0.07 : (layer == 1 ? 0.15 : 0.24)
+        let travelled=(distance*speed).truncatingRemainder(dividingBy:period)
+        return (travelled+period).truncatingRemainder(dividingBy:period)
+    }
+}
+
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
