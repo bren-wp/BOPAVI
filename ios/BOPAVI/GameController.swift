@@ -14,12 +14,12 @@ private final class BopaviActionButton: UIButton {
                UIColor(red:0.07,green:0.22,blue:0.62,alpha:1).cgColor]
         gradient.startPoint=CGPoint(x:0.5,y:0);gradient.endPoint=CGPoint(x:0.5,y:1)
         layer.insertSublayer(gradient,at:0)
-        layer.cornerRadius=19
+        layer.cornerRadius=29
         layer.borderWidth=primary ? 2 : 1
         layer.borderColor=UIColor.white.withAlphaComponent(primary ? 0.72 : 0.24).cgColor
         layer.shadowColor=UIColor.black.cgColor
         layer.shadowOpacity=0.23
-        layer.shadowRadius=6
+        layer.shadowRadius=8
         layer.shadowOffset=CGSize(width:0,height:4)
         setTitleColor(.white,for:.normal)
         titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
@@ -33,8 +33,8 @@ private final class BopaviActionButton: UIButton {
     override func layoutSubviews(){
         super.layoutSubviews()
         gradient.frame=bounds
-        gradient.cornerRadius=19
-        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:19).cgPath
+        gradient.cornerRadius=29
+        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:29).cgPath
     }
 }
 
@@ -205,12 +205,37 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
             amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
         ])
-        // Compact top-right counter, while the primary CTA remains at the bottom.
+        // Both counters reflect actual local progress, not online purchases.
+        let bestScore=(0..<8).map{progress.best($0)}.max() ?? 0
+        let bestChip=UIView()
+        bestChip.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
+        bestChip.layer.cornerRadius=23
+        bestChip.layer.borderWidth=1
+        bestChip.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
+        let score=UILabel()
+        score.translatesAutoresizingMaskIntoConstraints=false
+        score.text="🏆  \(bestScore)"
+        score.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        score.adjustsFontSizeToFitWidth=true
+        score.minimumScaleFactor=0.65
+        score.textAlignment = .center
+        score.textColor = .white
+        bestChip.addSubview(score)
+        NSLayoutConstraint.activate([
+            score.leadingAnchor.constraint(equalTo:bestChip.leadingAnchor,constant:6),
+            score.trailingAnchor.constraint(equalTo:bestChip.trailingAnchor,constant:-6),
+            score.centerYAnchor.constraint(equalTo:bestChip.centerYAnchor)
+        ])
+        amount.text="●  \(progress.coins())"
+        amount.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        amount.adjustsFontSizeToFitWidth=true
+        amount.minimumScaleFactor=0.65
         let walletRow=UIStackView()
-        walletRow.axis = .horizontal;walletRow.alignment = .center
-        walletRow.addArrangedSubview(UIView())
-        wallet.widthAnchor.constraint(equalToConstant:175).isActive=true
+        walletRow.axis = .horizontal;walletRow.alignment = .fill
+        walletRow.distribution = .fillEqually;walletRow.spacing=12
+        bestChip.heightAnchor.constraint(equalToConstant:46).isActive=true
         wallet.heightAnchor.constraint(equalToConstant:46).isActive=true
+        walletRow.addArrangedSubview(bestChip)
         walletRow.addArrangedSubview(wallet)
         stack.addArrangedSubview(walletRow)
         let spacer=UIView()
@@ -450,19 +475,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
     }
     private func showPerks(){
-        let s=menu("OPREMA","Pogodnosti kupuješ samo osvojenim kovanicama")
-        label("Tvoje kovanice: \(progress.coins())",20,.white,s)
-        label("Kovanice osvajaš prvim prelaskom nagradnih levela.",15,.white,s)
+        let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
+        label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
+        label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
         for n in 0..<2 {
-            let extra=n==0 ? "Štiti od jednog udarca" : "Privlači predmete osam sekundi"
-            label("\(progress.perkNames[n]) · \(extra) · u zalihi \(progress.perkCount(n))",16,.white,s)
-            button("KUPI ZA \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
+            let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
+            label("\(n==0 ? "🛡 ŠTIT" : "🧲 MAGNET") · \(extra) · U torbi: \(progress.perkCount(n))",16,.white,s)
+            button("KUPI \(n==0 ? "ŠTIT" : "MAGNET") · \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
                 if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks()}
                 else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
             }
         }
-        label("Kupljene pogodnosti aktiviraju se pri sljedećem letu.",14,.white,s)
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSkins(){
         let s=menu("LIKOVI","Skupljaj kovanice i otključaj nove Bopijeve boje")
@@ -474,7 +499,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 else {self.showSkins()}
             }
         }
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showLeaderboard(){
         let s=menu("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
@@ -485,7 +510,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty]) · \(item.gates) prolaza",14,.white,s)
         }
         button("POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showAchievements(){
         let s=menu("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
@@ -494,14 +519,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("Pobjede: \(progress.wins()) · Pokušaji bez pobjede: \(progress.deaths())",17,.white,s)
         label("Napredak je spremljen samo na ovom uređaju.",17,.white,s)
         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
-        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSettings(){
-        let s=menu("POSTAVKE","Sve opcije na jednom mjestu")
+        let s=menu("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
         label("IZGLED I ZVUK",18,.white,s)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
-        let l=UILabel();l.text="Smanji animacije (30 FPS)";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
+        let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
         l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
         toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
@@ -530,7 +555,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
         let player=UITextField()
         player.text=progress.playerName
-        player.placeholder="Ime igrača (lokalno)"
+        player.placeholder="Tvoje ime"
         player.textColor = .white
         player.backgroundColor=UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
         player.layer.cornerRadius=12
@@ -543,12 +568,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         label("DODATNE OPCIJE",18,.white,s)
         button("🐤  IZGLED BOPIJA",in:s,primary:false){self.showSkins()}
-        button("🛡  ŠTITOVI I OPREMA",in:s,primary:false){self.showPerks()}
+        button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
         button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
         label("PODACI I PRIVATNOST",18,.white,s)
-        label("BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.",14,.white,s)
-        label("Bez oglasa, telemetrije, računa i mrežnih zahtjeva.",14,.white,s)
-        button("IZVEZI NAPREDAK",in:s,primary:false){
+        label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,s)
+        label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,s)
+        button("SPREMI KOPIJU NAPRETKA",in:s,primary:false){
             do {
                 let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
                 try self.progress.exportData().write(to:url,options:.atomic)
@@ -557,7 +582,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
         }
-        button("UVEZI NAPREDAK (v0.1–v0.5)",in:s,primary:false){
+        button("VRATI NAPREDAK IZ KOPIJE",in:s,primary:false){
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
