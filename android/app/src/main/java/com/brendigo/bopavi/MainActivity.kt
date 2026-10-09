@@ -116,6 +116,21 @@ class MainActivity : Activity() {
         },LinearLayout.LayoutParams(-1,-2))
     }
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
+    private fun sectionHeading(parent:LinearLayout,heading:String){
+        val label=TextView(this).apply{
+            text=heading;setTextColor(Color.WHITE);textSize=15f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            letterSpacing=.06f
+            gravity=Gravity.CENTER_VERTICAL or Gravity.START
+            setPadding(d(18),d(11),d(16),d(11))
+            background=gradient(0xff224e89.toInt(),0xff153760.toInt(),23)
+            contentDescription=heading
+        }
+        parent.addView(label,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(17);bottomMargin=d(7)
+        })
+    }
+
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
             this.text=text;setTextColor(Color.WHITE)
@@ -464,7 +479,7 @@ class MainActivity : Activity() {
     }
     private fun showSettings(){
         val b=base("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
-        small(b,"IZGLED I ZVUK")
+        sectionHeading(b,"IZGLED I ZVUK")
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
@@ -476,7 +491,7 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
         }
         b.addView(haptic)
-        small(b,"IGRAČ I TEŽINA")
+        sectionHeading(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
         for(mode in 0..2) {
@@ -505,11 +520,11 @@ class MainActivity : Activity() {
             progress.setPlayerName(player.text.toString())
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
-        small(b,"DODATNE OPCIJE")
+        sectionHeading(b,"DODATNE OPCIJE")
         action(b,"🐤  IZGLED BOPIJA",false){showSkins()}
         action(b,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
-        small(b,"PODACI I PRIVATNOST")
+        sectionHeading(b,"PODACI I PRIVATNOST")
         small(b,"BOPAVI — Mali let, velika avantura. Stvorio Brendigo.")
         small(b,"Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.")
         action(b,"SPREMI KOPIJU NAPRETKA",false){
