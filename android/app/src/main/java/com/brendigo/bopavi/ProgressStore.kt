@@ -84,7 +84,7 @@ class ProgressStore(context: Context) {
         s.put("version", 5)
         s.put("frontiers", JSONArray((0..7).map { frontier(it) }))
         s.put("streamFrontiers",JSONArray((0..7).map { streamFrontier(it).toString() }))
-        s.put("maxWorld", maxWorld()); s.put("chosenWorld",chosenWorld()); s.put("coins", coins()); s.put("lessMotion", lessMotion())
+        s.put("maxWorld", maxWorld()); s.put("chosenWorld",chosenWorld()); s.put("playerName",playerName()); s.put("coins", coins()); s.put("lessMotion", lessMotion())
         s.put("worldBest", JSONArray((0..7).map { best(it) }))
         s.put("owned",JSONArray((0..5).filter{owned(it)}.map{skins[it]}))
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
@@ -148,6 +148,10 @@ class ProgressStore(context: Context) {
         if(perkData!=null && perkData.length()==2)for(j in 0..1)e.putInt("perk_$j",perkData.optInt(j,0).coerceIn(0,99))
         val collection=s.optJSONArray("collectibles")
         if(collection!=null && collection.length()==8)for(j in 0..7)e.putInt("collectibles_$j",collection.optInt(j,0).coerceIn(0,100000000))
+        val restoredName = s.optString("playerName", "Igrač").trim().take(24).filter {
+            it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-'
+        }.ifBlank { "Igrač" }
+        e.putString("player_name", restoredName)
         e.putBoolean("sound_enabled",s.optBoolean("soundEnabled",true))
         e.putBoolean("less_motion", s.optBoolean("lessMotion", false)); e.apply()
     }
