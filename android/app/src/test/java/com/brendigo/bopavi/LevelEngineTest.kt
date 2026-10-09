@@ -54,6 +54,24 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun initialFlightRemainsInactiveUntilFirstTap() {
+        // UI must not show the pause affordance while the flight is still idle.
+        val flight=GameSimulation(LevelEngine.create(0,1))
+        assertFalse(flight.active)
+        assertEquals(0,flight.flaps)
+        assertEquals(0f,flight.distance,0f)
+        flight.step(.1f)
+        assertFalse(flight.active)
+        assertEquals(0f,flight.time,0f)
+        assertEquals(0f,flight.distance,0f)
+        flight.flap()
+        assertTrue(flight.active)
+        assertEquals(1,flight.flaps)
+        flight.flap()
+        assertEquals(2,flight.flaps)
+        assertTrue(flight.active)
+    }
+
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
