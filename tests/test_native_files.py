@@ -280,3 +280,31 @@ for duration,base,travel in ((0.36,24,42),(0.65,33,48)):
         progress=max(0,min(1,1-remaining/duration))
         assert base<=base+travel*progress<=base+travel
         assert 0 <= (1-progress) <= 1
+
+# v0.1.14: moving obstacles expose cosmetic lip accents without changing colliders.
+android_gate=android_canvas.split("private fun drawMovingGateRimCues(",1)[1].split("private fun drawGate(",1)[0]
+ios_gate=ios_canvas.split("private func drawMovingGateRimCues(",1)[1].split("private func gate(",1)[0]
+for source in (android_gate,ios_gate):
+    assert "movement<=0" in source
+    assert "reducedMotion" in source
+    assert "phase" in source and "2.3" in source
+    assert "125" in source and "70" in source and "195" in android_gate
+    assert "top-22" in source and "top-17" in android_gate
+    assert "bottom+15" in source and "bottom+20" in android_gate
+    assert "opening(" not in source and "collision" not in source.split("\n",1)[-1]
+    assert "BitmapFactory" not in source and "UIImage(" not in source
+assert "drawMovingGateRimCues(c,g,x,top,bottom)" in android_canvas
+assert "drawMovingGateRimCues(c,g,x,top,bottom)" in ios_canvas
+# World accent hues now match exactly between Android and iOS for gate cues and pickups.
+import re
+android_colors=re.search(r'private val pickupHues=intArrayOf\(([^)]*)\)',android_canvas).group(1)
+ios_colors=re.search(r'private let pickupHues:\[UInt32\]=\[([^]]*)\]',ios_canvas).group(1)
+android_hues=[int(x.strip().split(".")[0],16)&0xffffff for x in android_colors.split(",")]
+ios_hues=[int(x.strip(),16) for x in ios_colors.split(",")]
+assert len(android_hues)==len(ios_hues)==8 and android_hues==ios_hues
+# 64px generated pillars always contain both 13px cap hints, at any animation phase.
+for width in (64,70,80):
+    for step in range(101):
+        offset=step*0.09
+        strips=((8+offset,21+offset),(width-23-offset,width-10-offset))
+        assert all(0 <= start < end <= width for start,end in strips)
