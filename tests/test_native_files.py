@@ -1,20 +1,3 @@
-# v0.1.20: the real touch impulse drives the visual wingbeat on both OSes.
-# Motion-sensitive users never receive a gust/wing animation.
-for sim_path in ('android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
-                 'ios/BOPAVI/BopaviCore.swift'):
-    core=(root/sim_path).read_text()
-    assert 'flapPulse' in core and '0.24' in core or '.24f' in core
-    assert 'flapPulse' in core.split('fun flap()',1)[1] if sim_path.endswith('.kt') else 'flapPulse' in core.split('func flap()',1)[1]
-for renderer_path in ('android/app/src/main/java/com/brendigo/bopavi/GameView.kt',
-                      'ios/BOPAVI/GameCanvas.swift'):
-    view=(root/renderer_path).read_text()
-    assert 'drawFlapWake(' in view and view.count('drawFlapWake(')==2
-    assert 'game.flapPulse' in view
-    assert 'reducedMotion' in view.split('drawFlapWake(',1)[1]
-    assert 'flapStrength' in view
-assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
-assert 'flapStrength*17' in ios_render
-
 #!/usr/bin/env python3
 from pathlib import Path
 from PIL import Image
@@ -107,6 +90,23 @@ for source in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.
     menu=source.read_text()
     worlds=menu.split('private fun showWorlds()',1)[1].split('private fun showLevels(',1)[0] if source.suffix=='.kt' else menu.split('private func showWorlds()',1)[1].split('private func showLevels(',1)[0]
     assert '🔒' not in worlds and 'worldTile' in worlds
+
+# v0.1.20: the real touch impulse drives the visual wingbeat on both OSes.
+# Motion-sensitive users never receive a gust/wing animation.
+for sim_path in ('android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
+                 'ios/BOPAVI/BopaviCore.swift'):
+    core=(root/sim_path).read_text()
+    assert 'flapPulse' in core and '0.24' in core or '.24f' in core
+    assert 'flapPulse' in core.split('fun flap()',1)[1] if sim_path.endswith('.kt') else 'flapPulse' in core.split('func flap()',1)[1]
+for renderer_path in ('android/app/src/main/java/com/brendigo/bopavi/GameView.kt',
+                      'ios/BOPAVI/GameCanvas.swift'):
+    view=(root/renderer_path).read_text()
+    assert 'drawFlapWake(' in view and view.count('drawFlapWake(')==2
+    assert 'game.flapPulse' in view
+    assert 'reducedMotion' in view.split('drawFlapWake(',1)[1]
+    assert 'flapStrength' in view
+assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
+assert 'flapStrength*17' in ios_render
 
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
