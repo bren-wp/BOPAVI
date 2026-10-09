@@ -191,3 +191,12 @@ for canvas in (android_canvas,ios_canvas):
 android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
 ios_sim=(root/"ios/BOPAVI/BopaviCore.swift").read_text()
 assert "100_000_000L" in android_sim and "100_000_000" in ios_sim
+
+# Hosted Android emulator occasionally shows a Pixel Launcher ANR (not an app ANR).
+# Permit ONLY the exact known system dialog and keep real gameplay ANRs fatal.
+qa=(root/"tools/qa_android_emulator.sh").read_text()
+assert 'Pixel Launcher isn\'t responding' in qa
+assert 'android:id/aerr_wait' in qa
+assert 'titles==["Pixel Launcher isn\'t responding"]' in qa
+assert 'BOPAVI exited' in qa
+assert 'capture android-home' in qa and 'home_captured' in qa
