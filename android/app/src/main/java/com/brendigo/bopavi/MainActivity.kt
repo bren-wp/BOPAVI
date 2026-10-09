@@ -140,16 +140,14 @@ class MainActivity : Activity() {
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
-        val unlocked=world<=progress.maxWorld()
         val name=LevelEngine.names[world]
         val row=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20)
             setPadding(d(16),d(14),d(16),d(14))
-            alpha=if(unlocked)1f else .58f
             elevation=d(3).toFloat()
             isClickable=true;isFocusable=true
-            contentDescription="$name, "+if(unlocked)"otključano" else "zaključano"
+            contentDescription="$name, otključano"
             setOnClickListener{sound.effect("click");onClick()}
         }
         val preview=ImageView(this).apply{
@@ -164,12 +162,12 @@ class MainActivity : Activity() {
         }
         row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
-            text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
+            text="${LevelEngine.collectibleIcons[world]}  $name   ↗"
             textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
             gravity=Gravity.CENTER_HORIZONTAL
         })
         row.addView(TextView(this).apply{
-            text=if(unlocked)"Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}" else "Otkrij novi svijet tijekom igranja"
+            text="Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}"
             textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER_HORIZONTAL
             setPadding(0,d(5),0,0)
         })
@@ -222,11 +220,7 @@ class MainActivity : Activity() {
             b.addView(row,LinearLayout.LayoutParams(-1,-2))
             for(col in 0..1){
                 val w=line*2+col
-                val accessible=w<=progress.maxWorld()
-                worldTile(row,w){
-                    if(accessible) showLevels(w,1)
-                    else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
-                }
+                worldTile(row,w){showLevels(w,1)}
             }
         }
         back(b){showHome()}
