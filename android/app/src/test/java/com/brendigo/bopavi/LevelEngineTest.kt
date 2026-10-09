@@ -39,6 +39,21 @@ class LevelEngineTest {
         assertEquals("LEVEL DOVRŠEN!",ResultHeadline.label(0,0,true))
     }
 
+    @Test fun namedLevelTypesMatchTheActualProceduralGenerator() {
+        val cases=listOf(1 to 0, 14 to 0, 15 to 1, 29 to 0,
+            30 to 2, 45 to 1, 59 to 0, 60 to 3,
+            61 to 0, 75 to 1, 90 to 2, 120 to 3, 360 to 3)
+        val titles=listOf("Normalni","Izazovni","Bonus","Elitni")
+        val icons=listOf("●","⚡","✦","♛")
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            for ((number,type) in cases) {
+                assertEquals("world=$world level=$number",type,LevelEngine.create(world,number).type)
+                assertEquals(titles[type],LevelKind.name(type))
+                assertEquals(icons[type],LevelKind.icon(type))
+            }
+        }
+    }
+
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
