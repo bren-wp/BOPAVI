@@ -72,6 +72,7 @@ struct SwiftParity {
             precondition(game.passed==0,"Seamless next level should reset only the gate counter")
             precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01)
             precondition(game.active && !game.finished)
+            precondition(game.totalPassed==1 && game.passed==0,"Global pass count reset across levels")
         }
         do {
             let level=BopaviCore.create(0,2)

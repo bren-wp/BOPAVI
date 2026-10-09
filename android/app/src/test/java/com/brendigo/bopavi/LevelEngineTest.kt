@@ -170,6 +170,7 @@ class LevelEngineTest {
         assertEquals(1,game.completionCount)
         assertEquals(3L,game.displayLevel)
         assertEquals("New endless level must begin at zero completed gates",0,game.passed)
+        assertEquals("Global completed gates must never reset between levels",1,game.totalPassed)
         assertTrue("Global distance must remain monotonic",game.distance>0f)
         assertEquals("Upcoming obstacle must never jump at the boundary",previewX-game.distance,game.gateX(game.level.gates[0]),0.01f)
         assertEquals(0f,game.levelTransition,0f)

@@ -218,7 +218,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.28
+    name: GitHub Release v0.1.29
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -240,10 +240,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.28 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.28 exists: no duplicate release.'
+          if gh release view v0.1.29 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.29 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.28 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.28 — Stabilni premium likovi i očuvana oprema' --prerelease \
-            --notes 'v0.1.28: Android odabir premium likova Noa i Any ne može srušiti aplikaciju zbog indeksa izvan polja. Android i iOS čuvaju štit i magnet tijekom mirujućeg pregleda te ih troše tek prvim zamahom. Povratak iz pozadine ne blokira mirujući let; započeti let ostaje pauziran. CI provjerava portrete, zalihe, privatnost, sve grafike, buildove i smoke testove. Fizika, kolizije i spremljeni napredak nisu promijenjeni. Android APK/AAB i iOS ZIP razvojni su artefakti koji nisu potpisani za javne trgovine.'
+          gh release create v0.1.29 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.29 — Siguran napredak i pouzdana pauza' --prerelease \
+            --notes 'v0.1.29: iOS sada validira sve stream levele prije bilo kakvog upisa u lokalno spremljeni napredak, pa neispravna kopija ne mijenja kovanice, otključavanja niti marker preuzetih nagrada. Android i iOS prikazuju ukupan broj prolaza kroz cijeli neprekinuti let. Android tipka Natrag otvara pauzu umjesto prekidanja aktivnog leta, a prije prvog zamaha vraća izbor lika. CI obuhvaća sigurnost, grafiku, Android lint/JVM/APK/AAB/emulator, iOS simulator i Swift testove te nepotpisani device build. Fizika, kolizije, format podataka i likovi ostaju isti. Priloženi paketi nisu potpisani za trgovine.'

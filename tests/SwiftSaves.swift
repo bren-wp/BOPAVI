@@ -36,6 +36,21 @@ struct SwiftSaves {
         ] as [String:Any]]
         try store.importData(JSONSerialization.data(withJSONObject:v5))
         precondition(store.streamFrontier(0)==5)
+        // A corrupt late v5 stream entry must not change coins, selected world,
+        // redeemed reward markers or any other part of the existing save.
+        let beforeCorrupt=try store.exportData()
+        var badSave=v5["save"] as! [String:Any]
+        badSave["coins"]=8
+        badSave["scoreCoinsClaimed"]=777
+        badSave["chosenWorld"]=7
+        badSave["streamFrontiers"]=["5","1","1","1","1","1","1","invalid"]
+        let corrupt:[String:Any]=["format":"bopavi-save","exportVersion":5,"save":badSave]
+        var rejectedStream=false
+        do {try store.importData(JSONSerialization.data(withJSONObject:corrupt))}
+        catch {rejectedStream=true}
+        precondition(rejectedStream,"Malformed level stream must be rejected")
+        let afterCorrupt=try store.exportData()
+        precondition(afterCorrupt==beforeCorrupt,"Rejected backup changed saved progress")
         precondition(store.completeLevel(world:0,number:5,score:200)==20)
         precondition(store.completeLevel(world:0,number:5,score:200)==0)
         precondition(store.streamFrontier(0)==6 && store.coins()==120)
