@@ -62,6 +62,7 @@ class LevelEngineTest {
         game.flap(); game.step(1f/60f)
         assertEquals(1,game.completionCount)
         assertEquals(3L,game.displayLevel)
+        assertEquals("New endless level must begin at zero completed gates",0,game.passed)
         assertTrue("Global distance must remain monotonic",game.distance>0f)
         assertEquals("Next gate should already be in view",300f,game.gateX(game.level.gates[0]),0.01f)
         assertTrue(game.levelTransition>0f)
