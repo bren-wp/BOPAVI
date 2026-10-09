@@ -382,7 +382,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(gameCanvas)
         NSLayoutConstraint.activate([gameCanvas.topAnchor.constraint(equalTo:view.topAnchor),gameCanvas.bottomAnchor.constraint(equalTo:view.bottomAnchor),gameCanvas.leadingAnchor.constraint(equalTo:view.leadingAnchor),gameCanvas.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
-        gameCanvas.onFinished = { [weak self] g in self?.showResult(g) }
+        gameCanvas.onFinished = { [weak self,weak gameCanvas] g in
+            guard let self=self, self.canvas === gameCanvas else{return}
+            self.showResult(g)
+        }
         gameCanvas.onFlap = { [weak self] in self?.sound.effect("tap") }
         gameCanvas.onCollect = { [weak self] in
             self?.sound.effect("collect")
@@ -404,6 +407,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         counter.font=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
         counter.textColor = .white;counter.layer.cornerRadius=15;counter.clipsToBounds=true
         counter.adjustsFontSizeToFitWidth=true;counter.minimumScaleFactor=0.66
+        counter.isHidden=true
         counter.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(counter);hud=counter
         NSLayoutConstraint.activate([counter.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),counter.leadingAnchor.constraint(equalTo:view.leadingAnchor,constant:14),counter.trailingAnchor.constraint(lessThanOrEqualTo:view.trailingAnchor,constant:-91),counter.heightAnchor.constraint(equalToConstant:46)])
         gameCanvas.onHUDUpdate = { [weak counter] live in
@@ -413,10 +417,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pause.backgroundColor=UIColor(red:0.11,green:0.24,blue:0.41,alpha:0.96);pause.setTitleColor(.white,for:.normal)
         pause.layer.cornerRadius=16;pause.layer.borderWidth=1
         pause.layer.borderColor=UIColor.white.withAlphaComponent(0.3).cgColor
-        pause.accessibilityLabel="Izbornik tijekom igre";pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
+        pause.accessibilityLabel="Izbornik tijekom igre"
+        // Keep pause out of the idle flight preview and VoiceOver tree.
+        pause.isHidden=true
+        pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
+        gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause,weak counter] in
+            guard let self=self, self.canvas === gameCanvas else{return}
+            pause?.isHidden=false
+            counter?.isHidden=false
+        }
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
         pause.addAction(UIAction{[weak self,weak gameCanvas] _ in
-            guard let self=self,let canvas=gameCanvas else{return}
+            guard let self=self,let canvas=gameCanvas,
+                  self.canvas === canvas,canvas.game.active && !canvas.game.finished else{return}
             canvas.paused=true;self.sound.pause()
             let dialog=UIAlertController(title:"Pauza · Level \(canvas.game.displayLevel)",message:nil,preferredStyle:.actionSheet)
             dialog.addAction(UIAlertAction(title:"Nastavi let",style:.default){_ in canvas.paused=false;self.sound.resume()})

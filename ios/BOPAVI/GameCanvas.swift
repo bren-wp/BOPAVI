@@ -35,6 +35,7 @@ final class GameCanvas: UIView {
     var onFinished: ((GameSimulation) -> Void)?
     var onLevelComplete: ((Int)->Void)?
     var onFlap:(()->Void)?
+    var onFlightStarted:(()->Void)?
     var onCollect:(()->Void)?
     var onShieldImpact:(()->Void)?
     private var completedSeen=0
@@ -94,7 +95,15 @@ final class GameCanvas: UIView {
             DispatchQueue.main.async { [weak self] in guard let self=self else{return};if self.window != nil {self.onFinished?(self.game)} }
         }
     }
-    override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {super.touchesBegan(touches,with:event);if !paused && !game.finished {game.flap();accessibilityLabel="Bopi leti";onFlap?()}}
+    override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {
+        super.touchesBegan(touches,with:event)
+        guard !paused && !game.finished else{return}
+        let firstFlap = !game.active
+        game.flap()
+        if firstFlap && game.active {onFlightStarted?()}
+        accessibilityLabel="Bopi leti"
+        onFlap?()
+    }
     private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
     private func rect(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ rad:CGFloat=0,_ alpha:CGFloat=1){
         c.setFillColor(color(rgb,alpha));let r=CGRect(x:x,y:y,width:max(0,w),height:max(0,h));if rad>0 {c.addPath(CGPath(roundedRect:r,cornerWidth:rad,cornerHeight:rad,transform:nil));c.fillPath()} else {c.fill(r)}
@@ -137,8 +146,11 @@ final class GameCanvas: UIView {
             gate(c,g,x,i)
         }
         bird(c)
-        drawBoostHUD(c)
-        drawLevelProgress(c)
+        // Before the first actual flight, no HUD overlays the illustrated intro.
+        if game.active && !game.finished {
+            drawBoostHUD(c)
+            drawLevelProgress(c)
+        }
         if game.levelTransition>0 {
             let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
             rect(c,135,111,210,46,0x103b76,18,0.84*opacity)

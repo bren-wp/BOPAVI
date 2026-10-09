@@ -329,14 +329,21 @@ class MainActivity : Activity() {
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
+        // The idle flight preview is not gameplay. Do not expose pause until
+        // the first actual flap; never reuse a pause control across screens.
+        var pauseButton:Button?=null
         val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
-            onFinished={showResult(it)},
+            onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
                 val amount=progress.completeLevel(world,completed,simulation.score())
                 sound.effect("level")
                 if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()
             },
             onFlap={sound.effect("tap")},
+            onFlightStarted={
+                if(selectedScreen=="game" && gameView?.game === simulation)
+                    pauseButton?.visibility=View.VISIBLE
+            },
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")})
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
@@ -345,7 +352,9 @@ class MainActivity : Activity() {
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
             elevation=d(5).toFloat()
             contentDescription="Izbornik tijekom igre"
+            visibility=View.INVISIBLE
             setOnClickListener{
+                if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
                 game.paused=true;sound.pause()
                 android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza · Level ${game.game.displayLevel}")
                     .setItems(arrayOf("Nastavi let",
@@ -369,6 +378,7 @@ class MainActivity : Activity() {
                     }.setOnCancelListener{game.paused=false;sound.resume()}.show()
             }
         }
+        pauseButton=pause
         frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
         showNativeView(frame)
     }

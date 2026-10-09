@@ -21,7 +21,7 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}) : View(context) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Only rebuild the textual progress label when a gate is passed or a new
@@ -166,8 +166,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
-        drawHud(canvas)
-        drawLevelProgress(canvas)
+        // Keep the intro composition clean: scores and gate progress appear
+        // with the first real flap, not on the idle "Dodirni za let" screen.
+        if(game.active && !game.finished) {
+            drawHud(canvas)
+            drawLevelProgress(canvas)
+        }
         if(game.levelTransition>0f){
             val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
             // Small nonblocking level ribbon; no pause or separate screen.
@@ -619,7 +623,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // No small text printed over the foreground: HUD is kept at the top.
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        if(event.actionMasked==MotionEvent.ACTION_DOWN){if(!paused && !game.finished){game.flap();contentDescription="Bopi leti";onFlap();performClick();invalidate()};return true}
+        if(event.actionMasked==MotionEvent.ACTION_DOWN){
+            if(!paused && !game.finished){
+                val firstFlap=!game.active
+                game.flap()
+                if(firstFlap && game.active)onFlightStarted()
+                contentDescription="Bopi leti"
+                onFlap();performClick();invalidate()
+            }
+            return true
+        }
         return true
     }
     override fun performClick():Boolean {super.performClick();return true}

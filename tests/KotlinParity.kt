@@ -121,5 +121,16 @@ fun main() {
         check(LevelKind.name(kind)==listOf("Normalni","Izazovni","Bonus","Elitni")[kind])
         check(LevelKind.icon(kind)==listOf("●","⚡","✦","♛")[kind])
     }
+    // v0.1.23: idle intro must not auto-run physics or count a flap.
+    run {
+        val idle=GameSimulation(LevelEngine.create(0,1))
+        check(!idle.active && idle.flaps==0 && idle.time==0f)
+        idle.step(.1f)
+        check(!idle.active && idle.flaps==0 && idle.distance==0f)
+        idle.flap()
+        check(idle.active && idle.flaps==1)
+        idle.flap()
+        check(idle.active && idle.flaps==2)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

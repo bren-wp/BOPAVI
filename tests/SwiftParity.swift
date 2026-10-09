@@ -137,6 +137,17 @@ struct SwiftParity {
             precondition(LevelKind.name(kind)==["Normalni","Izazovni","Bonus","Elitni"][kind])
             precondition(LevelKind.icon(kind)==["●","⚡","✦","♛"][kind])
         }
+        // v0.1.23: no active game or time progression before the first flap.
+        do {
+            let idle=GameSimulation(BopaviCore.create(0,1))
+            precondition(!idle.active && idle.flaps==0 && idle.time==0)
+            idle.step(0.1)
+            precondition(!idle.active && idle.flaps==0 && idle.distance==0)
+            idle.flap()
+            precondition(idle.active && idle.flaps==1)
+            idle.flap()
+            precondition(idle.active && idle.flaps==2)
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

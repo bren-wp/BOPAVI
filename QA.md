@@ -133,3 +133,12 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Mreže prikazuju zonu i raspon stranice, ikonice i pristupačne nazive koji uključuju status; odabrani/napredni level se razlikuje vizualno bez pretvaranja stvarno zaključanih levela u otključane.
 - Pauza u oba sučelja pokazuje stvarni aktivni level i tekst `ODABERI NASTAVI LET`; akcije zvuka, povratka i nastavka ostaju kao prije.
 - Kotlin JUnit i Kotlin/Swift parity provjere ispituju granične nivoe i naziv/ikonu; Python audit potvrđuje integraciju. Nakon zelenog PR CI-ja treba provjeriti isto na main i 4 stvarna GitHub Release artefakta. Screenshotovi s emulatora/simulatora nisu dokaz 1:1 za svaki fizički telefon.
+
+
+## v0.1.23 — regresija: pauza samo tijekom stvarnog leta
+- Analizom `startGame` na obje platforme utvrđeno je da se pauza dosad stvarala vidljiva čim korisnik odabere `IGRAJ`, čak i kada simulacija čeka prvi `flap` (`active=false`).
+- Sada je Android `pause.visibility=INVISIBLE`, a iOS `pause.isHidden=true`, sve do prvog `inactive→active` prijelaza unutar simulacije; iOS početni HUD je sakriven, Android/iOS rendereri odgađaju HUD do aktivnog leta. Na početnom izborniku nema kontrole pauze.
+- Na odlasku na drugi zaslon prethodna gameplay hijerarhija se zamjenjuje ili uklanja. Android/iOS rezultatski callback se prihvaća samo za trenutno aktivan `GameView`/`GameCanvas`, što sprječava povrat zastarjelog rezultata.
+- Android emulator QA više ne traži pauzu kao dokaz da je `IGRAJ` otvorio igru: traži stvarni `Dodirni za let Bopija` view i izričito odbija pauzu prije prvog zamaha. Nakon zamaha mora se pojaviti vidljiva pauza (ako nije već stigao završni rezultat); nakon završetka mora nestati. Početni izbornik i dalje mora izložiti točno tri pristupačna gumba bez pauze ili statusa leta.
+- Kotlin JUnit + Kotlin/Swift parity testovi osiguravaju da `active` i fizika ostaju u mirovanju prije prvog dodira. Python source audit provjerava oba callbacka, ispravan početni visibility, aktivni HUD, zaštitu callbackova i rigorozni emulator skript.
+- Merge i izdanje dopušteni su tek nakon zelenog PR CI-ja, zelenog novog CI-ja na main te stvarne potvrde četiri artefakta; ovo nije zamjena za usporedni screenshot QA svih zaslona s referentnim renderima.
