@@ -710,7 +710,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         guard let url=urls.first else{return}
         let scoped=url.startAccessingSecurityScopedResource()
         defer{if scoped {url.stopAccessingSecurityScopedResource()}}
-        do {try progress.importData(Data(contentsOf:url));sound.enabled=progress.soundEnabled;showHome();alert("Uspješno","Napredak je uvezen.")}
+        do {
+            // Read at most 550001 bytes from an untrusted document provider.
+            let handle=try FileHandle(forReadingFrom:url)
+            defer {try? handle.close()}
+            let data=try handle.read(upToCount:550_001) ?? Data()
+            try progress.importData(data)
+            sound.enabled=progress.soundEnabled
+            showHome();alert("Uspješno","Napredak je uvezen.")
+        }
         catch {alert("Uvoz nije uspio",error.localizedDescription)}
     }
     private func alert(_ title:String,_ message:String){let a=UIAlertController(title:title,message:message,preferredStyle:.alert);a.addAction(UIAlertAction(title:"U redu",style:.default));present(a,animated:true)}
