@@ -109,3 +109,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Kotlin JUnit + Kotlin/Swift parity testovi provjeravaju pomake, granice i reduced-motion; Python audit potvrđuje oba renderera i da su svi svjetovi dostupni. Prije mergea CI mora potvrditi Android emulator i iOS simulator.
 - Kolizije, bodovanje, migracije, novčanik, lokalna ljestvica, izvoz i uvoz nisu mijenjani. Osam svjetova odmah je dostupno; pojedinačni leveli napreduju zasebno.
 - Tehnički testovi ne dokazuju vizualnu identičnost 1:1 s dostavljenim kompozitnim referencama. Potrebno je testirati zasebne ekrane i fizičke uređaje.
+
+
+## v0.1.20 — Bopijev input-driven zamah
+- Tap gestom Kotlin i Swift postavljaju `flapPulse=0.24` s postupnim opadanjem samo tijekom valjanih simulacijskih koraka. Ponovljeni dodir ga vraća na 0,24 s; neispravan delta ne mijenja impuls.
+- Na obje platforme pomak krila dobiva dodatni 17° upstroke proporcionalan `flapPulse`; nakon otprilike 240 ms preostaje osnovna animacija. Proceduralni svjetski obojeni val i sedam sitnih čestica ostaju iza Bopija i ne mijenjaju kolizijsku geometriju.
+- `reducedMotion` uklanja oba nova animirana elementa, a glasnoća, vibracije, igranje bez interneta i pohrana napretka ostaju netaknuti.
+- Kotlin JUnit i Swift/Kotlin parity testovi pokrivaju impuls, ponovno pokretanje, vrijeme i trajanje. Source audit provjerava renderere i reduced-motion.
+- Potrebno potvrditi PR CI na Android emulatoru i iOS simulatoru, zatim main CI i sva četiri release artefakta. Bez fizičkih uređaja nije moguće tvrditi punu 1:1 podudarnost prema slikama.
