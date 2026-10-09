@@ -8,6 +8,7 @@ Pregledano je svih 12 ručno održavanih Kotlin i Swift datoteka u Android i iOS
 
 - **Nedostižna mapa zaključanih svjetova**: `maxWorld()` sada uvijek vraća 7, pa su grane koje zatamnjuju kartice, prikazuju lokot ili zahtijevaju 30 prethodnih levela uklonjene na obje platforme.
 - **Zastarjelo otključavanje novog svijeta**: uvjet `world == maxWorld() && world < 7` nije mogao postati istinit nakon otvaranja svih svjetova; uklonjen iz oba ProgressStorea.
+- **Ostaci starog generatora levela**: uklonjeni su nekorištena tablica pomaka `offset` i pomoćna `accessible(frontier, number)` na Androidu; odabir levela sada koristi stvarnu pohranu napretka i trenutni UI.
 - **Nekorištena metoda `rating()`**: bez poziva iz UI-ja, prikaza ili testova; uklonjena iz Kotlin i Swift simulacije.
 - **Nekorišteno `completedLevelNumber`**: vrijednost se zapisivala pri prijelazu, ali nigdje nije čitana; uklonjena na obje platforme. Ostaje `completedOrdinal` koji je potreban za isplatu nagrade.
 - **Postignuća**: ranije izoliran ekran povezan je s lokalnom ljestvicom umjesto njegovog uklanjanja. Sada koristi stvarni svijet s najvećim napretkom, a ne uvijek osmi svijet.
