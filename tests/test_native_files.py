@@ -33,10 +33,10 @@ import re
 gradle=(root/'android/app/build.gradle.kts').read_text()
 xcode=(root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
 workflow=(root/'.github/workflows/native-ci.yml').read_text()
-android_versions=re.findall(r'versionName\\s*=\\s*"(\\d+\\.\\d+\\.\\d+)"',gradle)
-android_builds=re.findall(r'versionCode\\s*=\\s*(\\d+)',gradle)
-ios_versions=re.findall(r'MARKETING_VERSION\\s*=\\s*(\\d+\\.\\d+\\.\\d+)',xcode)
-ios_builds=re.findall(r'CURRENT_PROJECT_VERSION\\s*=\\s*(\\d+)',xcode)
+android_versions=re.findall(r'versionName\s*=\s*"(\d+\.\d+\.\d+)"',gradle)
+android_builds=re.findall(r'versionCode\s*=\s*(\d+)',gradle)
+ios_versions=re.findall(r'MARKETING_VERSION\s*=\s*(\d+\.\d+\.\d+)',xcode)
+ios_builds=re.findall(r'CURRENT_PROJECT_VERSION\s*=\s*(\d+)',xcode)
 assert len(android_versions)==1 and len(android_builds)==1, "Android version missing or ambiguous"
 assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions missing"
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
