@@ -4,6 +4,7 @@
 - Završni rezultat prikazuje ime igrača i odabranu težinu.
 - Izračun bodova koristi sigurno zbrajanje i ograničenje do 100 milijuna kako dugi letovi ne bi uzrokovali overflow.
 - Dodani Kotlin/Swift regresijski testovi i izvorni audit.
+- Android emulator QA: oporavak samo od točno prepoznatog dijaloga sustavnog Pixel Launchera, uz stvarni screenshot početnog zaslona; ANR same igre i dalje je blokirajuća greška.
 - Android build 11 / 0.1.10 i iOS build 11 / 0.1.10. Izdanje je uvjetovano zelenim CI-jem na main.
 
 ## v0.1.9 — težine, lokalni rezultati i čišćenje koda
