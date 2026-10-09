@@ -42,6 +42,7 @@ class ProgressStore(context: Context) {
         }
         if(game.won)edit.putInt("wins",wins()+1) else edit.putInt("deaths",deaths()+1)
         edit.apply()
+        saveLocalScore(game)
     }
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
@@ -76,6 +77,30 @@ class ProgressStore(context: Context) {
         val clean = value.trim().take(24).filter { it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-' }
         prefs.edit().putString("player_name", clean.ifBlank { "Igrač" }).apply()
     }
+    data class LocalScore(val name:String, val score:Int, val world:Int, val difficulty:Int, val gates:Int)
+    val difficultyNames = listOf("Opušteno", "Standardno", "Izazovno")
+    fun difficulty():Int = prefs.getInt("difficulty",1).coerceIn(0,2)
+    fun setDifficulty(value:Int) { prefs.edit().putInt("difficulty",value.coerceIn(0,2)).apply() }
+    fun leaderboard():List<LocalScore> {
+        val data=runCatching { JSONArray(prefs.getString("local_leaderboard","[]") ?: "[]") }.getOrNull()
+            ?: return emptyList()
+        return (0 until minOf(data.length(),10)).mapNotNull { i ->
+            val v=data.optJSONObject(i) ?: return@mapNotNull null
+            val world=v.optInt("world",-1); val mode=v.optInt("difficulty",-1)
+            val score=v.optInt("score",-1); val gates=v.optInt("gates",-1)
+            if(world !in 0..7 || mode !in 0..2 || score !in 0..100000000 || gates !in 0..100000000) return@mapNotNull null
+            LocalScore(v.optString("name","Igrač").take(24).ifBlank { "Igrač" },score,world,mode,gates)
+        }.sortedWith(compareByDescending<LocalScore>{it.score}.thenByDescending{it.gates}).take(10)
+    }
+    private fun saveLocalScore(game:GameSimulation) {
+        if(game.score()<=0) return
+        val records=(leaderboard()+LocalScore(playerName(),game.score(),game.level.world,game.difficulty,game.totalPassed))
+            .sortedWith(compareByDescending<LocalScore>{it.score}.thenByDescending{it.gates}).take(10)
+        val entries=JSONArray()
+        for(entry in records) entries.put(JSONObject().put("name",entry.name).put("score",entry.score)
+            .put("world",entry.world).put("difficulty",entry.difficulty).put("gates",entry.gates))
+        prefs.edit().putString("local_leaderboard",entries.toString()).apply()
+    }
     fun soundEnabled():Boolean = prefs.getBoolean("sound_enabled",true)
     fun setSoundEnabled(enabled:Boolean) {prefs.edit().putBoolean("sound_enabled",enabled).apply()}
 
@@ -85,6 +110,7 @@ class ProgressStore(context: Context) {
         s.put("frontiers", JSONArray((0..7).map { frontier(it) }))
         s.put("streamFrontiers",JSONArray((0..7).map { streamFrontier(it).toString() }))
         s.put("maxWorld", maxWorld()); s.put("chosenWorld",chosenWorld()); s.put("playerName",playerName()); s.put("coins", coins()); s.put("lessMotion", lessMotion())
+        s.put("difficulty",difficulty()); s.put("leaderboard",JSONArray(leaderboard().map { JSONObject().put("name",it.name).put("score",it.score).put("world",it.world).put("difficulty",it.difficulty).put("gates",it.gates) }))
         s.put("worldBest", JSONArray((0..7).map { best(it) }))
         s.put("owned",JSONArray((0..5).filter{owned(it)}.map{skins[it]}))
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
@@ -152,6 +178,22 @@ class ProgressStore(context: Context) {
             it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-'
         }.ifBlank { "Igrač" }
         e.putString("player_name", restoredName)
+        e.putInt("difficulty",s.optInt("difficulty",1).coerceIn(0,2))
+        val importedBoard=s.optJSONArray("leaderboard")
+        val board=JSONArray()
+        if(importedBoard!=null) for(i in 0 until minOf(importedBoard.length(),10)) {
+            val row=importedBoard.optJSONObject(i) ?: continue
+            val w=row.optInt("world",-1);val mode=row.optInt("difficulty",-1)
+            val score=row.optInt("score",-1);val gates=row.optInt("gates",-1)
+            if(w in 0..7 && mode in 0..2 && score in 0..100000000 && gates in 0..100000000) {
+                val name=row.optString("name","Igrač").trim().take(24).filter {
+                    it.isLetterOrDigit() || it==' ' || it=='_' || it=='-'
+                }.ifBlank { "Igrač" }
+                board.put(JSONObject().put("name",name).put("score",score)
+                    .put("world",w).put("difficulty",mode).put("gates",gates))
+            }
+        }
+        e.putString("local_leaderboard",board.toString())
         e.putBoolean("sound_enabled",s.optBoolean("soundEnabled",true))
         e.putBoolean("less_motion", s.optBoolean("lessMotion", false)); e.apply()
     }
