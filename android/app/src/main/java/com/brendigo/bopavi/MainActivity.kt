@@ -284,7 +284,7 @@ class MainActivity : Activity() {
         val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
-        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),
+        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
             onFinished={showResult(it)},
             onLevelCompleted={completed ->
                 val amount=progress.completeLevel(world,completed,simulation.score())
@@ -450,6 +450,13 @@ class MainActivity : Activity() {
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         b.addView(audio)
+        val haptic=Switch(this).apply {
+            text="Vibracije pri igranju"
+            setTextColor(Color.WHITE)
+            isChecked=progress.hapticEnabled()
+            setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
+        }
+        b.addView(haptic)
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
         for(mode in 0..2) {
