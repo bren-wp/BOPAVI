@@ -14,7 +14,7 @@ class ProgressStore(context: Context) {
     }
     fun chosenWorld():Int = prefs.getInt("chosen_world",0).coerceIn(0,maxWorld())
     fun chooseWorld(world:Int){if(world in 0..maxWorld())prefs.edit().putInt("chosen_world",world).apply()}
-    fun maxWorld(): Int = prefs.getInt("max_world", 0).coerceIn(0, 7)
+    fun maxWorld(): Int = 7 // All eight worlds are available; stored progress remains untouched.
     fun coins(): Int = prefs.getInt("coins", 0).coerceIn(0,100000000)
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
     val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow")
@@ -71,6 +71,11 @@ class ProgressStore(context: Context) {
         return Pair(if(shield>0)1 else 0,if(magnet>0)8f else 0f)
     }
     fun collectibles(world:Int):Int = if(world in 0..7) prefs.getInt("collectibles_$world",0) else 0
+    fun playerName(): String = prefs.getString("player_name", "Igrač") ?: "Igrač"
+    fun setPlayerName(value: String) {
+        val clean = value.trim().take(24).filter { it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-' }
+        prefs.edit().putString("player_name", clean.ifBlank { "Igrač" }).apply()
+    }
     fun soundEnabled():Boolean = prefs.getBoolean("sound_enabled",true)
     fun setSoundEnabled(enabled:Boolean) {prefs.edit().putBoolean("sound_enabled",enabled).apply()}
 
