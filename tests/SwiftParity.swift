@@ -131,6 +131,12 @@ struct SwiftParity {
         precondition(ResultHeadline.label(score:99,previousBest:100,won:false)=="LET ZAVRŠEN!")
         precondition(ResultHeadline.label(score:101,previousBest:100,won:false)=="NOVI REKORD!")
         precondition(ResultHeadline.label(score:101,previousBest:100,won:true)=="LEVEL DOVRŠEN!")
+        // v0.1.22: verify the same four level-type labels as Kotlin.
+        for (number,kind) in [(1,0),(15,1),(30,2),(60,3),(75,1),(90,2),(120,3),(360,3)] {
+            precondition(BopaviCore.create(0,number).type==kind)
+            precondition(LevelKind.name(kind)==["Normalni","Izazovni","Bonus","Elitni"][kind])
+            precondition(LevelKind.icon(kind)==["●","⚡","✦","♛"][kind])
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
