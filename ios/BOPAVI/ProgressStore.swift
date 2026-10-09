@@ -204,7 +204,7 @@ final class ProgressStore {
         if let ownedList=s["owned"] as? [String]{for item in ownedList {if let index=skins.firstIndex(of:item){mask |= 1 << index}}}
         defaults.set(mask,forKey:"owned_mask")
         let selected=skins.firstIndex(of:s["skin"] as? String ?? "bopi") ?? 0
-        defaults.set((mask & (1 << selected)) != 0 ? selected : 0,forKey:"skin_index")
+        defaults.set((selected == 6 || (mask & (1 << selected)) != 0) ? selected : 0,forKey:"skin_index")
         for stat in ["wins","deaths","flaps","endlessBest","endlessRuns"] {
             let value=min(100_000_000,max(0,s[stat] as? Int ?? 0))
             defaults.set(value,forKey:stat == "endlessBest" ? "endless_best" : stat == "endlessRuns" ? "endless_runs" : stat)
