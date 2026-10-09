@@ -183,6 +183,10 @@ jobs:
         run: |
           swiftc -O ios/BOPAVI/BopaviCore.swift ios/BOPAVI/ProgressStore.swift tests/SwiftParity.swift -o "$RUNNER_TEMP/bopavi-core-tests"
           "$RUNNER_TEMP/bopavi-core-tests" | tail -n 1
+      - name: Verify legacy save migration and haptics round-trip
+        run: |
+          swiftc -O ios/BOPAVI/BopaviCore.swift ios/BOPAVI/ProgressStore.swift tests/SwiftSaves.swift -o "$RUNNER_TEMP/bopavi-save-tests"
+          "$RUNNER_TEMP/bopavi-save-tests" | tail -n 1
       - name: Compile unsigned iPhone device target
         run: |
           xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/BOPAVI-device" CODE_SIGNING_ALLOWED=NO build
