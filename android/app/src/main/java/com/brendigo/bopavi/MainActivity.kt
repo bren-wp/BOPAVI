@@ -334,7 +334,7 @@ class MainActivity : Activity() {
         title(b,progress.skinNames[idx],25,gold)
         small(b,if(idx==6)
             "Portantin: krilati čovječuljak s naočalama, zaštitnom maskicom i rukavicama nosi suputnika na leđima."
-            else "Izaberi boju Bopija. Odabir se sprema samo na ovom uređaju.")
+            else "Izaberi boju Bopija ili besplatnog Portantina. Odabir ostaje na uređaju.")
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
         action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
         for(i in progress.skinNames.indices) {
