@@ -80,3 +80,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Novi model u oba corea dijeli kratke zastoje na korake do 34 ms, uz granicu 100 ms nakon duljeg zastoja. CI regresijski testovi uspoređuju ekvivalentne intervale.
 - iOS callbacku uklonjena je redundantna provjera pauze nakon ranog izlaska. Na kompatibilnim uređajima može raditi do 120 Hz.
 - U ovom ciklusu nisu mijenjani save/migration format, lokalna ljestvica ni grafički resursi. Ovo nije cjelovit dead-code audit svakog ekrana niti test na fizičkim uređajima; oboje ostaje za dodatnu provjeru.
+
+
+## v0.1.18 — Android emulator: sistemski Pixel Launcher ANR
+- Produkcijski CI na merge commitu `bbcd90b2` imao je neuspješnu provjeru otvaranja Postavki. Android APK/AAB, iOS, source audit i grafika bili su zeleni; GitHub Release je propisno preskočen.
+- Pročitan je log posla `113868070085` i pregledani su screenshot `android-settings-diagnostic.png` i `android-current-ui.xml` iz artefakta `QA-Android-visual-flow` workflowa `37944417518`.
+- Hijerarhija prikazuje sistemski dijalog `Pixel Launcher isn't responding` s opcijama `Close app` i `Wait`, iznad aktivnog BOPAVI početnog zaslona. BOPAVI proces ostao je aktivan; automatizirani dodir u Postavke preuzela je sistemska ANR komponenta.
+- QA skripta sada može prepoznati i oporaviti samo **točan** Pixel Launcher ANR pritiskom na sistemsko `Wait`; zahtijeva da BOPAVI proces i dalje radi, ograničava pokušaje i nakon svakog koraka ponovno provjerava stvarni UI.
+- Ako BOPAVI padne, pojavi se drukčiji dijalog ili se ekran Postavki i dalje ne otvori, test i dalje pada i pohranjuje screenshot, hijerarhiju i logcat. Nema preskakanja provjere ni lažno pozitivnih prolazaka.
