@@ -276,21 +276,33 @@ class MainActivity : Activity() {
             else startGame(world,n.toLong())
         }
         val start=((safePage-1)/20)*20+1
+        val zone=LevelEngine.create(world,start).zone
+        small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
+        small(b,"● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI")
         for(r in 0 until 5){
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             for(col in 0 until 4){
                 val n=start+r*4+col
                 if(n>LevelEngine.LEVELS_PER_WORLD)continue
                 val unlocked=n<=maxNumber
+                // Read the type from the exact level being offered; never invent it.
+                val kind=LevelEngine.create(world,n).type
                 val cell=Button(this).apply{
-                    text=if(!unlocked)"🔒\n$n" else if(n<maxNumber)"★\n$n" else "▶\n$n"
+                    text=if(unlocked)"${LevelKind.icon(kind)}\n$n" else "🔒\n$n"
                     setTextColor(if(unlocked)Color.WHITE else 0xff91a8c6.toInt())
                     textSize=14f;isAllCaps=false
                     typeface=Typeface.DEFAULT_BOLD
-                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                        if(unlocked)gradient(0xff268cf0.toInt(),0xff174aa8.toInt(),16)
-                        else gradient(0xff20395c.toInt(),0xff122641.toInt(),16),null)
-                    contentDescription="Level $n, ${if(unlocked) "otključan" else "zaključan"}"
+                    val face=if(!unlocked) gradient(0xff20395c.toInt(),0xff122641.toInt(),16)
+                        else when(kind) {
+                            1 -> gradient(0xffba6b2d.toInt(),0xff854220.toInt(),16)
+                            2 -> gradient(0xffb18826.toInt(),0xff755716.toInt(),16)
+                            3 -> gradient(0xff844db0.toInt(),0xff48257b.toInt(),16)
+                            else -> gradient(0xff268cf0.toInt(),0xff174aa8.toInt(),16)
+                        }
+                    if(unlocked && n==maxNumber)face.setStroke(d(3),gold)
+                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
+                    val status=if(!unlocked)"zaključan" else if(n<maxNumber)"dovršen" else "otključan"
+                    contentDescription="Level $n, ${LevelKind.name(kind)}, $status"
                     setOnClickListener{
                         if(unlocked){sound.effect("click");startGame(world,n.toLong())}
                         else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
@@ -335,7 +347,7 @@ class MainActivity : Activity() {
             contentDescription="Izbornik tijekom igre"
             setOnClickListener{
                 game.paused=true;sound.pause()
-                android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza")
+                android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza · Level ${game.game.displayLevel}")
                     .setItems(arrayOf("Nastavi let",
                         if(progress.soundEnabled()) "🔇 Isključi zvuk" else "🔊 Uključi zvuk",
                         "Mapa svjetova","Oprema za kovanice","Izgled Bopija","Zvuk i prikaz")) { _,choice ->

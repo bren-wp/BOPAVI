@@ -115,5 +115,11 @@ fun main() {
     check(ResultHeadline.label(99,100,false)=="LET ZAVRŠEN!")
     check(ResultHeadline.label(101,100,false)=="NOVI REKORD!")
     check(ResultHeadline.label(101,100,true)=="LEVEL DOVRŠEN!")
+    // v0.1.22: all four level-type badges follow the real generator.
+    for ((number,kind) in listOf(1 to 0,15 to 1,30 to 2,60 to 3,75 to 1,90 to 2,120 to 3,360 to 3)) {
+        check(LevelEngine.create(0,number).type==kind)
+        check(LevelKind.name(kind)==listOf("Normalni","Izazovni","Bonus","Elitni")[kind])
+        check(LevelKind.icon(kind)==listOf("●","⚡","✦","♛")[kind])
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

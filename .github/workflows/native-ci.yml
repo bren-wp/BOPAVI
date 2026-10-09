@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.21
+    name: GitHub Release v0.1.22
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.21 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.21 exists: no duplicate release.'
+          if gh release view v0.1.22 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.22 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.21 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.21 — Čitljiviji svjetovi i stvarni rekordi' --prerelease \
-            --notes 'Android i iOS: osam dostupnih svjetova sada ima čitljivije kartice i vidljivo označen odabrani svijet. iOS kartice odvajaju ilustracije od naziva i stvarnog napretka, bez teksta preko fotografija. Zasloni završetka razlikuju novi osobni rekord, dovršen level i običan kraj leta na temelju najboljeg lokalno spremljenog rezultata PRIJE spremanja pokušaja; prikazuju i najbolje bodove nakon spremanja. Dodani Kotlin JUnit, Kotlin/Swift parity i UI source audit. Sačuvani su fizika, kolizije, svih osam otvorenih svjetova, kovanice, napredak i offline način rada. Artefakti su razvojni APK, nepotpisani AAB te iOS simulator/device ZIP; nisu potpisani za trgovine. Potpuna usporedba 1:1 s kompozitnim referencama nije potvrđena.'
+          gh release create v0.1.22 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.22 — Leveli s karakterom' --prerelease \
+            --notes 'Android i iOS: izbornik levela pokazuje četiri već postojeće vrste levela — normalni, izazovni, bonus i elitni — izravno prema proceduralnom generatoru. Polja i oznake pristupačnosti razlikuju stvarni tip i zaključani, otključani ili dovršeni status, a prikaz uključuje zonu i raspon stranice. Pauza prikazuje trenutačni broj levela i točnu uputu za nastavak leta. Dodani Kotlin JUnit, Swift/Kotlin parity i UI source audit. Fizika, sudari, nagrade, napredak, valuta, pohrana i osam otključanih svjetova nisu mijenjani. Razvojni Android APK i nepotpisani AAB, iOS Simulator ZIP i nepotpisani iOS device ZIP nisu paketi potpisani za trgovine. Vizualna identičnost 1:1 prema referencama nije potvrđena.'

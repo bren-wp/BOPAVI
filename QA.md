@@ -125,3 +125,11 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - `ResultHeadline` na Kotlinu/Swiftu koristi `score`, `previousBest` i `won`: nula/izjednačenje nije novi rekord; pobjeda ima prednost; novi rekord mora biti strogo veći od ranijeg. UI dohvati prijašnji rekord prije `recordRun`; nakon spremanja prikazuje ažurirani osobni najbolji rezultat.
 - JUnit i Swift/Kotlin parity testovi provjeravaju iste ulaze; source audit provjerava strukturu kartica, redoslijed snimanja i dostupnost osam svjetova.
 - CI treba dokazati Android lint/JUnit/build, emulator gameplay QA, iOS simulator/Swift/save/device build prije mergea, zatim iste poslove na main i 4 release artefakta. Bez fizičkih uređaja nije potvrđena vizualna identičnost 1:1.
+
+
+## v0.1.22 — oznake levela i pauza
+- Izbornik koristi `LevelEngine.create(world,n).type` i `BopaviCore.create(world,n).type` za svaki vidljiv level, te usklađene oznake `LevelKind.name/icon` na Kotlinu i Swiftu. Simulacija igre, generator i pohrana ostaju nepromijenjeni.
+- U svim svjetovima svi leveli imaju deterministički tip: 1 = Normalni, 15 = Izazovni, 30 = Bonus, 60 = Elitni, 75 = Izazovni, 90 = Bonus, 120/360 = Elitni. Zaključani leveli nisu automatski otvoreni; svih osam svjetova jest.
+- Mreže prikazuju zonu i raspon stranice, ikonice i pristupačne nazive koji uključuju status; odabrani/napredni level se razlikuje vizualno bez pretvaranja stvarno zaključanih levela u otključane.
+- Pauza u oba sučelja pokazuje stvarni aktivni level i tekst `ODABERI NASTAVI LET`; akcije zvuka, povratka i nastavka ostaju kao prije.
+- Kotlin JUnit i Kotlin/Swift parity provjere ispituju granične nivoe i naziv/ikonu; Python audit potvrđuje integraciju. Nakon zelenog PR CI-ja treba provjeriti isto na main i 4 stvarna GitHub Release artefakta. Screenshotovi s emulatora/simulatora nisu dokaz 1:1 za svaki fizički telefon.

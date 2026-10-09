@@ -96,6 +96,26 @@ enum BopaviCore {
     }
 }
 
+/** UI metadata for the four existing generator types; no gameplay changes. */
+enum LevelKind {
+    static func name(_ type:Int)->String {
+        switch type {
+        case 1: return "Izazovni"
+        case 2: return "Bonus"
+        case 3: return "Elitni"
+        default: return "Normalni"
+        }
+    }
+    static func icon(_ type:Int)->String {
+        switch type {
+        case 1: return "⚡"
+        case 2: return "✦"
+        case 3: return "♛"
+        default: return "●"
+        }
+    }
+}
+
 /// Presentation-only parallax: no gameplay state, allocations or randomness.
 enum ParallaxScenery {
     private static let period:Float = 696 // Four tiles of 174 logical points.
