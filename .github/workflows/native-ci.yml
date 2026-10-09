@@ -202,7 +202,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.20
+    name: GitHub Release v0.1.21
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -224,10 +224,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.20 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.20 exists: no duplicate release.'
+          if gh release view v0.1.21 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.21 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.20 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.20 — Bopi reagira na svaki dodir' --prerelease \
-            --notes 'Android i iOS: Bopijeva odvojena krila reagiraju na stvarni dodir dodatnim zamahom od 17 stupnjeva i kratkim obojenim tragom leta, koji traje 240 ms. Svaki novi dodir obnavlja impuls, a smanjene animacije ga isključuju. Dodani Kotlin JUnit, Kotlin/Swift parity i statički audit za ponavljanje dodira, vremenske prekide i pristupačnost. Nisu mijenjani sudari, fizika, pohrana, kovanice ni svi odmah dostupni svjetovi. Paket uključuje razvojni APK, nepotpisani Android AAB i dvije nepotpisane iOS ZIP datoteke. Izdanje je prerelease, nije potpisano za trgovine i cjelovita vizualna podudarnost 1:1 nije potvrđena.'
+          gh release create v0.1.21 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.21 — Čitljiviji svjetovi i stvarni rekordi' --prerelease \
+            --notes 'Android i iOS: osam dostupnih svjetova sada ima čitljivije kartice i vidljivo označen odabrani svijet. iOS kartice odvajaju ilustracije od naziva i stvarnog napretka, bez teksta preko fotografija. Zasloni završetka razlikuju novi osobni rekord, dovršen level i običan kraj leta na temelju najboljeg lokalno spremljenog rezultata PRIJE spremanja pokušaja; prikazuju i najbolje bodove nakon spremanja. Dodani Kotlin JUnit, Kotlin/Swift parity i UI source audit. Sačuvani su fizika, kolizije, svih osam otvorenih svjetova, kovanice, napredak i offline način rada. Artefakti su razvojni APK, nepotpisani AAB te iOS simulator/device ZIP; nisu potpisani za trgovine. Potpuna usporedba 1:1 s kompozitnim referencama nije potvrđena.'
