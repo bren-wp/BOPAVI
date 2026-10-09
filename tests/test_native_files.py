@@ -370,3 +370,42 @@ for gates in (1,11,12,15,17):
 # a zero numerator even when both levels contain equal gate counts.
 assert "passed = 0" in android_sim or "passed = 0" in android_sim.replace("passed=0","passed = 0")
 assert "passed=0" in ios_sim or "passed = 0" in ios_sim
+
+# v0.1.17: illustrated home shows exactly three deliberate actions, on both
+# platforms, with IGRAJ first and with cosmetics/equipment under settings.
+android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
+ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
+for home in (android_home,ios_home):
+    assert home.count('▶  IGRAJ') == 1
+    assert home.count('🌍  SVJETOVI') == 1
+    assert home.count('⚙  POSTAVKE') == 1
+    assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
+    assert 'showWorlds()' in home and 'showSettings()' in home
+    assert 'showPerks()' not in home and 'showSkins()' not in home
+android_settings=android_menu.split("private fun showSettings()",1)[1].split("override fun onActivityResult",1)[0]
+ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
+for settings in (android_settings,ios_settings):
+    for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
+                  "IZGLED BOPIJA","ŠTITOVI I OPREMA","LOKALNA LJESTVICA"):
+        assert title in settings
+    assert 'showSkins()' in settings and 'showPerks()' in settings
+    assert 'showLeaderboard()' in settings and 'showHome()' in settings
+    assert 'SPREMI IME' in settings and 'Vibracije pri igranju' in settings
+    assert 'IZVEZI NAPREDAK' in settings and 'UVEZI NAPREDAK' in settings
+
+# Shield impact must generate exactly one callback per nonzero pulse,
+# and a backgrounded iOS flight must not continue moving without confirmation.
+android_feedback=android_canvas.split("if(game.impactPulse>0f && !shieldImpactNotified)",1)[1].split("} else lastFrame=0L",1)[0]
+ios_feedback=ios_canvas.split("if game.impactPulse>0 && !shieldImpactNotified",1)[1].split("setNeedsDisplay()",1)[0]
+for feedback in (android_feedback,ios_feedback):
+    assert 'shieldImpactNotified=true' in feedback
+    assert 'shieldImpactNotified=false' in feedback
+    assert 'onShieldImpact' in feedback
+assert 'HapticFeedbackConstants.LONG_PRESS' in android_feedback
+assert 'hapticEnabled' in android_feedback
+assert 'onShieldImpact={sound.effect("hit")}' in android_menu
+assert 'UIImpactFeedbackGenerator(style:.medium)' in ios_menu
+assert 'if self.progress.hapticEnabled' in ios_menu
+assert 'UIApplication.willResignActiveNotification' in ios_menu
+assert 'activeCanvas.paused=true' in ios_menu
+assert 'sound.pause()' in ios_menu.split('private func pauseForInterruption(',1)[1].split('private func clear(',1)[0]
