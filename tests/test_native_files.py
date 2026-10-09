@@ -766,4 +766,9 @@ for source in ("android-home.png","android-pilot-picker.png","android-gameplay-r
     assert source in artwork and "qa/screenshots" in artwork
 assert "ImageOps.fit" in artwork and "target_width * 16 // 9" in artwork
 print("PASS: Play API36, real screenshots, signing isolation and publishing docs")
-\n# Edge-to-edge release candidate: game controls and result actions avoid cutouts/system bars.\nassert "WindowInsets.Type.displayCutout()" in android\nassert "val top = maxOf(d(24),cutout.top+d(8))" in android\nassert "scroll.setOnApplyWindowInsetsListener" in android\nprint("PASS: Android16 game controls and result safe-area handling")\n
+
+# Edge-to-edge release candidate: game controls and result actions avoid cutouts/system bars.
+assert "WindowInsets.Type.displayCutout()" in android
+assert "val top = maxOf(d(24),cutout.top+d(8))" in android
+assert "scroll.setOnApplyWindowInsetsListener" in android
+print("PASS: Android16 game controls and result safe-area handling")
