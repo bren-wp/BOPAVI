@@ -292,7 +292,8 @@ class MainActivity : Activity() {
                 if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()
             },
             onFlap={sound.effect("tap")},
-            onCollect={sound.effect("collect")})
+            onCollect={sound.effect("collect")},
+            onShieldImpact={sound.effect("hit")})
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
