@@ -95,3 +95,8 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Povratak iz Postavki sada se provjerava pet puta uz provjeru BOPAVI procesa. Oporavlja se samo točno prepoznat sistemski Pixel Launcher ANR; ako dijalog potroši Android Back, povratak se ponavlja tek nakon provjere da su Postavke i dalje otvorene.
 - Test mora na kraju pronaći stvarna tri dostupna početna gumba ili jasno pasti, uz screenshot/XML/logcat. Nije dopušteno prihvatiti screenshot Postavki kao dokaz ispravnog povratka na početni zaslon.
 - U audit dodana provjera sintakse shell QA skripte i prisutnosti AOSP emulator konfiguracije.
+
+### Dopuna nakon PR #24: AOSP SDK arhiva na GitHub runneru
+- PR workflow `37947986426` potvrdio je uspješne Android buildove i privacy/art audit, ali emulator se nije mogao ni instalirati: `system-images;android-35;default;x86_64` vraća `Error on ZipFile unknown archive` prije pokretanja aplikacije. Nije riječ o gameplay testu niti padu BOPAVI procesa.
+- Vraćen je provjereno instalabilan emulator `target: google_apis`. Važan popravak ostaje: Android Back nakon Postavki ponovno se provjerava uz ograničenu obnovu samo potvrđenog Pixel Launcher ANR, ponovno slanje Back tipke samo ako je i dalje vidljiv zaslon Postavki te strogu provjeru sva tri početna gumba.
+- Nema slabljenja smoke testa i release ostaje blokiran do zelenog stvarnog Android emulator gameplay QA na posljednjem commitu.
