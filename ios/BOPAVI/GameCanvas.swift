@@ -59,10 +59,10 @@ final class GameCanvas: UIView {
     }()
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
-        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(5,max(0,skinIndex))
-        self.birdSprite=UIImage(named:"Bopi\(min(5,max(0,skinIndex)))")
-        self.leftWing=UIImage(named:"BopiLeft\(min(5,max(0,skinIndex)))")
-        self.rightWing=UIImage(named:"BopiRight\(min(5,max(0,skinIndex)))")
+        self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=min(6,max(0,skinIndex))
+        self.birdSprite=UIImage(named:"Bopi\(min(6,max(0,skinIndex)))")
+        self.leftWing=UIImage(named:"BopiLeft\(min(6,max(0,skinIndex)))")
+        self.rightWing=UIImage(named:"BopiRight\(min(6,max(0,skinIndex)))")
         self.worldBackdrop=UIImage(named:"World\(game.level.world)")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
@@ -568,7 +568,7 @@ final class GameCanvas: UIView {
         oval(c,-30,0,22,16,0x1678d8)
         c.saveGState();c.rotate(by:phase*26 * .pi/180)
         oval(c,-28,-4,36,20,0x0c78dc);oval(c,-25,-6,29,11,0x4ac3ff);c.restoreGState()
-        oval(c,-23,-24,49,49,0x095cc8);oval(c,-20,-25,43,48,feather[skinIndex])
+        oval(c,-23,-24,49,49,0x095cc8);oval(c,-20,-25,43,48,feather[min(5,skinIndex)])
         oval(c,-13,5,32,20,0xffffff)
         oval(c,-14,-17,12,7,0xffffff,0.5)
         oval(c,18,0,7,7,0xffa9ad)
