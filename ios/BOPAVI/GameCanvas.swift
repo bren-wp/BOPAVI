@@ -146,8 +146,11 @@ final class GameCanvas: UIView {
             gate(c,g,x,i)
         }
         bird(c)
-        drawBoostHUD(c)
-        drawLevelProgress(c)
+        // Before the first actual flight, no HUD overlays the illustrated intro.
+        if game.active && !game.finished {
+            drawBoostHUD(c)
+            drawLevelProgress(c)
+        }
         if game.levelTransition>0 {
             let opacity:CGFloat=CGFloat(game.levelTransition/0.78)
             rect(c,135,111,210,46,0x103b76,18,0.84*opacity)
