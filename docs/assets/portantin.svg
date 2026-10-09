@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="-65 -65 130 130" role="img" aria-labelledby="title desc">
+  <title id="title">Portantin — krilati nosač sa suputnikom</title>
+  <desc id="desc">Dobrodušni krilati čovječuljak s plavim naočalama, kirurškom maskicom i zaštitnim rukavicama nosi drugog čovječuljka sigurno na leđima.</desc>
+  <defs>
+    <linearGradient id="coat" x2=".95" y2="1"><stop stop-color="#49bfd3"/><stop offset="1" stop-color="#206b99"/></linearGradient>
+    <linearGradient id="wing" x2="1" y2="1"><stop stop-color="#f6fffa"/><stop offset=".52" stop-color="#b3e6f4"/><stop offset="1" stop-color="#67a7db"/></linearGradient>
+    <linearGradient id="face" x2=".8" y2="1"><stop stop-color="#ffe7ae"/><stop offset="1" stop-color="#eaa577"/></linearGradient>
+  </defs>
+  <g id="wing-left">
+    <path d="M-13 1 C-41 -44 -58 -49 -58 -32 C-62 -21 -53 -19 -51 -15 C-62 -13 -62 -1 -48 1 C-56 7 -50 16 -40 13 C-41 22 -32 25 -23 15 L-8 8Z" fill="url(#wing)" stroke="#1b668e" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-52 -32 Q-33 -23 -22 6 M-50 -14 Q-35 -8 -21 10 M-44 2 Q-30 2 -19 12" fill="none" stroke="#74bce3" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <g id="wing-right">
+    <path d="M12 1 C35 -40 53 -43 56 -29 C62 -20 53 -16 52 -12 C62 -6 57 4 48 5 C56 15 47 20 38 17 C39 26 30 26 22 16 L8 8Z" fill="url(#wing)" stroke="#1b668e" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M51 -26 Q31 -19 22 5 M50 -9 Q35 -4 20 10 M44 6 Q32 6 18 13" fill="none" stroke="#74bce3" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <!-- Passenger: smaller human sitting securely above and behind Portantin. -->
+  <path d="M13 -22 Q27 -21 29 -9 L30 7 Q24 13 14 5Z" fill="#8655a7" stroke="#39275c" stroke-width="2.5"/>
+  <path d="M15 -6 Q22 2 29 8" fill="none" stroke="#e9b98b" stroke-width="6" stroke-linecap="round"/>
+  <path d="M26 5 L32 15 M16 5 L21 14" stroke="#39375e" stroke-width="5.5" stroke-linecap="round"/>
+  <ellipse cx="16" cy="-31" rx="12.5" ry="15" fill="url(#face)" stroke="#774a51" stroke-width="2"/>
+  <path d="M5 -35 Q6 -49 19 -47 Q31 -44 28 -31 L21 -38 L14 -34Z" fill="#513657"/>
+  <path d="M10 -30 H24" stroke="#223b66" stroke-width="3.5" stroke-linecap="round"/>
+  <rect x="10" y="-31" width="8" height="7" rx="3" fill="#a7eaf8" stroke="#245b86" stroke-width="1.8"/>
+  <rect x="19" y="-31" width="8" height="7" rx="3" fill="#a7eaf8" stroke="#245b86" stroke-width="1.8"/>
+  <path d="M11 -23 Q18 -26 26 -23 L25 -15 Q18 -11 12 -15Z" fill="#e5f7fc" stroke="#81b6c7" stroke-width="1.8"/>
+  <!-- Carrying straps give the passenger a secured, non-floating silhouette. -->
+  <path d="M-14 -7 L20 9 M17 -8 L-13 16" fill="none" stroke="#eec66f" stroke-width="5" stroke-linecap="round"/>
+  <!-- Portantin: round, expressive primary human pilot, recognizable at 100 px. -->
+  <path d="M-22 10 Q-31 23 -20 37 Q-7 46 14 36 Q27 21 15 8 Q0 -2 -22 10Z" fill="url(#coat)" stroke="#185176" stroke-width="3.5"/>
+  <path d="M-17 34 L-21 43 M14 33 L20 42" stroke="#1d4269" stroke-width="7" stroke-linecap="round"/>
+  <path d="M-27 42 L-14 43 M12 42 L26 42" stroke="#1a355d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M-24 12 Q-35 17 -34 30" fill="none" stroke="#ffd7a1" stroke-width="7" stroke-linecap="round"/>
+  <path d="M17 13 Q32 20 28 31" fill="none" stroke="#ffd7a1" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="-35" cy="31" rx="7" ry="7.5" fill="#e9f8ff" stroke="#448cb0" stroke-width="2"/>
+  <ellipse cx="28" cy="32" rx="7" ry="7.5" fill="#e9f8ff" stroke="#448cb0" stroke-width="2"/>
+  <ellipse cx="-3" cy="-10" rx="26" ry="28" fill="url(#face)" stroke="#a86e57" stroke-width="3.5"/>
+  <path d="M-28 -16 Q-24 -41 -7 -43 Q18 -43 23 -21 Q8 -28 -2 -23 Q-11 -30 -28 -16Z" fill="#2b456a" stroke="#162a47" stroke-width="2.6"/>
+  <path d="M-25 -16 Q-4 -20 22 -15" fill="none" stroke="#254567" stroke-width="5"/>
+  <rect x="-24" y="-16" width="23" height="16" rx="7" fill="#b9eeff" stroke="#204c84" stroke-width="3.7"/>
+  <rect x="2" y="-16" width="23" height="16" rx="7" fill="#b9eeff" stroke="#204c84" stroke-width="3.7"/>
+  <path d="M-2 -10 H3 M-22 -13 L-28 -16 M25 -13 L31 -15" fill="none" stroke="#203e6f" stroke-width="3"/>
+  <path d="M-19 -11 L-12 -14 M8 -12 L15 -14" stroke="white" stroke-width="3" opacity=".76" stroke-linecap="round"/>
+  <!-- Surgical face mask: pleats and elastic straps. -->
+  <path d="M-19 2 Q-3 -1 18 2 L15 16 Q-3 23 -17 14Z" fill="#edfcff" stroke="#70b5ce" stroke-width="2.4"/>
+  <path d="M-19 4 L-27 -1 M18 4 L24 -1 M-16 8 Q-1 12 16 8 M-15 12 Q-1 16 15 12" fill="none" stroke="#91c7d8" stroke-width="1.65"/>
+  <path d="M-21 17 Q-12 20 -8 22" fill="none" stroke="#eab172" stroke-width="2"/>
+  <circle cx="-21" cy="-2" r="2.5" fill="#efad8c"/><circle cx="22" cy="-1" r="2.5" fill="#efad8c"/>
+  <path d="M-13 28 Q-1 36 11 28" fill="none" stroke="#8ceaf3" stroke-width="3" stroke-linecap="round"/>
+</svg>
