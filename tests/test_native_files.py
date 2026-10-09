@@ -137,8 +137,8 @@ for core in (android_levels,ios_core):
 # v0.1.22: per-level type badges must come from each generated level.
 android_levels_menu=android_menu.split('private fun showLevels(',1)[1].split('private fun startGame(',1)[0]
 ios_levels_menu=ios_menu.split('private func showLevels(',1)[1].split('private func startGame(',1)[0]
-assert 'LevelKind.name(' in android_levels and 'LevelKind.icon(' in android_levels
-assert 'LevelKind.name(' in ios_core and 'LevelKind.icon(' in ios_core
+assert 'internal object LevelKind' in android_levels and 'fun name(type:Int)' in android_levels
+assert 'enum LevelKind' in ios_core and 'static func name(_ type:Int)' in ios_core
 assert 'LevelEngine.create(world,n).type' in android_levels_menu
 assert 'BopaviCore.create(world,n).type' in ios_levels_menu
 assert 'LevelKind.icon(kind)' in android_levels_menu and 'LevelKind.icon(kind)' in ios_levels_menu
