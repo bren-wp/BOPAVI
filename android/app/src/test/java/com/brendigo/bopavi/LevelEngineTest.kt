@@ -156,6 +156,16 @@ class LevelEngineTest {
         assertEquals("Marathon score must remain valid for local leaderboard",100_000_000,game.score())
     }
 
+    @Test fun virtualCoinsFromRecordPointsArePaidOnceAndNeverOverflow() {
+        assertEquals(5,ProgressStore.claimableRecordCoins(5000,0,0))
+        assertEquals(0,ProgressStore.claimableRecordCoins(5000,5,0))
+        assertEquals(4,ProgressStore.claimableRecordCoins(9000,5,0))
+        assertEquals(0,ProgressStore.claimableRecordCoins(-5000,0,0))
+        assertEquals(0,ProgressStore.claimableRecordCoins(5000,0,100000000))
+        assertEquals(1,ProgressStore.claimableRecordCoins(5000,4,99999999))
+        assertEquals(100000,ProgressStore.claimableRecordCoins(100000000,0,0))
+    }
+
     @Test fun boundaryValuesCannotGenerateInvalidLevels() {
         for(world in 0..7) {
             assertEquals(1,LevelEngine.create(world,1).number)
