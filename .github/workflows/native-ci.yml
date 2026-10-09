@@ -199,7 +199,7 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.12
+    name: GitHub Release v0.1.13
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, ios]
     runs-on: ubuntu-latest
@@ -221,10 +221,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v0.1.12 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo 'Release v0.1.12 exists: no duplicate release.'
+          if gh release view v0.1.13 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release v0.1.13 exists: no duplicate release.'
             exit 0
           fi
-          gh release create v0.1.12 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.12 — Živi svjetovi i animirani trag leta' --prerelease \
-            --notes 'Osam ilustriranih svjetova sada dobiva proceduralne svjetlucave čestice, prednje slojeve s parallax gibanjem i pet laganih animiranih tragova iza Bopija na Androidu i iOS-u. Bez dodatnih slika i bez promjene kolizija; smanjene animacije zamrzavaju gibanje. Svih osam svjetova otključano, kontinuirani leveli i lokalna ljestvica ostaju. Android/iOS screenshot QA, testovi kolizije i vremenske simulacije; bez oglasa i kupnje novcem. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'
+          gh release create v0.1.13 dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title 'BOPAVI v0.1.13 — Premium sjaj i vizualne povratne informacije' --prerelease \
+            --notes 'Prikupljanje predmeta sada se prikazuje tematskim svjetlucavim česticama u osam svjetova, a zaštitni štit radijalnim ledenim iskrama. Efekti su izravno crtani na Androidu i iOS-u, bez dodatnih slika, promjena kolizija ili kupnji; smanjene animacije zadržavaju mirne kružne indikatore. Svih osam svjetova otključano, kontinuirani leveli i lokalna ljestvica ostaju. Android/iOS screenshot QA, testovi kolizije i vremenske simulacije; bez oglasa i kupnje novcem. Sadrži Android debug APK, nepotpisani Android AAB, iOS Simulator build te nepotpisani iPhone device build. iOS ZIP nije instalacijski IPA; produkcijsko potpisivanje i testiranje na stvarnim uređajima ostaju obvezni. Bez oglasa i kupnji za stvarni novac.'

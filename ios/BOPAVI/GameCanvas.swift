@@ -315,6 +315,42 @@ final class GameCanvas: UIView {
         }
         c.closePath();c.fillPath()
     }
+    /// Bounded visual feedback for actual pickup and shield impact events.
+    /// No sprite assets or mutable particle objects; reduced motion keeps calm rings.
+    private func drawFeedbackSparkles(_ c:CGContext) {
+        if reducedMotion {return}
+        let pickup=game.collectPulse
+        let hit=game.impactPulse
+        if pickup<=0 && hit<=0 {return}
+        if pickup>0 {
+            let progress:CGFloat=max(0,min(1,1-CGFloat(pickup)/0.36))
+            let radius:CGFloat=24+42*progress
+            c.setFillColor(color(pickupHues[game.level.world],min(210,210*(1-progress))/255))
+            for i in 0..<10 {
+                let angle=CGFloat(i)*6.2831853/10
+                let x:CGFloat=126+cos(angle)*radius
+                let y:CGFloat=CGFloat(game.y)+sin(angle)*radius
+                let size:CGFloat=2.9+CGFloat(i%3)*0.65
+                c.fillEllipse(in:CGRect(x:x-size,y:y-size,width:size*2,height:size*2))
+            }
+        }
+        if hit>0 {
+            let progress:CGFloat=max(0,min(1,1-CGFloat(hit)/0.65))
+            let radius:CGFloat=33+48*progress
+            c.setStrokeColor(color(0xb8efff,min(230,230*(1-progress))/255))
+            c.setLineWidth(2.8)
+            c.setLineCap(.round)
+            for i in 0..<12 {
+                let angle=CGFloat(i)*6.2831853/12
+                let dx=cos(angle)
+                let dy=sin(angle)
+                c.move(to:CGPoint(x:126+dx*radius,y:CGFloat(game.y)+dy*radius))
+                c.addLine(to:CGPoint(x:126+dx*(radius+9),y:CGFloat(game.y)+dy*(radius+9)))
+                c.strokePath()
+            }
+            c.setLineCap(.butt)
+        }
+    }
     private func bird(_ c:CGContext){
         if game.collectPulse>0 {
             let t=CGFloat(game.collectPulse)/0.36
@@ -328,6 +364,7 @@ final class GameCanvas: UIView {
             c.setStrokeColor(color(0xb8efff,0.82*t));c.setLineWidth(5)
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
+        drawFeedbackSparkles(c)
         // Motion ribbons make the sprite feel embedded in the world, not pasted on.
         if !reducedMotion && game.active && !game.finished {
             for i in 0..<5 {

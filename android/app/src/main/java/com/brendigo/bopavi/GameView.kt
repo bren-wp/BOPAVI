@@ -335,6 +335,47 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(g.star && game.starVisible(index)){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
         if(g.power!=0 && game.powerVisible(index)){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
+    /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
+     * Deterministic Canvas particles are bounded and allocate no sprites each frame.
+     * Reduced-motion users keep the existing calm feedback rings, without sparks.
+     */
+    private fun drawFeedbackSparkles(c:Canvas) {
+        if(reducedMotion) return
+        val pickup=game.collectPulse
+        val hit=game.impactPulse
+        if(pickup<=0f && hit<=0f) return
+        if(pickup>0f) {
+            val progress=(1f-pickup/.36f).coerceIn(0f,1f)
+            val radius=24f+42f*progress
+            fill(pickupHues[game.level.world])
+            p.alpha=(210f*(1f-progress)).toInt().coerceIn(0,210)
+            for(i in 0 until 10) {
+                val angle=i*6.2831853f/10f
+                val x=126f+cos(angle)*radius
+                val y=game.y+sin(angle)*radius
+                c.drawCircle(x,y,2.9f+(i%3)*.65f,p)
+            }
+        }
+        if(hit>0f) {
+            val progress=(1f-hit/.65f).coerceIn(0f,1f)
+            val radius=33f+48f*progress
+            fill(0xffb8efff.toInt())
+            p.alpha=(230f*(1f-progress)).toInt().coerceIn(0,230)
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=2.8f
+            p.strokeCap=Paint.Cap.ROUND
+            for(i in 0 until 12) {
+                val angle=i*6.2831853f/12f
+                val dx=cos(angle)
+                val dy=sin(angle)
+                c.drawLine(126f+dx*radius,game.y+dy*radius,
+                           126f+dx*(radius+9f),game.y+dy*(radius+9f),p)
+            }
+        }
+        p.alpha=255
+        p.style=Paint.Style.FILL
+        p.strokeCap=Paint.Cap.BUTT
+    }
     private fun drawBird(c:Canvas){
         if(game.collectPulse>0f){
             val portion=game.collectPulse/.36f
@@ -350,6 +391,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
+        drawFeedbackSparkles(c)
         // Flight ribbons keep the sprite visually connected to the wind and world.
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
