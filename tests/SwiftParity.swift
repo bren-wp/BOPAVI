@@ -68,6 +68,7 @@ struct SwiftParity {
             let game=GameSimulation(BopaviCore.Level(world:0,number:2,zone:level.zone,speed:140,wind:0,gates:[safe],type:level.type),endless:true)
             game.flap();game.step(1/60)
             precondition(game.completionCount==1 && game.displayLevel==3)
+            precondition(game.passed==0,"Seamless next level should reset only the gate counter")
             precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-300)<0.01)
             precondition(game.active && !game.finished)
         }
