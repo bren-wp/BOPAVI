@@ -122,6 +122,10 @@ final class ProgressStore {
             defaults.set(text,forKey:"local_leaderboard")
         }
     }
+    var hapticEnabled:Bool {
+        get { defaults.object(forKey:"haptic_enabled") as? Bool ?? true }
+        set { defaults.set(newValue,forKey:"haptic_enabled") }
+    }
     var soundEnabled:Bool {
         get {defaults.object(forKey:"sound_enabled") as? Bool ?? true}
         set {defaults.set(newValue,forKey:"sound_enabled")}
@@ -134,7 +138,7 @@ final class ProgressStore {
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
                                  "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
-                                 "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled]
+                                 "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled]
         return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":5,"save":save],options:[.prettyPrinted,.sortedKeys])
     }
     func importData(_ data:Data) throws {
@@ -204,6 +208,7 @@ final class ProgressStore {
             defaults.set(text,forKey:"local_leaderboard")
         }
         soundEnabled = s["soundEnabled"] as? Bool ?? true
+        hapticEnabled = s["hapticEnabled"] as? Bool ?? true
         lessMotion = s["lessMotion"] as? Bool ?? false
     }
 }

@@ -207,3 +207,18 @@ for surface in (android_canvas,ios_canvas):
 assert "flight_started=0" in qa and "first flight gesture acknowledged" in qa
 assert "did not acknowledge the first flight gesture" in qa
 assert "Pixel Launcher isn't responding" in qa
+
+# v0.1.11: pickups can vibrate independently of audio, with backup parity.
+for store in (android_save,ios_save):
+    assert "haptic_enabled" in store
+    assert '"hapticEnabled"' in store
+for ui in (android_menu,ios_menu):
+    assert "Vibracije pri igranju" in ui
+assert "if(hapticEnabled)performHapticFeedback" in android_canvas
+assert "if self?.progress.hapticEnabled == true" in ios_menu
+assert "drawBoostHUD(c)" in ios_canvas
+for surface in (android_canvas,ios_canvas):
+    assert "ŠTIT ×" in surface and "MAGNET " in surface
+workflow=(root/".github/workflows/native-ci.yml").read_text()
+assert "tests/SwiftSaves.swift" in workflow
+assert "Verify legacy save migration and haptics round-trip" in workflow
