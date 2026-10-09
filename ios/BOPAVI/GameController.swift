@@ -143,34 +143,64 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(b)
     }
     private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
+        // Artwork and labels occupy separate zones, matching Android's world cards.
+        // All eight worlds remain immediately playable; the highlight indicates
+        // only the user's currently selected world, never a paid/locked world.
+        let selected=progress.chosenWorld()==world
         let tile=BopaviActionButton(primary:false)
-        tile.layer.borderColor=worldAccents[world].withAlphaComponent(0.65).cgColor
+        tile.setTitle("",for:.normal)
+        tile.layer.borderWidth=selected ? 3 : 1
+        tile.layer.borderColor=worldAccents[world].withAlphaComponent(selected ? 1 : 0.65).cgColor
+        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano\(selected ? ", odabrano" : "")"
+        tile.heightAnchor.constraint(equalToConstant:214).isActive=true
         if let illustration=UIImage(named:"World\(world)") {
             let preview=UIImageView(image:illustration)
             preview.translatesAutoresizingMaskIntoConstraints=false
             preview.contentMode = .scaleAspectFill
             preview.clipsToBounds=true
-            preview.alpha=0.76
+            preview.layer.cornerRadius=15
             preview.isUserInteractionEnabled=false
-            tile.insertSubview(preview,at:0)
+            preview.accessibilityElementsHidden=true
+            tile.addSubview(preview)
             NSLayoutConstraint.activate([
-                preview.leadingAnchor.constraint(equalTo:tile.leadingAnchor),
-                preview.trailingAnchor.constraint(equalTo:tile.trailingAnchor),
-                preview.topAnchor.constraint(equalTo:tile.topAnchor),
-                preview.bottomAnchor.constraint(equalTo:tile.bottomAnchor)
+                preview.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
+                preview.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
+                preview.topAnchor.constraint(equalTo:tile.topAnchor,constant:6),
+                preview.heightAnchor.constraint(equalToConstant:137)
             ])
-            tile.clipsToBounds=true
         }
-        tile.titleLabel?.numberOfLines=3
-        tile.titleLabel?.textAlignment = .center
-        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  ↗"
-        let detail="Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])"
-        let text=NSMutableAttributedString(string:headline+"\n"+detail)
-        text.addAttributes([.font:UIFont.systemFont(ofSize:15,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
-        text.addAttributes([.font:UIFont.systemFont(ofSize:11,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
-        tile.setAttributedTitle(text,for:.normal)
-        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano"
-        tile.heightAnchor.constraint(equalToConstant:178).isActive=true
+        let headline=UILabel()
+        headline.translatesAutoresizingMaskIntoConstraints=false
+        headline.text="\(selected ? "✓ " : "")\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])"
+        headline.textColor=worldAccents[world]
+        headline.font=UIFont.systemFont(ofSize:14,weight:.heavy)
+        headline.adjustsFontSizeToFitWidth=true
+        headline.minimumScaleFactor=0.72
+        headline.textAlignment = .center
+        headline.isUserInteractionEnabled=false
+        headline.accessibilityElementsHidden=true
+        tile.addSubview(headline)
+        let detail=UILabel()
+        detail.translatesAutoresizingMaskIntoConstraints=false
+        detail.text="Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])"
+        detail.textColor=UIColor(red:0.81,green:0.91,blue:0.98,alpha:1)
+        detail.font=UIFont.systemFont(ofSize:12,weight:.medium)
+        detail.adjustsFontSizeToFitWidth=true
+        detail.minimumScaleFactor=0.7
+        detail.textAlignment = .center
+        detail.isUserInteractionEnabled=false
+        detail.accessibilityElementsHidden=true
+        tile.addSubview(detail)
+        NSLayoutConstraint.activate([
+            headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150),
+            headline.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
+            headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
+            headline.heightAnchor.constraint(equalToConstant:23),
+            detail.topAnchor.constraint(equalTo:headline.bottomAnchor,constant:3),
+            detail.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
+            detail.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
+            detail.heightAnchor.constraint(equalToConstant:20)
+        ])
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
     }
