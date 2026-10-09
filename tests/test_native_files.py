@@ -200,3 +200,10 @@ assert 'android:id/aerr_wait' in qa
 assert 'titles==["Pixel Launcher isn\'t responding"]' in qa
 assert 'BOPAVI exited' in qa
 assert 'capture android-home' in qa and 'home_captured' in qa
+
+# Accessibility state must reflect an acknowledged flight on both platforms.
+for surface in (android_canvas,ios_canvas):
+    assert "Bopi leti" in surface
+assert "flight_started=0" in qa and "first flight gesture acknowledged" in qa
+assert "did not acknowledge the first flight gesture" in qa
+assert "Pixel Launcher isn't responding" in qa
