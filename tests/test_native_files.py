@@ -353,7 +353,9 @@ for source in (android_progress,ios_progress):
     assert "PROLAZI " in source
     assert "Bopi leti. Prolazi " in source
     assert "pickupHues[game.level.world]" in source
-    assert "160" in source and "188" in source and "195" in source
+    assert "160" in source and "188" in source
+assert "rect(c,193f,188f,453f,195f" in android_progress
+assert "rect(c,193,188,260,7" in ios_progress
     assert "UIImage(" not in source and "BitmapFactory" not in source
 assert "260f*passed.toFloat()/total" in android_progress
 assert "260*CGFloat(passed)/CGFloat(total)" in ios_progress
