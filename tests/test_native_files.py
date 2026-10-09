@@ -171,3 +171,7 @@ for ui in (android,ios):
     assert "LOKALNA LJESTVICA" in ui and "POSTIGNUĆA" in ui
     assert "Težina se primjenjuje na sljedeći let" in ui
 assert "if(accessible)" not in android and "if accessible" not in ios
+
+engine=(root/"android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt").read_text()
+assert "private val offset" not in engine
+assert "fun accessible(" not in engine
