@@ -721,7 +721,8 @@ assert r'Prolazi \(g.passed)' not in ios_result
 android_back=android_menu.split('override fun onBackPressed()',1)[1]
 assert 'current.active -> gamePauseButton?.performClick()' in android_back
 assert 'else -> showPilotPicker(currentWorld,currentLevel)' in android_back
-assert 'else if(selectedScreen=="home") super.onBackPressed()' in android_back
+assert 'else if(selectedScreen=="home") {' in android_back
+assert 'if (Build.VERSION.SDK_INT >= 33) finish() else super.onBackPressed()' in android_back
 assert 'gamePauseButton=pause' in android_start
 print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause')
 
