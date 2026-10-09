@@ -77,9 +77,11 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 
 Projekt održava dvije zasebne aplikacije: Kotlin/Android Canvas i Swift/UIKit/Core Graphics. Fizika, generiranje levela, bodovi, pravila, izbor likova i spremanje napretka međusobno se provjeravaju Kotlin/Swift testovima.
 
-**[Preuzmi najnovije razvojno izdanje](../../releases)** · **[GitHub CI](../../actions/workflows/native-ci.yml)** · **[Detaljni QA i kriteriji objave](QA.md)** · **[Povijest izmjena](CHANGELOG.md)**
+**[Preuzmi najnovije razvojno izdanje](../../releases)** · **[GitHub CI](../../actions/workflows/native-ci.yml)** · **[Google Play — upute za izdavača](docs/GOOGLE-PLAY-PUBLISHING.md)** · **[Tekst Play Store](docs/play/STORE-LISTING-hr-HR.md)** · **[Politika privatnosti](docs/play/PRIVACY_POLICY.md)** · **[Detaljni QA](QA.md)** · **[Povijest izmjena](CHANGELOG.md)**
 
-GitHub izdanje može sadržavati razvojni APK, nepotpisani Android AAB te iOS simulator/device ZIP. Oni nisu automatski spremni za Google Play ili App Store: za javnu distribuciju potrebno je službeno potpisivanje i dodatno testiranje na fizičkim uređajima.
+**Priprema za Google Play (v0.1.30):** Android cilja API 36, podržava novu gestu Natrag i ima zaseban sigurnosno ograničen postupak za potpisivanje upload-key AAB-a. Redovni javni GitHub Release i dalje sadržava **nepotpisani** Android AAB i razvojni APK, iOS simulator/device ZIP te ZIP s Play ikonom, promotivnom grafikom i stvarnim Android emulator screenshotovima. Za potpisani AAB potreban je privatni upload ključ i ručno pokretanje Google Play workflowa. Objava u trgovinama, provjera Play Console računa, javni privacy policy URL, regulatorni obrasci i testiranje na fizičkim uređajima **nisu automatski dovršeni**.
+
+**Za izdavača:** [Google Play vodič korak-po-korak](docs/GOOGLE-PLAY-PUBLISHING.md) · [Data safety](docs/play/GOOGLE-PLAY-DATA-SAFETY.md) · [Kontrolni popis](docs/play/RELEASE-CHECKLIST.md) · [Politika privatnosti](docs/play/privacy-policy.html).
 
 ## 🔐 Privatnost, kvaliteta i optimizacija
 

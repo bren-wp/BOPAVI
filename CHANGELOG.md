@@ -1,3 +1,10 @@
+## v0.1.30 — priprema Google Play izdanja i Android 16
+- Android minSdk 26 / compileSdk 36 / targetSdk 36. Usklađenje s Google Play zahtjevom od 31.8.2026.; versionCode 31 / versionName 0.1.30, iOS build 31 / 0.1.30.
+- Android 13+ moderni OnBackInvokedDispatcher (Android 16 više ne usmjerava prediktivnu gestu kroz zastarjeli onBackPressed); aktivni let pokazuje pauzu, idle prikaz vraća izbor lika, dok stariji Androidi koriste kompatibilni put.
+- Manifest appCategory=game, bez INTERNET dozvole i s isključenim OS automatskim backupom. Google Play upload-key signing opcionalan i dopušten samo kroz zaseban, ručni workflow koji koristi GitHub Environment tajne; redovni CI i javni release izričito ostaju nepotpisani.
+- Izvornim brand elementima generirana 512×512 Play ikona i 1024×500 promotivna grafika, zajedno s autentičnim 9:16 izrezima stvarnih Android CI screenshotova; bez izmišljenog gameplaya. Priloženi mirujući gameplay kadar nije prikaz aktivnog leta.
+- Dodani API36 AAB validacija, detaljni hrvatski Google Play publishing vodič, Play listing, Data safety analiza, dvojezična politika privatnosti i ručni release checklist. Play Console objava i fizički QA ostaju obveza izdavača.
+
 ## v0.1.29 — siguran uvoz, stvarni broj prolaza i pouzdana pauza
 - iOS import sada validira cijeli v5 niz streamFrontiers prije bilo kakve promjene spremljenog stanja. Ranije je neispravan niz mogao ostaviti prepisane kovanice, odabrani svijet i markere već preuzetih nagrada. Swift regresijski test uspoređuje potpunu sigurnosnu kopiju prije i nakon odbijenog uvoza.
 - Završni zaslon Androida i iOS-a prikazuje totalPassed kroz sve neprekinute levele, a ne passed koji se resetira pri svakom novom levelu. Kotlin, Swift i JVM testovi dodatno potvrđuju očuvanje globalnog brojača.

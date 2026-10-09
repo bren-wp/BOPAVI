@@ -184,3 +184,10 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Android: u aktivnom letu pritisnuti tipku ili gestu Natrag — mora se otvoriti izbornik pauze, a odabirom Nastavi let isti pokušaj mora nastaviti. U mirujućem letu Natrag vraća izbor lika i ne troši opremu; na početnom zaslonu izlazi iz aplikacije.
 - CI mora potvrditi Android/JVM, Swift save i physics testove, izvorni audit, Android emulator i iOS simulator/build. Testiranje fizičkih uređaja i potpisane trgovinske instalacije i dalje su zasebni uvjeti.
 - Android CI: Pixel Launcher ANR smije se oporaviti samo nakon provjere naslova, sistemskog ID-a gumba Wait i koordinata; zatim treba ponovno ispisati stvarni UI te pronaći sve premium kartice. Ako ScrollView ostane nedostupan ili BOPAVI padne, test mora pasti.
+
+## v0.1.30 — Google Play / Android 16
+- Provjeriti manifest i bundle: com.brendigo.bopavi, minSdk26, targetSdk36, versionCode31. Android edge-to-edge, sigurni inseti, statusne/navigacijske trake, prediktivna gesta Natrag na Androidu 13-16; aktivni let mora se pauzirati, ne napustiti.
+- Javno izdanje ima nepotpisani AAB. Samo zaštićen, ručno pokrenut Google Play signing workflow može proizvoditi potpisani AAB s privatnim upload ključem, bez objave tajni.
+- Provjeriti stvarnu Play 512x512 ikonu, 1024x500 grafiku te originalne emulator screenshotove izrezane na 1080x1920 bez novih/nacrtanih sučelja. Screenshot mirujuće igre nije aktivni gameplay.
+- Potvrditi Play Console Data safety, javni HTTPS privacy policy, ciljani uzrast i sadržaj, stvarni test na fizičkom telefonu i Play pre-launch report. Za primjenjivi novi osobni račun 12 testera tijekom 14 dana.
+- Pratiti detaljni checklist: docs/play/RELEASE-CHECKLIST.md.

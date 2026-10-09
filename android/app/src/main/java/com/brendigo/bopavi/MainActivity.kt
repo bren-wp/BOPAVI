@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,7 @@ class MainActivity : Activity() {
     private var currentLevel = 1L
     private var gameView: GameView? = null
     private var gamePauseButton: Button? = null
+    private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
@@ -44,6 +46,13 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility=0
         progress=ProgressStore(this);sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
+        // Android 16 no longer routes predictive Back through onBackPressed().
+        if (Build.VERSION.SDK_INT >= 33) {
+            val callback = android.window.OnBackInvokedCallback { navigateBack() }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            platformBackCallback = callback
+        }
         showHome()
     }
     private fun showNativeView(root: View) {
@@ -74,6 +83,10 @@ class MainActivity : Activity() {
         if(gameView?.game?.active == false && gameView?.paused == false) sound.resume()
     }
     override fun onDestroy() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            platformBackCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
+            platformBackCallback = null
+        }
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
@@ -480,6 +493,20 @@ class MainActivity : Activity() {
         pauseButton=pause
         gamePauseButton=pause
         frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
+        // Keep the pause button clear of notches/cutouts on edge-to-edge phones.
+        if (Build.VERSION.SDK_INT >= 35) {
+            frame.setOnApplyWindowInsetsListener { _, insets ->
+                val cutout = insets.getInsets(android.view.WindowInsets.Type.displayCutout())
+                val params = pause.layoutParams as FrameLayout.LayoutParams
+                val top = maxOf(d(24),cutout.top+d(8))
+                val right = maxOf(d(15),cutout.right+d(10))
+                if (params.topMargin!=top || params.rightMargin!=right) {
+                    params.topMargin=top;params.rightMargin=right
+                    pause.layoutParams=params
+                }
+                insets
+            }
+        }
         showNativeView(frame)
     }
     private fun showResult(g:GameSimulation){
@@ -512,6 +539,15 @@ class MainActivity : Activity() {
         }
         scroll.addView(panel)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        // Android 16 enforces edge-to-edge: keep result actions out of the
+        // gesture-navigation/status-bar regions, while art remains full bleed.
+        if (Build.VERSION.SDK_INT >= 35) {
+            scroll.setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                insets
+            }
+        }
         val artwork=ImageView(this).apply{
             setImageResource(R.drawable.hero)
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -691,8 +727,12 @@ class MainActivity : Activity() {
             if(requestCode==43)showHome()
         }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
     }
-    @Deprecated("Back navigation compatibility")
-    override fun onBackPressed() {
+    // The same navigation semantics apply to Android 8-12 hardware Back and
+    // Android 13-16 predictive Back, without losing the current flight.
+    @Deprecated("Back navigation compatibility on Android 12 and older")
+    override fun onBackPressed() = navigateBack()
+
+    private fun navigateBack() {
         if(selectedScreen=="game") {
             val current=gameView?.game
             when {
@@ -701,7 +741,8 @@ class MainActivity : Activity() {
                 current.active -> gamePauseButton?.performClick() // Do not discard live runs.
                 else -> showPilotPicker(currentWorld,currentLevel) // No purchased gear spent yet.
             }
-        } else if(selectedScreen=="home") super.onBackPressed()
-        else showHome()
+        } else if(selectedScreen=="home") {
+            if (Build.VERSION.SDK_INT >= 33) finish() else super.onBackPressed()
+        } else showHome()
     }
 }

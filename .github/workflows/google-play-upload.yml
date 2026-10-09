@@ -1,0 +1,83 @@
+name: BOPAVI — signed Google Play upload AAB
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Reviewed public release tag to build (for now: v0.1.30)'
+        required: true
+        default: 'v0.1.30'
+permissions:
+  contents: read
+jobs:
+  signed-upload:
+    name: Sign and verify Play upload bundle (private artifact)
+    # Never expose credentials to PR workflows or arbitrary branches.
+    if: github.ref == 'refs/heads/main' && inputs.release_tag == 'v0.1.30'
+    runs-on: ubuntu-latest
+    environment: google-play
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pillow cairosvg
+      - run: python tools/generate_images.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install Android 16 SDK
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager"
+          if [ ! -x "$SDKM" ]; then SDKM="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"; fi
+          test -x "$SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" --install 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Prepare upload keystore without exposing key material
+        env:
+          KEYSTORE_B64: ${{ secrets.BOPAVI_UPLOAD_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.BOPAVI_UPLOAD_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.BOPAVI_UPLOAD_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.BOPAVI_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for value in "$KEYSTORE_B64" "$STORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD"; do
+            if [ -z "$value" ]; then echo "::error::Required Google Play environment secret is missing"; exit 1; fi
+          done
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/bopavi-upload.jks"
+          test -s "$RUNNER_TEMP/bopavi-upload.jks"
+          echo "BOPAVI_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/bopavi-upload.jks" >> "$GITHUB_ENV"
+      - name: Build and verify SIGNED Android App Bundle
+        working-directory: android
+        env:
+          BOPAVI_UPLOAD_STORE_PASSWORD: ${{ secrets.BOPAVI_UPLOAD_STORE_PASSWORD }}
+          BOPAVI_UPLOAD_KEY_ALIAS: ${{ secrets.BOPAVI_UPLOAD_KEY_ALIAS }}
+          BOPAVI_UPLOAD_KEY_PASSWORD: ${{ secrets.BOPAVI_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$RUNNER_TEMP/bopavi-upload.jks"' EXIT
+          gradle :app:bundleRelease --no-daemon --stacktrace
+          python ../tools/verify_play_release.py --aab app/build/outputs/bundle/release/app-release.aab --signed
+          mkdir -p ../dist
+          cp app/build/outputs/bundle/release/app-release.aab ../dist/BOPAVI-v0.1.30-Play-upload-SIGNED.aab
+          cd ../dist
+          sha256sum BOPAVI-v0.1.30-Play-upload-SIGNED.aab > SHA256SUMS.txt
+      - name: Keep signed bundle in CI artifacts (NOT public GitHub Releases)
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Google-Play-v0.1.30-SIGNED-AAB
+          path: |
+            dist/BOPAVI-v0.1.30-Play-upload-SIGNED.aab
+            dist/SHA256SUMS.txt
+          retention-days: 5
+          if-no-files-found: error
+      - name: Erase upload keystore from runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/bopavi-upload.jks"
