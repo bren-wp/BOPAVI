@@ -70,11 +70,11 @@ final class GameCanvas: UIView {
     }
     required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
     override func didMoveToWindow(){super.didMoveToWindow();if window != nil {start()} else {stop()}}
-    private func start(){guard link == nil else{return};let l=CADisplayLink(target:self,selector:#selector(frameTick(_:)));l.preferredFramesPerSecond=reducedMotion ? 30 : 60;l.add(to:.main,forMode:.common);link=l}
+    private func start(){guard link == nil else{return};let l=CADisplayLink(target:self,selector:#selector(frameTick(_:)));l.preferredFramesPerSecond=reducedMotion ? 30 : min(120,window?.screen.maximumFramesPerSecond ?? 60);l.add(to:.main,forMode:.common);link=l}
     func stop(){link?.invalidate();link=nil;previous=0}
     @objc private func frameTick(_ l:CADisplayLink){
         if paused {previous=0;return}
-        if !paused && !game.finished {if previous != 0 {game.step(Float(l.timestamp-previous))};previous=l.timestamp}
+        if !game.finished {if previous != 0 {game.step(Float(l.timestamp-previous))};previous=l.timestamp}
         else {previous=0}
         if game.completionCount>completedSeen {
             completedSeen=game.completionCount;onLevelComplete?(game.completedOrdinal)
