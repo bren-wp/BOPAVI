@@ -109,5 +109,11 @@ fun main() {
         repeat(3){b.step(.10f)}
         check(b.flapPulse==0f && !b.finished)
     }
+    // v0.1.21: local personal record must compare against the prior best.
+    check(ResultHeadline.label(0,0,false)=="LET ZAVRŠEN!")
+    check(ResultHeadline.label(100,100,false)=="LET ZAVRŠEN!")
+    check(ResultHeadline.label(99,100,false)=="LET ZAVRŠEN!")
+    check(ResultHeadline.label(101,100,false)=="NOVI REKORD!")
+    check(ResultHeadline.label(101,100,true)=="LEVEL DOVRŠEN!")
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
