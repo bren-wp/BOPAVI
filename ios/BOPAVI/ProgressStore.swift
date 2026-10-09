@@ -46,12 +46,11 @@ final class ProgressStore {
         set { defaults.set(newValue,forKey:"less_motion") }
     }
     @discardableResult func completeLevel(world:Int,number:Int,score:Int)->Int {
-        guard (0..<8).contains(world), number == streamFrontier(world), world <= maxWorld(),
+        guard (0..<8).contains(world), number == streamFrontier(world),
               number > 0 && number < Int.max-2 else {return 0}
         let reward=BopaviCore.milestoneReward(number)
         defaults.set(number+1,forKey:"stream_frontier_\(world)")
         defaults.set(min(number+1,BopaviCore.levelsPerWorld+1),forKey:"frontier_\(world)")
-        if world==maxWorld() && number>=30 && world<7 {defaults.set(world+1,forKey:"max_world")}
         defaults.set(max(best(world),score),forKey:"best_\(world)")
         defaults.set(wins()+1,forKey:"wins")
         defaults.set(min(100_000_000,coins()+reward),forKey:"coins")
