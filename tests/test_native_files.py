@@ -380,8 +380,9 @@ for source in (android_canvas,ios_canvas):
     assert source.count("drawWorldLighting(")==2
     assert "185" in source
     assert "drawWorldAtmosphere" in source
-android_light=android_canvas.split("private fun drawWorldLighting(",1)[1].split("private fun drawWorldAtmosphere(",1)[0]
-ios_light=ios_canvas.split("private func drawWorldLighting(",1)[1].split("private func drawWorldAtmosphere(",1)[0]
+# Check only the static glow method, not the new independent parallax method.
+android_light=android_canvas.split("private fun drawWorldLighting(",1)[1].split("private fun drawParallaxIslands(",1)[0]
+ios_light=ios_canvas.split("private func drawWorldLighting(",1)[1].split("private func drawParallaxIslands(",1)[0]
 assert "glowShaders[world]" in android_light and "p.shader=null" in android_light
 assert "RadialGradient(" in android_canvas and "private val glowShaders=Array(8)" in android_canvas
 assert "CGGradient(" in ios_canvas and "private lazy var glowGradients" in ios_canvas
