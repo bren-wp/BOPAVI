@@ -156,3 +156,22 @@ for source in (android_save,ios_save):
 for source in (android,ios):
     assert 'SPREMI IME' in source
     assert 'Razvoj: Brendigo' in source
+
+# v0.1.9 gameplay/difficulty and offline leaderboard parity + dead code audit.
+android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
+ios_sim=(root/"ios/BOPAVI/BopaviCore.swift").read_text()
+for sim in (android_sim,ios_sim):
+    assert "gravityFactor" in sim and "speedFactor" in sim
+    assert "rating()" not in sim, "Dead rating method was reintroduced"
+for store in (android_save,ios_save):
+    assert "local_leaderboard" in store and "leaderboard" in store
+    assert "difficulty" in store
+    assert "if(world==maxWorld()" not in store and "if world==maxWorld()" not in store
+for ui in (android,ios):
+    assert "LOKALNA LJESTVICA" in ui and "POSTIGNUĆA" in ui
+    assert "Težina se primjenjuje na sljedeći let" in ui
+assert "if(accessible)" not in android and "if accessible" not in ios
+
+engine=(root/"android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt").read_text()
+assert "private val offset" not in engine
+assert "fun accessible(" not in engine

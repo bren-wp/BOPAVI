@@ -140,16 +140,14 @@ class MainActivity : Activity() {
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
-        val unlocked=world<=progress.maxWorld()
         val name=LevelEngine.names[world]
         val row=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20)
             setPadding(d(16),d(14),d(16),d(14))
-            alpha=if(unlocked)1f else .58f
             elevation=d(3).toFloat()
             isClickable=true;isFocusable=true
-            contentDescription="$name, "+if(unlocked)"otključano" else "zaključano"
+            contentDescription="$name, otključano"
             setOnClickListener{sound.effect("click");onClick()}
         }
         val preview=ImageView(this).apply{
@@ -164,12 +162,12 @@ class MainActivity : Activity() {
         }
         row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
-            text="${LevelEngine.collectibleIcons[world]}  $name   ${if(unlocked) "↗" else "🔒"}"
+            text="${LevelEngine.collectibleIcons[world]}  $name   ↗"
             textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
             gravity=Gravity.CENTER_HORIZONTAL
         })
         row.addView(TextView(this).apply{
-            text=if(unlocked)"Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}" else "Otkrij novi svijet tijekom igranja"
+            text="Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}"
             textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER_HORIZONTAL
             setPadding(0,d(5),0,0)
         })
@@ -222,11 +220,7 @@ class MainActivity : Activity() {
             b.addView(row,LinearLayout.LayoutParams(-1,-2))
             for(col in 0..1){
                 val w=line*2+col
-                val accessible=w<=progress.maxWorld()
-                worldTile(row,w){
-                    if(accessible) showLevels(w,1)
-                    else Toast.makeText(this,"Dovrši 30 levela prethodnog svijeta.",Toast.LENGTH_LONG).show()
-                }
+                worldTile(row,w){showLevels(w,1)}
             }
         }
         back(b){showHome()}
@@ -289,7 +283,7 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
         val boosts=progress.consumePerks()
-        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,number)
+        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),
@@ -389,6 +383,7 @@ class MainActivity : Activity() {
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
         action(panel,"▶  PONOVO"){startGame(currentWorld,currentLevel)}
+        action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
         action(panel,"OPREMA ZA KOVANICE",false){showPerks()}
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
         action(panel,"POČETNI EKRAN",false){showHome()}
@@ -421,11 +416,23 @@ class MainActivity : Activity() {
         }
         back(b){showWorlds()}
     }
+    private fun showLeaderboard(){
+        val b=base("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
+        val entries=progress.leaderboard()
+        if(entries.isEmpty()) small(b,"Još nema rezultata. Odigraj let i osvoji bodove!")
+        for((index,item) in entries.withIndex()){
+            small(b,"${index+1}. ${item.name} · ${item.score} bodova")
+            small(b,"${LevelEngine.names[item.world]} · ${progress.difficultyNames[item.difficulty]} · ${item.gates} prolaza")
+        }
+        action(b,"POSTIGNUĆA",false){showAchievements()}
+        back(b){showWorlds()}
+    }
     private fun showAchievements(){
         val b=base("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
         small(b,"Dovršeni leveli: ${((0..7).sumOf { (progress.frontier(it)-1).toLong() })}")
         small(b,"Pobjede: ${progress.wins()}  ·  Pokušaji bez pobjede: ${progress.deaths()}")
-        small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[progress.maxWorld()]}")
+        val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
+        small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[furthest]}")
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
         back(b){showWorlds()}
     }
@@ -435,6 +442,23 @@ class MainActivity : Activity() {
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         b.addView(audio)
+        small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
+        val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
+        for(mode in 0..2) {
+            val item=android.widget.RadioButton(this).apply {
+                text=progress.difficultyNames[mode]
+                setTextColor(Color.WHITE)
+                textSize=17f
+                id=View.generateViewId()
+                isChecked=progress.difficulty()==mode
+                setOnClickListener { progress.setDifficulty(mode) }
+            }
+            modes.addView(item,LinearLayout.LayoutParams(-1,d(48)))
+        }
+        b.addView(modes,LinearLayout.LayoutParams(-1,-2))
+        small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
+        action(b,"LOKALNA LJESTVICA",false){showLeaderboard()}
+
         val player=EditText(this).apply {
             hint="Ime igrača (lokalno)"
             setSingleLine(true)

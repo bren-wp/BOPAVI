@@ -1,3 +1,10 @@
+## v0.1.9 — težine, lokalni rezultati i čišćenje koda
+- Tri težine (Opušteno, Standardno, Izazovno) na Androidu i iOS-u mijenjaju brzinu i gravitaciju bez prekida levela; standardni način zadržava staru fiziku.
+- Lokalna top-10 ljestvica prikazuje samo stvarne rezultate s imenima igrača, svijetom, težinom i brojem prolaza. Nema izmišljenih igrača ni mrežne povezanosti.
+- Težina i ljestvica uključene su u kompatibilne sigurnosne kopije podataka uz provjeru raspona pri uvozu.
+- Uklonjene mrtve grane zaključavanja svjetova, neupotrebljavani rating helper i zastarjela logika otključavanja svijeta nakon 30 levela.
+- Android/iOS gameplay parity testovi i provjere izvornog koda dopunjeni su za nove načine rada.
+- Izdanje se priprema za objavu tek nakon zelenog GitHub Actions CI-ja; potpisani App Store IPA nije uključen.
 ## v0.1.8 — Integracija slike i igre, otključani svjetovi
 - Svih osam svjetova dostupno odmah, uz očuvani individualni napredak.
 - Lokalni profil igrača s izvozom i uvozom spremljenog imena, autorske informacije i regresijske provjere.

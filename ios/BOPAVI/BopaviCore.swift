@@ -98,6 +98,9 @@ enum BopaviCore {
 
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
+    let difficulty:Int
+    private var speedFactor:Float { difficulty == 0 ? 0.9 : (difficulty == 2 ? 1.12 : 1) }
+    private var gravityFactor:Float { difficulty == 0 ? 0.87 : (difficulty == 2 ? 1.12 : 1) }
     let endless: Bool
     private(set) var totalPassed=0
     private(set) var y: Float = 366
@@ -129,11 +132,11 @@ final class GameSimulation {
     // Match the visible Bopi body and pillar cap widths.
     let radius: Float = 23
     var completionCount = 0
-    var completedLevelNumber = 0
     var displayLevel:Int
     var completedOrdinal=0
-    init(_ level: BopaviCore.Level, endless:Bool = false, initialShield:Int = 0, initialMagnet:Float = 0, initialOrdinal:Int? = nil) {
+    init(_ level: BopaviCore.Level, endless:Bool = false, initialShield:Int = 0, initialMagnet:Float = 0, difficulty:Int = 1, initialOrdinal:Int? = nil) {
         self.level = level
+        self.difficulty = min(2,max(0,difficulty))
         self.displayLevel = initialOrdinal ?? level.number
         self.endless = endless
         self.shield = min(2,max(0,initialShield))
@@ -150,9 +153,9 @@ final class GameSimulation {
         guard active && !finished else { return }
         let dt = min(0.034, max(0, delta))
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt)
-        velocity = min(365, velocity+(685+level.wind)*dt)
+        velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
         y += velocity*dt
-        distance += level.speed*dt
+        distance += level.speed*speedFactor*dt
         if y < radius+5 || y > 753-radius { damage(); y = min(753-radius, max(radius+5, y)); return }
         for i in passed..<level.gates.count {
             let gate = level.gates[i]; let x = gateX(gate)
@@ -177,7 +180,7 @@ final class GameSimulation {
                 passed += 1; totalPassed += 1
                 if passed == level.gates.count {
                     if endless {
-                        completedLevelNumber=level.number;completedOrdinal=displayLevel;completionCount += 1
+                        completedOrdinal=displayLevel;completionCount += 1
                         displayLevel=min(Int.max-2,displayLevel+1)
                         let next=BopaviCore.createStream(level.world,displayLevel)
                         // World position remains monotonic across level transitions.
@@ -199,6 +202,5 @@ final class GameSimulation {
         if shield > 0 { shield -= 1; invulnerable = 1.25; impactPulse=0.65; velocity = -90 }
         else { finished = true; active = false; won = false }
     }
-    func rating() -> Int { !won ? 0 : 1+min(2,stars/max(1,level.gates.count/4)) }
     func score() -> Int { totalPassed*100 + coins*10 + stars*25 }
 }

@@ -119,7 +119,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(b)
     }
     private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
-        let unlocked=world<=progress.maxWorld()
         let tile=BopaviActionButton(primary:false)
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(0.65).cgColor
         if let illustration=UIImage(named:"World\(world)") {
@@ -138,16 +137,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
             tile.clipsToBounds=true
         }
-        tile.alpha=unlocked ? 1 : 0.60
         tile.titleLabel?.numberOfLines=3
         tile.titleLabel?.textAlignment = .center
-        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  \(unlocked ? "↗" : "🔒")"
-        let detail=unlocked ? "Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])" : "Otkrij novi svijet tijekom igranja"
+        let headline="\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])  ↗"
+        let detail="Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])"
         let text=NSMutableAttributedString(string:headline+"\n"+detail)
         text.addAttributes([.font:UIFont.systemFont(ofSize:15,weight:.heavy),.foregroundColor:worldAccents[world]],range:NSRange(location:0,length:(headline as NSString).length))
         text.addAttributes([.font:UIFont.systemFont(ofSize:11,weight:.medium),.foregroundColor:UIColor(red:0.78,green:0.90,blue:0.96,alpha:1)],range:NSRange(location:(headline as NSString).length+1,length:(detail as NSString).length))
         tile.setAttributedTitle(text,for:.normal)
-        tile.accessibilityLabel="\(BopaviCore.names[world]), \(unlocked ? "otključano" : "zaključano")"
+        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano"
         tile.heightAnchor.constraint(equalToConstant:178).isActive=true
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
@@ -218,11 +216,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.addArrangedSubview(row)
             for col in 0..<2 {
                 let world=line*2+col
-                let accessible=world<=progress.maxWorld()
-                worldTile(world,in:row){
-                    if accessible {self.showLevels(world,page:1)}
-                    else {self.alert("Svijet je zaključan","Dovrši 30 levela prethodnog svijeta.")}
-                }
+                worldTile(world,in:row){self.showLevels(world,page:1)}
             }
         }
         button("‹  Natrag",in:stack,primary:false){self.showHome()}
@@ -275,7 +269,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
         let boosts=progress.consumePerks()
-        let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,initialOrdinal:number)
+        let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex())
         canvas=gameCanvas
@@ -411,6 +405,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
               UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
         button("▶  PONOVO",in:stack){self.startGame(self.gameWorld,self.gameNumber)}
+        button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
         button("OPREMA ZA KOVANICE",in:stack,primary:false){self.showPerks()}
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
         button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
@@ -442,6 +437,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
     }
+    private func showLeaderboard(){
+        let s=menu("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
+        let entries=progress.leaderboard()
+        if entries.isEmpty {label("Još nema rezultata. Odigraj let i osvoji bodove!",16,.white,s)}
+        for (index,item) in entries.enumerated() {
+            label("\(index+1). \(item.name) · \(item.score) bodova",18,.white,s)
+            label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty]) · \(item.gates) prolaza",14,.white,s)
+        }
+        button("POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
+        button("‹  Mapa svjetova",in:s,primary:false){self.showWorlds()}
+    }
     private func showAchievements(){
         let s=menu("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
         let total=(0..<8).reduce(0){$0+self.progress.frontier($1)-1}
@@ -465,6 +471,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
+        label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
+        let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
+        difficulty.selectedSegmentIndex=progress.difficulty
+        difficulty.heightAnchor.constraint(equalToConstant:44).isActive=true
+        difficulty.addAction(UIAction{_ in self.progress.difficulty=difficulty.selectedSegmentIndex},for:.valueChanged)
+        s.addArrangedSubview(difficulty)
+        label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
+        button("LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
         let player=UITextField()
         player.text=progress.playerName
         player.placeholder="Ime igrača (lokalno)"

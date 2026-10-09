@@ -39,18 +39,18 @@ final class ProgressStore {
         }
         defaults.set(game.won ? wins()+1 : wins(),forKey:"wins")
         defaults.set(game.won ? deaths() : deaths()+1,forKey:"deaths")
+        saveLocalScore(game)
     }
     var lessMotion: Bool {
         get { defaults.bool(forKey:"less_motion") }
         set { defaults.set(newValue,forKey:"less_motion") }
     }
     @discardableResult func completeLevel(world:Int,number:Int,score:Int)->Int {
-        guard (0..<8).contains(world), number == streamFrontier(world), world <= maxWorld(),
+        guard (0..<8).contains(world), number == streamFrontier(world),
               number > 0 && number < Int.max-2 else {return 0}
         let reward=BopaviCore.milestoneReward(number)
         defaults.set(number+1,forKey:"stream_frontier_\(world)")
         defaults.set(min(number+1,BopaviCore.levelsPerWorld+1),forKey:"frontier_\(world)")
-        if world==maxWorld() && number>=30 && world<7 {defaults.set(world+1,forKey:"max_world")}
         defaults.set(max(best(world),score),forKey:"best_\(world)")
         defaults.set(wins()+1,forKey:"wins")
         defaults.set(min(100_000_000,coins()+reward),forKey:"coins")
@@ -81,6 +81,47 @@ final class ProgressStore {
             defaults.set(allowed.isEmpty ? "Igrač" : String(allowed.prefix(24)),forKey:"player_name")
         }
     }
+    struct LocalScore {
+        let name:String
+        let score:Int
+        let world:Int
+        let difficulty:Int
+        let gates:Int
+    }
+    let difficultyNames=["Opušteno","Standardno","Izazovno"]
+    var difficulty:Int {
+        get { min(2,max(0,defaults.object(forKey:"difficulty") as? Int ?? 1)) }
+        set { defaults.set(min(2,max(0,newValue)),forKey:"difficulty") }
+    }
+    func leaderboard()->[LocalScore] {
+        guard let text=defaults.string(forKey:"local_leaderboard"),
+              let data=text.data(using:.utf8),
+              let list=(try? JSONSerialization.jsonObject(with:data)) as? [[String:Any]] else { return [] }
+        return list.prefix(10).compactMap { row in
+            guard let world=row["world"] as? Int, (0..<8).contains(world),
+                  let mode=row["difficulty"] as? Int, (0...2).contains(mode),
+                  let score=row["score"] as? Int, (0...100_000_000).contains(score),
+                  let gates=row["gates"] as? Int, (0...100_000_000).contains(gates) else { return nil }
+            return LocalScore(name:String((row["name"] as? String ?? "Igrač").prefix(24)),
+                              score:score,world:world,difficulty:mode,gates:gates)
+        }.sorted { $0.score == $1.score ? $0.gates > $1.gates : $0.score > $1.score }
+    }
+    private func scoreDictionary(_ row:LocalScore)->[String:Any] {
+        ["name":row.name,"score":row.score,"world":row.world,
+         "difficulty":row.difficulty,"gates":row.gates]
+    }
+    private func saveLocalScore(_ game:GameSimulation) {
+        guard game.score()>0 else {return}
+        let entry=LocalScore(name:playerName,score:game.score(),world:game.level.world,
+                             difficulty:game.difficulty,gates:game.totalPassed)
+        let top=(leaderboard()+[entry]).sorted {
+            $0.score == $1.score ? $0.gates > $1.gates : $0.score > $1.score
+        }.prefix(10).map(scoreDictionary)
+        if let data=try? JSONSerialization.data(withJSONObject:top),
+           let text=String(data:data,encoding:.utf8) {
+            defaults.set(text,forKey:"local_leaderboard")
+        }
+    }
     var soundEnabled:Bool {
         get {defaults.object(forKey:"sound_enabled") as? Bool ?? true}
         set {defaults.set(newValue,forKey:"sound_enabled")}
@@ -88,7 +129,7 @@ final class ProgressStore {
     func exportData() throws -> Data {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
-                                 "playerName":playerName,"coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
+                                 "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
                                  "owned":(0..<6).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
@@ -144,6 +185,24 @@ final class ProgressStore {
         if let arr=s["perks"] as? [Int],arr.count==2 {for n in 0..<2 {defaults.set(min(99,max(0,arr[n])),forKey:"perk_\(n)")}}
         if let arr=s["collectibles"] as? [Int],arr.count==8 {for n in 0..<8 {defaults.set(min(100_000_000,max(0,arr[n])),forKey:"collectibles_\(n)")}}
         playerName = s["playerName"] as? String ?? "Igrač"
+        difficulty = s["difficulty"] as? Int ?? 1
+        let rawBoard=s["leaderboard"] as? [[String:Any]] ?? []
+        let cleanBoard=Array(rawBoard.prefix(10)).compactMap { row -> [String:Any]? in
+            guard let world=row["world"] as? Int, (0..<8).contains(world),
+                  let mode=row["difficulty"] as? Int, (0...2).contains(mode),
+                  let score=row["score"] as? Int, (0...100_000_000).contains(score),
+                  let gates=row["gates"] as? Int, (0...100_000_000).contains(gates) else {return nil}
+            let rawName=row["name"] as? String ?? "Igrač"
+            let name=String(rawName.prefix(24).filter {
+                $0.isLetter || $0.isNumber || $0 == " " || $0 == "_" || $0 == "-"
+            })
+            return ["name":name.isEmpty ? "Igrač" : name,"score":score,"world":world,
+                    "difficulty":mode,"gates":gates]
+        }
+        if let bytes=try? JSONSerialization.data(withJSONObject:cleanBoard),
+           let text=String(data:bytes,encoding:.utf8) {
+            defaults.set(text,forKey:"local_leaderboard")
+        }
         soundEnabled = s["soundEnabled"] as? Bool ?? true
         lessMotion = s["lessMotion"] as? Bool ?? false
     }
