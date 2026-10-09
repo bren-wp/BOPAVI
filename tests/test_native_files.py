@@ -221,13 +221,19 @@ for source in (android,ios):
 # No pause or distance reset at level boundaries.
 andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'nextOrigin=levelOrigin+level.gates.last().x+242f-upcoming.gates.first().x' in andr
-assert 'nextOrigin=levelOrigin+level.gates[level.gates.count-1].x+242-next.gates[0].x' in swift
+assert 'level.gates.last().x-level.gates[level.gates.lastIndex-1].x' in andr
+assert 'level.gates[last].x-level.gates[last-1].x' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x+spacing-upcoming.gates.first().x' in andr
+assert 'nextOrigin=levelOrigin+level.gates[last].x+spacing-next.gates[0].x' in swift
 assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
 assert 'levelTransition=0f' in andr and 'levelTransition=0' in swift
 assert 'distance = 0f; passed = 0' not in andr
 assert 'distance=0;passed=0' not in swift
 
+# v0.1.25: the generator must not silently replace the real zone interval
+# with a magic constant; actual Kotlin/Swift parity tests exercise the spacing.
+assert 'if(level.gates.size>=2)' in andr
+assert 'let spacing:Float=last>0' in swift
 # Keep fixed body raster dimensions; only separated wings may rotate.
 assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
@@ -492,9 +498,22 @@ android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('pr
 ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func startGame(',1)[0]
 for view in (android_picker,ios_picker):
     assert 'POLETI S' in view and 'ODABERI LIKA' in view
-    assert 'skinNames.indices' in view and 'Portantin' in view
-    assert 'selectOrBuy(i)' in view
+    assert 'Portantin' in view and 'characterGallery(' in view
     assert 'startGame(' in view
+android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
+ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
+assert 'skinNames.indices step 2' in android_gallery
+assert 'stride(from:0,to:progress.skinNames.count,by:2)' in ios_gallery
+assert 'R.drawable.bopi6' in android_gallery
+assert 'UIImage(named:"Bopi\\(i)")' in ios_gallery
+assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
+assert 'Otključati' in android_gallery and 'Otključati' in ios_gallery
+assert 'Potrošit ćeš' in android_gallery and 'Potrošit ćeš' in ios_gallery
+assert 'contentDescription=' in android_gallery and 'accessibilityLabel=' in ios_gallery
+android_skins=android_menu.split('private fun showSkins()',1)[1].split('private fun showLeaderboard()',1)[0]
+ios_skins=ios_menu.split('private func showSkins()',1)[1].split('private func showLeaderboard()',1)[0]
+assert 'characterGallery(' in android_skins and 'characterGallery(' in ios_skins
+assert 'showPilotPicker(world,number)' in android_picker and 'showPilotPicker(world,number)' in ios_picker
 for source in (android_menu,ios_menu):
     home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
     assert 'showPilotPicker(' in home and 'startGame(' not in home
