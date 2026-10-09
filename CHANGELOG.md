@@ -5,6 +5,11 @@
 - iOS automatski pauzira gameplay i zvuk pri odlasku aplikacije u pozadinu. Let se ne nastavlja samostalno po povratku.
 - Dodatni regresijski audit provjerava tri gumba, izbornike, povratnu navigaciju, reakcije štita i iOS lifecycle.
 - Android versionCode 18 / 0.1.17, iOS build 18 / 0.1.17; GitHub izdanje uvjetovano uspješnim Android i iOS buildovima i emulator QA.
+- Zaobljeniji zeleni i plavi gumbi, jasni blokovi postavki i dvije kompaktne informacije na početnom ekranu: najbolji bodovi i osvojene kovanice.
+- Trgovina prikazuje samo virtualnu valutu zarađenu igranjem; štit, magnet i Bopijeve boje dostupni su bez stvarnog novca.
+- Novi bonus: za svakih novih 1.000 bodova najboljeg rezultata korisnik može jednom preuzeti dodatnu kovanicu. Iskorišteni pragovi spremaju se u kompatibilne sigurnosne kopije kako se nagrada ne bi ponavljala.
+- Tekstovi su pojednostavnjeni za igrače (bez verzija formata kopije, tehničkih izraza i razvojnih napomena).
+- Android emulator sada stvarno otvara Postavke i provjerava povratak na početna tri gumba; Kotlin JUnit i SwiftSaves provjeravaju jednokratno preuzimanje virtualnih kovanica.
 - Izgled 1:1 prema svim referencama nije potvrđen na fizičkim uređajima.
 
 ## v0.1.16 — neprekinut let i pokazatelj prolaza
