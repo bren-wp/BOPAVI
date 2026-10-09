@@ -203,6 +203,5 @@ final class GameSimulation {
         if shield > 0 { shield -= 1; invulnerable = 1.25; impactPulse=0.65; velocity = -90 }
         else { finished = true; active = false; won = false }
     }
-    func rating() -> Int { !won ? 0 : 1+min(2,stars/max(1,level.gates.count/4)) }
     func score() -> Int { totalPassed*100 + coins*10 + stars*25 }
 }
