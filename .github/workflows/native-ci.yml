@@ -139,11 +139,15 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
           script: sh tools/qa_android_emulator.sh
-      - uses: actions/upload-artifact@v4
+      - name: Preserve Android QA screenshots and UI hierarchy on failure
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: QA-Android-visual-flow
-          path: qa/screenshots/*.png
-          if-no-files-found: error
+          path: |
+            qa/screenshots/*.png
+            qa/screenshots/*.xml
+          if-no-files-found: warn
   ios:
     name: iOS simulator + unsigned device build
     needs: [graphics]
