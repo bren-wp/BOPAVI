@@ -178,13 +178,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawHud(canvas)
             drawLevelProgress(canvas)
         }
-        if(false && game.levelTransition>0f){
-            val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
-            // Small nonblocking level ribbon; no pause or separate screen.
-            val color=(alpha*215f).toInt().coerceIn(0,215) shl 24 or 0x103b76
-            rect(canvas,135f,111f,345f,157f,color,18f)
-            text(canvas,"LEVEL ${game.displayLevel}",240f,141f,20f,Color.WHITE,true)
-        }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
@@ -591,26 +584,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
-    /** Small nonblocking progress rail, positioned beneath the level ribbon.
-     * Updates from actual passed gates; seamless level rotation resets it to zero.
-     * All rectangles remain in fixed 480x800 world coordinates.
-     */
+    /** Cumulative progress never resets when a new level joins the same flight. */
     private fun drawLevelProgress(c:Canvas) {
-        val total=game.level.gates.size.coerceAtLeast(1)
-        val passed=game.passed.coerceIn(0,total)
-        if(passed!=lastProgressPassed || total!=lastProgressTotal) {
-            progressTitle="PROLAZI "+passed+"/"+total
+        val passed=game.totalPassed
+        if(passed!=lastProgressPassed) {
+            progressTitle="PROLAZI UKUPNO  $passed"
             lastProgressPassed=passed
-            lastProgressTotal=total
-            if(game.active) contentDescription="Bopi leti. Prolazi "+passed+" od "+total
+            contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        rect(c,180f,160f,466f,207f,0xd918305d.toInt(),16f)
-        text(c,progressTitle,193f,180f,16f,Color.WHITE)
-        rect(c,193f,188f,453f,195f,0x774f7baf,3.5f)
-        if(passed>0) {
-            val width=260f*passed.toFloat()/total
-            rect(c,193f,188f,193f+width,195f,pickupHues[game.level.world],3.5f)
-        }
+        rect(c,180f,160f,466f,196f,0xd918305d.toInt(),16f)
+        text(c,progressTitle,193f,184f,16f,Color.WHITE)
     }
     private fun drawHud(c:Canvas){
         rect(c,14f,22f,197f,71f,0xcc15285c.toInt(),20f)
