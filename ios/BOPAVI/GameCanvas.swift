@@ -158,7 +158,8 @@ final class GameCanvas: UIView {
         let t:CGFloat=reducedMotion ? 0 : CGFloat(game.time)
         let dust=atmosphereHues[world]
         for i in 0..<12 {
-            let x=(CGFloat(i)*113+29-distance*0.11+560)
+            let x=((CGFloat(i)*113+29-distance*0.11)
+                .truncatingRemainder(dividingBy:560)+560)
                 .truncatingRemainder(dividingBy:560)-45
             let shimmer:CGFloat=reducedMotion ? 0 : sin(t*(1.45+CGFloat(i%3)*0.19)+CGFloat(i)*0.87)
             let y=CGFloat(175+(i*83)%430)+shimmer*4
@@ -171,7 +172,8 @@ final class GameCanvas: UIView {
         }
         let near=foregroundHues[world]
         for i in 0..<9 {
-            let x=(CGFloat(i)*85+32-distance*0.31+680)
+            let x=((CGFloat(i)*85+32-distance*0.31)
+                .truncatingRemainder(dividingBy:680)+680)
                 .truncatingRemainder(dividingBy:680)-60
             let y=CGFloat(700+(i%3)*12)
             let sway:CGFloat=reducedMotion ? 0 : sin(t*1.75+CGFloat(i))*3
