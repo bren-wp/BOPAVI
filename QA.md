@@ -177,3 +177,9 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - Android/iOS: kupiti štit i magnet, otvoriti mirujući let, zaključati uređaj, vratiti se i odustati bez zamaha; broj kupljenih predmeta mora ostati nepromijenjen. Pri prvom stvarnom zamahu svaka prisutna pogodnost troši se jednom.
 - Započeti let, premjestiti aplikaciju u pozadinu i vratiti se: let mora ostati pauziran dok korisnik izričito ne odabere nastavak. Mirujući pregled mora primati dodire bez nevidljive pauze.
 - Automatski CI obuhvaća Kotlin i Swift testove, Python audit, Android emulator, iOS simulator i oba builda. Testovi na fizičkim uređajima i tržišno potpisani paketi nisu potvrđeni.
+
+## v0.1.29 — sigurnost kopija i kontrola aktivnog leta
+- iOS: pripremiti v5 JSON sigurnosnu kopiju s neispravnim osmom stavkom streamFrontiers. Uvoz se mora odbiti, a cijeli prethodni spremljeni napredak, kovanice, postavke i marker već preuzetih nagrada moraju ostati nepromijenjeni.
+- Android/iOS: dovršiti barem jedan level u neprekinutom letu, potom završiti pokušaj. Zaslon rezultata mora prikazati ukupan broj prolaza iz svih levela u tom pokušaju.
+- Android: u aktivnom letu pritisnuti tipku ili gestu Natrag — mora se otvoriti izbornik pauze, a odabirom Nastavi let isti pokušaj mora nastaviti. U mirujućem letu Natrag vraća izbor lika i ne troši opremu; na početnom zaslonu izlazi iz aplikacije.
+- CI mora potvrditi Android/JVM, Swift save i physics testove, izvorni audit, Android emulator i iOS simulator/build. Testiranje fizičkih uređaja i potpisane trgovinske instalacije i dalje su zasebni uvjeti.
