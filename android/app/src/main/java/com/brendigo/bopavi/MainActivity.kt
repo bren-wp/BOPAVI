@@ -435,6 +435,20 @@ class MainActivity : Activity() {
         b.addView(low)
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         b.addView(audio)
+        val player=EditText(this).apply {
+            hint="Ime igrača (lokalno)"
+            setSingleLine(true)
+            setText(progress.playerName())
+            setTextColor(Color.WHITE)
+            setHintTextColor(0xffb2d6ff.toInt())
+            inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        }
+        b.addView(player,LinearLayout.LayoutParams(-1,d(52)))
+        action(b,"SPREMI IME",false){
+            progress.setPlayerName(player.text.toString())
+            Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
+        }
+        small(b,"BOPAVI — Mali let, velika avantura. Razvoj: Brendigo.")
         small(b,"Bez oglasa, telemetrije, računa i mrežnih zahtjeva.")
         action(b,"IZVEZI NAPREDAK",false){
             val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json";putExtra(Intent.EXTRA_TITLE,"bopavi-save.json")}
