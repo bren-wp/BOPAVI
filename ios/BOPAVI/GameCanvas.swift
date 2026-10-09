@@ -119,6 +119,7 @@ final class GameCanvas: UIView {
             background(c)
         }
         drawWorldLighting(c)
+        drawParallaxIslands(c)
         // Shared lightweight atmospheric depth, rendered above the fixed landscape.
         let drift:CGFloat = reducedMotion ? 0 : (CGFloat(game.distance)*0.075).truncatingRemainder(dividingBy:580)
         let mist:UInt32 = (game.level.world == 5 || game.level.world == 7) ? 0x8cbbff : 0xffffff
@@ -211,6 +212,42 @@ final class GameCanvas: UIView {
         let center=CGPoint(x:glowX[world],y:glowY[world])
         c.drawRadialGradient(gradient,startCenter:center,startRadius:0,
                              endCenter:center,endRadius:185,options:[])
+    }
+    // Same three drift speeds, tile width and island geometry as Android.
+    // Illustration-only, rendered below gates and Bopi; no per-frame bitmaps.
+    private let islandTopHues:[UInt32]=[0x83e575,0xffd98a,0xc3f3ff,0xffac58,
+                                         0xffe7ae,0xaa95e6,0x71edda,0xbcb4ff]
+    private let islandRockHues:[UInt32]=[0x9e7e70,0xb88a69,0x83b9d4,0x914455,
+                                          0xb39b88,0x51417f,0x4578a9,0x55538f]
+    private func drawParallaxIslands(_ c:CGContext) {
+        let world=game.level.world
+        for layer in 0...2 {
+            let drift=CGFloat(ParallaxScenery.offset(game.distance,layer:layer,
+                                                      reducedMotion:reducedMotion))
+            let width:CGFloat=83-CGFloat(layer)*9
+            let height:CGFloat=38+CGFloat(layer)*13
+            let alpha:CGFloat=CGFloat(layer == 0 ? 78 : (layer == 1 ? 105 : 132))/255
+            for i in 0...8 {
+                let x=CGFloat(i)*174+CGFloat(layer)*53-drift-118
+                if x < -110 || x > 530 {continue}
+                let y:CGFloat=416+CGFloat(layer)*92+CGFloat(i%2)*26
+                c.setFillColor(color(islandRockHues[world],alpha))
+                c.beginPath()
+                c.move(to:CGPoint(x:x+6,y:y+5))
+                c.addLine(to:CGPoint(x:x+width-6,y:y+5))
+                c.addLine(to:CGPoint(x:x+width*0.70,y:y+height))
+                c.addLine(to:CGPoint(x:x+width*0.42,y:y+height+11))
+                c.addLine(to:CGPoint(x:x+width*0.18,y:y+height*0.75))
+                c.closePath()
+                c.fillPath()
+                oval(c,x-5,y-11,width+10,22,islandTopHues[world],alpha)
+                rect(c,x+13,y-9,width-26,4,0xffffff,2,min(145.0/255,alpha+24.0/255))
+                if world==0 || world==4 {
+                    rect(c,x+width*0.52,y+15,width*0.03,height-7,
+                         0xb9f4ff,2,min(120.0/255,alpha))
+                }
+            }
+        }
     }
     private func drawWorldAtmosphere(_ c:CGContext) {
         let world=game.level.world
