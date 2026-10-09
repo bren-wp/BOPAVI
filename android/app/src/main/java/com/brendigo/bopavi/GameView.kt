@@ -24,6 +24,11 @@ import kotlin.math.sin
 class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}) : View(context) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
+    // Only rebuild the textual progress label when a gate is passed or a new
+    // endless level begins; the renderer draws its bar each frame without allocation.
+    private var lastProgressPassed = -1
+    private var lastProgressTotal = -1
+    private var progressTitle = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[skinIndex.coerceIn(0,5)],
@@ -149,6 +154,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         drawBird(canvas)
         drawHud(canvas)
+        drawLevelProgress(canvas)
         if(game.levelTransition>0f){
             val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
             // Small nonblocking level ribbon; no pause or separate screen.
@@ -496,6 +502,27 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,-16f,-37f,5f,-16f,0xffa65d2b.toInt());oval(c,-12f,-34f,2f,-20f,0xff8cdeff.toInt())
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
+    }
+    /** Small nonblocking progress rail, positioned beneath the level ribbon.
+     * Updates from actual passed gates; seamless level rotation resets it to zero.
+     * All rectangles remain in fixed 480x800 world coordinates.
+     */
+    private fun drawLevelProgress(c:Canvas) {
+        val total=game.level.gates.size.coerceAtLeast(1)
+        val passed=game.passed.coerceIn(0,total)
+        if(passed!=lastProgressPassed || total!=lastProgressTotal) {
+            progressTitle="PROLAZI "+passed+"/"+total
+            lastProgressPassed=passed
+            lastProgressTotal=total
+            if(game.active) contentDescription="Bopi leti. Prolazi "+passed+" od "+total
+        }
+        rect(c,180f,160f,466f,207f,0xd918305d.toInt(),16f)
+        text(c,progressTitle,193f,180f,16f,Color.WHITE)
+        rect(c,193f,188f,453f,195f,0x774f7baf,3.5f)
+        if(passed>0) {
+            val width=260f*passed.toFloat()/total
+            rect(c,193f,188f,193f+width,195f,pickupHues[game.level.world],3.5f)
+        }
     }
     private fun drawHud(c:Canvas){
         rect(c,14f,22f,197f,71f,0xcc15285c.toInt(),20f)

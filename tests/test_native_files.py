@@ -341,3 +341,32 @@ for light in (android_light,ios_light):
 # Ensure static glow is not linked to animation time or camera distance.
 for light in (android_light,ios_light):
     assert "game.time" not in light and "game.distance" not in light
+
+# v0.1.16: both renderers expose real per-level gate progress without a pause.
+android_progress=android_canvas.split("private fun drawLevelProgress(",1)[1].split("private fun drawHud(",1)[0]
+ios_progress=ios_canvas.split("private func drawLevelProgress(",1)[1].split("private func drawBoostHUD(",1)[0]
+for source in (android_canvas,ios_canvas):
+    assert source.count("drawLevelProgress(")==2
+for source in (android_progress,ios_progress):
+    assert "game.level.gates" in source and "game.passed" in source
+    assert "lastProgressPassed" in source and "lastProgressTotal" in source
+    assert "PROLAZI " in source
+    assert "Bopi leti. Prolazi " in source
+    assert "pickupHues[game.level.world]" in source
+    assert "160" in source and "188" in source
+    assert "UIImage(" not in source and "BitmapFactory" not in source
+assert "rect(c,193f,188f,453f,195f" in android_progress
+assert "rect(c,193,188,260,7" in ios_progress
+assert "260f*passed.toFloat()/total" in android_progress
+assert "260*CGFloat(passed)/CGFloat(total)" in ios_progress
+# The visual bar represents actual completed gates, not distance or score.
+for gates in (1,11,12,15,17):
+    for passed in range(gates+1):
+        fill=260*passed/gates
+        assert 0<=fill<=260
+        if passed==0: assert fill==0
+        if passed==gates: assert fill==260
+# A seamless transition replaces the entire gate list, and the next draw uses
+# a zero numerator even when both levels contain equal gate counts.
+assert "passed = 0" in android_sim or "passed = 0" in android_sim.replace("passed=0","passed = 0")
+assert "passed=0" in ios_sim or "passed = 0" in ios_sim

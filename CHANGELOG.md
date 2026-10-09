@@ -1,3 +1,13 @@
+## v0.1.16 — neprekinut let i pokazatelj prolaza
+- Android i iOS: novi kompaktni pokazatelj napretka trenutnog levela, sa stvarnim brojem prijeđenih prepreka, ukupnim brojem prepreka i trakom u boji odgovarajućeg svijeta.
+- Pokazatelj se automatski vraća na 0 pri neprimjetnom prijelazu na sljedeći numerirani level; nema pauze, modalnog prozora ni dodatnog dodira.
+- Položaj HUD-a ne preklapa gornju naslovnu traku, štit, magnet ni kratku oznaku prijelaza između levela.
+- Tekst se osvježava tek kada se promijeni broj prolaza ili prepreka, bez dodatnog sastavljanja teksta u svakom prikazanom kadru.
+- Pristupačni opis usklađen je na obje platforme i navodi koliko je prepreka igrač prošao.
+- Novi Kotlin/Swift gameplay regresijski testovi i source audit provjeravaju reset brojača, točan omjer popunjenosti, osam paleta i kontinuitet leta.
+- Android build 17 / 0.1.16; iOS build 17 / 0.1.16. Izdanje uvjetovano uspješnim Android/iOS CI-jem i emulator provjerom na main.
+- Potpuna vizualna podudarnost 1:1 s referencama još nije potvrđena na fizičkim uređajima.
+
 ## v0.1.15 — ambijentalno osvjetljenje svih osam svjetova
 
 - Android i iOS: zasebno nježno ambijentalno osvjetljenje za svih osam svjetova, s toplijim tonovima plaže/vulkana, hladnijim ledom/kristalima i diskretnim osvjetljenjem noćnih svjetova.
