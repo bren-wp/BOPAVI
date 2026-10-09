@@ -166,8 +166,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
-        drawHud(canvas)
-        drawLevelProgress(canvas)
+        // Keep the intro composition clean: scores and gate progress appear
+        // with the first real flap, not on the idle "Dodirni za let" screen.
+        if(game.active && !game.finished) {
+            drawHud(canvas)
+            drawLevelProgress(canvas)
+        }
         if(game.levelTransition>0f){
             val alpha=(game.levelTransition/.78f).coerceIn(0f,1f)
             // Small nonblocking level ribbon; no pause or separate screen.
