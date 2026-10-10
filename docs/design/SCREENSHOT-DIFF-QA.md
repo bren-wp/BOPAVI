@@ -1,3 +1,8 @@
+## Iteration 5 — pilot gallery
+- Featured Portantin, Noa, Any cards occupy the first top row on both devices, matching the reference ordering without remapping canonical skin IDs or corrupting ownership/coin balances.
+- Selected pilot hero uses real layered world illustration, dim overlay, portrait, selected badge. The **POLETI S** action follows the full gallery rather than preceding it.
+- Outstanding art: the concept's flying portraits are detailed 3D renderings; the source images remain simplified vector birds. Exact photorealistic visual matching still needs genuine licensed/approved standalone artwork, screenshot comparisons and multi-device QA.
+
 ## Iteration 4 — actual result/rewards layout
 - Result summary now uses three responsive real-score/coins/gates cards matching the screenshot's information hierarchy.
 - Rewards row uses four actual offline values (run coins, run stars, claimable record bonus, saved best score). The artwork's diamond/chest/crown inventory is not invented or simulated.

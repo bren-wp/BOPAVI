@@ -1,3 +1,10 @@
+## In development — premium selection-first character screen
+- Both Android and iOS display the three featured, user-reference characters **Portantin, Noa, Any** in the first row, followed by the other six characters in a 3×3 accessible gallery.
+- Skin indices, owned masks, offline-earned coin costs, local save migrations and character purchase confirmation are unchanged by this visual reorder.
+- Selected character preview now layers its actual portrait above the chosen world's art and a darkened readable overlay with selected badge. No mockup bitmap includes fake counters or buttons.
+- The primary **POLETI S…** CTA appears after the choice grid, requiring an explicit preflight confirmation as in the supplied reference. The gameplay pause/boost lifecycle is unaffected.
+- Remaining 3D fidelity gap: actual game art still uses the earlier flat illustrations, not the separately rendered high-detail pilot sprites in the user-supplied concepts.
+
 ## In development — premium result and real reward cards
 - Android and iOS now render three compact summary cards (actual run score, collected coins, total passed gates) and four reward tiles (collected coins, stars, claimable score-record bonus, persisted best score) matching the structure of supplied BOPAVI result references.
 - Claimable score milestones use the **existing one-time offline claim API**. Tapping claim updates the wallet and reward label immediately without rerunning the game result or crediting the same milestone twice.

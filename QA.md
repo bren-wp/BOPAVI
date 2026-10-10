@@ -1,3 +1,10 @@
+## Premium character picker — regression gate
+- On Android 15 and 16 and iOS simulator, verify pilot gallery first visual row is Portantin / Noa / Any and all nine cards remain accessible by real scrolling.
+- Check the chosen character hero matches the actual persisted index and correct world (world art/portrait are separate layers).
+- Purchase confirmation must require sufficient **earned offline** coins; on cancel, ownership and wallet are unchanged; on success, the correct old index is stored without migration.
+- Primary CTA stays **below** all nine selectable cards and launches only after explicit tap; first-flap pause must not be shown on idle launch.
+- Run actual end-to-end pilot picker swipe/navigation, Kotlin + Swift/save parity, Android AAB unsigned, iOS simulator and unsigned device build. No GitHub signing.
+
 ## Premium results — acceptance criteria
 - Finish an actual run. All three summary cards must match the *same* GameSimulation score, coins collected and cumulative passed gates. Existing record/previous-best comparisons still run **before** persisting the completed run.
 - Four reward cards show actual coins, stars, earned but unclaimed high-score bonus and persistent best score, without implying that pickups are already spendable wallet credits.

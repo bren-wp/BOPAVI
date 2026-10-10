@@ -547,12 +547,16 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// Shared image gallery: every player sees the actual unlocked/locked cast.
     /// A new virtual-coin purchase always requires a second explicit approval.
     private func characterGallery(in stack:UIStackView,refresh:@escaping()->Void) {
-        for start in stride(from:0,to:progress.skinNames.count,by:3) {
+        // Keep canonical skin indices (and existing saves) unchanged. The
+        // reference foregrounds Portantin, Noa and Any in the first visual row.
+        let displayOrder=[6,7,8,0,1,2,3,4,5]
+        for start in stride(from:0,to:displayOrder.count,by:3) {
             let row=UIStackView()
             row.axis = .horizontal;row.alignment = .fill
             row.distribution = .fillEqually;row.spacing=5
             stack.addArrangedSubview(row)
-            for i in start..<min(start+3,progress.skinNames.count) {
+            for position in start..<min(start+3,displayOrder.count) {
+                let i=displayOrder[position]
                 let selected=progress.skinIndex()==i
                 let owned=progress.owned(i)
                 let cost=progress.costs[i]
@@ -633,16 +637,63 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameWorld=world;gameNumber=number
         let s=menu("ODABERI LIKA","Izaberi letača prije početka svakog leta")
         let selected=progress.skinIndex()
-        let preview=UIImageView(image:UIImage(named:"Bopi\(selected)"))
+        // World backdrop, dimming gradient and selected pilot are actual
+        // native image layers. UI text/buttons are never part of a bitmap.
+        let preview=UIView()
         preview.translatesAutoresizingMaskIntoConstraints=false
-        preview.contentMode = .scaleAspectFit
-        preview.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.61,alpha:0.88)
-        preview.layer.cornerRadius=21
+        preview.backgroundColor=UIColor(red:0.03,green:0.18,blue:0.43,alpha:1)
+        preview.layer.cornerRadius=24
         preview.clipsToBounds=true
-        preview.heightAnchor.constraint(equalToConstant:168).isActive=true
-        preview.isAccessibilityElement=true
-        preview.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
+        preview.heightAnchor.constraint(equalToConstant:216).isActive=true
         s.addArrangedSubview(preview)
+        let worldBackdrop=UIImageView(image:UIImage(named:"World\(world)"))
+        worldBackdrop.contentMode = .scaleAspectFill
+        worldBackdrop.alpha=0.80
+        worldBackdrop.isAccessibilityElement=false
+        worldBackdrop.translatesAutoresizingMaskIntoConstraints=false
+        preview.addSubview(worldBackdrop)
+        let shade=UIView()
+        shade.translatesAutoresizingMaskIntoConstraints=false
+        shade.backgroundColor=UIColor(red:0.01,green:0.10,blue:0.27,alpha:0.42)
+        shade.isAccessibilityElement=false
+        preview.addSubview(shade)
+        let portrait=UIImageView(image:UIImage(named:"Bopi\(selected)"))
+        portrait.translatesAutoresizingMaskIntoConstraints=false
+        portrait.contentMode = .scaleAspectFit
+        portrait.isAccessibilityElement=true
+        portrait.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
+        preview.addSubview(portrait)
+        let badge=UILabel()
+        badge.text="♛  ODABRAN"
+        badge.textAlignment = .center
+        badge.font=UIFont.systemFont(ofSize:12,weight:.heavy)
+        badge.textColor = .white
+        badge.backgroundColor=UIColor(red:0.80,green:0.45,blue:0.02,alpha:0.96)
+        badge.layer.cornerRadius=17
+        badge.layer.borderWidth=2
+        badge.layer.borderColor=UIColor(red:1,green:0.90,blue:0.50,alpha:1).cgColor
+        badge.clipsToBounds=true
+        badge.isAccessibilityElement=false
+        badge.translatesAutoresizingMaskIntoConstraints=false
+        preview.addSubview(badge)
+        NSLayoutConstraint.activate([
+            worldBackdrop.leadingAnchor.constraint(equalTo:preview.leadingAnchor),
+            worldBackdrop.trailingAnchor.constraint(equalTo:preview.trailingAnchor),
+            worldBackdrop.topAnchor.constraint(equalTo:preview.topAnchor),
+            worldBackdrop.bottomAnchor.constraint(equalTo:preview.bottomAnchor),
+            shade.leadingAnchor.constraint(equalTo:preview.leadingAnchor),
+            shade.trailingAnchor.constraint(equalTo:preview.trailingAnchor),
+            shade.topAnchor.constraint(equalTo:preview.topAnchor),
+            shade.bottomAnchor.constraint(equalTo:preview.bottomAnchor),
+            portrait.leadingAnchor.constraint(equalTo:preview.leadingAnchor,constant:14),
+            portrait.trailingAnchor.constraint(equalTo:preview.trailingAnchor,constant:-14),
+            portrait.topAnchor.constraint(equalTo:preview.topAnchor),
+            portrait.bottomAnchor.constraint(equalTo:preview.bottomAnchor,constant:-10),
+            badge.trailingAnchor.constraint(equalTo:preview.trailingAnchor,constant:-10),
+            badge.topAnchor.constraint(equalTo:preview.topAnchor,constant:10),
+            badge.widthAnchor.constraint(equalToConstant:122),
+            badge.heightAnchor.constraint(equalToConstant:35)
+        ])
         label(progress.skinNames[selected],26,UIColor(red:1,green:0.86,blue:0.49,alpha:1),s)
         switch selected {
         case 6: label("Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom.",15,.white,s)
@@ -651,11 +702,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         default: label("Izaberi svog letača. Odabir se čuva na uređaju.",15,.white,s)
         }
         label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
+        sectionHeading("ODABERI SVOG LETAČA",in:s)
+        characterGallery(in:s){self.showPilotPicker(world,number)}
+        // Match Android's selection-first workflow; never launch before
+        // explicit confirmation after the complete nine-pilot gallery.
         button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
             self.startGame(world,number)
         }
-        sectionHeading("ODABERI SVOG LETAČA",in:s)
-        characterGallery(in:s){self.showPilotPicker(world,number)}
         button("‹  LEVELI",in:s,primary:false){self.showLevels(world,page:min(number,BopaviCore.levelsPerWorld))}
     }
 
