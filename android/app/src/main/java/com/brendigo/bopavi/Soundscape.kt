@@ -17,6 +17,13 @@ class Soundscape(private val context: Context) {
     private val worlds = intArrayOf(R.raw.world_0,R.raw.world_1,R.raw.world_2,R.raw.world_3,
         R.raw.world_4,R.raw.world_5,R.raw.world_6,R.raw.world_7)
     private var player: MediaPlayer? = null
+    var musicVolume:Float=0.80f
+        set(value){
+            field=value.coerceIn(0f,1f)
+            try {player?.setVolume(.25f*field,.25f*field)}catch(_:Exception){}
+        }
+    var effectsVolume:Float=0.70f
+        set(value){field=value.coerceIn(0f,1f)}
     var enabled = true
         set(value){field=value; if(!value)pause() else resume()}
     private var world = -1
@@ -26,12 +33,14 @@ class Soundscape(private val context: Context) {
         stop(); world=index
         try {
             player=MediaPlayer.create(context,worlds[index])?.apply {
-                isLooping=true;setVolume(.25f,.25f);if(enabled)start()
+                isLooping=true;setVolume(.25f*musicVolume,.25f*musicVolume);if(enabled)start()
             }
         }catch(_:Exception){stop()}
     }
     fun effect(name:String) {
-        if(enabled)effects[name]?.let {pool.play(it,.44f,.44f,1,0,1f)}
+        if(enabled && effectsVolume>0f)effects[name]?.let {
+            pool.play(it,.44f*effectsVolume,.44f*effectsVolume,1,0,1f)
+        }
     }
     fun pause(){try {if(player?.isPlaying==true)player?.pause()}catch(_:Exception){}}
     fun resume(){try {if(enabled && player?.isPlaying==false)player?.start()}catch(_:Exception){}}
