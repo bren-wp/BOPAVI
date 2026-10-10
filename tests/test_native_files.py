@@ -820,6 +820,25 @@ assert 'self.progress.musicVolume=value' in ios_settings
 assert 'self.progress.effectsVolume=value' in ios_settings
 print('PASS: true illustrated twenty-level grid, 0..100 music/effects sliders and Android/iOS offline-save parity')
 
+# Premium Pause: no static screenshot, no legacy iOS action sheet. Every CTA
+# is a real touch target, cancel resumes only the currently paused simulation.
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+for pause_ui in (android_pause,ios_pause):
+    for label in ('PAUZA','NASTAVI','PONOVO','IZLAZ','KONTROLE','POSTAVKE','MUZIKA','ZVUK'):
+        assert label in pause_ui,label
+    assert 'Pauza · Level' in pause_ui
+    assert 'musicVolume' in pause_ui and 'soundEnabled' in pause_ui
+assert 'showPremiumPause(game)' in android_menu
+assert 'showPremiumPause(for:canvas)' in ios_menu
+assert 'dialog.setOnCancelListener{game.paused=false;sound.resume()}' in android_pause
+assert 'startGame(currentWorld,currentLevel)' in android_pause
+assert 'close(true)' in ios_pause and 'close(false)' in ios_pause
+assert 'canvas?.paused=false' in ios_pause and 'overlay?.removeFromSuperview()' in ios_pause
+assert 'preferredStyle:.actionSheet' not in ios_menu
+assert 'View.INVISIBLE' in android_menu and 'pause.isHidden=true' in ios_menu
+print('PASS: native premium pause overlay and real continue/retry/exit, audio and controls parity')
+
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
 assert "versionCode = 34" in gradle and 'versionName = "0.1.31"' in gradle
