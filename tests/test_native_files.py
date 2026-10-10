@@ -576,11 +576,14 @@ assert 'FAIL: pause did not appear after actual first flight flap' in qa_lifecyc
 android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
 ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
 for home in (android_home,ios_home):
-    for button_label in ('▶  IGRAJ','◎  SVJETOVI','⚙  POSTAVKE'):
+    for button_label in ('▶  IGRAJ','🌍  SVJETOVI','⚙  POSTAVKE'):
         assert home.count(button_label)==1
-    assert home.index('▶  IGRAJ') < home.index('◎  SVJETOVI') < home.index('⚙  POSTAVKE')
+    assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
     for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
         assert label in home
+assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
+assert 'UIStackView(arrangedSubviews:[glyph,caption])' in ios_home
+assert 'tab.accessibilityLabel=title' in ios_home
     for destination in ('showWorlds()','showSettings()','showAchievements()','showSkins()','showPerks()'):
         assert destination in home
     assert 'showPilotPicker(' in home and 'startGame(' not in home
