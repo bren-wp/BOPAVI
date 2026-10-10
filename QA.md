@@ -1,3 +1,11 @@
+## Premium UI references — verification gate
+
+- Review and track all ten supplied reference screens; run screenshot comparisons against actual Android API35/36 and iOS simulator outputs.
+- Preserve existing UI hierarchy and game lifecycle smoke tests including no pause until the first flap, accessible 9-pilot gallery and playable offline progression.
+- The first implementation stage is a production code redesign, **not yet verified 1:1** visually against the photorealistic 3D concept art.
+- Test gesture-navigation safe areas on 360dp Android phones and compact iPhones. Follow up on real hardware before claiming production-perfect screenshots.
+- Signed Google Play bundles must **never** be generated or uploaded by GitHub Actions.
+
 ## v0.1.31 Android 15 launcher ANR investigation (2026-10-10)
 - Main-branch CI 38013725742 failed only the Android 15 pilot-gallery smoke; the APK/AAB build, Android 16 smoke and iOS simulator succeeded.
 - The CI trace repeatedly reported the SYSTEM Pixel Launcher ANR before seeing Portantin, Noa, and Any. Preserved XML and real screenshot show the game picker rendered with a scrollable Android `ScrollView`.
