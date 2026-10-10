@@ -9,8 +9,8 @@ NIJEDNA stavka nije unaprijed označena obavljenom. Svaki korak traži dokaz.
 - [ ] Kreirana Play Console aplikacija BOPAVI i potvrđen besplatni/plaćeni status.
 - [ ] Aktiviran Play App Signing i izrađen trajni lokalni upload-key.
 - [ ] Siguran backup JKS-a i lozinki izvan GitHub repozitorija.
-- [ ] Zaštićen GitHub environment google-play i unesene četiri tajne.
-- [ ] Ručni signing workflow uspješan i signed AAB provjeren SHA256SUMS.txt.
+- [ ] Privatno, izvan GitHuba potpisan AAB vlastitim, već verificiranim upload ključem.
+- [ ] Lokalno provjeren potpis i SHA-256 zbroj AAB-a prije Play Console uploada.
 - [ ] Signed AAB prenesen u Play Console; nikad javni unsigned AAB.
 - [ ] Store listing HR, originalna 512x512 ikona i 1024x500 feature grafika.
 - [ ] Najmanje 2 stvarna screenshotova; za preporuke 3 screenshotova aktivne igre.
