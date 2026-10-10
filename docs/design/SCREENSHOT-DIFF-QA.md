@@ -1,3 +1,10 @@
+## Iteration 2 — implemented, pending pixel-art approval
+
+- Worlds: both platforms now have numbered crown badges and decorative blue navigation arrows over the existing real world art; entire world tile remains the tap target.
+- Levels: 20 real illustrated level tiles in 4 columns × 5 rows, with stored frontier lock/complete/selected states and actual procedural level type icons. Prev/next paging and jump-to-unlocked remain functional.
+- Settings: dual live `musicVolume`/`effectsVolume` sliders, actual audio mixer gain changes, save migration-friendly persistence and restore parity.
+- Remaining visual gap: original source image illustrations are flat 2D; actual user references are detailed 3D renders and must be imported as suitable separate assets rather than embedding fake buttons or counters. This milestone is **not** 100% visually identical.
+
 # Reference vs real-build UI — visual QA log
 
 Date: 2026-10-10. Target: ten supplied BOPAVI premium mockups. Verified real device output: [Android API35 screenshot artifact](https://github.com/bren-wp/BOPAVI/actions/runs/38080344200/artifacts/11680835601) from the PR branch. It includes home, settings, pilot picker, idle gameplay and result. Android API36 passed the same screen smoke.
