@@ -161,6 +161,10 @@ struct SwiftParity {
             idle.flap()
             precondition(idle.active && idle.flaps==2)
         }
+        // A quarter-pixel offset after 2^25 world units must not disappear.
+        let longRunOrigin=33_554_432.0
+        precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin,travelled:longRunOrigin+0.25)-559.75)<0.0001)
+        precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin+250,travelled:longRunOrigin+0.25)-809.75)<0.0001)
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
