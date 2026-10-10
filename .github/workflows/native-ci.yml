@@ -33,6 +33,18 @@ jobs:
           worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
           assert all(im.size==(960,1600) for im in worlds)
           assert len({im.resize((80,120)).tobytes() for im in worlds})==8
+          # Guaranteed Android/iOS art identity includes all eight scenery
+          # backdrops, not only bird bodies and detached animation wings.
+          # Reject missing assets and accidental compression/size divergence.
+          for world, android_image in enumerate(worlds):
+              name=f'world{world}.png'
+              android_path=Path('android/app/src/main/res/drawable-nodpi')/name
+              ios_path=Path('ios/BOPAVI/Assets.xcassets')/f'World{world}.imageset'/name
+              assert android_path.is_file() and ios_path.is_file(), (world,'missing biome')
+              ios_image=Image.open(ios_path).convert('RGB')
+              assert ios_image.size==(960,1600), (world,'wrong iOS canvas size')
+              assert android_image.tobytes()==ios_image.tobytes(), (world,'mismatched pixels')
+              assert android_path.read_bytes()==ios_path.read_bytes(), (world,'mismatched PNG')
           # Guard against the previous pale-yellow logo rasterization bug.
           logo=Image.open('android/app/src/main/res/drawable-nodpi/logo.png').convert('RGBA')
           pixels=logo.getdata()
