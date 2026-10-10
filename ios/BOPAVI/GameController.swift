@@ -752,21 +752,24 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     private func showSettings(){
-        let s=menu("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
+        let s=menu("POSTAVKE","Prilagodi igru svom stilu")
         sectionHeading("IZGLED I ZVUK",in:s)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
+        toggle.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
         let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
         l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
         toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
         let audio=UISwitch();audio.isOn=progress.soundEnabled
+        audio.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
         let audioLabel=UILabel();audioLabel.text="Glazba i zvučni efekti";audioLabel.font=UIFont.systemFont(ofSize:16,weight:.medium);audioLabel.textColor = .white
         audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
         let haptic=UISwitch();haptic.isOn=progress.hapticEnabled
+        haptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let hapticRow=UIStackView();hapticRow.axis = .horizontal;hapticRow.spacing=12
         let hapticLabel=UILabel();hapticLabel.text="Vibracije pri igranju"
         hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
@@ -779,6 +782,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
         let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
         difficulty.selectedSegmentIndex=progress.difficulty
+        difficulty.selectedSegmentTintColor=UIColor(red:1,green:0.72,blue:0.16,alpha:1)
+        difficulty.backgroundColor=UIColor(red:0.03,green:0.16,blue:0.34,alpha:1)
+        difficulty.setTitleTextAttributes([.foregroundColor:UIColor.white],for:.normal)
+        difficulty.setTitleTextAttributes([.foregroundColor:UIColor(red:0.12,green:0.15,blue:0.24,alpha:1)],for:.selected)
         difficulty.heightAnchor.constraint(equalToConstant:44).isActive=true
         difficulty.addAction(UIAction{_ in self.progress.difficulty=difficulty.selectedSegmentIndex},for:.valueChanged)
         s.addArrangedSubview(difficulty)
@@ -787,8 +794,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         player.text=progress.playerName
         player.placeholder="Tvoje ime"
         player.textColor = .white
-        player.backgroundColor=UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
-        player.layer.cornerRadius=12
+        player.backgroundColor=UIColor(red:0.02,green:0.15,blue:0.32,alpha:1)
+        player.layer.cornerRadius=13
+        player.layer.borderWidth=1
+        player.layer.borderColor=UIColor(red:0.30,green:0.76,blue:1,alpha:0.7).cgColor
         player.heightAnchor.constraint(equalToConstant:52).isActive=true
         s.addArrangedSubview(player)
         button("SPREMI IME",in:s,primary:false){
