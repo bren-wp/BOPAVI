@@ -1,3 +1,9 @@
+## v0.1.31 Android 15 launcher ANR investigation (2026-10-10)
+- Main-branch CI 38013725742 failed only the Android 15 pilot-gallery smoke; the APK/AAB build, Android 16 smoke and iOS simulator succeeded.
+- The CI trace repeatedly reported the SYSTEM Pixel Launcher ANR before seeing Portantin, Noa, and Any. Preserved XML and real screenshot show the game picker rendered with a scrollable Android `ScrollView`.
+- QA now terminates only the exact confirmed hung launcher process, checks BOPAVI remains running and still requires real scrolling to find all three characters. An unverified/system-other or BOPAVI ANR is never suppressed.
+- GitHub signing tests/manual AAB signing are disabled. Debug APK and unsigned AAB continue to be created for download. Do not claim Play upload readiness without offline signing.
+
 # BOPAVI — produkcijski QA
 
 ## Automatski testovi
