@@ -301,7 +301,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let world=self.progress.chosenWorld()
             self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
-        button("◎  SVJETOVI",in:stack,primary:false){self.showWorlds()}
+        button("🌍  SVJETOVI",in:stack,primary:false){self.showWorlds()}
         button("⚙  POSTAVKE",in:stack,primary:false){self.showSettings()}
         let navigation=UIStackView()
         navigation.axis = .horizontal
@@ -314,23 +314,41 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         navigation.layer.borderWidth=2
         navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
         let tabs:[(String,String,()->Void)]=[
-            ("♙\nPROFIL","Profil igrača",{self.showSettings()}),
-            ("★\nZADACI","Postignuća",{self.showAchievements()}),
-            ("✦\nKOLEKCIJA","Kolekcija likova",{self.showSkins()}),
-            ("▣\nTRGOVINA","Trgovina kovanicama",{self.showPerks()})
+            ("♙","PROFIL",{self.showSettings()}),
+            ("★","ZADACI",{self.showAchievements()}),
+            ("✦","KOLEKCIJA",{self.showSkins()}),
+            ("▣","TRGOVINA",{self.showPerks()})
         ]
-        for (title,description,handler) in tabs {
+        for (icon,title,handler) in tabs {
             let tab=UIButton(type:.system)
-            tab.setTitle(title,for:.normal)
-            tab.titleLabel?.numberOfLines=2
-            tab.titleLabel?.textAlignment = .center
-            tab.titleLabel?.font=UIFont.systemFont(ofSize:11,weight:.bold)
-            tab.tintColor = .white
-            tab.setTitleColor(.white,for:.normal)
-            tab.accessibilityLabel=description
+            tab.setTitle("",for:.normal)
+            tab.accessibilityLabel=title
             tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
             tab.layer.cornerRadius=13
             tab.heightAnchor.constraint(equalToConstant:62).isActive=true
+            let glyph=UILabel()
+            glyph.text=icon;glyph.textAlignment = .center
+            glyph.textColor = title=="TRGOVINA"
+                ? UIColor(red:1,green:0.78,blue:0.25,alpha:1) : .white
+            glyph.font=UIFont.systemFont(ofSize:25,weight:.semibold)
+            let caption=UILabel()
+            caption.text=title;caption.textAlignment = .center
+            caption.textColor = .white
+            caption.font=UIFont.systemFont(ofSize:11,weight:.bold)
+            caption.adjustsFontSizeToFitWidth=true
+            caption.minimumScaleFactor=0.77
+            let content=UIStackView(arrangedSubviews:[glyph,caption])
+            content.axis = .vertical;content.spacing=0
+            content.translatesAutoresizingMaskIntoConstraints=false
+            content.isUserInteractionEnabled=false
+            tab.addSubview(content)
+            NSLayoutConstraint.activate([
+                content.leadingAnchor.constraint(equalTo:tab.leadingAnchor,constant:2),
+                content.trailingAnchor.constraint(equalTo:tab.trailingAnchor,constant:-2),
+                content.centerYAnchor.constraint(equalTo:tab.centerYAnchor),
+                glyph.heightAnchor.constraint(equalToConstant:30),
+                caption.heightAnchor.constraint(equalToConstant:20)
+            ])
             tab.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             navigation.addArrangedSubview(tab)
         }
