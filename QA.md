@@ -1,3 +1,11 @@
+## Complete character portrait parity — acceptance gates
+- Android 15/16 and iOS simulator: for all nine pilots, gallery cards, selected pilot hero and native PAUZA display **both left and right wings**, not the earlier wingless torso-only asset. Portantin retains his passenger, goggles, mask and gloves; Noa/Any retain unique silhouettes.
+- The same indices and owned masks are used throughout: Portantin / Noa / Any are the first visual row but ownership, coin costs and save persistence remain untouched.
+- Confirm all `bopiportrait0..8` have 512×512 RGBA pixels with nonempty transparent margins and visibly differ from corresponding torso `bopi0..8`; Android/iOS PNG bytes must match exactly.
+- Test first flap, separate wing animation, reduced-motion option and game collisions without using precomposed menu sprites in the active flight renderer.
+- Validate long labels and full wing silhouettes do not clip in 3×3 gallery cards, preview and PAUZA on small screens.
+- Run source/privacy audit, art generation, Android lint/JUnit/debug APK/unsigned AAB, Android API35/36 emulator smoke, iOS simulator/unsigned device/Swift parity before merging. Never production-sign builds on GitHub.
+
 ## Eight-world premium art — native parity acceptance
 - Generate all eight world PNGs with the existing Python/CairoSVG/Pillow workflow. Both Android `drawable-nodpi/world0..7.png` and iOS `Assets.xcassets/World0..7.imageset/world0..7.png` must be byte-identical for each world.
 - Verify visual uniqueness: castles (green/night), cascades, crystal spires, snow, lava, sky bridges, pearl reef and ring portal. No visual counter/buttons are rasterized into game art.
