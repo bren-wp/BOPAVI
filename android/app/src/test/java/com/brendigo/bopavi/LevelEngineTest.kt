@@ -161,6 +161,26 @@ class LevelEngineTest {
         assertTrue("Single-level mode must not precompute unnecessary gates",normal.upcomingGates().isEmpty())
     }
 
+
+    @Test fun marathonGatesKeepSubpixelCollisionPrecisionBeyondFloatRange() {
+        val sim=GameSimulation(LevelEngine.create(0,62),endless=true)
+        val gate=sim.level.gates.first()
+        val incoming=sim.upcomingGates().first()
+        val originalUpcomingX=sim.upcomingGateX(incoming)
+        // Shift the entire coordinate frame past Float's exact-integer range.
+        // Reflection avoids running millions of frames just to reproduce precision loss.
+        val origin=GameSimulation::class.java.getDeclaredField("levelOrigin").apply { isAccessible=true }
+        val next=GameSimulation::class.java.getDeclaredField("nextOrigin").apply { isAccessible=true }
+        val travelled=GameSimulation::class.java.getDeclaredField("preciseDistance").apply { isAccessible=true }
+        val shift=33_554_432.0
+        val oldNext=next.getDouble(sim)
+        origin.setDouble(sim,shift)
+        next.setDouble(sim,oldNext+shift)
+        travelled.setDouble(sim,shift+0.25)
+        assertEquals("Current gate keeps subpixel alignment",gate.x-0.25f,sim.gateX(gate),0.0001f)
+        assertEquals("Preview gate keeps subpixel alignment",originalUpcomingX-0.25f,sim.upcomingGateX(incoming),0.0001f)
+    }
+
     @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {
         val level=LevelEngine.create(0,2)
         val safe=level.gates.first().copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
