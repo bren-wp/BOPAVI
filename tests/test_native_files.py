@@ -128,14 +128,14 @@ assert 'name.uppercase()' in android_tile
 assert 'names[world].uppercased()' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'collection.accessibilityElementsHidden=true' in ios_tile
-assert 'verify_world_cards' in qa_script
-assert 'not all world cards reachable' in qa_script
-assert 'all eight real illustrated world cards expose saved' in qa_script
+assert 'verify_world_cards' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'not all world cards reachable' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'all eight real illustrated world cards expose saved' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: responsive native world cards and real 8-world save-metric QA')
 for card in (android_tile,ios_tile):
     assert 'chosenWorld()' in card
     assert 'streamFrontier(world)' in card
-    assert 'collectibles[world]' in card
+    assert 'collectibleIcons[world]' in card
     assert 'otključano' in card
 # Premium world cards render the same actual illustrations within a
 # framed image panel plus a decorative (non-tappable) world badge and arrow.
@@ -145,8 +145,8 @@ assert 'world+1' in android_tile and 'world+1' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'arrow.isUserInteractionEnabled=false' in ios_tile
 assert 'row.addView(TextView(this)' in android_tile
-assert 'preview.heightAnchor.constraint(equalToConstant:137)' in ios_tile
-assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150)' in ios_tile
+assert 'preview.heightAnchor.constraint(equalToConstant:156)' in ios_tile
+assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:166)' in ios_tile
 assert 'detail.topAnchor.constraint(equalTo:headline.bottomAnchor' in ios_tile
 assert 'tile.accessibilityLabel' in ios_tile
 for source,signature in ((android_menu,'private fun showResult('),(ios_menu,'private func showResult(')):
