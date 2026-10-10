@@ -115,6 +115,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --quiet pillow
       - run: python tests/test_native_files.py
+      - run: python tests/test_release_contract.py
       - name: Require a new version for every pull request
         if: github.event_name == 'pull_request'
         env:
@@ -240,7 +241,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: BOPAVI-Google-Play-listing
-          path: dist/BOPAVI-Google-Play-listing-v0.1.32.zip
+          path: dist/BOPAVI-Google-Play-listing-v*.zip
           if-no-files-found: error
   android16-smoke:
     name: Android 16 API36 system image smoke
@@ -326,47 +327,60 @@ jobs:
             BOPAVI-iOS-unsigned-device.zip
           if-no-files-found: error
   publish:
-    name: GitHub Release v0.1.32
+    name: Publish versioned GitHub Release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [graphics, source-audit, android, android-smoke, android16-smoke, ios, play-listing]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: dist
           pattern: BOPAVI-*
           merge-multiple: true
-      - name: Verify packaged artifacts
+      - name: Verify exact-version assets and explicitly unsigned Android bundle
         run: |
+          set -euo pipefail
+          tag="$(python tools/release_metadata.py --tag)"
+          play_archive="$(python tools/release_metadata.py --play-archive)"
           test -s dist/app-debug.apk
           test -s dist/app-release.aab
-          test -s dist/BOPAVI-Google-Play-listing-v0.1.32.zip
+          test -s "dist/$play_archive"
           test -s dist/BOPAVI-iOS-Simulator.zip
           test -s dist/BOPAVI-iOS-unsigned-device.zip
-      - name: Publish verified v0.1.32 release (idempotent, never silently reuse old commit)
+          python tools/verify_play_release.py --aab dist/app-release.aab
+          echo "BOPAVI_TAG=$tag" >> "$GITHUB_ENV"
+          echo "BOPAVI_PLAY_ARCHIVE=$play_archive" >> "$GITHUB_ENV"
+      - name: Publish only a new tested commit with five verified release files
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=v0.1.32
+          tag="$BOPAVI_TAG"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             existing="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)"
             if [ "$existing" != "$GITHUB_SHA" ]; then
-              echo "::error::Release $tag already points to $existing instead of this commit $GITHUB_SHA. Bump the version; never overwrite a published release."
+              echo "::error::Release $tag targets $existing, not this commit $GITHUB_SHA. Increase version."
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab BOPAVI-Google-Play-listing-v0.1.32.zip BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
-                echo "::error::Existing release $tag is missing required asset $file."
+                echo "::error::Existing $tag release is missing $file."
                 exit 1
               fi
             done
-            echo "Verified $tag already released for this exact commit with all five artifacts."
+            echo "Verified previous publication of $tag at the tested commit with all five artifacts."
             exit 0
           fi
-          gh release create "$tag" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title 'BOPAVI v0.1.32 — Premium Android/iOS world and pilot polish' \
-            --notes 'BOPAVI v0.1.32: new premium native Android/iOS world cards with real saved level/collection/record, three real difficulty cards, complete nine-pilot winged portraits, eight richly illustrated biome backgrounds, live gameplay HUD, authentic result and reward actions, seamless marathon precision and accessibility improvements. CI verifies Android API 35/36 emulator interaction, lint, Kotlin JVM tests, iOS simulator + Swift core/save tests and unsigned iPhone device compilation. APK is debug; public AAB is UNSIGNED and must never be uploaded directly to Play Console. GitHub signing and Play upload are disabled; store publication, real-device approval and pixel-perfect 3D parity are not claimed.'
+          gh release create "$tag" \
+            dist/app-debug.apk \
+            dist/app-release.aab \
+            "dist/$BOPAVI_PLAY_ARCHIVE" \
+            dist/BOPAVI-iOS-Simulator.zip \
+            dist/BOPAVI-iOS-unsigned-device.zip \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "BOPAVI $tag — safer unsigned Android/iOS releases" \
+            --notes "BOPAVI $tag hardens the Android/iOS release pipeline: versions and marketing archive filenames come from verified platform metadata instead of stale hardcoded values; GitHub Gradle builds can no longer be upload-signed through environment variables; both build and publication explicitly reject a signed AAB via JAR signature checks. Android API 35/36 emulator QA, Kotlin lint/tests, iOS simulator launch, Swift tests, unsigned iOS device build, offline gameplay and saved data remain covered. APK is debug; AAB and iOS device build are UNSIGNED and are not Play/App Store distributables. Store approval, hardware testing and exact reference-art parity are not claimed."

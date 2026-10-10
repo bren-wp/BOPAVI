@@ -1,38 +1,56 @@
 #!/usr/bin/env python3
-"""Fail Play builds without API 36, valid version, truthful permissions or signed AAB."""
+"""Fail closed if a GitHub release AAB is signed, malformed, or mismatched."""
 import argparse
 from pathlib import Path
 from zipfile import ZipFile
-import re
 import subprocess
 
-p = argparse.ArgumentParser()
-p.add_argument("--aab", type=Path, required=True)
-p.add_argument("--signed", action="store_true")
-args = p.parse_args()
-root = Path(__file__).resolve().parents[1]
-gradle = (root/"android/app/build.gradle.kts").read_text()
-manifest = (root/"android/app/src/main/AndroidManifest.xml").read_text()
-assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert 'applicationId = "com.brendigo.bopavi"' in gradle
-assert re.search(r'versionCode\s*=\s*35\b', gradle)
-assert re.search(r'versionName\s*=\s*"0\.1\.32"', gradle)
-assert 'android:appCategory="game"' in manifest
-assert "android.permission.INTERNET" not in manifest
-assert "android:allowBackup=\"false\"" in manifest
-assert args.aab.is_file() and args.aab.stat().st_size > 100_000
-with ZipFile(args.aab) as zf:
-    members = set(zf.namelist())
-    assert "base/manifest/AndroidManifest.xml" in members
-    assert "BundleConfig.pb" in members
-    # BOPAVI currently has no NDK dependencies. Fail closed if any .so enters
-    # the bundle until its ELF alignment and 16 KB page compatibility are tested.
-    native_libraries = sorted(name for name in members if name.startswith("base/lib/") and name.endswith(".so"))
-    assert not native_libraries, f"16 KB page-size audit required for added native libraries: {native_libraries}"
-if args.signed:
-    verify = subprocess.run(
-        ["jarsigner", "-verify", "-verbose", str(args.aab)],
-        capture_output=True, text=True, check=True,
+from release_metadata import release_metadata
+
+
+def signature_entries(members) -> list[str]:
+    """Jar signing produces META-INF/*.SF and a matching certificate block."""
+    suffixes = (".SF", ".RSA", ".DSA", ".EC")
+    return sorted(name for name in members if name.upper().startswith("META-INF/")
+                  and name.upper().endswith(suffixes))
+
+
+def verify_unsigned_bundle(aab: Path) -> None:
+    assert aab.is_file() and aab.stat().st_size > 100_000, "AAB missing or empty"
+    with ZipFile(aab) as bundle:
+        members = set(bundle.namelist())
+        assert "base/manifest/AndroidManifest.xml" in members, "Missing AAB manifest"
+        assert "BundleConfig.pb" in members, "Missing AAB bundle configuration"
+        libs = sorted(name for name in members
+                      if name.startswith("base/lib/") and name.endswith(".so"))
+        assert not libs, f"16 KB page-size audit required for added native libraries: {libs}"
+        certificates = signature_entries(members)
+        assert not certificates, f"Signed bundle must never be published on GitHub: {certificates}"
+    result = subprocess.run(["jarsigner", "-verify", str(aab)],
+                            capture_output=True, text=True, check=False)
+    output = (result.stdout + result.stderr).lower()
+    assert result.returncode == 0 and "jar is unsigned" in output, (
+        "Expected an unsigned AAB; jarsigner did not confirm unsigned status: " + output[-900:]
     )
-    assert "jar verified." in verify.stdout.lower(), "Play AAB upload signature not verified"
-print(f"PASS: API 36, BOPAVI v0.1.32, package/permissions and {'SIGNED' if args.signed else 'bundle structure'}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--aab", type=Path, required=True)
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    gradle = (root / "android/app/build.gradle.kts").read_text()
+    manifest = (root / "android/app/src/main/AndroidManifest.xml").read_text()
+    version, build = release_metadata(root)
+    assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
+    assert 'applicationId = "com.brendigo.bopavi"' in gradle
+    assert 'android:appCategory="game"' in manifest
+    assert "android.permission.INTERNET" not in manifest
+    assert 'android:allowBackup="false"' in manifest
+    assert "signingConfigs" not in gradle and "BOPAVI_UPLOAD_" not in gradle
+    verify_unsigned_bundle(args.aab)
+    print(f"PASS: API 36, BOPAVI v{version} build {build}, privacy and VERIFIED UNSIGNED AAB")
+
+
+if __name__ == "__main__":
+    main()

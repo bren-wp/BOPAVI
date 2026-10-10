@@ -1,3 +1,12 @@
+## v0.1.33 — Verified unsigned releases and version-safe automation (build 36)
+
+- Fixed an actual release pipeline maintenance defect: v0.1.32 was hardcoded in CI job labels, publishing tags, artifact paths, validation and Play archive output, making the next release require synchronized manual edits in several places.
+- Added `tools/release_metadata.py` to verify Android/iOS version/build parity and generate the exact tag and Play filename, reused by CI, marketing package and validation.
+- Removed conditional Play keystore signing from the Gradle project. GitHub builds can never sign an AAB even when upload key environment variables are present. External publisher-controlled signing remains separate from GitHub.
+- Build and publication gates now inspect AAB JAR signature material and require `jarsigner` to verify it is unsigned. An accidental signed bundle stops publication.
+- Added synthetic signed/unsigned bundle regression tests and stale-version/Android/iOS build consistency tests; retained Android 15/16, iOS simulator/unsigned device and parity workflows.
+- Game engine, nine pilot identifiers, saved ownership, offline progression and generated illustration sources are unchanged. This is a production pipeline and integrity fix, not a claim of 1:1 3D visual matching.
+
 ## v0.1.32 — Premium game experience and reliable release automation (build 35)
 Released after the accumulated Android/iOS improvements since v0.1.31.
 
