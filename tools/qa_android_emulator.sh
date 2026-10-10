@@ -282,7 +282,9 @@ while [ "$attempt" -le 6 ]; do
     gameplay_ready=1
     break
   fi
-  if grep -q 'POLETI S' qa/screenshots/android-current-ui.xml; then
+  # The primary flight CTA is BELOW the complete character gallery.
+  # Detect the picker by its stable visible title, not an off-screen CTA.
+  if grep -q 'ODABERI LIKA' qa/screenshots/android-current-ui.xml; then
     capture android-pilot-picker
     tap_selected_pilot
     sleep 2
