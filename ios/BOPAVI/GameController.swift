@@ -202,8 +202,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         tile.setTitle("",for:.normal)
         tile.layer.borderWidth=selected ? 3 : 1
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(selected ? 1 : 0.65).cgColor
-        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano\(selected ? ", odabrano" : "")"
-        tile.heightAnchor.constraint(equalToConstant:214).isActive=true
+        // Exactly the same genuine values as Android's saved world cards.
+        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano, " +
+            "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
+            "rekord \(progress.best(world))\(selected ? ", odabrano" : "")"
+        tile.heightAnchor.constraint(equalToConstant:248).isActive=true
         if let illustration=UIImage(named:"World\(world)") {
             let preview=UIImageView(image:illustration)
             preview.translatesAutoresizingMaskIntoConstraints=false
@@ -217,7 +220,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 preview.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
                 preview.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
                 preview.topAnchor.constraint(equalTo:tile.topAnchor,constant:6),
-                preview.heightAnchor.constraint(equalToConstant:137)
+                preview.heightAnchor.constraint(equalToConstant:156)
             ])
         }
         // Decorative (non-interactive) gold world number and blue forward glyph
@@ -255,14 +258,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             number.widthAnchor.constraint(equalToConstant:64),
             number.heightAnchor.constraint(equalToConstant:36),
             arrow.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12),
-            arrow.topAnchor.constraint(equalTo:tile.topAnchor,constant:104),
+            arrow.topAnchor.constraint(equalTo:tile.topAnchor,constant:122),
             arrow.widthAnchor.constraint(equalToConstant:36),
             arrow.heightAnchor.constraint(equalToConstant:36)
         ])
         let headline=UILabel()
         headline.translatesAutoresizingMaskIntoConstraints=false
-        headline.text="\(selected ? "✓ " : "")\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])"
-        headline.textColor=worldAccents[world]
+        headline.text="\(selected ? "✓ " : "")\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world].uppercased())"
+        headline.textColor = .white
         headline.font=UIFont.systemFont(ofSize:14,weight:.heavy)
         headline.adjustsFontSizeToFitWidth=true
         headline.minimumScaleFactor=0.72
@@ -272,7 +275,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         tile.addSubview(headline)
         let detail=UILabel()
         detail.translatesAutoresizingMaskIntoConstraints=false
-        detail.text="Level \(progress.streamFrontier(world)) · \(BopaviCore.collectibles[world])"
+        detail.text="LEVEL \(progress.streamFrontier(world))"
         detail.textColor=UIColor(red:0.81,green:0.91,blue:0.98,alpha:1)
         detail.font=UIFont.systemFont(ofSize:12,weight:.medium)
         detail.adjustsFontSizeToFitWidth=true
@@ -282,7 +285,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         detail.accessibilityElementsHidden=true
         tile.addSubview(detail)
         NSLayoutConstraint.activate([
-            headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150),
+            headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:166),
             headline.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
             headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
             headline.heightAnchor.constraint(equalToConstant:23),
@@ -290,6 +293,23 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             detail.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:6),
             detail.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-6),
             detail.heightAnchor.constraint(equalToConstant:20)
+        ])
+        let collection=UILabel()
+        collection.translatesAutoresizingMaskIntoConstraints=false
+        collection.text="✦ \(progress.collectibles(world))  ·  ♛ \(progress.best(world))"
+        collection.textColor=UIColor(red:1,green:0.80,blue:0.34,alpha:1)
+        collection.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
+        collection.adjustsFontSizeToFitWidth=true
+        collection.minimumScaleFactor=0.78
+        collection.textAlignment = .center
+        collection.isUserInteractionEnabled=false
+        collection.accessibilityElementsHidden=true
+        tile.addSubview(collection)
+        NSLayoutConstraint.activate([
+            collection.topAnchor.constraint(equalTo:detail.bottomAnchor,constant:4),
+            collection.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:5),
+            collection.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-5),
+            collection.heightAnchor.constraint(equalToConstant:23)
         ])
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
