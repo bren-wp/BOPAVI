@@ -802,40 +802,165 @@ class MainActivity : Activity() {
         }
         panel.addView(artwork,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(9)})
         title(panel,headline,31,Color.WHITE)
-        val stats=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(18),d(16),d(18),d(17))
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xf5083773.toInt(),0xf5031638.toInt())).apply{
-                cornerRadius=d(22).toFloat();setStroke(d(2),0xff49d7ff.toInt())
+        // Three genuine values from this completed run, never screenshot text.
+        val summary=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+        }
+        panel.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(10);bottomMargin=d(9)
+        })
+        fun resultCard(heading:String,icon:String,value:String,color:Int):TextView{
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                setPadding(d(3),d(10),d(3),d(10))
+                background=gradient(0xf5083570.toInt(),0xf5031738.toInt(),19).apply{
+                    setStroke(d(2),0xff37cfff.toInt())
+                }
+                elevation=d(4).toFloat()
             }
-            elevation=d(5).toFloat()
+            card.addView(TextView(this).apply{
+                text=icon;textSize=29f;gravity=Gravity.CENTER
+                setTextColor(gold)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(37)))
+            card.addView(TextView(this).apply{
+                text=heading;textSize=11f;gravity=Gravity.CENTER
+                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
+                setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(34)))
+            val stat=TextView(this).apply{
+                text=value;textSize=23f;gravity=Gravity.CENTER
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(color)
+                setAutoSizeTextTypeUniformWithConfiguration(16,23,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                contentDescription="$heading $value"
+            }
+            card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
+            summary.addView(card,LinearLayout.LayoutParams(0,d(139),1f).apply{
+                setMargins(d(3),d(3),d(3),d(3))
+            })
+            return stat
         }
-        val score=TextView(this).apply{
-            text="${g.score()} BODOVA";textSize=38f;setTextColor(gold)
-            gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-            contentDescription="Rezultat ${g.score()}"
+        resultCard("REZULTAT","★",g.score().toString(),gold)
+        resultCard("PRIKUPLJENE\nKOVANICE","●",g.coins.toString(),0xffb8edff.toInt())
+        resultCard("UKUPNO\nPROLAZA","⚑",g.totalPassed.toString(),Color.WHITE)
+        // Compact accessible details, rather than three large padded cards
+        // pushing Retry and result navigation below the viewport.
+        panel.addView(TextView(this).apply{
+            text="Najbolji rezultat: ${progress.bestPoints()}\n" +
+                "Level $currentLevel · Ukupno prolaza: ${g.totalPassed}\n" +
+                "Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}"
+            textSize=14f;setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+            gravity=Gravity.CENTER;setLineSpacing(d(3).toFloat(),1f)
+            setPadding(d(3),d(6),d(3),d(5))
+        },LinearLayout.LayoutParams(-1,-2))
+        val balance=TextView(this).apply{
+            text="Stanje novčanika: ${progress.coins()} kovanica"
+            textSize=15f;gravity=Gravity.CENTER;setTextColor(0xffc6eeff.toInt())
+            contentDescription=text
         }
-        stats.addView(score,LinearLayout.LayoutParams(-1,-2))
-        fun detail(value:String){
-            stats.addView(TextView(this).apply{
-                text=value;textSize=16f;gravity=Gravity.CENTER
-                setTextColor(Color.WHITE);setPadding(0,d(5),0,d(5))
-                typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+        panel.addView(balance,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(4)})
+        sectionHeading(panel,"♛  NAGRADE")
+        // No fake diamonds, chests, paid bonuses or unlocked character claims.
+        // Every icon has a verifiable offline state behind its number.
+        val rewardPanel=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            setPadding(d(3),d(7),d(3),d(7))
+            background=gradient(0xff073b7f.toInt(),0xff031a3c.toInt(),23).apply{
+                setStroke(d(2),0xff3eceff.toInt())
+            }
+        }
+        panel.addView(rewardPanel,LinearLayout.LayoutParams(-1,-2))
+        fun reward(label:String,icon:String,value:String):TextView{
+            val box=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                setPadding(d(2),d(7),d(2),d(7))
+                background=gradient(0xff0b4f9b.toInt(),0xff031937.toInt(),15).apply{
+                    setStroke(d(1),0xff408bca.toInt())
+                }
+            }
+            box.addView(TextView(this).apply{
+                text=icon;gravity=Gravity.CENTER;textSize=25f
+                setTextColor(gold) // Never render black reward glyphs on navy.
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(35)))
+            box.addView(TextView(this).apply{
+                text=label;textSize=10f;gravity=Gravity.CENTER
+                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
+                setAutoSizeTextTypeUniformWithConfiguration(9,11,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(27)))
+            val count=TextView(this).apply{
+                text=value;textSize=17f;gravity=Gravity.CENTER
+                setTextColor(0xffbceeff.toInt())
+                typeface=Typeface.DEFAULT_BOLD
+                setAutoSizeTextTypeUniformWithConfiguration(12,17,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                contentDescription="$label $value"
+            }
+            box.addView(count,LinearLayout.LayoutParams(-1,d(28)))
+            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(114),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+            return count
+        }
+        reward("KOVANICE","●","×${g.coins}")
+        reward("ZVIJEZDE","★","×${g.stars}")
+        val bonus=progress.bonusCoinsAvailable()
+        val bonusCounter=reward("BONUS\nBODOVA","♛","+$bonus")
+        reward("REKORD","🏆",progress.bestPoints().toString())
+        if(bonus>0){
+            action(panel,"🎁  PREUZMI $bonus KOVANICA ZA REKORD",false){
+                val awarded=progress.claimBonusCoins()
+                if(awarded>0){
+                    sound.effect("purchase")
+                    bonusCounter.text="+0"
+                    bonusCounter.contentDescription="BONUS BODOVA 0"
+                    balance.text="Stanje novčanika: ${progress.coins()} kovanica"
+                    balance.contentDescription=balance.text
+                    Toast.makeText(this,"Preuzeto $awarded kovanica.",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        action(panel,"▶  PONOVO"){showPilotPicker(currentWorld,currentLevel)}
+        // Compact footer follows the reference, while all three actions work.
+        val footer=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        panel.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(6)})
+        fun footerAction(caption:String,callback:()->Unit){
+            val button=Button(this).apply{
+                text=caption;isAllCaps=false;textSize=13f
+                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                    gradient(0xff367fd0.toInt(),0xff112e64.toInt(),17).apply{
+                        setStroke(d(2),0xff92d8ff.toInt())
+                    },null)
+                contentDescription=caption
+                setOnClickListener{sound.effect("click");callback()}
+            }
+            footer.addView(button,LinearLayout.LayoutParams(0,d(57),1f).apply{
+                setMargins(d(3),d(4),d(3),d(4))
             })
         }
-        detail("🏆  Najbolji rezultat: ${progress.bestPoints()}")
-        detail("Level $currentLevel · Ukupno prolaza: ${g.totalPassed}")
-        detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
-        detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
-        panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
-        sectionHeading(panel,"✦  NAGRADE I NAPREDAK")
-        small(panel,"●  Osvojeno u letu: ${g.coins+g.stars} · Ukupno: ${progress.coins()} kovanica")
-        action(panel,"▶  PONOVO"){showPilotPicker(currentWorld,currentLevel)}
-        action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
-        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
+        footerAction("▥\nLJESTVICA"){showLeaderboard()}
+        footerAction("⌂\nPOVRATAK"){showHome()}
+        footerAction("↗\nPODIJELI"){
+            val message="BOPAVI · Rezultat ${g.score()} · Ukupno prolaza: ${g.totalPassed}"
+            val share=android.content.Intent(android.content.Intent.ACTION_SEND).apply{
+                type="text/plain"
+                putExtra(android.content.Intent.EXTRA_TEXT,message)
+            }
+            startActivity(android.content.Intent.createChooser(share,"Podijeli rezultat"))
+        }
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
-        action(panel,"POČETNI EKRAN",false){showHome()}
+        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         showNativeView(root)
     }
     private fun showPerks(){

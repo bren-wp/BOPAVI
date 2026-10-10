@@ -879,3 +879,34 @@ assert "WindowInsets.Type.displayCutout()" in android
 assert "val top = maxOf(d(24),cutout.top+d(8))" in android
 assert "scroll.setOnApplyWindowInsetsListener" in android
 print("PASS: Android16 game controls and result safe-area handling")
+
+# Premium results follow the supplied 3-stat / 4-reward reference layout,
+# with REAL offline run values, no invented diamonds, ad offers or chests.
+android_result=android_menu.split('private fun showResult(',1)[1].split('private fun showPerks()',1)[0]
+ios_result=ios_menu.split('private func showResult(',1)[1].split('private func showPerks()',1)[0]
+for result in (android_result,ios_result):
+    for label in ('PRIKUPLJENE','UKUPNO','PROLAZA','NAGRADE','KOVANICE','ZVIJEZDE',
+                  'BONUS','REKORD','PONOVO','LJESTVICA','POVRATAK','PODIJELI'):
+        assert label in result,label
+    assert 'g.score()' in result and 'g.coins' in result
+    assert 'g.stars' in result and 'g.totalPassed' in result
+    assert 'bonusCoinsAvailable()' in result and 'claimBonusCoins()' in result
+    assert result.count('progress.recordRun(g)') == 1
+    assert 'DIJAMANTI' not in result and 'ŠKRINJA' not in result
+    assert 'showLeaderboard()' in result and 'showHome()' in result
+    assert 'showPerks()' in result and 'showWorlds()' in result
+assert 'private fun resultCard(' not in android_result  # only UI-local builder
+assert 'fun resultCard(' in android_result and 'func resultCard(' in ios_result
+assert 'fun reward(' in android_result and 'func reward(' in ios_result
+assert 'android.content.Intent.ACTION_SEND' in android_result
+assert 'UIActivityViewController(activityItems:' in ios_result
+assert 'bonusCounter.text="+0"' in android_result and 'bonusCounter.text="+0"' in ios_result
+print('PASS: honest 3-stat/4-reward premium results and offline claim/share actions')
+
+# Review of actual Android API35 result screenshot identified a concrete
+# black-on-navy contrast bug. Keep reward icons legible after future restyling.
+assert 'setTextColor(gold) // Never render black reward glyphs on navy.' in android_result
+assert 'textSize=14f;setTextColor(Color.WHITE)' in android_result
+assert 'details.numberOfLines=3' in ios_result
+assert 'details.lineBreakMode = .byWordWrapping' in ios_result
+print('PASS: reward icon contrast and compact responsive real-score details')

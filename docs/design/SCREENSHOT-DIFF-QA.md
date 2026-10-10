@@ -1,3 +1,9 @@
+## Iteration 4 — actual result/rewards layout
+- Result summary now uses three responsive real-score/coins/gates cards matching the screenshot's information hierarchy.
+- Rewards row uses four actual offline values (run coins, run stars, claimable record bonus, saved best score). The artwork's diamond/chest/crown inventory is not invented or simulated.
+- One-time score bonus claim updates numbers in place; Android text share and iOS activity share use genuine system UIs with no player identity.
+- Real screenshot comparison at multiple device sizes and full 3D asset fidelity remain **open**, notwithstanding functional and source parity.
+
 ## Iteration 3 — premium pause overlay
 - Replaced Android AlertDialog item list and iOS system action sheet with native custom scrollable pause cards over dimmed actual gameplay. The selected character, blue/gold header, orange Continue, blue Retry, gray Exit and four real shortcuts align the control hierarchy with the provided screenshot.
 - Sound/music toggles are fully connected to saved audio state. Reactivating sound from the pause screen explicitly keeps soundtrack paused until Continue.

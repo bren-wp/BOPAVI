@@ -1,3 +1,10 @@
+## In development — premium result and real reward cards
+- Android and iOS now render three compact summary cards (actual run score, collected coins, total passed gates) and four reward tiles (collected coins, stars, claimable score-record bonus, persisted best score) matching the structure of supplied BOPAVI result references.
+- Claimable score milestones use the **existing one-time offline claim API**. Tapping claim updates the wallet and reward label immediately without rerunning the game result or crediting the same milestone twice.
+- Replaced long flat footer actions with three real compact buttons for leaderboard, home, and native sharing via Android chooser or iOS activity controller. World map and offline-coin shop remain accessible.
+- Native layout accommodates narrow phones using 3 equal-width results, 4 equal-width reward cells, dynamic text sizing and vertical scrolling.
+- No fictitious diamonds, video rewards, premium chest inventory, backend features or GitHub signing. Actual original vector artwork is not yet pixel-identical to supplied 3D concept renders.
+
 ## In development — premium pause overlay
 - Android and iOS now use a **real scrollable premium pause modal** instead of the old system list/action sheet, including live selected flyer, cyan/gold PAUZA header, orange Continue, blue Retry and gray Exit.
 - Four real shortcuts: master sound, music-volume toggle, controls help and settings. Every action is connected to the offline sound/settings system; no fake logout, cloud service or store.
