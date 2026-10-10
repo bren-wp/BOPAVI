@@ -1,3 +1,11 @@
+## Premium world selection — native regression gate
+- On Android 15/16 and iOS simulator check **SVJETOVI** uses two columns and shows eight distinct clickable world illustrations with responsive white titles and gold progress facts.
+- The **LEVEL** line must reflect `streamFrontier(world)`, and the gold line must show `collectibles(world)` and `best(world)` from existing local data; screen reader labels must announce all three, not fictional stars or locked worlds.
+- Scroll to all eight cards. Android emulator must confirm each world card exposes name, real saved frontier, collected items, and best score, and Back still returns to the playable home screen.
+- Replay a level, return to World list and verify only earned save metrics update, without corrupting per-world progression. Visuals must not obstruct tap targets, and titles must scale on small screens.
+- Run strict audit, Android APK/unsigned AAB lint and tests, Android API35/API36 emulator, iOS simulator and unsigned device/Swift parity. No GitHub production signing.
+- Art remains improved 2D rendering rather than pixel-identical 3D concept; 30-star rewards and paid world gates are not fabricated.
+
 ## Premium difficulty settings — click-by-click acceptance
 - On Android 15/16 and iOS simulator the **Postavke → Igrač i težina** section has horizontal Lagano / Normalno / Zahtjevno cards with actual pilot illustrations and no clipping on narrow displays.
 - Tap each card: only the chosen card gains the gold border and accessible selected status; choice is persisted with original offline values 0/1/2.
