@@ -1,3 +1,9 @@
+## In development — premium reference alignment, iteration 2
+- Android/iOS: illustrated 20-level grid with dynamic badges, real unlock/complete states, numbered world thumbnail cards and compact previous/next navigation; no fabricated star medals.
+- Android/iOS: independent, working music and effects volume sliders (0–100%) with immediate mixer updates; percentages persist locally and are included as optional, backward-compatible fields in v5 backups.
+- Preserves first-flap pause, existing procedural flight/collisions, 9-pilot local inventory, offline progress and unsigned GitHub AAB policy.
+- The supplied photorealistic concept illustrations are not yet replicated pixel-for-pixel in the original flat vector scene art.
+
 ## In development — premium reference-aligned interface
 - New shared BOPAVI blue/gold logo and motto, rendered from SVG into Android and iOS.
 - Rebuilt illustrated menu backgrounds, golden play buttons, cyan/blue secondary actions, 4 working home shortcuts, and three-column nine-pilot selection.
