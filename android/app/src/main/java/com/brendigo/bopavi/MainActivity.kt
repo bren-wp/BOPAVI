@@ -34,8 +34,10 @@ class MainActivity : Activity() {
     private var selectedScreen = "home"
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
-    private val gold = 0xffffce77.toInt()
-    private val ocean = 0xff17315c.toInt()
+    private val gold = 0xffffc24d.toInt()
+    private val ocean = 0xff081e45.toInt()
+    private val electric = 0xff00d9ff.toInt()
+    private val sunset = 0xffff8a00.toInt()
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xffffbb66.toInt(),0xffa5ecff.toInt(),0xffff8163.toInt(),0xffffd891.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     override fun onCreate(state: Bundle?) {
@@ -91,10 +93,16 @@ class MainActivity : Activity() {
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
     }
-    private fun gradient(a:Int,b:Int,rad:Int=27):GradientDrawable = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(a,b)).apply{
-        cornerRadius=d(rad).toFloat()
-        setStroke(d(1),0x66c6eaff)
-    }
+    // BOPAVI premium visual language: royal blue, cyan outlines, gold CTA.
+    private fun gradient(a:Int,b:Int,rad:Int=27):GradientDrawable =
+        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(a,b)).apply{
+            cornerRadius=d(rad).toFloat()
+            setStroke(d(1),0x9959d6ff.toInt())
+        }
+    private fun premiumBackground():GradientDrawable =
+        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(
+            0x66031837,0x99061b3e.toInt(),0xdd04132e.toInt()))
+
     private fun chip(label:String):TextView = TextView(this).apply {
         text=label
         setTextColor(gold)
@@ -109,18 +117,42 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=0
         gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen=label
-        val body=LinearLayout(this).apply {
+        // Real world art is a full-bleed layer; all interactive labels remain real
+        // views instead of baking fake scores, buttons or progress into a PNG.
+        val root=FrameLayout(this).apply{setBackgroundColor(ocean)}
+        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        root.addView(ImageView(this).apply{
+            setImageResource(scenes[currentWorld.coerceIn(0,7)])
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        root.addView(View(this).apply{background=premiumBackground()},FrameLayout.LayoutParams(-1,-1))
+        val body=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
-            setPadding(d(20),d(22),d(20),d(30))
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(0xff0a427b.toInt(),0xff096aaf.toInt(),0xff2b9ed9.toInt()))
+            setPadding(d(18),d(18),d(18),d(28))
         }
-        val scroll=ScrollView(this).apply {
+        val scroll=ScrollView(this).apply{
             isFillViewport=true;isVerticalScrollBarEnabled=false
+            clipToPadding=false
             addView(body)
         }
-        showNativeView(scroll)
-        if(label!="BOPAVI")title(body,label,32,gold)
-        if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,15,0xffbfe0f5.toInt())
+        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        if(Build.VERSION.SDK_INT>=35){
+            scroll.setOnApplyWindowInsetsListener{v,insets->
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                insets
+            }
+        }
+        showNativeView(root)
+        ImageView(this).apply {
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }.also{body.addView(it,LinearLayout.LayoutParams(-1,d(94)))}
+        if(label!="BOPAVI")title(body,label,31,Color.WHITE)
+        if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,14,0xffc9edff.toInt())
         return body
     }
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
@@ -130,7 +162,11 @@ class MainActivity : Activity() {
             setTextColor(color)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER
-            setPadding(d(6),d(10),d(6),d(10))
+            setPadding(d(6),d(11),d(6),d(11))
+            if(size>=26)background=gradient(0xee064e9a.toInt(),0xee062b61.toInt(),24).apply {
+                setStroke(d(2),0xff50d7ff.toInt())
+            }
+            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xff001936.toInt())
             setAutoSizeTextTypeUniformWithConfiguration((size*.72f).toInt(),size,1,android.util.TypedValue.COMPLEX_UNIT_SP)
         },LinearLayout.LayoutParams(-1,-2))
     }
@@ -153,22 +189,30 @@ class MainActivity : Activity() {
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
             this.text=text;setTextColor(Color.WHITE)
-            textSize=17f;isAllCaps=false
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-            letterSpacing=.025f
-            setAutoSizeTextTypeUniformWithConfiguration(12,17,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val normal=if(primary) GradientDrawable(
+            textSize=18f;isAllCaps=false
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            letterSpacing=.03f
+            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xaa07244d.toInt())
+            setAutoSizeTextTypeUniformWithConfiguration(12,18,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+            val face=if(primary) GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xffc5ff7a.toInt(),0xff6cec43.toInt(),0xff13b742.toInt())).apply{
-                    cornerRadius=d(31).toFloat()
-                    setStroke(d(2),0xffd5ffab.toInt())
-                } else gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),29)
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),normal,null)
-            elevation=d(5).toFloat()
+                intArrayOf(0xffffdf50.toInt(),0xffffad17.toInt(),0xffff7a00.toInt())).apply{
+                    cornerRadius=d(33).toFloat()
+                    setStroke(d(3),0xffffed9e.toInt())
+                } else GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff23c8fc.toInt(),0xff087dec.toInt(),0xff064cb4.toInt())).apply{
+                    cornerRadius=d(32).toFloat()
+                    setStroke(d(2),0xff7eecff.toInt())
+                }
+            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
+            elevation=d(7).toFloat()
             contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
         }
-        parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)64 else 56)).apply {setMargins(0,d(6),0,d(6))})
+        parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)68 else 58)).apply{
+            setMargins(0,d(5),0,d(5))
+        })
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
@@ -213,52 +257,87 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility=0
         gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
-        // Full-bleed illustrated home, rather than a small banner in a dark scroll page.
-        val background=FrameLayout(this).apply {setBackgroundColor(0xff123b6e.toInt())}
-        val scene=ImageView(this).apply {
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
+        root.addView(ImageView(this).apply {
             setImageResource(R.drawable.splash)
             scaleType=ImageView.ScaleType.CENTER_CROP
-            contentDescription="Ilustrirani BOPAVI svijet s Bopijem"
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        root.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x55052251,0x001967ae,0x001967ae,0xbb03112e.toInt()))
+        },FrameLayout.LayoutParams(-1,-1))
+        val scroll=ScrollView(this).apply{
+            isFillViewport=true;isVerticalScrollBarEnabled=false
+            clipToPadding=false
         }
-        background.addView(scene,FrameLayout.LayoutParams(-1,-1))
-        val shading=View(this).apply{
-            this.background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x330a52a5,0x000b6cbb,0x000b6cbb,0x22043979))
-        }
-        background.addView(shading,FrameLayout.LayoutParams(-1,-1))
         val layout=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(22),d(14),d(22),d(28))
+            setPadding(d(22),d(12),d(22),d(16))
         }
-        background.addView(layout,FrameLayout.LayoutParams(-1,-1))
-        // The portrait background already contains the logo and tagline. No duplicates.
+        scroll.addView(layout)
+        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        // Preserve the artwork logo, keep score and coin values live.
+        val wallets=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        wallets.addView(chip("🏆  ${progress.bestPoints()}"),
+            LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(6)})
+        wallets.addView(chip("●  ${progress.coins()}"),
+            LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(6)})
+        layout.addView(wallets,LinearLayout.LayoutParams(-1,-2))
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        // Two compact counters: actual stored best score and earned coins.
-        val bestScore=progress.bestPoints()
-        background.addView(chip("🏆  $bestScore"),FrameLayout.LayoutParams(-2,-2,
-            Gravity.TOP or Gravity.LEFT).apply{setMargins(d(16),d(16),0,0)})
-        background.addView(chip("●  ${progress.coins()}"),FrameLayout.LayoutParams(-2,-2,
-            Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(16),d(17),0)})
-        // Three clear home actions, with IGRAJ dominant and two equal shortcuts.
-        // Leave the illustrated logo and Bopi free of extra text or opaque tiles.
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
             showPilotPicker(world,progress.streamFrontier(world))
         }
-        val shortcuts=LinearLayout(this).apply{
+        action(layout,"◎  SVJETOVI",false){showWorlds()}
+        action(layout,"⚙  POSTAVKE",false){showSettings()}
+        val navigation=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
+            setPadding(d(5),d(7),d(5),d(6))
+            background=gradient(0xf3062a64.toInt(),0xfa041736.toInt(),23).apply{
+                setStroke(d(2),electric)
+            }
         }
-        layout.addView(shortcuts,LinearLayout.LayoutParams(-1,-2))
-        val worldsColumn=LinearLayout(this)
-        val settingsColumn=LinearLayout(this)
-        shortcuts.addView(worldsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(6)})
-        shortcuts.addView(settingsColumn,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(6)})
-        action(worldsColumn,"🌍  SVJETOVI",false){showWorlds()}
-        action(settingsColumn,"⚙  POSTAVKE",false){showSettings()}
-        showNativeView(background)
+        val entries=listOf(
+            Triple("♙\nPROFIL","Profil igrača",0),
+            Triple("★\nZADACI","Postignuća",1),
+            Triple("✦\nKOLEKCIJA","Kolekcija likova",2),
+            Triple("▣\nTRGOVINA","Trgovina kovanicama",3)
+        )
+        for((label,description,index) in entries){
+            val tab=Button(this).apply{
+                text=label;contentDescription=description
+                isAllCaps=false;textSize=11f
+                setTextColor(Color.WHITE)
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setPadding(d(1),0,d(1),0)
+                background=gradient(0x66317fc2,0x33081e46,14)
+                minHeight=d(58)
+                setOnClickListener{
+                    sound.effect("click")
+                    when(index){
+                        0->showSettings()
+                        1->showAchievements()
+                        2->showSkins()
+                        else->showPerks()
+                    }
+                }
+            }
+            navigation.addView(tab,LinearLayout.LayoutParams(0,d(62),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+        }
+        layout.addView(navigation,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(15)})
+        showNativeView(root)
+        if(Build.VERSION.SDK_INT>=35){
+            scroll.setOnApplyWindowInsetsListener{v,insets->
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                insets
+            }
+            scroll.requestApplyInsets()
+        }
     }
 
     private fun showWorlds(){
