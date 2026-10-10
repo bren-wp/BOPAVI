@@ -327,7 +327,8 @@ ios_menu=(root/"ios/BOPAVI/GameController.swift").read_text()
 android_canvas=(root/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
 ios_canvas=(root/"ios/BOPAVI/GameCanvas.swift").read_text()
 for source in (android_menu,ios_menu):
-    assert "Isključi zvuk" in source and "Uključi zvuk" in source
+    assert 'ZVUK' in source and 'showPremiumPause' in source
+    assert 'sound.enabled' in source and 'sound.pause()' in source
     assert "progress.soundEnabled" in source
     assert "Težina:" in source
 for canvas in (android_canvas,ios_canvas):
