@@ -418,10 +418,10 @@ class MainActivity : Activity() {
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
-        for(start in progress.skinNames.indices step 2) {
+        for(start in progress.skinNames.indices step 3) {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             parent.addView(row,LinearLayout.LayoutParams(-1,-2))
-            for(i in start until minOf(start+2,progress.skinNames.size)) {
+            for(i in start until minOf(start+3,progress.skinNames.size)) {
                 val selected=progress.skin()==i
                 val owned=progress.owned(i)
                 val cost=progress.costs[i]
@@ -429,13 +429,13 @@ class MainActivity : Activity() {
                 val card=LinearLayout(this).apply {
                     orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
                     isClickable=true;isFocusable=true
-                    val face=gradient(if(selected)0xff287cb3.toInt() else 0xff173c71.toInt(),
-                        if(selected)0xff18527b.toInt() else 0xff102a50.toInt(),19)
+                    val face=gradient(if(selected)0xffffa51c.toInt() else 0xff0b5db9.toInt(),
+                        if(selected)0xffb55c00.toInt() else 0xff071e46.toInt(),17)
                     face.setStroke(d(if(selected)3 else 1),
                         if(selected)gold else 0xff5680b4.toInt())
                     background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
                     contentDescription="${progress.skinNames[i]}, $status"
-                    setPadding(d(7),d(6),d(7),d(6))
+                    setPadding(d(3),d(5),d(3),d(5))
                     setOnClickListener {
                         sound.effect("click")
                         if(owned) {
@@ -457,23 +457,22 @@ class MainActivity : Activity() {
                 card.addView(ImageView(this).apply {
                     setImageResource(portraits[i]);scaleType=ImageView.ScaleType.FIT_CENTER
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(96)))
+                },LinearLayout.LayoutParams(-1,d(84)))
                 card.addView(TextView(this).apply {
-                    text=progress.skinNames[i];textSize=16f
+                    text=progress.skinNames[i];textSize=13f
                     typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE);gravity=Gravity.CENTER
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(23)))
+                },LinearLayout.LayoutParams(-1,d(21)))
                 card.addView(TextView(this).apply {
-                    text=status;textSize=12f;gravity=Gravity.CENTER
+                    text=status;textSize=10f;gravity=Gravity.CENTER
                     setTextColor(if(selected)gold else 0xffbce6ff.toInt())
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(22)))
-                row.addView(card,LinearLayout.LayoutParams(0,d(155),1f).apply{
-                    setMargins(d(4),d(5),d(4),d(5))
+                },LinearLayout.LayoutParams(-1,d(23)))
+                row.addView(card,LinearLayout.LayoutParams(0,d(138),1f).apply{
+                    setMargins(d(2),d(5),d(2),d(5))
                 })
             }
-            if(start==progress.skinNames.size-1)
-                row.addView(View(this),LinearLayout.LayoutParams(0,d(155),1f))
+            // Nine characters occupy three real, keyboard-accessible columns.
         }
     }
     /** Mandatory pre-flight character choice; boosts are consumed only on the first flap. */
