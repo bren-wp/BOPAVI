@@ -1,3 +1,11 @@
+## Premium pause — regression and interaction QA
+- Confirm no PAUZA action before the first flap, on both systems and accessibility tree.
+- With active flight paused: gameplay coordinates and score stop advancing; music loop remains paused even if global sound is switched back on.
+- Tap Continue => closes overlay and resumes same run; Retry => new idle run of the same world/level; Exit => home; Settings => actual local settings.
+- Master Sound and Music toggles affect the real audio mixer, not cosmetic labels. Controls opens accurate gesture instructions and returns to the frozen flight.
+- Dialog fully scrolls and remains accessible on compact phones / Display Zoom; labels and margins must not clip behind status or navigation regions.
+- Android and iOS screenshots still require pixel-diff approval against the supplied 3D rendered pause reference. No fabricated background screenshot is used.
+
 ## Premium UI iteration 2 — QA acceptance
 - World card numbering 1–8 uses the actual world index; badges/arrows remain noninteractive children, while the complete card is the tap target.
 - Illustrated 4-column / 5-row level grid reads persisted frontier: complete levels show ✓; next available shows the active badge; future levels remain visibly locked with a non-startable tap.

@@ -659,6 +659,133 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  LEVELI",in:s,primary:false){self.showLevels(world,page:min(number,BopaviCore.levelsPerWorld))}
     }
 
+    /// All elements are real UIKit views and actions. A full-screen dimmer
+    /// intercepts touches while physics remains frozen; only Continue resumes.
+    private func showPremiumPause(for canvas:GameCanvas){
+        let overlay=UIView()
+        overlay.translatesAutoresizingMaskIntoConstraints=false
+        overlay.backgroundColor=UIColor(red:0,green:0.055,blue:0.14,alpha:0.80)
+        view.addSubview(overlay)
+        NSLayoutConstraint.activate([
+            overlay.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            overlay.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+            overlay.topAnchor.constraint(equalTo:view.topAnchor),
+            overlay.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+        ])
+        let scroll=UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints=false
+        scroll.showsVerticalScrollIndicator=false
+        scroll.alwaysBounceVertical=true
+        overlay.addSubview(scroll)
+        NSLayoutConstraint.activate([
+            scroll.topAnchor.constraint(equalTo:overlay.safeAreaLayoutGuide.topAnchor,constant:5),
+            scroll.bottomAnchor.constraint(equalTo:overlay.safeAreaLayoutGuide.bottomAnchor,constant:-5),
+            scroll.leadingAnchor.constraint(equalTo:overlay.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo:overlay.trailingAnchor)
+        ])
+        let panel=UIStackView()
+        panel.axis = .vertical
+        panel.alignment = .fill
+        panel.spacing=9
+        panel.translatesAutoresizingMaskIntoConstraints=false
+        panel.isLayoutMarginsRelativeArrangement=true
+        panel.layoutMargins=UIEdgeInsets(top:15,left:17,bottom:20,right:17)
+        panel.backgroundColor=UIColor(red:0.015,green:0.16,blue:0.37,alpha:0.98)
+        panel.layer.cornerRadius=27
+        panel.layer.borderWidth=3
+        panel.layer.borderColor=UIColor(red:0.12,green:0.83,blue:1,alpha:1).cgColor
+        scroll.addSubview(panel)
+        NSLayoutConstraint.activate([
+            panel.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:13),
+            panel.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-13),
+            panel.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:8),
+            panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
+            panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
+        ])
+        let mascot=UIImageView(image:UIImage(named:"Bopi\(progress.skinIndex())"))
+        mascot.contentMode = .scaleAspectFit
+        mascot.isAccessibilityElement=false
+        mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
+        panel.addArrangedSubview(mascot)
+        label("♛  PAUZA",33,UIColor.white,panel)
+        label("Pauza · Level \(canvas.game.displayLevel)",14,
+              UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
+        let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
+            overlay?.removeFromSuperview()
+            if resume {canvas?.paused=false;self?.sound.resume()}
+        }
+        func command(_ caption:String,style:Int,handler:@escaping()->Void){
+            let control:UIButton
+            if style==2 {
+                let exit=UIButton(type:.system)
+                exit.backgroundColor=UIColor(red:0.22,green:0.34,blue:0.57,alpha:1)
+                exit.layer.cornerRadius=26
+                exit.layer.borderWidth=2
+                exit.layer.borderColor=UIColor(red:0.65,green:0.77,blue:0.93,alpha:1).cgColor
+                control=exit
+            } else {
+                control=BopaviActionButton(primary:style==0)
+            }
+            control.setTitle(caption,for:.normal)
+            control.setTitleColor(.white,for:.normal)
+            control.titleLabel?.font=UIFont.systemFont(ofSize:18,weight:.heavy)
+            control.titleLabel?.adjustsFontSizeToFitWidth=true
+            control.titleLabel?.minimumScaleFactor=0.7
+            control.accessibilityLabel=caption
+            control.heightAnchor.constraint(equalToConstant:59).isActive=true
+            control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
+            panel.addArrangedSubview(control)
+        }
+        command("▶  NASTAVI",style:0){close(true)}
+        command("↻  PONOVO",style:1){
+            close(false);self.startGame(self.gameWorld,self.gameNumber)
+        }
+        command("↪  IZLAZ",style:2){close(false);self.showHome()}
+        let footer=UIStackView()
+        footer.axis = .horizontal
+        footer.distribution = .fillEqually
+        footer.spacing=5
+        footer.layoutMargins=UIEdgeInsets(top:7,left:5,bottom:7,right:5)
+        footer.isLayoutMarginsRelativeArrangement=true
+        footer.backgroundColor=UIColor(red:0.01,green:0.13,blue:0.31,alpha:1)
+        footer.layer.cornerRadius=17
+        func quick(_ caption:String,label:String,handler:@escaping()->Void){
+            let control=UIButton(type:.system)
+            control.setTitle(caption,for:.normal)
+            control.titleLabel?.numberOfLines=2
+            control.titleLabel?.textAlignment = .center
+            control.titleLabel?.font=UIFont.systemFont(ofSize:11,weight:.bold)
+            control.titleLabel?.adjustsFontSizeToFitWidth=true
+            control.titleLabel?.minimumScaleFactor=0.67
+            control.setTitleColor(.white,for:.normal)
+            control.accessibilityLabel=label
+            control.backgroundColor=UIColor(red:0.03,green:0.35,blue:0.68,alpha:1)
+            control.layer.cornerRadius=13
+            control.layer.borderWidth=1
+            control.layer.borderColor=UIColor(red:0.37,green:0.83,blue:1,alpha:1).cgColor
+            control.heightAnchor.constraint(equalToConstant:64).isActive=true
+            control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
+            footer.addArrangedSubview(control)
+        }
+        quick("◖\nZVUK",label:"Zvuk"){
+            self.progress.soundEnabled.toggle()
+            self.sound.enabled=self.progress.soundEnabled
+            self.sound.pause() // Restore no-audio state until Continue.
+        }
+        quick("♫\nMUZIKA",label:"Muzika"){
+            let volume=self.progress.musicVolume==0 ? 80 : 0
+            self.progress.musicVolume=volume
+            self.sound.musicVolume=Float(volume)/100
+        }
+        quick("✦\nKONTROLE",label:"Kontrole"){
+            self.alert("Kontrole leta","Dodirni zaslon za zamah krilima. Pauza se pojavljuje tek nakon početka leta.")
+        }
+        quick("⚙\nPOSTAVKE",label:"Postavke"){
+            close(false);self.showSettings()
+        }
+        panel.addArrangedSubview(footer)
+        UIAccessibility.post(notification:.screenChanged,argument:panel)
+    }
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
         let boosts=progress.previewPerks()
@@ -721,23 +848,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             guard let self=self,let canvas=gameCanvas,
                   self.canvas === canvas,canvas.game.active && !canvas.game.finished else{return}
             canvas.paused=true;self.sound.pause()
-            let dialog=UIAlertController(title:"Pauza · Level \(canvas.game.displayLevel)",message:nil,preferredStyle:.actionSheet)
-            dialog.addAction(UIAlertAction(title:"Nastavi let",style:.default){_ in canvas.paused=false;self.sound.resume()})
-            dialog.addAction(UIAlertAction(title:self.progress.soundEnabled ? "🔇 Isključi zvuk" : "🔊 Uključi zvuk",style:.default){_ in
-                let enabled = !self.progress.soundEnabled
-                self.progress.soundEnabled = enabled
-                self.sound.enabled = enabled
-                canvas.paused = false
-                if enabled {self.sound.resume()}
-            })
-            dialog.addAction(UIAlertAction(title:"Mapa svjetova",style:.default){_ in self.showWorlds()})
-            dialog.addAction(UIAlertAction(title:"Oprema za kovanice",style:.default){_ in self.showPerks()})
-            dialog.addAction(UIAlertAction(title:"Izgled Bopija",style:.default){_ in self.showSkins()})
-            dialog.addAction(UIAlertAction(title:"Zvuk i prikaz",style:.default){_ in self.showSettings()})
-            dialog.addAction(UIAlertAction(title:"Odustani",style:.cancel){_ in canvas.paused=false;self.sound.resume()})
-            dialog.popoverPresentationController?.sourceView=pause
-            dialog.popoverPresentationController?.sourceRect=pause.bounds
-            self.present(dialog,animated:true)
+            self.showPremiumPause(for:canvas)
+
         },for:.touchUpInside)
     }
     private func showToast(_ message:String){

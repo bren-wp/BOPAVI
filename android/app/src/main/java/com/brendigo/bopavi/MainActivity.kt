@@ -581,6 +581,113 @@ class MainActivity : Activity() {
         characterGallery(b){showPilotPicker(world,number)}
         back(b){showLevels(world,number.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())}
     }
+    /**
+     * Custom native premium pause UI, not an image overlay. The simulation
+     * remains frozen for the full lifetime of this modal. Cancel resumes;
+     * explicit retry/exit/settings transitions never accidentally resume.
+     */
+    private fun showPremiumPause(game:GameView){
+        val dialog=android.app.AlertDialog.Builder(this).create()
+        val content=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(18),d(15),d(18),d(19))
+            background=gradient(0xff0876db.toInt(),0xff031936.toInt(),26).apply{
+                setStroke(d(3),electric)
+            }
+        }
+        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
+            R.drawable.bopi7,R.drawable.bopi8)
+        content.addView(ImageView(this).apply{
+            setImageResource(portraits[progress.skin().coerceIn(0,8)])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(128)))
+        title(content,"♛  PAUZA",32,Color.WHITE)
+        small(content,"Pauza · Level ${game.game.displayLevel}")
+        fun command(text:String,style:Int,action:()->Unit){
+            val face=when(style){
+                0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
+                    setStroke(d(3),0xffffe6a0.toInt())
+                }
+                1 -> gradient(0xff23c8fc.toInt(),0xff064ab5.toInt(),30).apply{
+                    setStroke(d(2),0xff83efff.toInt())
+                }
+                else -> gradient(0xff7593be.toInt(),0xff20365f.toInt(),30).apply{
+                    setStroke(d(2),0xffaec9f3.toInt())
+                }
+            }
+            val b=Button(this).apply {
+                this.text=text;isAllCaps=false;textSize=18f
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
+                elevation=d(5).toFloat()
+                contentDescription=text
+                setOnClickListener{sound.effect("click");dialog.dismiss();action()}
+            }
+            content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
+                setMargins(d(8),d(4),d(8),d(4))
+            })
+        }
+        command("▶  NASTAVI",0){game.paused=false;sound.resume()}
+        command("↻  PONOVO",1){startGame(currentWorld,currentLevel)}
+        command("↪  IZLAZ",2){showHome()}
+        val footer=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            background=gradient(0xff052c62.toInt(),0xff041631.toInt(),17)
+            setPadding(d(3),d(5),d(3),d(5))
+        }
+        fun quick(icon:String,label:String,onClick:()->Unit){
+            val btn=Button(this).apply{
+                text="$icon\n$label";isAllCaps=false;textSize=10f
+                setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+                setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                    gradient(0xff1269b9.toInt(),0xff08234b.toInt(),13),null)
+                contentDescription=label
+                setOnClickListener{sound.effect("click");onClick()}
+            }
+            footer.addView(btn,LinearLayout.LayoutParams(0,d(62),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+        }
+        quick("◖","ZVUK"){
+            val enabled=!progress.soundEnabled()
+            progress.setSoundEnabled(enabled);sound.enabled=enabled
+            sound.pause() // Toggling audio must never resume a paused flight.
+            Toast.makeText(this,if(enabled)"Zvuk uključen" else "Zvuk isključen",
+                Toast.LENGTH_SHORT).show()
+        }
+        quick("♫","MUZIKA"){
+            val level=if(progress.musicVolume()==0)80 else 0
+            progress.setMusicVolume(level);sound.musicVolume=level/100f
+            Toast.makeText(this,if(level==0)"Glazba isključena" else "Glazba uključena",
+                Toast.LENGTH_SHORT).show()
+        }
+        quick("✦","KONTROLE"){
+            android.app.AlertDialog.Builder(this)
+                .setTitle("Kontrole leta")
+                .setMessage("Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
+                .setPositiveButton("U REDU",null).show()
+        }
+        quick("⚙","POSTAVKE"){dialog.dismiss();showSettings()}
+        content.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
+        val scroll=ScrollView(this).apply{
+            isVerticalScrollBarEnabled=false
+            addView(content)
+        }
+        dialog.setView(scroll)
+        dialog.setOnCancelListener{game.paused=false;sound.resume()}
+        dialog.show()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)), -2)
+    }
     private fun startGame(world:Int,number:Long){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
         // triggers Android's full-screen onboarding popup on the first game.
@@ -624,26 +731,8 @@ class MainActivity : Activity() {
             setOnClickListener{
                 if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
                 game.paused=true;sound.pause()
-                android.app.AlertDialog.Builder(this@MainActivity).setTitle("Pauza · Level ${game.game.displayLevel}")
-                    .setItems(arrayOf("Nastavi let",
-                        if(progress.soundEnabled()) "🔇 Isključi zvuk" else "🔊 Uključi zvuk",
-                        "Mapa svjetova","Oprema za kovanice","Izgled Bopija","Zvuk i prikaz")) { _,choice ->
-                        sound.effect("click")
-                        when(choice){
-                            0 -> {game.paused=false;sound.resume()}
-                            1 -> {
-                                val enabled=!progress.soundEnabled()
-                                progress.setSoundEnabled(enabled)
-                                sound.enabled=enabled
-                                game.paused=false
-                                if(enabled)sound.resume()
-                            }
-                            2 -> showWorlds()
-                            3 -> showPerks()
-                            4 -> showSkins()
-                            5 -> showSettings()
-                        }
-                    }.setOnCancelListener{game.paused=false;sound.resume()}.show()
+                showPremiumPause(game)
+
             }
         }
         pauseButton=pause
