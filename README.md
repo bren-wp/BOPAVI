@@ -1,3 +1,7 @@
+## Premium visual redesign — implementation in progress
+
+Android and iOS now share a blue/cyan/gold premium UI direction drawn from the supplied BOPAVI screens: three illustrated primary home destinations, four functioning shortcuts, three-column character gallery, coordinated settings and dark score cards. The updated winged logo is generated from the same SVG into both apps. Gameplay physics, local saves and the offline earned-coin economy are retained. **The screens are not yet pixel-identical** to the concept artwork; see [visual implementation contract](docs/design/PREMIUM-REFERENCE-IMPLEMENTATION.md) for the outstanding art exports and side-by-side device QA. No online gems, fake cloud sync or paid controls are presented.
+
 <p align="center"><img src="docs/assets/logo.svg" width="450" alt="BOPAVI — Mali let, velika avantura"></p>
 <p align="center"><strong>MALI LET. VELIKA AVANTURA. BEZ KRAJA.</strong></p>
 <p align="center"><img src="docs/assets/hero.svg" alt="Bopi leti među oblacima i lebdećim otocima" width="100%"></p>
