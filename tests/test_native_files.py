@@ -42,7 +42,7 @@ assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions 
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
 assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
 assert f'gh release create v{android_versions[0]}' in workflow, "Release workflow tag mismatches builds"
-print('PASS: native source inventory, 28 audio assets, three-action home, manifest, icons, no web engine/network permission')
+print('PASS: native source inventory, 28 audio assets, premium home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
 for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
@@ -249,8 +249,13 @@ assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 
 # Premium art and illustrated results must ship on Android/iOS.
-assert '#ff871b' in (root/'docs/assets/logo.svg').read_text()
-assert 'id="wood"' in (root/'docs/assets/logo.svg').read_text()
+# The old flat brown wood plaque was intentionally replaced by the
+# shared winged blue/gold gradient. Test actual required brand tokens.
+logo=(root/'docs/assets/logo.svg').read_text()
+assert 'id="letters"' in logo and 'id="wings"' in logo
+assert '#ff9b08' in logo and '#ff8004' in logo and '#22a8ff' in logo
+assert 'MALI LETOVI' in logo and 'VELIKE PRIČE' in logo
+assert 'id="wood"' not in logo
 assert 'id="lens"' in (root/'docs/assets/hero.svg').read_text()
 assert 'def island(' in (root/'tools/generate_images.py').read_text()
 # Dynamic result headings live in the tested core, not hardcoded in the UI.
@@ -272,9 +277,12 @@ assert 'height*88/100' not in smoke
 assert 'if: always()' in ci and 'qa/screenshots/*.xml' in ci
 
 
-# iOS home wallet must have exactly one fixed height constraint.
+# Two truly dynamic, identically sized top counters are built from one
+# loop; no stale one-wallet-height assumption after premium redesign.
 ios_home=(root/'ios/BOPAVI/GameController.swift').read_text().split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
-assert ios_home.count('wallet.heightAnchor.constraint(equalToConstant:') == 1
+assert 'for item in ["🏆' in ios_home and 'progress.bestPoints()' in ios_home
+assert 'progress.coins()' in ios_home and 'chip.heightAnchor.constraint(equalToConstant:44)' in ios_home
+assert 'wallet.heightAnchor.constraint(equalToConstant:' not in ios_home
 
 # All eight biomes are available immediately; a saved frontier is per-world.
 android_save=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
@@ -512,8 +520,8 @@ for view in (android_picker,ios_picker):
     assert 'startGame(' in view
 android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
 ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
-assert 'skinNames.indices step 2' in android_gallery
-assert 'stride(from:0,to:progress.skinNames.count,by:2)' in ios_gallery
+assert 'skinNames.indices step 3' in android_gallery
+assert 'stride(from:0,to:progress.skinNames.count,by:3)' in ios_gallery
 assert 'R.drawable.bopi6' in android_gallery
 assert 'UIImage(named:"Bopi\\(i)")' in ios_gallery
 assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
@@ -563,17 +571,33 @@ assert 'FAIL: pause button visible before first flap' in qa_lifecycle
 assert 'FAIL: gameplay pause control leaked onto result screen' in qa_lifecycle
 assert 'FAIL: pause did not appear after actual first flight flap' in qa_lifecycle
 
-# v0.1.17: illustrated home shows exactly three deliberate actions, on both
-# platforms, with IGRAJ first and with cosmetics/equipment under settings.
+# Premium reference redesign: three primary navigation buttons plus four
+# explicitly functional footer shortcuts on Android AND iOS, not dead mock UI.
 android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
 ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
 for home in (android_home,ios_home):
-    assert home.count('▶  IGRAJ') == 1
-    assert home.count('🌍  SVJETOVI') == 1
-    assert home.count('⚙  POSTAVKE') == 1
+    for button_label in ('▶  IGRAJ','🌍  SVJETOVI','⚙  POSTAVKE'):
+        assert home.count(button_label)==1
     assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
-    assert 'showWorlds()' in home and 'showSettings()' in home
-    assert 'showPerks()' not in home and 'showSkins()' not in home
+    for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
+        assert label in home
+    for destination in ('showWorlds()','showSettings()','showAchievements()','showSkins()','showPerks()'):
+        assert destination in home
+    assert 'showPilotPicker(' in home and 'startGame(' not in home
+assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
+assert 'UIStackView(arrangedSubviews:[glyph,caption])' in ios_home
+assert 'tab.accessibilityLabel=title' in ios_home
+# No fake online gems, cloud sign-out or microtransactions.
+for home in (android_home,ios_home):
+    assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
+for source in (android_menu,ios_menu):
+    assert 'POLETI S' in source and 'ODABERI LIKA' in source
+assert 'setStroke(d(3),0xffffed9e' in android_menu
+assert 'UIColor(red:1.00,green:0.88,blue:0.32' in ios_menu
+logo_markup=(root/'docs/assets/logo.svg').read_text()
+assert 'MALI LETOVI' in logo_markup and 'VELIKE PRIČE' in logo_markup
+assert 'id="wings"' in logo_markup and 'id="letters"' in logo_markup
+print('PASS: branded blue/gold parity, illustrated menus and functioning home navigation')
 android_settings=android_menu.split("private fun showSettings()",1)[1].split("override fun onActivityResult",1)[0]
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
@@ -607,7 +631,7 @@ for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
     assert 'bestPoints()' in home
-    assert 'showPerks()' not in home and 'showSkins()' not in home
+    assert 'showPerks()' in home and 'showSkins()' in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
@@ -625,8 +649,12 @@ for shop in (android_shop,ios_shop):
     assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
     assert 'buyPerk(' in shop and 'showSkins()' in shop
     assert 'progress.coins()' in shop and 'showSettings()' in shop
-assert 'cornerRadius=d(31)' in android_menu
-assert 'gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),29)' in android_menu
+# Primary gradient is orange gold and secondary gradient is cyan-to-royal-blue,
+# never the retired neon-green/flat-blue button style.
+assert 'cornerRadius=d(33)' in android_menu
+assert '0xffffdf50.toInt()' in android_menu and '0xffff7a00.toInt()' in android_menu
+assert '0xff23c8fc.toInt()' in android_menu and '0xff064cb4.toInt()' in android_menu
+assert '0xff13b742.toInt()' not in android_menu
 assert 'layer.cornerRadius=29' in ios_menu
 assert 'gradient.cornerRadius=29' in ios_menu
 assert 'SPREMI KOPIJU NAPRETKA' in android_settings and 'SPREMI KOPIJU NAPRETKA' in ios_settings
