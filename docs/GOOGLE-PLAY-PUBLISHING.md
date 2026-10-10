@@ -1,6 +1,6 @@
 # BOPAVI — detaljne upute za Google Play (v0.1.32)
 
-Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **35**, minSdk **26**, compileSdk/targetSdk **36**.
+Ažurirano 11.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **35**, minSdk **26**, compileSdk/targetSdk **36**.
 
 ## 1. Što izdanje uključuje
 
@@ -66,7 +66,7 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 
 | Poruka / stanje | Postupak |
 |---|---|
-| Unsigned app | Pogrešan AAB. Izradi i prenesi artifact iz ručnog signing workflowa. |
+| Unsigned app | Pogrešan AAB. Izradi i prenesi artifact potpisan privatno vlastitim trajnim upload ključem izvan GitHub Actionsa. |
 | Wrong signing key | Provjeri izvorni .jks i Play App Signing upload certifikat; ne izmišljaj drugi ključ. |
 | versionCode already used | U novom izdanju povećaj versionCode; broj 35 mora biti slobodan i potvrđen u Play Consoleu. |
 | Target SDK | Provjeri da je cilj 36 i uploadana v0.1.32, ne stara v0.1.29. |
