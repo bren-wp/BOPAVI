@@ -101,6 +101,46 @@ l,t,r,b=map(int,match.groups())
 subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
 PY
 }
+# Verify actual touch selection and persisted difficulty without disturbing
+# the user's normal default before the gameplay/collision QA starts.
+verify_difficulty_cards(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+def dump():
+    subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
+    xml=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
+                       check=True,capture_output=True,text=True,timeout=15).stdout
+    return ET.fromstring(xml)
+def target(name):
+    root=dump()
+    matches=[n for n in root.iter('node') if n.get('clickable')=='true'
+             and ('Težina igre '+name+',') in n.get('content-desc','')]
+    if len(matches)>1: raise SystemExit(f'FAIL: duplicate difficulty card {name}')
+    return matches[0] if matches else None
+def locate(name):
+    for _ in range(9):
+        found=target(name)
+        if found is not None:
+            match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',found.get('bounds',''))
+            if match:
+                l,t,r,b=map(int,match.groups())
+                if r>l and b>t:
+                    return found,(l+r)//2,(t+b)//2
+        subprocess.run(['adb','shell','input','swipe','190','740','190','335','440'],
+                       check=True,timeout=12)
+        time.sleep(.32)
+    raise SystemExit(f'FAIL: accessible {name} card not reachable by real swipe')
+for name,expected in [('LAGANO','LAGANO'),('NORMALNO','NORMALNO')]:
+    card,x,y=locate(name)
+    subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True,timeout=12)
+    time.sleep(.5)
+    selected=target(expected)
+    if selected is None or 'odabrano' not in selected.get('content-desc',''):
+        raise SystemExit(f'FAIL: difficulty {name} did not persist its touch selection')
+    print(f'PASS: selected real premium difficulty card {name}',flush=True)
+PY
+}
 tap_play(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import re, subprocess, sys, xml.etree.ElementTree as ET
@@ -327,6 +367,7 @@ while [ "$attempt" -le 6 ]; do
       exit 1
     fi
     capture android-settings
+    verify_difficulty_cards
     adb shell input keyevent 4
     sleep 1
     # The system launcher can raise an ANR *while navigating back*, too.
