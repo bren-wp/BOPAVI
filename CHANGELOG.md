@@ -1,3 +1,10 @@
+## In development — complete illustrated winged pilot portraits
+- Fixed an actual visual inconsistency: character picker, selected-pilot hero and in-game pause used **torso-only** `bopi0..8` assets, while flight independently rendered both wing layers.
+- The shared build-time artwork generator now composites the original body and both detached wing layers for every one of the **nine** pilots into `bopiportrait0..8` (Android) / `BopiPortrait0..8` (iOS), adding restrained soft edge diffusion for legibility over the eight rich biomes.
+- All gallery cards, selected pilot previews and native pause screens on both platforms now use the full-wing portrait. Gameplay continues to use separate body/left/right textures, preserving responsive flapping, original hitboxes, reduced-motion handling and animation performance.
+- Strict asset CI confirms nine unique, full alpha transparency, non-torso portraits and byte-identical Android/iOS PNGs. No network, new permission, store purchase or save-schema change.
+- Still not a pixel-identical replacement for the user's detailed 3D character references; approved SVG source shapes remain unchanged.
+
 ## In development — richer offline world illustration layers
 - Expanded the one-source generated art of all **eight** worlds with biome-specific details: faceted floating cliffs, additional towers, waterfalls, crystal spires, snowy summits, lava fissures, sky bridges, night castles, coral and an astral ring portal.
 - Decorative landmarks are built deterministically into shared Android/iOS static raster textures. The native 480×800 flight physics grid, moving gate collision geometry, cached parallax rendering, saved progress and offline privacy model remain unchanged.
