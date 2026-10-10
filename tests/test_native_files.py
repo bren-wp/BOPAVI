@@ -41,7 +41,9 @@ assert len(android_versions)==1 and len(android_builds)==1, "Android version mis
 assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions missing"
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
 assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
-assert f'gh release create v{android_versions[0]}' in workflow, "Release workflow tag mismatches builds"
+assert f'tag=v{android_versions[0]}' in workflow, "Release tag mismatches Android/iOS builds"
+assert 'gh release create "$tag"' in workflow, "Release workflow must create the versioned tag"
+assert '--target "$GITHUB_SHA"' in workflow, "Release must target the tested main commit"
 print('PASS: native source inventory, 28 audio assets, premium home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
