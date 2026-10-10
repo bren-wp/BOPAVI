@@ -489,7 +489,7 @@ for light in (android_light,ios_light):
 for light in (android_light,ios_light):
     assert "game.time" not in light and "game.distance" not in light
 
-# v0.1.16: both renderers expose real per-level gate progress without a pause.
+# Premium gameplay HUD: authentic per-level fraction plus uninterrupted cumulative gates.
 android_progress=android_canvas.split("private fun drawLevelProgress(",1)[1].split("private fun drawHud(",1)[0]
 ios_progress=ios_canvas.split("private func drawLevelProgress(",1)[1].split("private func drawBoostHUD(",1)[0]
 for source in (android_canvas,ios_canvas):
@@ -499,9 +499,9 @@ for source in (android_progress,ios_progress):
     assert "lastProgressPassed" in source
     assert "PROLAZI UKUPNO" in source
     assert "Bopi leti. Prolazi ukupno" in source
-    assert "160" in source
+    assert "game.passed" in source
+    assert "level.gates" in source
     assert "UIImage(" not in source and "BitmapFactory" not in source
-    assert "game.passed" not in source
 assert "260f*passed.toFloat()/total" not in android_progress
 assert "260*CGFloat(passed)/CGFloat(total)" not in ios_progress
 # No old-world gate progress resetting bar or level-flash overlay.
@@ -564,7 +564,9 @@ assert 'visibility=View.INVISIBLE' in android_start
 assert 'pauseButton?.visibility=View.VISIBLE' in android_start
 assert 'pause.isHidden=true' in ios_start
 assert 'pause?.isHidden=false' in ios_start
-assert 'counter.isHidden=true' in ios_start and 'counter?.isHidden=false' in ios_start
+assert 'let counter=UILabel()' not in ios_start
+assert 'onHUDUpdate' not in ios_start and 'onHUDUpdate' not in ios_canvas
+assert 'counter?.isHidden=false' not in ios_start
 assert 'selectedScreen=="game" && gameView?.game === it' in android_start
 assert 'self.canvas === gameCanvas' in ios_start
 assert 'if(game.active && !game.finished)' in android_render
@@ -938,3 +940,22 @@ for picker in (android_picker,ios_picker):
     assert 'ODABRAN' in picker
 assert 'currentLevel=number' in android_picker and 'gameNumber=number' in ios_picker
 print('PASS: 9-skin featured-row parity, layered hero and after-selection flight CTA')
+
+# The real premium gameplay HUD keeps identical hierarchy on both platforms:
+# coin count, star count, current level, cumulative gates and true within-level
+# fraction; the separately actionable Pause remains outside the drawn scene.
+android_hud=android_canvas.split('private fun drawHud(',1)[1].split('override fun onTouchEvent(',1)[0]
+ios_hud=ios_canvas.split('private func drawBoostHUD(',1)[1].split('private func drawWorldLighting(',1)[0]
+for hud in (android_hud,ios_hud):
+    for value in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
+        assert value in hud,value
+    assert 'LEVEL' in hud and 'ŠTIT ×' in hud and 'MAGNET ' in hud
+for progress in (android_progress,ios_progress):
+    assert 'game.passed' in progress and 'game.totalPassed' in progress
+    assert 'PROLAZI UKUPNO' in progress
+assert 'hudText' in ios_canvas
+assert 'let counter=UILabel()' not in ios_menu
+assert 'if(paused){rect(' not in android_canvas
+assert 'if paused {' not in ios_canvas.split('override func draw(',1)[1].split('private func drawLevelProgress(',1)[0]
+assert 'pause.isHidden=true' in ios_start and 'visibility=View.INVISIBLE' in android_start
+print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or painted pause dialog')
