@@ -15,8 +15,8 @@ gradle = (root/"android/app/build.gradle.kts").read_text()
 manifest = (root/"android/app/src/main/AndroidManifest.xml").read_text()
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
-assert re.search(r'versionCode\s*=\s*34\b', gradle)
-assert re.search(r'versionName\s*=\s*"0\.1\.31"', gradle)
+assert re.search(r'versionCode\s*=\s*35\b', gradle)
+assert re.search(r'versionName\s*=\s*"0\.1\.32"', gradle)
 assert 'android:appCategory="game"' in manifest
 assert "android.permission.INTERNET" not in manifest
 assert "android:allowBackup=\"false\"" in manifest
@@ -35,4 +35,4 @@ if args.signed:
         capture_output=True, text=True, check=True,
     )
     assert "jar verified." in verify.stdout.lower(), "Play AAB upload signature not verified"
-print(f"PASS: API 36, BOPAVI v0.1.31, package/permissions and {'SIGNED' if args.signed else 'bundle structure'}")
+print(f"PASS: API 36, BOPAVI v0.1.32, package/permissions and {'SIGNED' if args.signed else 'bundle structure'}")

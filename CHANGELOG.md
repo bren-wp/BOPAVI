@@ -1,63 +1,75 @@
-## In development — premium saved-progress world selection
+## v0.1.32 — Premium game experience and reliable release automation (build 35)
+Released after the accumulated Android/iOS improvements since v0.1.31.
+
+- Complete native UI updates to the home screen, selected pilot/gallery, results and rewards, pause, world browsing and difficulty settings; real saved numbers and accessible touch controls.
+- Full-wing character portraits and richer eight-world art from shared asset-generation sources, with generated Android/iOS byte-for-byte parity.
+- Accurate in-flight HUD, cumulative gates, preserved seamless-level physics and offline save behavior.
+- Android build 35 / iOS build 35; Android API 36. No production-signing workflow on GitHub. Public AAB intentionally unsigned.
+- Version release contract: every subsequent code change requires a new version and release; PR CI rejects versionName not exceeding the latest public release. Main CI publishes a tagged release only after complete Android/iOS QA and verifies any existing release has the exact tested commit and all five artifacts.
+- Artwork quality has improved but remains stylized 2D; pixel-perfect matching to user-supplied 3D renders is not yet verified.
+
+#### Included development milestones since the previous published release
+
+### premium saved-progress world selection
 - Updated Android and iOS eight-world cards to show **real saved frontier level, collected-item count and personal best score** for each world. Previously the cards showed an item category name but no actual earned amount.
 - Retained two-column illustrated world selection, true clickable card, current-world highlight and original world order/collision/saves. Improved readability with white dynamic uppercase headings, an independent gold save-metric line, more deliberate spacing and Android illustration contrast.
 - Every tile's TalkBack/VoiceOver description announces world name, unlocked status and actual progress/collection/record numbers. No invented 30-star completion counters, paywalls or world unlocks.
 - Added Android UI test that opens the World gallery, swipes through all eight actual accessible cards, confirms their real metrics, returns home, and continues the existing gameplay QA. iOS source/visual semantics remain equivalent.
 
-## In development — premium interactive three-card difficulty selector
+### premium interactive three-card difficulty selector
 - Replaced Android's vertical RadioGroup and iOS's generic segmented difficulty control with **three equal-width, touch-accessible blue/gold illustrated cards** for LAGANO, NORMALNO and ZAHTJEVNO, matching the reference hierarchy.
 - Each card displays an existing complete winged pilot illustration and brief Croatian challenge description; selected card gets a gold border and true persisted 0/1/2 selection. TalkBack/VoiceOver announce current selection.
 - Kept the same offline difficulty physics multipliers and saved ProgressStore keys. Changes affect the **next** flight, never silently restart an active game.
 - Android emulator QA actually scrolls, taps Lagano, confirms selected state, then restores Normalno and confirms persisted state. Both native source parity and settings-screen navigation remain tested.
 - Still does not claim 100% exact 3D screenshot art or unimplemented cloud account/language functionality.
 
-## In development — complete illustrated winged pilot portraits
+### complete illustrated winged pilot portraits
 - Fixed an actual visual inconsistency: character picker, selected-pilot hero and in-game pause used **torso-only** `bopi0..8` assets, while flight independently rendered both wing layers.
 - The shared build-time artwork generator now composites the original body and both detached wing layers for every one of the **nine** pilots into `bopiportrait0..8` (Android) / `BopiPortrait0..8` (iOS), adding restrained soft edge diffusion for legibility over the eight rich biomes.
 - All gallery cards, selected pilot previews and native pause screens on both platforms now use the full-wing portrait. Gameplay continues to use separate body/left/right textures, preserving responsive flapping, original hitboxes, reduced-motion handling and animation performance.
 - Strict asset CI confirms nine unique, full alpha transparency, non-torso portraits and byte-identical Android/iOS PNGs. No network, new permission, store purchase or save-schema change.
 - Still not a pixel-identical replacement for the user's detailed 3D character references; approved SVG source shapes remain unchanged.
 
-## In development — richer offline world illustration layers
+### richer offline world illustration layers
 - Expanded the one-source generated art of all **eight** worlds with biome-specific details: faceted floating cliffs, additional towers, waterfalls, crystal spires, snowy summits, lava fissures, sky bridges, night castles, coral and an astral ring portal.
 - Decorative landmarks are built deterministically into shared Android/iOS static raster textures. The native 480×800 flight physics grid, moving gate collision geometry, cached parallax rendering, saved progress and offline privacy model remain unchanged.
 - No fake UI is baked into scenery; buttons, currency, pause controls and pickups remain actual code-driven interactive elements.
 - This strengthens depth and scene identity but is **not yet 100% pixel-identical** to the supplied 3D concept references.
 
-## In development — premium in-flight HUD parity
+### premium in-flight HUD parity
 - Android Canvas and iOS Core Graphics now render the same three real glass chips for **coins gathered in the current run**, **stars collected** and **current level**, while reserving the top-right touch area for the existing native pause control.
 - A cyan/gold progress bar reflects actual gates passed within the current procedural level. A distinct, permanently cumulative **PROLAZI UKUPNO** counter does not reset on seamless level boundaries. Progress is not falsely labelled in meters.
 - Existing real shield and magnet power-up quantities are drawn as matching blue status chips only when active. The preflight preview remains clean until the first tap.
 - Removed the duplicate iOS UIKit status pill and the duplicate painted "PAUZA" panel on Android/iOS; the functional premium pause modal remains the only action sheet.
 - No new network, currency, invented interactive items or gameplay physics changes. Original artwork still differs from the supplied 3D concept images.
 
-## In development — premium selection-first character screen
+### premium selection-first character screen
 - Both Android and iOS display the three featured, user-reference characters **Portantin, Noa, Any** in the first row, followed by the other six characters in a 3×3 accessible gallery.
 - Skin indices, owned masks, offline-earned coin costs, local save migrations and character purchase confirmation are unchanged by this visual reorder.
 - Selected character preview now layers its actual portrait above the chosen world's art and a darkened readable overlay with selected badge. No mockup bitmap includes fake counters or buttons.
 - The primary **POLETI S…** CTA appears after the choice grid, requiring an explicit preflight confirmation as in the supplied reference. The gameplay pause/boost lifecycle is unaffected.
 - Remaining 3D fidelity gap: actual game art still uses the earlier flat illustrations, not the separately rendered high-detail pilot sprites in the user-supplied concepts.
 
-## In development — premium result and real reward cards
+### premium result and real reward cards
 - Android and iOS now render three compact summary cards (actual run score, collected coins, total passed gates) and four reward tiles (collected coins, stars, claimable score-record bonus, persisted best score) matching the structure of supplied BOPAVI result references.
 - Claimable score milestones use the **existing one-time offline claim API**. Tapping claim updates the wallet and reward label immediately without rerunning the game result or crediting the same milestone twice.
 - Replaced long flat footer actions with three real compact buttons for leaderboard, home, and native sharing via Android chooser or iOS activity controller. World map and offline-coin shop remain accessible.
 - Native layout accommodates narrow phones using 3 equal-width results, 4 equal-width reward cells, dynamic text sizing and vertical scrolling.
 - No fictitious diamonds, video rewards, premium chest inventory, backend features or GitHub signing. Actual original vector artwork is not yet pixel-identical to supplied 3D concept renders.
 
-## In development — premium pause overlay
+### premium pause overlay
 - Android and iOS now use a **real scrollable premium pause modal** instead of the old system list/action sheet, including live selected flyer, cyan/gold PAUZA header, orange Continue, blue Retry and gray Exit.
 - Four real shortcuts: master sound, music-volume toggle, controls help and settings. Every action is connected to the offline sound/settings system; no fake logout, cloud service or store.
 - Simulation remains paused throughout the panel and any nested help dialog. Android Back/cancel resumes; explicit Continue resumes, while Retry/Exit/settings perform intentional screen transitions.
 - System-level pause visibility remains off until the first actual flight flap. Gameplay physics/save files unaffected.
 
-## In development — premium reference alignment, iteration 2
+### premium reference alignment, iteration 2
 - Android/iOS: illustrated 20-level grid with dynamic badges, real unlock/complete states, numbered world thumbnail cards and compact previous/next navigation; no fabricated star medals.
 - Android/iOS: independent, working music and effects volume sliders (0–100%) with immediate mixer updates; percentages persist locally and are included as optional, backward-compatible fields in v5 backups.
 - Preserves first-flap pause, existing procedural flight/collisions, 9-pilot local inventory, offline progress and unsigned GitHub AAB policy.
 - The supplied photorealistic concept illustrations are not yet replicated pixel-for-pixel in the original flat vector scene art.
 
-## In development — premium reference-aligned interface
+### premium reference-aligned interface
 - New shared BOPAVI blue/gold logo and motto, rendered from SVG into Android and iOS.
 - Rebuilt illustrated menu backgrounds, golden play buttons, cyan/blue secondary actions, 4 working home shortcuts, and three-column nine-pilot selection.
 - Updated Android/iOS settings accents and results panels while keeping real earned currency, scores and progression.
