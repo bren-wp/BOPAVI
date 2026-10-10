@@ -1,3 +1,11 @@
+## Eight-world premium art — native parity acceptance
+- Generate all eight world PNGs with the existing Python/CairoSVG/Pillow workflow. Both Android `drawable-nodpi/world0..7.png` and iOS `Assets.xcassets/World0..7.imageset/world0..7.png` must be byte-identical for each world.
+- Verify visual uniqueness: castles (green/night), cascades, crystal spires, snow, lava, sky bridges, pearl reef and ring portal. No visual counter/buttons are rasterized into game art.
+- Pixel smoke on Android 15, Android 16 and iOS simulator: no stretched islands, backdrop seam, clipped landmarks, interactive-element overlaps or obstructed moving gate collision entrances.
+- Confirm older devices' gameplay memory/performance unchanged (textures still 960×1600 RGB, loaded once). Check flight, infinite-level seam, coin collection, results, idle pause lifecycle and reduced-motion setting.
+- Do not merge before generator/asset audit, APK + unsigned AAB, Kotlin tests, iOS simulator + unsigned device build and real emulator smoke are green. No production GitHub signing.
+- The 3D character and environment reference art is still a **separate visual parity gap**, not a checked production claim.
+
 ## In-flight HUD parity — required QA
 - On Android API35/API36 and iOS simulator check top row displays **actual run coins, actual collected stars, actual current level**; native pause button remains unobstructed and accessible.
 - The blue progress bar uses passed/current level total gates (not fictional meters), while cumulative passed gates and screen-reader progress never reset during seamless level promotion.
