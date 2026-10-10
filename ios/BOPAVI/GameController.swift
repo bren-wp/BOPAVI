@@ -770,6 +770,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         quick("◖\nZVUK",label:"Zvuk"){
             self.progress.soundEnabled.toggle()
             self.sound.enabled=self.progress.soundEnabled
+            self.sound.pause() // Restore no-audio state until Continue.
         }
         quick("♫\nMUZIKA",label:"Muzika"){
             let volume=self.progress.musicVolume==0 ? 80 : 0
