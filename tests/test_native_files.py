@@ -229,8 +229,10 @@ assert 'private var preciseDistance = 0.0' in andr
 assert 'private var preciseDistance:Double = 0' in swift
 assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
 assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)' in swift
-assert '(gate.x.toDouble() + levelOrigin - preciseDistance).toFloat()' in andr
-assert 'Float(Double(gate.x)+levelOrigin-preciseDistance)' in swift
+assert 'WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)' in andr
+assert 'WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)' in swift
+assert '(gateX.toDouble() + origin - travelled).toFloat()' in andr
+assert 'Float(Double(gateX)+origin-travelled)' in swift
 assert 'distance = preciseDistance.toFloat()' in andr
 assert 'distance = Float(preciseDistance)' in swift
 assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
