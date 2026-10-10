@@ -3,16 +3,16 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Reviewed public release tag to build (for now: v0.1.30)'
+        description: 'Reviewed public release tag to build (for now: v0.1.31)'
         required: true
-        default: 'v0.1.30'
+        default: 'v0.1.31'
 permissions:
   contents: read
 jobs:
   signed-upload:
     name: Sign and verify Play upload bundle (private artifact)
     # Never expose credentials to PR workflows or arbitrary branches.
-    if: github.ref == 'refs/heads/main' && inputs.release_tag == 'v0.1.30'
+    if: github.ref == 'refs/heads/main' && inputs.release_tag == 'v0.1.31'
     runs-on: ubuntu-latest
     environment: google-play
     steps:
@@ -66,15 +66,15 @@ jobs:
           gradle :app:bundleRelease --no-daemon --stacktrace
           python ../tools/verify_play_release.py --aab app/build/outputs/bundle/release/app-release.aab --signed
           mkdir -p ../dist
-          cp app/build/outputs/bundle/release/app-release.aab ../dist/BOPAVI-v0.1.30-Play-upload-SIGNED.aab
+          cp app/build/outputs/bundle/release/app-release.aab ../dist/BOPAVI-v0.1.31-Play-upload-SIGNED.aab
           cd ../dist
-          sha256sum BOPAVI-v0.1.30-Play-upload-SIGNED.aab > SHA256SUMS.txt
+          sha256sum BOPAVI-v0.1.31-Play-upload-SIGNED.aab > SHA256SUMS.txt
       - name: Keep signed bundle in CI artifacts (NOT public GitHub Releases)
         uses: actions/upload-artifact@v4
         with:
-          name: BOPAVI-Google-Play-v0.1.30-SIGNED-AAB
+          name: BOPAVI-Google-Play-v0.1.31-SIGNED-AAB
           path: |
-            dist/BOPAVI-v0.1.30-Play-upload-SIGNED.aab
+            dist/BOPAVI-v0.1.31-Play-upload-SIGNED.aab
             dist/SHA256SUMS.txt
           retention-days: 5
           if-no-files-found: error
