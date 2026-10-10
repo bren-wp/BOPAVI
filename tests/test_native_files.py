@@ -745,6 +745,13 @@ assert 'Pixel Launcher isn\'t responding' in gallery_qa
 assert "raise SystemExit(f'FAIL: character gallery remained non-scrollable" in gallery_qa
 assert "candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']" in gallery_qa
 assert 'required={\'Portantin\',\'Noa\',\'Any\'}' in android_qa
+# A launcher "Wait" tap repeats the same system ANR; force-stop only its
+# verified package and keep actual gallery/flight assertions mandatory.
+assert gallery_qa.count("com.google.android.apps.nexuslauncher")==1
+assert "'am','force-stop'" in gallery_qa
+assert "subprocess.run(['adb','shell','pidof','com.brendigo.bopavi']" in gallery_qa
+assert "missing characters after actual gallery scroll" in android_qa
+assert "before==after" in android_qa
 print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
@@ -766,6 +773,10 @@ assert "BOPAVI_UPLOAD_STORE_PASSWORD" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_ALIAS" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_PASSWORD" in play_workflow
 assert "jarsigner" in (root/'tools/verify_play_release.py').read_text()
+# User-requested policy: never perform AAB upload-key or test-key signing in GitHub Actions.
+assert 'signing-smoke:' not in workflow
+assert 'signing-smoke' not in workflow.split('  publish:',1)[1].split('    runs-on:',1)[0]
+assert 'if: ${{ false }}' in play_workflow
 assert "BOPAVI-Google-Play-listing-v0.1.31.zip" in workflow
 for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
