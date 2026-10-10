@@ -230,17 +230,41 @@ class MainActivity : Activity() {
             contentDescription="$name, otključano${if(world==progress.chosenWorld()) ", odabrano" else ""}"
             setOnClickListener{sound.effect("click");onClick()}
         }
-        val preview=ImageView(this).apply{
-            val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-                R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val artPanel=FrameLayout(this).apply{
+            background=gradient(0xff0b5ca8.toInt(),0xff071b3f.toInt(),17)
+            clipToOutline=true
+        }
+        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        artPanel.addView(ImageView(this).apply{
             setImageResource(art[world])
             scaleType=ImageView.ScaleType.CENTER_CROP
-            background=gradient(0xff126ca9.toInt(),0xff0e2b57.toInt(),17)
-            clipToOutline=true
-            contentDescription="Prikaz svijeta $name"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        val badge=TextView(this).apply{
+            text="♛  ${world+1}"
+            setTextColor(Color.WHITE);textSize=15f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            gravity=Gravity.CENTER
+            setPadding(d(7),0,d(7),0)
+            background=gradient(if(world==progress.chosenWorld())0xffd78b08.toInt()
+                else 0xff0d80e1.toInt(),0xff061f55.toInt(),18).apply{
+                setStroke(d(2),if(world==progress.chosenWorld())gold else electric)
+            }
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
+        artPanel.addView(badge,FrameLayout.LayoutParams(d(64),d(36),Gravity.TOP or Gravity.LEFT).apply{
+            setMargins(d(8),d(8),0,0)
+        })
+        artPanel.addView(TextView(this).apply{
+            text="›";textSize=31f;setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            background=gradient(0xff0bbcff.toInt(),0xff0650bc.toInt(),21)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(d(38),d(38),Gravity.BOTTOM or Gravity.RIGHT).apply{
+            setMargins(0,0,d(8),d(8))
+        })
+        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
             text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  $name   ↗"
             textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
