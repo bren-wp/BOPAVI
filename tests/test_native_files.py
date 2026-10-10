@@ -113,6 +113,25 @@ android_menu=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.k
 ios_menu=(root/'ios/BOPAVI/GameController.swift').read_text()
 android_tile=android_menu.split('private fun worldTile(',1)[1].split('private fun showHome()',1)[0]
 ios_tile=ios_menu.split('private func worldTile(',1)[1].split('private func showHome()',1)[0]
+# Both real world galleries expose persistent, grounded game metrics instead of
+# inventing a 30-star per-world completion counter from concept artwork.
+for world_tile in (android_tile,ios_tile):
+    assert 'collectibles(world)' in world_tile
+    assert 'best(world)' in world_tile
+    assert 'streamFrontier(world)' in world_tile
+    assert 'otključano' in world_tile
+    assert 'rekord ' in world_tile
+    assert 'level ' in world_tile
+    assert 'prikupljeno ' in world_tile
+    assert 'POKRENI' not in world_tile  # whole accessible card remains the action
+assert 'name.uppercase()' in android_tile
+assert 'names[world].uppercased()' in ios_tile
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
+assert 'collection.accessibilityElementsHidden=true' in ios_tile
+assert 'verify_world_cards' in qa_script
+assert 'not all world cards reachable' in qa_script
+assert 'all eight real illustrated world cards expose saved' in qa_script
+print('PASS: responsive native world cards and real 8-world save-metric QA')
 for card in (android_tile,ios_tile):
     assert 'chosenWorld()' in card
     assert 'streamFrontier(world)' in card
