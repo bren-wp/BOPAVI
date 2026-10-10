@@ -136,6 +136,13 @@ enum ResultHeadline {
     }
 }
 
+/// Project world coordinates to the screen before narrowing to Float.
+enum WorldCoordinates {
+    static func screenX(_ gateX:Float,origin:Double,travelled:Double)->Float {
+        Float(Double(gateX)+origin-travelled)
+    }
+}
+
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
@@ -153,9 +160,9 @@ final class GameSimulation {
     private var levelOrigin:Double = 0
     private var nextLevel:BopaviCore.Level?
     private var nextOrigin:Double = 0
-    func gateX(_ gate:BopaviCore.Gate)->Float {Float(Double(gate.x)+levelOrigin-preciseDistance)}
+    func gateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)}
     var upcomingGates:[BopaviCore.Gate] {nextLevel?.gates ?? []}
-    func upcomingGateX(_ gate:BopaviCore.Gate)->Float {Float(Double(gate.x)+nextOrigin-preciseDistance)}
+    func upcomingGateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:nextOrigin,travelled:preciseDistance)}
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
