@@ -1,3 +1,9 @@
+## In development — premium saved-progress world selection
+- Updated Android and iOS eight-world cards to show **real saved frontier level, collected-item count and personal best score** for each world. Previously the cards showed an item category name but no actual earned amount.
+- Retained two-column illustrated world selection, true clickable card, current-world highlight and original world order/collision/saves. Improved readability with white dynamic uppercase headings, an independent gold save-metric line, more deliberate spacing and Android illustration contrast.
+- Every tile's TalkBack/VoiceOver description announces world name, unlocked status and actual progress/collection/record numbers. No invented 30-star completion counters, paywalls or world unlocks.
+- Added Android UI test that opens the World gallery, swipes through all eight actual accessible cards, confirms their real metrics, returns home, and continues the existing gameplay QA. iOS source/visual semantics remain equivalent.
+
 ## In development — premium interactive three-card difficulty selector
 - Replaced Android's vertical RadioGroup and iOS's generic segmented difficulty control with **three equal-width, touch-accessible blue/gold illustrated cards** for LAGANO, NORMALNO and ZAHTJEVNO, matching the reference hierarchy.
 - Each card displays an existing complete winged pilot illustration and brief Croatian challenge description; selected card gets a gold border and true persisted 0/1/2 selection. TalkBack/VoiceOver announce current selection.
