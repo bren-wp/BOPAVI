@@ -118,7 +118,13 @@ for card in (android_tile,ios_tile):
     assert 'streamFrontier(world)' in card
     assert 'collectibles[world]' in card
     assert 'otključano' in card
-assert 'row.addView(preview' in android_tile
+# Premium world cards render the same actual illustrations within a
+# framed image panel plus a decorative (non-tappable) world badge and arrow.
+assert 'row.addView(artPanel' in android_tile
+assert 'artPanel.addView(ImageView(this)' in android_tile
+assert 'world+1' in android_tile and 'world+1' in ios_tile
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
+assert 'arrow.isUserInteractionEnabled=false' in ios_tile
 assert 'row.addView(TextView(this)' in android_tile
 assert 'preview.heightAnchor.constraint(equalToConstant:137)' in ios_tile
 assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150)' in ios_tile
