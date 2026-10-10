@@ -848,9 +848,17 @@ class MainActivity : Activity() {
         resultCard("REZULTAT","★",g.score().toString(),gold)
         resultCard("PRIKUPLJENE\nKOVANICE","●",g.coins.toString(),0xffb8edff.toInt())
         resultCard("UKUPNO\nPROLAZA","⚑",g.totalPassed.toString(),Color.WHITE)
-        small(panel,"Najbolji rezultat: ${progress.bestPoints()}")
-        small(panel,"Level $currentLevel · Ukupno prolaza: ${g.totalPassed}")
-        small(panel,"Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
+        // Compact accessible details, rather than three large padded cards
+        // pushing Retry and result navigation below the viewport.
+        panel.addView(TextView(this).apply{
+            text="Najbolji rezultat: ${progress.bestPoints()}\n" +
+                "Level $currentLevel · Ukupno prolaza: ${g.totalPassed}\n" +
+                "Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}"
+            textSize=14f;setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+            gravity=Gravity.CENTER;setLineSpacing(d(3).toFloat(),1f)
+            setPadding(d(3),d(6),d(3),d(5))
+        },LinearLayout.LayoutParams(-1,-2))
         val balance=TextView(this).apply{
             text="Stanje novčanika: ${progress.coins()} kovanica"
             textSize=15f;gravity=Gravity.CENTER;setTextColor(0xffc6eeff.toInt())
@@ -878,6 +886,7 @@ class MainActivity : Activity() {
             }
             box.addView(TextView(this).apply{
                 text=icon;gravity=Gravity.CENTER;textSize=25f
+                setTextColor(gold) // Never render black reward glyphs on navy.
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(35)))
             box.addView(TextView(this).apply{
