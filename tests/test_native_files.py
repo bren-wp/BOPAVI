@@ -153,7 +153,8 @@ assert 'ZONA $zone' in android_levels_menu and 'ZONA \\(zone)' in ios_levels_men
 assert 'NORMALNI · ⚡ IZAZOVNI' in android_levels_menu and 'NORMALNI · ⚡ IZAZOVNI' in ios_levels_menu
 assert 'contentDescription=' in android_levels_menu and 'accessibilityLabel=' in ios_levels_menu
 assert 'Pauza · Level' in android_menu and 'Pauza · Level' in ios_menu
-assert 'ODABERI NASTAVI LET' in android_render and 'ODABERI NASTAVI LET' in ios_render
+# The native pause panel supersedes old painted pause banners.
+assert 'ODABERI NASTAVI LET' not in android_render and 'ODABERI NASTAVI LET' not in ios_render
 assert 'DODIRNI Ⅱ ZA NASTAVAK' not in android_render and 'DODIRNI Ⅱ ZA NASTAVAK' not in ios_render
 
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
@@ -332,8 +333,10 @@ for source in (android_menu,ios_menu):
     assert "progress.soundEnabled" in source
     assert "Težina:" in source
 for canvas in (android_canvas,ios_canvas):
-    assert "ODABERI NASTAVI LET" in canvas
-    assert "PAUZA" in canvas
+    assert "ODABERI NASTAVI LET" not in canvas
+    assert "PAUZA" not in canvas
+assert 'showPremiumPause(game)' in android_menu
+assert 'showPremiumPause(for:canvas)' in ios_menu
 android_sim=(root/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
 ios_sim=(root/"ios/BOPAVI/BopaviCore.swift").read_text()
 assert "100_000_000L" in android_sim and "100_000_000" in ios_sim
