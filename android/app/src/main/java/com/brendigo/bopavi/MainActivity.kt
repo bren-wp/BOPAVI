@@ -659,6 +659,7 @@ class MainActivity : Activity() {
         quick("◖","ZVUK"){
             val enabled=!progress.soundEnabled()
             progress.setSoundEnabled(enabled);sound.enabled=enabled
+            sound.pause() // Toggling audio must never resume a paused flight.
             Toast.makeText(this,if(enabled)"Zvuk uključen" else "Zvuk isključen",
                 Toast.LENGTH_SHORT).show()
         }
