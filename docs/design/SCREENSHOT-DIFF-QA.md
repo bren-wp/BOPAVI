@@ -1,3 +1,8 @@
+## Iteration 10 — accessible saved-progress world cards
+- World selector remains two columns × four rows, now with illustrated world art, dynamic uppercase title, independently rendered actual `LEVEL`, actual saved collection count and actual record score on both platforms.
+- Android real UI automation scrolls across every world and verifies accessible, genuinely saved metrics, returning to Home before gameplay navigation. No static mockup imagery with non-interactive counters.
+- Reference concept's per-world 12/30 stars and world names do not correspond to the existing game/save schema, so these values are **not claimed** or fabricated. Full 3D scenery, typography and screenshot-pixel parity remain outstanding.
+
 ## Iteration 9 — matching settings difficulty cards
 - Android and iOS now use matching interactive, horizontally arranged Lagano / Normalno / Zahtjevno cards with existing complete winged character portraits and a gold active outline.
 - These are real touch controls bound to persisted offline physics settings, not static reference renders. The Android emulator test clicks and verifies two options by accessible state.
