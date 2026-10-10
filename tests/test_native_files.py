@@ -786,6 +786,11 @@ assert gallery_qa.count("com.google.android.apps.nexuslauncher")==1
 assert "'am','force-stop'" in gallery_qa
 assert "subprocess.run(['adb','shell','pidof','com.brendigo.bopavi']" in gallery_qa
 assert "missing characters after actual gallery scroll" in android_qa
+assert "all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Portantin','Noa','Any'}" in android_qa
+assert 'if all_pilots <= seen: break' in android_qa
+assert 'if len(buttons)==1:' in android_qa
+assert "swipe_gallery(root,up=True)" in android_qa
+assert 'both cannot fit in one phone viewport' in android_qa
 assert "before==after" in android_qa
 print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
 
