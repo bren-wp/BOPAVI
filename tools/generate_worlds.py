@@ -18,6 +18,168 @@ THEMES = [
     ("#08144a","#544aab","#b4aaff","#6c63b8","#384379","#e5e1ff"),
 ]
 
+
+def detailed_landmarks(index: int) -> str:
+    """Distinct scenic landmarks in the same static 480x800 world raster.
+
+    These are decorative background silhouettes. Collision/gate rendering
+    remains entirely in the independent native Kotlin/Swift simulations.
+    No runtime sprite allocation, network dependency or random clock state.
+    """
+    sky1, sky2, turf, shade, rock, shine = THEMES[index]
+    parts=[
+        '<defs>'
+        f'<linearGradient id="land-rock" x1=".1" y1="0" x2=".85" y2="1">'
+        f'<stop stop-color="{shine}"/><stop offset=".37" stop-color="{rock}"/>'
+        f'<stop offset="1" stop-color="{shade}"/></linearGradient>',
+        f'<linearGradient id="land-turf" x1="0" y1="0" x2="0" y2="1">'
+        f'<stop stop-color="{shine}"/><stop offset=".26" stop-color="{turf}"/>'
+        f'<stop offset="1" stop-color="{shade}"/></linearGradient>',
+        '<linearGradient id="land-water" x1="0" y1="0" x2="1" y2="0">'
+        '<stop stop-color="#1386d7" stop-opacity=".52"/>'
+        '<stop offset=".48" stop-color="#e6ffff" stop-opacity=".91"/>'
+        '<stop offset="1" stop-color="#20bcfa" stop-opacity=".42"/></linearGradient>',
+        '</defs>'
+    ]
+    def add(fragment: str) -> None:
+        parts.append(fragment)
+
+    def floating_island(x: int, y: int, w: int, depth: int, foreground: bool) -> None:
+        # Faceted undercut cliffs and layered grass caps create tangible depth
+        # compared with the earlier plain elliptical islands.
+        opacity=1 if foreground else .78
+        add(f'<g opacity="{opacity}">'
+            f'<ellipse cx="{x}" cy="{y+depth*.75}" rx="{w*.64}" ry="{depth*.26}"'
+            ' fill="#102948" opacity=".21"/>'
+            f'<path d="M{x-w*.48} {y+8} Q{x} {y-10} {x+w*.48} {y+9} '
+            f'L{x+w*.30} {y+depth*.71} L{x+w*.04} {y+depth} '
+            f'L{x-w*.23} {y+depth*.77}Z" fill="url(#land-rock)" stroke="#2e5271" stroke-width="2"/>'
+            f'<path d="M{x-w*.48} {y+8} L{x-w*.16} {y+16} '
+            f'L{x+w*.04} {y+depth} L{x-w*.23} {y+depth*.77}Z"'
+            ' fill="#fff2d1" opacity=".20"/>'
+            f'<path d="M{x+w*.10} {y+13} L{x+w*.48} {y+9} '
+            f'L{x+w*.30} {y+depth*.71} L{x+w*.04} {y+depth}Z"'
+            ' fill="#13213b" opacity=".26"/>'
+            f'<ellipse cx="{x}" cy="{y+7}" rx="{w*.50}" ry="17" fill="url(#land-turf)"/>'
+            f'<ellipse cx="{x}" cy="{y-1}" rx="{w*.42}" ry="9"'
+            f' fill="{shine}" opacity=".58"/>')
+        for k in range(5):
+            sx=x-w*.30+(k*127%100)*w/100
+            add(f'<path d="M{sx:.1f} {y+24} l{-5+(k%3)*4} '
+                f'{depth*(.26+(k%3)*.13):.1f}" stroke="{shade}" '
+                'stroke-opacity=".47" stroke-width="3" stroke-linecap="round"/>')
+        add('</g>')
+
+    def castle(x: int, y: int, scale: float, night: bool=False) -> None:
+        wall="#5962b4" if night else "#e9e5cd"
+        shadow="#303069" if night else "#7296ae"
+        roof="#b794fa" if night else "#2989ce"
+        add(f'<g transform="translate({x} {y}) scale({scale})">'
+            f'<ellipse cx="2" cy="7" rx="61" ry="10" fill="{shadow}" opacity=".28"/>'
+            f'<path d="M-43 1 V-40 L-26 -48 H28 L43 -37 V1Z" fill="{wall}"'
+            f' stroke="{shadow}" stroke-width="4"/>'
+            f'<path d="M-43 -40 L-26 -48 V1 H-43Z" fill="{shadow}" opacity=".37"/>'
+            f'<path d="M-57 1 V-61 H-35 V1 M35 1 V-62 H57 V1"'
+            f' fill="{wall}" stroke="{shadow}" stroke-width="3"/>'
+            f'<path d="M-65 -61 L-46 -93 L-27 -61Z M27 -62 L46 -97 L65 -62Z"'
+            f' fill="{roof}" stroke="#f4dbab" stroke-width="2"/>'
+            f'<path d="M-29 -47 L0 -81 L28 -47Z" fill="{roof}"/>'
+            f'<path d="M-10 1 V-24 Q0 -38 10 -24 V1Z" fill="{shadow}"/>'
+            f'<rect x="-48" y="-45" width="5" height="12" rx="2" fill="#5df2ff"/>'
+            f'<rect x="42" y="-43" width="5" height="12" rx="2" fill="#5df2ff"/>'
+            f'<rect x="-4" y="-48" width="9" height="15" rx="4" fill="#b5efff"/>'
+            f'<path d="M45 -92 v-18 l18 7 -18 5" fill="{roof}" stroke="{roof}"/>'
+            '</g>')
+
+    # Anchor worlds around the borders: the playable flight lane and incoming
+    # gates have visual contrast but are never occluded by interactive sprites.
+    floating_island(371,329,183,135,False)
+    floating_island(76,506,140,115,True)
+    if index in (0,1,4,5):
+        castle(371,326,.82,index==5)
+    if index in (0,4):
+        castle(76,500,.54,False)
+        for k in range(3):
+            x=327+17*k
+            add(f'<path d="M{x} 356 Q{x+6} 413 {x-5} 452" '
+                'fill="none" stroke="url(#land-water)" stroke-width="8" opacity=".67"/>')
+        add('<ellipse cx="346" cy="454" rx="44" ry="7" fill="#d6ffff" opacity=".46"/>')
+    if index==1:
+        # Crystal sky: luminous arches and pink-cyan prismatic spires.
+        add('<g stroke="#e9ffff" stroke-width="2.5">'
+            '<path d="M330 329 L347 247 L365 325Z" fill="#7ffff7"/>'
+            '<path d="M359 330 L390 218 L414 329Z" fill="#b8a5ff"/>'
+            '<path d="M397 329 L428 259 L448 329Z" fill="#ffcaec"/>'
+            '</g>')
+        add('<path d="M343 296 L347 247 L352 305 M388 291 L390 218 L398 293" '
+            'stroke="#ffffff" stroke-opacity=".68" stroke-width="3"/>')
+    if index==2:
+        # Snow: sharper white crystalline towers and an icy mirror.
+        for px,py,h in ((344,320,66),(380,306,91),(415,319,77),(58,504,58)):
+            add(f'<path d="M{px-13} {py} L{px} {py-h} L{px+15} {py}Z" '
+                'fill="#e2f8ff" stroke="#ffffff" stroke-width="3"/>'
+                f'<path d="M{px} {py-h} L{px+15} {py} L{px+1} {py-8}Z" fill="#8ed1f6"/>')
+        add('<path d="M310 352 Q369 380 451 353" fill="none" '
+            'stroke="#dfffff" stroke-width="5" opacity=".65"/>')
+    if index==3:
+        # Volcano: grounded incandescent fissures, smoke and cinders.
+        add('<path d="M309 331 L347 242 L368 296 L386 228 L453 332Z" '
+            'fill="#623047" stroke="#ffb05c" stroke-width="3"/>'
+            '<path d="M347 243 L358 279 L366 291 L374 328 M385 231 L386 271 L406 316" '
+            'stroke="#ffaf2e" stroke-width="8" fill="none"/>'
+            '<path d="M347 243 L358 279 L366 291 M385 231 L386 271" '
+            'stroke="#fff19a" stroke-width="3" fill="none"/>')
+        for k in range(7):
+            px=329+(k*41)%120
+            py=143+(k*47)%111
+            add(f'<circle cx="{px}" cy="{py}" r="{2+k%3}" fill="#ffcf6a" opacity=".82"/>')
+    if index==4:
+        # Ancient sky towers: gold-trimmed bridge under a bright halo.
+        add('<path d="M285 277 Q331 257 356 276" fill="none" '
+            'stroke="#f5dca5" stroke-width="11"/>'
+            '<path d="M290 277 Q336 262 357 276" fill="none" '
+            'stroke="#ffffff" stroke-width="3" opacity=".68"/>'
+            '<circle cx="367" cy="207" r="44" fill="none" '
+            'stroke="#e5ffff" stroke-width="9" opacity=".65"/>')
+    if index==5:
+        add('<path d="M303 358 Q365 324 435 358" fill="none" '
+            'stroke="#c4a9f9" stroke-width="4" opacity=".55"/>')
+        for k in range(10):
+            x=289+(k*31)%173
+            y=190+(k*43)%156
+            add(f'<circle cx="{x}" cy="{y}" r="{1+k%2}" fill="#ffffff" opacity=".88"/>')
+    if index==6:
+        # Pearl sea: coral fans, nautical glass and underwater light shafts.
+        for k in range(5):
+            x=319+k*28
+            add(f'<path d="M{x} 342 q-16 -28 -10 -52 m10 52 q18 -25 13 -47 '
+                f'm-13 47 q-1 -30 5 -54" stroke="{[ "#ffb1d0","#5bf4ee","#ffdaa3"][k%3]}" '
+                'stroke-width="7" fill="none" stroke-linecap="round"/>')
+        add('<ellipse cx="369" cy="299" rx="28" ry="19" fill="#dfffff" opacity=".60"/>'
+            '<ellipse cx="364" cy="293" rx="10" ry="7" fill="#ffffff" opacity=".71"/>')
+    if index==7:
+        # Astral depths: concentric real portal rings, not painted reward controls.
+        add('<ellipse cx="371" cy="269" rx="72" ry="85" fill="#271356" opacity=".95"/>'
+            '<ellipse cx="371" cy="269" rx="61" ry="74" fill="none" stroke="#cf90ff" '
+            'stroke-width="13" opacity=".85"/>'
+            '<ellipse cx="371" cy="269" rx="48" ry="58" fill="none" stroke="#71ebff" '
+            'stroke-width="9" opacity=".80"/>'
+            '<ellipse cx="371" cy="269" rx="34" ry="42" fill="#0a103c"/>')
+        for k in range(9):
+            angle=math.tau*k/9
+            cx=371+math.cos(angle)*96
+            cy=269+math.sin(angle)*105
+            add(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{2+k%3}" '
+                'fill="#e4dcff" opacity=".83"/>')
+    # Foreground sparkle and highlights are small and never contain interface
+    # labels/counters. The same deterministic XML yields identical Android/iOS art.
+    for k in range(7):
+        x=18+(k*73+index*11)%455
+        y=180+(k*97+index*17)%362
+        add(f'<path d="M{x-4} {y} h8 M{x} {y-4} v8" stroke="{shine}" '
+            'stroke-width="1.6" opacity=".65" stroke-linecap="round"/>')
+    return "".join(parts)
+
 def shapes(index: int):
     sky1, sky2, turf, shade, rock, shine = THEMES[index]
     rng = random.Random(950 + index)
@@ -103,6 +265,8 @@ def shapes(index: int):
         for i in range(4):
             x=48+i*120; y=355+(i%2)*113
             add(f'<circle cx="{x}" cy="{y}" r="{13+i*5}" fill="{shine}" opacity=".53"/>')
+    # Landmarks use the same static raster on both platforms; gates stay on top.
+    add(detailed_landmarks(index))
     # Ground is deliberately below the obstacle play region, with a soft lip.
     add(f'<rect x="0" y="757" width="480" height="43" fill="{shade}"/>'
         f'<path d="M0 754 Q110 741 225 753 T480 750 V772 H0Z" fill="url(#ledge)"/>')
