@@ -646,8 +646,12 @@ for shop in (android_shop,ios_shop):
     assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
     assert 'buyPerk(' in shop and 'showSkins()' in shop
     assert 'progress.coins()' in shop and 'showSettings()' in shop
-assert 'cornerRadius=d(31)' in android_menu
-assert 'gradient(0xff257ce0.toInt(),0xff123f9a.toInt(),29)' in android_menu
+# Primary gradient is orange gold and secondary gradient is cyan-to-royal-blue,
+# never the retired neon-green/flat-blue button style.
+assert 'cornerRadius=d(33)' in android_menu
+assert '0xffffdf50.toInt()' in android_menu and '0xffff7a00.toInt()' in android_menu
+assert '0xff23c8fc.toInt()' in android_menu and '0xff064cb4.toInt()' in android_menu
+assert '0xff13b742.toInt()' not in android_menu
 assert 'layer.cornerRadius=29' in ios_menu
 assert 'gradient.cornerRadius=29' in ios_menu
 assert 'SPREMI KOPIJU NAPRETKA' in android_settings and 'SPREMI KOPIJU NAPRETKA' in ios_settings
