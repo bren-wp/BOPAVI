@@ -24,9 +24,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var nextLevel:LevelEngine.Level? = null
     private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
-    fun gateX(gate: LevelEngine.Gate):Float = (gate.x.toDouble() + levelOrigin - preciseDistance).toFloat()
+    fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
-    fun upcomingGateX(gate:LevelEngine.Gate):Float = (gate.x.toDouble() + nextOrigin - preciseDistance).toFloat()
+    fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
@@ -139,4 +139,10 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         else { finished = true; active = false; won = false }
     }
     fun score(): Int = (totalPassed.toLong() * 100L + coins.toLong() * 10L + stars.toLong() * 25L).coerceIn(0L,100_000_000L).toInt()
+}
+
+/** Screen-space projection must subtract in Double before the final Float conversion. */
+internal object WorldCoordinates {
+    fun screenX(gateX:Float, origin:Double, travelled:Double):Float =
+        (gateX.toDouble() + origin - travelled).toFloat()
 }
