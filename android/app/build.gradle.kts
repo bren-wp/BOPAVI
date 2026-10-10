@@ -19,8 +19,8 @@ android {
         applicationId = "com.brendigo.bopavi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 31
-        versionName = "0.1.30"
+        versionCode = 34
+        versionName = "0.1.31"
     }
     if (playSigningEnabled) {
         signingConfigs {
