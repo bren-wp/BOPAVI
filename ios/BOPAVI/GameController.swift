@@ -637,7 +637,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
         }
         let dim=UIView()
-        dim.backgroundColor=UIColor(red:0.01,green:0.09,blue:0.23,alpha:0.67)
+        dim.backgroundColor=UIColor(red:0.01,green:0.08,blue:0.21,alpha:0.78)
         dim.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(dim)
         NSLayoutConstraint.activate([
@@ -681,19 +681,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stats.axis = .vertical;stats.alignment = .fill;stats.spacing=8
         stats.isLayoutMarginsRelativeArrangement=true
         stats.layoutMargins=UIEdgeInsets(top:16,left:18,bottom:18,right:18)
-        stats.backgroundColor=UIColor(red:0.96,green:0.98,blue:1,alpha:1)
+        stats.backgroundColor=UIColor(red:0.02,green:0.13,blue:0.31,alpha:0.97)
         stats.layer.cornerRadius=22;stats.layer.borderWidth=2
-        stats.layer.borderColor=UIColor(red:1,green:0.83,blue:0.40,alpha:1).cgColor
+        stats.layer.borderColor=UIColor(red:0.23,green:0.78,blue:1,alpha:1).cgColor
         stack.addArrangedSubview(stats)
-        label("\(g.score()) BODOVA",37,UIColor(red:0.05,green:0.22,blue:0.48,alpha:1),stats)
+        label("\(g.score()) BODOVA",37,UIColor(red:1,green:0.81,blue:0.29,alpha:1),stats)
         label("🏆  Najbolji rezultat: \(progress.bestPoints())",16,
-              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+              UIColor.white,stats)
         label("Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)",16,
-              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+              UIColor.white,stats)
         label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
-              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+              UIColor.white,stats)
         label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
-              UIColor(red:0.09,green:0.28,blue:0.50,alpha:1),stats)
+              UIColor.white,stats)
+        sectionHeading("✦  NAGRADE I NAPREDAK",in:stack)
+        label("●  Osvojeno u letu: \(g.coins+g.stars) · Ukupno: \(progress.coins()) kovanica",16,.white,stack)
         button("▶  PONOVO",in:stack){self.showPilotPicker(self.gameWorld,self.gameNumber)}
         button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
         button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
