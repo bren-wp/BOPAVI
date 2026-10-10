@@ -221,6 +221,45 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 preview.heightAnchor.constraint(equalToConstant:137)
             ])
         }
+        // Decorative (non-interactive) gold world number and blue forward glyph
+        // sit on the real illustration, with the whole card as the tap target.
+        let number=UILabel()
+        number.text="♛  \(world+1)"
+        number.textColor = .white;number.textAlignment = .center
+        number.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+        number.backgroundColor=selected
+            ? UIColor(red:0.78,green:0.48,blue:0.04,alpha:0.95)
+            : UIColor(red:0.03,green:0.39,blue:0.83,alpha:0.95)
+        number.layer.cornerRadius=18;number.clipsToBounds=true
+        number.layer.borderWidth=2
+        number.layer.borderColor=selected
+            ? UIColor(red:1,green:0.83,blue:0.33,alpha:1).cgColor
+            : UIColor(red:0.35,green:0.85,blue:1,alpha:1).cgColor
+        number.translatesAutoresizingMaskIntoConstraints=false
+        number.isUserInteractionEnabled=false
+        number.accessibilityElementsHidden=true
+        tile.addSubview(number)
+        let arrow=UILabel()
+        arrow.text="›";arrow.font=UIFont.systemFont(ofSize:30,weight:.heavy)
+        arrow.textColor = .white;arrow.textAlignment = .center
+        arrow.backgroundColor=UIColor(red:0.02,green:0.48,blue:0.90,alpha:0.95)
+        arrow.layer.cornerRadius=18;arrow.clipsToBounds=true
+        arrow.layer.borderWidth=1
+        arrow.layer.borderColor=UIColor(red:0.35,green:0.90,blue:1,alpha:1).cgColor
+        arrow.translatesAutoresizingMaskIntoConstraints=false
+        arrow.isUserInteractionEnabled=false
+        arrow.accessibilityElementsHidden=true
+        tile.addSubview(arrow)
+        NSLayoutConstraint.activate([
+            number.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:12),
+            number.topAnchor.constraint(equalTo:tile.topAnchor,constant:12),
+            number.widthAnchor.constraint(equalToConstant:64),
+            number.heightAnchor.constraint(equalToConstant:36),
+            arrow.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12),
+            arrow.topAnchor.constraint(equalTo:tile.topAnchor,constant:104),
+            arrow.widthAnchor.constraint(equalToConstant:36),
+            arrow.heightAnchor.constraint(equalToConstant:36)
+        ])
         let headline=UILabel()
         headline.translatesAutoresizingMaskIntoConstraints=false
         headline.text="\(selected ? "✓ " : "")\(BopaviCore.collectibleIcons[world])  \(BopaviCore.names[world])"
