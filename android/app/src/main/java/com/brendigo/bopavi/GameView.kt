@@ -597,6 +597,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(passed!=lastProgressPassed) {
             progressTitle="PROLAZI UKUPNO  $passed"
             lastProgressPassed=passed
+            contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=(game.passed.toFloat()/total.toFloat()).coerceIn(0f,1f)
