@@ -956,9 +956,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         _=resultCard("REZULTAT",icon:"★",value:String(g.score()),highlight:gold)
         _=resultCard("PRIKUPLJENE\nKOVANICE",icon:"●",value:String(g.coins),highlight:sky)
         _=resultCard("UKUPNO\nPROLAZA",icon:"⚑",value:String(g.totalPassed),highlight:.white)
-        label("Najbolji rezultat: \(progress.bestPoints())",15,.white,stack)
-        label("Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)",15,.white,stack)
-        label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",15,.white,stack)
+        // Mirror Android's condensed readable detail block, leaving room
+        // for the primary Retry and result navigation on compact iPhones.
+        let details=label("Najbolji rezultat: \(progress.bestPoints())\n" +
+            "Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)\n" +
+            "Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",
+            14,.white,stack)
+        details.numberOfLines=3
+        details.lineBreakMode = .byWordWrapping
         let balance=label("Stanje novčanika: \(progress.coins()) kovanica",15,sky,stack)
         sectionHeading("♛  NAGRADE",in:stack)
         // No fake diamonds, chests, purchases or video rewards. The displayed
