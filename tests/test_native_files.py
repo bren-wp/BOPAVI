@@ -512,8 +512,8 @@ for view in (android_picker,ios_picker):
     assert 'startGame(' in view
 android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
 ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
-assert 'skinNames.indices step 2' in android_gallery
-assert 'stride(from:0,to:progress.skinNames.count,by:2)' in ios_gallery
+assert 'skinNames.indices step 3' in android_gallery
+assert 'stride(from:0,to:progress.skinNames.count,by:3)' in ios_gallery
 assert 'R.drawable.bopi6' in android_gallery
 assert 'UIImage(named:"Bopi\\(i)")' in ios_gallery
 assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
@@ -563,17 +563,30 @@ assert 'FAIL: pause button visible before first flap' in qa_lifecycle
 assert 'FAIL: gameplay pause control leaked onto result screen' in qa_lifecycle
 assert 'FAIL: pause did not appear after actual first flight flap' in qa_lifecycle
 
-# v0.1.17: illustrated home shows exactly three deliberate actions, on both
-# platforms, with IGRAJ first and with cosmetics/equipment under settings.
+# Premium reference redesign: three primary navigation buttons plus four
+# explicitly functional footer shortcuts on Android AND iOS, not dead mock UI.
 android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
 ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
 for home in (android_home,ios_home):
-    assert home.count('▶  IGRAJ') == 1
-    assert home.count('🌍  SVJETOVI') == 1
-    assert home.count('⚙  POSTAVKE') == 1
-    assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
-    assert 'showWorlds()' in home and 'showSettings()' in home
-    assert 'showPerks()' not in home and 'showSkins()' not in home
+    for button_label in ('▶  IGRAJ','◎  SVJETOVI','⚙  POSTAVKE'):
+        assert home.count(button_label)==1
+    assert home.index('▶  IGRAJ') < home.index('◎  SVJETOVI') < home.index('⚙  POSTAVKE')
+    for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
+        assert label in home
+    for destination in ('showWorlds()','showSettings()','showAchievements()','showSkins()','showPerks()'):
+        assert destination in home
+    assert 'showPilotPicker(' in home and 'startGame(' not in home
+# No fake online gems, cloud sign-out or microtransactions.
+for home in (android_home,ios_home):
+    assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
+for source in (android_menu,ios_menu):
+    assert 'POLETI S' in source and 'ODABERI LIKA' in source
+assert 'setStroke(d(3),0xffffed9e' in android_menu
+assert 'UIColor(red:1.00,green:0.88,blue:0.32' in ios_menu
+logo_markup=(root/'docs/assets/logo.svg').read_text()
+assert 'MALI LETOVI' in logo_markup and 'VELIKE PRIČE' in logo_markup
+assert 'id="wings"' in logo_markup and 'id="letters"' in logo_markup
+print('PASS: branded blue/gold parity, illustrated menus and functioning home navigation')
 android_settings=android_menu.split("private fun showSettings()",1)[1].split("override fun onActivityResult",1)[0]
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
@@ -607,7 +620,7 @@ for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
     assert 'bestPoints()' in home
-    assert 'showPerks()' not in home and 'showSkins()' not in home
+    assert 'showPerks()' in home and 'showSkins()' in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
