@@ -545,8 +545,8 @@ android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('
 ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
 assert 'displayOrder.indices step 3' in android_gallery
 assert 'stride(from:0,to:displayOrder.count,by:3)' in ios_gallery
-assert 'R.drawable.bopi6' in android_gallery
-assert 'UIImage(named:"Bopi\\(i)")' in ios_gallery
+assert 'R.drawable.bopiportrait6' in android_gallery
+assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
 assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
 assert 'Otključati' in android_gallery and 'Otključati' in ios_gallery
 assert 'Potrošit ćeš' in android_gallery and 'Potrošit ćeš' in ios_gallery
@@ -723,9 +723,9 @@ for index,character in ((7,'noa'),(8,'any')):
     assert f"'{character}'" in artgen
     for key in (f'R.drawable.bopi{index}',f'R.drawable.bopileft{index}',f'R.drawable.bopiright{index}'):
         assert key in android_render
-    assert f'R.drawable.bopi{index}' in android_gallery
+    assert f'R.drawable.bopiportrait{index}' in android_gallery
 assert 'min(8,max(0,skinIndex))' in ios_render
-assert '9 characters, 18 detached wings' in artgen
+assert '9 complete glowing portraits, 9 bodies, 18 flapping wings' in artgen
 for index in ('7','8'):
     assert f'{index} ->' in android_picker and f'case {index}:' in ios_picker
 for gallery in (android_gallery,ios_gallery):
@@ -749,7 +749,7 @@ print('PASS: nine pilot bodies and both matching animated wings on Android/iOS')
 android_preview=android_picker.split('val portraits=intArrayOf(',1)[1].split(')',1)[0]
 assert android_preview.count('R.drawable.bopi') == 9, 'Android premium pilot preview missing'
 for index in range(9):
-    assert f'R.drawable.bopi{index}' in android_preview
+    assert f'R.drawable.bopiportrait{index}' in android_preview
 assert 'setImageResource(portraits[idx])' in android_picker
 # Boosts are spent only on the first flap, not when viewing the idle game.
 android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
@@ -949,7 +949,7 @@ assert 'setImageResource(portraits[idx])' in android_picker
 assert 'val selectedBadge=TextView(this)' in android_picker
 assert 'let preview=UIView()' in ios_picker
 assert 'UIImage(named:"World\\(world)")' in ios_picker
-assert 'UIImage(named:"Bopi\\(selected)")' in ios_picker
+assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
 assert 'portrait.accessibilityLabel=' in ios_picker
 for picker in (android_picker,ios_picker):
     assert picker.index('characterGallery(') < picker.index('POLETI S')
@@ -975,3 +975,26 @@ assert 'if(paused){rect(' not in android_canvas
 assert 'if paused {' not in ios_canvas.split('override func draw(',1)[1].split('private func drawLevelProgress(',1)[0]
 assert 'pause.isHidden=true' in ios_start and 'visibility=View.INVISIBLE' in android_start
 print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or painted pause dialog')
+
+# The character gallery, selection hero and pause must use complete wings-up
+# portraits. The animated flight renderer MUST continue using three
+# independent 512x512 layers to preserve real flap response and hitbox timing.
+for asset in ('BopiPortrait','bopiportrait','Image.alpha_composite(wings,body)',
+              'ImageFilter.GaussianBlur(11)'):
+    assert asset in artgen,asset
+assert 'for skin in range(9):' in artgen
+assert 'portrait.save(src/name,optimize=True)' in artgen
+assert 'portrait.save(setdir/name,optimize=True)' in artgen
+assert android_gallery.count('R.drawable.bopiportrait') == 9
+assert android_preview.count('R.drawable.bopiportrait') == 9
+assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
+assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
+assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_menu
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+assert android_pause.count('R.drawable.bopiportrait') == 9
+assert 'R.drawable.bopiportrait' not in android_loader
+assert 'BopiPortrait' not in swift_loader
+assert 'birdSprites[selectedSkin]' in android_loader
+assert 'BopiLeft\\(selectedSkin)' in swift_loader
+assert 'BopiRight\\(selectedSkin)' in swift_loader
+print('PASS: nine real full-wing portraits in all menus, with preserved detached flight animations')
