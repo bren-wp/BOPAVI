@@ -7,22 +7,27 @@ private final class BopaviActionButton: UIButton {
     init(primary:Bool) {
         super.init(frame:.zero)
         gradient.colors = primary
-            ? [UIColor(red:0.77,green:1.00,blue:0.49,alpha:1).cgColor,
-               UIColor(red:0.40,green:0.91,blue:0.27,alpha:1).cgColor,
-               UIColor(red:0.07,green:0.72,blue:0.26,alpha:1).cgColor]
-            : [UIColor(red:0.14,green:0.55,blue:0.95,alpha:1).cgColor,
-               UIColor(red:0.07,green:0.22,blue:0.62,alpha:1).cgColor]
+            ? [UIColor(red:1.00,green:0.88,blue:0.32,alpha:1).cgColor,
+               UIColor(red:1.00,green:0.67,blue:0.09,alpha:1).cgColor,
+               UIColor(red:1.00,green:0.46,blue:0.00,alpha:1).cgColor]
+            : [UIColor(red:0.14,green:0.79,blue:1.00,alpha:1).cgColor,
+               UIColor(red:0.03,green:0.49,blue:0.93,alpha:1).cgColor,
+               UIColor(red:0.02,green:0.30,blue:0.71,alpha:1).cgColor]
         gradient.startPoint=CGPoint(x:0.5,y:0);gradient.endPoint=CGPoint(x:0.5,y:1)
         layer.insertSublayer(gradient,at:0)
         layer.cornerRadius=29
         layer.borderWidth=primary ? 2 : 1
-        layer.borderColor=UIColor.white.withAlphaComponent(primary ? 0.72 : 0.24).cgColor
-        layer.shadowColor=UIColor.black.cgColor
-        layer.shadowOpacity=0.23
-        layer.shadowRadius=8
+        layer.borderColor=(primary
+            ? UIColor(red:1,green:0.94,blue:0.60,alpha:1)
+            : UIColor(red:0.47,green:0.91,blue:1,alpha:1)).cgColor
+        layer.shadowColor=(primary
+            ? UIColor(red:0.55,green:0.20,blue:0.0,alpha:1)
+            : UIColor(red:0.0,green:0.48,blue:0.95,alpha:1)).cgColor
+        layer.shadowOpacity=0.40
+        layer.shadowRadius=9
         layer.shadowOffset=CGSize(width:0,height:4)
         setTitleColor(.white,for:.normal)
-        titleLabel?.font=UIFont.systemFont(ofSize:17,weight:.heavy)
+        titleLabel?.font=UIFont.systemFont(ofSize:18,weight:.heavy)
         titleLabel?.adjustsFontSizeToFitWidth=true
         titleLabel?.minimumScaleFactor=0.72
         titleLabel?.numberOfLines=1
@@ -89,15 +94,37 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         view.layer.sublayers?.forEach{$0.removeFromSuperlayer()}
         view.backgroundColor=UIColor(red:0.03,green:0.10,blue:0.24,alpha:1)
     }
+    // Menus share the illustrated backgrounds and gold / cyan / navy palette.
+    // Gameplay and persistence remain independent of these presentation views.
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
-        let gradient=CAGradientLayer()
-        gradient.colors=[UIColor(red:0.04,green:0.26,blue:0.48,alpha:1).cgColor,
-                         UIColor(red:0.04,green:0.42,blue:0.69,alpha:1).cgColor,
-                         UIColor(red:0.17,green:0.62,blue:0.85,alpha:1).cgColor]
-        gradient.frame=view.bounds
-        view.layer.insertSublayer(gradient,at:0);backgroundGradient=gradient
-        let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
+        if title != "BOPAVI" {
+            let world=gameWorld >= 0 && gameWorld < 8 ? gameWorld : 0
+            let backdrop=UIImageView(image:UIImage(named:"World\(world)"))
+            backdrop.translatesAutoresizingMaskIntoConstraints=false
+            backdrop.contentMode = .scaleAspectFill
+            backdrop.clipsToBounds=true
+            backdrop.isAccessibilityElement=false
+            view.addSubview(backdrop)
+            NSLayoutConstraint.activate([
+                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
+                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            ])
+            let shade=UIView()
+            shade.backgroundColor=UIColor(red:0.012,green:0.08,blue:0.19,alpha:0.75)
+            shade.translatesAutoresizingMaskIntoConstraints=false
+            view.addSubview(shade)
+            NSLayoutConstraint.activate([
+                shade.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+                shade.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+                shade.topAnchor.constraint(equalTo:view.topAnchor),
+                shade.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            ])
+        }
+        let scroll=UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.alwaysBounceVertical=true
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
@@ -105,10 +132,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
             scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
-        let stack=UIStackView();stack.axis = .vertical;stack.alignment = .fill;stack.spacing=12
+            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
+        let stack=UIStackView()
+        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=12
         stack.translatesAutoresizingMaskIntoConstraints=false
-        stack.layoutMargins=UIEdgeInsets(top:22,left:20,bottom:32,right:20)
+        stack.layoutMargins=UIEdgeInsets(top:18,left:18,bottom:28,right:18)
         stack.isLayoutMarginsRelativeArrangement=true
         scroll.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -118,8 +147,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
             stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor)])
         if title != "BOPAVI" {
-            label(title,34,UIColor(red:1,green:0.82,blue:0.47,alpha:1),stack)
-            if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.74,green:0.87,blue:0.96,alpha:1),stack)}
+            let logo=UIImageView(image:UIImage(named:"Logo"))
+            logo.contentMode = .scaleAspectFit
+            logo.accessibilityElementsHidden=true
+            logo.heightAnchor.constraint(equalToConstant:94).isActive=true
+            stack.addArrangedSubview(logo)
+            let headline=label(title,31,.white,stack)
+            headline.backgroundColor=UIColor(red:0.015,green:0.25,blue:0.56,alpha:0.96)
+            headline.layer.cornerRadius=23
+            headline.layer.borderWidth=2
+            headline.layer.borderColor=UIColor(red:0.28,green:0.83,blue:1,alpha:1).cgColor
+            headline.clipsToBounds=true
+            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:58).isActive=true
+            if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.79,green:0.93,blue:1,alpha:1),stack)}
         }
         return stack
     }
@@ -137,8 +177,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let heading=label("   "+title,15,.white,stack)
         heading.textAlignment = .left
         heading.font=UIFont.systemFont(ofSize:15,weight:.heavy)
-        heading.backgroundColor=UIColor(red:0.08,green:0.23,blue:0.45,alpha:0.94)
-        heading.layer.cornerRadius=22
+        heading.backgroundColor=UIColor(red:0.03,green:0.16,blue:0.36,alpha:0.97)
+        heading.layer.cornerRadius=20
+        heading.layer.borderWidth=1
+        heading.layer.borderColor=UIColor(red:0.25,green:0.72,blue:1,alpha:0.65).cgColor
         heading.clipsToBounds=true
         heading.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true
     }
@@ -146,7 +188,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let b=BopaviActionButton(primary:primary)
         b.setTitle(title,for:.normal)
         b.accessibilityLabel=title
-        b.heightAnchor.constraint(greaterThanOrEqualToConstant:58).isActive=true
+        b.heightAnchor.constraint(greaterThanOrEqualToConstant:primary ? 68 : 58).isActive=true
         b.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(b)
     }
@@ -214,10 +256,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showHome(){
         let stack=menu("BOPAVI","")
-        // Full-bleed hero artwork and transparent controls match the bright reference.
-        backgroundGradient?.removeFromSuperlayer()
-        backgroundGradient=nil
-        view.backgroundColor=UIColor(red:0.17,green:0.65,blue:0.94,alpha:1)
+        view.backgroundColor=UIColor(red:0.04,green:0.45,blue:0.79,alpha:1)
         if let artwork=UIImage(named:"LaunchArt") {
             let backdrop=UIImageView(image:artwork)
             backdrop.translatesAutoresizingMaskIntoConstraints=false
@@ -233,75 +272,69 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
         }
+        // The art already includes the mascot and game title; only live,
+        // clickable controls and player-dependent values sit on top.
         stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
-        // LaunchArt is portrait and already includes the BOPAVI logo and slogan.
-        let wallet=UIView()
-        wallet.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
-        wallet.layer.cornerRadius=20
-        wallet.layer.borderWidth=1
-        wallet.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
-        let amount=UILabel()
-        amount.translatesAutoresizingMaskIntoConstraints=false
-        amount.text="●  \(progress.coins()) kovanica"
-        amount.textAlignment = .center
-        amount.font=UIFont.systemFont(ofSize:18,weight:.heavy)
-        amount.textColor=UIColor(red:1,green:0.86,blue:0.44,alpha:1)
-        wallet.addSubview(amount)
-        NSLayoutConstraint.activate([
-            amount.leadingAnchor.constraint(equalTo:wallet.leadingAnchor,constant:12),
-            amount.trailingAnchor.constraint(equalTo:wallet.trailingAnchor,constant:-12),
-            amount.centerYAnchor.constraint(equalTo:wallet.centerYAnchor)
-        ])
-        // Both counters reflect actual local progress, not online purchases.
-        let bestScore=progress.bestPoints()
-        let bestChip=UIView()
-        bestChip.backgroundColor=UIColor(red:0.06,green:0.19,blue:0.37,alpha:0.9)
-        bestChip.layer.cornerRadius=23
-        bestChip.layer.borderWidth=1
-        bestChip.layer.borderColor=UIColor.white.withAlphaComponent(0.35).cgColor
-        let score=UILabel()
-        score.translatesAutoresizingMaskIntoConstraints=false
-        score.text="🏆  \(bestScore)"
-        score.font=UIFont.systemFont(ofSize:16,weight:.heavy)
-        score.adjustsFontSizeToFitWidth=true
-        score.minimumScaleFactor=0.65
-        score.textAlignment = .center
-        score.textColor = .white
-        bestChip.addSubview(score)
-        NSLayoutConstraint.activate([
-            score.leadingAnchor.constraint(equalTo:bestChip.leadingAnchor,constant:6),
-            score.trailingAnchor.constraint(equalTo:bestChip.trailingAnchor,constant:-6),
-            score.centerYAnchor.constraint(equalTo:bestChip.centerYAnchor)
-        ])
-        amount.text="●  \(progress.coins())"
-        amount.font=UIFont.systemFont(ofSize:16,weight:.heavy)
-        amount.adjustsFontSizeToFitWidth=true
-        amount.minimumScaleFactor=0.65
         let walletRow=UIStackView()
         walletRow.axis = .horizontal;walletRow.alignment = .fill
-        walletRow.distribution = .fillEqually;walletRow.spacing=12
-        bestChip.heightAnchor.constraint(equalToConstant:46).isActive=true
-        wallet.heightAnchor.constraint(equalToConstant:46).isActive=true
-        walletRow.addArrangedSubview(bestChip)
-        walletRow.addArrangedSubview(wallet)
+        walletRow.distribution = .fillEqually;walletRow.spacing=10
+        for item in ["🏆  \(progress.bestPoints())","●  \(progress.coins())"] {
+            let chip=UILabel()
+            chip.text=item
+            chip.textColor = .white
+            chip.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+            chip.textAlignment = .center
+            chip.adjustsFontSizeToFitWidth=true
+            chip.minimumScaleFactor=0.75
+            chip.backgroundColor=UIColor(red:0.03,green:0.14,blue:0.35,alpha:0.93)
+            chip.layer.cornerRadius=21;chip.clipsToBounds=true
+            chip.layer.borderWidth=1
+            chip.layer.borderColor=UIColor(red:0.40,green:0.84,blue:1,alpha:0.9).cgColor
+            chip.heightAnchor.constraint(equalToConstant:44).isActive=true
+            walletRow.addArrangedSubview(chip)
+        }
         stack.addArrangedSubview(walletRow)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
-        // Three primary home destinations: a dominant play CTA and two equal
-        // blue shortcuts. All other functions remain available through settings.
         button("▶  IGRAJ",in:stack){
             let world=self.progress.chosenWorld()
             self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
-        let shortcuts=UIStackView()
-        shortcuts.axis = .horizontal
-        shortcuts.alignment = .fill
-        shortcuts.distribution = .fillEqually
-        shortcuts.spacing=12
-        stack.addArrangedSubview(shortcuts)
-        button("🌍  SVJETOVI",in:shortcuts,primary:false){self.showWorlds()}
-        button("⚙  POSTAVKE",in:shortcuts,primary:false){self.showSettings()}
+        button("◎  SVJETOVI",in:stack,primary:false){self.showWorlds()}
+        button("⚙  POSTAVKE",in:stack,primary:false){self.showSettings()}
+        let navigation=UIStackView()
+        navigation.axis = .horizontal
+        navigation.distribution = .fillEqually
+        navigation.spacing=5
+        navigation.layoutMargins=UIEdgeInsets(top:8,left:7,bottom:8,right:7)
+        navigation.isLayoutMarginsRelativeArrangement=true
+        navigation.backgroundColor=UIColor(red:0.012,green:0.13,blue:0.32,alpha:0.96)
+        navigation.layer.cornerRadius=22
+        navigation.layer.borderWidth=2
+        navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
+        let tabs:[(String,String,()->Void)]=[
+            ("♙\nPROFIL","Profil igrača",{self.showSettings()}),
+            ("★\nZADACI","Postignuća",{self.showAchievements()}),
+            ("✦\nKOLEKCIJA","Kolekcija likova",{self.showSkins()}),
+            ("▣\nTRGOVINA","Trgovina kovanicama",{self.showPerks()})
+        ]
+        for (title,description,handler) in tabs {
+            let tab=UIButton(type:.system)
+            tab.setTitle(title,for:.normal)
+            tab.titleLabel?.numberOfLines=2
+            tab.titleLabel?.textAlignment = .center
+            tab.titleLabel?.font=UIFont.systemFont(ofSize:11,weight:.bold)
+            tab.tintColor = .white
+            tab.setTitleColor(.white,for:.normal)
+            tab.accessibilityLabel=description
+            tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
+            tab.layer.cornerRadius=13
+            tab.heightAnchor.constraint(equalToConstant:62).isActive=true
+            tab.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
+            navigation.addArrangedSubview(tab)
+        }
+        stack.addArrangedSubview(navigation)
     }
 
     private func showWorlds(){
