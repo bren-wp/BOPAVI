@@ -1,3 +1,12 @@
+## Premium results — acceptance criteria
+- Finish an actual run. All three summary cards must match the *same* GameSimulation score, coins collected and cumulative passed gates. Existing record/previous-best comparisons still run **before** persisting the completed run.
+- Four reward cards show actual coins, stars, earned but unclaimed high-score bonus and persistent best score, without implying that pickups are already spendable wallet credits.
+- Verify local record bonus claims only once: bonus label updates to +0, wallet balance increases by the claim exactly once, save does not re-record wins/losses on claim.
+- Verify 3-/4-column layouts on small Android and iOS screens, VoiceOver/TalkBack labels, Safe Area scroll, primary Retry, bottom Leaderboard/Home and native Share with only the score & gate count, not personal names.
+- Verify effects and gameplay cannot run behind the result screen, home/level state remains intact, and there are no invented paid rewards.
+- Android CI: privacy, JVM tests, API35 + API36 emulator flows, APK and unsigned AAB. iOS: launch smoke, Swift parity/migration, unsigned device compilation.
+- Photorealistic reference artwork remains a separate unresolved visual parity requirement; maintain an honest screenshot mismatch log.
+
 ## Premium pause — regression and interaction QA
 - Confirm no PAUZA action before the first flap, on both systems and accessibility tree.
 - With active flight paused: gameplay coordinates and score stop advancing; music loop remains paused even if global sound is switched back on.
