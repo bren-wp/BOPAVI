@@ -61,6 +61,23 @@ jobs:
                   ios=Path('ios/BOPAVI/Assets.xcassets')/f'Bopi{side.capitalize()}{skin}.imageset'/name
                   assert android.is_file() and ios.is_file(), (skin,side,'missing asset')
                   assert Image.open(android).convert('RGBA').tobytes()==Image.open(ios).convert('RGBA').tobytes(), (skin,side,'different pixels')
+          # Menu art must be complete bodies WITH wings, not the old torso-only
+          # assets. Both native platforms must receive byte-identical PNGs.
+          portraits=[]
+          for skin in range(9):
+              name=f'bopiportrait{skin}.png'
+              android=Path('android/app/src/main/res/drawable-nodpi')/name
+              ios=Path('ios/BOPAVI/Assets.xcassets')/f'BopiPortrait{skin}.imageset'/name
+              assert android.is_file() and ios.is_file(), (skin,'missing full portrait')
+              portrait=Image.open(android).convert('RGBA')
+              torso=sprites[skin]
+              assert portrait.size==(512,512) and portrait.getbbox(), (skin,'invalid canvas')
+              assert portrait.getchannel('A').getextrema()==(0,255), (skin,'no transparency')
+              assert portrait.tobytes()!=torso.tobytes(), (skin,'wings not composited')
+              assert Image.open(ios).convert('RGBA').tobytes()==portrait.tobytes(), (skin,'different pixels')
+              assert android.read_bytes()==ios.read_bytes(), (skin,'different encoded PNGs')
+              portraits.append(portrait.tobytes())
+          assert len(set(portraits))==9, 'duplicate premium portraits'
           # Premium characters must have genuinely unique wings, not merely
           # different labels attached to Portantin's wing asset.
           for side in ('left','right'):
@@ -68,7 +85,7 @@ jobs:
               for skin in (7,8):
                   premium=Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA').tobytes()
                   assert premium!=portantin, (skin,side,'duplicated Portantin wing')
-          print('PASS: 9 body sprites, 18 Android/iOS pixel-identical animated wings and 8 biomes')
+          print('PASS: 9 unique full-wing portraits, 9 bodies, 18 Android/iOS pixel-identical animated wings and 8 biomes')
           PY
       - uses: actions/upload-artifact@v4
         with:

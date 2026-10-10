@@ -216,6 +216,40 @@ for skin,character in ((7,'noa'),(8,'any')):
             'images':[{'filename':name+'.png','idiom':'universal'}],
             'info':{'author':'xcode','version':1}
         }))
+# Selection, settings, pause and results need a COMPLETE character portrait.
+# In-flight layers remain independent for real flap animation. Earlier menus
+# used only 'bopiN' (the torso), accidentally hiding BOTH wings for every skin.
+# Composite the already-approved body/left/right layers once during the build.
+# This adds no scene decoding or per-frame allocations to the game loop.
+from PIL import ImageFilter
+for skin in range(9):
+    src=a/'drawable-nodpi'
+    body=Image.open(src/f'bopi{skin}.png').convert('RGBA')
+    left=Image.open(src/f'bopileft{skin}.png').convert('RGBA')
+    right=Image.open(src/f'bopiright{skin}.png').convert('RGBA')
+    if body.size!=(512,512) or left.size!=body.size or right.size!=body.size:
+        raise RuntimeError(f'skin {skin}: incompatible character art size')
+    wings=Image.alpha_composite(left,right)
+    combined=Image.alpha_composite(wings,body)
+    if combined.getbbox() is None or combined.getchannel('A').getextrema()[1]!=255:
+        raise RuntimeError(f'skin {skin}: full-wing portrait is empty')
+    # Subtle azure/gold depth beneath the actual pixels, NEVER a replacement
+    # for the genuine sprite silhouette or a baked-in interactive control.
+    hue=(85,200,255) if skin not in (1,2,7,8) else (
+        (255,202,90) if skin==1 else (255,137,185) if skin in (2,8) else (104,225,255))
+    diffusion=combined.getchannel('A').filter(ImageFilter.GaussianBlur(11))
+    halo=Image.new('RGBA',body.size,(*hue,0))
+    halo.putalpha(diffusion.point(lambda alpha: min(100,int(alpha*0.33))))
+    portrait=Image.alpha_composite(halo,combined)
+    name=f'bopiportrait{skin}.png'
+    portrait.save(src/name,optimize=True)
+    setdir=b/f'BopiPortrait{skin}.imageset'
+    setdir.mkdir(parents=True,exist_ok=True)
+    portrait.save(setdir/name,optimize=True)
+    (setdir/'Contents.json').write_text(json.dumps({
+        'images':[{'filename':name,'idiom':'universal'}],
+        'info':{'author':'xcode','version':1}
+    }))
 from generate_worlds import generate_worlds
 generate_worlds(a,b)
-print('Generated native art: 9 characters, 18 detached wings and 8 biomes')
+print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes')

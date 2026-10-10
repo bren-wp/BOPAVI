@@ -494,8 +494,8 @@ class MainActivity : Activity() {
         })
     }
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
-        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
-            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
+        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
         // Featured first row matches the approved Portantin / Noa / Any
         // reference. Indices remain original so offline saves and prices stay stable.
         val displayOrder=intArrayOf(6,7,8,0,1,2,3,4,5)
@@ -562,8 +562,8 @@ class MainActivity : Activity() {
         currentWorld=world;currentLevel=number
         val b=base("ODABERI LIKA","Svaki let započinje tvojim izborom letača")
         val idx=progress.skin()
-        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
-            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
+        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
         // The actual selected character and world remain separate image layers:
         // no baked-in buttons, labels, counters or fake screenshot interactions.
         val preview=FrameLayout(this).apply{
@@ -632,9 +632,9 @@ class MainActivity : Activity() {
                 setStroke(d(3),electric)
             }
         }
-        val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
-            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
-            R.drawable.bopi7,R.drawable.bopi8)
+        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,
+            R.drawable.bopiportrait7,R.drawable.bopiportrait8)
         content.addView(ImageView(this).apply{
             setImageResource(portraits[progress.skin().coerceIn(0,8)])
             scaleType=ImageView.ScaleType.FIT_CENTER

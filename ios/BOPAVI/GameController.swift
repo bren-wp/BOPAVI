@@ -568,7 +568,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     : UIColor(red:0.43,green:0.72,blue:0.94,alpha:0.7)).cgColor
                 card.accessibilityLabel="\(progress.skinNames[i]), \(status)"
                 card.heightAnchor.constraint(equalToConstant:141).isActive=true
-                let portrait=UIImageView(image:UIImage(named:"Bopi\(i)"))
+                let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(i)"))
                 portrait.translatesAutoresizingMaskIntoConstraints=false
                 portrait.contentMode = .scaleAspectFit
                 portrait.isUserInteractionEnabled=false
@@ -656,7 +656,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         shade.backgroundColor=UIColor(red:0.01,green:0.10,blue:0.27,alpha:0.42)
         shade.isAccessibilityElement=false
         preview.addSubview(shade)
-        let portrait=UIImageView(image:UIImage(named:"Bopi\(selected)"))
+        let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
         portrait.translatesAutoresizingMaskIntoConstraints=false
         portrait.contentMode = .scaleAspectFit
         portrait.isAccessibilityElement=true
@@ -754,7 +754,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
             panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
         ])
-        let mascot=UIImageView(image:UIImage(named:"Bopi\(progress.skinIndex())"))
+        let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
