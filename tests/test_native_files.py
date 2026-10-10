@@ -909,7 +909,7 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 34" in gradle and 'versionName = "0.1.31"' in gradle
+assert "versionCode = 35" in gradle and 'versionName = "0.1.32"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -919,18 +919,18 @@ assert "private fun navigateBack()" in android and "override fun onBackPressed()
 assert "BOPAVI_UPLOAD_KEYSTORE_PATH" in gradle
 assert "System.getenv(\"BOPAVI_UPLOAD_STORE_PASSWORD\")" in gradle
 assert "Signing environment" not in gradle  # No checked-in secret values.
-play_workflow=(root/'.github/workflows/google-play-upload.yml').read_text()
-assert "workflow_dispatch:" in play_workflow and "environment: google-play" in play_workflow
-assert "BOPAVI_UPLOAD_KEYSTORE_B64" in play_workflow
-assert "BOPAVI_UPLOAD_STORE_PASSWORD" in play_workflow
-assert "BOPAVI_UPLOAD_KEY_ALIAS" in play_workflow
-assert "BOPAVI_UPLOAD_KEY_PASSWORD" in play_workflow
-assert "jarsigner" in (root/'tools/verify_play_release.py').read_text()
-# User-requested policy: never perform AAB upload-key or test-key signing in GitHub Actions.
+# Signing jobs and signing secrets must never run in GitHub Actions.
+# Android Play upload-key signing is an offline publisher-only workflow.
+assert not (root/'.github/workflows/google-play-upload.yml').exists()
 assert 'signing-smoke:' not in workflow
 assert 'signing-smoke' not in workflow.split('  publish:',1)[1].split('    runs-on:',1)[0]
-assert 'if: ${{ false }}' in play_workflow
-assert "BOPAVI-Google-Play-listing-v0.1.31.zip" in workflow
+assert "BOPAVI-Google-Play-listing-v0.1.32.zip" in workflow
+assert 'gh release create v0.1.32' not in workflow or 'gh release create "$tag"' in workflow
+assert 'tag=v0.1.32' in workflow and 'existing" != "$GITHUB_SHA"' in workflow
+assert 'Require a new version for every pull request' in workflow
+assert 'New PR must bump release version' in workflow
+assert '--signed' in (root/'tools/verify_play_release.py').read_text()
+assert 'jarsigner' in (root/'tools/verify_play_release.py').read_text()
 for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
              "play/RELEASE-CHECKLIST.md"):
