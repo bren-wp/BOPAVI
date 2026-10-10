@@ -1,3 +1,11 @@
+## Premium UI iteration 2 — QA acceptance
+- World card numbering 1–8 uses the actual world index; badges/arrows remain noninteractive children, while the complete card is the tap target.
+- Illustrated 4-column / 5-row level grid reads persisted frontier: complete levels show ✓; next available shows the active badge; future levels remain visibly locked with a non-startable tap.
+- Verify previous/next 20-level paging at boundaries 1, 21 and 360; confirm saved stream frontiers do not reset in marathon mode.
+- Music/effects volume sliders are separate real playback gains, defaulting to 80/70, saved as 0–100 on device and exported in v5 backup as optional fields; imported older v5 and v1–v4 saves still work.
+- Run Android API35/API36 click-path smoke, Android unit tests, iOS simulator/device build, Swift core/save parity, and privacy audit before merging. Signing must remain disabled on GitHub.
+- Screenshot comparison against provided 3D reference art remains incomplete; do not claim pixel-identical artwork yet.
+
 ## Premium UI references — verification gate
 
 - Review and track all ten supplied reference screens; run screenshot comparisons against actual Android API35/36 and iOS simulator outputs.
