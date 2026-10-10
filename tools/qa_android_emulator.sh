@@ -56,9 +56,13 @@ m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
 if not m:
     raise SystemExit("FAIL: invalid system launcher Wait button bounds")
 left,top,right,bottom=map(int,m.groups())
-print("Recovering confirmed Pixel Launcher ANR while BOPAVI remains running",flush=True)
-subprocess.run(["adb","shell","input","tap",str((left+right)//2),
-                str((top+bottom)//2)],check=True)
+# Pressing Wait leaves the hung launcher alive, so its ANR repeatedly
+# covers the game and consumes gallery gestures. Terminate only this
+# verified SYSTEM launcher process; never terminate or hide BOPAVI.
+print("Stopping confirmed unresponsive Pixel Launcher (not BOPAVI)",flush=True)
+subprocess.run(["adb","shell","am","force-stop","com.google.android.apps.nexuslauncher"],check=True)
+subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,
+               stdout=subprocess.DEVNULL)
 PY
 }
 verify_three_home_actions(){
@@ -113,8 +117,11 @@ if len(buttons)!=1:
         m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
         if not m: raise SystemExit("FAIL: invalid launcher ANR Wait button bounds")
         l,t,r,b=map(int,m.groups())
-        print("Recovering exact emulator Pixel Launcher ANR; BOPAVI process remains verified",flush=True)
-        subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],check=True)
+        print("Stopping exact unresponsive Pixel Launcher before play navigation",flush=True)
+        subprocess.run(["adb","shell","am","force-stop",
+                        "com.google.android.apps.nexuslauncher"],check=True)
+        subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,
+                       stdout=subprocess.DEVNULL)
         sys.exit(0)
     raise SystemExit(f'FAIL: expected one clickable IGRAJ button, got {len(buttons)}; dialog={titles}')
 match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
@@ -175,9 +182,14 @@ def swipe_gallery(root,up=True):
             m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get('bounds',''))
             if not m: raise SystemExit('FAIL: invalid Pixel Launcher Wait button bounds')
             left,top,right,bottom=map(int,m.groups())
-            print('Recovering exact Pixel Launcher ANR over pilot gallery',flush=True)
-            subprocess.run(['adb','shell','input','tap',str((left+right)//2),
-                            str((top+bottom)//2)],check=True)
+            # The old "Wait" tap only postponed the same Pixel Launcher ANR.
+            # Restart the verified SYSTEM launcher instead, without touching
+            # the BOPAVI process or relaxing the nine-card assertions.
+            print('Stopping exact unresponsive Pixel Launcher over pilot gallery',flush=True)
+            subprocess.run(['adb','shell','am','force-stop',
+                            'com.google.android.apps.nexuslauncher'],check=True)
+            subprocess.run(['adb','shell','pidof','com.brendigo.bopavi'],check=True,
+                           stdout=subprocess.DEVNULL)
         time.sleep(1.0)
         root=refresh_ui()
     else:
@@ -209,10 +221,18 @@ for attempt in range(7):
                for n in root.iter('node')):
             seen.add(name)
     if required <= seen: break
+    # Preserve evidence that an actual card row moved instead of counting
+    # swipes swallowed by a recurring Pixel Launcher ANR dialog.
+    before=next((n.get('bounds') for n in root.iter('node')
+                 if 'Bopi, ' in n.get('content-desc','')),None)
     swipe_gallery(root,up=True)
     root=refresh_ui()
+    after=next((n.get('bounds') for n in root.iter('node')
+                if 'Bopi, ' in n.get('content-desc','')),None)
+    if before==after and before is not None and attempt>=2:
+        print(f'Gallery not advancing after gesture {attempt+1}; checking system overlays',flush=True)
 if not required <= seen:
-    raise SystemExit(f'FAIL: missing characters after scrolling: {sorted(required-seen)}')
+    raise SystemExit(f'FAIL: missing characters after actual gallery scroll: {sorted(required-seen)}')
 print('PASS: scrolled actual character gallery and found Portantin, Noa and Any',flush=True)
 
 # Scroll back: flight confirmation deliberately stays near the top of menu.

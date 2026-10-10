@@ -1,4 +1,7 @@
 ## v0.1.31 — endless-flight coordinate precision (build 34)
+- Android 15 emulator CI: when a verified **Pixel Launcher** system ANR overlays a healthy BOPAVI picker, terminate only the stuck launcher instead of repeatedly pressing Wait. Continue to require real scrolling and accessible Portantin, Noa, and Any cards; never dismiss an ANR originating from BOPAVI.
+- Removed CI's disposable signing-key smoke job and disabled the manual GitHub signing workflow. APK debug builds and **unsigned** AAB remain available. Any future production upload signing is strictly offline.
+
 - Android versionCode 34 / versionName 0.1.31; iOS build 34 / marketing version 0.1.31. Confirm in Play Console that 34 has not already been used before signing/uploading.
 ### Fixed
 - Android and iOS collision positions now subtract the camera's traveled distance in double precision instead of accumulating increasingly imprecise Float world coordinates.

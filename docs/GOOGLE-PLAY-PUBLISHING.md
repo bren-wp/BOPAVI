@@ -7,7 +7,7 @@ Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **
 - Izvorni Kotlin/Android projekt koji cilja API 36, uz novu Android 13–16 obradu geste Natrag i podršku za starije uređaje.
 - Automatizirane sigurnosne i funkcionalne provjere, Android APK, **nepotpisani** Android AAB, iOS simulator/device ZIP (iOS uređajni ZIP također nije potpisan za App Store).
 - ZIP BOPAVI-Google-Play-listing-v0.1.31.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
-- Odvojeni ručni GitHub workflow za izradu i provjeru **potpisanog** Google Play AAB-a, koji zahtijeva privatne tajne upload ključa. Potpisani AAB čuva se u ograničenom GitHub Actions artifactu, **ne u javnom Releaseu**.
+- GitHub Actions izrađuje **nepotpisani** AAB za preuzimanje. Potpisivanje putem GitHuba je isključeno; izdavač privatno potpisuje paket izvan GitHuba tek prije slanja na Google Play.
 - Hrvatski opis trgovine, politika privatnosti, Data safety analiza i kontrolni popis.
 
 **Izdanje nije automatska objava na Google Playu.** Prije objave potrebni su račun izdavača, upload ključ, Play App Signing, sadržajni obrasci, testeri, provjera fizičkih uređaja i odobrenje trgovine.
@@ -30,19 +30,13 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 
 Čuvaj datoteku, lozinke i sigurnosnu kopiju u privatnom spremištu izvan GitHub repozitorija. Nikada ih ne šalji u chat, issue, PR, commit, screenshot ili GitHub Release. Potpisani bundle bez trajnog upload ključa nije spreman za dugoročno održavanje aplikacije.
 
-## 4. Konfiguriranje sigurne izrade AAB-a
+## 4. Nepotpisani AAB i privatno potpisivanje
 
-1. Na GitHubu idi na **Settings → Environments → New environment** i dodaj naziv **google-play**. Preporučena zaštita: required reviewer, dopuštena glavna grana.
-2. U Environment secrets spremi **četiri** vrijednosti:
-   - BOPAVI_UPLOAD_KEYSTORE_B64 — base64 sadržaj vlastitog .jks (bez prijeloma retka).
-   - BOPAVI_UPLOAD_STORE_PASSWORD — lozinka keystorea.
-   - BOPAVI_UPLOAD_KEY_ALIAS — alias ključa (npr. bopavi-upload).
-   - BOPAVI_UPLOAD_KEY_PASSWORD — lozinka ključa.
-3. Base64 lokalno na Linuxu: **base64 -w0 bopavi-play-upload.jks**. Na macOS-u: **base64 < bopavi-play-upload.jks | tr -d '\n'**. Na Windows PowerShellu: **[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\sigurno\bopavi-play-upload.jks"))**. Ne ispisuj rezultat u javni zapis.
-4. Pokreni **Actions → BOPAVI — signed Google Play upload AAB → Run workflow**, izaberi **main** i tag **v0.1.31**. Poseban workflow zahtijeva te tajne i odbija ostale grane/tagove. Ako nema tajni, **namjerno mora pasti**.
-5. Nakon uspjeha u Actions → Artifacts preuzmi **BOPAVI-Google-Play-v0.1.31-SIGNED-AAB** s datotekama **BOPAVI-v0.1.31-Play-upload-SIGNED.aab** i SHA256SUMS.txt. Provjeri SHA-256 hash preuzetog AAB-a. Artifact je vremenski ograničen na 5 dana.
-6. Potpisni workflow koristi jarsigner provjeru. U Play Console prenesi **isključivo potpisani AAB**, nikada javni, nepotpisani app-release.aab iz običnog GitHub izdanja.
-7. Ako je Google Play već vidio isti versionCode, povećaj ga u novom izdanju. Nemoj prepisivati stari tag niti koristiti drugi nasumični potpisni ključ.
+1. GitHub Actions izrađuje `app-release.aab` bez upload ključa. GitHub signing test i ručni signing job namjerno su onemogućeni prema odluci izdavača.
+2. Preuzmi nepotpisani AAB iz provjerenog GitHub Actions artefakta ili iz javnog GitHub izdanja. Provjeri izvornu verziju, SHA-256, package name i neiskorišteni `versionCode`.
+3. Ako izdavač kasnije želi objaviti igru u Play Consoleu, potpisivanje izvodi **lokalno i privatno**, koristeći postojeći, odobreni upload ključ, bez slanja ključa, JKS datoteka ili lozinki na GitHub.
+4. Potpis i SHA-256 provjeri lokalnim alatima prije predaje u Play Console. Nepotpisani `app-release.aab` **nije** prihvatljiv za Play upload.
+5. U slučaju prethodno iskorištenog `versionCode`, pripremi novo pravo izdanje. Nemoj prepisivati tag ili mijenjati upload identitet bez potvrde u Play Consoleu.
 
 ## 5. Store listing i marketinški materijali
 
