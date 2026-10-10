@@ -224,10 +224,13 @@ class MainActivity : Activity() {
             background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20).apply {
                 if(world==progress.chosenWorld()) setStroke(d(3),worldAccents[world])
             }
-            setPadding(d(16),d(14),d(16),d(14))
+            setPadding(d(7),d(8),d(7),d(10))
             elevation=d(3).toFloat()
             isClickable=true;isFocusable=true
-            contentDescription="$name, otključano${if(world==progress.chosenWorld()) ", odabrano" else ""}"
+            // Each world is playable. All values come from the existing save.
+            contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
+                "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}" +
+                if(world==progress.chosenWorld()) ", odabrano" else ""
             setOnClickListener{sound.effect("click");onClick()}
         }
         val artPanel=FrameLayout(this).apply{
@@ -239,6 +242,13 @@ class MainActivity : Activity() {
         artPanel.addView(ImageView(this).apply{
             setImageResource(art[world])
             scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        // A dark lower gradient keeps bright waterfall/portal illustrations
+        // legible behind the real blue navigation arrow on every world.
+        artPanel.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x00071c38,0x11071c38,0xbb03122f.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         val badge=TextView(this).apply{
@@ -264,17 +274,29 @@ class MainActivity : Activity() {
         },FrameLayout.LayoutParams(d(38),d(38),Gravity.BOTTOM or Gravity.RIGHT).apply{
             setMargins(0,0,d(8),d(8))
         })
-        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
+        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(156)).apply{bottomMargin=d(8)})
         row.addView(TextView(this).apply{
-            text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  $name   ↗"
-            textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
-            gravity=Gravity.CENTER_HORIZONTAL
-        })
+            text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  ${name.uppercase()}"
+            textSize=14f;setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER
+            setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(26)))
         row.addView(TextView(this).apply{
-            text="Level ${progress.streamFrontier(world)} · ${LevelEngine.collectibles[world]}"
-            textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(0,d(5),0,0)
-        })
+            text="LEVEL ${progress.streamFrontier(world)}"
+            textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(22)))
+        row.addView(TextView(this).apply{
+            text="✦ ${progress.collectibles(world)}  ·  ♛ ${progress.best(world)}"
+            textSize=12f;setTextColor(0xffffcb56.toInt());gravity=Gravity.CENTER
+            typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(23)))
         parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
             setMargins(d(4),d(5),d(4),d(7))
         })
