@@ -42,7 +42,7 @@ assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions 
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
 assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
 assert f'gh release create v{android_versions[0]}' in workflow, "Release workflow tag mismatches builds"
-print('PASS: native source inventory, 28 audio assets, three-action home, manifest, icons, no web engine/network permission')
+print('PASS: native source inventory, 28 audio assets, premium home, manifest, icons, no web engine/network permission')
 
 # Animation feedback must exist on both game cores and rendering surfaces.
 for path in ['android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt',
@@ -249,8 +249,13 @@ assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 
 # Premium art and illustrated results must ship on Android/iOS.
-assert '#ff871b' in (root/'docs/assets/logo.svg').read_text()
-assert 'id="wood"' in (root/'docs/assets/logo.svg').read_text()
+# The old flat brown wood plaque was intentionally replaced by the
+# shared winged blue/gold gradient. Test actual required brand tokens.
+logo=(root/'docs/assets/logo.svg').read_text()
+assert 'id="letters"' in logo and 'id="wings"' in logo
+assert '#ff9b08' in logo and '#ff8004' in logo and '#22a8ff' in logo
+assert 'MALI LETOVI' in logo and 'VELIKE PRIČE' in logo
+assert 'id="wood"' not in logo
 assert 'id="lens"' in (root/'docs/assets/hero.svg').read_text()
 assert 'def island(' in (root/'tools/generate_images.py').read_text()
 # Dynamic result headings live in the tested core, not hardcoded in the UI.
