@@ -1,3 +1,9 @@
+## Iteration 6 — authentic gameplay HUD
+- Android and iOS present same 3 status chips (current-run coins, current-run stars, procedural level), cyan gate-progress meter, cumulative passed label and live shield/magnet badges.
+- UIKit iOS counter duplicate and second painted PAUZA legend under the real native modal removed. Preflight remains deliberately free of gameplay HUD.
+- Progress bar means **actual current level gates passed**, NOT the screenshot's fictitious `1,280 / 2,000 m` until real distance unit and target metrics exist. Cumulative progress never jumps to zero at a seamless transition.
+- Outstanding visual differences: world/character 3D rendering, perspective and ornamental coin sprites/glowing textures require real standalone art and screenshot approval.
+
 ## Iteration 5 — pilot gallery
 - Featured Portantin, Noa, Any cards occupy the first top row on both devices, matching the reference ordering without remapping canonical skin IDs or corrupting ownership/coin balances.
 - Selected pilot hero uses real layered world illustration, dim overlay, portrait, selected badge. The **POLETI S** action follows the full gallery rather than preceding it.
