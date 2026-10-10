@@ -212,44 +212,48 @@ if not any('ODABERI LIKA' in s or 'POLETI S' in s for s in node_labels(root)):
 # The nine cards extend beyond the emulator viewport. Verify actual rendered
 # accessibility cards while scrolling, not just the initially visible portion.
 required={'Portantin','Noa','Any'}
+all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Portantin','Noa','Any'}
 seen=set()
-for attempt in range(7):
+for attempt in range(12):
     labels=node_labels(root)
-    for name in required:
+    for name in all_pilots:
         if any(n.get('clickable')=='true' and
                name in (n.get('content-desc','')+' '+n.get('text',''))
                for n in root.iter('node')):
             seen.add(name)
-    if required <= seen: break
+    if all_pilots <= seen: break
     # Preserve evidence that an actual card row moved instead of counting
     # swipes swallowed by a recurring Pixel Launcher ANR dialog.
     before=next((n.get('bounds') for n in root.iter('node')
-                 if 'Bopi, ' in n.get('content-desc','')),None)
+                 if 'Portantin, ' in n.get('content-desc','')),None)
     swipe_gallery(root,up=True)
     root=refresh_ui()
     after=next((n.get('bounds') for n in root.iter('node')
-                if 'Bopi, ' in n.get('content-desc','')),None)
+                if 'Portantin, ' in n.get('content-desc','')),None)
     if before==after and before is not None and attempt>=2:
         print(f'Gallery not advancing after gesture {attempt+1}; checking system overlays',flush=True)
+if not all_pilots <= seen:
+    raise SystemExit(f'FAIL: missing characters after actual gallery scroll: {sorted(all_pilots-seen)}')
 if not required <= seen:
-    raise SystemExit(f'FAIL: missing characters after actual gallery scroll: {sorted(required-seen)}')
-print('PASS: scrolled actual character gallery and found Portantin, Noa and Any',flush=True)
+    raise SystemExit(f'FAIL: missing featured pilots: {sorted(required-seen)}')
+print('PASS: scrolled full 3x3 gallery and found all nine pilots, including Portantin, Noa and Any',flush=True)
 
-# Scroll back: flight confirmation deliberately stays near the top of menu.
-for attempt in range(8):
+# Flight confirmation is intentionally BELOW all nine cards. Scroll toward
+# the bottom, not back to the header: both cannot fit in one phone viewport.
+for attempt in range(10):
     buttons=[n for n in root.iter('node') if n.get('clickable')=='true'
              and 'POLETI S' in (n.get('text','')+' '+n.get('content-desc',''))]
-    if len(buttons)==1 and any('ODABERI LIKA' in s for s in node_labels(root)):
+    if len(buttons)==1:
         break
-    swipe_gallery(root,up=False)
+    swipe_gallery(root,up=True)
     root=refresh_ui()
 else:
     raise SystemExit('FAIL: flight confirmation unreachable after gallery scrolling')
 m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
 if not m: raise SystemExit('FAIL: invalid pilot launch bounds')
 l,t,r,b=map(int,m.groups())
-# A scroll may still be settling: tap only after the full title and button
-# are simultaneously visible, then verify actual navigation before succeeding.
+# A scroll may still be settling: tap only a visible confirmation button,
+# then verify actual navigation before succeeding.
 time.sleep(.8)
 x,y=(l+r)//2,(t+b)//2
 for attempt in range(3):
