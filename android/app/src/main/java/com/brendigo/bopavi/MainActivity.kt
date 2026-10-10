@@ -719,19 +719,31 @@ class MainActivity : Activity() {
         back(b){showSettings()}
     }
     private fun showSettings(){
-        val b=base("POSTAVKE","Sve opcije, jednostavno na jednom mjestu")
+        val b=base("POSTAVKE","Prilagodi igru svom stilu")
         sectionHeading(b,"IZGLED I ZVUK")
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
-        b.addView(low)
+        low.thumbTintList=ColorStateList.valueOf(gold)
+        low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+        low.setPadding(d(12),d(10),d(12),d(10))
+        low.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        b.addView(low,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
-        b.addView(audio)
+        audio.thumbTintList=ColorStateList.valueOf(gold)
+        audio.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+        audio.setPadding(d(12),d(10),d(12),d(10))
+        audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        b.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
         val haptic=Switch(this).apply {
             text="Vibracije pri igranju"
             setTextColor(Color.WHITE)
             isChecked=progress.hapticEnabled()
             setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
         }
-        b.addView(haptic)
+        haptic.thumbTintList=ColorStateList.valueOf(gold)
+        haptic.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+        haptic.setPadding(d(12),d(10),d(12),d(10))
+        haptic.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        b.addView(haptic,LinearLayout.LayoutParams(-1,d(54)))
         sectionHeading(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
@@ -740,11 +752,14 @@ class MainActivity : Activity() {
                 text=progress.difficultyNames[mode]
                 setTextColor(Color.WHITE)
                 textSize=17f
+                buttonTintList=ColorStateList.valueOf(gold)
+                background=gradient(0xb0082856.toInt(),0xb0031632.toInt(),13)
+                setPadding(d(12),0,d(6),0)
                 id=View.generateViewId()
                 isChecked=progress.difficulty()==mode
                 setOnClickListener { progress.setDifficulty(mode) }
             }
-            modes.addView(item,LinearLayout.LayoutParams(-1,d(48)))
+            modes.addView(item,LinearLayout.LayoutParams(-1,d(48)).apply{bottomMargin=d(5)})
         }
         b.addView(modes,LinearLayout.LayoutParams(-1,-2))
         small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
@@ -755,6 +770,8 @@ class MainActivity : Activity() {
             setTextColor(Color.WHITE)
             setHintTextColor(0xffb2d6ff.toInt())
             inputType=android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            setPadding(d(14),0,d(14),0)
+            background=gradient(0xff082b59.toInt(),0xff041b3b.toInt(),13)
         }
         b.addView(player,LinearLayout.LayoutParams(-1,d(52)))
         action(b,"SPREMI IME",false){
