@@ -1,3 +1,12 @@
+## In-flight HUD parity — required QA
+- On Android API35/API36 and iOS simulator check top row displays **actual run coins, actual collected stars, actual current level**; native pause button remains unobstructed and accessible.
+- The blue progress bar uses passed/current level total gates (not fictional meters), while cumulative passed gates and screen-reader progress never reset during seamless level promotion.
+- If shield/magnet is active, show the authentic current count/time. Hidden boosts must not display nonzero icons.
+- Idle flight shows **no HUD and no pause button** before first real flap. Paused gameplay freezes physics and only the real custom modal renders PAUZA, not an additional overlapping painted panel.
+- No duplicate iOS UIView counter; no extra per-frame UIImage decoding, scaling changes or collision geometry changes.
+- Require visual screenshots, Android unit/lint/APK/unsigned AAB, API35 and API36 smoke, iOS simulator/unsigned device tests, Swift save/physics parity and privacy audit before merge.
+- Visual parity with supplied high-fidelity 3D art remains **open**, even if these real UI controls pass.
+
 ## Premium character picker — regression gate
 - On Android 15 and 16 and iOS simulator, verify pilot gallery first visual row is Portantin / Noa / Any and all nine cards remain accessible by real scrolling.
 - Check the chosen character hero matches the actual persisted index and correct world (world art/portrait are separate layers).

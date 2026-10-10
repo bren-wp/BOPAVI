@@ -52,7 +52,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private var canvas:GameCanvas?
     private var gameWorld=0
     private var gameNumber=1
-    private var hud:UILabel?
     private var backgroundGradient:CAGradientLayer?
     private let worldAccents:[UIColor] = [
         UIColor(red:0.34,green:0.94,blue:0.68,alpha:1), UIColor(red:1,green:0.75,blue:0.43,alpha:1),
@@ -89,7 +88,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     private func clear() {
-        canvas?.stop();canvas=nil;hud=nil;sound.stop()
+        canvas?.stop();canvas=nil;sound.stop()
         setNeedsStatusBarAppearanceUpdate()
         backgroundGradient=nil
         view.subviews.forEach{$0.removeFromSuperview()}
@@ -870,17 +869,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.effect("level")
             if reward>0 {self.showToast("Level \(level): +\(reward) kovanica")}
         }
-        let counter=UILabel();counter.text=" Level \(number) · \(BopaviCore.collectibleIcons[world]) 0 "
-        counter.backgroundColor=UIColor(red:0.05,green:0.15,blue:0.38,alpha:0.85)
-        counter.font=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
-        counter.textColor = .white;counter.layer.cornerRadius=15;counter.clipsToBounds=true
-        counter.adjustsFontSizeToFitWidth=true;counter.minimumScaleFactor=0.66
-        counter.isHidden=true
-        counter.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(counter);hud=counter
-        NSLayoutConstraint.activate([counter.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),counter.leadingAnchor.constraint(equalTo:view.leadingAnchor,constant:14),counter.trailingAnchor.constraint(lessThanOrEqualTo:view.trailingAnchor,constant:-91),counter.heightAnchor.constraint(equalToConstant:46)])
-        gameCanvas.onHUDUpdate = { [weak counter] live in
-            counter?.text=" Level \(live.displayLevel) · \(BopaviCore.collectibleIcons[world]) \(live.stars+live.coins) "
-        }
+        // Gameplay counts now share one frame-synchronous Core Graphics HUD
+        // on Android and iOS; avoid a duplicate UIKit chip over the scene.
         let pause=UIButton(type:.system);pause.setTitle("Ⅱ",for:.normal);pause.titleLabel?.font=UIFont.boldSystemFont(ofSize:24)
         pause.backgroundColor=UIColor(red:0.11,green:0.24,blue:0.41,alpha:0.96);pause.setTitleColor(.white,for:.normal)
         pause.layer.cornerRadius=16;pause.layer.borderWidth=1
@@ -889,12 +879,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // Keep pause out of the idle flight preview and VoiceOver tree.
         pause.isHidden=true
         pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
-        gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause,weak counter] in
+        gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause] in
             guard let self=self, self.canvas === gameCanvas else{return}
             // The pre-flight preview never spends purchased equipment.
             _ = self.progress.consumePerks()
             pause?.isHidden=false
-            counter?.isHidden=false
         }
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
         pause.addAction(UIAction{[weak self,weak gameCanvas] _ in

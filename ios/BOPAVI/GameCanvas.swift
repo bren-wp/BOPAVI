@@ -40,8 +40,6 @@ final class GameCanvas: UIView {
     private var completedSeen=0
     private var pickupSeen=0
     private var shieldImpactNotified=false
-    var onHUDUpdate: ((GameSimulation) -> Void)?
-    private var lastHUD:CFTimeInterval = 0
     private var link: CADisplayLink?
     private var previous: CFTimeInterval = 0
     private var reported = false
@@ -90,7 +88,6 @@ final class GameCanvas: UIView {
             shieldImpactNotified=false
         }
         setNeedsDisplay()
-        if l.timestamp-lastHUD > 0.35 {lastHUD=l.timestamp;onHUDUpdate?(game)}
         if game.finished && !reported {
             reported=true;stop()
             DispatchQueue.main.async { [weak self] in guard let self=self else{return};if self.window != nil {self.onFinished?(self.game)} }
@@ -157,18 +154,7 @@ final class GameCanvas: UIView {
             drawBoostHUD(c)
             drawLevelProgress(c)
         }
-        if paused {
-            rect(c,40,340,400,118,0x1b2b55,24,0.91)
-            let pauseTitle="PAUZA" as NSString
-            let textSize=pauseTitle.size(withAttributes:[.font:UIFont.systemFont(ofSize:36,weight:.heavy)])
-            pauseTitle.draw(at:CGPoint(x:(480-textSize.width)/2,y:378),withAttributes:[
-                .font:UIFont.systemFont(ofSize:36,weight:.heavy),.foregroundColor:UIColor.white])
-            let resumeHint="ODABERI NASTAVI LET" as NSString
-            let hintFont=UIFont.systemFont(ofSize:16,weight:.bold)
-            let hintWidth=resumeHint.size(withAttributes:[.font:hintFont]).width
-            resumeHint.draw(at:CGPoint(x:(480-hintWidth)/2,y:420),withAttributes:[
-                .font:hintFont,.foregroundColor:UIColor.white])
-        }
+        // The native premium pause modal owns this layer, without duplicate text.
         c.restoreGState()
         let groundTop=(bound.height-800*s)/2+751*s
         if groundTop<bound.height {
@@ -176,30 +162,64 @@ final class GameCanvas: UIView {
                 game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
         }
     }
-    /// A cumulative counter never jumps back to zero as levels stream past.
+    /// Single UIKit-free illustrated HUD: the separately clickable Pause
+    /// button remains a real UIButton above the scene, not a painted sprite.
+    /// All values are live simulation data. The bar is explicitly progress
+    /// within this procedural level, while the cumulative total never resets.
+    private func hudText(_ value:String,_ x:CGFloat,_ y:CGFloat,_ font:UIFont,_ rgb:UInt32) {
+        (value as NSString).draw(at:CGPoint(x:x,y:y),withAttributes:[
+            .font:font,.foregroundColor:UIColor(rgb:rgb)])
+    }
+    private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
+    private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
+    private let hudLabelFont=UIFont.systemFont(ofSize:13,weight:.bold)
+    private let hudLevelFont=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
             progressLabel=NSAttributedString(string:"PROLAZI UKUPNO  \(passed)",
-                attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
-            accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
         }
-        rect(c,180,160,286,36,0x18305d,16,0.85)
-        progressLabel.draw(at:CGPoint(x:193,y:165))
+        let total=max(1,game.level.gates.count)
+        let ratio=max(0,min(1,CGFloat(game.passed)/CGFloat(total)))
+        rect(c,14,87,386,20,0x041638,12,0.93)
+        rect(c,19,91,376,12,0x164a84,6)
+        if ratio>0 {
+            rect(c,19,91,376*ratio,12,0x18c9ff,6)
+            rect(c,20,92,374*ratio,4,0xdfffff,2,0.60)
+        }
+        rect(c,124,112,180,33,0x062653,16,0.92)
+        let centeredX=214-progressLabel.size().width/2
+        progressLabel.draw(at:CGPoint(x:centeredX,y:117))
+        hudText("♛",196,64,hudIconFont,0xffcd59)
+        hudText("\(game.passed)/\(total)",346,116,hudLabelFont,0xe8f5ff)
+        accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
     }
-    // Drawn in the same unscaled 480x800 game coordinates as Android.
-    // Lightweight rounded chips reveal actual remaining protection and magnet time.
     private func drawBoostHUD(_ c:CGContext) {
-        let attributes:[NSAttributedString.Key:Any]=[.font:boostFont,.foregroundColor:UIColor.white]
+        // Top-right reserve protects the separately actionable Pause button.
+        rect(c,13,21,131,54,0x062a62,24,0.90)
+        rect(c,17,25,37,45,0xef9f0a,22)
+        hudText("●",27,33,hudIconFont,0xffe685)
+        hudText("\(game.coins)",66,33,hudCountFont,0xffffff)
+        rect(c,155,21,120,54,0x062a62,24,0.90)
+        hudText("★",169,33,hudIconFont,0xffcd59)
+        hudText("\(game.stars)",206,33,hudCountFont,0xffffff)
+        rect(c,285,21,120,54,0x062a62,24,0.90)
+        hudText("LEVEL",297,29,hudLabelFont,0xbdefff)
+        hudText("\(game.displayLevel)",300,46,hudLevelFont,0xffffff)
         if game.shield>0 {
-            rect(c,14,79,124,31,0x183e75,14,0.87)
-            ("ŠTIT ×\(game.shield)" as NSString).draw(at:CGPoint(x:25,y:86),withAttributes:attributes)
+            rect(c,13,169,141,42,0x08295a,21,0.92)
+            rect(c,18,173,35,34,0x147fce,17)
+            hudText("◆",26,180,hudLevelFont,0xbfffff)
+            hudText("ŠTIT ×\(game.shield)",63,181,boostFont,0xffffff)
         }
         if game.magnetTime>0 {
-            rect(c,14,114,137,31,0x183e75,14,0.87)
+            rect(c,13,216,152,42,0x08295a,21,0.92)
+            rect(c,18,221,35,33,0x147fce,17)
+            hudText("∩",27,226,hudLevelFont,0xffd266)
             let seconds=Int(ceil(Double(game.magnetTime)))
-            ("MAGNET \(seconds)s" as NSString).draw(at:CGPoint(x:25,y:121),withAttributes:attributes)
+            hudText("MAGNET \(seconds)s",62,228,boostFont,0xffffff)
         }
     }
     /// Procedural scenery over the illustration and behind real collision geometry.

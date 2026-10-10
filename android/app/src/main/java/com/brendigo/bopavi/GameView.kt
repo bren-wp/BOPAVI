@@ -183,7 +183,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
         }
-        if(paused){rect(canvas,40f,340f,440f,458f,0xe91b2b55.toInt(),24f);text(canvas,"PAUZA",240f,390f,36f,Color.WHITE,true);text(canvas,"ODABERI NASTAVI LET",240f,425f,16f,Color.WHITE,true)}
+        // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
         val groundTop=(height-800f*scale)/2f+751f*scale
         if(groundTop<height) {
@@ -585,7 +585,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
-    /** Cumulative progress never resets when a new level joins the same flight. */
+    /**
+     * Premium in-flight information hierarchy shared with iOS Core Graphics.
+     * Every displayed count comes from the live GameSimulation; progress is
+     * explicitly through the current level (never fabricated metres).
+     * Top-right 72px of the 480x800 playfield is reserved for the *real*
+     * native Pause button, and the untouched physics remain in world units.
+     */
     private fun drawLevelProgress(c:Canvas) {
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
@@ -593,24 +599,47 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        rect(c,180f,160f,466f,196f,0xd918305d.toInt(),16f)
-        text(c,progressTitle,193f,184f,16f,Color.WHITE)
+        val total=game.level.gates.size.coerceAtLeast(1)
+        val ratio=(game.passed.toFloat()/total.toFloat()).coerceIn(0f,1f)
+        rect(c,14f,87f,400f,107f,0xee041638.toInt(),12f)
+        rect(c,19f,91f,395f,103f,0xff164a84.toInt(),7f)
+        if(ratio>0f) {
+            rect(c,19f,91f,19f+376f*ratio,103f,0xff18c9ff.toInt(),6f)
+            rect(c,20f,92f,20f+374f*ratio,96f,0x99dfffff.toInt(),2f)
+        }
+        rect(c,124f,112f,304f,145f,0xea062653.toInt(),16f)
+        text(c,progressTitle,214f,134f,15f,Color.WHITE,true)
+        text(c,"♛",207f,87f,19f,0xffffcd59.toInt(),true)
+        // The small fraction refers to the current procedural level only.
+        // Cumulative PROLAZI never resets when a seamless level advances.
+        text(c,"${game.passed}/$total",366f,130f,13f,0xffe8f5ff.toInt(),true)
     }
     private fun drawHud(c:Canvas){
-        rect(c,14f,22f,197f,71f,0xcc15285c.toInt(),20f)
-        text(c,"LEVEL ${game.displayLevel}",26f,55f,20f,Color.WHITE)
-        rect(c,210f,22f,350f,71f,0xcc15285c.toInt(),20f)
-        text(c,"${LevelEngine.collectibleIcons[game.level.world]} ${game.stars+game.coins}",225f,54f,20f,0xffffe39c.toInt())
+        // Semitransparent midnight-blue glass chips and gold/cyan highlights.
+        // Keep top-right clear for the separately clickable pause control.
+        rect(c,13f,21f,144f,75f,0xe8062a62.toInt(),24f)
+        rect(c,17f,25f,54f,70f,0xffef9f0a.toInt(),22f)
+        text(c,"●",35f,55f,27f,0xffffe685.toInt(),true)
+        text(c,"${game.coins}",66f,55f,23f,Color.WHITE)
+        rect(c,155f,21f,275f,75f,0xe8062a62.toInt(),24f)
+        text(c,"★",169f,56f,27f,0xffffcd59.toInt())
+        text(c,"${game.stars}",206f,55f,23f,Color.WHITE)
+        rect(c,285f,21f,405f,75f,0xe8062a62.toInt(),24f)
+        text(c,"LEVEL",297f,44f,13f,0xffbdefff.toInt())
+        text(c,"${game.displayLevel}",300f,65f,20f,Color.WHITE)
         if(game.shield>0){
-            rect(c,14f,79f,138f,110f,0xdd183e75.toInt(),14f)
-            text(c,"ŠTIT ×${game.shield}",25f,101f,16f,Color.WHITE)
+            rect(c,13f,169f,154f,211f,0xec08295a.toInt(),21f)
+            rect(c,18f,173f,53f,207f,0xff147fce.toInt(),17f)
+            text(c,"◆",35f,197f,21f,0xffbfffff.toInt(),true)
+            text(c,"ŠTIT ×${game.shield}",63f,196f,17f,Color.WHITE)
         }
         if(game.magnetTime>0f){
-            rect(c,14f,114f,151f,145f,0xdd183e75.toInt(),14f)
+            rect(c,13f,216f,165f,258f,0xec08295a.toInt(),21f)
+            rect(c,18f,221f,53f,254f,0xff147fce.toInt(),17f)
+            text(c,"∩",35f,245f,23f,0xffffd266.toInt(),true)
             val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt()
-            text(c,"MAGNET ${seconds}s",25f,136f,16f,Color.WHITE)
+            text(c,"MAGNET ${seconds}s",62f,245f,16f,Color.WHITE)
         }
-        // No small text printed over the foreground: HUD is kept at the top.
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
         if(event.actionMasked==MotionEvent.ACTION_DOWN){
