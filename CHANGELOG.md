@@ -1,3 +1,10 @@
+## In development — premium interactive three-card difficulty selector
+- Replaced Android's vertical RadioGroup and iOS's generic segmented difficulty control with **three equal-width, touch-accessible blue/gold illustrated cards** for LAGANO, NORMALNO and ZAHTJEVNO, matching the reference hierarchy.
+- Each card displays an existing complete winged pilot illustration and brief Croatian challenge description; selected card gets a gold border and true persisted 0/1/2 selection. TalkBack/VoiceOver announce current selection.
+- Kept the same offline difficulty physics multipliers and saved ProgressStore keys. Changes affect the **next** flight, never silently restart an active game.
+- Android emulator QA actually scrolls, taps Lagano, confirms selected state, then restores Normalno and confirms persisted state. Both native source parity and settings-screen navigation remain tested.
+- Still does not claim 100% exact 3D screenshot art or unimplemented cloud account/language functionality.
+
 ## In development — complete illustrated winged pilot portraits
 - Fixed an actual visual inconsistency: character picker, selected-pilot hero and in-game pause used **torso-only** `bopi0..8` assets, while flight independently rendered both wing layers.
 - The shared build-time artwork generator now composites the original body and both detached wing layers for every one of the **nine** pilots into `bopiportrait0..8` (Android) / `BopiPortrait0..8` (iOS), adding restrained soft edge diffusion for legibility over the eight rich biomes.
