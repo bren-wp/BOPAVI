@@ -118,7 +118,13 @@ for card in (android_tile,ios_tile):
     assert 'streamFrontier(world)' in card
     assert 'collectibles[world]' in card
     assert 'otključano' in card
-assert 'row.addView(preview' in android_tile
+# Premium world cards render the same actual illustrations within a
+# framed image panel plus a decorative (non-tappable) world badge and arrow.
+assert 'row.addView(artPanel' in android_tile
+assert 'artPanel.addView(ImageView(this)' in android_tile
+assert 'world+1' in android_tile and 'world+1' in ios_tile
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
+assert 'arrow.isUserInteractionEnabled=false' in ios_tile
 assert 'row.addView(TextView(this)' in android_tile
 assert 'preview.heightAnchor.constraint(equalToConstant:137)' in ios_tile
 assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:150)' in ios_tile
@@ -781,6 +787,38 @@ assert "subprocess.run(['adb','shell','pidof','com.brendigo.bopavi']" in gallery
 assert "missing characters after actual gallery scroll" in android_qa
 assert "before==after" in android_qa
 print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
+
+# Premium reference-followup: illustrated 20-level grid and real dual-channel
+# audio sliders are implemented symmetrically (never screenshot-only controls).
+android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun characterGallery(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func characterGallery(',1)[0]
+for level_ui in (android_levels,ios_levels):
+    assert 'LEVELI' in level_ui
+    assert 'NORMALNI · ⚡ IZAZOVNI' in level_ui
+    assert 'PRETHODNIH 20' in level_ui and 'SLJEDEĆIH 20' in level_ui
+    assert 'kind' in level_ui and 'frontier' in level_ui
+    assert 'LevelKind.icon(kind)' in level_ui and 'LevelKind.name(kind)' in level_ui
+    assert 'PRETHODNIH 20' in level_ui and 'POKRENI ODABRANI LEVEL' in level_ui
+assert 'private fun levelTile(' in android_levels
+assert 'private func levelTile(' in ios_levels
+assert 'R.drawable.world0' in android_levels and 'UIImage(named:"World\\(world)")' in ios_levels
+assert 'if(unlocked)' in android_levels and 'if unlocked' in ios_levels
+for ui in (android_menu,ios_menu):
+    assert 'volumeSlider(' in ui and 'musicVolume' in ui and 'effectsVolume' in ui
+android_audio=(root/'android/app/src/main/java/com/brendigo/bopavi/Soundscape.kt').read_text()
+ios_audio=(root/'ios/BOPAVI/Soundscape.swift').read_text()
+for audio in (android_audio,ios_audio):
+    assert 'musicVolume' in audio and 'effectsVolume' in audio
+    assert 'if(enabled)' in audio or 'if enabled' in audio
+for store in (android_save,ios_save):
+    for key in ('musicVolume','effectsVolume','music_volume','effects_volume'):
+        assert key in store, key
+    assert 'soundEnabled' in store and 'hapticEnabled' in store
+assert 'progress.setMusicVolume(it)' in android_settings
+assert 'progress.setEffectsVolume(it)' in android_settings
+assert 'self.progress.musicVolume=value' in ios_settings
+assert 'self.progress.effectsVolume=value' in ios_settings
+print('PASS: true illustrated twenty-level grid, 0..100 music/effects sliders and Android/iOS offline-save parity')
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle

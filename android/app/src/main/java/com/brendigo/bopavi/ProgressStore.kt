@@ -130,6 +130,11 @@ class ProgressStore(context: Context) {
     fun setHapticEnabled(value:Boolean) {prefs.edit().putBoolean("haptic_enabled",value).apply()}
     fun soundEnabled():Boolean = prefs.getBoolean("sound_enabled",true)
     fun setSoundEnabled(enabled:Boolean) {prefs.edit().putBoolean("sound_enabled",enabled).apply()}
+    // Independently persisted offline mixer values, mirrored by iOS (0..100).
+    fun musicVolume():Int = prefs.getInt("music_volume",80).coerceIn(0,100)
+    fun effectsVolume():Int = prefs.getInt("effects_volume",70).coerceIn(0,100)
+    fun setMusicVolume(value:Int){prefs.edit().putInt("music_volume",value.coerceIn(0,100)).apply()}
+    fun setEffectsVolume(value:Int){prefs.edit().putInt("effects_volume",value.coerceIn(0,100)).apply()}
 
     fun exportJson(): String {
         val s = JSONObject()
@@ -145,7 +150,8 @@ class ProgressStore(context: Context) {
         s.put("wins",wins());s.put("deaths",deaths());s.put("flaps",prefs.getLong("flaps",0L))
         s.put("endlessBest",endlessBest());s.put("endlessRuns",prefs.getInt("endless_runs",0))
         s.put("perks",JSONArray((0..1).map{perkCount(it)}))
-        s.put("collectibles",JSONArray((0..7).map{collectibles(it)}));s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
+        s.put("collectibles",JSONArray((0..7).map{collectibles(it)})); s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
+        s.put("musicVolume",musicVolume());s.put("effectsVolume",effectsVolume())
         return JSONObject().put("format", "bopavi-save").put("exportVersion", 5).put("save", s).toString(2)
     }
     fun importJson(contents: String) {
@@ -228,6 +234,8 @@ class ProgressStore(context: Context) {
             }
         }
         e.putString("local_leaderboard",board.toString())
+        e.putInt("music_volume",s.optInt("musicVolume",80).coerceIn(0,100))
+        e.putInt("effects_volume",s.optInt("effectsVolume",70).coerceIn(0,100))
         e.putBoolean("sound_enabled",s.optBoolean("soundEnabled",true))
         e.putBoolean("haptic_enabled",s.optBoolean("hapticEnabled",true))
         e.putBoolean("less_motion", s.optBoolean("lessMotion", false)); e.apply()

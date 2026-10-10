@@ -48,6 +48,8 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility=0
         progress=ProgressStore(this);sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
+        sound.musicVolume=progress.musicVolume()/100f
+        sound.effectsVolume=progress.effectsVolume()/100f
         // Android 16 no longer routes predictive Back through onBackPressed().
         if (Build.VERSION.SDK_INT >= 33) {
             val callback = android.window.OnBackInvokedCallback { navigateBack() }
@@ -228,17 +230,41 @@ class MainActivity : Activity() {
             contentDescription="$name, otključano${if(world==progress.chosenWorld()) ", odabrano" else ""}"
             setOnClickListener{sound.effect("click");onClick()}
         }
-        val preview=ImageView(this).apply{
-            val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-                R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val artPanel=FrameLayout(this).apply{
+            background=gradient(0xff0b5ca8.toInt(),0xff071b3f.toInt(),17)
+            clipToOutline=true
+        }
+        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        artPanel.addView(ImageView(this).apply{
             setImageResource(art[world])
             scaleType=ImageView.ScaleType.CENTER_CROP
-            background=gradient(0xff126ca9.toInt(),0xff0e2b57.toInt(),17)
-            clipToOutline=true
-            contentDescription="Prikaz svijeta $name"
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        val badge=TextView(this).apply{
+            text="♛  ${world+1}"
+            setTextColor(Color.WHITE);textSize=15f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            gravity=Gravity.CENTER
+            setPadding(d(7),0,d(7),0)
+            background=gradient(if(world==progress.chosenWorld())0xffd78b08.toInt()
+                else 0xff0d80e1.toInt(),0xff061f55.toInt(),18).apply{
+                setStroke(d(2),if(world==progress.chosenWorld())gold else electric)
+            }
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        row.addView(preview,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
+        artPanel.addView(badge,FrameLayout.LayoutParams(d(64),d(36),Gravity.TOP or Gravity.LEFT).apply{
+            setMargins(d(8),d(8),0,0)
+        })
+        artPanel.addView(TextView(this).apply{
+            text="›";textSize=31f;setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            background=gradient(0xff0bbcff.toInt(),0xff0650bc.toInt(),21)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(d(38),d(38),Gravity.BOTTOM or Gravity.RIGHT).apply{
+            setMargins(0,0,d(8),d(8))
+        })
+        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(150)).apply{bottomMargin=d(9)})
         row.addView(TextView(this).apply{
             text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  $name   ↗"
             textSize=15f;setTextColor(worldAccents[world]);typeface=Typeface.DEFAULT_BOLD
@@ -365,23 +391,9 @@ class MainActivity : Activity() {
     }
     private fun showLevels(world:Int,page:Int){
         currentWorld=world;progress.chooseWorld(world)
-        val b=base(LevelEngine.names[world],"Odaberi otključani level")
+        val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]}")
         val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
         val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
-        small(b,"Otključano do levela $maxNumber")
-        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        val input=EditText(this).apply{
-            inputType=android.text.InputType.TYPE_CLASS_NUMBER
-            setSingleLine(true);hint="Broj otključanog levela"
-            setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt());setText(safePage.toString());gravity=Gravity.CENTER
-            background=gradient(0xff183964.toInt(),0xff254e84.toInt())
-        }
-        b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
-        action(b,"▶  POKRENI ODABRANI LEVEL") {
-            val n=input.text.toString().toIntOrNull()
-            if(n==null||n !in 1..maxNumber)Toast.makeText(this,"Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
-            else showPilotPicker(world,n.toLong())
-        }
         val start=((safePage-1)/20)*20+1
         val zone=LevelEngine.create(world,start).zone
         small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
@@ -391,39 +403,96 @@ class MainActivity : Activity() {
             for(col in 0 until 4){
                 val n=start+r*4+col
                 if(n>LevelEngine.LEVELS_PER_WORLD)continue
-                val unlocked=n<=maxNumber
-                // Read the type from the exact level being offered; never invent it.
                 val kind=LevelEngine.create(world,n).type
-                val cell=Button(this).apply{
-                    text=if(unlocked)"${LevelKind.icon(kind)}\n$n" else "🔒\n$n"
-                    setTextColor(if(unlocked)Color.WHITE else 0xff91a8c6.toInt())
-                    textSize=14f;isAllCaps=false
-                    typeface=Typeface.DEFAULT_BOLD
-                    val face=if(!unlocked) gradient(0xff20395c.toInt(),0xff122641.toInt(),16)
-                        else when(kind) {
-                            1 -> gradient(0xffba6b2d.toInt(),0xff854220.toInt(),16)
-                            2 -> gradient(0xffb18826.toInt(),0xff755716.toInt(),16)
-                            3 -> gradient(0xff844db0.toInt(),0xff48257b.toInt(),16)
-                            else -> gradient(0xff268cf0.toInt(),0xff174aa8.toInt(),16)
-                        }
-                    if(unlocked && n==maxNumber)face.setStroke(d(3),gold)
-                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
-                    val status=if(!unlocked)"zaključan" else if(n<maxNumber)"dovršen" else "otključan"
-                    contentDescription="Level $n, ${LevelKind.name(kind)}, $status"
-                    setOnClickListener{
-                        if(unlocked){sound.effect("click");showPilotPicker(world,n.toLong())}
-                        else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
-                    }
-                }
-                row.addView(cell,LinearLayout.LayoutParams(0,d(63),1f).apply{setMargins(d(3),d(3),d(3),d(3))})
+                levelTile(row,world,n,maxNumber,kind)
             }
             if(row.childCount>0)b.addView(row,LinearLayout.LayoutParams(-1,-2))
         }
-        if(start>1)action(b,"← Prethodnih 20",false){showLevels(world,start-20)}
-        if(start+20<=maxNumber)action(b,"Sljedećih 20 →",false){showLevels(world,start+20)}
+        val pager=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        b.addView(pager,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(8)})
+        if(start>1){
+            val prev=LinearLayout(this)
+            pager.addView(prev,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
+            action(prev,"← PRETHODNIH 20",false){showLevels(world,start-20)}
+        }
+        if(start+20<=maxNumber){
+            val next=LinearLayout(this)
+            pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
+            action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
+        }
+        sectionHeading(b,"NASTAVI ILI ODABERI LEVEL")
+        small(b,"Otključano do levela $maxNumber")
+        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
+        val input=EditText(this).apply{
+            inputType=android.text.InputType.TYPE_CLASS_NUMBER
+            setSingleLine(true);hint="Broj otključanog levela"
+            setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
+            setText(safePage.toString());gravity=Gravity.CENTER
+            background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
+        }
+        b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
+        action(b,"▶  POKRENI ODABRANI LEVEL",false){
+            val n=input.text.toString().toIntOrNull()
+            if(n==null||n !in 1..maxNumber)Toast.makeText(this,
+                "Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
+            else showPilotPicker(world,n.toLong())
+        }
         back(b){showWorlds()}
     }
-    /** Nine true character portraits in a reusable, accessible two-column gallery. */
+    /**
+     * A fully interactive illustrated tile, never a pasted screenshot.
+     * The lock/checkmark comes from the same persisted frontier as gameplay.
+     */
+    private fun levelTile(parent:LinearLayout,world:Int,n:Int,frontier:Int,kind:Int){
+        val unlocked=n<=frontier
+        val completed=n<frontier
+        val current=n==frontier
+        val frame=FrameLayout(this).apply{
+            isClickable=true;isFocusable=true
+            background=gradient(0xff0b6db9.toInt(),0xff071a43.toInt(),16).apply{
+                setStroke(d(if(current)3 else 1),if(current)gold else 0xff65cfff.toInt())
+            }
+            clipToOutline=true
+            elevation=d(if(current)6 else 2).toFloat()
+            contentDescription="Level $n, ${LevelKind.name(kind)}, ${if(!unlocked)"zaključan" else if(completed)"dovršen" else "otključan"}"
+            foreground=RippleDrawable(ColorStateList.valueOf(0x55ffffff),null,
+                GradientDrawable().apply{cornerRadius=d(16).toFloat();setColor(Color.WHITE)})
+            setOnClickListener{
+                if(unlocked){sound.effect("click");showPilotPicker(world,n.toLong())}
+                else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
+            }
+        }
+        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        frame.addView(ImageView(this).apply{
+            setImageResource(art[world]);scaleType=ImageView.ScaleType.CENTER_CROP
+            alpha=if(unlocked)0.95f else 0.36f
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        frame.addView(View(this).apply {
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(
+                0x99052245.toInt(),0x11002144,if(unlocked)0xcc05244e.toInt() else 0xee08172e.toInt()))
+        },FrameLayout.LayoutParams(-1,-1))
+        val level=TextView(this).apply{
+            text=n.toString();textSize=22f;gravity=Gravity.CENTER
+            setTextColor(if(unlocked)Color.WHITE else 0xffa6b4ce.toInt())
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        frame.addView(level,FrameLayout.LayoutParams(-1,d(35),Gravity.TOP))
+        val badge=TextView(this).apply{
+            text=if(!unlocked)"🔒" else if(completed)"✓  ${LevelKind.icon(kind)}" else "★  ${LevelKind.icon(kind)}"
+            textSize=17f;gravity=Gravity.CENTER
+            setTextColor(if(current)gold else Color.WHITE)
+            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        frame.addView(badge,FrameLayout.LayoutParams(-1,d(34),Gravity.BOTTOM))
+        parent.addView(frame,LinearLayout.LayoutParams(0,d(86),1f).apply{
+            setMargins(d(3),d(4),d(3),d(4))
+        })
+    }
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
@@ -729,9 +798,51 @@ class MainActivity : Activity() {
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
         back(b){showSettings()}
     }
+    private fun volumeSlider(parent:LinearLayout,label:String,value:Int,onValue:(Int)->Unit){
+        val panel=LinearLayout(this).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(15),d(9),d(15),d(10))
+            background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        }
+        val heading=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        val name=TextView(this).apply{
+            text=label;setTextColor(Color.WHITE);textSize=16f
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+        }
+        val percent=TextView(this).apply{
+            text="$value%";setTextColor(gold);textSize=16f
+            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.RIGHT
+        }
+        heading.addView(name,LinearLayout.LayoutParams(0,-2,1f))
+        heading.addView(percent,LinearLayout.LayoutParams(-2,-2))
+        panel.addView(heading)
+        val slider=android.widget.SeekBar(this).apply{
+            max=100;progress=value.coerceIn(0,100)
+            progressTintList=ColorStateList.valueOf(0xff10baf4.toInt())
+            progressBackgroundTintList=ColorStateList.valueOf(0xff174477.toInt())
+            thumbTintList=ColorStateList.valueOf(gold)
+            contentDescription=label
+            setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(bar:android.widget.SeekBar,p:Int,fromUser:Boolean){
+                    percent.text="$p%"
+                    if(fromUser)onValue(p)
+                }
+                override fun onStartTrackingTouch(bar:android.widget.SeekBar){}
+                override fun onStopTrackingTouch(bar:android.widget.SeekBar){}
+            })
+        }
+        panel.addView(slider,LinearLayout.LayoutParams(-1,d(43)))
+        parent.addView(panel,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
+    }
     private fun showSettings(){
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
         sectionHeading(b,"IZGLED I ZVUK")
+        volumeSlider(b,"♫  Glazba",progress.musicVolume()){
+            progress.setMusicVolume(it);sound.musicVolume=it/100f
+        }
+        volumeSlider(b,"◖  Zvukovi",progress.effectsVolume()){
+            progress.setEffectsVolume(it);sound.effectsVolume=it/100f
+        }
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         low.thumbTintList=ColorStateList.valueOf(gold)
         low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
@@ -827,7 +938,10 @@ class MainActivity : Activity() {
                     require(out.length<=550000){"Sigurnosna kopija je prevelika."}
                     out.toString()
                 }
-                progress.importJson(text);sound.enabled=progress.soundEnabled()
+                progress.importJson(text)
+                sound.enabled=progress.soundEnabled()
+                sound.musicVolume=progress.musicVolume()/100f
+                sound.effectsVolume=progress.effectsVolume()/100f
             }
             Toast.makeText(this,"Napredak uspješno ${if(requestCode==42)"izvezen" else "uvezen"}.",Toast.LENGTH_LONG).show()
             if(requestCode==43)showHome()
