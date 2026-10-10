@@ -749,7 +749,7 @@ print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery 
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 31" in gradle and 'versionName = "0.1.30"' in gradle
+assert "versionCode = 34" in gradle and 'versionName = "0.1.31"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -766,7 +766,7 @@ assert "BOPAVI_UPLOAD_STORE_PASSWORD" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_ALIAS" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_PASSWORD" in play_workflow
 assert "jarsigner" in (root/'tools/verify_play_release.py').read_text()
-assert "BOPAVI-Google-Play-listing-v0.1.30.zip" in workflow
+assert "BOPAVI-Google-Play-listing-v0.1.31.zip" in workflow
 for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
              "play/RELEASE-CHECKLIST.md"):
