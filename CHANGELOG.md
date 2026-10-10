@@ -1,3 +1,9 @@
+## In development — richer offline world illustration layers
+- Expanded the one-source generated art of all **eight** worlds with biome-specific details: faceted floating cliffs, additional towers, waterfalls, crystal spires, snowy summits, lava fissures, sky bridges, night castles, coral and an astral ring portal.
+- Decorative landmarks are built deterministically into shared Android/iOS static raster textures. The native 480×800 flight physics grid, moving gate collision geometry, cached parallax rendering, saved progress and offline privacy model remain unchanged.
+- No fake UI is baked into scenery; buttons, currency, pause controls and pickups remain actual code-driven interactive elements.
+- This strengthens depth and scene identity but is **not yet 100% pixel-identical** to the supplied 3D concept references.
+
 ## In development — premium in-flight HUD parity
 - Android Canvas and iOS Core Graphics now render the same three real glass chips for **coins gathered in the current run**, **stars collected** and **current level**, while reserving the top-right touch area for the existing native pause control.
 - A cyan/gold progress bar reflects actual gates passed within the current procedural level. A distinct, permanently cumulative **PROLAZI UKUPNO** counter does not reset on seamless level boundaries. Progress is not falsely labelled in meters.
