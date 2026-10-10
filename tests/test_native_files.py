@@ -210,6 +210,19 @@ assert 'worldBitmap' in renderer and 'R.drawable.world0' in renderer
 assert 'UIImage(named:"World' in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
 worlds=(root/'tools/generate_worlds.py').read_text()
 assert 'THEMES =' in worlds and 'range(8)' in worlds and 'generate_worlds' in worlds
+# All eight biomes now contain distinct noninteractive, deterministic scenery
+# on the original shared 480×800 art board, not flat repeats or mockup buttons.
+for code in ('def detailed_landmarks(index: int)', 'def floating_island(',
+             'def castle(', 'add(detailed_landmarks(index))',
+             'index==1:', 'index==2:', 'index==3:', 'index==4:',
+             'index==5:', 'index==6:', 'index==7:'):
+    assert code in worlds,code
+assert "random.Random(950 + index)" in worlds
+assert 'http://' not in worlds.replace('http://www.w3.org/2000/svg','')
+assert 'requests.' not in worlds and 'urllib.' not in worlds
+assert 'im.save(android/(name+".png"),optimize=True)' in worlds
+assert 'im.save(assets/(name+".png"),optimize=True)' in worlds
+
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios=(root/'ios/BOPAVI/GameController.swift').read_text()
 assert 'R.drawable.splash' in android and 'CENTER_CROP' in android
