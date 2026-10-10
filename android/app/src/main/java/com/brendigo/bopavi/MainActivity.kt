@@ -48,6 +48,8 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility=0
         progress=ProgressStore(this);sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
+        sound.musicVolume=progress.musicVolume()/100f
+        sound.effectsVolume=progress.effectsVolume()/100f
         // Android 16 no longer routes predictive Back through onBackPressed().
         if (Build.VERSION.SDK_INT >= 33) {
             val callback = android.window.OnBackInvokedCallback { navigateBack() }
@@ -772,9 +774,51 @@ class MainActivity : Activity() {
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
         back(b){showSettings()}
     }
+    private fun volumeSlider(parent:LinearLayout,label:String,value:Int,onValue:(Int)->Unit){
+        val panel=LinearLayout(this).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(15),d(9),d(15),d(10))
+            background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        }
+        val heading=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        val name=TextView(this).apply{
+            text=label;setTextColor(Color.WHITE);textSize=16f
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+        }
+        val percent=TextView(this).apply{
+            text="$value%";setTextColor(gold);textSize=16f
+            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.RIGHT
+        }
+        heading.addView(name,LinearLayout.LayoutParams(0,-2,1f))
+        heading.addView(percent,LinearLayout.LayoutParams(-2,-2))
+        panel.addView(heading)
+        val slider=android.widget.SeekBar(this).apply{
+            max=100;progress=value.coerceIn(0,100)
+            progressTintList=ColorStateList.valueOf(0xff10baf4.toInt())
+            progressBackgroundTintList=ColorStateList.valueOf(0xff174477.toInt())
+            thumbTintList=ColorStateList.valueOf(gold)
+            contentDescription=label
+            setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(bar:android.widget.SeekBar,p:Int,fromUser:Boolean){
+                    percent.text="$p%"
+                    if(fromUser)onValue(p)
+                }
+                override fun onStartTrackingTouch(bar:android.widget.SeekBar){}
+                override fun onStopTrackingTouch(bar:android.widget.SeekBar){}
+            })
+        }
+        panel.addView(slider,LinearLayout.LayoutParams(-1,d(43)))
+        parent.addView(panel,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
+    }
     private fun showSettings(){
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
         sectionHeading(b,"IZGLED I ZVUK")
+        volumeSlider(b,"♫  Glazba",progress.musicVolume()){
+            progress.setMusicVolume(it);sound.musicVolume=it/100f
+        }
+        volumeSlider(b,"◖  Zvukovi",progress.effectsVolume()){
+            progress.setEffectsVolume(it);sound.effectsVolume=it/100f
+        }
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         low.thumbTintList=ColorStateList.valueOf(gold)
         low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
@@ -870,7 +914,10 @@ class MainActivity : Activity() {
                     require(out.length<=550000){"Sigurnosna kopija je prevelika."}
                     out.toString()
                 }
-                progress.importJson(text);sound.enabled=progress.soundEnabled()
+                progress.importJson(text)
+                sound.enabled=progress.soundEnabled()
+                sound.musicVolume=progress.musicVolume()/100f
+                sound.effectsVolume=progress.effectsVolume()/100f
             }
             Toast.makeText(this,"Napredak uspješno ${if(requestCode==42)"izvezen" else "uvezen"}.",Toast.LENGTH_LONG).show()
             if(requestCode==43)showHome()
