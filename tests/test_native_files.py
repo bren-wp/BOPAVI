@@ -277,9 +277,12 @@ assert 'height*88/100' not in smoke
 assert 'if: always()' in ci and 'qa/screenshots/*.xml' in ci
 
 
-# iOS home wallet must have exactly one fixed height constraint.
+# Two truly dynamic, identically sized top counters are built from one
+# loop; no stale one-wallet-height assumption after premium redesign.
 ios_home=(root/'ios/BOPAVI/GameController.swift').read_text().split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
-assert ios_home.count('wallet.heightAnchor.constraint(equalToConstant:') == 1
+assert 'for item in ["🏆' in ios_home and 'progress.bestPoints()' in ios_home
+assert 'progress.coins()' in ios_home and 'chip.heightAnchor.constraint(equalToConstant:44)' in ios_home
+assert 'wallet.heightAnchor.constraint(equalToConstant:' not in ios_home
 
 # All eight biomes are available immediately; a saved frontier is per-world.
 android_save=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
