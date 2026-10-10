@@ -496,10 +496,14 @@ class MainActivity : Activity() {
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
-        for(start in progress.skinNames.indices step 3) {
+        // Featured first row matches the approved Portantin / Noa / Any
+        // reference. Indices remain original so offline saves and prices stay stable.
+        val displayOrder=intArrayOf(6,7,8,0,1,2,3,4,5)
+        for(start in displayOrder.indices step 3) {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             parent.addView(row,LinearLayout.LayoutParams(-1,-2))
-            for(i in start until minOf(start+3,progress.skinNames.size)) {
+            for(position in start until minOf(start+3,displayOrder.size)) {
+                val i=displayOrder[position]
                 val selected=progress.skin()==i
                 val owned=progress.owned(i)
                 val cost=progress.costs[i]
@@ -560,14 +564,44 @@ class MainActivity : Activity() {
         val idx=progress.skin()
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
+        // The actual selected character and world remain separate image layers:
+        // no baked-in buttons, labels, counters or fake screenshot interactions.
+        val preview=FrameLayout(this).apply{
+            background=gradient(0xff147ddb.toInt(),0xff031b40.toInt(),24)
+            clipToOutline=true
+        }
+        val worlds=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
+            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        preview.addView(ImageView(this).apply{
+            setImageResource(worlds[world.coerceIn(0,7)])
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            alpha=0.80f
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        preview.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x55001741,0x001758aa,0xdd031432.toInt()))
+        },FrameLayout.LayoutParams(-1,-1))
         val portrait=ImageView(this).apply {
             setImageResource(portraits[idx])
             scaleType=ImageView.ScaleType.FIT_CENTER
-            background=gradient(0xff23699d.toInt(),0xff102f61.toInt(),25)
             contentDescription="Pregled lika ${progress.skinNames[idx]}"
-            setPadding(d(18),d(8),d(18),d(8))
+            setPadding(d(14),d(2),d(14),d(12))
         }
-        b.addView(portrait,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(8)})
+        preview.addView(portrait,FrameLayout.LayoutParams(-1,-1))
+        val selectedBadge=TextView(this).apply{
+            text="♛  ODABRAN"
+            setTextColor(Color.WHITE)
+            textSize=12f;typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER
+            background=gradient(0xffffbf36.toInt(),0xffb76b04.toInt(),17).apply{
+                setStroke(d(2),0xffffe79c.toInt())
+            }
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        preview.addView(selectedBadge,FrameLayout.LayoutParams(d(122),d(35),
+            Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(10),d(10),0)})
+        b.addView(preview,LinearLayout.LayoutParams(-1,d(216)).apply{bottomMargin=d(7)})
         title(b,progress.skinNames[idx],25,gold)
         small(b,when(idx) {
             6 -> "Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom."
@@ -576,9 +610,11 @@ class MainActivity : Activity() {
             else -> "Izaberi svog letača. Odabir se čuva na uređaju."
         })
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
-        action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
         sectionHeading(b,"ODABERI SVOG LETAČA")
         characterGallery(b){showPilotPicker(world,number)}
+        // The primary flight action comes after all nine choices, matching
+        // selection-first UX. The whole grid remains scrollable and accessible.
+        action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
         back(b){showLevels(world,number.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())}
     }
     /**
