@@ -70,6 +70,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         NotificationCenter.default.addObserver(self,selector:#selector(resumeIdlePreview(_:)),
             name:UIApplication.didBecomeActiveNotification,object:nil)
         sound.enabled=progress.soundEnabled
+        sound.musicVolume=Float(progress.musicVolume)/100
+        sound.effectsVolume=Float(progress.effectsVolume)/100
         showHome()
     }
     deinit { NotificationCenter.default.removeObserver(self) }
@@ -844,9 +846,55 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
+    private func volumeSlider(_ name:String,value:Int,in stack:UIStackView,onValue:@escaping(Int)->Void){
+        let panel=UIStackView()
+        panel.axis = .vertical;panel.alignment = .fill;panel.spacing=4
+        panel.isLayoutMarginsRelativeArrangement=true
+        panel.layoutMargins=UIEdgeInsets(top:10,left:15,bottom:10,right:15)
+        panel.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:0.97)
+        panel.layer.cornerRadius=16
+        panel.layer.borderWidth=1
+        panel.layer.borderColor=UIColor(red:0.24,green:0.74,blue:1,alpha:0.55).cgColor
+        let header=UIStackView()
+        header.axis = .horizontal;header.distribution = .fill
+        let title=UILabel()
+        title.text=name;title.textColor = .white
+        title.font=UIFont.systemFont(ofSize:16,weight:.bold)
+        let percent=UILabel()
+        percent.text="\(value)%";percent.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
+        percent.font=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.bold)
+        percent.textAlignment = .right
+        header.addArrangedSubview(title)
+        header.addArrangedSubview(percent)
+        panel.addArrangedSubview(header)
+        let slider=UISlider()
+        slider.minimumValue=0
+        slider.maximumValue=100
+        slider.value=Float(value)
+        slider.accessibilityLabel=name
+        slider.minimumTrackTintColor=UIColor(red:0.01,green:0.72,blue:0.97,alpha:1)
+        slider.maximumTrackTintColor=UIColor(red:0.10,green:0.28,blue:0.51,alpha:1)
+        slider.thumbTintColor=UIColor(red:1,green:0.79,blue:0.27,alpha:1)
+        slider.heightAnchor.constraint(greaterThanOrEqualToConstant:36).isActive=true
+        slider.addAction(UIAction{_ in
+            let updated=max(0,min(100,Int(slider.value.rounded())))
+            percent.text="\(updated)%"
+            onValue(updated)
+        },for:.valueChanged)
+        panel.addArrangedSubview(slider)
+        stack.addArrangedSubview(panel)
+    }
     private func showSettings(){
         let s=menu("POSTAVKE","Prilagodi igru svom stilu")
         sectionHeading("IZGLED I ZVUK",in:s)
+        volumeSlider("♫  Glazba",value:progress.musicVolume,in:s){value in
+            self.progress.musicVolume=value
+            self.sound.musicVolume=Float(value)/100
+        }
+        volumeSlider("◖  Zvukovi",value:progress.effectsVolume,in:s){value in
+            self.progress.effectsVolume=value
+            self.sound.effectsVolume=Float(value)/100
+        }
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         toggle.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
@@ -931,6 +979,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let data=try handle.read(upToCount:550_001) ?? Data()
             try progress.importData(data)
             sound.enabled=progress.soundEnabled
+            sound.musicVolume=Float(progress.musicVolume)/100
+            sound.effectsVolume=Float(progress.effectsVolume)/100
             showHome();alert("Uspješno","Napredak je uvezen.")
         }
         catch {alert("Uvoz nije uspio",error.localizedDescription)}
