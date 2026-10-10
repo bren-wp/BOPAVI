@@ -1,12 +1,12 @@
-# BOPAVI — detaljne upute za Google Play (v0.1.32)
+# BOPAVI — detaljne upute za Google Play (v0.1.33)
 
-Ažurirano 11.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **35**, minSdk **26**, compileSdk/targetSdk **36**.
+Ažurirano 11.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **36**, minSdk **26**, compileSdk/targetSdk **36**.
 
 ## 1. Što izdanje uključuje
 
 - Izvorni Kotlin/Android projekt koji cilja API 36, uz novu Android 13–16 obradu geste Natrag i podršku za starije uređaje.
 - Automatizirane sigurnosne i funkcionalne provjere, Android APK, **nepotpisani** Android AAB, iOS simulator/device ZIP (iOS uređajni ZIP također nije potpisan za App Store).
-- ZIP BOPAVI-Google-Play-listing-v0.1.32.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
+- ZIP BOPAVI-Google-Play-listing-v0.1.33.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
 - GitHub Actions izrađuje **nepotpisani** AAB za preuzimanje. Potpisivanje putem GitHuba je isključeno; izdavač privatno potpisuje paket izvan GitHuba tek prije slanja na Google Play.
 - Hrvatski opis trgovine, politika privatnosti, Data safety analiza i kontrolni popis.
 
@@ -32,7 +32,7 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 
 ## 4. Nepotpisani AAB i privatno potpisivanje
 
-1. GitHub Actions izrađuje `app-release.aab` bez upload ključa. GitHub signing test i ručni signing job namjerno su onemogućeni prema odluci izdavača.
+1. GitHub Actions izrađuje `app-release.aab` bez upload ključa. Gradle nema konfiguraciju upload potpisa, a CI prije GitHub Releasea odbija svaku datoteku koja sadrži JAR signing blokove ili nije potvrđeno nepotpisana.
 2. Preuzmi nepotpisani AAB iz provjerenog GitHub Actions artefakta ili iz javnog GitHub izdanja. Provjeri izvornu verziju, SHA-256, package name i neiskorišteni `versionCode`.
 3. Ako izdavač kasnije želi objaviti igru u Play Consoleu, potpisivanje izvodi **lokalno i privatno**, koristeći postojeći, odobreni upload ključ, bez slanja ključa, JKS datoteka ili lozinki na GitHub.
 4. Potpis i SHA-256 provjeri lokalnim alatima prije predaje u Play Console. Nepotpisani `app-release.aab` **nije** prihvatljiv za Play upload.
@@ -40,7 +40,7 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 
 ## 5. Store listing i marketinški materijali
 
-1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.32.zip** i raspakiraj ga.
+1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.33.zip** i raspakiraj ga.
 2. U Play Console idi na **Grow users → Store presence → Main store listing**. Unesi hrvatski opis iz dokumenta **docs/play/STORE-LISTING-hr-HR.md**.
 3. Prenesi store icon 512×512 RGB i feature graphic 1024×500 RGB. Slike su izvedene iz postojećih izvornika aplikacije; nema izmišljenih screenshotova.
 4. Prenesi valjane **stvarne** Android snimke iz ZIP-a. Provjeri da 9:16 izrez ne skriva gumb, da nema sistemskih dijaloga, pogrešnih imena ni obavijesti. Za kvalitetnije predstavljene igre preporučuju se najmanje **3 stvarna screenshota aktivnog gameplaya** veličine 1080×1920; postojeći ZIP je početni skup, a prikaz mirujućeg leta **nije** stvarni aktivni gameplay.
@@ -68,12 +68,12 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 |---|---|
 | Unsigned app | Pogrešan AAB. Izradi i prenesi artifact potpisan privatno vlastitim trajnim upload ključem izvan GitHub Actionsa. |
 | Wrong signing key | Provjeri izvorni .jks i Play App Signing upload certifikat; ne izmišljaj drugi ključ. |
-| versionCode already used | U novom izdanju povećaj versionCode; broj 35 mora biti slobodan i potvrđen u Play Consoleu. |
-| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.32, ne stara v0.1.29. |
+| versionCode already used | U novom izdanju povećaj versionCode; broj 36 mora biti slobodan i potvrđen u Play Consoleu. |
+| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.33, ne stara v0.1.29. |
 | Privacy Policy URL invalid | Stranica mora biti anonimno dostupna HTTPS lokaciji. |
 | Images rejected | Provjeri 512×512, 1024×500, minimalno 2 stvarna screenshota i najveći dopušteni omjer. |
 | Closed testing gate | Dovrši 12/14-dnevni test ako pravilo vrijedi za račun. |
-| Signing job failure | Provjeri GitHub Environment, četiri tajne, alias i base64; nikad ne ispisuj njihovu vrijednost. |
+| Unsigned AAB verification failure | GitHub Release je namjerno blokiran. Provjeri da bundle nema upload potpis i da `jarsigner -verify` potvrđuje nepotpisani AAB; ne dodavaj tajne ili signing job. |
 
 ## 9. Završni kontrolni popis
 

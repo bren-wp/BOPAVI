@@ -9,11 +9,13 @@ from PIL import Image, ImageDraw, ImageOps
 import argparse
 import shutil
 import zipfile
+from release_metadata import release_metadata
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--screenshots", type=Path, default=Path("qa/screenshots"))
 parser.add_argument("--out", type=Path, default=Path("dist/google-play"))
 args = parser.parse_args()
+version, _ = release_metadata()
 out = args.out
 out.mkdir(parents=True, exist_ok=True)
 art = Path("android/app/src/main/res")
@@ -73,7 +75,7 @@ for source, dest in sources:
         im.save(out / dest, optimize=True)
 
 (out / "README.txt").write_text(
-    "BOPAVI Google Play listing kit (v0.1.32)\n"
+    f"BOPAVI Google Play listing kit (v{version})\n"
     "play-icon-512.png: original BOPAVI app icon, RGB 512x512.\n"
     "feature-graphic-1024x500.png: original BOPAVI art and logo, RGB 1024x500.\n"
     "01-04: REAL Android emulator screenshots, cropped to 9:16 without creating UI.\n"
@@ -83,7 +85,7 @@ for source, dest in sources:
     "Verify images, cropped controls, safe areas and representation before publishing.\n",
     encoding="utf-8",
 )
-bundle = out.parent / "BOPAVI-Google-Play-listing-v0.1.32.zip"
+bundle = out.parent / f"BOPAVI-Google-Play-listing-v{version}.zip"
 with zipfile.ZipFile(bundle, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
     for path in sorted(out.iterdir()):
         zf.write(path, path.name)

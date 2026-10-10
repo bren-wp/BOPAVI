@@ -1,7 +1,8 @@
-## v0.1.32 — mandatory versioned release after any code change
+## v0.1.33 — mandatory versioned release after any code change
 - Every future PR must declare a versionName above the last published GitHub release; Android versionCode and iOS CFBundleVersion/build must be incremented together and verified in CI.
 - No production signing is permitted on GitHub: no manual signed-upload workflow, no fake keystore, no Play Console submission. Developer APK may carry the Android debug signing certificate; the release AAB intentionally has no upload signature.
-- Merge after all PR jobs pass. Then require all main CI jobs, inspect public GitHub Release v0.1.32, SHA and all five artifacts before claiming issuance. An existing release tag targeting a different SHA or missing assets must fail CI, never silently skip.
+- Merge after all PR jobs pass. Then require all main CI jobs, inspect public GitHub Release v0.1.33, SHA and all five artifacts before claiming issuance. An existing release tag targeting a different SHA or missing assets must fail CI, never silently skip.
+- CI derives tag and store archive names from a strict Android/iOS version/build parity check. Gradle has no signing configuration; AAB JAR signatures are explicitly rejected at build and publication, with synthetic signed/unsigned regression fixtures.
 - A new version tag and validated artifacts are required again for every subsequent code change; do not reuse this release tag.
 
 ## Premium world selection — native regression gate

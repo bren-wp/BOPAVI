@@ -41,7 +41,7 @@ assert len(android_versions)==1 and len(android_builds)==1, "Android version mis
 assert len(ios_versions)>=2 and len(ios_builds)>=2, "iOS debug/release versions missing"
 assert set(android_versions)==set(ios_versions), "Android/iOS marketing versions differ"
 assert set(android_builds)==set(ios_builds), "Android/iOS build numbers differ"
-assert f'tag=v{android_versions[0]}' in workflow, "Release tag mismatches Android/iOS builds"
+assert 'python tools/release_metadata.py --tag' in workflow, "Release must obtain tag from both platform versions"
 assert 'gh release create "$tag"' in workflow, "Release workflow must create the versioned tag"
 assert '--target "$GITHUB_SHA"' in workflow, "Release must target the tested main commit"
 print('PASS: native source inventory, 28 audio assets, premium home, manifest, icons, no web engine/network permission')
@@ -911,28 +911,28 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 35" in gradle and 'versionName = "0.1.32"' in gradle
+assert "versionCode = 36" in gradle and 'versionName = "0.1.33"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
 assert "OnBackInvokedDispatcher.PRIORITY_DEFAULT" in android
 assert "registerOnBackInvokedCallback" in android and "unregisterOnBackInvokedCallback" in android
 assert "private fun navigateBack()" in android and "override fun onBackPressed() = navigateBack()" in android
-assert "BOPAVI_UPLOAD_KEYSTORE_PATH" in gradle
-assert "System.getenv(\"BOPAVI_UPLOAD_STORE_PASSWORD\")" in gradle
-assert "Signing environment" not in gradle  # No checked-in secret values.
+assert "signingConfigs" not in gradle and "BOPAVI_UPLOAD_" not in gradle
+assert "signingConfig =" not in gradle  # GitHub cannot sign through Gradle.
 # Signing jobs and signing secrets must never run in GitHub Actions.
 # Android Play upload-key signing is an offline publisher-only workflow.
 assert not (root/'.github/workflows/google-play-upload.yml').exists()
 assert 'signing-smoke:' not in workflow
 assert 'signing-smoke' not in workflow.split('  publish:',1)[1].split('    runs-on:',1)[0]
-assert "BOPAVI-Google-Play-listing-v0.1.32.zip" in workflow
-assert 'gh release create v0.1.32' not in workflow or 'gh release create "$tag"' in workflow
-assert 'tag=v0.1.32' in workflow and 'existing" != "$GITHUB_SHA"' in workflow
+assert "BOPAVI-Google-Play-listing-v*.zip" in workflow
+assert 'gh release create "$tag"' in workflow
+assert 'existing" != "$GITHUB_SHA"' in workflow and 'BOPAVI_PLAY_ARCHIVE' in workflow
 assert 'Require a new version for every pull request' in workflow
 assert 'New PR must bump release version' in workflow
-assert '--signed' in (root/'tools/verify_play_release.py').read_text()
-assert 'jarsigner' in (root/'tools/verify_play_release.py').read_text()
+verify=(root/'tools/verify_play_release.py').read_text()
+assert 'jarsigner' in verify and 'jar is unsigned' in verify and 'signature_entries' in verify
+assert '--signed' not in verify and 'python tools/verify_play_release.py --aab dist/app-release.aab' in workflow
 for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
              "play/RELEASE-CHECKLIST.md"):
