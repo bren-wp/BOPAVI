@@ -1,3 +1,10 @@
+## In development — premium reference-aligned interface
+- New shared BOPAVI blue/gold logo and motto, rendered from SVG into Android and iOS.
+- Rebuilt illustrated menu backgrounds, golden play buttons, cyan/blue secondary actions, 4 working home shortcuts, and three-column nine-pilot selection.
+- Updated Android/iOS settings accents and results panels while keeping real earned currency, scores and progression.
+- The exact reference images remain design targets; separately prepared production art and pixel-diff QA are still required for 1:1 fidelity.
+- No new online services, sign-in, real-money purchases, or signing workflows.
+
 ## v0.1.31 — endless-flight coordinate precision (build 34)
 - Android 15 emulator CI: when a verified **Pixel Launcher** system ANR overlays a healthy BOPAVI picker, terminate only the stuck launcher instead of repeatedly pressing Wait. Continue to require real scrolling and accessible Portantin, Noa, and Any cards; never dismiss an ANR originating from BOPAVI.
 - Removed CI's disposable signing-key smoke job and disabled the manual GitHub signing workflow. APK debug builds and **unsigned** AAB remain available. Any future production upload signing is strictly offline.
