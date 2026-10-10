@@ -1,3 +1,22 @@
+## v0.1.31 — endless-flight coordinate precision (build 34)
+- Android versionCode 34 / versionName 0.1.31; iOS build 34 / marketing version 0.1.31. Confirm in Play Console that 34 has not already been used before signing/uploading.
+### Fixed
+- Android and iOS collision positions now subtract the camera's traveled distance in double precision instead of accumulating increasingly imprecise Float world coordinates.
+- Current-level and pre-rendered upcoming gates share the same precise world-coordinate frame when an endless level is promoted.
+
+### Improved
+- Extended the Kotlin parity and Android JVM regression suites with a simulated 2^25-unit marathon camera shift and quarter-pixel collision assertions.
+- Strengthened the cross-platform source audit to require matching double-precision coordinate calculations.
+
+### Changed
+- The existing public Float distance remains available to Android/iOS scenery renderers; flight physics, scoring, level generation, saved progress format and UI flow remain unchanged.
+
+### Added
+- No new gameplay features in this focused regression fix.
+
+### Security
+- No new permissions, services, telemetry, third-party SDKs, or network requests.
+
 ## v0.1.30 — priprema Google Play izdanja i Android 16
 - Android minSdk 26 / compileSdk 36 / targetSdk 36. Usklađenje s Google Play zahtjevom od 31.8.2026.; versionCode 31 / versionName 0.1.30, iOS build 31 / 0.1.30.
 - Android 13+ moderni OnBackInvokedDispatcher (Android 16 više ne usmjerava prediktivnu gestu kroz zastarjeli onBackPressed); aktivni let pokazuje pauzu, idle prikaz vraća izbor lika, dok stariji Androidi koriste kompatibilni put.

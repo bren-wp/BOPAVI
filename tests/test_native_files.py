@@ -223,8 +223,18 @@ andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').re
 swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'level.gates.last().x-level.gates[level.gates.lastIndex-1].x' in andr
 assert 'level.gates[last].x-level.gates[last-1].x' in swift
-assert 'nextOrigin=levelOrigin+level.gates.last().x+spacing-upcoming.gates.first().x' in andr
-assert 'nextOrigin=levelOrigin+level.gates[last].x+spacing-next.gates[0].x' in swift
+# Accumulated world origins and travel must stay in Double on both platforms.
+# Repeated Float addition loses collision precision at long-running level seams.
+assert 'private var preciseDistance = 0.0' in andr
+assert 'private var preciseDistance:Double = 0' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
+assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)' in swift
+assert 'WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)' in andr
+assert 'WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)' in swift
+assert '(gateX.toDouble() + origin - travelled).toFloat()' in andr
+assert 'Float(Double(gateX)+origin-travelled)' in swift
+assert 'distance = preciseDistance.toFloat()' in andr
+assert 'distance = Float(preciseDistance)' in swift
 assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
 assert 'levelTransition=0f' in andr and 'levelTransition=0' in swift
 assert 'distance = 0f; passed = 0' not in andr
@@ -739,7 +749,7 @@ print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery 
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 31" in gradle and 'versionName = "0.1.30"' in gradle
+assert "versionCode = 34" in gradle and 'versionName = "0.1.31"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -756,7 +766,7 @@ assert "BOPAVI_UPLOAD_STORE_PASSWORD" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_ALIAS" in play_workflow
 assert "BOPAVI_UPLOAD_KEY_PASSWORD" in play_workflow
 assert "jarsigner" in (root/'tools/verify_play_release.py').read_text()
-assert "BOPAVI-Google-Play-listing-v0.1.30.zip" in workflow
+assert "BOPAVI-Google-Play-listing-v0.1.31.zip" in workflow
 for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/GOOGLE-PLAY-DATA-SAFETY.md","play/privacy-policy.html",
              "play/RELEASE-CHECKLIST.md"):

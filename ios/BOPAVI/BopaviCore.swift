@@ -136,6 +136,13 @@ enum ResultHeadline {
     }
 }
 
+/// Project world coordinates to the screen before narrowing to Float.
+enum WorldCoordinates {
+    static func screenX(_ gateX:Float,origin:Double,travelled:Double)->Float {
+        Float(Double(gateX)+origin-travelled)
+    }
+}
+
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
@@ -147,12 +154,15 @@ final class GameSimulation {
     private(set) var velocity: Float = 0
     private(set) var time: Float = 0
     private(set) var distance: Float = 0
-    private var levelOrigin: Float = 0
+    // Retain a Double world position for precise collision geometry after long flights.
+    // The public Float distance continues to drive existing presentation effects.
+    private var preciseDistance:Double = 0
+    private var levelOrigin:Double = 0
     private var nextLevel:BopaviCore.Level?
-    private var nextOrigin:Float = 0
-    func gateX(_ gate:BopaviCore.Gate)->Float { gate.x+levelOrigin-distance }
+    private var nextOrigin:Double = 0
+    func gateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)}
     var upcomingGates:[BopaviCore.Gate] {nextLevel?.gates ?? []}
-    func upcomingGateX(_ gate:BopaviCore.Gate)->Float {gate.x+nextOrigin-distance}
+    func upcomingGateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:nextOrigin,travelled:preciseDistance)}
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
@@ -160,7 +170,7 @@ final class GameSimulation {
         // spacing through the level boundary instead of inserting 242px.
         let last=level.gates.count-1
         let spacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
-        nextOrigin=levelOrigin+level.gates[last].x+spacing-next.gates[0].x
+        nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)
         nextLevel=next
     }
     private(set) var levelTransition: Float = 0
@@ -221,7 +231,8 @@ final class GameSimulation {
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt); flapPulse = max(0,flapPulse-dt)
         velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
         y += velocity*dt
-        distance += level.speed*speedFactor*dt
+        preciseDistance += Double(level.speed*speedFactor*dt)
+        distance = Float(preciseDistance)
         if y < radius+5 || y > 753-radius { damage(); y = min(753-radius, max(radius+5, y)); return }
         for i in passed..<level.gates.count {
             let gate = level.gates[i]; let x = gateX(gate)

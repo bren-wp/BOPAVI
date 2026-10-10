@@ -161,6 +161,19 @@ class LevelEngineTest {
         assertTrue("Single-level mode must not precompute unnecessary gates",normal.upcomingGates().isEmpty())
     }
 
+
+    @Test fun marathonGatesKeepSubpixelCollisionPrecisionBeyondFloatRange() {
+        val origin=33_554_432.0 // 2^25: Float cannot represent a 0.25px change.
+        assertEquals(559.75f,WorldCoordinates.screenX(560f,origin,origin+.25),.0001f)
+        assertEquals(809.75f,WorldCoordinates.screenX(560f,origin+250,origin+.25),.0001f)
+        val sim=GameSimulation(LevelEngine.create(0,62),endless=true)
+        val current=sim.level.gates.first()
+        val upcoming=sim.upcomingGates().first()
+        val spacing=sim.level.gates.last().x-sim.level.gates[sim.level.gates.lastIndex-1].x
+        assertEquals(spacing,sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
+        assertEquals(current.x,sim.gateX(current),.0001f)
+    }
+
     @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {
         val level=LevelEngine.create(0,2)
         val safe=level.gates.first().copy(x=20f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)

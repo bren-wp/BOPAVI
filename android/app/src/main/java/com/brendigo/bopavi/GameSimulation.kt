@@ -17,13 +17,16 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var velocity = 0f; private set
     var time = 0f; private set
     var distance = 0f; private set
-    private var levelOrigin = 0f
+    // World coordinates grow beyond Float's pixel precision during marathon runs.
+    // Retain public Float distance for scenery, but resolve collision geometry in Double.
+    private var preciseDistance = 0.0
+    private var levelOrigin = 0.0
     private var nextLevel:LevelEngine.Level? = null
-    private var nextOrigin = 0f
+    private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
-    fun gateX(gate: LevelEngine.Gate):Float = gate.x + levelOrigin - distance
+    fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
-    fun upcomingGateX(gate:LevelEngine.Gate):Float = gate.x + nextOrigin - distance
+    fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
@@ -31,7 +34,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         // by zone. A constant 242px creates a subtle rhythm jump in later zones.
         val spacing=if(level.gates.size>=2)
             level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 242f
-        nextOrigin=levelOrigin+level.gates.last().x+spacing-upcoming.gates.first().x
+        nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()
         nextLevel=upcoming
     }
     var levelTransition = 0f; private set
@@ -84,7 +87,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
         velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
-        distance += level.speed * speedFactor * dt
+        preciseDistance += (level.speed * speedFactor * dt).toDouble()
+        distance = preciseDistance.toFloat()
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
         for (i in passed until level.gates.size) {
             val gate = level.gates[i]; val x = gateX(gate)
@@ -135,4 +139,10 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         else { finished = true; active = false; won = false }
     }
     fun score(): Int = (totalPassed.toLong() * 100L + coins.toLong() * 10L + stars.toLong() * 25L).coerceIn(0L,100_000_000L).toInt()
+}
+
+/** Screen-space projection must subtract in Double before the final Float conversion. */
+internal object WorldCoordinates {
+    fun screenX(gateX:Float, origin:Double, travelled:Double):Float =
+        (gateX.toDouble() + origin - travelled).toFloat()
 }

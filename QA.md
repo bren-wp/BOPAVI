@@ -185,6 +185,13 @@ Pokrenuti `bash tests/run_native_core_tests.sh` i automatskog pilota iz `tests/P
 - CI mora potvrditi Android/JVM, Swift save i physics testove, izvorni audit, Android emulator i iOS simulator/build. Testiranje fizičkih uređaja i potpisane trgovinske instalacije i dalje su zasebni uvjeti.
 - Android CI: Pixel Launcher ANR smije se oporaviti samo nakon provjere naslova, sistemskog ID-a gumba Wait i koordinata; zatim treba ponovno ispisati stvarni UI te pronaći sve premium kartice. Ako ScrollView ostane nedostupan ili BOPAVI padne, test mora pasti.
 
+## v0.1.31 — marathon coordinate precision, Android/iOS parity
+- Android and iOS obstacle screen positions are computed in Double before converting to Float, preserving collisions and pre-rendered next-level gates far beyond 2^25 world pixels.
+- Run Kotlin/JVM unit tests, Kotlin/Swift generator parity, Android 35/36 emulator smoke and iOS simulator launch. Verify no reset of bird position, score, progress, scenery or camera distance at a world boundary.
+- Verify `versionCode 34` is unused in Play Console before uploading any signed AAB; do not use disposable CI signing credentials.
+- The AAB structure verifier fails when any unreviewed `.so` library is included. Reassess native library alignment before enabling a dependency that adds one.
+- Inspect device GPU animation and background parallax in long sessions: display distance remains Float for visuals; this cycle specifically corrects collision coordinates.
+
 ## v0.1.30 — Google Play / Android 16
 - Provjeriti manifest i bundle: com.brendigo.bopavi, minSdk26, targetSdk36, versionCode31. Android edge-to-edge, sigurni inseti, statusne/navigacijske trake, prediktivna gesta Natrag na Androidu 13-16; aktivni let mora se pauzirati, ne napustiti.
 - Javno izdanje ima nepotpisani AAB. Samo zaštićen, ručno pokrenut Google Play signing workflow može proizvoditi potpisani AAB s privatnim upload ključem, bez objave tajni.

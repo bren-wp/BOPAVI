@@ -73,7 +73,7 @@ for source, dest in sources:
         im.save(out / dest, optimize=True)
 
 (out / "README.txt").write_text(
-    "BOPAVI Google Play listing kit (v0.1.30)\n"
+    "BOPAVI Google Play listing kit (v0.1.31)\n"
     "play-icon-512.png: original BOPAVI app icon, RGB 512x512.\n"
     "feature-graphic-1024x500.png: original BOPAVI art and logo, RGB 1024x500.\n"
     "01-04: REAL Android emulator screenshots, cropped to 9:16 without creating UI.\n"
@@ -83,7 +83,7 @@ for source, dest in sources:
     "Verify images, cropped controls, safe areas and representation before publishing.\n",
     encoding="utf-8",
 )
-bundle = out.parent / "BOPAVI-Google-Play-listing-v0.1.30.zip"
+bundle = out.parent / "BOPAVI-Google-Play-listing-v0.1.31.zip"
 with zipfile.ZipFile(bundle, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
     for path in sorted(out.iterdir()):
         zf.write(path, path.name)

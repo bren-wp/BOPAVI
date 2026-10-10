@@ -143,5 +143,12 @@ fun main() {
         idle.flap()
         check(idle.active && idle.flaps==2)
     }
+
+    // Precision regression: a quarter-pixel gap must survive >2^25 camera travel.
+    run {
+        val origin=33_554_432.0
+        check(kotlin.math.abs(WorldCoordinates.screenX(560f,origin,origin+.25)-559.75f)<.0001f)
+        check(kotlin.math.abs(WorldCoordinates.screenX(560f,origin+250,origin+.25)-809.75f)<.0001f)
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

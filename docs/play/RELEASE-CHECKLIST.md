@@ -2,9 +2,9 @@
 
 NIJEDNA stavka nije unaprijed označena obavljenom. Svaki korak traži dokaz.
 
-- [ ] PR v0.1.30 i obavezni CI audit, Android/iOS buildovi i emulator testovi su uspješni i spojeni.
-- [ ] Javni GitHub Release v0.1.30 s Android API36 buildom i ZIP-om Play grafike.
-- [ ] Application ID com.brendigo.bopavi, versionCode 31, targetSdk 36.
+- [ ] PR v0.1.31 i obavezni CI audit, Android/iOS buildovi i emulator testovi su uspješni i spojeni.
+- [ ] Javni GitHub Release v0.1.31 s Android API36 buildom i ZIP-om Play grafike.
+- [ ] Application ID com.brendigo.bopavi, versionCode 34, targetSdk 36.
 - [ ] Verificiran Play Console račun i prava izdavača.
 - [ ] Kreirana Play Console aplikacija BOPAVI i potvrđen besplatni/plaćeni status.
 - [ ] Aktiviran Play App Signing i izrađen trajni lokalni upload-key.
