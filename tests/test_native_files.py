@@ -223,8 +223,16 @@ andr=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').re
 swift=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'level.gates.last().x-level.gates[level.gates.lastIndex-1].x' in andr
 assert 'level.gates[last].x-level.gates[last-1].x' in swift
-assert 'nextOrigin=levelOrigin+level.gates.last().x+spacing-upcoming.gates.first().x' in andr
-assert 'nextOrigin=levelOrigin+level.gates[last].x+spacing-next.gates[0].x' in swift
+# Accumulated world origins and travel must stay in Double on both platforms.
+# Repeated Float addition loses collision precision at long-running level seams.
+assert 'private var preciseDistance = 0.0' in andr
+assert 'private var preciseDistance:Double = 0' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
+assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)' in swift
+assert '(gate.x.toDouble() + levelOrigin - preciseDistance).toFloat()' in andr
+assert 'Float(Double(gate.x)+levelOrigin-preciseDistance)' in swift
+assert 'distance = preciseDistance.toFloat()' in andr
+assert 'distance = Float(preciseDistance)' in swift
 assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
 assert 'levelTransition=0f' in andr and 'levelTransition=0' in swift
 assert 'distance = 0f; passed = 0' not in andr
