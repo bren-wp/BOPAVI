@@ -1,3 +1,9 @@
+## In development — premium pause overlay
+- Android and iOS now use a **real scrollable premium pause modal** instead of the old system list/action sheet, including live selected flyer, cyan/gold PAUZA header, orange Continue, blue Retry and gray Exit.
+- Four real shortcuts: master sound, music-volume toggle, controls help and settings. Every action is connected to the offline sound/settings system; no fake logout, cloud service or store.
+- Simulation remains paused throughout the panel and any nested help dialog. Android Back/cancel resumes; explicit Continue resumes, while Retry/Exit/settings perform intentional screen transitions.
+- System-level pause visibility remains off until the first actual flight flap. Gameplay physics/save files unaffected.
+
 ## In development — premium reference alignment, iteration 2
 - Android/iOS: illustrated 20-level grid with dynamic badges, real unlock/complete states, numbered world thumbnail cards and compact previous/next navigation; no fabricated star medals.
 - Android/iOS: independent, working music and effects volume sliders (0–100%) with immediate mixer updates; percentages persist locally and are included as optional, backward-compatible fields in v5 backups.
