@@ -1,4 +1,5 @@
-## Unreleased — endless-flight coordinate precision
+## v0.1.31 — endless-flight coordinate precision (build 34)
+- Android versionCode 34 / versionName 0.1.31; iOS build 34 / marketing version 0.1.31. Confirm in Play Console that 34 has not already been used before signing/uploading.
 ### Fixed
 - Android and iOS collision positions now subtract the camera's traveled distance in double precision instead of accumulating increasingly imprecise Float world coordinates.
 - Current-level and pre-rendered upcoming gates share the same precise world-coordinate frame when an endless level is promoted.
