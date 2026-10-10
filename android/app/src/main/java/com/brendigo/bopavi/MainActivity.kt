@@ -634,18 +634,18 @@ class MainActivity : Activity() {
             contentDescription="Bopi iznad čarobnih otoka"
         }
         panel.addView(artwork,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(9)})
-        title(panel,headline,31,0xffffdc62.toInt())
+        title(panel,headline,31,Color.WHITE)
         val stats=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(18),d(16),d(18),d(17))
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xfffffff9.toInt(),0xffe6f5ff.toInt())).apply{
-                cornerRadius=d(22).toFloat();setStroke(d(2),0xffffd779.toInt())
+                intArrayOf(0xf5083773.toInt(),0xf5031638.toInt())).apply{
+                cornerRadius=d(22).toFloat();setStroke(d(2),0xff49d7ff.toInt())
             }
             elevation=d(5).toFloat()
         }
         val score=TextView(this).apply{
-            text="${g.score()} BODOVA";textSize=38f;setTextColor(0xff0b3777.toInt())
+            text="${g.score()} BODOVA";textSize=38f;setTextColor(gold)
             gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             contentDescription="Rezultat ${g.score()}"
         }
@@ -653,7 +653,7 @@ class MainActivity : Activity() {
         fun detail(value:String){
             stats.addView(TextView(this).apply{
                 text=value;textSize=16f;gravity=Gravity.CENTER
-                setTextColor(0xff17477e.toInt());setPadding(0,d(5),0,d(5))
+                setTextColor(Color.WHITE);setPadding(0,d(5),0,d(5))
                 typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
             })
         }
@@ -662,6 +662,8 @@ class MainActivity : Activity() {
         detail("Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
         detail("${LevelEngine.collectibleIcons[currentWorld]}  ${g.coins+g.stars}   ·   ● ${progress.coins()} kovanica")
         panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9);bottomMargin=d(15)})
+        sectionHeading(panel,"✦  NAGRADE I NAPREDAK")
+        small(panel,"●  Osvojeno u letu: ${g.coins+g.stars} · Ukupno: ${progress.coins()} kovanica")
         action(panel,"▶  PONOVO"){showPilotPicker(currentWorld,currentLevel)}
         action(panel,"LOKALNA LJESTVICA",false){showLeaderboard()}
         action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
