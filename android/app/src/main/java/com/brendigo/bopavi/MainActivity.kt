@@ -1118,22 +1118,80 @@ class MainActivity : Activity() {
         b.addView(haptic,LinearLayout.LayoutParams(-1,d(54)))
         sectionHeading(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
-        val modes=android.widget.RadioGroup(this).apply{orientation=LinearLayout.VERTICAL}
-        for(mode in 0..2) {
-            val item=android.widget.RadioButton(this).apply {
-                text=progress.difficultyNames[mode]
-                setTextColor(Color.WHITE)
-                textSize=17f
-                buttonTintList=ColorStateList.valueOf(gold)
-                background=gradient(0xb0082856.toInt(),0xb0031632.toInt(),13)
-                setPadding(d(12),0,d(6),0)
-                id=View.generateViewId()
-                isChecked=progress.difficulty()==mode
-                setOnClickListener { progress.setDifficulty(mode) }
-            }
-            modes.addView(item,LinearLayout.LayoutParams(-1,d(48)).apply{bottomMargin=d(5)})
+        // Three genuine selectable cards: reference-matched layout, existing
+        // offline difficulty indices and no fake switches or baked-in text.
+        val modeRow=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
         }
-        b.addView(modes,LinearLayout.LayoutParams(-1,-2))
+        val modeCards=ArrayList<LinearLayout>(3)
+        val modeNames=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")
+        val modeHints=arrayOf("Opušten let","Uravnotežen izazov","Za iskusne pilote")
+        val modeArt=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait6,
+            R.drawable.bopiportrait3)
+        fun refreshDifficultyCards(){
+            val selected=progress.difficulty()
+            for(i in 0..2){
+                val chosen=i==selected
+                modeCards[i].background=gradient(
+                    if(chosen)0xff754318.toInt() else 0xff10427f.toInt(),
+                    if(chosen)0xff31200e.toInt() else 0xff051c40.toInt(),19
+                ).apply {setStroke(d(if(chosen)3 else 2),
+                    if(chosen)0xffffc85b.toInt() else 0xff4489d5.toInt())}
+                modeCards[i].elevation=d(if(chosen)8 else 2).toFloat()
+                modeCards[i].contentDescription="Težina igre ${modeNames[i]}, " +
+                    "${modeHints[i]}, ${if(chosen)"odabrano" else "dodirni za odabir"}"
+                modeCards[i].isSelected=chosen
+            }
+        }
+        for(mode in 0..2){
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
+                gravity=Gravity.CENTER
+                setPadding(d(3),d(7),d(3),d(9))
+                isClickable=true;isFocusable=true
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
+                setOnClickListener{
+                    progress.setDifficulty(mode)
+                    sound.effect("click")
+                    refreshDifficultyCards()
+                }
+            }
+            val crown=TextView(this).apply{
+                text=if(mode==1)"♛" else "✦"
+                gravity=Gravity.CENTER;textSize=19f
+                setTextColor(0xffffc85b.toInt())
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            card.addView(crown,LinearLayout.LayoutParams(-1,d(23)))
+            card.addView(ImageView(this).apply{
+                setImageResource(modeArt[mode])
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(62)))
+            card.addView(TextView(this).apply{
+                text=modeNames[mode];gravity=Gravity.CENTER
+                setTextColor(Color.WHITE);textSize=13f
+                typeface=Typeface.DEFAULT_BOLD
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(24)))
+            card.addView(TextView(this).apply{
+                text=modeHints[mode];gravity=Gravity.CENTER
+                setTextColor(0xffd8ebff.toInt());textSize=11f
+                maxLines=2
+                setAutoSizeTextTypeUniformWithConfiguration(9,11,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(36)))
+            modeCards.add(card)
+            modeRow.addView(card,LinearLayout.LayoutParams(0,d(170),1f).apply{
+                setMargins(d(3),d(5),d(3),d(7))
+            })
+        }
+        refreshDifficultyCards()
+        b.addView(modeRow,LinearLayout.LayoutParams(-1,-2))
         small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
         val player=EditText(this).apply {
             hint="Tvoje ime"

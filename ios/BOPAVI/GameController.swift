@@ -1228,15 +1228,101 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
         sectionHeading("IGRAČ I TEŽINA",in:s)
         label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
-        let difficulty=UISegmentedControl(items:["Lako","Normalno","Teško"])
-        difficulty.selectedSegmentIndex=progress.difficulty
-        difficulty.selectedSegmentTintColor=UIColor(red:1,green:0.72,blue:0.16,alpha:1)
-        difficulty.backgroundColor=UIColor(red:0.03,green:0.16,blue:0.34,alpha:1)
-        difficulty.setTitleTextAttributes([.foregroundColor:UIColor.white],for:.normal)
-        difficulty.setTitleTextAttributes([.foregroundColor:UIColor(red:0.12,green:0.15,blue:0.24,alpha:1)],for:.selected)
-        difficulty.heightAnchor.constraint(equalToConstant:44).isActive=true
-        difficulty.addAction(UIAction{_ in self.progress.difficulty=difficulty.selectedSegmentIndex},for:.valueChanged)
-        s.addArrangedSubview(difficulty)
+        // Match Android's genuine three-card choice while preserving the
+        // exact same difficulty 0/1/2 persisted by ProgressStore.
+        let modeNames=["LAGANO","NORMALNO","ZAHTJEVNO"]
+        let modeHints=["Opušten let","Uravnotežen izazov","Za iskusne pilote"]
+        let modeArt=[0,6,3]
+        let modeRow=UIStackView()
+        modeRow.axis = .horizontal
+        modeRow.alignment = .fill
+        modeRow.distribution = .fillEqually
+        modeRow.spacing=6
+        var modeCards=[UIButton]()
+        func refreshDifficultyCards(){
+            let selected=self.progress.difficulty
+            for (index,card) in modeCards.enumerated(){
+                let chosen=index==selected
+                card.backgroundColor=chosen
+                    ? UIColor(red:0.36,green:0.21,blue:0.09,alpha:1)
+                    : UIColor(red:0.035,green:0.17,blue:0.38,alpha:1)
+                card.layer.borderWidth=chosen ? 3:2
+                card.layer.borderColor=(chosen
+                    ? UIColor(red:1,green:0.79,blue:0.36,alpha:1)
+                    : UIColor(red:0.27,green:0.54,blue:0.84,alpha:1)).cgColor
+                card.layer.shadowColor=UIColor(red:1,green:0.67,blue:0.18,alpha:1).cgColor
+                card.layer.shadowOpacity=chosen ? 0.48:0
+                card.layer.shadowRadius=chosen ? 9:0
+                card.isSelected=chosen
+                card.accessibilityLabel="Težina igre \(modeNames[index]), " +
+                    "\(modeHints[index]), \(chosen ? "odabrano":"dodirni za odabir")"
+            }
+        }
+        for mode in 0..<3 {
+            let card=UIButton(type:.custom)
+            card.layer.cornerRadius=19
+            card.isAccessibilityElement=true
+            card.accessibilityTraits=[.button]
+            card.accessibilityIdentifier="difficulty-card-\(mode)"
+            card.heightAnchor.constraint(equalToConstant:170).isActive=true
+            let content=UIStackView()
+            content.translatesAutoresizingMaskIntoConstraints=false
+            content.axis = .vertical
+            content.alignment = .fill
+            content.spacing=1
+            content.isUserInteractionEnabled=false
+            card.addSubview(content)
+            NSLayoutConstraint.activate([
+                content.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:3),
+                content.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-3),
+                content.topAnchor.constraint(equalTo:card.topAnchor,constant:7),
+                content.bottomAnchor.constraint(equalTo:card.bottomAnchor,constant:-9)
+            ])
+            let crown=UILabel()
+            crown.text=mode==1 ? "♛":"✦"
+            crown.font=UIFont.systemFont(ofSize:19,weight:.heavy)
+            crown.textColor=UIColor(red:1,green:0.79,blue:0.36,alpha:1)
+            crown.textAlignment = .center
+            crown.heightAnchor.constraint(equalToConstant:23).isActive=true
+            crown.isAccessibilityElement=false
+            content.addArrangedSubview(crown)
+            let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(modeArt[mode])"))
+            portrait.contentMode = .scaleAspectFit
+            portrait.heightAnchor.constraint(equalToConstant:62).isActive=true
+            portrait.isAccessibilityElement=false
+            content.addArrangedSubview(portrait)
+            let title=UILabel()
+            title.text=modeNames[mode]
+            title.font=UIFont.systemFont(ofSize:13,weight:.heavy)
+            title.textColor = .white
+            title.textAlignment = .center
+            title.adjustsFontSizeToFitWidth=true
+            title.minimumScaleFactor=0.76
+            title.heightAnchor.constraint(equalToConstant:24).isActive=true
+            title.isAccessibilityElement=false
+            content.addArrangedSubview(title)
+            let hint=UILabel()
+            hint.text=modeHints[mode]
+            hint.font=UIFont.systemFont(ofSize:11,weight:.medium)
+            hint.textColor=UIColor(red:0.85,green:0.93,blue:1,alpha:1)
+            hint.textAlignment = .center
+            hint.numberOfLines=2
+            hint.adjustsFontSizeToFitWidth=true
+            hint.minimumScaleFactor=0.80
+            hint.heightAnchor.constraint(equalToConstant:36).isActive=true
+            hint.isAccessibilityElement=false
+            content.addArrangedSubview(hint)
+            card.addAction(UIAction{[weak self] _ in
+                guard let self=self else{return}
+                self.progress.difficulty=mode
+                self.sound.effect("click")
+                refreshDifficultyCards()
+            },for:.touchUpInside)
+            modeCards.append(card)
+            modeRow.addArrangedSubview(card)
+        }
+        refreshDifficultyCards()
+        s.addArrangedSubview(modeRow)
         label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
         let player=UITextField()
         player.text=progress.playerName

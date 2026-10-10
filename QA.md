@@ -1,3 +1,11 @@
+## Premium difficulty settings — click-by-click acceptance
+- On Android 15/16 and iOS simulator the **Postavke → Igrač i težina** section has horizontal Lagano / Normalno / Zahtjevno cards with actual pilot illustrations and no clipping on narrow displays.
+- Tap each card: only the chosen card gains the gold border and accessible selected status; choice is persisted with original offline values 0/1/2.
+- Confirm the next real flight uses the selected difficulty and the score/progression/save logic is unchanged; while inside the settings page there is no unexpected restart.
+- Emulator QA must scroll to the card row, tap Lagano, check its updated accessible selection, then tap Normalno and check restored selection before returning home.
+- Validate volume sliders, sound/haptics, data export/import, reduced motion and back navigation still work. TalkBack and VoiceOver expose actionable selection labels.
+- Full release gate: privacy/art audit, Android lint/JVM/APK/unsigned AAB, Android 15/16 real smoke, iOS simulator/unsigned device and Swift parity. No production signing on GitHub.
+
 ## Complete character portrait parity — acceptance gates
 - Android 15/16 and iOS simulator: for all nine pilots, gallery cards, selected pilot hero and native PAUZA display **both left and right wings**, not the earlier wingless torso-only asset. Portantin retains his passenger, goggles, mask and gloves; Noa/Any retain unique silhouettes.
 - The same indices and owned masks are used throughout: Portantin / Noa / Any are the first visual row but ownership, coin costs and save persistence remain untouched.

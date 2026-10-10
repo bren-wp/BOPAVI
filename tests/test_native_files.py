@@ -846,6 +846,29 @@ assert 'self.progress.musicVolume=value' in ios_settings
 assert 'self.progress.effectsVolume=value' in ios_settings
 print('PASS: true illustrated twenty-level grid, 0..100 music/effects sliders and Android/iOS offline-save parity')
 
+# User's premium settings reference requires three *real*, selectable
+# horizontal difficulty cards, not Android's vertical RadioGroup versus an
+# unrelated iOS segmented control. All indices remain 0/1/2 in saved state.
+for settings in (android_settings,ios_settings):
+    for label in ('LAGANO','NORMALNO','ZAHTJEVNO',
+                  'Opušten let','Uravnotežen izazov','Za iskusne pilote'):
+        assert label in settings,label
+    assert 'modeCards' in settings and 'modeRow' in settings
+    assert 'refreshDifficultyCards()' in settings
+    assert 'bopiportrait' in settings.lower()
+    assert 'odabrano' in settings and 'dodirni za odabir' in settings
+assert 'android.widget.RadioGroup(this)' not in android_settings
+assert 'UISegmentedControl(items:' not in ios_settings
+assert 'progress.setDifficulty(mode)' in android_settings
+assert 'self.progress.difficulty=mode' in ios_settings
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES' in android_settings
+assert 'card.accessibilityIdentifier="difficulty-card-' in ios_settings
+assert 'verify_difficulty_cards' in qa_script
+assert "('LAGANO','LAGANO'),('NORMALNO','NORMALNO')" in qa_script
+assert "selected real premium difficulty card" in qa_script
+print('PASS: accessible touch-tested three-card premium difficulty controls and Android/iOS offline choice parity')
+
+
 # Premium Pause: no static screenshot, no legacy iOS action sheet. Every CTA
 # is a real touch target, cancel resumes only the currently paused simulation.
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]

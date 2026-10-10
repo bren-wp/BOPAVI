@@ -1,3 +1,8 @@
+## Iteration 9 — matching settings difficulty cards
+- Android and iOS now use matching interactive, horizontally arranged Lagano / Normalno / Zahtjevno cards with existing complete winged character portraits and a gold active outline.
+- These are real touch controls bound to persisted offline physics settings, not static reference renders. The Android emulator test clicks and verifies two options by accessible state.
+- Remaining visual gaps: the detailed 3D artwork, typography/rendering and decorative controls from the supplied reference are still not pixel-identical. The reference's language selector and cloud save cannot be claimed implemented without full functionality and data security.
+
 ## Iteration 8 — complete nine-pilot portraits
 - Actual Android/iOS galleries, preflight hero previews and PAUZA now show generated **full-wing character compositions**, instead of only the separate torso sprite (a confirmed source-level visual omission).
 - The true animated flight path still loads the unchanged separate `Bopi`, `BopiLeft` and `BopiRight` layers, maintaining frame-accurate flap mechanics and pixel parity.
