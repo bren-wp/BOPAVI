@@ -1,12 +1,12 @@
-# BOPAVI — detaljne upute za Google Play (v0.1.31)
+# BOPAVI — detaljne upute za Google Play (v0.1.32)
 
-Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.31**, versionCode **34**, minSdk **26**, compileSdk/targetSdk **36**.
+Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **35**, minSdk **26**, compileSdk/targetSdk **36**.
 
 ## 1. Što izdanje uključuje
 
 - Izvorni Kotlin/Android projekt koji cilja API 36, uz novu Android 13–16 obradu geste Natrag i podršku za starije uređaje.
 - Automatizirane sigurnosne i funkcionalne provjere, Android APK, **nepotpisani** Android AAB, iOS simulator/device ZIP (iOS uređajni ZIP također nije potpisan za App Store).
-- ZIP BOPAVI-Google-Play-listing-v0.1.31.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
+- ZIP BOPAVI-Google-Play-listing-v0.1.32.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
 - GitHub Actions izrađuje **nepotpisani** AAB za preuzimanje. Potpisivanje putem GitHuba je isključeno; izdavač privatno potpisuje paket izvan GitHuba tek prije slanja na Google Play.
 - Hrvatski opis trgovine, politika privatnosti, Data safety analiza i kontrolni popis.
 
@@ -40,7 +40,7 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 
 ## 5. Store listing i marketinški materijali
 
-1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.31.zip** i raspakiraj ga.
+1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.32.zip** i raspakiraj ga.
 2. U Play Console idi na **Grow users → Store presence → Main store listing**. Unesi hrvatski opis iz dokumenta **docs/play/STORE-LISTING-hr-HR.md**.
 3. Prenesi store icon 512×512 RGB i feature graphic 1024×500 RGB. Slike su izvedene iz postojećih izvornika aplikacije; nema izmišljenih screenshotova.
 4. Prenesi valjane **stvarne** Android snimke iz ZIP-a. Provjeri da 9:16 izrez ne skriva gumb, da nema sistemskih dijaloga, pogrešnih imena ni obavijesti. Za kvalitetnije predstavljene igre preporučuju se najmanje **3 stvarna screenshota aktivnog gameplaya** veličine 1080×1920; postojeći ZIP je početni skup, a prikaz mirujućeg leta **nije** stvarni aktivni gameplay.
@@ -68,8 +68,8 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 |---|---|
 | Unsigned app | Pogrešan AAB. Izradi i prenesi artifact iz ručnog signing workflowa. |
 | Wrong signing key | Provjeri izvorni .jks i Play App Signing upload certifikat; ne izmišljaj drugi ključ. |
-| versionCode already used | U novom izdanju povećaj versionCode; broj 34 mora biti slobodan i potvrđen u Play Consoleu. |
-| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.31, ne stara v0.1.29. |
+| versionCode already used | U novom izdanju povećaj versionCode; broj 35 mora biti slobodan i potvrđen u Play Consoleu. |
+| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.32, ne stara v0.1.29. |
 | Privacy Policy URL invalid | Stranica mora biti anonimno dostupna HTTPS lokaciji. |
 | Images rejected | Provjeri 512×512, 1024×500, minimalno 2 stvarna screenshota i najveći dopušteni omjer. |
 | Closed testing gate | Dovrši 12/14-dnevni test ako pravilo vrijedi za račun. |
