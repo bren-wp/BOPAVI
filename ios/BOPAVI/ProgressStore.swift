@@ -152,6 +152,15 @@ final class ProgressStore {
         get {defaults.object(forKey:"sound_enabled") as? Bool ?? true}
         set {defaults.set(newValue,forKey:"sound_enabled")}
     }
+    // Optional v5 save fields; existing backups and older installs default 80/70.
+    var musicVolume:Int {
+        get {max(0,min(100,defaults.object(forKey:"music_volume") as? Int ?? 80))}
+        set {defaults.set(max(0,min(100,newValue)),forKey:"music_volume")}
+    }
+    var effectsVolume:Int {
+        get {max(0,min(100,defaults.object(forKey:"effects_volume") as? Int ?? 70))}
+        set {defaults.set(max(0,min(100,newValue)),forKey:"effects_volume")}
+    }
     func exportData() throws -> Data {
         let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
@@ -160,7 +169,8 @@ final class ProgressStore {
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
                                  "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
-                                 "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled]
+                                 "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled,
+                                  "musicVolume":musicVolume,"effectsVolume":effectsVolume]
         return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":5,"save":save],options:[.prettyPrinted,.sortedKeys])
     }
     func importData(_ data:Data) throws {
@@ -242,6 +252,8 @@ final class ProgressStore {
            let text=String(data:bytes,encoding:.utf8) {
             defaults.set(text,forKey:"local_leaderboard")
         }
+        musicVolume=s["musicVolume"] as? Int ?? 80
+        effectsVolume=s["effectsVolume"] as? Int ?? 70
         soundEnabled = s["soundEnabled"] as? Bool ?? true
         hapticEnabled = s["hapticEnabled"] as? Bool ?? true
         lessMotion = s["lessMotion"] as? Bool ?? false
