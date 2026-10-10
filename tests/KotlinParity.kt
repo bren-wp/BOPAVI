@@ -143,5 +143,24 @@ fun main() {
         idle.flap()
         check(idle.active && idle.flaps==2)
     }
+
+    // Precision regression: both current and preview gates must remain accurately
+    // spaced even after the virtual camera crosses 2^25 world units.
+    run {
+        val game=GameSimulation(LevelEngine.create(0,62),endless=true)
+        val gate=game.level.gates.first()
+        val nextGate=game.upcomingGates().first()
+        val preview=game.upcomingGateX(nextGate)
+        val levelOrigin=GameSimulation::class.java.getDeclaredField("levelOrigin").apply{isAccessible=true}
+        val nextOrigin=GameSimulation::class.java.getDeclaredField("nextOrigin").apply{isAccessible=true}
+        val travelled=GameSimulation::class.java.getDeclaredField("preciseDistance").apply{isAccessible=true}
+        val base=nextOrigin.getDouble(game)
+        levelOrigin.setDouble(game,33_554_432.0)
+        nextOrigin.setDouble(game,33_554_432.0+base)
+        travelled.setDouble(game,33_554_432.25)
+        check(kotlin.math.abs(game.gateX(gate)-(gate.x-.25f))<.0001f)
+        check(kotlin.math.abs(game.upcomingGateX(nextGate)-(preview-.25f))<.0001f)
+    }
+
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
