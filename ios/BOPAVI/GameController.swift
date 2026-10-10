@@ -415,12 +415,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// Shared image gallery: every player sees the actual unlocked/locked cast.
     /// A new virtual-coin purchase always requires a second explicit approval.
     private func characterGallery(in stack:UIStackView,refresh:@escaping()->Void) {
-        for start in stride(from:0,to:progress.skinNames.count,by:2) {
+        for start in stride(from:0,to:progress.skinNames.count,by:3) {
             let row=UIStackView()
             row.axis = .horizontal;row.alignment = .fill
-            row.distribution = .fillEqually;row.spacing=10
+            row.distribution = .fillEqually;row.spacing=5
             stack.addArrangedSubview(row)
-            for i in start..<min(start+2,progress.skinNames.count) {
+            for i in start..<min(start+3,progress.skinNames.count) {
                 let selected=progress.skinIndex()==i
                 let owned=progress.owned(i)
                 let cost=progress.costs[i]
@@ -432,7 +432,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     ? UIColor(red:1,green:0.84,blue:0.34,alpha:1)
                     : UIColor(red:0.43,green:0.72,blue:0.94,alpha:0.7)).cgColor
                 card.accessibilityLabel="\(progress.skinNames[i]), \(status)"
-                card.heightAnchor.constraint(equalToConstant:157).isActive=true
+                card.heightAnchor.constraint(equalToConstant:141).isActive=true
                 let portrait=UIImageView(image:UIImage(named:"Bopi\(i)"))
                 portrait.translatesAutoresizingMaskIntoConstraints=false
                 portrait.contentMode = .scaleAspectFit
@@ -442,14 +442,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 let name=UILabel()
                 name.translatesAutoresizingMaskIntoConstraints=false
                 name.text=progress.skinNames[i]
-                name.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+                name.font=UIFont.systemFont(ofSize:13,weight:.heavy)
                 name.textColor = .white;name.textAlignment = .center
                 name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.7
                 name.accessibilityElementsHidden=true
                 card.addSubview(name)
                 let price=UILabel()
                 price.translatesAutoresizingMaskIntoConstraints=false
-                price.text=status;price.font=UIFont.systemFont(ofSize:12,weight:.bold)
+                price.text=status;price.font=UIFont.systemFont(ofSize:10,weight:.bold)
                 price.textColor=selected
                     ? UIColor(red:1,green:0.86,blue:0.40,alpha:1)
                     : UIColor(red:0.82,green:0.93,blue:1,alpha:1)
@@ -461,15 +461,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     portrait.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:8),
                     portrait.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-8),
                     portrait.topAnchor.constraint(equalTo:card.topAnchor,constant:3),
-                    portrait.heightAnchor.constraint(equalToConstant:100),
+                    portrait.heightAnchor.constraint(equalToConstant:84),
                     name.topAnchor.constraint(equalTo:portrait.bottomAnchor,constant:1),
                     name.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
                     name.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
-                    name.heightAnchor.constraint(equalToConstant:22),
+                    name.heightAnchor.constraint(equalToConstant:20),
                     price.topAnchor.constraint(equalTo:name.bottomAnchor,constant:1),
                     price.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
                     price.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
-                    price.heightAnchor.constraint(equalToConstant:21)
+                    price.heightAnchor.constraint(equalToConstant:22)
                 ])
                 card.addAction(UIAction{ [weak self] _ in
                     guard let self=self else{return}
@@ -493,7 +493,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 },for:.touchUpInside)
                 row.addArrangedSubview(card)
             }
-            if start==progress.skinNames.count-1 {row.addArrangedSubview(UIView())}
+            // Exactly nine characters, three columns on all supported iPhones.
         }
     }
     /// Character choice is a deliberate step before gameplay or boost consumption.
