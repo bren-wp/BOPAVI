@@ -1,3 +1,10 @@
+## In development — premium in-flight HUD parity
+- Android Canvas and iOS Core Graphics now render the same three real glass chips for **coins gathered in the current run**, **stars collected** and **current level**, while reserving the top-right touch area for the existing native pause control.
+- A cyan/gold progress bar reflects actual gates passed within the current procedural level. A distinct, permanently cumulative **PROLAZI UKUPNO** counter does not reset on seamless level boundaries. Progress is not falsely labelled in meters.
+- Existing real shield and magnet power-up quantities are drawn as matching blue status chips only when active. The preflight preview remains clean until the first tap.
+- Removed the duplicate iOS UIKit status pill and the duplicate painted "PAUZA" panel on Android/iOS; the functional premium pause modal remains the only action sheet.
+- No new network, currency, invented interactive items or gameplay physics changes. Original artwork still differs from the supplied 3D concept images.
+
 ## In development — premium selection-first character screen
 - Both Android and iOS display the three featured, user-reference characters **Portantin, Noa, Any** in the first row, followed by the other six characters in a 3×3 accessible gallery.
 - Skin indices, owned masks, offline-earned coin costs, local save migrations and character purchase confirmation are unchanged by this visual reorder.
