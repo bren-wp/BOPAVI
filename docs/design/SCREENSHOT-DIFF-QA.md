@@ -1,3 +1,9 @@
+## Iteration 8 — complete nine-pilot portraits
+- Actual Android/iOS galleries, preflight hero previews and PAUZA now show generated **full-wing character compositions**, instead of only the separate torso sprite (a confirmed source-level visual omission).
+- The true animated flight path still loads the unchanged separate `Bopi`, `BopiLeft` and `BopiRight` layers, maintaining frame-accurate flap mechanics and pixel parity.
+- Generator builds one transparent 512×512 portrait per character with subtle ambient halo from approved existing wings and body; art appears from identical PNG bytes on both platforms.
+- Remaining gap: these are enhanced illustrations from existing SVG shapes, **not** the 3D feather, goggles, mascot lighting and exact premium backgrounds in supplied screenshots. Full screenshot-diff approval remains open.
+
 ## Iteration 7 — eight illustrated world environments
 - Shared deterministic generator now adds faceted rock geometry, additional atmospheric highlights, castles, waterfalls, coral, crystal and snow formations, volcanic fissures, celestial portals, and biome-specific foreground shapes to all eight world images.
 - This is production game scenery rasterized once for both operating systems, not an in-chat concept sheet or a non-interactive screenshot standing in for controls. Gameplay collision shapes and flight lane are unaffected.
