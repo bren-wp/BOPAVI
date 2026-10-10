@@ -791,6 +791,8 @@ assert 'if all_pilots <= seen: break' in android_qa
 assert 'if len(buttons)==1:' in android_qa
 assert "swipe_gallery(root,up=True)" in android_qa
 assert 'both cannot fit in one phone viewport' in android_qa
+assert "if grep -q 'ODABERI LIKA' qa/screenshots/android-current-ui.xml; then" in android_qa
+assert "if grep -q 'POLETI S' qa/screenshots/android-current-ui.xml; then" not in android_qa
 assert "before==after" in android_qa
 print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
 
