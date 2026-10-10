@@ -527,8 +527,8 @@ for view in (android_picker,ios_picker):
     assert 'startGame(' in view
 android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
 ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
-assert 'skinNames.indices step 3' in android_gallery
-assert 'stride(from:0,to:progress.skinNames.count,by:3)' in ios_gallery
+assert 'displayOrder.indices step 3' in android_gallery
+assert 'stride(from:0,to:displayOrder.count,by:3)' in ios_gallery
 assert 'R.drawable.bopi6' in android_gallery
 assert 'UIImage(named:"Bopi\\(i)")' in ios_gallery
 assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
@@ -910,3 +910,24 @@ assert 'textSize=14f;setTextColor(Color.WHITE)' in android_result
 assert 'details.numberOfLines=3' in ios_result
 assert 'details.lineBreakMode = .byWordWrapping' in ios_result
 print('PASS: reward icon contrast and compact responsive real-score details')
+
+# Premium selection-first visual flow: featured characters appear on row one,
+# but all nine identity indices, earned-coin costs and existing save keys stay
+# unchanged. Every image is genuine art behind a separately interactive view.
+for gallery in (android_gallery,ios_gallery):
+    assert '6,7,8,0,1,2,3,4,5' in gallery
+    assert 'displayOrder[position]' in gallery
+    assert 'selectOrBuy(i)' in gallery
+assert 'val preview=FrameLayout(this)' in android_picker
+assert 'setImageResource(worlds[world.coerceIn(0,7)])' in android_picker
+assert 'setImageResource(portraits[idx])' in android_picker
+assert 'val selectedBadge=TextView(this)' in android_picker
+assert 'let preview=UIView()' in ios_picker
+assert 'UIImage(named:"World\\(world)")' in ios_picker
+assert 'UIImage(named:"Bopi\\(selected)")' in ios_picker
+assert 'portrait.accessibilityLabel=' in ios_picker
+for picker in (android_picker,ios_picker):
+    assert picker.index('characterGallery(') < picker.index('POLETI S')
+    assert 'ODABRAN' in picker
+assert 'currentLevel=number' in android_picker and 'gameNumber=number' in ios_picker
+print('PASS: 9-skin featured-row parity, layered hero and after-selection flight CTA')
