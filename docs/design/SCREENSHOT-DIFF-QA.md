@@ -1,3 +1,8 @@
+## Iteration 7 — eight illustrated world environments
+- Shared deterministic generator now adds faceted rock geometry, additional atmospheric highlights, castles, waterfalls, coral, crystal and snow formations, volcanic fissures, celestial portals, and biome-specific foreground shapes to all eight world images.
+- This is production game scenery rasterized once for both operating systems, not an in-chat concept sheet or a non-interactive screenshot standing in for controls. Gameplay collision shapes and flight lane are unaffected.
+- Reference difference still open: original stylized characters and generated 2D environments do not yet reproduce the source's high-detail 3D feather textures and realistic volumetric lighting. Exact screenshot matching requires a future imported art pass and multi-resolution approval.
+
 ## Iteration 6 — authentic gameplay HUD
 - Android and iOS present same 3 status chips (current-run coins, current-run stars, procedural level), cyan gate-progress meter, cumulative passed label and live shield/magnet badges.
 - UIKit iOS counter duplicate and second painted PAUZA legend under the real native modal removed. Preflight remains deliberately free of gameplay HUD.
