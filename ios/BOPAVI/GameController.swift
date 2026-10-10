@@ -371,64 +371,137 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
-        let s=menu(BopaviCore.names[world],"Odaberi otključani level")
+        let s=menu("LEVELI","Odaberite level · \(BopaviCore.names[world])")
         let maxNumber=min(BopaviCore.levelsPerWorld,progress.frontier(world))
-        label("Otključano do levela \(maxNumber)",18,.white,s)
-        button("▶  NASTAVI LET",in:s){self.showPilotPicker(world,self.progress.streamFrontier(world))}
-        let field=UITextField()
-        field.keyboardType = .numberPad;field.text=String(page);field.placeholder="Broj levela"
-        field.textAlignment = .center;field.textColor = .white;field.backgroundColor = UIColor(red:0.10,green:0.24,blue:0.45,alpha:1)
-        field.layer.cornerRadius=12;field.heightAnchor.constraint(equalToConstant:52).isActive=true
-        s.addArrangedSubview(field)
-        button("▶  POKRENI ODABRANI LEVEL",in:s){
-            field.resignFirstResponder()
-            guard let n=Int(field.text ?? ""), (1...maxNumber).contains(n) else {self.alert("Nedostupan level","Odaberi otključan level iz raspona 1–\(maxNumber).");return}
-            self.showPilotPicker(world,n)
-        }
-        let start=((max(1,min(page,BopaviCore.levelsPerWorld))-1)/20)*20+1
+        let safePage=max(1,min(page,BopaviCore.levelsPerWorld))
+        let start=((safePage-1)/20)*20+1
         let zone=BopaviCore.create(world,start).zone
         label("ZONA \(zone) · LEVELI \(start)–\(min(start+19,BopaviCore.levelsPerWorld))",16,.white,s)
         label("● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI",13,.white,s)
         for rowNumber in 0..<5 {
-            let row=UIStackView();row.axis = .horizontal;row.spacing=6
-            row.distribution = .fillEqually
+            let row=UIStackView()
+            row.axis = .horizontal;row.spacing=6;row.distribution = .fillEqually
             for column in 0..<4 {
                 let n=start+rowNumber*4+column
                 if n>BopaviCore.levelsPerWorld {break}
-                let unlocked=n<=maxNumber
-                // Derive the badge from the actual existing procedural level.
                 let kind=BopaviCore.create(world,n).type
-                let cell=BopaviActionButton(primary:false)
-                cell.setTitle("\(unlocked ? LevelKind.icon(kind) : "🔒")\n\(n)",for:.normal)
-                cell.alpha=unlocked ? 1 : 0.60
-                cell.titleLabel?.numberOfLines=2
-                cell.titleLabel?.textAlignment = .center
-                cell.titleLabel?.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.bold)
-                let accent:UIColor
-                switch kind {
-                case 1: accent=UIColor(red:1,green:0.67,blue:0.33,alpha:1)
-                case 2: accent=UIColor(red:1,green:0.87,blue:0.34,alpha:1)
-                case 3: accent=UIColor(red:0.81,green:0.63,blue:1,alpha:1)
-                default: accent=UIColor(red:0.55,green:0.84,blue:1,alpha:1)
-                }
-                cell.layer.borderColor=(unlocked ? accent : UIColor.white.withAlphaComponent(0.18)).cgColor
-                cell.layer.borderWidth=unlocked && n==maxNumber ? 3 : 1
-                let status = !unlocked ? "zaključan" : (n<maxNumber ? "dovršen" : "otključan")
-                cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(status)"
-                cell.accessibilityHint=unlocked ? "Pokreni level" : "Prvo dovrši prethodni level"
-                cell.heightAnchor.constraint(equalToConstant:63).isActive=true
-                cell.addAction(UIAction{_ in
-                    self.sound.effect("click")
-                    if unlocked {self.showPilotPicker(world,n)}
-                    else {self.alert("Zaključano","Prvo dovrši prethodni level.")}
-                },for:.touchUpInside)
-                row.addArrangedSubview(cell)
+                levelTile(world,n,frontier:maxNumber,kind:kind,in:row)
             }
-            if !row.arrangedSubviews.isEmpty {s.addArrangedSubview(row)}
+            if !row.arrangedSubviews.isEmpty{s.addArrangedSubview(row)}
         }
-        if start>1 {button("← Prethodnih 20",in:s,primary:false){self.showLevels(world,page:start-20)}}
-        if start+20<=maxNumber {button("Sljedećih 20 →",in:s,primary:false){self.showLevels(world,page:start+20)}}
+        let pager=UIStackView()
+        pager.axis = .horizontal
+        pager.distribution = .fillEqually
+        pager.spacing=8
+        if start>1 {
+            button("← PRETHODNIH 20",in:pager,primary:false){
+                self.showLevels(world,page:start-20)
+            }
+        }
+        if start+20<=maxNumber {
+            button("SLJEDEĆIH 20 →",in:pager){
+                self.showLevels(world,page:start+20)
+            }
+        }
+        if !pager.arrangedSubviews.isEmpty{s.addArrangedSubview(pager)}
+        sectionHeading("NASTAVI ILI ODABERI LEVEL",in:s)
+        label("Otključano do levela \(maxNumber)",16,.white,s)
+        button("▶  NASTAVI LET",in:s){
+            self.showPilotPicker(world,self.progress.streamFrontier(world))
+        }
+        let field=UITextField()
+        field.keyboardType = .numberPad
+        field.text=String(safePage)
+        field.placeholder="Broj otključanog levela"
+        field.textAlignment = .center
+        field.textColor = .white
+        field.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:1)
+        field.layer.cornerRadius=17
+        field.layer.borderWidth=1
+        field.layer.borderColor=UIColor(red:0.26,green:0.76,blue:1,alpha:1).cgColor
+        field.heightAnchor.constraint(equalToConstant:52).isActive=true
+        s.addArrangedSubview(field)
+        button("▶  POKRENI ODABRANI LEVEL",in:s,primary:false){
+            field.resignFirstResponder()
+            guard let n=Int(field.text ?? ""), (1...maxNumber).contains(n) else {
+                self.alert("Nedostupan level","Odaberi otključan level iz raspona 1–\(maxNumber).")
+                return
+            }
+            self.showPilotPicker(world,n)
+        }
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
+    }
+    /// Every image is a reusable, real world illustration. Completion is read
+    /// exclusively from saved frontier; no invented three-star achievements.
+    private func levelTile(_ world:Int,_ n:Int,frontier:Int,kind:Int,in row:UIStackView){
+        let unlocked=n<=frontier
+        let completed=n<frontier
+        let selected=n==frontier
+        let cell=BopaviActionButton(primary:false)
+        cell.setTitle("",for:.normal)
+        cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(!unlocked ? "zaključan" : (completed ? "dovršen" : "otključan"))"
+        cell.accessibilityHint=unlocked ? "Pokreni level" : "Prvo dovrši prethodni level"
+        cell.layer.cornerRadius=16
+        cell.layer.borderWidth=selected ? 3 : 1
+        cell.layer.borderColor=(selected
+            ? UIColor(red:1,green:0.78,blue:0.30,alpha:1)
+            : UIColor(red:0.43,green:0.84,blue:1,alpha:0.9)).cgColor
+        cell.clipsToBounds=true
+        cell.heightAnchor.constraint(equalToConstant:86).isActive=true
+        let picture=UIImageView(image:UIImage(named:"World\(world)"))
+        picture.translatesAutoresizingMaskIntoConstraints=false
+        picture.contentMode = .scaleAspectFill
+        picture.clipsToBounds=true
+        picture.alpha=unlocked ? 0.96 : 0.30
+        picture.isUserInteractionEnabled=false
+        picture.accessibilityElementsHidden=true
+        cell.addSubview(picture)
+        let shade=UIView()
+        shade.translatesAutoresizingMaskIntoConstraints=false
+        shade.isUserInteractionEnabled=false
+        shade.backgroundColor=UIColor(red:0.01,green:0.10,blue:0.28,alpha:unlocked ? 0.28 : 0.75)
+        cell.addSubview(shade)
+        let number=UILabel()
+        number.text=String(n)
+        number.textAlignment = .center
+        number.font=UIFont.monospacedDigitSystemFont(ofSize:22,weight:.black)
+        number.textColor=unlocked ? .white : UIColor(red:0.72,green:0.79,blue:0.87,alpha:1)
+        number.layer.shadowOpacity=0.7;number.layer.shadowRadius=2
+        number.translatesAutoresizingMaskIntoConstraints=false
+        number.accessibilityElementsHidden=true
+        cell.addSubview(number)
+        let icon=UILabel()
+        icon.text = !unlocked ? "🔒" : (completed ? "✓  \(LevelKind.icon(kind))" : "★  \(LevelKind.icon(kind))")
+        icon.textAlignment = .center
+        icon.textColor=selected ? UIColor(red:1,green:0.80,blue:0.28,alpha:1) : .white
+        icon.font=UIFont.systemFont(ofSize:17,weight:.bold)
+        icon.translatesAutoresizingMaskIntoConstraints=false
+        icon.accessibilityElementsHidden=true
+        cell.addSubview(icon)
+        NSLayoutConstraint.activate([
+            picture.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
+            picture.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            picture.topAnchor.constraint(equalTo:cell.topAnchor),
+            picture.bottomAnchor.constraint(equalTo:cell.bottomAnchor),
+            shade.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
+            shade.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            shade.topAnchor.constraint(equalTo:cell.topAnchor),
+            shade.bottomAnchor.constraint(equalTo:cell.bottomAnchor),
+            number.topAnchor.constraint(equalTo:cell.topAnchor,constant:5),
+            number.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
+            number.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            number.heightAnchor.constraint(equalToConstant:32),
+            icon.bottomAnchor.constraint(equalTo:cell.bottomAnchor,constant:-3),
+            icon.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
+            icon.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            icon.heightAnchor.constraint(equalToConstant:32)
+        ])
+        cell.addAction(UIAction{_ in
+            self.sound.effect("click")
+            if unlocked {self.showPilotPicker(world,n)}
+            else {self.alert("Zaključano","Prvo dovrši prethodni level.")}
+        },for:.touchUpInside)
+        row.addArrangedSubview(cell)
     }
     /// Shared image gallery: every player sees the actual unlocked/locked cast.
     /// A new virtual-coin purchase always requires a second explicit approval.
