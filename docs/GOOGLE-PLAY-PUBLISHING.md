@@ -1,12 +1,12 @@
-# BOPAVI — detaljne upute za Google Play (v0.1.30)
+# BOPAVI — detaljne upute za Google Play (v0.1.31)
 
-Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.30**, versionCode **31**, minSdk **26**, compileSdk/targetSdk **36**.
+Ažurirano 10.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.31**, versionCode **34**, minSdk **26**, compileSdk/targetSdk **36**.
 
 ## 1. Što izdanje uključuje
 
 - Izvorni Kotlin/Android projekt koji cilja API 36, uz novu Android 13–16 obradu geste Natrag i podršku za starije uređaje.
 - Automatizirane sigurnosne i funkcionalne provjere, Android APK, **nepotpisani** Android AAB, iOS simulator/device ZIP (iOS uređajni ZIP također nije potpisan za App Store).
-- ZIP BOPAVI-Google-Play-listing-v0.1.30.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
+- ZIP BOPAVI-Google-Play-listing-v0.1.31.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
 - Odvojeni ručni GitHub workflow za izradu i provjeru **potpisanog** Google Play AAB-a, koji zahtijeva privatne tajne upload ključa. Potpisani AAB čuva se u ograničenom GitHub Actions artifactu, **ne u javnom Releaseu**.
 - Hrvatski opis trgovine, politika privatnosti, Data safety analiza i kontrolni popis.
 
@@ -39,14 +39,14 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
    - BOPAVI_UPLOAD_KEY_ALIAS — alias ključa (npr. bopavi-upload).
    - BOPAVI_UPLOAD_KEY_PASSWORD — lozinka ključa.
 3. Base64 lokalno na Linuxu: **base64 -w0 bopavi-play-upload.jks**. Na macOS-u: **base64 < bopavi-play-upload.jks | tr -d '\n'**. Na Windows PowerShellu: **[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\sigurno\bopavi-play-upload.jks"))**. Ne ispisuj rezultat u javni zapis.
-4. Pokreni **Actions → BOPAVI — signed Google Play upload AAB → Run workflow**, izaberi **main** i tag **v0.1.30**. Poseban workflow zahtijeva te tajne i odbija ostale grane/tagove. Ako nema tajni, **namjerno mora pasti**.
-5. Nakon uspjeha u Actions → Artifacts preuzmi **BOPAVI-Google-Play-v0.1.30-SIGNED-AAB** s datotekama **BOPAVI-v0.1.30-Play-upload-SIGNED.aab** i SHA256SUMS.txt. Provjeri SHA-256 hash preuzetog AAB-a. Artifact je vremenski ograničen na 5 dana.
+4. Pokreni **Actions → BOPAVI — signed Google Play upload AAB → Run workflow**, izaberi **main** i tag **v0.1.31**. Poseban workflow zahtijeva te tajne i odbija ostale grane/tagove. Ako nema tajni, **namjerno mora pasti**.
+5. Nakon uspjeha u Actions → Artifacts preuzmi **BOPAVI-Google-Play-v0.1.31-SIGNED-AAB** s datotekama **BOPAVI-v0.1.31-Play-upload-SIGNED.aab** i SHA256SUMS.txt. Provjeri SHA-256 hash preuzetog AAB-a. Artifact je vremenski ograničen na 5 dana.
 6. Potpisni workflow koristi jarsigner provjeru. U Play Console prenesi **isključivo potpisani AAB**, nikada javni, nepotpisani app-release.aab iz običnog GitHub izdanja.
 7. Ako je Google Play već vidio isti versionCode, povećaj ga u novom izdanju. Nemoj prepisivati stari tag niti koristiti drugi nasumični potpisni ključ.
 
 ## 5. Store listing i marketinški materijali
 
-1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.30.zip** i raspakiraj ga.
+1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.31.zip** i raspakiraj ga.
 2. U Play Console idi na **Grow users → Store presence → Main store listing**. Unesi hrvatski opis iz dokumenta **docs/play/STORE-LISTING-hr-HR.md**.
 3. Prenesi store icon 512×512 RGB i feature graphic 1024×500 RGB. Slike su izvedene iz postojećih izvornika aplikacije; nema izmišljenih screenshotova.
 4. Prenesi valjane **stvarne** Android snimke iz ZIP-a. Provjeri da 9:16 izrez ne skriva gumb, da nema sistemskih dijaloga, pogrešnih imena ni obavijesti. Za kvalitetnije predstavljene igre preporučuju se najmanje **3 stvarna screenshota aktivnog gameplaya** veličine 1080×1920; postojeći ZIP je početni skup, a prikaz mirujućeg leta **nije** stvarni aktivni gameplay.
@@ -74,8 +74,8 @@ Na **vlastitom sigurnom računalu**, jednom, pokreni:
 |---|---|
 | Unsigned app | Pogrešan AAB. Izradi i prenesi artifact iz ručnog signing workflowa. |
 | Wrong signing key | Provjeri izvorni .jks i Play App Signing upload certifikat; ne izmišljaj drugi ključ. |
-| versionCode already used | U novom izdanju povećaj versionCode; broj 31 mora biti slobodan. |
-| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.30, ne stara v0.1.29. |
+| versionCode already used | U novom izdanju povećaj versionCode; broj 34 mora biti slobodan i potvrđen u Play Consoleu. |
+| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.31, ne stara v0.1.29. |
 | Privacy Policy URL invalid | Stranica mora biti anonimno dostupna HTTPS lokaciji. |
 | Images rejected | Provjeri 512×512, 1024×500, minimalno 2 stvarna screenshota i najveći dopušteni omjer. |
 | Closed testing gate | Dovrši 12/14-dnevni test ako pravilo vrijedi za račun. |
