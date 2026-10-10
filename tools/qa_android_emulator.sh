@@ -141,6 +141,52 @@ for name,expected in [('LAGANO','LAGANO'),('NORMALNO','NORMALNO')]:
     print(f'PASS: selected real premium difficulty card {name}',flush=True)
 PY
 }
+# Verify every world is a genuine clickable card with saved progress, not
+# a static illustration or invented screenshot stars. Keep world indices intact.
+verify_world_cards(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+worlds=('Zelene livade','Sunčana plaža','Ledeni vrhovi','Vulkan',
+        'Nebeski hram','Mračna noć','Kristalna šuma','Svemirski let')
+def dump():
+    subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
+    xml=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
+                       capture_output=True,text=True,check=True,timeout=15).stdout
+    return ET.fromstring(xml)
+def tap(button):
+    match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',button.get('bounds',''))
+    if match is None: raise SystemExit('FAIL: invalid worlds button bounds')
+    l,t,r,b=map(int,match.groups())
+    if r<=l or b<=t: raise SystemExit('FAIL: zero-size worlds button')
+    subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],
+                   check=True,timeout=12)
+def nodes(root):
+    return [n for n in root.iter('node') if n.get('clickable')=='true']
+root=dump()
+entry=[n for n in nodes(root) if 'SVJETOVI' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(entry)!=1: raise SystemExit(f'FAIL: expected one home SVJETOVI action, got {len(entry)}')
+tap(entry[0]);time.sleep(1.1)
+seen=set()
+for attempt in range(13):
+    root=dump()
+    for node in nodes(root):
+        title=node.get('content-desc','')
+        for name in worlds:
+            if title.startswith(name+', otključano,'):
+                if not all(piece in title for piece in ('level ','prikupljeno ','rekord ')):
+                    raise SystemExit(f'FAIL: world missing real save metrics: {name}')
+                seen.add(name)
+    if len(seen)==8:break
+    subprocess.run(['adb','shell','input','swipe','220','746','220','291','430'],
+                   check=True,timeout=12)
+    time.sleep(.4)
+if len(seen)!=8:
+    raise SystemExit(f'FAIL: not all world cards reachable: {sorted(set(worlds)-seen)}')
+print('PASS: all eight real illustrated world cards expose saved level, collected items and record',flush=True)
+subprocess.run(['adb','shell','input','keyevent','4'],check=True,timeout=12)
+PY
+}
 tap_play(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import re, subprocess, sys, xml.etree.ElementTree as ET
@@ -406,6 +452,10 @@ while [ "$attempt" -le 6 ]; do
       exit 1
     fi
     echo "PASS: settings opens and returns to the three-button home"
+    verify_world_cards
+    sleep 1
+    dump_ui
+    verify_three_home_actions
     home_captured=1
   fi
   tap_play
