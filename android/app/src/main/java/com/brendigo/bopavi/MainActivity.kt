@@ -290,7 +290,7 @@ class MainActivity : Activity() {
             val world=progress.chosenWorld()
             showPilotPicker(world,progress.streamFrontier(world))
         }
-        action(layout,"◎  SVJETOVI",false){showWorlds()}
+        action(layout,"🌍  SVJETOVI",false){showWorlds()}
         action(layout,"⚙  POSTAVKE",false){showSettings()}
         val navigation=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -300,20 +300,29 @@ class MainActivity : Activity() {
             }
         }
         val entries=listOf(
-            Triple("♙\nPROFIL","Profil igrača",0),
-            Triple("★\nZADACI","Postignuća",1),
-            Triple("✦\nKOLEKCIJA","Kolekcija likova",2),
-            Triple("▣\nTRGOVINA","Trgovina kovanicama",3)
+            Triple("♙","PROFIL",0),
+            Triple("★","ZADACI",1),
+            Triple("✦","KOLEKCIJA",2),
+            Triple("▣","TRGOVINA",3)
         )
-        for((label,description,index) in entries){
-            val tab=Button(this).apply{
-                text=label;contentDescription=description
-                isAllCaps=false;textSize=11f
-                setTextColor(Color.WHITE)
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setPadding(d(1),0,d(1),0)
-                background=gradient(0x66317fc2,0x33081e46,14)
-                minHeight=d(58)
+        for((symbol,label,index) in entries){
+            val tab=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
+                gravity=Gravity.CENTER
+                isClickable=true;isFocusable=true
+                contentDescription=label
+                background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),
+                    gradient(0xff1358a5.toInt(),0xff071e46.toInt(),14),null)
+                addView(TextView(this@MainActivity).apply{
+                    text=symbol;textSize=25f;setTextColor(if(index==3)gold else Color.WHITE)
+                    gravity=Gravity.CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(29)))
+                addView(TextView(this@MainActivity).apply{
+                    text=label;textSize=11f;setTextColor(Color.WHITE)
+                    gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(21)))
                 setOnClickListener{
                     sound.effect("click")
                     when(index){
