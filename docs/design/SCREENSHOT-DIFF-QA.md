@@ -1,3 +1,8 @@
+## Iteration 3 — premium pause overlay
+- Replaced Android AlertDialog item list and iOS system action sheet with native custom scrollable pause cards over dimmed actual gameplay. The selected character, blue/gold header, orange Continue, blue Retry, gray Exit and four real shortcuts align the control hierarchy with the provided screenshot.
+- Sound/music toggles are fully connected to saved audio state. Reactivating sound from the pause screen explicitly keeps soundtrack paused until Continue.
+- The supplied illustrative 3D bird and world artwork still differ from the flat existing assets; UI fidelity to the reference remains partial until separately approved texture/sprite exports are integrated.
+
 ## Iteration 2 — implemented, pending pixel-art approval
 
 - Worlds: both platforms now have numbered crown badges and decorative blue navigation arrows over the existing real world art; entire world tile remains the tap target.
