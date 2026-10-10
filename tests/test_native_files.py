@@ -902,3 +902,11 @@ assert 'android.content.Intent.ACTION_SEND' in android_result
 assert 'UIActivityViewController(activityItems:' in ios_result
 assert 'bonusCounter.text="+0"' in android_result and 'bonusCounter.text="+0"' in ios_result
 print('PASS: honest 3-stat/4-reward premium results and offline claim/share actions')
+
+# Review of actual Android API35 result screenshot identified a concrete
+# black-on-navy contrast bug. Keep reward icons legible after future restyling.
+assert 'setTextColor(gold) // Never render black reward glyphs on navy.' in android_result
+assert 'textSize=14f;setTextColor(Color.WHITE)' in android_result
+assert 'details.numberOfLines=3' in ios_result
+assert 'details.lineBreakMode = .byWordWrapping' in ios_result
+print('PASS: reward icon contrast and compact responsive real-score details')
