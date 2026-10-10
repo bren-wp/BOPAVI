@@ -363,6 +363,56 @@ class MainActivity : Activity() {
         }
         back(b){showHome()}
     }
+    private fun showLevels(world:Int,page:Int){
+        currentWorld=world;progress.chooseWorld(world)
+        val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]}")
+        val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
+        val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
+        val start=((safePage-1)/20)*20+1
+        val zone=LevelEngine.create(world,start).zone
+        small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
+        small(b,"● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI")
+        for(r in 0 until 5){
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            for(col in 0 until 4){
+                val n=start+r*4+col
+                if(n>LevelEngine.LEVELS_PER_WORLD)continue
+                val kind=LevelEngine.create(world,n).type
+                levelTile(row,world,n,maxNumber,kind)
+            }
+            if(row.childCount>0)b.addView(row,LinearLayout.LayoutParams(-1,-2))
+        }
+        val pager=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        b.addView(pager,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(8)})
+        if(start>1){
+            val prev=LinearLayout(this)
+            pager.addView(prev,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
+            action(prev,"← PRETHODNIH 20",false){showLevels(world,start-20)}
+        }
+        if(start+20<=maxNumber){
+            val next=LinearLayout(this)
+            pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
+            action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
+        }
+        sectionHeading(b,"NASTAVI ILI ODABERI LEVEL")
+        small(b,"Otključano do levela $maxNumber")
+        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
+        val input=EditText(this).apply{
+            inputType=android.text.InputType.TYPE_CLASS_NUMBER
+            setSingleLine(true);hint="Broj otključanog levela"
+            setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
+            setText(safePage.toString());gravity=Gravity.CENTER
+            background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
+        }
+        b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
+        action(b,"▶  POKRENI ODABRANI LEVEL",false){
+            val n=input.text.toString().toIntOrNull()
+            if(n==null||n !in 1..maxNumber)Toast.makeText(this,
+                "Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
+            else showPilotPicker(world,n.toLong())
+        }
+        back(b){showWorlds()}
+    }
     /**
      * A fully interactive illustrated tile, never a pasted screenshot.
      * The lock/checkmark comes from the same persisted frontier as gameplay.
@@ -416,56 +466,6 @@ class MainActivity : Activity() {
         parent.addView(frame,LinearLayout.LayoutParams(0,d(86),1f).apply{
             setMargins(d(3),d(4),d(3),d(4))
         })
-    }
-    private fun showLevels(world:Int,page:Int){
-        currentWorld=world;progress.chooseWorld(world)
-        val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]}")
-        val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
-        val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
-        val start=((safePage-1)/20)*20+1
-        val zone=LevelEngine.create(world,start).zone
-        small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
-        small(b,"● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI")
-        for(r in 0 until 5){
-            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-            for(col in 0 until 4){
-                val n=start+r*4+col
-                if(n>LevelEngine.LEVELS_PER_WORLD)continue
-                val kind=LevelEngine.create(world,n).type
-                levelTile(row,world,n,maxNumber,kind)
-            }
-            if(row.childCount>0)b.addView(row,LinearLayout.LayoutParams(-1,-2))
-        }
-        val pager=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-        b.addView(pager,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(8)})
-        if(start>1){
-            val prev=LinearLayout(this)
-            pager.addView(prev,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
-            action(prev,"← PRETHODNIH 20",false){showLevels(world,start-20)}
-        }
-        if(start+20<=maxNumber){
-            val next=LinearLayout(this)
-            pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
-            action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
-        }
-        sectionHeading(b,"NASTAVI ILI ODABERI LEVEL")
-        small(b,"Otključano do levela $maxNumber")
-        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        val input=EditText(this).apply{
-            inputType=android.text.InputType.TYPE_CLASS_NUMBER
-            setSingleLine(true);hint="Broj otključanog levela"
-            setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
-            setText(safePage.toString());gravity=Gravity.CENTER
-            background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
-        }
-        b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
-        action(b,"▶  POKRENI ODABRANI LEVEL",false){
-            val n=input.text.toString().toIntOrNull()
-            if(n==null||n !in 1..maxNumber)Toast.makeText(this,
-                "Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
-            else showPilotPicker(world,n.toLong())
-        }
-        back(b){showWorlds()}
     }
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
