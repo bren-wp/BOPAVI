@@ -2,8 +2,8 @@
 
 NIJEDNA stavka nije unaprijed označena obavljenom. Svaki korak traži dokaz.
 
-- [ ] PR v0.1.32 i obavezni CI audit, Android/iOS buildovi i emulator testovi su uspješni i spojeni.
-- [ ] Javni GitHub Release v0.1.32 s Android API36 buildom i ZIP-om Play grafike.
+- [ ] PR za v0.1.32: obavezni Android/iOS buildovi, privatnost, Android emulator 15/16 i iOS simulator/device su uspješni i spojeni.
+- [ ] GitHub Release v0.1.32 je stvarno objavljen na ispravnom SHA commitu, sa svih pet nepodpisanih/razvojnih artefakata.
 - [ ] Application ID com.brendigo.bopavi, versionCode 35, targetSdk 36.
 - [ ] Verificiran Play Console račun i prava izdavača.
 - [ ] Kreirana Play Console aplikacija BOPAVI i potvrđen besplatni/plaćeni status.
