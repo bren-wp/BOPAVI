@@ -921,30 +921,139 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.heightAnchor.constraint(equalToConstant:166).isActive=true
         stack.addArrangedSubview(header)
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
-        let stats=UIStackView()
-        stats.axis = .vertical;stats.alignment = .fill;stats.spacing=8
-        stats.isLayoutMarginsRelativeArrangement=true
-        stats.layoutMargins=UIEdgeInsets(top:16,left:18,bottom:18,right:18)
-        stats.backgroundColor=UIColor(red:0.02,green:0.13,blue:0.31,alpha:0.97)
-        stats.layer.cornerRadius=22;stats.layer.borderWidth=2
-        stats.layer.borderColor=UIColor(red:0.23,green:0.78,blue:1,alpha:1).cgColor
-        stack.addArrangedSubview(stats)
-        label("\(g.score()) BODOVA",37,UIColor(red:1,green:0.81,blue:0.29,alpha:1),stats)
-        label("🏆  Najbolji rezultat: \(progress.bestPoints())",16,
-              UIColor.white,stats)
-        label("Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)",16,
-              UIColor.white,stats)
-        label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",16,
-              UIColor.white,stats)
-        label("\(BopaviCore.collectibleIcons[gameWorld]) \(g.coins+g.stars)  ·  ● \(progress.coins()) kovanica",16,
-              UIColor.white,stats)
-        sectionHeading("✦  NAGRADE I NAPREDAK",in:stack)
-        label("●  Osvojeno u letu: \(g.coins+g.stars) · Ukupno: \(progress.coins()) kovanica",16,.white,stack)
+        let sky=UIColor(red:0.67,green:0.92,blue:1,alpha:1)
+        let gold=UIColor(red:1,green:0.82,blue:0.28,alpha:1)
+        let summary=UIStackView()
+        summary.axis = .horizontal;summary.alignment = .fill
+        summary.distribution = .fillEqually;summary.spacing=6
+        stack.addArrangedSubview(summary)
+        // All summary values are derived from the real finished GameSimulation.
+        func resultCard(_ caption:String,icon:String,value:String,highlight:UIColor)->UILabel {
+            let card=UIStackView()
+            card.axis = .vertical;card.alignment = .fill;card.spacing=3
+            card.isLayoutMarginsRelativeArrangement=true
+            card.layoutMargins=UIEdgeInsets(top:8,left:3,bottom:9,right:3)
+            card.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:0.97)
+            card.layer.cornerRadius=19;card.layer.borderWidth=2
+            card.layer.borderColor=UIColor(red:0.22,green:0.79,blue:1,alpha:1).cgColor
+            card.heightAnchor.constraint(equalToConstant:139).isActive=true
+            summary.addArrangedSubview(card)
+            let iconView=label(icon,29,gold,card)
+            iconView.heightAnchor.constraint(equalToConstant:37).isActive=true
+            iconView.isAccessibilityElement=false
+            let title=label(caption,11,.white,card)
+            title.numberOfLines=2;title.adjustsFontSizeToFitWidth=true
+            title.minimumScaleFactor=0.80
+            title.heightAnchor.constraint(equalToConstant:34).isActive=true
+            title.isAccessibilityElement=false
+            let amount=label(value,23,highlight,card)
+            amount.adjustsFontSizeToFitWidth=true
+            amount.minimumScaleFactor=0.67
+            amount.accessibilityLabel="\(caption) \(value)"
+            amount.heightAnchor.constraint(equalToConstant:32).isActive=true
+            return amount
+        }
+        _=resultCard("REZULTAT",icon:"★",value:String(g.score()),highlight:gold)
+        _=resultCard("PRIKUPLJENE\nKOVANICE",icon:"●",value:String(g.coins),highlight:sky)
+        _=resultCard("UKUPNO\nPROLAZA",icon:"⚑",value:String(g.totalPassed),highlight:.white)
+        label("Najbolji rezultat: \(progress.bestPoints())",15,.white,stack)
+        label("Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)",15,.white,stack)
+        label("Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",15,.white,stack)
+        let balance=label("Stanje novčanika: \(progress.coins()) kovanica",15,sky,stack)
+        sectionHeading("♛  NAGRADE",in:stack)
+        // No fake diamonds, chests, purchases or video rewards. The displayed
+        // coins/stars are pickups; the wallet balance remains independently real.
+        let rewardPanel=UIStackView()
+        rewardPanel.axis = .horizontal;rewardPanel.alignment = .fill
+        rewardPanel.distribution = .fillEqually;rewardPanel.spacing=4
+        rewardPanel.isLayoutMarginsRelativeArrangement=true
+        rewardPanel.layoutMargins=UIEdgeInsets(top:7,left:4,bottom:7,right:4)
+        rewardPanel.backgroundColor=UIColor(red:0.015,green:0.15,blue:0.34,alpha:1)
+        rewardPanel.layer.cornerRadius=23;rewardPanel.layer.borderWidth=2
+        rewardPanel.layer.borderColor=UIColor(red:0.22,green:0.80,blue:1,alpha:1).cgColor
+        stack.addArrangedSubview(rewardPanel)
+        func reward(_ name:String,icon:String,value:String)->UILabel {
+            let card=UIStackView()
+            card.axis = .vertical;card.alignment = .fill;card.spacing=2
+            card.isLayoutMarginsRelativeArrangement=true
+            card.layoutMargins=UIEdgeInsets(top:7,left:2,bottom:7,right:2)
+            card.backgroundColor=UIColor(red:0.02,green:0.23,blue:0.46,alpha:1)
+            card.layer.cornerRadius=15;card.layer.borderWidth=1
+            card.layer.borderColor=UIColor(red:0.28,green:0.64,blue:0.90,alpha:1).cgColor
+            card.heightAnchor.constraint(equalToConstant:114).isActive=true
+            rewardPanel.addArrangedSubview(card)
+            let picture=label(icon,25,gold,card)
+            picture.heightAnchor.constraint(equalToConstant:35).isActive=true
+            picture.isAccessibilityElement=false
+            let caption=label(name,10,.white,card)
+            caption.heightAnchor.constraint(equalToConstant:27).isActive=true
+            caption.numberOfLines=2;caption.adjustsFontSizeToFitWidth=true
+            caption.minimumScaleFactor=0.78
+            caption.isAccessibilityElement=false
+            let amount=label(value,17,sky,card)
+            amount.heightAnchor.constraint(equalToConstant:28).isActive=true
+            amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.70
+            amount.accessibilityLabel="\(name) \(value)"
+            return amount
+        }
+        _=reward("KOVANICE",icon:"●",value:"×\(g.coins)")
+        _=reward("ZVIJEZDE",icon:"★",value:"×\(g.stars)")
+        let bonus=progress.bonusCoinsAvailable()
+        let bonusCounter=reward("BONUS\nBODOVA",icon:"♛",value:"+\(bonus)")
+        _=reward("REKORD",icon:"🏆",value:String(progress.bestPoints()))
+        if bonus>0 {
+            let claim=BopaviActionButton(primary:false)
+            claim.setTitle("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD",for:.normal)
+            claim.accessibilityLabel="Preuzmi bonus kovanica za rekord"
+            claim.heightAnchor.constraint(equalToConstant:56).isActive=true
+            claim.addAction(UIAction{[weak self,weak claim] _ in
+                guard let self=self else{return}
+                let awarded=self.progress.claimBonusCoins()
+                if awarded>0 {
+                    self.sound.effect("purchase")
+                    bonusCounter.text="+0"
+                    bonusCounter.accessibilityLabel="BONUS BODOVA 0"
+                    balance.text="Stanje novčanika: \(self.progress.coins()) kovanica"
+                    claim?.isHidden=true
+                }
+            },for:.touchUpInside)
+            stack.addArrangedSubview(claim)
+        }
         button("▶  PONOVO",in:stack){self.showPilotPicker(self.gameWorld,self.gameNumber)}
-        button("LOKALNA LJESTVICA",in:stack,primary:false){self.showLeaderboard()}
-        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
+        let footer=UIStackView()
+        footer.axis = .horizontal;footer.distribution = .fillEqually
+        footer.spacing=6;stack.addArrangedSubview(footer)
+        func footerAction(_ caption:String,handler:@escaping()->Void){
+            let control=UIButton(type:.system)
+            control.setTitle(caption,for:.normal)
+            control.setTitleColor(.white,for:.normal)
+            control.titleLabel?.numberOfLines=2
+            control.titleLabel?.textAlignment = .center
+            control.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.bold)
+            control.titleLabel?.adjustsFontSizeToFitWidth=true
+            control.titleLabel?.minimumScaleFactor=0.72
+            control.layer.cornerRadius=17
+            control.layer.borderWidth=2
+            control.layer.borderColor=UIColor(red:0.57,green:0.84,blue:1,alpha:1).cgColor
+            control.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.65,alpha:1)
+            control.accessibilityLabel=caption
+            control.heightAnchor.constraint(equalToConstant:57).isActive=true
+            control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
+            footer.addArrangedSubview(control)
+        }
+        footerAction("▥\nLJESTVICA"){self.showLeaderboard()}
+        footerAction("⌂\nPOVRATAK"){self.showHome()}
+        footerAction("↗\nPODIJELI"){
+            let message="BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)"
+            let share=UIActivityViewController(activityItems:[message],applicationActivities:nil)
+            share.popoverPresentationController?.sourceView=self.view
+            share.popoverPresentationController?.sourceRect=CGRect(
+                x:self.view.bounds.midX,y:self.view.bounds.midY,width:1,height:1)
+            self.present(share,animated:true)
+        }
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
-        button("POČETNI EKRAN",in:stack,primary:false){self.showHome()}
+        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
+
     }
     private func showPerks(){
         let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
