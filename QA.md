@@ -1,7 +1,7 @@
 ## v0.1.41 — full-bleed status bar and safe-area QA
 
 - Compare genuine Android 15 and 16 screenshots against v0.1.40: Home, Pilot Picker, Settings and Result should have uninterrupted background imagery up to the top, without the blue Android OS clock/status stripe.
-- On notched Android hardware and emulators, the top wallet, back button and game headings must remain below camera cutout areas. Scroll insets must combine system bars and display cutout dimensions.
+- On notched Android hardware and emulators, the top wallet, back button and game headings must remain below camera cutout areas. Scroll insets must combine system bars and display cutout dimensions; the scene root must not be inset or double-pad the controls.
 - iOS: all screens hide the status bar but UIKit safe areas must protect top notch and bottom action buttons. Test a simulator with a Dynamic Island.
 - Compact Android screen: verify real large score and coins, and KOLEKCIJA tab caption, auto-shrink without clipping. Pause/settings and original controls remain tappable.
 - The 3D reference artwork is not reproduced by these layout changes; do not label screenshot comparisons as 1:1 until separately verified.

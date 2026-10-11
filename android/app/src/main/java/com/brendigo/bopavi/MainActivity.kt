@@ -68,21 +68,11 @@ class MainActivity : Activity() {
         showHome()
     }
     private fun showNativeView(root: View) {
+        // Keep the scene artwork edge-to-edge. Individual ScrollViews (home,
+        // every submenu and results) handle cutout/nav insets for controls.
+        // Padding the root FrameLayout as well creates duplicate insets and
+        // unwanted solid bands around the background artwork on API 35/36.
         setContentView(root)
-        // Android 15 edge-to-edge: reserve system-bar insets for physical controls.
-        if (android.os.Build.VERSION.SDK_INT >= 35 && (root !is FrameLayout || selectedScreen=="home")) {
-            // Apply insets once to menu containers. Immersive gameplay must not
-            // repeatedly change the FrameLayout padding as system bars animate.
-            root.setOnApplyWindowInsetsListener { v, insets ->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
-                if(v.paddingLeft!=bars.left || v.paddingTop!=bars.top ||
-                    v.paddingRight!=bars.right || v.paddingBottom!=bars.bottom) {
-                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                }
-                insets
-            }
-            root.requestApplyInsets()
-        }
     }
     override fun onPause() {
         // An idle preview has no visible pause button; only pause active flights.
