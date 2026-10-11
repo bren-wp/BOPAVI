@@ -847,6 +847,54 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             close(false);self.startGame(self.gameWorld,self.gameNumber)
         }
         command("↪  IZLAZ",style:2){close(false);self.showHome()}
+        // Paused in-place settings: navigating to the standalone Settings screen
+        // destroys the live canvas. Keep the original simulation and overlay.
+        let pauseSettings=UIStackView()
+        pauseSettings.axis = .vertical
+        pauseSettings.alignment = .fill
+        pauseSettings.spacing=8
+        pauseSettings.isLayoutMarginsRelativeArrangement=true
+        pauseSettings.layoutMargins=UIEdgeInsets(top:12,left:10,bottom:12,right:10)
+        pauseSettings.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:1)
+        pauseSettings.layer.cornerRadius=19
+        pauseSettings.layer.borderWidth=2
+        pauseSettings.layer.borderColor=UIColor(red:0.24,green:0.80,blue:1,alpha:1).cgColor
+        pauseSettings.isHidden=true
+        label("POSTAVKE U PAUZI",17,.white,pauseSettings)
+        volumeSlider("♫  Glazba",value:progress.musicVolume,in:pauseSettings){value in
+            self.progress.musicVolume=value
+            self.sound.musicVolume=Float(value)/100
+            self.sound.pause()
+        }
+        volumeSlider("◖  Zvukovi",value:progress.effectsVolume,in:pauseSettings){value in
+            self.progress.effectsVolume=value
+            self.sound.effectsVolume=Float(value)/100
+            self.sound.pause()
+        }
+        let pauseHaptic=UISwitch()
+        pauseHaptic.isOn=progress.hapticEnabled
+        pauseHaptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
+        pauseHaptic.accessibilityLabel="Vibracije"
+        pauseHaptic.addAction(UIAction{_ in self.progress.hapticEnabled=pauseHaptic.isOn},
+                              for:.valueChanged)
+        let hapticRow=UIStackView()
+        hapticRow.axis = .horizontal
+        hapticRow.alignment = .center
+        hapticRow.spacing=10
+        hapticRow.isLayoutMarginsRelativeArrangement=true
+        hapticRow.layoutMargins=UIEdgeInsets(top:9,left:12,bottom:9,right:12)
+        hapticRow.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:1)
+        hapticRow.layer.cornerRadius=15
+        let hapticLabel=UILabel()
+        hapticLabel.text="Vibracije"
+        hapticLabel.textColor = .white
+        hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
+        hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+        hapticRow.addArrangedSubview(hapticLabel)
+        hapticRow.addArrangedSubview(pauseHaptic)
+        pauseSettings.addArrangedSubview(hapticRow)
+        label("Promjene se spremaju odmah. Let ostaje pauziran.",13,
+              UIColor(red:0.78,green:0.91,blue:1,alpha:1),pauseSettings)
         let footer=UIStackView()
         footer.axis = .horizontal
         footer.distribution = .fillEqually
@@ -887,9 +935,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.alert("Kontrole leta","Dodirni zaslon za zamah krilima. Pauza se pojavljuje tek nakon početka leta.")
         }
         quick("⚙\nPOSTAVKE",label:"Postavke"){
-            close(false);self.showSettings()
+            pauseSettings.isHidden.toggle()
+            self.sound.pause()
+            if !pauseSettings.isHidden {
+                scroll.layoutIfNeeded()
+                let bottom=max(0,scroll.contentSize.height-scroll.bounds.height)
+                scroll.setContentOffset(CGPoint(x:0,y:bottom),animated:true)
+                UIAccessibility.post(notification:.layoutChanged,argument:pauseSettings)
+            } else {
+                UIAccessibility.post(notification:.layoutChanged,argument:footer)
+            }
         }
         panel.addArrangedSubview(footer)
+        panel.addArrangedSubview(pauseSettings)
         UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
     private func startGame(_ world:Int,_ number:Int){

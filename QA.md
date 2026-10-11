@@ -1,3 +1,11 @@
+## v0.1.39 — critical pause/settings regression
+
+- Start a live flight (not the inactive preview), pause, tap POSTAVKE, adjust Glazba and Zvukovi independently, switch Vibracije, then close the settings subpanel. The canvas and exact player state (current level, distance, hearts, coins, shield and star streak) must remain unchanged until pressing NASTAVI.
+- Pause music must not resume on slider updates or while the subpanel is open. Confirm volume and haptics settings remain persisted when continuing and after process restart.
+- Test scroll visibility of in-pause controls with both regular phones and narrow/large-font devices, using Android accessibility and iOS VoiceOver focus navigation; no overlapping critical actions.
+- Explicit PONOVO restarts and IZLAZ leaves the run; only NASTAVI resumes. Main menu POSTAVKE remains the separate full settings page. No cloud sync or sign-out is falsely shown in offline game.
+- Verify Android 15/16 emulator and iOS simulator/device release builds; do not claim 1:1 screenshots unless approved pixel-diff assets exist.
+
 ## v0.1.38 UI acceptance
 
 - On Android API35/API36 and iOS simulator confirm: world art stays inside the rounded frame; upper-left crown/number badge and lower-right arrow do not overlap the live white world name on image.
