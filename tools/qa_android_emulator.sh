@@ -338,23 +338,52 @@ else:
 m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
 if not m: raise SystemExit('FAIL: invalid pilot launch bounds')
 l,t,r,b=map(int,m.groups())
-# A scroll may still be settling: tap only a visible confirmation button,
-# then verify actual navigation before succeeding.
-time.sleep(.8)
-x,y=(l+r)//2,(t+b)//2
-for attempt in range(3):
-    subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
-    time.sleep(.8)
-    state=refresh_ui()
-    labels=node_labels(state)
+# Never treat the disappearance of POLETI S as proof that flight launched.
+# A still-moving scroll view can redirect the stale tap into LEVELI instead.
+# Re-read actual button bounds after layout settles, then require the *idle*
+# accessible GameView. Save the unexpected state for CI artifact review.
+from pathlib import Path
+def save_unexpected(root):
+    Path('qa/screenshots/android-pilot-launch-diagnostic.xml').write_bytes(
+        ET.tostring(root,encoding='utf-8'))
+def launch_button(root):
+    return [n for n in root.iter('node') if n.get('clickable')=='true'
+            and 'POLETI S' in (n.get('text','')+' '+n.get('content-desc',''))]
+for attempt in range(5):
+    root=refresh_ui()
+    labels=node_labels(root)
     if any('Dodirni za let Bopija' in value for value in labels):
         print('PASS: mandatory character picker launched the idle flight',flush=True)
         break
-    if not any('POLETI S' in value for value in labels):
-        print('PASS: pilot choice left the picker; outer QA verifies gameplay state',flush=True)
+    current=launch_button(root)
+    if len(current)!=1:
+        save_unexpected(root)
+        raise SystemExit(f'FAIL: expected pilot confirmation or idle GameView, '
+                         f'found {len(current)} visible confirmations; labels={labels[:22]}')
+    fresh=current[0].get('bounds','')
+    time.sleep(.6)
+    stable=refresh_ui()
+    stable_buttons=launch_button(stable)
+    if len(stable_buttons)!=1 or stable_buttons[0].get('bounds','')!=fresh:
+        print('Pilot confirmation is settling; re-reading hitbox',flush=True)
+        continue
+    m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',fresh)
+    if not m: raise SystemExit('FAIL: invalid pilot launch button bounds after layout')
+    l,t,r,b=map(int,m.groups())
+    subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+    time.sleep(1.0)
+    result=refresh_ui()
+    labels=node_labels(result)
+    if any('Dodirni za let Bopija' in value for value in labels):
+        print('PASS: mandatory character picker launched the idle flight',flush=True)
         break
+    if not launch_button(result):
+        save_unexpected(result)
+        raise SystemExit(f'FAIL: pilot confirmation navigated away but NOT to the '
+                         f'idle GameView; labels={labels[:22]}')
 else:
-    raise SystemExit('FAIL: launch button did not leave pilot selection after verified taps')
+    save_unexpected(refresh_ui())
+    raise SystemExit('FAIL: pilot confirmation never reached idle GameView after stable taps')
 PY
 }
 
@@ -500,7 +529,14 @@ while [ "$attempt" -le 6 ]; do
     verify_three_home_actions
     home_captured=1
   fi
-  tap_play
+  if grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+    tap_play
+  else
+    capture android-navigation-diagnostic || true
+    echo "FAIL: expected HOME, pilot picker or idle GameView, but foreground is another screen" >&2
+    head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
+    exit 1
+  fi
   sleep 2
   attempt=$((attempt+1))
 done

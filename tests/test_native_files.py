@@ -1270,3 +1270,12 @@ for ui in (android_menu,ios_menu):
     assert 'showAchievements(MenuOrigin.PROFILE)' in ui or 'showAchievements(.profile)' in ui
     assert 'showSkins(MenuOrigin.PROFILE)' in ui or 'showSkins(.profile)' in ui
 print('PASS: context-aware home, settings, profile and store return targets')
+
+# v0.1.43 release hotfix — never accept arbitrary picker exit as success.
+android_emulator=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'Pilot confirmation is settling; re-reading hitbox' in android_emulator
+assert 'pilot confirmation navigated away but NOT to the' in android_emulator
+assert 'android-pilot-launch-diagnostic.xml' in android_emulator
+assert 'pilot choice left the picker; outer QA verifies gameplay state' not in android_emulator
+assert 'expected HOME, pilot picker or idle GameView' in android_emulator
+print('PASS: flight-launch emulator QA verifies GameView, not an arbitrary menu exit')
