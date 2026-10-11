@@ -593,6 +593,18 @@ if [ "$result_ready" -ne 1 ]; then
 fi
 capture android-result
 dump_ui
+python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys, xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+descriptions=[n.get("content-desc","") for n in root.iter("node")]
+pilots=[value for value in descriptions if value.startswith("Odabrani letač: ")]
+if len(pilots)!=1 or "svijet" not in pilots[0]:
+    raise SystemExit("FAIL: real result must expose one selected pilot and world illustration")
+titles=[n.get("text","") for n in root.iter("node")]
+if sum("NOVI REKORD!" in title for title in titles)>1:
+    raise SystemExit("FAIL: duplicate new-record banner in result")
+print("PASS: result renders real selected pilot/world and accessible record state",flush=True)
+PY
 if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
   echo "FAIL: gameplay pause control leaked onto result screen" >&2
   exit 1

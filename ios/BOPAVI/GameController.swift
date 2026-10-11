@@ -924,8 +924,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         DispatchQueue.main.asyncAfter(deadline:.now()+1.5){[weak notice] in notice?.removeFromSuperview()}
     }
     private func showResult(_ g:GameSimulation){
-        sound.effect("hit")
-        let headline=ResultHeadline.label(score:g.score(),previousBest:progress.bestPoints(),won:g.won)
+        let previousRecord=progress.bestPoints()
+        let newRecord=g.score()>previousRecord && g.score()>0
+        sound.effect(g.won ? "level" : "hit")
+        let headline=ResultHeadline.label(score:g.score(),previousBest:previousRecord,won:g.won)
         progress.recordRun(g)
         gameNumber=g.displayLevel
         clear()
@@ -976,13 +978,64 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor),
             stack.heightAnchor.constraint(greaterThanOrEqualTo:scroll.frameLayoutGuide.heightAnchor)
         ])
-        let header=UIImageView(image:UIImage(named:"Hero"))
-        header.contentMode = .scaleAspectFill;header.clipsToBounds=true
-        header.layer.cornerRadius=22;header.layer.borderWidth=2
-        header.layer.borderColor=UIColor.white.withAlphaComponent(0.45).cgColor
-        header.heightAnchor.constraint(equalToConstant:166).isActive=true
+        // Same live visual composition as Android: real selected pilot and
+        // world image, not a mocked result screenshot or static generic hero.
+        let pilotIndex=progress.skinIndex()
+        let header=UIView()
+        header.clipsToBounds=true
+        header.layer.cornerRadius=22
+        header.layer.borderWidth=2
+        header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
+        header.heightAnchor.constraint(equalToConstant:192).isActive=true
+        header.isAccessibilityElement=true
+        header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
         stack.addArrangedSubview(header)
+        let scene=UIImageView(image:UIImage(named:"World\(gameWorld)"))
+        scene.translatesAutoresizingMaskIntoConstraints=false
+        scene.contentMode = .scaleAspectFill
+        scene.clipsToBounds=true
+        scene.isAccessibilityElement=false
+        header.addSubview(scene)
+        let fade=UIView()
+        fade.translatesAutoresizingMaskIntoConstraints=false
+        fade.backgroundColor=UIColor(red:0.02,green:0.09,blue:0.26,alpha:0.32)
+        fade.isAccessibilityElement=false
+        header.addSubview(fade)
+        let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(pilotIndex)"))
+        pilot.translatesAutoresizingMaskIntoConstraints=false
+        pilot.contentMode = .scaleAspectFit
+        pilot.isAccessibilityElement=false
+        header.addSubview(pilot)
+        NSLayoutConstraint.activate([
+            scene.leadingAnchor.constraint(equalTo:header.leadingAnchor),
+            scene.trailingAnchor.constraint(equalTo:header.trailingAnchor),
+            scene.topAnchor.constraint(equalTo:header.topAnchor),
+            scene.bottomAnchor.constraint(equalTo:header.bottomAnchor),
+            fade.leadingAnchor.constraint(equalTo:header.leadingAnchor),
+            fade.trailingAnchor.constraint(equalTo:header.trailingAnchor),
+            fade.topAnchor.constraint(equalTo:header.topAnchor),
+            fade.bottomAnchor.constraint(equalTo:header.bottomAnchor),
+            pilot.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:6),
+            pilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-6),
+            pilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
+            pilot.heightAnchor.constraint(equalToConstant:186)
+        ])
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
+        if newRecord {
+            let banner=UILabel()
+            banner.text="♛  NOVI REKORD!"
+            banner.textColor=UIColor(red:1,green:0.93,blue:0.67,alpha:1)
+            banner.textAlignment = .center
+            banner.font=UIFont.systemFont(ofSize:19,weight:.heavy)
+            banner.backgroundColor=UIColor(red:0.42,green:0.22,blue:0.04,alpha:0.96)
+            banner.layer.cornerRadius=20
+            banner.layer.borderWidth=2
+            banner.layer.borderColor=UIColor(red:1,green:0.79,blue:0.26,alpha:1).cgColor
+            banner.clipsToBounds=true
+            banner.heightAnchor.constraint(equalToConstant:46).isActive=true
+            banner.accessibilityLabel="Novi osobni rekord: \(g.score()) bodova"
+            stack.addArrangedSubview(banner)
+        }
         let sky=UIColor(red:0.67,green:0.92,blue:1,alpha:1)
         let gold=UIColor(red:1,green:0.82,blue:0.28,alpha:1)
         let summary=UIStackView()

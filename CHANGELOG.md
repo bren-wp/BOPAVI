@@ -1,3 +1,12 @@
+## v0.1.35 — Live pilot result hero and truthful personal record (build 38)
+
+- Replaced the generic result hero on Android and iOS with a layered composition of the **actually selected pilot portrait** over the **actually played world artwork**. This moves the result screen closer to the supplied Bopi result reference while preserving real text, accessible views, currency balances and tappable actions.
+- Added a gold highlighted NOVI REKORD banner **only** when the current scored run strictly exceeds the best saved score from before recording the run. Equal scores or no-score runs never claim a record.
+- Corrected result audio parity: winning uses the bundled level-success sound; failed flights use the existing hit sound. The stored result is still recorded once, without affecting physics or save compatibility.
+- Added source regression assertions and a real Android emulator result-screen accessibility gate for the selected pilot/world, preventing accidental replacement with a generic fixed image or fake record label.
+- Android and iOS move together to version 0.1.35, build 38. The release remains an offline game; store signing stays outside GitHub CI.
+- Final 1:1 identity with the 3D reference artwork is **not** claimed. High-detail 3D character exports, typography licensing and pixel-diff approval remain outstanding.
+
 ## v0.1.34 — Premium profile, settings and retry-safe screenshot artifacts (build 37)
 
 - Fixed a user-visible navigation defect: the PROFIL home shortcut previously opened Settings. Android and iOS now show a dedicated offline profile with the selected real pilot illustration, saved player name, personal best, earned currency, completed levels and wins.
