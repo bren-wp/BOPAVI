@@ -775,6 +775,18 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         portrait.isAccessibilityElement=true
         portrait.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
         preview.addSubview(portrait)
+        // Animating the preview CALayer cannot affect the live flight model.
+        // Reduced Motion shows the same fully readable static preview.
+        if !UIAccessibility.isReduceMotionEnabled {
+            let pilotHover=CABasicAnimation(keyPath:"transform.translation.y")
+            pilotHover.fromValue=0
+            pilotHover.toValue = -8
+            pilotHover.duration=1.4
+            pilotHover.autoreverses=true
+            pilotHover.repeatCount = .infinity
+            pilotHover.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
+            portrait.layer.add(pilotHover,forKey:"pilotHover")
+        }
         let badge=UILabel()
         badge.text="♛  ODABRAN"
         badge.textAlignment = .center

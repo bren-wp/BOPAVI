@@ -1,3 +1,9 @@
+## Iteration 18 — lightweight flying-pilot preview
+
+- The selected portrait in the pre-flight hero gently bobs independently of the UI and world art; gameplay retains its own physics-only flying animation.
+- Android and iOS obey reduced-motion preferences and return to a stable static picture. Android cancels the animator when the portrait detaches, preventing ghost animations.
+- Full visual 1:1 is not claimed without source asset and pixel-diff approval.
+
 ## Iteration 17 — full-bleed, measured against actual emulator output
 
 Actual v0.1.40 screenshots show OS status chrome and simpler flat game art. The current iteration hides status chrome across menus with native cutout protections and improves real wallet/footer text scaling. Character depth and premium reference 1:1 fidelity remain distinct, unverified art goals.

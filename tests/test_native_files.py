@@ -1226,3 +1226,25 @@ assert 'setAutoSizeTextTypeUniformWithConfiguration(8,11,1' in android_home
 assert 'override var prefersStatusBarHidden:Bool { true }' in ios_menu
 assert 'safeAreaLayoutGuide.topAnchor' in ios_menu
 print('PASS: Android/iOS full-bleed menus with camera cutout and narrow caption support')
+
+# v0.1.42: pre-flight mascot moves in its art layer only. Menu animation
+# respects OS reduced-motion settings and must clean up on leaving the view.
+android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
+ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
+for picker in (android_picker,ios_picker):
+    assert 'pilotHover' in picker
+    assert 'portrait' in picker
+    assert 'characterGallery(' in picker
+    assert 'startGame(' in picker
+assert 'ObjectAnimator.ofFloat(' in android_picker
+assert 'ValueAnimator.areAnimatorsEnabled()' in android_picker
+assert 'addOnAttachStateChangeListener(' in android_picker
+assert 'onViewDetachedFromWindow(v:View)' in android_picker
+assert 'pilotHover.cancel()' in android_picker
+assert 'v.translationY=0f' in android_picker
+assert 'UIAccessibility.isReduceMotionEnabled' in ios_picker
+assert 'CABasicAnimation(keyPath:"transform.translation.y")' in ios_picker
+assert 'portrait.layer.add(pilotHover,forKey:"pilotHover")' in ios_picker
+assert 'pilotHover' not in android_menu.split('private fun startGame(',1)[1]
+assert 'pilotHover' not in ios_menu.split('private func startGame(',1)[1]
+print('PASS: reduced-motion-safe, lifecycle-clean pilot hover without gameplay changes')

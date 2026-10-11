@@ -1,3 +1,11 @@
+## v0.1.42 — premium flying-pilot preview motion (build 45)
+
+- Added a subtle floating motion to the chosen pre-flight bird on Android and iOS, keeping scenery, character badge, buttons and accessibility semantics stationary. This is purely presentational; gameplay motion, collision boxes, inventory and rewarded coins are unchanged.
+- Respects Android disabled system animations and iOS Reduce Motion; the selected portrait remains fully visible when motion is off.
+- Android ObjectAnimator is bound to View attach/detach lifecycle and canceled on removal to avoid repeat-animation leaks across menu navigation. iOS uses a CALayer animation tied to the portrait view.
+- Versioned Android/iOS 0.1.42 (build 45); added source regression safeguards and QA notes. Require both Android emulator builds, iOS simulator/device, privacy/asset audit and all five checksum-verified release files.
+- Exact 1:1 reference sprite and typography appearance remains unverified.
+
 ## v0.1.41 — full-bleed portrait menus and responsive safe-area controls (build 44)
 
 - Reviewed actual v0.1.40 Android emulator captures. The device status clock/stripe was still visible above premium menus and results, unlike the full-bleed game reference.

@@ -1,3 +1,11 @@
+## v0.1.42 — calm mascot flight preview
+
+- Android API35/API36 and iOS simulator: the selected pilot gently floats in the large pre-flight hero only; scenery, portrait badge, live character prices and accessible buttons never shift with the animation.
+- Turn on Reduce Motion / remove Android animator duration scale and reload character picker: the full-size pilot must remain visible, stationary and selectable. Normal motion is subtle and does not alter game physics.
+- Select multiple characters in quick succession, visit levels/home and return repeatedly: check no duplicate hover animations, visible stale images, memory growth, activity retention or process crashes.
+- Change application lifecycle (Home, background/foreground, screen rotation when supported) and ensure the hover stops after its view detaches. On resuming a flight, the actual game canvas and sound/pause controls retain previous semantics.
+- Maintain real save formats and original offline currency; screenshot 1:1 acceptance still requires actual measured pixel comparisons.
+
 ## v0.1.41 — full-bleed status bar and safe-area QA
 
 - Compare genuine Android 15 and 16 screenshots against v0.1.40: Home, Pilot Picker, Settings and Result should have uninterrupted background imagery up to the top, without the blue Android OS clock/status stripe.

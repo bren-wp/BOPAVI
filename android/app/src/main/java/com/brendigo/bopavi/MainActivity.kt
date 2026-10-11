@@ -692,6 +692,24 @@ class MainActivity : Activity() {
             setPadding(d(14),d(2),d(14),d(12))
         }
         preview.addView(portrait,FrameLayout.LayoutParams(-1,-1))
+        // Only the decorative pre-flight portrait floats; physics, hitboxes
+        // and the gameplay canvas never inherit menu animations.
+        // Respect Android reduced motion / disabled system animators.
+        val pilotHover=android.animation.ObjectAnimator.ofFloat(
+            portrait,View.TRANSLATION_Y,0f,-d(8).toFloat(),0f).apply{
+            duration=2800L
+            repeatCount=android.animation.ValueAnimator.INFINITE
+            interpolator=android.view.animation.AccelerateDecelerateInterpolator()
+        }
+        portrait.addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
+            override fun onViewAttachedToWindow(v:View){
+                if(android.animation.ValueAnimator.areAnimatorsEnabled())pilotHover.start()
+            }
+            override fun onViewDetachedFromWindow(v:View){
+                pilotHover.cancel()
+                v.translationY=0f
+            }
+        })
         val selectedBadge=TextView(this).apply{
             text="♛  ODABRAN"
             setTextColor(Color.WHITE)
