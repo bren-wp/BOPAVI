@@ -1,3 +1,10 @@
+## v0.1.40 — illustrated nine-pilot gallery (build 43)
+
+- Rebuilt Android and iOS character cards with world-art backdrops, full existing winged portraits, overlaid live names, selection/lock badges and earned-coin state labels. Added highlighted gold chosen frame and purple premium-locked frame.
+- Retained all nine character indices, earned virtual-coin costs and confirmation logic; no remote assets, purchase service or fake gameplay statistics. Responsive three-column layout uses concise text scaling.
+- Kept gameplay, saves and eight worlds unchanged. Added cross-platform source guards and QA criteria. Android/iOS version 0.1.40 build 43.
+- Exact 3D sprite and visual 1:1 parity remain unverified until approved production assets and device comparisons are provided.
+
 ## v0.1.39 — In-place pause settings without losing the flight (build 42)
 
 - Fixed an actual navigation bug on **both Android and iOS**: the pause menu's Settings action previously opened the standalone settings screen and disposed the active flight. It now expands a live controls panel **inside the paused overlay**, without touching the simulation or level.

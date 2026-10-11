@@ -1,3 +1,10 @@
+## v0.1.40 — premium pilot gallery
+
+- Inspect all nine 3-column pilot cards on Android API35/36 and iOS simulator: scenery behind portraits, title over scene, badge and state-colored pricing footer must not overlap or clip on narrow phones.
+- First three cards remain Portantin, Noa, Any; older skin indices, prices, rewards and save backups must not change. Selecting owned character updates large preview before starting flight.
+- Locked characters require earned coins and explicit purchase confirmation. Cancel must spend zero coins. All nine portrait layers are individually accessible through one actionable card, not separate fake controls.
+- Preserve pause settings, physics and genuine store screenshots. Pixel-for-pixel fidelity to concept art is not yet verified.
+
 ## v0.1.39 — critical pause/settings regression
 
 - Start a live flight (not the inactive preview), pause, tap POSTAVKE, adjust Glazba and Zvukovi independently, switch Vibracije, then close the settings subpanel. The canvas and exact player state (current level, distance, hearts, coins, shield and star streak) must remain unchanged until pressing NASTAVI.

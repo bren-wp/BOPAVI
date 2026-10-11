@@ -1,3 +1,7 @@
+## Iteration 16 — illustrated pilot cards
+
+All nine selectable characters now occupy real interactive cards with scenic backgrounds, native overlaid titles, ownership lock icons and saved-coin pricing, using existing project illustrations. Premium art 1:1 remains an independent acceptance target.
+
 ## Iteration 15 — pause settings preserve the live simulation
 
 - Reference pause shows four quick actions including POSTAVKE. Previous app implementation replaced the game canvas on that action; now POSTAVKE expands an authentic, responsive blue/gold in-place panel for music volume, effects and vibration on both platforms.

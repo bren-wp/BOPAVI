@@ -621,44 +621,102 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     ? UIColor(red:1,green:0.84,blue:0.34,alpha:1)
                     : UIColor(red:0.43,green:0.72,blue:0.94,alpha:0.7)).cgColor
                 card.accessibilityLabel="\(progress.skinNames[i]), \(status)"
-                card.heightAnchor.constraint(equalToConstant:141).isActive=true
+                card.heightAnchor.constraint(equalToConstant:174).isActive=true
+                card.isSelected=selected
+                // Interactive card with layered scene/portrait and a true
+                // local ownership/currency caption, not an image of a UI.
+                let scene=UIView()
+                scene.translatesAutoresizingMaskIntoConstraints=false
+                scene.layer.cornerRadius=14
+                scene.clipsToBounds=true
+                card.addSubview(scene)
+                let scenery=UIImageView(image:UIImage(named:"World\(i % 8)"))
+                scenery.translatesAutoresizingMaskIntoConstraints=false
+                scenery.contentMode = .scaleAspectFill
+                scenery.clipsToBounds=true
+                scenery.alpha=owned ? 0.86 : 0.66
+                scenery.accessibilityElementsHidden=true
+                scene.addSubview(scenery)
+                let tint=UIView()
+                tint.translatesAutoresizingMaskIntoConstraints=false
+                tint.backgroundColor=UIColor(red:0.01,green:0.08,blue:0.21,alpha:0.32)
+                tint.accessibilityElementsHidden=true
+                scene.addSubview(tint)
                 let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(i)"))
                 portrait.translatesAutoresizingMaskIntoConstraints=false
                 portrait.contentMode = .scaleAspectFit
-                portrait.isUserInteractionEnabled=false
+                portrait.alpha=owned ? 1 : 0.88
                 portrait.accessibilityElementsHidden=true
-                card.addSubview(portrait)
+                scene.addSubview(portrait)
+                let badge=UILabel()
+                badge.translatesAutoresizingMaskIntoConstraints=false
+                badge.text=selected ? "♛" : (!owned ? "🔒" : "✦")
+                badge.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+                badge.textColor=selected ? UIColor(red:1,green:0.85,blue:0.3,alpha:1) : .white
+                badge.backgroundColor=UIColor(red:0.02,green:0.17,blue:0.40,alpha:0.95)
+                badge.textAlignment = .center
+                badge.layer.cornerRadius=15
+                badge.layer.borderWidth=1
+                badge.layer.borderColor=UIColor(red:0.31,green:0.78,blue:1,alpha:1).cgColor
+                badge.clipsToBounds=true
+                badge.accessibilityElementsHidden=true
+                scene.addSubview(badge)
                 let name=UILabel()
                 name.translatesAutoresizingMaskIntoConstraints=false
-                name.text=progress.skinNames[i]
-                name.font=UIFont.systemFont(ofSize:13,weight:.heavy)
-                name.textColor = .white;name.textAlignment = .center
-                name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.7
+                name.text=progress.skinNames[i].uppercased()
+                name.font=UIFont.systemFont(ofSize:13,weight:.black)
+                name.textColor = .white
+                name.textAlignment = .center
+                name.adjustsFontSizeToFitWidth=true
+                name.minimumScaleFactor=0.68
+                name.shadowColor=UIColor.black.withAlphaComponent(0.8)
+                name.shadowOffset=CGSize(width:0,height:2)
                 name.accessibilityElementsHidden=true
-                card.addSubview(name)
+                scene.addSubview(name)
                 let price=UILabel()
                 price.translatesAutoresizingMaskIntoConstraints=false
-                price.text=status;price.font=UIFont.systemFont(ofSize:10,weight:.bold)
-                price.textColor=selected
-                    ? UIColor(red:1,green:0.86,blue:0.40,alpha:1)
-                    : UIColor(red:0.82,green:0.93,blue:1,alpha:1)
+                price.text=status
+                price.font=UIFont.systemFont(ofSize:10,weight:.heavy)
+                price.textColor=selected ? UIColor(red:1,green:0.88,blue:0.48,alpha:1)
+                    : owned ? UIColor(red:0.5,green:1,blue:0.78,alpha:1)
+                    : UIColor(red:0.83,green:0.9,blue:1,alpha:1)
                 price.textAlignment = .center
-                price.adjustsFontSizeToFitWidth=true;price.minimumScaleFactor=0.72
+                price.adjustsFontSizeToFitWidth=true
+                price.minimumScaleFactor=0.68
+                price.backgroundColor=UIColor(red:0.02,green:0.1,blue:0.25,alpha:0.96)
+                price.layer.cornerRadius=11
+                price.clipsToBounds=true
                 price.accessibilityElementsHidden=true
                 card.addSubview(price)
                 NSLayoutConstraint.activate([
-                    portrait.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:8),
-                    portrait.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-8),
-                    portrait.topAnchor.constraint(equalTo:card.topAnchor,constant:3),
-                    portrait.heightAnchor.constraint(equalToConstant:84),
-                    name.topAnchor.constraint(equalTo:portrait.bottomAnchor,constant:1),
-                    name.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
-                    name.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
-                    name.heightAnchor.constraint(equalToConstant:20),
-                    price.topAnchor.constraint(equalTo:name.bottomAnchor,constant:1),
+                    scene.topAnchor.constraint(equalTo:card.topAnchor,constant:4),
+                    scene.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:3),
+                    scene.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-3),
+                    scene.heightAnchor.constraint(equalToConstant:132),
+                    scenery.leadingAnchor.constraint(equalTo:scene.leadingAnchor),
+                    scenery.trailingAnchor.constraint(equalTo:scene.trailingAnchor),
+                    scenery.topAnchor.constraint(equalTo:scene.topAnchor),
+                    scenery.bottomAnchor.constraint(equalTo:scene.bottomAnchor),
+                    tint.leadingAnchor.constraint(equalTo:scene.leadingAnchor),
+                    tint.trailingAnchor.constraint(equalTo:scene.trailingAnchor),
+                    tint.topAnchor.constraint(equalTo:scene.topAnchor),
+                    tint.bottomAnchor.constraint(equalTo:scene.bottomAnchor),
+                    portrait.leadingAnchor.constraint(equalTo:scene.leadingAnchor,constant:2),
+                    portrait.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-2),
+                    portrait.topAnchor.constraint(equalTo:scene.topAnchor,constant:2),
+                    portrait.heightAnchor.constraint(equalToConstant:112),
+                    badge.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-4),
+                    badge.topAnchor.constraint(equalTo:scene.topAnchor,constant:4),
+                    badge.heightAnchor.constraint(equalToConstant:30),
+                    badge.widthAnchor.constraint(equalToConstant:30),
+                    name.leadingAnchor.constraint(equalTo:scene.leadingAnchor,constant:4),
+                    name.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-4),
+                    name.bottomAnchor.constraint(equalTo:scene.bottomAnchor,constant:-3),
+                    name.heightAnchor.constraint(equalToConstant:30),
+                    price.topAnchor.constraint(equalTo:scene.bottomAnchor,constant:4),
                     price.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
                     price.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
-                    price.heightAnchor.constraint(equalToConstant:22)
+                    price.heightAnchor.constraint(equalToConstant:28)
                 ])
                 card.addAction(UIAction{ [weak self] _ in
                     guard let self=self else{return}

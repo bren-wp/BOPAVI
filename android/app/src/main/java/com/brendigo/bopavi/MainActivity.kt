@@ -551,6 +551,9 @@ class MainActivity : Activity() {
         // Featured first row matches the approved Portantin / Noa / Any
         // reference. Indices remain original so offline saves and prices stay stable.
         val displayOrder=intArrayOf(6,7,8,0,1,2,3,4,5)
+        val cardWorlds=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
+            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,
+            R.drawable.world7,R.drawable.world0)
         for(start in displayOrder.indices step 3) {
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             parent.addView(row,LinearLayout.LayoutParams(-1,-2))
@@ -562,9 +565,10 @@ class MainActivity : Activity() {
                 val status=if(selected)"✓ ODABRAN" else if(owned)"DOSTUPAN" else if(i>=7)"PREMIUM · $cost KOVANICA" else "$cost KOVANICA"
                 val card=LinearLayout(this).apply {
                     orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-                    isClickable=true;isFocusable=true
-                    val face=gradient(if(selected)0xffffa51c.toInt() else 0xff0b5db9.toInt(),
-                        if(selected)0xffb55c00.toInt() else 0xff071e46.toInt(),17)
+                    isClickable=true;isFocusable=true;isSelected=selected
+                    val face=gradient(
+                        if(selected)0xffffa51c.toInt() else if(!owned && i>=7)0xff693daf.toInt() else 0xff0b5db9.toInt(),
+                        if(selected)0xffb55c00.toInt() else if(!owned && i>=7)0xff190f47.toInt() else 0xff071e46.toInt(),17)
                     face.setStroke(d(if(selected)3 else 1),
                         if(selected)gold else 0xff5680b4.toInt())
                     background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
@@ -588,21 +592,64 @@ class MainActivity : Activity() {
                         }
                     }
                 }
-                card.addView(ImageView(this).apply {
+                // Real native layered card, never a baked-in screenshot.
+                val artwork=FrameLayout(this).apply{
+                    background=gradient(0xff1370c6.toInt(),0xff041933.toInt(),14)
+                    clipToOutline=true
+                }
+                artwork.addView(ImageView(this).apply{
+                    setImageResource(cardWorlds[i]);scaleType=ImageView.ScaleType.CENTER_CROP
+                    alpha=if(owned)0.87f else 0.67f
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,-1))
+                artwork.addView(View(this).apply{
+                    background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(0x14051940,0x18051940,0xd901152e.toInt()))
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,-1))
+                artwork.addView(ImageView(this).apply{
                     setImageResource(portraits[i]);scaleType=ImageView.ScaleType.FIT_CENTER
+                    alpha=if(owned)1f else .88f
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(84)))
-                card.addView(TextView(this).apply {
-                    text=progress.skinNames[i];textSize=13f
-                    typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                },FrameLayout.LayoutParams(-1,d(115),Gravity.TOP))
+                artwork.addView(TextView(this).apply{
+                    text=if(selected)"♛" else if(!owned)"🔒" else "✦"
+                    textSize=16f;gravity=Gravity.CENTER
+                    setTextColor(if(selected)gold else Color.WHITE)
+                    background=gradient(0xff194b83.toInt(),0xff061933.toInt(),17).apply{
+                        setStroke(d(1),if(selected)gold else electric)
+                    }
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(21)))
+                },FrameLayout.LayoutParams(d(30),d(30),Gravity.TOP or Gravity.RIGHT).apply{
+                    rightMargin=d(4);topMargin=d(4)
+                })
+                artwork.addView(TextView(this).apply{
+                    text=progress.skinNames[i].uppercase()
+                    textSize=13f;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                    gravity=Gravity.CENTER
+                    setTextColor(Color.WHITE)
+                    setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(9,13,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM).apply{
+                    leftMargin=d(3);rightMargin=d(3);bottomMargin=d(2)
+                })
+                card.addView(artwork,LinearLayout.LayoutParams(-1,d(132)))
                 card.addView(TextView(this).apply {
                     text=status;textSize=10f;gravity=Gravity.CENTER
-                    setTextColor(if(selected)gold else 0xffbce6ff.toInt())
+                    typeface=Typeface.DEFAULT_BOLD
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    setTextColor(if(selected)gold else if(owned)0xff75ffca.toInt() else 0xffc7d8ff.toInt())
+                    background=gradient(
+                        if(selected)0xff6a4309.toInt() else if(owned)0xff07645d.toInt() else 0xff222263.toInt(),
+                        0xff041735.toInt(),12)
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(23)))
-                row.addView(card,LinearLayout.LayoutParams(0,d(138),1f).apply{
+                },LinearLayout.LayoutParams(-1,d(29)).apply{topMargin=d(3)})
+                row.addView(card,LinearLayout.LayoutParams(0,d(174),1f).apply{
                     setMargins(d(2),d(5),d(2),d(5))
                 })
             }
