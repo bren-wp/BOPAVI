@@ -1,3 +1,11 @@
+## v0.1.43 — Context-aware navigation (build 46)
+
+- Fixed a cross-platform navigation defect: home footer ZADACI, KOLEKCIJA and TRGOVINA previously returned to Settings instead of Home. Back now follows the actual entry point, including Profile → skins/achievements and Shop → skins → Shop.
+- Earned-coins purchases and bonus claims preserve the original Home/Settings return route across screen refreshes; original pricing and save keys are unchanged.
+- Android system/predictive Back matches the native visible Back action on submenus rather than skipping nested world/level pages. Back during an active flight still shows Pause, and exiting Home still behaves normally.
+- No changes to physics, nine original skins, eight worlds, local saves, offline privacy or branded graphics. Android and iOS v0.1.43 build 46.
+- Release requires green Android 15/16 emulator QA, iOS simulator and device build, and five verified GitHub release assets. Visual 1:1 concept parity remains unverified.
+
 ## v0.1.42 — premium flying-pilot preview motion (build 45)
 
 - Added a subtle floating motion to the chosen pre-flight bird on Android and iOS, keeping scenery, character badge, buttons and accessibility semantics stationary. This is purely presentational; gameplay motion, collision boxes, inventory and rewarded coins are unchanged.

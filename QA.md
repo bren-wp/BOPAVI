@@ -1,3 +1,11 @@
+## v0.1.43 navigation acceptance
+
+- Home footer: ZADACI, KOLEKCIJA and TRGOVINA must return to HOME via the visible Back and Android system/predictive Back.
+- Settings → Shop/Skins/Achievements → Back returns Settings. Profile → Skins/Achievements → Back returns Profile.
+- Home → Shop → Skins → Back → Shop → Back → Home. Repeat when entering Shop from Settings. Purchase a perk or claim bonus coins and verify original Back route persists after refresh.
+- Worlds → Levels → Pilot Picker: Android system Back must return through Levels and Worlds to Home. During a live flight, Android Back pauses instead of dropping the run.
+- Ensure all save data, earned currency, sound and haptics remain unchanged, and run Android API35/36 plus iOS smoke.
+
 ## v0.1.42 — calm mascot flight preview
 
 - Android API35/API36 and iOS simulator: the selected pilot gently floats in the large pre-flight hero only; scenery, portrait badge, live character prices and accessible buttons never shift with the animation.

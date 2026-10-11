@@ -32,6 +32,8 @@ class MainActivity : Activity() {
     private var gamePauseButton: Button? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
+    private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP }
+    private var menuBackAction:(()->Unit)?=null
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
@@ -119,7 +121,7 @@ class MainActivity : Activity() {
     private fun base(label:String,subtitle:String):LinearLayout {
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
-        gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen=label
+        menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen=label
         // Real world art is a full-bleed layer; all interactive labels remain real
         // views instead of baking fake scores, buttons or progress into a PNG.
         val root=FrameLayout(this).apply{setBackgroundColor(ocean)}
@@ -217,7 +219,10 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
-    private fun back(parent:LinearLayout,onClick:()->Unit) = action(parent,"‹  Natrag",false,onClick)
+    private fun back(parent:LinearLayout,onClick:()->Unit) {
+        menuBackAction=onClick
+        action(parent,"‹  Natrag",false,onClick)
+    }
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
         val name=LevelEngine.names[world]
         val row=LinearLayout(this).apply {
@@ -323,7 +328,7 @@ class MainActivity : Activity() {
     private fun showHome(){
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
-        gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
+        menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply {
             setImageResource(R.drawable.splash)
@@ -397,9 +402,9 @@ class MainActivity : Activity() {
                     sound.effect("click")
                     when(index){
                         0->showProfile()
-                        1->showAchievements()
-                        2->showSkins()
-                        else->showPerks()
+                        1->showAchievements(MenuOrigin.HOME)
+                        2->showSkins(MenuOrigin.HOME)
+                        else->showPerks(MenuOrigin.HOME)
                     }
                 }
             }
@@ -969,7 +974,7 @@ class MainActivity : Activity() {
         val headline=ResultHeadline.label(g.score(),previousRecord,g.won)
         progress.recordRun(g)
         currentLevel=g.displayLevel
-        gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
+        menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
@@ -1209,17 +1214,18 @@ class MainActivity : Activity() {
             startActivity(android.content.Intent.createChooser(share,"Podijeli rezultat"))
         }
         action(panel,"MAPA SVJETOVA",false){showWorlds()}
-        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
+        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks(MenuOrigin.HOME)}
         showNativeView(root)
     }
-    private fun showPerks(){
+    private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
+    private fun showPerks(origin:MenuOrigin){
         val b=base("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
         title(b,"●  ${progress.coins()} KOVANICA",24,gold)
         small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
             val earned=progress.claimBonusCoins()
-            if(earned>0){sound.effect("purchase");showPerks()}
+            if(earned>0){sound.effect("purchase");showPerks(origin)}
         }
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
@@ -1227,19 +1233,27 @@ class MainActivity : Activity() {
             val explanation=if(n==0)"Čuva Bopija od jednog sudara" else "Privlači kovanice i predmete 8 sekundi"
             small(b,"${if(n==0) "🛡 ŠTIT" else "🧲 MAGNET"} · $explanation\nU torbi: ${progress.perkCount(n)}")
             action(b,"KUPI ${if(n==0) "ŠTIT" else "MAGNET"} · ${progress.perkPrices[n]} KOVANICA",false){
-                if(progress.buyPerk(n)){sound.effect("purchase");showPerks()}
+                if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
         }
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
-        action(b,"🎨  LIKOVI",false){showSkins()}
-        back(b){showSettings()}
+        action(b,"🎨  LIKOVI",false){showSkins(MenuOrigin.SHOP,origin)}
+        back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
-    private fun showSkins(){
+    private fun showSkins(){showSkins(MenuOrigin.SETTINGS)}
+    private fun showSkins(origin:MenuOrigin,shopOrigin:MenuOrigin=MenuOrigin.SETTINGS){
         val b=base("LIKOVI","Devet letača, uključujući Nou i Any")
         small(b,"Stanje: ${progress.coins()} kovanica")
-        characterGallery(b){showSkins()}
-        back(b){showSettings()}
+        characterGallery(b){showSkins(origin,shopOrigin)}
+        back(b){
+            when(origin){
+                MenuOrigin.HOME -> showHome()
+                MenuOrigin.SETTINGS -> showSettings()
+                MenuOrigin.PROFILE -> showProfile()
+                MenuOrigin.SHOP -> showPerks(shopOrigin)
+            }
+        }
     }
 
     /** The home PROFIL shortcut exposes actual local data instead of opening Settings. */
@@ -1319,8 +1333,8 @@ class MainActivity : Activity() {
         }
         small(b,"Odabrani svijet: "+LevelEngine.names[progress.chosenWorld()])
         action(b,"✎  UREDI PROFIL I POSTAVKE",false){showSettings()}
-        action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins()}
-        action(b,"★  POSTIGNUĆA",false){showAchievements()}
+        action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
+        action(b,"★  POSTIGNUĆA",false){showAchievements(MenuOrigin.PROFILE)}
         back(b){showHome()}
     }
 
@@ -1335,14 +1349,21 @@ class MainActivity : Activity() {
         action(b,"POSTIGNUĆA",false){showAchievements()}
         back(b){showSettings()}
     }
-    private fun showAchievements(){
+    private fun showAchievements(){showAchievements(MenuOrigin.SETTINGS)}
+    private fun showAchievements(origin:MenuOrigin){
         val b=base("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
         small(b,"Dovršeni leveli: ${((0..7).sumOf { (progress.frontier(it)-1).toLong() })}")
         small(b,"Pobjede: ${progress.wins()}  ·  Pokušaji bez pobjede: ${progress.deaths()}")
         val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
         small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[furthest]}")
         for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
-        back(b){showSettings()}
+        back(b){
+            when(origin){
+                MenuOrigin.HOME -> showHome()
+                MenuOrigin.PROFILE -> showProfile()
+                else -> showSettings()
+            }
+        }
     }
     private fun volumeSlider(parent:LinearLayout,label:String,value:Int,onValue:(Int)->Unit){
         val panel=LinearLayout(this).apply {
@@ -1568,6 +1589,6 @@ class MainActivity : Activity() {
             }
         } else if(selectedScreen=="home") {
             if (Build.VERSION.SDK_INT >= 33) finish() else super.onBackPressed()
-        } else showHome()
+        } else menuBackAction?.invoke() ?: showHome()
     }
 }

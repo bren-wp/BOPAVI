@@ -1,3 +1,7 @@
+## Iteration 18 — contextual bottom navigation
+
+The home bottom nav now returns to Home, rather than unexpectedly opening Settings. Nested store and profile screens carry explicit return origins across transactions and Android predictive Back mirrors the screen's visible navigation. Reference pixel-fidelity is not yet measured.
+
 ## Iteration 18 — lightweight flying-pilot preview
 
 - The selected portrait in the pre-flight hero gently bobs independently of the UI and world art; gameplay retains its own physics-only flying animation.
