@@ -1279,3 +1279,20 @@ assert 'android-pilot-launch-diagnostic.xml' in android_emulator
 assert 'pilot choice left the picker; outer QA verifies gameplay state' not in android_emulator
 assert 'expected HOME, pilot picker or idle GameView' in android_emulator
 print('PASS: flight-launch emulator QA verifies GameView, not an arbitrary menu exit')
+
+# v0.1.44: Pause quick MUZIKA may not reset the personalized volume.
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+for store in (android_save,ios_save):
+    assert 'music_last_audible_volume' in store
+    assert 'music_volume' in store
+assert 'fun toggleMusicVolume():Int' in android_save
+assert 'func toggleMusicVolume()->Int' in ios_save
+for pause in (android_pause,ios_pause):
+    assert 'toggleMusicVolume()' in pause
+    assert 'sound.pause()' in pause
+    assert '✓' in pause and '✕' in pause
+assert 'val level=if(progress.musicVolume()==0)80 else 0' not in android_pause
+assert 'self.progress.musicVolume==0 ? 80 : 0' not in ios_pause
+assert '[weak control]' in ios_pause
+print('PASS: pause footer audio state and previous custom volume persisted on both platforms')

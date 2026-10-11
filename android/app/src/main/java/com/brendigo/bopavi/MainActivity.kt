@@ -842,14 +842,26 @@ class MainActivity : Activity() {
         }
         fun quick(icon:String,label:String,onClick:()->Unit){
             val btn=Button(this).apply{
-                text="$icon\n$label";isAllCaps=false;textSize=10f
+                val iconState=when(label){
+                    "ZVUK" -> if(progress.soundEnabled())"✓" else "✕"
+                    "MUZIKA" -> if(progress.musicVolume()>0)"✓" else "✕"
+                    else -> ""
+                }
+                text="$icon\n$label $iconState".trimEnd();isAllCaps=false;textSize=10f
                 setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
                     gradient(0xff1269b9.toInt(),0xff08234b.toInt(),13),null)
                 contentDescription=label
-                setOnClickListener{sound.effect("click");onClick()}
+                setOnClickListener{
+                    sound.effect("click");onClick()
+                    if(label=="ZVUK"||label=="MUZIKA"){
+                        val active=if(label=="ZVUK")progress.soundEnabled() else progress.musicVolume()>0
+                        text="$icon\n$label " + if(active)"✓" else "✕"
+                        contentDescription=label + if(active)" uključeno" else " isključeno"
+                    }
+                }
             }
             footer.addView(btn,LinearLayout.LayoutParams(0,d(62),1f).apply{
                 setMargins(d(2),0,d(2),0)
@@ -863,8 +875,9 @@ class MainActivity : Activity() {
                 Toast.LENGTH_SHORT).show()
         }
         quick("♫","MUZIKA"){
-            val level=if(progress.musicVolume()==0)80 else 0
-            progress.setMusicVolume(level);sound.musicVolume=level/100f
+            val level=progress.toggleMusicVolume()
+            sound.musicVolume=level/100f
+            sound.pause() // Changing audio must never resume a paused flight.
             Toast.makeText(this,if(level==0)"Glazba isključena" else "Glazba uključena",
                 Toast.LENGTH_SHORT).show()
         }
