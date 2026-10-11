@@ -135,7 +135,8 @@ struct SwiftSaves {
         var rejectedStars=false
         do {try store.importData(JSONSerialization.data(withJSONObject:invalidDocument))}
         catch {rejectedStars=true}
-        precondition(rejectedStars && (try store.exportData())==beforeInvalid,
+        let afterInvalid=try store.exportData()
+        precondition(rejectedStars && afterInvalid==beforeInvalid,
                      "Rejected rating import modified real saved progress")
         print("PASS: Swift v0.2-v0.6 migration, earned rating monotonicity, v6 backup integrity and invalid save rejection")
     }
