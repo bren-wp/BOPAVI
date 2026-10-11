@@ -1169,8 +1169,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hero.layer.borderWidth=2
         hero.layer.borderColor=UIColor(red:0.22,green:0.78,blue:1,alpha:1).cgColor
         hero.isAccessibilityElement=true
-        hero.accessibilityLabel="Letački profil, "+progress.playerName+
-            ", lik "+progress.skinNames[skin]
+        hero.accessibilityLabel="Letački profil, \(progress.playerName), lik \(progress.skinNames[skin])"
         let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(skin)"))
         portrait.contentMode = .scaleAspectFit
         portrait.heightAnchor.constraint(equalToConstant:164).isActive=true
