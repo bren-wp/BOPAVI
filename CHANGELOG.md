@@ -1,3 +1,15 @@
+## v0.1.36 — Earned level stars and authentic world progress (build 39)
+
+- Added honest **0–3 earned stars for each completed level**, collected from the actual per-level gameplay pickups rather than inferred from completion or fabricated to match concept art.
+- The world gallery now shows **actual first-ten-level earned stars out of 30** for each world (not an invented global total), with real saved values reflected on both Android and iOS.
+- Level grid now shows three gold/outline stars, separate lock/completion icons and spoken accessible ratings. Current/locked/completed state and level interaction remain governed by saved unlock progress.
+- Preserved **continuous progression**: per-level stars reset only when the next level begins, while overall flight stars, scores, gates, and collision physics never reset during the run.
+- Versioned offline backups to v6 and restored sparse best-star records with strict validation and backward compatibility for v1–v5. No network/cloud account introduced.
+- Default level-number entry now selects the unlocked level in the visible page rather than confusing a page index with a level ID.
+- Added Swift round-trip/corrupt-backup assertions, Android/iOS source parity checks and Android emulator world accessibility checks.
+- Android v0.1.36 (build 39); iOS v0.1.36 (build 39). GitHub still produces a debug APK, unsigned AAB, simulator build and unsigned iOS device files.
+- Visual fidelity caveat: supplied 3D art remains a **reference**; high-resolution separate characters, UI texture assets and pixel-by-pixel screenshot comparison remain necessary before any 1:1 claim.
+
 ## v0.1.35 — Live pilot result hero and truthful personal record (build 38)
 
 - Replaced the generic result hero on Android and iOS with a layered composition of the **actually selected pilot portrait** over the **actually played world artwork**. This moves the result screen closer to the supplied Bopi result reference while preserving real text, accessible views, currency balances and tappable actions.

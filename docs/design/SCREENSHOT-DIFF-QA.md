@@ -1,3 +1,10 @@
+## Iteration 12 — genuinely earned three-star level cards
+
+- Source images request 0–3 gold stars per level and X/30 stars per world. This iteration stores rating from the **real star pickups within each completed level**: no automatic three-star completion award.
+- Android and iOS present filled and outline stars on live, accessible level grid buttons, with saved world totals based on levels 1–10 (30 possible rating positions).
+- Every value remains clickable/accessible and is maintained in v6 offline backups. Unlimited seamless flight still uses a separate running total and is never interrupted or restarted at a level boundary.
+- Discrepancy: 3D Bopi textures, golden medal sprites, individual world card illustrative art and exact typography are still not pixel matched to the ten reference renders.
+
 ## Iteration 11 — live selected-pilot result illustration and verified record
 - Android and iOS result screen header layers the *real selected pilot portrait* over the *played world illustration* using separate platform views; no pre-rendered screenshot or baked-in interactive text.
 - A gold NOVI REKORD badge is only shown on a strictly improved pre-save personal best, and the success/defeat result sound now distinguishes level and hit effects.

@@ -174,7 +174,7 @@ for attempt in range(13):
         title=node.get('content-desc','')
         for name in worlds:
             if title.startswith(name+', otključano,'):
-                if not all(piece in title for piece in ('level ','prikupljeno ','rekord ')):
+                if not all(piece in title for piece in ('level ','prikupljeno ','rekord ','zvjezdice ',' od 30')):
                     raise SystemExit(f'FAIL: world missing real save metrics: {name}')
                 seen.add(name)
     if len(seen)==8:break

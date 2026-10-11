@@ -110,6 +110,33 @@ struct SwiftSaves {
         try store.importData(bytes)
         precondition(store.skinIndex() == 1 && store.owned(1) && !store.owned(7))
 
-        print("PASS: Swift v0.2-v0.5 migration, first-clear-only coins, purchase/consume, one-time score coins, save round-trip and invalid backup rejection")
+        // The best rating cannot decrease when replaying a level.
+        let starKey="level_star_0_5"
+        UserDefaults.standard.removeObject(forKey:starKey)
+        store.recordLevelStars(world:0,number:5,earned:2)
+        store.recordLevelStars(world:0,number:5,earned:1)
+        precondition(store.bestLevelStars(0,5)==2)
+        store.recordLevelStars(world:0,number:5,earned:9)
+        precondition(store.bestLevelStars(0,5)==3 && store.worldStars(0)>=3)
+        let starBackup=try store.exportData()
+        let savedDocument=try JSONSerialization.jsonObject(with:starBackup) as! [String:Any]
+        precondition(savedDocument["exportVersion"] as? Int == 6)
+        UserDefaults.standard.removeObject(forKey:starKey)
+        precondition(store.bestLevelStars(0,5)==0)
+        try store.importData(starBackup)
+        precondition(store.bestLevelStars(0,5)==3,"Star rating must survive backup restore")
+        // Malformed v6 ratings must reject the ENTIRE import before coin edits.
+        let beforeInvalid=try store.exportData()
+        var invalidDocument=savedDocument
+        var invalidSave=invalidDocument["save"] as! [String:Any]
+        invalidSave["levelStars"]=[[0,5,4]]
+        invalidSave["coins"]=3
+        invalidDocument["save"]=invalidSave
+        var rejectedStars=false
+        do {try store.importData(JSONSerialization.data(withJSONObject:invalidDocument))}
+        catch {rejectedStars=true}
+        precondition(rejectedStars && (try store.exportData())==beforeInvalid,
+                     "Rejected rating import modified real saved progress")
+        print("PASS: Swift v0.2-v0.6 migration, earned rating monotonicity, v6 backup integrity and invalid save rejection")
     }
 }

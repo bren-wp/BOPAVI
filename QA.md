@@ -1,3 +1,12 @@
+## v0.1.36 — real earned stars, level progression and v6 backup QA
+
+- Validate completion callback saves the **current level's** earned star pickups independently from the cumulative marathon HUD.
+- Verify that the first ten completed levels in each world contribute at most 30 real stars to the world card; replaying a level must never lower its best rating.
+- Each selectable level card must show actual ★/☆ count in the three-star row, while locked levels remain inaccessible.
+- Test native v6 backup export/import preserving sparse star records; reject malformed ratings and duplicate entries before any stored progress is modified. Accept existing v1–v5 backups.
+- Android emulator world-card audit must require saved level, item/score details and real earned stars. Preserve all other emulator/physics/pause/gameplay validations on Android 15 and 16 and iOS.
+- Never fill unearned stars to imitate reference screenshots. Premium visuals still require separate original art and device screenshot comparisons.
+
 ## v0.1.35 — result hero and truthful record checks
 - Android 15 and 16 screenshot QA must display the actual selected pilot and world on the result screen through accessible live image composition, not a hardcoded generic hero. The emulator must still reach genuine collision results and expose PONOVO.
 - Both Android and iOS result screens only show NOVI REKORD when current points exceed the saved record from before the run was persisted. New-record state must be evaluated before `recordRun`, and the save operation must occur exactly once.
