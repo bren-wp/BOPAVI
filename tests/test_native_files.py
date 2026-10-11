@@ -1291,7 +1291,7 @@ assert 'func toggleMusicVolume()->Int' in ios_save
 for pause in (android_pause,ios_pause):
     assert 'toggleMusicVolume()' in pause
     assert 'sound.pause()' in pause
-    assert '"✓"' in pause and '"✕"' in pause
+    assert '✓' in pause and '✕' in pause
 assert 'val level=if(progress.musicVolume()==0)80 else 0' not in android_pause
 assert 'self.progress.musicVolume==0 ? 80 : 0' not in ios_pause
 assert '[weak control]' in ios_pause
