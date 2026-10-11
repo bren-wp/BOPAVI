@@ -1,3 +1,10 @@
+## v0.1.34 — real profile and premium Settings click-through
+- On Android 15 and 16, home PROFIL opens a dedicated profile with live local pilot/player data and never opens Postavke. System Back must return to the three-button home. Emulator script verifies both transitions.
+- On iOS, tapping PROFIL opens the equivalent profile with the same four stored metrics and actual Bopi portrait, not an account or mocked screenshot. Verify taps through profile, character selection, achievements, and back-to-home on simulator.
+- Settings must show two interactive volume sliders, vibration, selectable three-card difficulty, followed by Additional Options with working reduced-motion and master-audio toggles. Neither offline platform may offer fake account logout, cloud sync or premium diamond purchasing.
+- Complete mandatory lint, Kotlin unit, Android APK/unsigned AAB, Android API35/API36 emulator, iOS simulator/unsigned device, Swift parity and save tests before merge; main CI must publish all five assets for commit-matching v0.1.34.
+- Pixel-identical reproduction of supplied high-resolution 3D mockups remains unverified; no concept render is presented as an emulator screenshot.
+
 ## v0.1.33 — mandatory versioned release after any code change
 - Every future PR must declare a versionName above the last published GitHub release; Android versionCode and iOS CFBundleVersion/build must be incremented together and verified in CI.
 - No production signing is permitted on GitHub: no manual signed-upload workflow, no fake keystore, no Play Console submission. Developer APK may carry the Android debug signing certificate; the release AAB intentionally has no upload signature.
