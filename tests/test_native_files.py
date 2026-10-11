@@ -396,7 +396,7 @@ for store in (android_save,ios_save):
     assert "haptic_enabled" in store
     assert '"hapticEnabled"' in store
 for ui in (android_menu,ios_menu):
-    assert "Vibracije pri igranju" in ui
+    assert 'text="Vibracije"' in ui if ui is android_menu else 'hapticLabel.text="Vibracije"' in ui
 assert "if(hapticEnabled)performHapticFeedback" in android_canvas
 assert "if self?.progress.hapticEnabled == true" in ios_menu
 assert "drawBoostHUD(c)" in ios_canvas
@@ -652,7 +652,7 @@ for settings in (android_settings,ios_settings):
         assert title in settings
     assert 'showSkins()' in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
-    assert 'SPREMI IME' in settings and 'Vibracije pri igranju' in settings
+    assert 'SPREMI IME' in settings and 'Vibracije' in settings
     assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
 
 # Shield impact must generate exactly one callback per nonzero pulse,
@@ -911,7 +911,7 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 36" in gradle and 'versionName = "0.1.33"' in gradle
+assert "versionCode = 37" in gradle and 'versionName = "0.1.34"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -1042,3 +1042,26 @@ assert 'birdSprites[selectedSkin]' in android_loader
 assert 'BopiLeft\\(selectedSkin)' in swift_loader
 assert 'BopiRight\\(selectedSkin)' in swift_loader
 print('PASS: nine real full-wing portraits in all menus, with preserved detached flight animations')
+
+# v0.1.34: bottom PROFILE is not a misleading alias for Settings.
+assert '0->showProfile()' in android_menu
+assert '("♙","PROFIL",{self.showProfile()})' in ios_menu
+for controller,signature,expected in ((android_menu,'private fun showProfile()',
+                                      'Letački profil, '),
+                                     (ios_menu,'private func showProfile()',
+                                      'Letački profil, ')):
+    assert signature in controller
+    profile=controller.split(signature,1)[1].split('showLeaderboard()',1)[0]
+    for content in ('TVOJI REZULTATI','Najbolji rezultat','Osvojene kovanice',
+                    'Dovršeni leveli','Pobjede','progress.bestPoints()',
+                    'progress.coins()','progress.wins()','showHome()'):
+        assert content in profile,(signature,content)
+    assert expected in profile
+# UI visual hierarchy: reference places real vibration control after volumes.
+for source,signature in ((android_menu,'private fun showSettings()'),
+                         (ios_menu,'private func showSettings()')):
+    settings=source.split(signature,1)[1]
+    assert settings.index('Vibracije')<settings.index('IGRAČ I TEŽINA')
+    assert settings.index('Nježnije animacije')>settings.index('DODATNE OPCIJE')
+    assert settings.index('Glazba i zvučni efekti')>settings.index('DODATNE OPCIJE')
+print('PASS: real offline PROFILE tab and premium functional settings order on both platforms')

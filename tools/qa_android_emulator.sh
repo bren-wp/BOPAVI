@@ -357,6 +357,47 @@ else:
     raise SystemExit('FAIL: launch button did not leave pilot selection after verified taps')
 PY
 }
+
+# Verify PROFIL opens a real offline profile, not Postavke, then returns home.
+verify_profile_tab(){
+  python3 - <<'PY'
+import re,subprocess,sys,time,xml.etree.ElementTree as ET
+def dump():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-profile.xml"],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    xml=subprocess.run(["adb","exec-out","cat","/sdcard/bopavi-profile.xml"],
+                       check=True,capture_output=True).stdout
+    return ET.fromstring(xml)
+root=dump()
+matches=[n for n in root.iter("node") if n.get("clickable")=="true"
+         and n.get("content-desc")=="PROFIL"]
+if len(matches)!=1: raise SystemExit("FAIL: expected exactly one clickable profile tab")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",matches[0].get("bounds",""))
+if not m: raise SystemExit("FAIL: invalid profile tab hit bounds")
+l,t,r,b=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],check=True)
+time.sleep(1.5)
+root=dump()
+texts=[n.get("text","") for n in root.iter("node")]
+desc=[n.get("content-desc","") for n in root.iter("node")]
+if not any("Tvoj letački dnevnik" in text for text in texts):
+    raise SystemExit("FAIL: PROFIL did not navigate to its dedicated screen")
+if not any("Letački profil" in label for label in desc):
+    raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
+if any("IZGLED I ZVUK" in text for text in texts):
+    raise SystemExit("FAIL: PROFIL incorrectly opened settings")
+print("PASS: dedicated PROFILE screen shows saved pilot data",flush=True)
+subprocess.run(["adb","shell","input","keyevent","4"],check=True)
+time.sleep(1)
+root=dump()
+labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
+for title in ("IGRAJ","SVJETOVI","POSTAVKE"):
+    if not any(title in label for label in labels):
+        raise SystemExit("FAIL: profile Back did not restore home: "+title)
+print("PASS: profile Android Back returns to playable home",flush=True)
+PY
+}
+
 gameplay_ready=0
 home_captured=0
 attempt=1
@@ -452,6 +493,7 @@ while [ "$attempt" -le 6 ]; do
       exit 1
     fi
     echo "PASS: settings opens and returns to the three-button home"
+    verify_profile_tab
     verify_world_cards
     sleep 1
     dump_ui

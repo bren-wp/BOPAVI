@@ -374,7 +374,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         navigation.layer.borderWidth=2
         navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
         let tabs:[(String,String,()->Void)]=[
-            ("♙","PROFIL",{self.showSettings()}),
+            ("♙","PROFIL",{self.showProfile()}),
             ("★","ZADACI",{self.showAchievements()}),
             ("✦","KOLEKCIJA",{self.showSkins()}),
             ("▣","TRGOVINA",{self.showPerks()})
@@ -1153,6 +1153,82 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         characterGallery(in:s){self.showSkins()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
+
+    /// A real offline profile for the PROFIL home tab (no account or cloud).
+    private func showProfile(){
+        let s=menu("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
+        let skin=progress.skinIndex()
+        let hero=UIStackView()
+        hero.axis = .vertical
+        hero.alignment = .fill
+        hero.spacing=5
+        hero.isLayoutMarginsRelativeArrangement=true
+        hero.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:14,right:14)
+        hero.backgroundColor=UIColor(red:0.035,green:0.17,blue:0.39,alpha:0.97)
+        hero.layer.cornerRadius=24
+        hero.layer.borderWidth=2
+        hero.layer.borderColor=UIColor(red:0.22,green:0.78,blue:1,alpha:1).cgColor
+        hero.isAccessibilityElement=true
+        hero.accessibilityLabel="Letački profil, \(progress.playerName), lik \(progress.skinNames[skin])"
+        let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(skin)"))
+        portrait.contentMode = .scaleAspectFit
+        portrait.heightAnchor.constraint(equalToConstant:164).isActive=true
+        portrait.isAccessibilityElement=false
+        hero.addArrangedSubview(portrait)
+        let name=label(progress.playerName,26,.white,hero)
+        name.font=UIFont.systemFont(ofSize:26,weight:.heavy)
+        name.isAccessibilityElement=false
+        let pilot=label("✦  "+progress.skinNames[skin].uppercased()+"  ✦",14,
+            UIColor(red:1,green:0.77,blue:0.30,alpha:1),hero)
+        pilot.isAccessibilityElement=false
+        s.addArrangedSubview(hero)
+        sectionHeading("TVOJI REZULTATI",in:s)
+        let total=(0..<8).reduce(Int64(0)) { result,world in
+            result+Int64(progress.frontier(world)-1)
+        }
+        let stats:[(String,String)]=[
+            ("★  Najbolji rezultat",String(progress.bestPoints())),
+            ("●  Osvojene kovanice",String(progress.coins())),
+            ("♛  Dovršeni leveli",String(total)),
+            ("⚑  Pobjede",String(progress.wins()))
+        ]
+        for (caption,value) in stats {
+            let row=UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing=8
+            row.layoutMargins=UIEdgeInsets(top:11,left:16,bottom:11,right:16)
+            row.isLayoutMarginsRelativeArrangement=true
+            row.backgroundColor=UIColor(red:0.025,green:0.14,blue:0.32,alpha:0.97)
+            row.layer.cornerRadius=18
+            row.layer.borderWidth=1
+            row.layer.borderColor=UIColor(red:0.32,green:0.81,blue:1,alpha:0.95).cgColor
+            row.isAccessibilityElement=true
+            row.accessibilityLabel=caption+": "+value
+            let title=UILabel()
+            title.text=caption
+            title.textColor = .white
+            title.font=UIFont.systemFont(ofSize:15,weight:.bold)
+            title.numberOfLines=1
+            title.adjustsFontSizeToFitWidth=true
+            title.minimumScaleFactor=0.75
+            title.isAccessibilityElement=false
+            let metric=UILabel()
+            metric.text=value
+            metric.textColor=UIColor(red:1,green:0.80,blue:0.30,alpha:1)
+            metric.font=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
+            metric.isAccessibilityElement=false
+            row.addArrangedSubview(title)
+            row.addArrangedSubview(metric)
+            s.addArrangedSubview(row)
+        }
+        label("Odabrani svijet: "+BopaviCore.names[progress.chosenWorld()],15,.white,s)
+        button("✎  UREDI PROFIL I POSTAVKE",in:s,primary:false){self.showSettings()}
+        button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins()}
+        button("★  POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
+        button("‹  POČETNA",in:s,primary:false){self.showHome()}
+    }
+
     private func showLeaderboard(){
         let s=menu("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
         let entries=progress.leaderboard()
@@ -1222,28 +1298,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.progress.effectsVolume=value
             self.sound.effectsVolume=Float(value)/100
         }
-        let toggle=UISwitch();toggle.isOn=progress.lessMotion
-        toggle.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
-        let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
-        let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
-        l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-        toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
-        toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
-        let audio=UISwitch();audio.isOn=progress.soundEnabled
-        audio.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
-        let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
-        let audioLabel=UILabel();audioLabel.text="Glazba i zvučni efekti";audioLabel.font=UIFont.systemFont(ofSize:16,weight:.medium);audioLabel.textColor = .white
-        audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-        audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
-        audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
         let haptic=UISwitch();haptic.isOn=progress.hapticEnabled
         haptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let hapticRow=UIStackView();hapticRow.axis = .horizontal;hapticRow.spacing=12
-        let hapticLabel=UILabel();hapticLabel.text="Vibracije pri igranju"
+        let hapticLabel=UILabel();hapticLabel.text="Vibracije"
         hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
         hapticLabel.textColor = .white;hapticLabel.numberOfLines=0
         hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         hapticRow.addArrangedSubview(hapticLabel);hapticRow.addArrangedSubview(haptic)
+        hapticRow.isLayoutMarginsRelativeArrangement=true
+        hapticRow.layoutMargins=UIEdgeInsets(top:11,left:16,bottom:11,right:16)
+        hapticRow.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:0.97)
+        hapticRow.layer.cornerRadius=16
+        hapticRow.layer.borderWidth=1
+        hapticRow.layer.borderColor=UIColor(red:0.24,green:0.74,blue:1,alpha:0.65).cgColor
         s.addArrangedSubview(hapticRow)
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
         sectionHeading("IGRAČ I TEŽINA",in:s)
@@ -1360,6 +1428,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
         sectionHeading("DODATNE OPCIJE",in:s)
+        let toggle=UISwitch();toggle.isOn=progress.lessMotion
+        toggle.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
+        let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
+        let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
+        l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+        toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
+        toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
+        let audio=UISwitch();audio.isOn=progress.soundEnabled
+        audio.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
+        let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
+        let audioLabel=UILabel();audioLabel.text="Glazba i zvučni efekti";audioLabel.font=UIFont.systemFont(ofSize:16,weight:.medium);audioLabel.textColor = .white
+        audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+        audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
+        audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
+
         button("🐤  LIKOVI",in:s,primary:false){self.showSkins()}
         button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
         button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}

@@ -374,7 +374,7 @@ class MainActivity : Activity() {
                 setOnClickListener{
                     sound.effect("click")
                     when(index){
-                        0->showSettings()
+                        0->showProfile()
                         1->showAchievements()
                         2->showSkins()
                         else->showPerks()
@@ -1050,6 +1050,89 @@ class MainActivity : Activity() {
         characterGallery(b){showSkins()}
         back(b){showSettings()}
     }
+
+    /** The home PROFIL shortcut exposes actual local data instead of opening Settings. */
+    private fun showProfile(){
+        val b=base("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
+        val skin=progress.skin()
+        val portraits=intArrayOf(
+            R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+            R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8
+        )
+        val hero=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER
+            setPadding(d(14),d(12),d(14),d(14))
+            background=gradient(0xf40b4189.toInt(),0xf3051b40.toInt(),24).apply{
+                setStroke(d(2),electric)
+            }
+            contentDescription="Letački profil, "+progress.playerName()+", lik "+
+                progress.skinNames[skin]
+        }
+        hero.addView(ImageView(this).apply{
+            setImageResource(portraits[skin])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(164)))
+        hero.addView(TextView(this).apply{
+            text=progress.playerName()
+            textSize=26f
+            setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,-2))
+        hero.addView(TextView(this).apply{
+            text="✦  "+progress.skinNames[skin].uppercase()+"  ✦"
+            textSize=14f
+            setTextColor(gold)
+            gravity=Gravity.CENTER
+            typeface=Typeface.DEFAULT_BOLD
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(5)})
+        b.addView(hero,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(14)})
+        sectionHeading(b,"TVOJI REZULTATI")
+        val rows=listOf(
+            "★  Najbolji rezultat" to progress.bestPoints().toString(),
+            "●  Osvojene kovanice" to progress.coins().toString(),
+            "♛  Dovršeni leveli" to (0..7).sumOf{
+                (progress.frontier(it)-1).toLong()
+            }.toString(),
+            "⚑  Pobjede" to progress.wins().toString()
+        )
+        for((caption,value) in rows){
+            val tile=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL
+                gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(16),d(11),d(16),d(11))
+                background=gradient(0xf20c3975.toInt(),0xf2051a40.toInt(),18).apply{
+                    setStroke(d(1),0xff55cfff.toInt())
+                }
+                contentDescription=caption+": "+value
+            }
+            tile.addView(TextView(this).apply{
+                text=caption
+                setTextColor(Color.WHITE)
+                textSize=15f
+                typeface=Typeface.DEFAULT_BOLD
+            },LinearLayout.LayoutParams(0,-2,1f))
+            tile.addView(TextView(this).apply{
+                text=value
+                setTextColor(gold)
+                textSize=20f
+                typeface=Typeface.DEFAULT_BOLD
+                gravity=Gravity.END
+            },LinearLayout.LayoutParams(-2,-2))
+            b.addView(tile,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
+        }
+        small(b,"Odabrani svijet: "+LevelEngine.names[progress.chosenWorld()])
+        action(b,"✎  UREDI PROFIL I POSTAVKE",false){showSettings()}
+        action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins()}
+        action(b,"★  POSTIGNUĆA",false){showAchievements()}
+        back(b){showHome()}
+    }
+
     private fun showLeaderboard(){
         val b=base("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
         val entries=progress.leaderboard()
@@ -1115,20 +1198,8 @@ class MainActivity : Activity() {
         volumeSlider(b,"◖  Zvukovi",progress.effectsVolume()){
             progress.setEffectsVolume(it);sound.effectsVolume=it/100f
         }
-        val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
-        low.thumbTintList=ColorStateList.valueOf(gold)
-        low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
-        low.setPadding(d(12),d(10),d(12),d(10))
-        low.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(low,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
-        val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
-        audio.thumbTintList=ColorStateList.valueOf(gold)
-        audio.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
-        audio.setPadding(d(12),d(10),d(12),d(10))
-        audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
         val haptic=Switch(this).apply {
-            text="Vibracije pri igranju"
+            text="Vibracije"
             setTextColor(Color.WHITE)
             isChecked=progress.hapticEnabled()
             setOnCheckedChangeListener { _,checked -> progress.setHapticEnabled(checked) }
@@ -1137,7 +1208,7 @@ class MainActivity : Activity() {
         haptic.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
         haptic.setPadding(d(12),d(10),d(12),d(10))
         haptic.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(haptic,LinearLayout.LayoutParams(-1,d(54)))
+        b.addView(haptic,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(7)})
         sectionHeading(b,"IGRAČ I TEŽINA")
         small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         // Three genuine selectable cards: reference-matched layout, existing
@@ -1231,6 +1302,19 @@ class MainActivity : Activity() {
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
         sectionHeading(b,"DODATNE OPCIJE")
+        val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
+        low.thumbTintList=ColorStateList.valueOf(gold)
+        low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+        low.setPadding(d(12),d(10),d(12),d(10))
+        low.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        b.addView(low,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
+        val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
+        audio.thumbTintList=ColorStateList.valueOf(gold)
+        audio.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+        audio.setPadding(d(12),d(10),d(12),d(10))
+        audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+        b.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
+
         action(b,"🐤  LIKOVI",false){showSkins()}
         action(b,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}

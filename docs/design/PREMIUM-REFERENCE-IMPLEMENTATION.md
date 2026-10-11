@@ -45,3 +45,9 @@ The concept references also display `diamonds`, `plus` top-up buttons, online/cl
 4. Compare real screenshots against the supplied references and record mismatches **per screen** (layout, colors, typography, alignment, visual art, accessibility, safe areas). Do not claim 1:1 until independently verified.
 5. Confirm no CI or manual signing workflow runs on GitHub, no fake Play signed uploads.
 6. Do not merge/redesign production assets until the latest PR-head checks pass.
+
+## v0.1.34 verified target changes
+- The PROFILE footer tile is an actual page showing the stored player, selected full-wing sprite and four genuine local metrics, not a redirect to Settings.
+- Music and sound sliders now lead directly to vibration, then the existing three difficulty cards. Master sound and reduced-motion switches remain implemented under Additional Options.
+- No mock logout, cloud save, paid gems, premium unlock or reward ads are introduced to simulate reference art.
+- Future art work must compare actual Android/iOS screenshots with the supplied renders and document the missing raster/vector exports; identical UI pixels are not claimed by this code change.
