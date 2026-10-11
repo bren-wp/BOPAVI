@@ -1,3 +1,12 @@
+## v0.1.41 — full-bleed portrait menus and responsive safe-area controls (build 44)
+
+- Reviewed actual v0.1.40 Android emulator captures. The device status clock/stripe was still visible above premium menus and results, unlike the full-bleed game reference.
+- Unified Android status-bar-hidden mode across all portrait menus and results, matching gameplay. Preserved the bottom navigation gesture/system area and camera cutout safe insets (Android 15/16).
+- Hid the iOS status bar across menu and gameplay, while retaining UIKit safe-area constraints for Dynamic Island/notch and bottom controls.
+- Added automatic font size reduction for genuine high-score / currency wallets and narrow Android bottom-tab captions.
+- Retained gameplay, skins, local saves, level IDs, privacy and existing native art. Android/iOS v0.1.41 build 44 with new source regression and visual QA gates.
+- Existing flat illustrated sprites and backgrounds still do NOT meet the user's original premium 3D reference at 1:1.
+
 ## v0.1.40 — illustrated nine-pilot gallery (build 43)
 
 - Rebuilt Android and iOS character cards with world-art backdrops, full existing winged portraits, overlaid live names, selection/lock badges and earned-coin state labels. Added highlighted gold chosen frame and purple premium-locked frame.

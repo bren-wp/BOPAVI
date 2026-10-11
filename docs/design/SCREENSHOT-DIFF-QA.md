@@ -1,3 +1,7 @@
+## Iteration 17 — full-bleed, measured against actual emulator output
+
+Actual v0.1.40 screenshots show OS status chrome and simpler flat game art. The current iteration hides status chrome across menus with native cutout protections and improves real wallet/footer text scaling. Character depth and premium reference 1:1 fidelity remain distinct, unverified art goals.
+
 ## Iteration 16 — illustrated pilot cards
 
 All nine selectable characters now occupy real interactive cards with scenic backgrounds, native overlaid titles, ownership lock icons and saved-coin pricing, using existing project illustrations. Premium art 1:1 remains an independent acceptance target.
