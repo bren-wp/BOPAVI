@@ -93,6 +93,35 @@ final class ProgressStore {
         defaults.set(max(0,b-1),forKey:"perk_1")
         return (a>0 ? 1 : 0,b>0 ? 8 : 0)
     }
+
+    /// Ratings earned by flying through a completed level, not a fabricated star count.
+    func bestLevelStars(_ world:Int,_ number:Int)->Int {
+        guard (0..<8).contains(world),(1...BopaviCore.levelsPerWorld).contains(number) else {return 0}
+        return min(3,max(0,defaults.integer(forKey:"level_star_\(world)_\(number)")))
+    }
+    func recordLevelStars(world:Int,number:Int,earned:Int){
+        guard (0..<8).contains(world),(1...BopaviCore.levelsPerWorld).contains(number) else {return}
+        let rating=min(3,max(0,earned))
+        if rating>bestLevelStars(world,number){
+            defaults.set(rating,forKey:"level_star_\(world)_\(number)")
+        }
+    }
+    func worldStars(_ world:Int)->Int {
+        guard (0..<8).contains(world) else{return 0}
+        return (1...10).reduce(0){ $0+bestLevelStars(world,$1) }
+    }
+    private func levelStarRecords()->[[Int]] {
+        let prefix="level_star_"
+        return defaults.dictionaryRepresentation().keys.compactMap { key -> [Int]? in
+            guard key.hasPrefix(prefix) else{return nil}
+            let parts=key.dropFirst(prefix.count).split(separator:"_",omittingEmptySubsequences:false)
+            guard parts.count==2,let w=Int(parts[0]),let n=Int(parts[1]),
+                  (0..<8).contains(w),(1...BopaviCore.levelsPerWorld).contains(n)
+            else{return nil}
+            let rating=bestLevelStars(w,n)
+            return rating>0 ? [w,n,rating] : nil
+        }.sorted {x,y in x[0]==y[0] ? x[1]<y[1] : x[0]<y[0]}
+    }
     func collectibles(_ world:Int)->Int { (0..<8).contains(world) ? max(0,defaults.integer(forKey:"collectibles_\(world)")) : 0 }
     var playerName:String {
         get { defaults.string(forKey:"player_name") ?? "Igrač" }
@@ -162,23 +191,41 @@ final class ProgressStore {
         set {defaults.set(max(0,min(100,newValue)),forKey:"effects_volume")}
     }
     func exportData() throws -> Data {
-        let save:[String:Any] = ["version":5,"frontiers":(0..<8).map { frontier($0) },
+        let save:[String:Any] = ["version":6,"frontiers":(0..<8).map { frontier($0) },
                                  "streamFrontiers":(0..<8).map { String(streamFrontier($0)) },"maxWorld":maxWorld(),"chosenWorld":chosenWorld(),
-                                 "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"scoreCoinsClaimed":max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed"))),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},
+                                 "playerName":playerName,"difficulty":difficulty,"leaderboard":leaderboard().map(scoreDictionary),"coins":coins(),"scoreCoinsClaimed":max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed"))),"lessMotion":lessMotion,"worldBest":(0..<8).map{best($0)},"levelStars":levelStarRecords(),
                                  "owned":(0..<9).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
                                  "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
                                  "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled,
                                   "musicVolume":musicVolume,"effectsVolume":effectsVolume]
-        return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":5,"save":save],options:[.prettyPrinted,.sortedKeys])
+        return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":6,"save":save],options:[.prettyPrinted,.sortedKeys])
     }
     func importData(_ data:Data) throws {
         guard data.count <= 550_000,
               let body = try JSONSerialization.jsonObject(with:data) as? [String:Any],
               body["format"] as? String == "bopavi-save",
               let s = body["save"] as? [String:Any],
-              let version=s["version"] as? Int, (1...5).contains(version) else { throw NSError(domain:"BOPAVI",code:1,userInfo:[NSLocalizedDescriptionKey:"Neispravna BOPAVI sigurnosna kopija."]) }
+              let version=s["version"] as? Int, (1...6).contains(version) else { throw NSError(domain:"BOPAVI",code:1,userInfo:[NSLocalizedDescriptionKey:"Neispravna BOPAVI sigurnosna kopija."]) }
+
+        // Validate rating records first; invalid data must not partially import.
+        var importedStars=[[Int]]()
+        if version>=6 {
+            guard let rows=s["levelStars"] as? [[Int]],rows.count<=20000 else {
+                throw NSError(domain:"BOPAVI",code:8,userInfo:[NSLocalizedDescriptionKey:"Neispravni podaci o zvjezdicama."])
+            }
+            var seen=Set<String>()
+            for item in rows {
+                guard item.count==3,(0..<8).contains(item[0]),
+                      (1...BopaviCore.levelsPerWorld).contains(item[1]),
+                      (1...3).contains(item[2]),
+                      seen.insert("level_star_\(item[0])_\(item[1])").inserted else {
+                    throw NSError(domain:"BOPAVI",code:9,userInfo:[NSLocalizedDescriptionKey:"Neispravan zapis zvjezdica."])
+                }
+            }
+            importedStars=rows
+        }
         var frontiers=Array(repeating:1,count:8)
         var maxWorld=0
         if version >= 3 {
@@ -216,6 +263,9 @@ final class ProgressStore {
         let priorClaimed=max(0,min(100_000,defaults.integer(forKey:"score_coins_claimed")))
         defaults.set(max(priorClaimed,importedClaimed),forKey:"score_coins_claimed")
         for w in 0..<8 {defaults.set(frontiers[w],forKey:"frontier_\(w)");defaults.set(streamFrontiers[w],forKey:"stream_frontier_\(w)")}
+        for row in importedStars {
+            defaults.set(max(bestLevelStars(row[0],row[1]),row[2]),forKey:"level_star_\(row[0])_\(row[1])")
+        }
         if let scores=s["worldBest"] as? [Int], scores.count==8 {
             for w in 0..<8 { defaults.set(min(100_000_000,max(0,scores[w])),forKey:"best_\(w)") }
         }

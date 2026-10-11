@@ -96,6 +96,36 @@ class ProgressStore(context: Context) {
         prefs.edit().putInt("perk_0",maxOf(0,shield-1)).putInt("perk_1",maxOf(0,magnet-1)).apply()
         return Pair(if(shield>0)1 else 0,if(magnet>0)8f else 0f)
     }
+
+    /** Earned star rating, independently saved for each real completed level. */
+    fun bestLevelStars(world:Int,number:Long):Int {
+        if(world !in 0..7 || number !in 1L..LevelEngine.LEVELS_PER_WORLD.toLong())return 0
+        return prefs.getInt("level_star_${world}_${number}",0).coerceIn(0,3)
+    }
+    fun recordLevelStars(world:Int,number:Long,earned:Int){
+        if(world !in 0..7 || number !in 1L..LevelEngine.LEVELS_PER_WORLD.toLong())return
+        val value=earned.coerceIn(0,3)
+        if(value>bestLevelStars(world,number)){
+            prefs.edit().putInt("level_star_${world}_${number}",value).apply()
+        }
+    }
+    /** True earned ratings across the first ten levels of this world (30 maximum). */
+    fun worldStars(world:Int):Int = if(world in 0..7)
+        (1L..10L).sumOf {bestLevelStars(world,it)} else 0
+    private fun levelStarRecords():JSONArray {
+        val match=Regex("^level_star_([0-7])_([0-9]+)$")
+        val records=prefs.all.keys.mapNotNull { key ->
+            val parts=match.matchEntire(key) ?: return@mapNotNull null
+            val number=parts.groupValues[2].toLongOrNull() ?: return@mapNotNull null
+            if(number !in 1L..LevelEngine.LEVELS_PER_WORLD.toLong())return@mapNotNull null
+            val world=parts.groupValues[1].toInt()
+            val rating=bestLevelStars(world,number)
+            if(rating>0)Triple(world,number,rating) else null
+        }.sortedWith(compareBy<Triple<Int,Long,Int>>{it.first}.thenBy{it.second})
+        val result=JSONArray()
+        for((world,number,rating) in records)result.put(JSONArray().put(world).put(number).put(rating))
+        return result
+    }
     fun collectibles(world:Int):Int = if(world in 0..7) prefs.getInt("collectibles_$world",0) else 0
     fun playerName(): String = prefs.getString("player_name", "Igrač") ?: "Igrač"
     fun setPlayerName(value: String) {
@@ -138,13 +168,14 @@ class ProgressStore(context: Context) {
 
     fun exportJson(): String {
         val s = JSONObject()
-        s.put("version", 5)
+        s.put("version", 6)
         s.put("frontiers", JSONArray((0..7).map { frontier(it) }))
         s.put("streamFrontiers",JSONArray((0..7).map { streamFrontier(it).toString() }))
         s.put("maxWorld", maxWorld()); s.put("chosenWorld",chosenWorld()); s.put("playerName",playerName()); s.put("coins", coins()); s.put("lessMotion", lessMotion())
         s.put("scoreCoinsClaimed",prefs.getInt("score_coins_claimed",0).coerceIn(0,100000))
         s.put("difficulty",difficulty()); s.put("leaderboard",JSONArray(leaderboard().map { JSONObject().put("name",it.name).put("score",it.score).put("world",it.world).put("difficulty",it.difficulty).put("gates",it.gates) }))
         s.put("worldBest", JSONArray((0..7).map { best(it) }))
+        s.put("levelStars",levelStarRecords())
         s.put("owned",JSONArray((0..8).filter{owned(it)}.map{skins[it]}))
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
         s.put("wins",wins());s.put("deaths",deaths());s.put("flaps",prefs.getLong("flaps",0L))
@@ -152,7 +183,7 @@ class ProgressStore(context: Context) {
         s.put("perks",JSONArray((0..1).map{perkCount(it)}))
         s.put("collectibles",JSONArray((0..7).map{collectibles(it)})); s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
         s.put("musicVolume",musicVolume());s.put("effectsVolume",effectsVolume())
-        return JSONObject().put("format", "bopavi-save").put("exportVersion", 5).put("save", s).toString(2)
+        return JSONObject().put("format", "bopavi-save").put("exportVersion", 6).put("save", s).toString(2)
     }
     fun importJson(contents: String) {
         require(contents.length <= 550000) { "Datoteka je prevelika." }
@@ -160,7 +191,23 @@ class ProgressStore(context: Context) {
         require(body.optString("format") == "bopavi-save")
         val s = body.getJSONObject("save")
         val v = s.optInt("version", 0)
-        require(v in 1..5)
+        require(v in 1..6)
+
+        // Validate sparse v6 records before modifying persistent values.
+        val importedStars=ArrayList<Triple<Int,Long,Int>>()
+        if(v>=6){
+            val stars=s.getJSONArray("levelStars")
+            require(stars.length()<=20000)
+            val seen=HashSet<String>()
+            for(i in 0 until stars.length()){
+                val item=stars.getJSONArray(i)
+                require(item.length()==3)
+                val w=item.getInt(0); val n=item.getLong(1); val value=item.getInt(2)
+                require(w in 0..7 && n in 1L..LevelEngine.LEVELS_PER_WORLD.toLong() && value in 1..3)
+                require(seen.add("level_star_${w}_${n}"))
+                importedStars.add(Triple(w,n,value))
+            }
+        }
         val frontiers = IntArray(8) { 1 }
         var maxWorld = 0
         if (v >= 3) {
@@ -194,6 +241,9 @@ class ProgressStore(context: Context) {
             }
         }
         for (w in 0..7){e.putInt("frontier_$w", frontiers[w]);e.putLong("stream_frontier_$w",streamValues[w])}
+        for((w,n,rating) in importedStars){
+            e.putInt("level_star_${w}_${n}",maxOf(bestLevelStars(w,n),rating))
+        }
         val best = s.optJSONArray("worldBest")
         if (best != null && best.length() == 8) for (w in 0..7) e.putInt("best_$w", best.optInt(w, 0).coerceIn(0, 100000000))
         val ownedArray=s.optJSONArray("owned")
