@@ -1,3 +1,12 @@
+## v0.1.38 UI acceptance
+
+- On Android API35/API36 and iOS simulator confirm: world art stays inside the rounded frame; upper-left crown/number badge and lower-right arrow do not overlap the live white world name on image.
+- Confirm two bottom rows show real LEVEL and collected quantity, plus real ★ rating out of 30 and per-world best score; long world titles and five+ digit values must shrink rather than clip.
+- Verify all eight world cards are fully tappable, accessible as a single action, selected color feedback reflects the current save state, and the world index maps to the correct saved levels.
+- Preserve responsive 2-column gallery and vertical scroll on narrow screens. Source QA must fail if text moves off artwork into a third redundant row.
+- Verify pre-existing gameplay physics, per-level best star rating, pause/results, and v1-v6 offline backup continue to pass unchanged.
+- High-resolution premium texture and exact 1:1 screenshot parity remain separate acceptance gates.
+
 ## v0.1.37 reference-world acceptance criteria
 
 - Confirm eight exact gallery headings, in world-index order, are shown on both platforms. Verify Android emulator scrolls all eight and checks accessible saved scores, starred progress and actual level number.
