@@ -1,3 +1,10 @@
+## v0.1.45 — locked level navigation QA
+
+- Fresh save: on LEVELI page 1–20, tapping SLJEDEĆIH 20 opens locked page 21–40 even when frontier is 1. PRETHODNIH 20 returns to the first page.
+- On fully locked pages, all tiles remain locked and cannot start gameplay, the number input is absent, and VRATI NA OTKLJUČANE LEVELE returns to the page containing the saved frontier.
+- With frontier 21, tile 21 is unlocked but 22–40 are still locked. Confirm saved star counts and accessible status labels.
+- At maximum 1,048,576, no next page exists. Check both Android emulators (15/16) and iOS simulator; no false 1:1 screenshot claim.
+
 ## v0.1.44 — music volume regression
 
 - Set Glazba to 37% in Settings. Launch a level, pause, press MUZIKA twice, continue; restored value must be 37%, not default 80. Repeat after returning Home and app restart.

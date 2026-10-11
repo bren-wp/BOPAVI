@@ -464,7 +464,7 @@ class MainActivity : Activity() {
             pager.addView(prev,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
             action(prev,"← PRETHODNIH 20",false){showLevels(world,start-20)}
         }
-        if(start+20<=maxNumber){
+        if(start+20<=LevelEngine.LEVELS_PER_WORLD){
             val next=LinearLayout(this)
             pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
             action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
@@ -472,6 +472,8 @@ class MainActivity : Activity() {
         sectionHeading(b,"NASTAVI ILI ODABERI LEVEL")
         small(b,"Otključano do levela $maxNumber")
         action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
+        // Locked future pages are preview-only: no false launch affordance.
+        if(start<=maxNumber){
         val input=EditText(this).apply{
             inputType=android.text.InputType.TYPE_CLASS_NUMBER
             setSingleLine(true);hint="Broj otključanog levela"
@@ -485,6 +487,12 @@ class MainActivity : Activity() {
             if(n==null||n !in 1..maxNumber)Toast.makeText(this,
                 "Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
             else showPilotPicker(world,n.toLong())
+        }
+        }else{
+            small(b,"Ovi leveli su zaključani. Dovrši prethodne za otključavanje.")
+            action(b,"↶ VRATI NA OTKLJUČANE LEVELE",false){
+                showLevels(world,maxNumber)
+            }
         }
         back(b){showWorlds()}
     }

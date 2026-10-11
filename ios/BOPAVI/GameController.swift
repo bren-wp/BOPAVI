@@ -477,7 +477,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 self.showLevels(world,page:start-20)
             }
         }
-        if start+20<=maxNumber {
+        if start+20<=BopaviCore.levelsPerWorld {
             button("SLJEDEĆIH 20 →",in:pager){
                 self.showLevels(world,page:start+20)
             }
@@ -488,6 +488,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("▶  NASTAVI LET",in:s){
             self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
+        // Locked future pages remain preview-only; preserve the saved frontier.
+        if start<=maxNumber {
         let field=UITextField()
         field.keyboardType = .numberPad
         field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
@@ -507,6 +509,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 return
             }
             self.showPilotPicker(world,n)
+        }
+        } else {
+            label("Ovi leveli su zaključani. Dovrši prethodne za otključavanje.",14,.white,s)
+            button("↶ VRATI NA OTKLJUČANE LEVELE",in:s,primary:false){
+                self.showLevels(world,page:maxNumber)
+            }
         }
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
     }

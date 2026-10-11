@@ -1296,3 +1296,27 @@ assert 'val level=if(progress.musicVolume()==0)80 else 0' not in android_pause
 assert 'self.progress.musicVolume==0 ? 80 : 0' not in ios_pause
 assert '[weak control]' in ios_pause
 print('PASS: pause footer audio state and previous custom volume persisted on both platforms')
+
+# v0.1.45: browse locked future level pages, but never start a locked level.
+android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
+assert 'if(start+20<=LevelEngine.LEVELS_PER_WORLD)' in android_levels
+assert 'if start+20<=BopaviCore.levelsPerWorld {' in ios_levels
+for levels in (android_levels,ios_levels):
+    assert 'SLJEDEĆIH 20' in levels and 'PRETHODNIH 20' in levels
+    assert 'VRATI NA OTKLJUČANE LEVELE' in levels
+    assert 'Ovi leveli su zaključani' in levels
+    assert 'POKRENI ODABRANI LEVEL' in levels
+assert 'if(start<=maxNumber)' in android_levels
+assert 'if start<=maxNumber {' in ios_levels
+assert 'showLevels(world,maxNumber)' in android_levels
+assert 'showLevels(world,page:maxNumber)' in ios_levels
+assert 'if(n==null||n !in 1..maxNumber)' in android_levels
+assert '(1...maxNumber).contains(n)' in ios_levels
+limit=1_048_576
+for frontier in (1,11,20,21,40,limit):
+    for selected_page in (1,21,41,limit):
+        first=((max(1,min(selected_page,limit))-1)//20)*20+1
+        assert (first+20<=limit)==(first<=limit-20)
+        assert (first<=frontier)==(not first>frontier)
+print('PASS: locked level preview and last-page bounds preserve saved unlocks')
