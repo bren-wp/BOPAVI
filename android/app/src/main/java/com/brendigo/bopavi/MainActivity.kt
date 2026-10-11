@@ -724,6 +724,43 @@ class MainActivity : Activity() {
         command("▶  NASTAVI",0){game.paused=false;sound.resume()}
         command("↻  PONOVO",1){startGame(currentWorld,currentLevel)}
         command("↪  IZLAZ",2){showHome()}
+        // Editing audio/haptics in a paused flight MUST NOT navigate to
+        // showSettings(): that route clears the canvas and abandons the run.
+        // These are genuine persisted controls, inside the current pause modal.
+        val pauseSettings=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(10),d(10),d(10),d(9))
+            background=gradient(0xff103e7e.toInt(),0xff04152f.toInt(),19).apply{
+                setStroke(d(2),electric)
+            }
+            visibility=View.GONE
+            isFocusable=true
+            contentDescription="Postavke u pauzi"
+        }
+        sectionHeading(pauseSettings,"POSTAVKE U PAUZI")
+        volumeSlider(pauseSettings,"♫  Glazba",progress.musicVolume()){
+            progress.setMusicVolume(it)
+            sound.musicVolume=it/100f
+            sound.pause()
+        }
+        volumeSlider(pauseSettings,"◖  Zvukovi",progress.effectsVolume()){
+            progress.setEffectsVolume(it)
+            sound.effectsVolume=it/100f
+            sound.pause()
+        }
+        val pauseHaptic=Switch(this).apply{
+            text="Vibracije"
+            textSize=16f
+            setTextColor(Color.WHITE)
+            isChecked=progress.hapticEnabled()
+            thumbTintList=ColorStateList.valueOf(gold)
+            trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
+            setPadding(d(12),d(10),d(12),d(10))
+            background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
+            setOnCheckedChangeListener{_,checked->progress.setHapticEnabled(checked)}
+        }
+        pauseSettings.addView(pauseHaptic,LinearLayout.LayoutParams(-1,d(56)))
+        small(pauseSettings,"Promjene se spremaju odmah. Let ostaje pauziran.")
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             background=gradient(0xff052c62.toInt(),0xff041631.toInt(),17)
@@ -763,8 +800,21 @@ class MainActivity : Activity() {
                 .setMessage("Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
                 .setPositiveButton("U REDU",null).show()
         }
-        quick("⚙","POSTAVKE"){dialog.dismiss();showSettings()}
+        quick("⚙","POSTAVKE"){
+            pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)View.GONE else View.VISIBLE
+            if(pauseSettings.visibility==View.VISIBLE){
+                pauseSettings.requestFocus()
+                pauseSettings.post{
+                    (content.parent as? ScrollView)?.smoothScrollTo(0,pauseSettings.bottom)
+                }
+            }
+            // Never dismiss the pause dialog or restart simulation here.
+            sound.pause()
+        }
         content.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
+        content.addView(pauseSettings,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(8)
+        })
         val scroll=ScrollView(this).apply{
             isVerticalScrollBarEnabled=false
             addView(content)

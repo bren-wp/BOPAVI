@@ -1171,3 +1171,26 @@ assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:
 for forbidden in ('text="★  ${progress.worldStars(world)}/30"', 'earned.text="★  \\(progress.worldStars(world))/30"'):
     assert forbidden not in android_tile+ios_tile
 print('PASS: responsive premium world card overlay, native labels and saved metric parity')
+
+# v0.1.39: Pause -> Settings must NEVER dispose or replace the game.
+# The live overlay exposes functional sliders + haptics on both platforms.
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+for pause in (android_pause,ios_pause):
+    assert 'POSTAVKE U PAUZI' in pause
+    assert 'Promjene se spremaju odmah. Let ostaje pauziran.' in pause
+    assert 'progress.musicVolume' in pause
+    assert 'progress.effectsVolume' in pause
+    assert 'progress.hapticEnabled' in pause
+    assert 'sound.pause()' in pause
+    assert 'showSettings()' not in pause.split('quick("⚙',1)[1].split('panel.addArrangedSubview(footer)' if pause is ios_pause else 'content.addView(footer',1)[0]
+assert 'pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)' in android_pause
+assert 'content.addView(pauseSettings' in android_pause
+assert 'dialog.dismiss();showSettings()' not in android_pause
+assert 'pauseSettings.isHidden.toggle()' in ios_pause
+assert 'panel.addArrangedSubview(pauseSettings)' in ios_pause
+assert 'close(false);self.showSettings()' not in ios_pause
+# Retry/Exit are still explicitly destructive, but audio settings aren't.
+assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in android_pause
+assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
+print('PASS: Android and iOS pause settings preserve active flight and offline settings')

@@ -1,3 +1,12 @@
+## v0.1.39 — In-place pause settings without losing the flight (build 42)
+
+- Fixed an actual navigation bug on **both Android and iOS**: the pause menu's Settings action previously opened the standalone settings screen and disposed the active flight. It now expands a live controls panel **inside the paused overlay**, without touching the simulation or level.
+- Added persistent music and sound-effects volume sliders (0–100%) and a haptics switch, reusing the existing local settings store and original branded blue/gold native control styling. No mock controls or baked-in screenshot UI.
+- Audio stays paused while changing slider values and only resumes by explicitly choosing Continue. Cancel, Retry, Exit and separate main-menu settings still use their original explicit behavior.
+- Responsive pause panels remain vertically scrollable, and both platforms expose accessible controls. Source regression tests prevent reintroducing navigation away from the active canvas.
+- Android and iOS v0.1.39 / build 42, existing v6 backups and physics untouched. Requires successful Android API35/API36 emulator smoke, Swift simulator/device and save tests, authentic Play images and five checksum-verified release assets.
+- Remaining gap: exact character rendering, logo typography and pixel-by-pixel UI parity to the supplied concept images are not yet established.
+
 ## v0.1.38 — illustrated world-card layout and compact native typography (build 41)
 
 - Reworked every Android and iOS world-gallery card using the same existing real biome artwork, with a readable **live title over the image**, a dark native contrast footer and a compact display of true saved progress.

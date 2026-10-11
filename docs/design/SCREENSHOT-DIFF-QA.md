@@ -1,3 +1,9 @@
+## Iteration 15 — pause settings preserve the live simulation
+
+- Reference pause shows four quick actions including POSTAVKE. Previous app implementation replaced the game canvas on that action; now POSTAVKE expands an authentic, responsive blue/gold in-place panel for music volume, effects and vibration on both platforms.
+- The same original local settings persistence backs both full settings and pause options, with no internet permission, fake account, or mock cloud backup. The active run remains paused during adjustment.
+- Full 3D illustration fidelity and ten-screen pixel-perfect parity remain unverified.
+
 ## Iteration 14 — world gallery premium composition
 
 - Brought native Android/iOS two-column world cards closer to reference: full artwork header, dark live-title overlay, gold selection border, separate crown and round blue arrow, and compact two-row real metrics.
