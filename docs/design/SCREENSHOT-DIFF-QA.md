@@ -1,3 +1,10 @@
+## Iteration 14 — world gallery premium composition
+
+- Brought native Android/iOS two-column world cards closer to reference: full artwork header, dark live-title overlay, gold selection border, separate crown and round blue arrow, and compact two-row real metrics.
+- Added Android tactile ripple and iOS selected accessible state; all displayed progress is bound to existing local saves, not copied from the illustrative references.
+- Dense cards remain scrollable and use single-line scaling for long Croatian world names. No additional bitmap or third-party font dependencies were introduced.
+- Full 1:1 reproduction of rendered depth, letter outlines and proprietary-style character art is not yet established.
+
 ## Iteration 13 — reference world titles and coherent theme artwork
 - Eight source screenshot world titles now match Android/iOS gallery labels exactly in the same gallery index order.
 - Existing world SVG compositions are remapped to match their new subject (lava, moon castles, pearl sea, temple spires); original forest edge silhouettes, glowing mushrooms and fireflies distinguish the seventh card from green floating islands.

@@ -221,12 +221,15 @@ class MainActivity : Activity() {
         val name=LevelEngine.names[world]
         val row=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
-            background=gradient(0xff203c5a.toInt(),0xff10233d.toInt(),20).apply {
-                if(world==progress.chosenWorld()) setStroke(d(3),worldAccents[world])
+            background=gradient(0xff114987.toInt(),0xff031b3a.toInt(),20).apply {
+                setStroke(d(if(world==progress.chosenWorld())3 else 2),
+                    if(world==progress.chosenWorld())gold else worldAccents[world])
             }
             setPadding(d(7),d(8),d(7),d(10))
-            elevation=d(3).toFloat()
+            elevation=d(if(world==progress.chosenWorld())8 else 4).toFloat()
             isClickable=true;isFocusable=true
+            isSelected=world==progress.chosenWorld()
+            foreground=RippleDrawable(ColorStateList.valueOf(0x33ffffff),null,null)
             // Each world is playable. All values come from the existing save.
             contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
                 "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
@@ -245,13 +248,18 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        // A dark lower gradient keeps bright waterfall/portal illustrations
-        // legible behind the real blue navigation arrow on every world.
+        // Native gradient/title overlay stays readable over every offline
+        // biome without embedding labels, rewards or buttons inside the art.
         artPanel.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x00071c38,0x11071c38,0xbb03122f.toInt()))
+                intArrayOf(0x00071c38,0x09071c38,0xb803122f.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
+        artPanel.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x0004162f,0xef021329.toInt()))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,d(56),Gravity.BOTTOM))
         val badge=TextView(this).apply{
             text="♛  ${world+1}"
             setTextColor(Color.WHITE);textSize=15f
@@ -275,35 +283,38 @@ class MainActivity : Activity() {
         },FrameLayout.LayoutParams(d(38),d(38),Gravity.BOTTOM or Gravity.RIGHT).apply{
             setMargins(0,0,d(8),d(8))
         })
-        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(156)).apply{bottomMargin=d(8)})
-        row.addView(TextView(this).apply{
-            text="${if(world==progress.chosenWorld()) "✓ " else ""}${LevelEngine.collectibleIcons[world]}  ${name.uppercase()}"
-            textSize=14f;setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
-            gravity=Gravity.CENTER
+        // Title is a live label over its world illustration, like the
+        // reference gallery; the arrow remains a separate decorative layer.
+        artPanel.addView(TextView(this).apply{
+            text="${if(world==progress.chosenWorld()) "✓ " else ""}${name.uppercase()}"
+            textSize=15f;setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            gravity=Gravity.CENTER_VERTICAL or Gravity.LEFT
             setSingleLine(true)
-            setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+            setAutoSizeTextTypeUniformWithConfiguration(11,15,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
+            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(26)))
+        },FrameLayout.LayoutParams(-1,d(39),Gravity.BOTTOM).apply{
+            leftMargin=d(10);rightMargin=d(49);bottomMargin=d(3)
+        })
+        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(170)).apply{bottomMargin=d(5)})
         row.addView(TextView(this).apply{
-            text="LEVEL ${progress.streamFrontier(world)}"
-            textSize=12f;setTextColor(0xffd0e6f5.toInt());gravity=Gravity.CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(22)))
-        row.addView(TextView(this).apply{
-            text="✦ ${progress.collectibles(world)}  ·  ♛ ${progress.best(world)}"
-            textSize=12f;setTextColor(0xffffcb56.toInt());gravity=Gravity.CENTER
+            text="LEVEL ${progress.streamFrontier(world)}  ·  ${LevelEngine.collectibleIcons[world]} ${progress.collectibles(world)}"
+            textSize=12f;setTextColor(0xffd5eaff.toInt());gravity=Gravity.CENTER
             typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(23)))
         row.addView(TextView(this).apply{
-            text="★  ${progress.worldStars(world)}/30"
+            text="★ ${progress.worldStars(world)}/30   ·   ♛ ${progress.best(world)}"
             textSize=13f;setTextColor(0xffffd166.toInt());gravity=Gravity.CENTER
-            typeface=Typeface.DEFAULT_BOLD
+            typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(23)))
+        },LinearLayout.LayoutParams(-1,d(26)))
         parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
             setMargins(d(4),d(5),d(4),d(7))
         })

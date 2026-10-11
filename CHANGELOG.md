@@ -1,3 +1,13 @@
+## v0.1.38 — illustrated world-card layout and compact native typography (build 41)
+
+- Reworked every Android and iOS world-gallery card using the same existing real biome artwork, with a readable **live title over the image**, a dark native contrast footer and a compact display of true saved progress.
+- Matched the reference's blue/gold active selection while keeping 8 worlds in a 2-column layout. Improved tap feedback and selected-world accessibility; no interactive behavior is baked into imagery.
+- Consolidated live LEVEL, collectible, earned-stars-out-of-30 and score record into two legible compact rows, with automatic text scaling for long titles and numbers on smaller devices. iOS/Android card sizing and layering are aligned.
+- Kept character art, physics, seamless cross-level flight, all virtual currency, replay, offline save data, world IDs, and per-level stars unchanged.
+- Added precise source regression checks guarding accessible interaction, world-card overlay and genuine source-driven metrics; Android emulator navigates all 8 cards.
+- Updated Android/iOS version to 0.1.38 (build 41); release requires Android 15/16 emulators, iOS simulator and unsigned device, visual QA, authentic Play screenshots, and five version-matched release artifacts.
+- Detailed reference sprite/typography 1:1 fidelity is still unverified; device screenshot pixel-diff approval requires separate authorized production art.
+
 ## v0.1.37 — Eight reference-matched world identities and biomes (build 40)
 
 - Aligned the eight visible world names on Android and iOS to supplied reference designs: Zeleni otoci, Kristalno nebo, Lava vrhovi, Noćni dvorci, Biserno more, Nebeske kule, Čarobna šuma, Zvjezdani bezdani.

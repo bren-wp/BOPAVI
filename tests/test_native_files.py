@@ -147,9 +147,9 @@ assert 'world+1' in android_tile and 'world+1' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'arrow.isUserInteractionEnabled=false' in ios_tile
 assert 'row.addView(TextView(this)' in android_tile
-assert 'preview.heightAnchor.constraint(equalToConstant:156)' in ios_tile
-assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:166)' in ios_tile
-assert 'detail.topAnchor.constraint(equalTo:headline.bottomAnchor' in ios_tile
+assert 'preview.heightAnchor.constraint(equalToConstant:170)' in ios_tile
+assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:138)' in ios_tile
+assert 'detail.topAnchor.constraint(equalTo:tile.topAnchor,constant:184)' in ios_tile
 assert 'tile.accessibilityLabel' in ios_tile
 for source,signature in ((android_menu,'private fun showResult('),(ios_menu,'private func showResult(')):
     result=source.split(signature,1)[1]
@@ -1150,3 +1150,24 @@ for n in ref_names:
     assert n in (root/'README.md').read_text()
 assert "worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci'" in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: reference-named 8-world gallery with stable save IDs and unique forest biome')
+
+# v0.1.38: premium illustrated card composition is made of live
+# accessible controls, not a flat screenshot with baked-in world metrics.
+for source in (android_tile,ios_tile):
+    assert 'worldStars(world)' in source
+    assert 'streamFrontier(world)' in source
+    assert 'collectibles(world)' in source
+    assert 'best(world)' in source
+    assert 'name.uppercase()' in source or 'names[world].uppercased()' in source
+assert 'FrameLayout.LayoutParams(-1,d(39),Gravity.BOTTOM)' in android_tile
+assert 'FrameLayout.LayoutParams(-1,d(56),Gravity.BOTTOM)' in android_tile
+assert 'RippleDrawable(ColorStateList.valueOf(0x33ffffff)' in android_tile
+assert 'artPanel,LinearLayout.LayoutParams(-1,d(170))' in android_tile
+assert 'footerShade.isUserInteractionEnabled=false' in ios_tile
+assert 'tile.accessibilityTraits.insert(.selected)' in ios_tile
+assert 'tile.accessibilityHint="Otvori levele svijeta"' in ios_tile
+assert 'tile.heightAnchor.constraint(equalToConstant:244)' in ios_tile
+assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-54)' in ios_tile
+for forbidden in ('text="★  ${progress.worldStars(world)}/30"', 'earned.text="★  \\(progress.worldStars(world))/30"'):
+    assert forbidden not in android_tile+ios_tile
+print('PASS: responsive premium world card overlay, native labels and saved metric parity')
