@@ -1,3 +1,9 @@
+## v0.1.43 — Android QA pilot-launch hardening
+
+- Resolved a misleading CI pass condition: a flight-confirmation tap used to count as successful if the POLETI S button merely disappeared, even if the app landed on another screen. Recheck stable on-screen button bounds after scrolling and require the exact idle GameView with its accessible flight instruction.
+- Any unexpected destination now produces a failing diagnostic XML artifact instead of attempting a new IGRAJ tap on an unrelated menu.
+- Validate the fix on Android API35 and API36 before publishing any new GitHub release. This does not change user-facing game data, UI or version.
+
 ## v0.1.43 navigation acceptance
 
 - Home footer: ZADACI, KOLEKCIJA and TRGOVINA must return to HOME via the visible Back and Android system/predictive Back.
