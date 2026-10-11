@@ -184,7 +184,17 @@ final class ProgressStore {
     // Optional v5 save fields; existing backups and older installs default 80/70.
     var musicVolume:Int {
         get {max(0,min(100,defaults.object(forKey:"music_volume") as? Int ?? 80))}
-        set {defaults.set(max(0,min(100,newValue)),forKey:"music_volume")}
+        set {
+            let safe=max(0,min(100,newValue))
+            defaults.set(safe,forKey:"music_volume")
+            if safe>0 {defaults.set(safe,forKey:"music_last_audible_volume")}
+        }
+    }
+    @discardableResult func toggleMusicVolume()->Int {
+        let next=musicVolume>0 ? 0
+            : max(1,min(100,defaults.object(forKey:"music_last_audible_volume") as? Int ?? 80))
+        musicVolume=next
+        return next
     }
     var effectsVolume:Int {
         get {max(0,min(100,defaults.object(forKey:"effects_volume") as? Int ?? 70))}

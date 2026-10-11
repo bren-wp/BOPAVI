@@ -1,3 +1,10 @@
+## v0.1.44 — persistent music volume and live pause buttons (build 47)
+
+- Fixed both platforms' **MUZIKA** pause toggle restoring an arbitrary 80% instead of the user's last custom music volume. Android and iOS now retain the last nonzero value in a backward-compatible local key and restore that exact setting after muting, including after app restart.
+- The native Pause ZVUK and MUZIKA buttons now show ✓ or ✕ based on actual persisted state and refresh on interaction. Music remains paused during toggles until the user explicitly chooses NASTAVI.
+- Retains every existing character, biome, earned coin, level and v6 backup schema. No new network use, fake currency or remote data. Added Android/iOS source regression checks. Version 0.1.44 build 47.
+- Reference-image 1:1 visual fidelity remains unverified.
+
 ## v0.1.43 — Context-aware navigation (build 46)
 
 - Fixed a cross-platform navigation defect: home footer ZADACI, KOLEKCIJA and TRGOVINA previously returned to Settings instead of Home. Back now follows the actual entry point, including Profile → skins/achievements and Shop → skins → Shop.

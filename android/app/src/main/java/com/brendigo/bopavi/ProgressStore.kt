@@ -163,7 +163,19 @@ class ProgressStore(context: Context) {
     // Independently persisted offline mixer values, mirrored by iOS (0..100).
     fun musicVolume():Int = prefs.getInt("music_volume",80).coerceIn(0,100)
     fun effectsVolume():Int = prefs.getInt("effects_volume",70).coerceIn(0,100)
-    fun setMusicVolume(value:Int){prefs.edit().putInt("music_volume",value.coerceIn(0,100)).apply()}
+    // Optional local-only state; compatible with existing v6 save exports.
+    fun setMusicVolume(value:Int){
+        val safe=value.coerceIn(0,100)
+        val edit=prefs.edit().putInt("music_volume",safe)
+        if(safe>0)edit.putInt("music_last_audible_volume",safe)
+        edit.apply()
+    }
+    fun toggleMusicVolume():Int {
+        val value=if(musicVolume()>0)0
+            else prefs.getInt("music_last_audible_volume",80).coerceIn(1,100)
+        setMusicVolume(value)
+        return value
+    }
     fun setEffectsVolume(value:Int){prefs.edit().putInt("effects_volume",value.coerceIn(0,100)).apply()}
 
     fun exportJson(): String {

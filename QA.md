@@ -1,3 +1,10 @@
+## v0.1.44 — music volume regression
+
+- Set Glazba to 37% in Settings. Launch a level, pause, press MUZIKA twice, continue; restored value must be 37%, not default 80. Repeat after returning Home and app restart.
+- Confirm ZVUK and MUZIKA buttons change ✓ / ✕ and accessibility announcement according to actual audio state. Audio and game simulation remain paused while adjusting.
+- Repeat using in-pause music slider (23%), zero, 1% and 100%; confirm pre-mute volume survives. No effects on saves, coins, gameplay, or backup compatibility.
+- Required: Android 15/16 emulator tests, iOS simulator/device and native release QA.
+
 ## v0.1.43 — Android QA pilot-launch hardening
 
 - Resolved a misleading CI pass condition: a flight-confirmation tap used to count as successful if the POLETI S button merely disappeared, even if the app landed on another screen. Recheck stable on-screen button bounds after scrolling and require the exact idle GameView with its accessible flight instruction.

@@ -977,7 +977,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footer.layer.cornerRadius=17
         func quick(_ caption:String,label:String,handler:@escaping()->Void){
             let control=UIButton(type:.system)
-            control.setTitle(caption,for:.normal)
+            let suffix:String
+            if label=="Zvuk" {suffix=self.progress.soundEnabled ? " ✓":" ✕"}
+            else if label=="Muzika" {suffix=self.progress.musicVolume>0 ? " ✓":" ✕"}
+            else {suffix=""}
+            control.setTitle(caption+suffix,for:.normal)
             control.titleLabel?.numberOfLines=2
             control.titleLabel?.textAlignment = .center
             control.titleLabel?.font=UIFont.systemFont(ofSize:11,weight:.bold)
@@ -990,7 +994,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.layer.borderWidth=1
             control.layer.borderColor=UIColor(red:0.37,green:0.83,blue:1,alpha:1).cgColor
             control.heightAnchor.constraint(equalToConstant:64).isActive=true
-            control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
+            control.addAction(UIAction{[weak control] _ in
+                guard let control=control else{return}
+                self.sound.effect("click");handler()
+                if label=="Zvuk" || label=="Muzika" {
+                    let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
+                    control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
+                    control.accessibilityLabel=label+(active ? " uključeno":" isključeno")
+                }
+            },for:.touchUpInside)
             footer.addArrangedSubview(control)
         }
         quick("◖\nZVUK",label:"Zvuk"){
@@ -999,9 +1011,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.pause() // Restore no-audio state until Continue.
         }
         quick("♫\nMUZIKA",label:"Muzika"){
-            let volume=self.progress.musicVolume==0 ? 80 : 0
-            self.progress.musicVolume=volume
+            let volume=self.progress.toggleMusicVolume()
             self.sound.musicVolume=Float(volume)/100
+            self.sound.pause()
         }
         quick("✦\nKONTROLE",label:"Kontrole"){
             self.alert("Kontrole leta","Dodirni zaslon za zamah krilima. Pauza se pojavljuje tek nakon početka leta.")
