@@ -1345,3 +1345,16 @@ for max_num in (1,20,21,40,41,1_048_576):
         show_continue=(start <= max_num)
         assert show_continue == ((start-1)//20 <= (max_num-1)//20)
 print('PASS: future locked preview hides misleading launch and shows real page progress')
+
+# v0.1.46 CI reliability: explicitly recover the exact system launcher ANR
+# even on the first foreground check, but never mask a BOPAVI ANR.
+android_qa=(root/'tools/qa_android_emulator.sh').read_text()
+main_loop=android_qa.split('gameplay_ready=0\nhome_captured=0',1)[1].split('echo "PASS: IGRAJ opens idle flight',1)[0]
+assert 'dump_ui\n  # A system Pixel Launcher ANR' in main_loop
+assert 'if recover_launcher_anr; then\n    sleep 2\n    dump_ui' in main_loop
+assert 'elif recover_launcher_anr; then' in main_loop
+assert 'attempt=$((attempt+1))\n    continue' in main_loop
+assert 'titles != ["Pixel Launcher isn\'t responding"]' in android_qa
+assert 'com.google.android.apps.nexuslauncher' in android_qa
+assert 'adb shell pidof com.brendigo.bopavi' in main_loop
+print('PASS: bounded Android startup recovery only for verified system launcher ANR')

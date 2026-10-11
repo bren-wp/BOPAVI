@@ -1,3 +1,9 @@
+## v0.1.46 — Android emulator system launcher recovery
+
+- GitHub-hosted Android API35 occasionally renders the verified system dialog `Pixel Launcher isn't responding` over an otherwise running BOPAVI app immediately after boot. Recover only the exact system alert and re-dump the live app UI before judging home navigation.
+- This recovery **must not** accept any BOPAVI ANR or a missing BOPAVI process. If the next UI still lacks actual home, picker or idle flight controls, fail QA with screenshot and XML evidence.
+- The picker retry branch now has a bounded attempt count so a failed tap cannot loop indefinitely.
+
 ## v0.1.46 — future-page flight-safety regression
 
 - On Android 15/16 and iOS simulator, fresh install with frontier 1: open LEVELI and go from page 1–20 to locked page 21–40. The header must say STRANICA 2 / 52429 and ZAKLJUČANI LEVELI. Neither NASTAVI LET nor POKRENI ODABRANI LEVEL may appear on that locked page.
