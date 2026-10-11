@@ -1065,3 +1065,16 @@ for source,signature in ((android_menu,'private fun showSettings()'),
     assert settings.index('Nježnije animacije')>settings.index('DODATNE OPCIJE')
     assert settings.index('Glazba i zvučni efekti')>settings.index('DODATNE OPCIJE')
 print('PASS: real offline PROFILE tab and premium functional settings order on both platforms')
+
+# v0.1.34 retry regression: partial QA screenshot uploads must be replaced,
+# never silently chosen over complete captures in the next CI attempt.
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+android_qa=workflow.split('  android-smoke:',1)[1].split('  play-listing:',1)[0]
+assert 'name: QA-Android-visual-flow' in android_qa
+assert 'overwrite: true' in android_qa
+play_job=workflow.split('  play-listing:',1)[1].split('  android16-smoke:',1)[0]
+assert 'actions: read' in play_job
+assert 'Require one unambiguous Android QA screenshot archive' in play_job
+assert 'Expected exactly one current QA-Android-visual-flow artifact' in play_job
+assert play_job.index('Require one unambiguous Android QA screenshot archive')<play_job.index('name: QA-Android-visual-flow')
+print('PASS: retry-safe Android screenshot evidence and deterministic Play packaging')
