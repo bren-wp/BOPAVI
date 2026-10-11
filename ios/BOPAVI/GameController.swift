@@ -45,6 +45,7 @@ private final class BopaviActionButton: UIButton {
 
 /** Native UIKit menus and Core Graphics gameplay, no WKWebView. */
 final class GameController: UIViewController, UIDocumentPickerDelegate {
+    private enum MenuOrigin { case home, settings, profile, shop }
     private let progress=ProgressStore()
     private let sound=Soundscape()
     private let collectHaptic=UISelectionFeedbackGenerator()
@@ -393,9 +394,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
         let tabs:[(String,String,()->Void)]=[
             ("♙","PROFIL",{self.showProfile()}),
-            ("★","ZADACI",{self.showAchievements()}),
-            ("✦","KOLEKCIJA",{self.showSkins()}),
-            ("▣","TRGOVINA",{self.showPerks()})
+            ("★","ZADACI",{self.showAchievements(.home)}),
+            ("✦","KOLEKCIJA",{self.showSkins(.home)}),
+            ("▣","TRGOVINA",{self.showPerks(.home)})
         ]
         for (icon,title,handler) in tabs {
             let tab=UIButton(type:.system)
@@ -1336,10 +1337,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.present(share,animated:true)
         }
         button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
-        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks()}
+        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks(.home)}
 
     }
-    private func showPerks(){
+    private func showPerks(){showPerks(.settings)}
+    private func showPerks(_ origin:MenuOrigin){
         let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
         label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
         label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",15,.white,s)
@@ -1347,7 +1349,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         if bonus>0 {
             button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
                 let earned=self.progress.claimBonusCoins()
-                if earned>0 {self.sound.effect("purchase");self.showPerks()}
+                if earned>0 {self.sound.effect("purchase");self.showPerks(origin)}
             }
         }
 
@@ -1356,19 +1358,31 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
             label("\(n==0 ? "🛡 ŠTIT" : "🧲 MAGNET") · \(extra) · U torbi: \(progress.perkCount(n))",16,.white,s)
             button("KUPI \(n==0 ? "ŠTIT" : "MAGNET") · \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
-                if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks()}
+                if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks(origin)}
                 else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
             }
         }
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
-        button("🎨  LIKOVI",in:s,primary:false){self.showSkins()}
-        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
+        button("🎨  LIKOVI",in:s,primary:false){self.showSkins(.shop,shopOrigin:origin)}
+        button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
+            if origin == .home {self.showHome()} else {self.showSettings()}
+        }
     }
-    private func showSkins(){
+    private func showSkins(){showSkins(.settings)}
+    private func showSkins(_ origin:MenuOrigin,shopOrigin:MenuOrigin = .settings){
         let s=menu("LIKOVI","Devet letača, uključujući Nou i Any")
         label("Stanje: \(progress.coins()) kovanica",20,.white,s)
-        characterGallery(in:s){self.showSkins()}
-        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
+        characterGallery(in:s){self.showSkins(origin,shopOrigin:shopOrigin)}
+        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL"
+            : origin == .shop ? "TRGOVINA" : "POSTAVKE"
+        button("‹  "+backTitle,in:s,primary:false){
+            switch origin {
+            case .home: self.showHome()
+            case .settings: self.showSettings()
+            case .profile: self.showProfile()
+            case .shop: self.showPerks(shopOrigin)
+            }
+        }
     }
 
     /// A real offline profile for the PROFIL home tab (no account or cloud).
@@ -1441,8 +1455,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         label("Odabrani svijet: "+BopaviCore.names[progress.chosenWorld()],15,.white,s)
         button("✎  UREDI PROFIL I POSTAVKE",in:s,primary:false){self.showSettings()}
-        button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins()}
-        button("★  POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
+        button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins(.profile)}
+        button("★  POSTIGNUĆA",in:s,primary:false){self.showAchievements(.profile)}
         button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
 
@@ -1457,14 +1471,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
         button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
-    private func showAchievements(){
+    private func showAchievements(){showAchievements(.settings)}
+    private func showAchievements(_ origin:MenuOrigin){
         let s=menu("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
         let total=(0..<8).reduce(0){$0+self.progress.frontier($1)-1}
         label("Dovršeni leveli: \(total)",19,.white,s)
         label("Pobjede: \(progress.wins()) · Pokušaji bez pobjede: \(progress.deaths())",17,.white,s)
         label("Napredak je spremljen samo na ovom uređaju.",17,.white,s)
         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
-        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
+        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL" : "POSTAVKE"
+        button("‹  "+backTitle,in:s,primary:false){
+            switch origin {
+            case .home: self.showHome()
+            case .profile: self.showProfile()
+            default: self.showSettings()
+            }
+        }
     }
     private func volumeSlider(_ name:String,value:Int,in stack:UIStackView,onValue:@escaping(Int)->Void){
         let panel=UIStackView()

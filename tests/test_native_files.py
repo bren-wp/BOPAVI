@@ -627,7 +627,7 @@ for home in (android_home,ios_home):
     assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
     for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
         assert label in home
-    for destination in ('showWorlds()','showSettings()','showAchievements()','showSkins()','showPerks()'):
+    for destination in ('showWorlds()','showSettings()','showAchievements(','showSkins(','showPerks('):
         assert destination in home
     assert 'showPilotPicker(' in home and 'startGame(' not in home
 assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
@@ -677,7 +677,7 @@ for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
     assert 'bestPoints()' in home
-    assert 'showPerks()' in home and 'showSkins()' in home
+    assert 'showPerks(' in home and 'showSkins(' in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
@@ -693,7 +693,7 @@ ios_shop=ios_menu.split('private func showPerks()',1)[1].split('private func sho
 for shop in (android_shop,ios_shop):
     assert 'Za kovanice osvojene igrom — bez stvarnog novca' in shop
     assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
-    assert 'buyPerk(' in shop and 'showSkins()' in shop
+    assert 'buyPerk(' in shop and 'showSkins(' in shop
     assert 'progress.coins()' in shop and 'showSettings()' in shop
 # Primary gradient is orange gold and secondary gradient is cyan-to-royal-blue,
 # never the retired neon-green/flat-blue button style.
@@ -1248,3 +1248,23 @@ assert 'portrait.layer.add(pilotHover,forKey:"pilotHover")' in ios_picker
 assert 'pilotHover' not in android_menu.split('private fun startGame(',1)[1]
 assert 'pilotHover' not in ios_menu.split('private func startGame(',1)[1]
 print('PASS: reduced-motion-safe, lifecycle-clean pilot hover without gameplay changes')
+
+# v0.1.43 — Back follows the originating menu, including after purchases.
+assert 'private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP }' in android_menu
+assert 'private enum MenuOrigin { case home, settings, profile, shop }' in ios_menu
+assert 'menuBackAction=onClick' in android_menu
+assert 'menuBackAction?.invoke() ?: showHome()' in android_menu
+for h in (android_home,ios_home):
+    assert 'showSkins(MenuOrigin.HOME)' in h or 'showSkins(.home)' in h
+    assert 'showPerks(MenuOrigin.HOME)' in h or 'showPerks(.home)' in h
+    assert 'showAchievements(MenuOrigin.HOME)' in h or 'showAchievements(.home)' in h
+assert 'showSkins(MenuOrigin.SHOP,origin)' in android_shop
+assert 'self.showSkins(.shop,shopOrigin:origin)' in ios_shop
+assert 'showSkins(origin,shopOrigin)' in android_skins
+assert 'self.showSkins(origin,shopOrigin:shopOrigin)' in ios_skins
+assert 'MenuOrigin.SHOP -> showPerks(shopOrigin)' in android_skins
+assert 'case .shop: self.showPerks(shopOrigin)' in ios_skins
+for ui in (android_menu,ios_menu):
+    assert 'showAchievements(MenuOrigin.PROFILE)' in ui or 'showAchievements(.profile)' in ui
+    assert 'showSkins(MenuOrigin.PROFILE)' in ui or 'showSkins(.profile)' in ui
+print('PASS: context-aware home, settings, profile and store return targets')
