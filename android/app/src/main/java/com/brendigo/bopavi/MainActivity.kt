@@ -229,7 +229,8 @@ class MainActivity : Activity() {
             isClickable=true;isFocusable=true
             // Each world is playable. All values come from the existing save.
             contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
-                "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}" +
+                "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
+                "zvjezdice ${progress.worldStars(world)} od 30" +
                 if(world==progress.chosenWorld()) ", odabrano" else ""
             setOnClickListener{sound.effect("click");onClick()}
         }
@@ -295,6 +296,12 @@ class MainActivity : Activity() {
             typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(23)))
+        row.addView(TextView(this).apply{
+            text="★  ${progress.worldStars(world)}/30"
+            textSize=13f;setTextColor(0xffffd166.toInt());gravity=Gravity.CENTER
+            typeface=Typeface.DEFAULT_BOLD
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(23)))
         parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
@@ -449,7 +456,7 @@ class MainActivity : Activity() {
             inputType=android.text.InputType.TYPE_CLASS_NUMBER
             setSingleLine(true);hint="Broj otključanog levela"
             setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
-            setText(safePage.toString());gravity=Gravity.CENTER
+            setText(maxNumber.coerceIn(start,(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)).toString());gravity=Gravity.CENTER
             background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
         }
         b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
@@ -476,7 +483,8 @@ class MainActivity : Activity() {
             }
             clipToOutline=true
             elevation=d(if(current)6 else 2).toFloat()
-            contentDescription="Level $n, ${LevelKind.name(kind)}, ${if(!unlocked)"zaključan" else if(completed)"dovršen" else "otključan"}"
+            contentDescription="Level $n, ${LevelKind.name(kind)}, ${if(!unlocked)"zaključan" else if(completed)"dovršen" else "otključan"}, " +
+                "zvjezdice ${progress.bestLevelStars(world,n.toLong())} od 3"
             foreground=RippleDrawable(ColorStateList.valueOf(0x55ffffff),null,
                 GradientDrawable().apply{cornerRadius=d(16).toFloat();setColor(Color.WHITE)})
             setOnClickListener{
@@ -504,13 +512,24 @@ class MainActivity : Activity() {
         }
         frame.addView(level,FrameLayout.LayoutParams(-1,d(35),Gravity.TOP))
         val badge=TextView(this).apply{
-            text=if(!unlocked)"🔒" else if(completed)"✓  ${LevelKind.icon(kind)}" else "★  ${LevelKind.icon(kind)}"
+            text=if(!unlocked)"🔒" else if(completed)"✓" else LevelKind.icon(kind)
             textSize=17f;gravity=Gravity.CENTER
             setTextColor(if(current)gold else Color.WHITE)
             setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        frame.addView(badge,FrameLayout.LayoutParams(-1,d(34),Gravity.BOTTOM))
+        frame.addView(badge,FrameLayout.LayoutParams(
+            if(unlocked)d(31) else -1,d(34),
+            if(unlocked)Gravity.TOP or Gravity.RIGHT else Gravity.CENTER))
+        val starCount=progress.bestLevelStars(world,n.toLong())
+        val rating=TextView(this).apply{
+            text="★".repeat(starCount)+"☆".repeat(3-starCount)
+            textSize=16f;gravity=Gravity.CENTER
+            setTextColor(if(starCount>0)gold else 0xffadc9ed.toInt())
+            setShadowLayer(d(1).toFloat(),0f,d(2).toFloat(),Color.BLACK)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        frame.addView(rating,FrameLayout.LayoutParams(-1,d(24),Gravity.BOTTOM))
         parent.addView(frame,LinearLayout.LayoutParams(0,d(86),1f).apply{
             setMargins(d(3),d(4),d(3),d(4))
         })
@@ -765,6 +784,7 @@ class MainActivity : Activity() {
         val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
+                progress.recordLevelStars(world,completed,simulation.completedLevelStars)
                 val amount=progress.completeLevel(world,completed,simulation.score())
                 sound.effect("level")
                 if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()

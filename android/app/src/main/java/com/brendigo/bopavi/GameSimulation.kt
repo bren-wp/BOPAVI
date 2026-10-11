@@ -41,6 +41,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var passed = 0; private set
     var coins = 0; private set
     var stars = 0; private set
+    /** Separate current-level pickups from the lifetime marathon score. */
+    var levelStars = 0; private set
+    var completedLevelStars = 0; private set
     var shield = initialShield.coerceIn(0,2); private set
     var magnetTime = initialMagnet.coerceIn(0f,12f); private set
     var collectPulse = 0f; private set
@@ -105,7 +108,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val cy = (bounds.top + bounds.bottom) * .5f
             val magnetRange = if (magnetTime > 0f) 108f else 23f
             if(gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
-            if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;collectedStars[i]=true;collectPulse=.36f}
+            if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;levelStars++;collectedStars[i]=true;collectPulse=.36f}
             if(gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
                 if(gate.power==1)shield=min(2,shield+1) else magnetTime=5f
                 collectedPowers[i]=true;collectPulse=.36f
@@ -113,6 +116,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             if (x + gate.width < birdX - radius && i == passed) {
                 passed++; totalPassed++
                 if (passed == level.gates.size) {
+                    completedLevelStars=levelStars.coerceIn(0,3)
                     if(endless) {
                         completedOrdinal=displayLevel;completionCount++
                         displayLevel=(displayLevel+1).coerceAtMost(Long.MAX_VALUE-2)
@@ -124,6 +128,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         prepareNext()
                         levelTransition=0f
                         passed = 0
+                        levelStars = 0
                         collectedCoins = BooleanArray(level.gates.size)
                         collectedStars = BooleanArray(level.gates.size)
                         collectedPowers = BooleanArray(level.gates.size)

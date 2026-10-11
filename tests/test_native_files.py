@@ -911,7 +911,7 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 38" in gradle and 'versionName = "0.1.35"' in gradle
+assert "versionCode = 39" in gradle and 'versionName = "0.1.36"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -1101,3 +1101,29 @@ assert 'scenes[currentWorld]' in android_result
 assert r'BopiPortrait\(pilotIndex)' in ios_result
 assert r'World\(gameWorld)' in ios_result
 print('PASS: result uses live pilot/world composition, true records and victory audio on both platforms')
+
+# v0.1.36: earned stars must follow completed level callbacks and never use
+# fabricated gallery totals or reset the endless-run stars HUD.
+android_save=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+ios_save=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+android_sim=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios_sim=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+for sim in (android_sim,ios_sim):
+    assert 'levelStars' in sim and 'completedLevelStars' in sim
+    assert 'stars' in sim and 'collectedStars' in sim
+    assert 'levelStars=0' in sim or 'levelStars = 0' in sim
+for store in (android_save,ios_save):
+    for key in ('level_star_','bestLevelStars','recordLevelStars','worldStars',
+                'levelStars','levelStarRecords','exportVersion'):
+        assert key in store,key
+    assert 'version", 6' in store or '"version":6' in store
+    assert '1..6' in store or '(1...6)' in store
+for view in (android_menu,ios_menu):
+    assert 'completedLevelStars' in view and 'recordLevelStars(' in view
+    assert 'worldStars(world)' in view
+    assert 'bestLevelStars(world,' in view
+    assert 'zvjezdice' in view
+    assert ('"★".repeat(starCount)' in view or 'String(repeating:"★",count:earned)' in view)
+assert 'levelStars=0' in ios_sim
+assert 'levelStars = 0' in android_sim
+print('PASS: real level stars, responsive medals, 30-star world badges and v6 backup parity')

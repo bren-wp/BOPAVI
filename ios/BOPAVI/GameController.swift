@@ -205,8 +205,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // Exactly the same genuine values as Android's saved world cards.
         tile.accessibilityLabel="\(BopaviCore.names[world]), otključano, " +
             "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
-            "rekord \(progress.best(world))\(selected ? ", odabrano" : "")"
-        tile.heightAnchor.constraint(equalToConstant:248).isActive=true
+            "rekord \(progress.best(world)), zvjezdice \(progress.worldStars(world)) od 30" +
+            (selected ? ", odabrano" : "")
+        tile.heightAnchor.constraint(equalToConstant:268).isActive=true
         if let illustration=UIImage(named:"World\(world)") {
             let preview=UIImageView(image:illustration)
             preview.translatesAutoresizingMaskIntoConstraints=false
@@ -310,6 +311,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             collection.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:5),
             collection.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-5),
             collection.heightAnchor.constraint(equalToConstant:23)
+        ])
+        let earned=UILabel()
+        earned.translatesAutoresizingMaskIntoConstraints=false
+        earned.text="★  \(progress.worldStars(world))/30"
+        earned.textColor=UIColor(red:1,green:0.82,blue:0.35,alpha:1)
+        earned.font=UIFont.monospacedDigitSystemFont(ofSize:13,weight:.heavy)
+        earned.textAlignment = .center
+        earned.isUserInteractionEnabled=false
+        earned.accessibilityElementsHidden=true
+        tile.addSubview(earned)
+        NSLayoutConstraint.activate([
+            earned.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:5),
+            earned.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-5),
+            earned.topAnchor.constraint(equalTo:collection.bottomAnchor,constant:3),
+            earned.heightAnchor.constraint(equalToConstant:21)
         ])
         tile.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(tile)
@@ -471,7 +487,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let field=UITextField()
         field.keyboardType = .numberPad
-        field.text=String(safePage)
+        field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
         field.placeholder="Broj otključanog levela"
         field.textAlignment = .center
         field.textColor = .white
@@ -499,7 +515,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let selected=n==frontier
         let cell=BopaviActionButton(primary:false)
         cell.setTitle("",for:.normal)
-        cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(!unlocked ? "zaključan" : (completed ? "dovršen" : "otključan"))"
+        cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(!unlocked ? "zaključan" : (completed ? "dovršen" : "otključan")), " +
+            "zvjezdice \(progress.bestLevelStars(world,n)) od 3"
         cell.accessibilityHint=unlocked ? "Pokreni level" : "Prvo dovrši prethodni level"
         cell.layer.cornerRadius=16
         cell.layer.borderWidth=selected ? 3 : 1
@@ -531,7 +548,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         number.accessibilityElementsHidden=true
         cell.addSubview(number)
         let icon=UILabel()
-        icon.text = !unlocked ? "🔒" : (completed ? "✓  \(LevelKind.icon(kind))" : "★  \(LevelKind.icon(kind))")
+        icon.text = !unlocked ? "🔒" : (completed ? "✓" : LevelKind.icon(kind))
         icon.textAlignment = .center
         icon.textColor=selected ? UIColor(red:1,green:0.80,blue:0.28,alpha:1) : .white
         icon.font=UIFont.systemFont(ofSize:17,weight:.bold)
@@ -551,10 +568,26 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             number.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
             number.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
             number.heightAnchor.constraint(equalToConstant:32),
-            icon.bottomAnchor.constraint(equalTo:cell.bottomAnchor,constant:-3),
-            icon.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
-            icon.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            icon.topAnchor.constraint(equalTo:cell.topAnchor,constant:unlocked ? 0 : 22),
+            icon.trailingAnchor.constraint(equalTo:cell.trailingAnchor,constant:unlocked ? -1 : 0),
+            icon.widthAnchor.constraint(equalToConstant:unlocked ? 31 : 86),
             icon.heightAnchor.constraint(equalToConstant:32)
+        ])
+        let earned=progress.bestLevelStars(world,n)
+        let rating=UILabel()
+        rating.text=String(repeating:"★",count:earned)+String(repeating:"☆",count:3-earned)
+        rating.textAlignment = .center
+        rating.textColor=earned>0 ? UIColor(red:1,green:0.80,blue:0.26,alpha:1)
+                                 : UIColor(red:0.67,green:0.78,blue:0.94,alpha:1)
+        rating.font=UIFont.systemFont(ofSize:16,weight:.heavy)
+        rating.translatesAutoresizingMaskIntoConstraints=false
+        rating.accessibilityElementsHidden=true
+        cell.addSubview(rating)
+        NSLayoutConstraint.activate([
+            rating.leadingAnchor.constraint(equalTo:cell.leadingAnchor),
+            rating.trailingAnchor.constraint(equalTo:cell.trailingAnchor),
+            rating.bottomAnchor.constraint(equalTo:cell.bottomAnchor,constant:-1),
+            rating.heightAnchor.constraint(equalToConstant:24)
         ])
         cell.addAction(UIAction{_ in
             self.sound.effect("click")
@@ -885,6 +918,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         gameCanvas.onLevelComplete = { [weak self] level in
             guard let self=self else{return}
+            self.progress.recordLevelStars(world:world,number:level,earned:game.completedLevelStars)
             let reward=self.progress.completeLevel(world:world,number:level,score:game.score())
             self.sound.effect("level")
             if reward>0 {self.showToast("Level \(level): +\(reward) kovanica")}
