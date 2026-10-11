@@ -396,7 +396,7 @@ for store in (android_save,ios_save):
     assert "haptic_enabled" in store
     assert '"hapticEnabled"' in store
 for ui in (android_menu,ios_menu):
-    assert "Vibracije pri igranju" in ui
+    assert 'text="Vibracije"' in ui if ui is android_menu else 'hapticLabel.text="Vibracije"' in ui
 assert "if(hapticEnabled)performHapticFeedback" in android_canvas
 assert "if self?.progress.hapticEnabled == true" in ios_menu
 assert "drawBoostHUD(c)" in ios_canvas
@@ -652,7 +652,7 @@ for settings in (android_settings,ios_settings):
         assert title in settings
     assert 'showSkins()' in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
-    assert 'SPREMI IME' in settings and 'Vibracije pri igranju' in settings
+    assert 'SPREMI IME' in settings and 'Vibracije' in settings
     assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
 
 # Shield impact must generate exactly one callback per nonzero pulse,
