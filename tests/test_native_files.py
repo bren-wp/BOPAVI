@@ -965,7 +965,9 @@ for result in (android_result,ios_result):
     assert result.count('progress.recordRun(g)') == 1
     assert 'DIJAMANTI' not in result and 'ŠKRINJA' not in result
     assert 'showLeaderboard()' in result and 'showHome()' in result
-    assert 'showPerks()' in result and 'showWorlds()' in result
+    assert 'showPerks(' in result and 'showWorlds()' in result
+    # Result screen intentionally returns to HOME after entering the store.
+    assert 'showPerks(MenuOrigin.HOME)' in result or 'showPerks(.home)' in result
 assert 'private fun resultCard(' not in android_result  # only UI-local builder
 assert 'fun resultCard(' in android_result and 'func resultCard(' in ios_result
 assert 'fun reward(' in android_result and 'func reward(' in ios_result
