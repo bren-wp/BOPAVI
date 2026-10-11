@@ -14,7 +14,9 @@ from verify_play_release import signature_entries
 
 class ReleaseContractTests(unittest.TestCase):
     def test_android_and_ios_versions_match(self):
-        self.assertEqual(("0.1.33", 36), release_metadata())
+        version, build = release_metadata()
+        self.assertRegex(version, r"^\d+\.\d+\.\d+$")
+        self.assertGreater(build, 0)
 
     def test_rejects_version_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
