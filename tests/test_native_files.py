@@ -1194,3 +1194,20 @@ assert 'close(false);self.showSettings()' not in ios_pause
 assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in android_pause
 assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
 print('PASS: Android and iOS pause settings preserve active flight and offline settings')
+
+# v0.1.40 illustrated pilot gallery must use real local card actions,
+# keep canonical indices and never bake names/prices into world images.
+for gallery in (android_gallery,ios_gallery):
+    assert '6,7,8,0,1,2,3,4,5' in gallery
+    assert 'PREMIUM' in gallery and 'Potrošit ćeš' in gallery
+    assert '🔒' in gallery and 'status' in gallery
+    assert 'selectOrBuy(i)' in gallery
+assert 'cardWorlds=intArrayOf(' in android_gallery
+assert 'setImageResource(portraits[i])' in android_gallery
+assert 'card.addView(artwork,LinearLayout.LayoutParams(-1,d(132)))' in android_gallery
+assert 'row.addView(card,LinearLayout.LayoutParams(0,d(174),1f)' in android_gallery
+assert 'UIImage(named:"World\\(i % 8)")' in ios_gallery
+assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
+assert 'card.heightAnchor.constraint(equalToConstant:174)' in ios_gallery
+assert 'price.text=status' in ios_gallery
+print('PASS: premium illustrated native character gallery with original offline entitlement')
