@@ -911,7 +911,9 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 39" in gradle and 'versionName = "0.1.36"' in gradle
+# Keep the release contract tied to both platform manifests, not a stale previous tag.
+assert f"versionCode = {android_builds[0]}" in gradle
+assert f'versionName = "{android_versions[0]}"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
