@@ -1,3 +1,7 @@
+## Iteration 18 — future level page preview
+
+Pagination of 20-tile grids is independent of saved unlock progress on Android and iOS, as in the reference. Locked levels can be inspected but never entered. Fully locked pages expose a contextual return to the player's true progression frontier.
+
 ## Iteration 18 — contextual bottom navigation
 
 The home bottom nav now returns to Home, rather than unexpectedly opening Settings. Nested store and profile screens carry explicit return origins across transactions and Android predictive Back mirrors the screen's visible navigation. Reference pixel-fidelity is not yet measured.

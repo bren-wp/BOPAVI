@@ -1,3 +1,10 @@
+## v0.1.45 — locked level preview navigation (build 48)
+
+- Fixed Android and iOS LEVELI paging: SLJEDEĆIH 20 previously vanished for locked future pages. Now the player can preview future groups of 20 locked levels in every world.
+- Every level's saved lock state, recorded stars and launch restrictions stay intact. A page with no unlocked level hides the numeric launch control and displays a clear VRATI NA OTKLJUČANE LEVELE action; NASTAVI LET still uses the current saved frontier.
+- Preserved the 1,048,576-level upper bound per world and all offline saves, rewards, world identifiers and physics. Added boundary/source regression checks.
+- Android and iOS v0.1.45, build 48. Exact visual 1:1 similarity still requires comparison with real device screenshots and production art.
+
 ## v0.1.44 — persistent music volume and live pause buttons (build 47)
 
 - Fixed both platforms' **MUZIKA** pause toggle restoring an arbitrary 80% instead of the user's last custom music volume. Android and iOS now retain the last nonzero value in a backward-compatible local key and restore that exact setting after muting, including after app restart.
