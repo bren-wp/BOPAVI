@@ -911,7 +911,7 @@ print('PASS: native premium pause overlay and real continue/retry/exit, audio an
 
 # v0.1.30 Google Play readiness: actual API level and signing workflow gates.
 assert "compileSdk = 36" in gradle and "targetSdk = 36" in gradle
-assert "versionCode = 37" in gradle and 'versionName = "0.1.34"' in gradle
+assert "versionCode = 38" in gradle and 'versionName = "0.1.35"' in gradle
 assert 'applicationId = "com.brendigo.bopavi"' in gradle
 assert 'android:appCategory="game"' in manifest
 assert 'android:enableOnBackInvokedCallback="true"' in manifest
@@ -1078,3 +1078,26 @@ assert 'Require one unambiguous Android QA screenshot archive' in play_job
 assert 'Expected exactly one current QA-Android-visual-flow artifact' in play_job
 assert play_job.index('Require one unambiguous Android QA screenshot archive')<play_job.index('name: QA-Android-visual-flow')
 print('PASS: retry-safe Android screenshot evidence and deterministic Play packaging')
+
+# v0.1.35: both result scenes must show the actual selected pilot and world,
+# and the result label must never present a false new-record claim.
+android_result=android_menu.split('private fun showResult(',1)[1].split('private fun showPerks()',1)[0]
+ios_result=ios_menu.split('private func showResult(',1)[1].split('private func showPerks()',1)[0]
+assert 'val previousRecord=progress.bestPoints()' in android_result
+assert 'let previousRecord=progress.bestPoints()' in ios_result
+assert 'val newRecord=g.score()>previousRecord && g.score()>0' in android_result
+assert 'let newRecord=g.score()>previousRecord && g.score()>0' in ios_result
+assert android_result.index('val previousRecord=')<android_result.index('progress.recordRun(g)')
+assert ios_result.index('let previousRecord=')<ios_result.index('progress.recordRun(g)')
+for ui in (android_result,ios_result):
+    assert 'NOVI REKORD!' in ui
+    assert 'if(newRecord)' in ui if ui is android_result else 'if newRecord' in ui
+    assert 'Odabrani letač:' in ui
+    assert 'skinNames[pilotIndex]' in ui
+    assert 'progress.recordRun(g)' in ui
+    assert 'if(g.won)"level" else "hit"' in ui if ui is android_result else 'g.won ? "level" : "hit"' in ui
+assert 'pilotPortraits[pilotIndex]' in android_result
+assert 'scenes[currentWorld]' in android_result
+assert r'BopiPortrait\(pilotIndex)' in ios_result
+assert r'World\(gameWorld)' in ios_result
+print('PASS: result uses live pilot/world composition, true records and victory audio on both platforms')

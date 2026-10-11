@@ -1,3 +1,9 @@
+## v0.1.35 — result hero and truthful record checks
+- Android 15 and 16 screenshot QA must display the actual selected pilot and world on the result screen through accessible live image composition, not a hardcoded generic hero. The emulator must still reach genuine collision results and expose PONOVO.
+- Both Android and iOS result screens only show NOVI REKORD when current points exceed the saved record from before the run was persisted. New-record state must be evaluated before `recordRun`, and the save operation must occur exactly once.
+- Winning must play the existing level-success sound, losing the hit sound. Verify real results, reward claims and sharing remain functional.
+- Complete Android/Swift platform parity, privacy/build/API 35+36/iOS simulator/device gates, one unambiguous Play screenshot artifact and unsigned AAB verification before publishing all five v0.1.35 files.
+
 ### v0.1.34 retry-safe screenshot packaging
 - An Android emulator failure may upload partial visual evidence. Subsequent successful QA attempts must replace the older archive using `overwrite: true`.
 - Play packaging requires exactly one current `QA-Android-visual-flow` artifact, and each screenshot must originate from real emulator capture. Never fake or fill missing screenshots with UI illustrations.

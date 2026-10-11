@@ -1,3 +1,9 @@
+## Iteration 11 — live selected-pilot result illustration and verified record
+- Android and iOS result screen header layers the *real selected pilot portrait* over the *played world illustration* using separate platform views; no pre-rendered screenshot or baked-in interactive text.
+- A gold NOVI REKORD badge is only shown on a strictly improved pre-save personal best, and the success/defeat result sound now distinguishes level and hit effects.
+- Android emulator QA checks result pilot/world accessible composition; source parity ensures both platforms use one-time persisted results and the same record predicate.
+- Reference gap remains: 3D feathers, goggles, volumetric landscapes and exact typographic/stroke fidelity require original standalone art assets and visual diff QA; this iteration does not claim 1:1.
+
 ## Iteration 10 — accessible saved-progress world cards
 - World selector remains two columns × four rows, now with illustrated world art, dynamic uppercase title, independently rendered actual `LEVEL`, actual saved collection count and actual record score on both platforms.
 - Android real UI automation scrolls across every world and verifies accessible, genuinely saved metrics, returning to Home before gameplay navigation. No static mockup imagery with non-interactive counters.

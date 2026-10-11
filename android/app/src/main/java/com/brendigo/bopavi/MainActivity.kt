@@ -813,8 +813,10 @@ class MainActivity : Activity() {
         showNativeView(frame)
     }
     private fun showResult(g:GameSimulation){
-        sound.effect("hit")
-        val headline=ResultHeadline.label(g.score(),progress.bestPoints(),g.won)
+        val previousRecord=progress.bestPoints()
+        val newRecord=g.score()>previousRecord && g.score()>0
+        sound.effect(if(g.won)"level" else "hit")
+        val headline=ResultHeadline.label(g.score(),previousRecord,g.won)
         progress.recordRun(g)
         currentLevel=g.displayLevel
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
@@ -851,15 +853,54 @@ class MainActivity : Activity() {
                 insets
             }
         }
-        val artwork=ImageView(this).apply{
-            setImageResource(R.drawable.hero)
-            scaleType=ImageView.ScaleType.CENTER_CROP
-            background=gradient(0xff218fe3.toInt(),0xff74d9fa.toInt(),24)
+        // The result hero renders the ACTUAL selected pilot above the played
+        // world. Separate live image layers replace the generic static banner.
+        val pilotIndex=progress.skin()
+        val pilotPortraits=intArrayOf(
+            R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+            R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8
+        )
+        val artwork=FrameLayout(this).apply{
+            background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription="Bopi iznad čarobnih otoka"
+            contentDescription="Odabrani letač: ${progress.skinNames[pilotIndex]}, " +
+                "svijet ${LevelEngine.names[currentWorld]}"
         }
-        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(166)).apply{bottomMargin=d(9)})
+        artwork.addView(ImageView(this).apply{
+            setImageResource(scenes[currentWorld])
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        artwork.addView(View(this).apply {
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x003da8ee,0xa4032355.toInt()))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        artwork.addView(ImageView(this).apply{
+            setImageResource(pilotPortraits[pilotIndex])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
+        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(192)).apply{bottomMargin=d(9)})
         title(panel,headline,31,Color.WHITE)
+        if(newRecord) {
+            val recordBanner=TextView(this).apply {
+                text="♛  NOVI REKORD!"
+                textSize=19f
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(0xffffecaa.toInt())
+                gravity=Gravity.CENTER
+                letterSpacing=.06f
+                background=gradient(0xffb55b09.toInt(),0xff542c06.toInt(),20).apply{
+                    setStroke(d(2),0xffffca46.toInt())
+                }
+                contentDescription="Novi osobni rekord: ${g.score()} bodova"
+            }
+            panel.addView(recordBanner,LinearLayout.LayoutParams(-1,d(46)).apply{
+                topMargin=d(3);bottomMargin=d(5)
+            })
+        }
         // Three genuine values from this completed run, never screenshot text.
         val summary=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
