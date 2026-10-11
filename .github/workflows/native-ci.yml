@@ -219,16 +219,32 @@ jobs:
             qa/screenshots/*.png
             qa/screenshots/*.xml
           if-no-files-found: warn
+          # A retry replaces incomplete screenshots uploaded by a failed attempt.
+          overwrite: true
   play-listing:
     name: Package authentic Google Play preview assets
     needs: [graphics, android-smoke]
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: rendered-graphics
           path: .
+      - name: Require one unambiguous Android QA screenshot archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          total="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=QA-Android-visual-flow" \
+            --jq '[.artifacts[] | select(.name == "QA-Android-visual-flow" and (.expired | not))] | length')"
+          if [ "$total" != 1 ]; then
+            echo "::error::Expected exactly one current QA-Android-visual-flow artifact, got $total. Retry must replace partial screenshot upload."
+            exit 1
+          fi
       - uses: actions/download-artifact@v4
         with:
           name: QA-Android-visual-flow
@@ -276,6 +292,7 @@ jobs:
             qa/screenshots/*.png
             qa/screenshots/*.xml
           if-no-files-found: warn
+          overwrite: true
   ios:
     name: iOS simulator + unsigned device build
     needs: [graphics]

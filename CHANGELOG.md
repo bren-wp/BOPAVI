@@ -1,9 +1,10 @@
-## v0.1.34 — Premium profile and functional settings hierarchy (build 37)
+## v0.1.34 — Premium profile, settings and retry-safe screenshot artifacts (build 37)
 
 - Fixed a user-visible navigation defect: the PROFIL home shortcut previously opened Settings. Android and iOS now show a dedicated offline profile with the selected real pilot illustration, saved player name, personal best, earned currency, completed levels and wins.
 - Profile actions navigate to actual character selection, player-name settings and earned achievements, with accessible saved-data descriptions and a working back-to-home path.
 - Moved actual vibration control immediately below the music and effects sliders, matching the reference settings hierarchy. Kept master audio and reduced-motion controls functional under Additional Options; both native platforms use the same ordering and navy/cyan surface language.
 - Added Android emulator click-through validation for PROFILE and Back, source parity checks, and regression assertions for settings order and real profile content.
+- Resolved a real main CI release blocker: rerun after an Android emulator failure retained two same-name screenshot artifacts, and Play packaging downloaded the older incomplete ZIP. QA upload now overwrites partial prior attempts and Play packaging rejects ambiguous artifacts before reading real screenshots.
 - Both native version/build values advanced together to 0.1.34 / 37. The validated unsigned AAB publishing policy from v0.1.33 remains intact.
 - Fidelity note: references include cloud sync, logout, gems and video rewards, none of which is a real offline BOPAVI feature; they remain intentionally absent. Actual 3D art pixel matching is not claimed.
 

@@ -1,3 +1,7 @@
+### v0.1.34 retry-safe screenshot packaging
+- An Android emulator failure may upload partial visual evidence. Subsequent successful QA attempts must replace the older archive using `overwrite: true`.
+- Play packaging requires exactly one current `QA-Android-visual-flow` artifact, and each screenshot must originate from real emulator capture. Never fake or fill missing screenshots with UI illustrations.
+
 ## v0.1.34 — real profile and premium Settings click-through
 - On Android 15 and 16, home PROFIL opens a dedicated profile with live local pilot/player data and never opens Postavke. System Back must return to the three-button home. Emulator script verifies both transitions.
 - On iOS, tapping PROFIL opens the equivalent profile with the same four stored metrics and actual Bopi portrait, not an account or mocked screenshot. Verify taps through profile, character selection, achievements, and back-to-home on simulator.
