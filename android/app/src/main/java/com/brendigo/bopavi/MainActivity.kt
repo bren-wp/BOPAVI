@@ -445,7 +445,11 @@ class MainActivity : Activity() {
         val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
         val start=((safePage-1)/20)*20+1
         val zone=LevelEngine.create(world,start).zone
+        val pageNumber=(start-1)/20+1
+        val pageCount=(LevelEngine.LEVELS_PER_WORLD-1)/20+1
         small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
+        small(b,"STRANICA $pageNumber / $pageCount" +
+            if(start>maxNumber)" · ZAKLJUČANI LEVELI" else " · ★ ${progress.worldStars(world)}/30")
         small(b,"● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI")
         for(r in 0 until 5){
             val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
@@ -469,11 +473,13 @@ class MainActivity : Activity() {
             pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
             action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
         }
-        sectionHeading(b,"NASTAVI ILI ODABERI LEVEL")
+        sectionHeading(b,if(start<=maxNumber)"NASTAVI ILI ODABERI LEVEL"
+            else "PREGLED ZAKLJUČANIH LEVELA")
         small(b,"Otključano do levela $maxNumber")
-        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        // Locked future pages are preview-only: no false launch affordance.
+        // The continue CTA is available only on pages containing at least one
+        // unlocked tile. A preview-only page cannot expose a launch action.
         if(start<=maxNumber){
+        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
         val input=EditText(this).apply{
             inputType=android.text.InputType.TYPE_CLASS_NUMBER
             setSingleLine(true);hint="Broj otključanog levela"

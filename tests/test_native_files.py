@@ -1320,3 +1320,28 @@ for frontier in (1,11,20,21,40,limit):
         assert (first+20<=limit)==(first<=limit-20)
         assert (first<=frontier)==(not first>frontier)
 print('PASS: locked level preview and last-page bounds preserve saved unlocks')
+
+# v0.1.46: preview of a future locked page must NEVER display a
+# continue-flight action that silently launches the previous unlocked page.
+# Both screen trees still allow a saved-frontier return.
+android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
+for levels in (android_levels,ios_levels):
+    assert 'STRANICA' in levels
+    assert 'PREGLED ZAKLJUČANIH LEVELA' in levels
+    assert 'ZAKLJUČANI LEVELI' in levels
+    assert 'worldStars(world)' in levels
+    assert 'NASTAVI LET' in levels
+    assert 'VRATI NA OTKLJUČANE LEVELE' in levels
+assert android_levels.index('if(start<=maxNumber){') < android_levels.index('action(b,"▶  NASTAVI LET")')
+assert ios_levels.index('if start<=maxNumber {') < ios_levels.index('button("▶  NASTAVI LET"')
+assert android_levels.count('action(b,"▶  NASTAVI LET")') == 1
+assert ios_levels.count('button("▶  NASTAVI LET"') == 1
+assert '(LevelEngine.LEVELS_PER_WORLD-1)/20+1' in android_levels
+assert '(BopaviCore.levelsPerWorld-1)/20+1' in ios_levels
+for max_num in (1,20,21,40,41,1_048_576):
+    for selected_page in (1,21,41,1001,1_048_561):
+        start=((selected_page-1)//20)*20+1
+        show_continue=(start <= max_num)
+        assert show_continue == ((start-1)//20 <= (max_num-1)//20)
+print('PASS: future locked preview hides misleading launch and shows real page progress')
