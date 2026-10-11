@@ -1,3 +1,12 @@
+## v0.1.37 — Eight reference-matched world identities and biomes (build 40)
+
+- Aligned the eight visible world names on Android and iOS to supplied reference designs: Zeleni otoci, Kristalno nebo, Lava vrhovi, Noćni dvorci, Biserno more, Nebeske kule, Čarobna šuma, Zvjezdani bezdani.
+- Updated thematic collectibles, descriptive obstacles, accessibility names, README world table, active-card accent colors and emulator world-name assertions.
+- Reused and remapped eight existing local decorative SVG world-scene systems to the new visual order, adding a distinct enchanted-forest overlay with mossy trees, golden mushrooms and fireflies to the seventh world. Both platforms receive pixel-identical generated PNG bytes, with no network access or UI baked into raster backgrounds.
+- **Important compatibility guarantee:** save slot/world index, level generator seeds, physics, levels, unlocked progress, earned stars, scores and virtual currency were not remapped. Only descriptions and generated scenery change.
+- Version 0.1.37/build 40. Production gate: Android 15/16, iOS simulator/device, Swift regression, offline privacy QA, original screenshots and all five GitHub Release artifacts.
+- Standalone production 3D character renders, typography licensing and exact 1:1 pixel-diff approval remain pending; a generated scenic artwork update is not an assertion of pixel-perfect equivalence.
+
 ## v0.1.36 — Earned level stars and authentic world progress (build 39)
 
 - Added honest **0–3 earned stars for each completed level**, collected from the actual per-level gameplay pickups rather than inferred from completion or fabricated to match concept art.

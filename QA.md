@@ -1,3 +1,12 @@
+## v0.1.37 reference-world acceptance criteria
+
+- Confirm eight exact gallery headings, in world-index order, are shown on both platforms. Verify Android emulator scrolls all eight and checks accessible saved scores, starred progress and actual level number.
+- Verify the same generated PNG bytes for Android/iOS world0–world7; mapping is (0,1,3,5,6,4,0+new forest overlay,7) relative to existing approved scenes.
+- Verify every background is visually distinct, especially world0 and world6, and preserves collision-lane contrast.
+- No migration or renumbering of existing world IDs, unlocked level progress, earned 0–3 stars or long-running endless flight. Test existing v1–v6 backup restoration and per-world counters.
+- Validate Android APK/AAB, Android 15/16 screenshot and navigation smoke, iOS simulator/device compilation and saves, original store asset zip.
+- Full 1:1 raster comparison to reference art cannot be claimed until standalone high-resolution 3D assets are integrated and screenshot-diff approval is performed.
+
 ## v0.1.36 — real earned stars, level progression and v6 backup QA
 
 - Validate completion callback saves the **current level's** earned star pickups independently from the cumulative marathon HUD.

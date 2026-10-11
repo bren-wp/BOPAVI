@@ -273,11 +273,74 @@ def shapes(index: int):
     add('</svg>')
     return "".join(items)
 
+# Reference gallery index -> corresponding existing scenic source.
+# Gameplay world IDs and save-key indices DO NOT change.
+# The forest uses an original woodland overlay to avoid duplicate island art.
+WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)
+REFERENCE_WORLD_NAMES = (
+    "Zeleni otoci", "Kristalno nebo", "Lava vrhovi", "Noćni dvorci",
+    "Biserno more", "Nebeske kule", "Čarobna šuma", "Zvjezdani bezdani",
+)
+
+
+def enchanted_forest_overlay() -> str:
+    """Add mystic trees, glowing mushrooms and fireflies as raster-only scenery.
+
+    The collision zone and all collectible controls are separate live views.
+    Forest elements line the image edges, not the central flight corridor.
+    """
+    artwork = [
+        '<defs><radialGradient id="forest-light"><stop stop-color="#faffaa" '
+        'stop-opacity=".9"/><stop offset="1" stop-color="#acff65" '
+        'stop-opacity="0"/></radialGradient></defs>',
+        '<g fill="none" stroke-linecap="round">',
+        '<path d="M-30 755 Q30 590 31 428 Q34 375 73 339" stroke="#274d35" stroke-width="35"/>',
+        '<path d="M480 755 Q431 606 447 425 Q455 362 407 310" stroke="#243d38" stroke-width="34"/>',
+        '<path d="M29 497 Q75 458 106 402 M447 480 Q392 455 361 399" '
+        'stroke="#386c38" stroke-width="17"/>',
+        '<path d="M-30 755 Q30 590 31 428 M480 755 Q431 606 447 425" '
+        'stroke="#9fcc64" stroke-width="5" opacity=".51"/>',
+        '</g>',
+    ]
+    # Bracket the sky with foliage to preserve a clear flight lane.
+    for side in (-1, 1):
+        cx = 41 if side < 0 else 441
+        for idx in range(4):
+            cy = 344 + idx * 78
+            rx = 64 - idx * 4
+            artwork.append(
+                f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{33+idx*3}" '
+                f'fill="{("#3a9750" if idx%2 else "#62b64d")}" opacity=".73"/>'
+            )
+            artwork.append(
+                f'<ellipse cx="{cx+side*16}" cy="{cy-10}" rx="{rx*.56}" ry="16" '
+                'fill="#b6e978" opacity=".42"/>'
+            )
+    for n in range(17):
+        px = 16 + (n * 73) % 452
+        py = 228 + (n * 59) % 435
+        radius = 7 + (n % 3) * 3
+        artwork.append(f'<circle cx="{px}" cy="{py}" r="{radius}" fill="url(#forest-light)"/>')
+        artwork.append(f'<circle cx="{px}" cy="{py}" r="2" fill="#f2ffc1" opacity=".93"/>')
+    for cx,cy,sz in ((55,705,1),(108,723,.72),(408,706,1.05),(460,723,.65)):
+        artwork.append(
+            f'<g transform="translate({cx} {cy}) scale({sz})">'
+            '<path d="M-4 0 V-17 H4 V0" fill="#e8e1b7"/>'
+            '<path d="M-25 -16 Q0 -51 25 -16Z" fill="#f0a347" stroke="#ffde76" '
+            'stroke-width="2"/><circle cx="-6" cy="-22" r="3" fill="#fff7b5"/>'
+            '<circle cx="8" cy="-26" r="3" fill="#fff7b5"/></g>'
+        )
+    return "".join(artwork)
+
+
 def generate_worlds(android_res:Path, ios_assets:Path):
     android=android_res/"drawable-nodpi"
     android.mkdir(parents=True,exist_ok=True)
     for world in range(8):
-        svg=shapes(world)
+        source_index=WORLD_SCENE_SOURCE[world]
+        svg=shapes(source_index)
+        if world==6:
+            svg=svg.replace("</svg>",enchanted_forest_overlay()+"</svg>")
         png=cairosvg.svg2png(bytestring=svg.encode(),output_width=960,output_height=1600)
         im=Image.open(io.BytesIO(png)).convert("RGB")
         name=f"world{world}"
@@ -289,4 +352,4 @@ def generate_worlds(android_res:Path, ios_assets:Path):
           "images":[{"filename":name+".png","idiom":"universal"}],
           "info":{"author":"xcode","version":1}
         }))
-    print("PASS: 8 distinct world backdrops shared by Android and iOS")
+    print("PASS: 8 reference-ordered world backdrops shared by Android and iOS")

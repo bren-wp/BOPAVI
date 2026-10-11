@@ -56,14 +56,14 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 
 | Svijet | Što skupljaš | Atmosfera |
 |---|---|---|
-| 🌿 **Zelene livade** | Zvjezdice | Šume i lebdeći otoci |
-| 🏝️ **Sunčana plaža** | Školjke | Pješčane obale i valovi |
-| ❄️ **Ledeni vrhovi** | Pahulje | Ledeni vrhovi i snijeg |
-| 🌋 **Vulkan** | Iskre | Užarene stijene i lava |
-| 🏛️ **Nebeski hram** | Perje | Hramovi nad oblacima |
-| 🌙 **Mračna noć** | Mjesečev prah | Noćni krajolici |
-| 💎 **Kristalna šuma** | Kristali | Svjetleći kristali |
-| 🪐 **Svemirski let** | Zvjezdani prah | Planeti i zvjezdano nebo |
+| 🌿 **Zeleni otoci** | Zvjezdice | Zeleni lebdeći otoci, dvorci i slapovi |
+| 💎 **Kristalno nebo** | Kristali | Sjajni kristalni tornjevi u oblacima |
+| 🌋 **Lava vrhovi** | Iskre | Vulkanski vrhovi i slapovi lave |
+| 🌙 **Noćni dvorci** | Mjesečev prah | Mjesečina i začarani dvorci |
+| 🐚 **Biserno more** | Školjke | Tirkizno podmorje i koralji |
+| 🏛️ **Nebeske kule** | Perje | Zlatne kule i nebeski portali |
+| 🍄 **Čarobna šuma** | Vilinski prah | Čarobna stabla i svjetleće gljive |
+| 🪐 **Zvjezdani bezdani** | Zvjezdani prah | Nebeski portali i kozmički otoci |
 
 **Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar uz **isti stvarni razmak prepreka tekuće zone**, čak i kad se težina mijenja; odabrani lik ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
 

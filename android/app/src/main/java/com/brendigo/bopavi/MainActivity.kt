@@ -38,7 +38,7 @@ class MainActivity : Activity() {
     private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
     private val sunset = 0xffff8a00.toInt()
-    private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xffffbb66.toInt(),0xffa5ecff.toInt(),0xffff8163.toInt(),0xffffd891.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffbcb1ff.toInt())
+    private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     override fun onCreate(state: Bundle?) {
         setTheme(R.style.BopaviTheme)

@@ -1,3 +1,9 @@
+## Iteration 13 — reference world titles and coherent theme artwork
+- Eight source screenshot world titles now match Android/iOS gallery labels exactly in the same gallery index order.
+- Existing world SVG compositions are remapped to match their new subject (lava, moon castles, pearl sea, temple spires); original forest edge silhouettes, glowing mushrooms and fireflies distinguish the seventh card from green floating islands.
+- Scene source remapping changes decorative world background assets, **not** stable save IDs, deterministic level generation, collision boundaries, score/stars or play-flow state. Cards and world names stay live and accessible.
+- Remaining gaps: reference 3D assets, logo rendering, card ornament detail, font licensing, dynamic-size device pixel differences and comprehensive ten-screen 1:1 screenshot comparisons.
+
 ## Iteration 12 — genuinely earned three-star level cards
 
 - Source images request 0–3 gold stars per level and X/30 stars per world. This iteration stores rating from the **real star pickups within each completed level**: no automatic three-star completion award.
