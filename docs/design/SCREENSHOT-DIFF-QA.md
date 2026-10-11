@@ -1,3 +1,8 @@
+## Iteration 19 — page status and locked preview correctness
+
+- The 20-tile illustrated level cards retain reference composition and original saved lock/reward state. Added a compact actual page count and stars summary; a wholly locked page now has no misleading start-flight action, while its back and return-to-frontier controls remain available.
+- Responsive typography and exact concept-image pixel comparison still require separate device snapshot approval.
+
 ## Iteration 18 — future level page preview
 
 Pagination of 20-tile grids is independent of saved unlock progress on Android and iOS, as in the reference. Locked levels can be inspected but never entered. Fully locked pages expose a contextual return to the player's true progression frontier.

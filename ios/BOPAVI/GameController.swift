@@ -455,7 +455,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let safePage=max(1,min(page,BopaviCore.levelsPerWorld))
         let start=((safePage-1)/20)*20+1
         let zone=BopaviCore.create(world,start).zone
+        let pageNumber=(start-1)/20+1
+        let pageCount=(BopaviCore.levelsPerWorld-1)/20+1
         label("ZONA \(zone) · LEVELI \(start)–\(min(start+19,BopaviCore.levelsPerWorld))",16,.white,s)
+        let pageCaption="STRANICA \(pageNumber) / \(pageCount)" +
+            (start>maxNumber ? " · ZAKLJUČANI LEVELI" : " · ★ \(progress.worldStars(world))/30")
+        label(pageCaption,14,UIColor(red:0.87,green:0.93,blue:1,alpha:1),s)
         label("● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI",13,.white,s)
         for rowNumber in 0..<5 {
             let row=UIStackView()
@@ -483,13 +488,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         if !pager.arrangedSubviews.isEmpty{s.addArrangedSubview(pager)}
-        sectionHeading("NASTAVI ILI ODABERI LEVEL",in:s)
+        sectionHeading(start<=maxNumber ? "NASTAVI ILI ODABERI LEVEL"
+            : "PREGLED ZAKLJUČANIH LEVELA",in:s)
         label("Otključano do levela \(maxNumber)",16,.white,s)
+        // Locked preview pages have no flight CTA, only honest navigation.
+        if start<=maxNumber {
         button("▶  NASTAVI LET",in:s){
             self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
-        // Locked future pages remain preview-only; preserve the saved frontier.
-        if start<=maxNumber {
         let field=UITextField()
         field.keyboardType = .numberPad
         field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))

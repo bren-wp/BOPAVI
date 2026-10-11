@@ -433,6 +433,13 @@ attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited" >&2;exit 1; }
   dump_ui
+  # A system Pixel Launcher ANR can cover the healthy app immediately after
+  # emulator boot, before the first IGRAJ/home branch. Recover only the exact
+  # verified system dialog, then recheck the actual foreground UI.
+  if recover_launcher_anr; then
+    sleep 2
+    dump_ui
+  fi
   if grep -q 'Dodirni za let Bopija' qa/screenshots/android-current-ui.xml; then
     verify_idle_preview
     gameplay_ready=1
@@ -444,6 +451,8 @@ while [ "$attempt" -le 6 ]; do
     capture android-pilot-picker
     tap_selected_pilot
     sleep 2
+    # A stalled picker must not result in an unbounded CI loop.
+    attempt=$((attempt+1))
     continue
   fi
   if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
@@ -531,6 +540,9 @@ while [ "$attempt" -le 6 ]; do
   fi
   if grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
     tap_play
+  elif recover_launcher_anr; then
+    # System-only recovery does not count as evidence of a passed UI test.
+    sleep 2
   else
     capture android-navigation-diagnostic || true
     echo "FAIL: expected HOME, pilot picker or idle GameView, but foreground is another screen" >&2

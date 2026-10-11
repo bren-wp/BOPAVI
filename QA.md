@@ -1,3 +1,17 @@
+## v0.1.46 — Android emulator system launcher recovery
+
+- GitHub-hosted Android API35 occasionally renders the verified system dialog `Pixel Launcher isn't responding` over an otherwise running BOPAVI app immediately after boot. Recover only the exact system alert and re-dump the live app UI before judging home navigation.
+- This recovery **must not** accept any BOPAVI ANR or a missing BOPAVI process. If the next UI still lacks actual home, picker or idle flight controls, fail QA with screenshot and XML evidence.
+- The picker retry branch now has a bounded attempt count so a failed tap cannot loop indefinitely.
+
+## v0.1.46 — future-page flight-safety regression
+
+- On Android 15/16 and iOS simulator, fresh install with frontier 1: open LEVELI and go from page 1–20 to locked page 21–40. The header must say STRANICA 2 / 52429 and ZAKLJUČANI LEVELI. Neither NASTAVI LET nor POKRENI ODABRANI LEVEL may appear on that locked page.
+- Verify PRETHODNIH 20 returns to page 1, VRATI NA OTKLJUČANE LEVELE goes to the saved frontier's page, and all locked tiles refuse to launch.
+- With frontier 21, page 21–40 is accessible and NASTAVI LET returns to preflight for level 21; level 22 stays locked. Show saved true stars/30 without synthesized rewards.
+- On final page of 1,048,576 levels, no SLJEDEĆIH 20 is rendered; page arithmetic must remain within range. Verify VoiceOver/TalkBack can read page, lock and star labels on narrow screens.
+- Existing save, purchase, pause/settings, difficulty, game physics and online-permission audits remain mandatory. No marketing picture is accepted as an emulator capture.
+
 ## v0.1.45 — locked level navigation QA
 
 - Fresh save: on LEVELI page 1–20, tapping SLJEDEĆIH 20 opens locked page 21–40 even when frontier is 1. PRETHODNIH 20 returns to the first page.

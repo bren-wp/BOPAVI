@@ -1,3 +1,11 @@
+## v0.1.46 — honest locked-page navigation and page status (build 49)
+
+- Fixed a cross-platform UX bug introduced in the v0.1.45 future-page preview: locked preview-only pages still exposed **NASTAVI LET**, which launched the saved frontier rather than any level shown on screen. The Continue action is now rendered only on pages containing unlocked levels.
+- Added a real current/total page indicator and saved world star summary on accessible pages; locked pages are explicitly labeled **ZAKLJUČANI LEVELI** and provide a clear return to the unlocked progression frontier.
+- Preserved the 20-tile native UI, forward/backward page navigation, 1,048,576 procedural levels per world, all existing skin pricing, offline progress keys, historical star ratings, existing audio/pause lifecycle and collision physics.
+- Added Android/iOS parity regression checks for CTA scope, page arithmetic, and locked preview behavior. Also fixed CI startup recovery for a verified *system Pixel Launcher* ANR before the first screen check and bounded picker retry loops; no application crashes are suppressed. Android/iOS version v0.1.46 (build 49).
+- Exact screenshot-to-reference pixel parity and production store signing remain separate, unverified requirements.
+
 ## v0.1.45 — locked level preview navigation (build 48)
 
 - Fixed Android and iOS LEVELI paging: SLJEDEĆIH 20 previously vanished for locked future pages. Now the player can preview future groups of 20 locked levels in every world.

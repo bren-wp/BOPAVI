@@ -1320,3 +1320,41 @@ for frontier in (1,11,20,21,40,limit):
         assert (first+20<=limit)==(first<=limit-20)
         assert (first<=frontier)==(not first>frontier)
 print('PASS: locked level preview and last-page bounds preserve saved unlocks')
+
+# v0.1.46: preview of a future locked page must NEVER display a
+# continue-flight action that silently launches the previous unlocked page.
+# Both screen trees still allow a saved-frontier return.
+android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
+for levels in (android_levels,ios_levels):
+    assert 'STRANICA' in levels
+    assert 'PREGLED ZAKLJUČANIH LEVELA' in levels
+    assert 'ZAKLJUČANI LEVELI' in levels
+    assert 'worldStars(world)' in levels
+    assert 'NASTAVI LET' in levels
+    assert 'VRATI NA OTKLJUČANE LEVELE' in levels
+assert android_levels.index('if(start<=maxNumber){') < android_levels.index('action(b,"▶  NASTAVI LET")')
+assert ios_levels.index('if start<=maxNumber {') < ios_levels.index('button("▶  NASTAVI LET"')
+assert android_levels.count('action(b,"▶  NASTAVI LET")') == 1
+assert ios_levels.count('button("▶  NASTAVI LET"') == 1
+assert '(LevelEngine.LEVELS_PER_WORLD-1)/20+1' in android_levels
+assert '(BopaviCore.levelsPerWorld-1)/20+1' in ios_levels
+for max_num in (1,20,21,40,41,1_048_576):
+    for selected_page in (1,21,41,1001,1_048_561):
+        start=((selected_page-1)//20)*20+1
+        show_continue=(start <= max_num)
+        assert show_continue == ((start-1)//20 <= (max_num-1)//20)
+print('PASS: future locked preview hides misleading launch and shows real page progress')
+
+# v0.1.46 CI reliability: explicitly recover the exact system launcher ANR
+# even on the first foreground check, but never mask a BOPAVI ANR.
+android_qa=(root/'tools/qa_android_emulator.sh').read_text()
+main_loop=android_qa.split('gameplay_ready=0\nhome_captured=0',1)[1].split('echo "PASS: IGRAJ opens idle flight',1)[0]
+assert 'dump_ui\n  # A system Pixel Launcher ANR' in main_loop
+assert 'if recover_launcher_anr; then\n    sleep 2\n    dump_ui' in main_loop
+assert 'elif recover_launcher_anr; then' in main_loop
+assert 'attempt=$((attempt+1))\n    continue' in main_loop
+assert 'titles != ["Pixel Launcher isn\'t responding"]' in android_qa
+assert 'com.google.android.apps.nexuslauncher' in android_qa
+assert 'adb shell pidof com.brendigo.bopavi' in main_loop
+print('PASS: bounded Android startup recovery only for verified system launcher ANR')
