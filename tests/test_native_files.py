@@ -1127,3 +1127,24 @@ for view in (android_menu,ios_menu):
 assert 'levelStars=0' in ios_sim
 assert 'levelStars = 0' in android_sim
 print('PASS: real level stars, responsive medals, 30-star world badges and v6 backup parity')
+
+# v0.1.37 reference world gallery: identical stable world ID semantics on
+# Android and iOS, even though display labels and biome art were upgraded.
+ref_names=["Zeleni otoci","Kristalno nebo","Lava vrhovi","Noćni dvorci",
+           "Biserno more","Nebeske kule","Čarobna šuma","Zvjezdani bezdani"]
+android_levels=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+ios_levels=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+for n in ref_names:
+    assert '"'+n+'"' in android_levels and '"'+n+'"' in ios_levels,n
+for source in (android_levels,ios_levels):
+    for value in ('1_048_576','8','Zeleni otoci','Zvjezdani bezdani'):
+        assert value in source
+assert 'WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)' in worlds
+assert 'enchanted_forest_overlay()' in worlds
+assert 'svg=shapes(source_index)' in worlds
+assert 'if world==6:' in worlds
+assert 'source_index=WORLD_SCENE_SOURCE[world]' in worlds
+for n in ref_names:
+    assert n in (root/'README.md').read_text()
+assert "worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci'" in (root/'tools/qa_android_emulator.sh').read_text()
+print('PASS: reference-named 8-world gallery with stable save IDs and unique forest biome')

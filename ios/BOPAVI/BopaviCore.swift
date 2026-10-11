@@ -5,10 +5,10 @@ enum BopaviCore {
     static let worldCount = 8
     static let levelsPerWorld = 1_048_576
     static let totalLevels = worldCount * levelsPerWorld
-    static let names = ["Zelene livade", "Sunčana plaža", "Ledeni vrhovi", "Vulkan", "Nebeski hram", "Mračna noć", "Kristalna šuma", "Svemirski let"]
-    static let collectibles = ["Zvjezdice", "Školjke", "Pahulje", "Iskre", "Perje", "Mjesečev prah", "Kristali", "Zvjezdani prah"]
-    static let collectibleIcons = ["★", "◉", "❄", "✦", "❖", "☾", "◆", "✧"]
-    static let hazards = ["trnje", "valovi", "sige", "lava", "stupovi", "sjene", "kristali", "meteori"]
+    static let names = ["Zeleni otoci", "Kristalno nebo", "Lava vrhovi", "Noćni dvorci", "Biserno more", "Nebeske kule", "Čarobna šuma", "Zvjezdani bezdani"]
+    static let collectibles = ["Zvjezdice", "Kristali", "Iskre", "Mjesečev prah", "Školjke", "Perje", "Vilinski prah", "Zvjezdani prah"]
+    static let collectibleIcons = ["★", "◆", "✦", "☾", "◉", "❖", "✧", "✧"]
+    static let hazards = ["trnje", "kristali", "lava", "sjene", "valovi", "stupovi", "trnje", "meteori"]
     struct Gate {
         let x: Float, center: Float, gap: Float, width: Float
         let movement: Float, phase: Float

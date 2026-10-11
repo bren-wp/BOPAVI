@@ -9,10 +9,10 @@ object LevelEngine {
     const val WORLD_COUNT = 8
     const val LEVELS_PER_WORLD = 1_048_576
     const val TOTAL_LEVELS = WORLD_COUNT * LEVELS_PER_WORLD
-    val names = listOf("Zelene livade", "Sunčana plaža", "Ledeni vrhovi", "Vulkan", "Nebeski hram", "Mračna noć", "Kristalna šuma", "Svemirski let")
-    val collectibles = listOf("Zvjezdice", "Školjke", "Pahulje", "Iskre", "Perje", "Mjesečev prah", "Kristali", "Zvjezdani prah")
-    val collectibleIcons = listOf("★", "◉", "❄", "✦", "❖", "☾", "◆", "✧")
-    val hazards = listOf("trnje", "valovi", "sige", "lava", "stupovi", "sjene", "kristali", "meteori")
+    val names = listOf("Zeleni otoci", "Kristalno nebo", "Lava vrhovi", "Noćni dvorci", "Biserno more", "Nebeske kule", "Čarobna šuma", "Zvjezdani bezdani")
+    val collectibles = listOf("Zvjezdice", "Kristali", "Iskre", "Mjesečev prah", "Školjke", "Perje", "Vilinski prah", "Zvjezdani prah")
+    val collectibleIcons = listOf("★", "◆", "✦", "☾", "◉", "❖", "✧", "✧")
+    val hazards = listOf("trnje", "kristali", "lava", "sjene", "valovi", "stupovi", "trnje", "meteori")
     data class Gate(val x: Float, val center: Float, val gap: Float, val width: Float, val movement: Float, val phase: Float, val kind: Int, val coin: Boolean, val star: Boolean, val power: Int)
     data class Level(val world: Int, val number: Int, val zone: Int, val speed: Float, val wind: Float, val gates: List<Gate>, val type: Int)
     data class Opening(val top: Float, val bottom: Float)

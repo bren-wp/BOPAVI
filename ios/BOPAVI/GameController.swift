@@ -54,10 +54,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
     private let worldAccents:[UIColor] = [
-        UIColor(red:0.34,green:0.94,blue:0.68,alpha:1), UIColor(red:1,green:0.75,blue:0.43,alpha:1),
-        UIColor(red:0.65,green:0.92,blue:1,alpha:1), UIColor(red:1,green:0.51,blue:0.36,alpha:1),
-        UIColor(red:1,green:0.87,blue:0.57,alpha:1), UIColor(red:0.72,green:0.63,blue:1,alpha:1),
-        UIColor(red:0.38,green:0.94,blue:0.87,alpha:1), UIColor(red:0.76,green:0.70,blue:1,alpha:1)
+        UIColor(red:0.23,green:0.83,blue:0.56,alpha:1), UIColor(red:0.50,green:0.92,blue:1,alpha:1),
+        UIColor(red:1,green:0.51,blue:0.39,alpha:1), UIColor(red:0.72,green:0.60,blue:0.98,alpha:1),
+        UIColor(red:0.39,green:0.91,blue:0.88,alpha:1), UIColor(red:1,green:0.85,blue:0.57,alpha:1),
+        UIColor(red:0.70,green:0.93,blue:0.45,alpha:1), UIColor(red:0.74,green:0.69,blue:1,alpha:1)
     ]
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     override var prefersStatusBarHidden:Bool { canvas != nil }

@@ -146,8 +146,8 @@ PY
 verify_world_cards(){
   python3 - <<'PY'
 import re,subprocess,time,xml.etree.ElementTree as ET
-worlds=('Zelene livade','Sunčana plaža','Ledeni vrhovi','Vulkan',
-        'Nebeski hram','Mračna noć','Kristalna šuma','Svemirski let')
+worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci',
+        'Biserno more','Nebeske kule','Čarobna šuma','Zvjezdani bezdani')
 def dump():
     subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
                    check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
