@@ -40,12 +40,20 @@ class MainActivity : Activity() {
     private val sunset = 0xffff8a00.toInt()
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
+    /** Full-bleed game menus, with separately reserved camera cutout insets. */
+    @Suppress("DEPRECATION")
+    private fun applyPremiumSystemBars() {
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+    }
     override fun onCreate(state: Bundle?) {
         setTheme(R.style.BopaviTheme)
         super.onCreate(state)
         window.statusBarColor=0xff09264a.toInt()
         window.navigationBarColor=0xff09264a.toInt()
-        window.decorView.systemUiVisibility=0
+        applyPremiumSystemBars()
         progress=ProgressStore(this);sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
         sound.musicVolume=progress.musicVolume()/100f
@@ -66,7 +74,7 @@ class MainActivity : Activity() {
             // Apply insets once to menu containers. Immersive gameplay must not
             // repeatedly change the FrameLayout padding as system bars animate.
             root.setOnApplyWindowInsetsListener { v, insets ->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
                 if(v.paddingLeft!=bars.left || v.paddingTop!=bars.top ||
                     v.paddingRight!=bars.right || v.paddingBottom!=bars.bottom) {
                     v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
@@ -110,6 +118,9 @@ class MainActivity : Activity() {
         setTextColor(gold)
         textSize=16f
         typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+        setSingleLine(true)
+        setAutoSizeTextTypeUniformWithConfiguration(11,16,1,
+            android.util.TypedValue.COMPLEX_UNIT_SP)
         gravity=Gravity.CENTER
         setPadding(d(16),d(13),d(16),d(13))
         background=gradient(0xff192d50.toInt(),0xff203c65.toInt(),24)
@@ -117,7 +128,7 @@ class MainActivity : Activity() {
     }
     private fun base(label:String,subtitle:String):LinearLayout {
         @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility=0
+        applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen=label
         // Real world art is a full-bleed layer; all interactive labels remain real
         // views instead of baking fake scores, buttons or progress into a PNG.
@@ -142,7 +153,7 @@ class MainActivity : Activity() {
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
         if(Build.VERSION.SDK_INT>=35){
             scroll.setOnApplyWindowInsetsListener{v,insets->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
                 v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
                 insets
             }
@@ -321,7 +332,7 @@ class MainActivity : Activity() {
     }
     private fun showHome(){
         @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility=0
+        applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply {
@@ -387,6 +398,9 @@ class MainActivity : Activity() {
                 addView(TextView(this@MainActivity).apply{
                     text=label;textSize=11f;setTextColor(Color.WHITE)
                     gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 },LinearLayout.LayoutParams(-1,d(21)))
                 setOnClickListener{
@@ -407,7 +421,7 @@ class MainActivity : Activity() {
         showNativeView(root)
         if(Build.VERSION.SDK_INT>=35){
             scroll.setOnApplyWindowInsetsListener{v,insets->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
                 v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
                 insets
             }
@@ -949,7 +963,7 @@ class MainActivity : Activity() {
         currentLevel=g.displayLevel
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility=0
+        applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
         val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
             R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)

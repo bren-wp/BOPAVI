@@ -60,7 +60,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         UIColor(red:0.70,green:0.93,blue:0.45,alpha:1), UIColor(red:0.74,green:0.69,blue:1,alpha:1)
     ]
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
-    override var prefersStatusBarHidden:Bool { canvas != nil }
+    // Full-bleed menus retain UIKit safe-area protection for device cutouts.
+    override var prefersStatusBarHidden:Bool { true }
     override var prefersHomeIndicatorAutoHidden:Bool { canvas != nil }
     override func viewDidLoad(){
         super.viewDidLoad()

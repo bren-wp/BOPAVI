@@ -1211,3 +1211,17 @@ assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
 assert 'card.heightAnchor.constraint(equalToConstant:174)' in ios_gallery
 assert 'price.text=status' in ios_gallery
 print('PASS: premium illustrated native character gallery with original offline entitlement')
+
+# v0.1.41: actual v0.1.40 emulator captures showed an unwanted Android
+# system status strip above menu artwork. Preserve notch navigation safe zones.
+android_chrome=android_menu.split('private fun applyPremiumSystemBars()',1)[1].split('override fun onCreate(',1)[0]
+assert 'View.SYSTEM_UI_FLAG_FULLSCREEN' in android_chrome
+assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
+assert android_menu.count('applyPremiumSystemBars()')==5
+assert 'window.decorView.systemUiVisibility=0' not in android_menu
+assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==3
+assert 'setAutoSizeTextTypeUniformWithConfiguration(11,16,1' in android_menu
+assert 'setAutoSizeTextTypeUniformWithConfiguration(8,11,1' in android_home
+assert 'override var prefersStatusBarHidden:Bool { true }' in ios_menu
+assert 'safeAreaLayoutGuide.topAnchor' in ios_menu
+print('PASS: Android/iOS full-bleed menus with camera cutout and narrow caption support')
