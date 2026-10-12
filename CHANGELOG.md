@@ -1,3 +1,11 @@
+## v0.1.59 — Bopi's animated flight light (build 62)
+
+- The real playable Bopi now has the same soft gold-to-cyan radial aura on Android Canvas and iOS Core Graphics, derived directly from the user's flight reference. It sits behind the actual selected pilot and individually animated wings, not over gameplay as a static screenshot.
+- Both systems use a preallocated 74-unit light and the existing 240 ms wing-flap impulse to gently increase glow radius, without allocating any new gradients during the frame loop. Reduced-motion mode removes the scale animation.
+- Physics, difficulty, collisions (23-unit hitbox), procedural streaming, player/skin IDs, inventory, coin payout, save formats and offline privacy are unchanged.
+- Extended the cross-platform source regression suite to verify effect parity, render order, cached gradient creation and reduced-motion behavior. Android/iOS version/build are synchronized at 0.1.59 / 62.
+- **Visual status:** this improves real flight lighting; the detailed 3D mascot feathers, castles and premium art in the reference are not yet pixel-identical. Validate actual Android 15/16 and iOS emulator/simulator screenshots and CI before claiming release readiness.
+
 ## v0.1.58 — Profil: stvarni napredak, jasnije značke i rangirani svjetovi (build 61)
 
 - The Android/iOS PROFILE portrait card now includes a gold progress rail for the **saved selected-world stars / 30**, with accessible narration. This deliberately replaces the inaccurate XP/metres bar suggested by concept art.
