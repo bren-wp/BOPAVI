@@ -7,6 +7,8 @@
  <radialGradient id="cheek"><stop stop-color="#ff869e" stop-opacity=".92"/><stop offset="1" stop-color="#ff9bc0" stop-opacity="0"/></radialGradient>
  <linearGradient id="lens" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f6ffff"/><stop offset=".35" stop-color="#aff1ff"/><stop offset=".72" stop-color="#57bdf8"/><stop offset="1" stop-color="#2a83d3"/></linearGradient>
  <radialGradient id="body" cx=".28" cy=".18" r=".9"><stop stop-color="#adf5ff"/><stop offset=".48" stop-color="#49beff"/><stop offset="1" stop-color="#1265d7"/></radialGradient>
+ <radialGradient id="irisBopi" cx=".33" cy=".27" r=".78"><stop stop-color="#94faff"/><stop offset=".37" stop-color="#26a4ed"/><stop offset=".78" stop-color="#084f9f"/><stop offset="1" stop-color="#061e53"/></radialGradient>
+ <linearGradient id="featherGlint" x1="0" y1="0" x2=".85" y2=".8"><stop stop-color="#e5faff"/><stop offset=".42" stop-color="#6bdfff"/><stop offset="1" stop-color="#247cdf"/></linearGradient>
  <radialGradient id="sun"><stop stop-color="#fffed3"/><stop offset="1" stop-color="#fffed3" stop-opacity="0"/></radialGradient>
  <filter id="shadow" x="-60%" y="-60%" width="220%" height="240%"><feGaussianBlur stdDeviation="14"/></filter>
 </defs>
@@ -60,31 +62,57 @@
 </g>
 <g transform="translate(454 336) rotate(-12)">
  <ellipse cx="10" cy="164" rx="146" ry="28" fill="#1a7ea7" opacity=".16" filter="url(#shadow)"/>
- <path d="M-86 53Q-205 10-240-49Q-195-56-144-35Q-132-93-98-108Q-65-53-49-13Z" fill="#0f61c9"/>
- <path d="M-93 40Q-177-6-217-52Q-174-52-131-31Q-119-72-94-79Z" fill="#3fc3ff"/>
- <path d="M88 29Q192-17 219-97Q180-88 136-48Q137-121 105-132Q84-67 61-33Z" fill="#1269d7"/>
- <path d="M81 14Q177-34 202-83Q171-83 135-45Q129-105 104-103Z" fill="#5ad8ff"/>
+ <path d="M-86 53Q-205 10-240-49Q-195-56-144-35Q-132-93-98-108Q-65-53-49-13Z" fill="#0f61c9" data-wing="left"/>
+ <path d="M-93 40Q-177-6-217-52Q-174-52-131-31Q-119-72-94-79Z" fill="#3fc3ff" data-wing="left"/>
+ <path d="M88 29Q192-17 219-97Q180-88 136-48Q137-121 105-132Q84-67 61-33Z" fill="#1269d7" data-wing="right"/>
+ <path d="M81 14Q177-34 202-83Q171-83 135-45Q129-105 104-103Z" fill="#5ad8ff" data-wing="right"/>
+ <!-- Detachable feather highlights remain in the left/right animated wing PNGs. -->
+ <path d="M-206 -39Q-171 -12 -121 9" fill="none" stroke="url(#featherGlint)" stroke-width="8" opacity=".87" stroke-linecap="round" data-wing="left"/>
+ <path d="M-181 -11Q-157 17 -104 37" fill="none" stroke="#c8f7ff" stroke-width="5" opacity=".82" stroke-linecap="round" data-wing="left"/>
+ <path d="M-128 -78Q-113 -37 -80 13" fill="none" stroke="#d5faff" stroke-width="6" opacity=".76" stroke-linecap="round" data-wing="left"/>
+ <path d="M203 -81Q164 -46 112 -9" fill="none" stroke="url(#featherGlint)" stroke-width="8" opacity=".86" stroke-linecap="round" data-wing="right"/>
+ <path d="M176 -42Q141 -13 99 17" fill="none" stroke="#d2faff" stroke-width="5" opacity=".82" stroke-linecap="round" data-wing="right"/>
+ <path d="M111 -108Q111 -68 81 -22" fill="none" stroke="#d5faff" stroke-width="6" opacity=".76" stroke-linecap="round" data-wing="right"/>
  <path d="M-136 100L-219 61-186 151-129 132Z" fill="#116ad3"/>
  <path d="M-115 125L-190 98-176 142Z" fill="#63d3ff"/>
  <path d="M-39 105q-40 42-19 61l43-48z" fill="#f9a729"/>
  <path d="M44 110q-16 47 13 51l20-55z" fill="#ffb329"/>
  <circle r="129" fill="#115fcb"/><ellipse cx="-2" cy="-7" rx="122" ry="125" fill="url(#body)"/>
+ <!-- Soft glossy crest breaks the circular silhouette beneath the goggles. -->
+ <path d="M-53 -103Q-50 -145 -13 -162Q-14 -139 -4 -127Q13 -165 46 -168Q34 -142 30 -115Z" fill="#0969d4" stroke="#034594" stroke-width="5"/>
+ <path d="M-40 -130Q-26 -151 -19 -145M10 -141Q29 -161 36 -156" fill="none" stroke="#8bf1ff" stroke-width="6" opacity=".7" stroke-linecap="round"/>
  <path d="M-103 -72Q-65-133 12-132Q-24-114-49-88" fill="#d7f9ff" opacity=".48"/>
  <path d="M-113 43Q-116 86-67 108" fill="none" stroke="#0647ae" stroke-width="7" opacity=".42"/>
  <path d="M97 11Q125 52 97 97" fill="none" stroke="#0753bb" stroke-width="7" opacity=".4"/>
  <ellipse cx="8" cy="56" rx="86" ry="67" fill="url(#belly)"/>
  <ellipse cx="-55" cy="79" rx="40" ry="24" fill="#ffffff" opacity=".46"/>
  <ellipse cx="-54" cy="-29" rx="40" ry="56" fill="#fffdfd"/><ellipse cx="38" cy="-30" rx="41" ry="55" fill="#fffdfd"/>
- <ellipse cx="-43" cy="-24" rx="20" ry="34" fill="#0a204c"/><ellipse cx="52" cy="-23" rx="20" ry="33" fill="#0a204c"/>
- <ellipse cx="-51" cy="-38" rx="8" ry="12" fill="white"/><ellipse cx="44" cy="-38" rx="8" ry="12" fill="white"/>
+ <!-- Iris rings, pupils and multi-point catchlights give Bopi greater depth. -->
+ <ellipse cx="-43" cy="-23" rx="27" ry="39" fill="#082657"/>
+ <ellipse cx="-42" cy="-23" rx="23" ry="35" fill="url(#irisBopi)"/>
+ <ellipse cx="-40" cy="-21" rx="14" ry="26" fill="#071b42"/>
+ <ellipse cx="52" cy="-23" rx="27" ry="39" fill="#082657"/>
+ <ellipse cx="53" cy="-22" rx="23" ry="35" fill="url(#irisBopi)"/>
+ <ellipse cx="54" cy="-20" rx="14" ry="26" fill="#071b42"/>
+ <ellipse cx="-51" cy="-39" rx="10" ry="13" fill="white"/>
+ <ellipse cx="45" cy="-39" rx="10" ry="13" fill="white"/>
+ <ellipse cx="-28" cy="-4" rx="4" ry="7" fill="#c9fcff" opacity=".9"/>
+ <ellipse cx="66" cy="-3" rx="4" ry="7" fill="#c9fcff" opacity=".9"/>
+ <path d="M-92 -70Q-68 -87 -40 -78M20 -76Q53 -90 80 -67" fill="none" stroke="#06428f" stroke-width="7" opacity=".78" stroke-linecap="round"/>
  <ellipse cx="-76" cy="25" rx="30" ry="22" fill="url(#cheek)"/><ellipse cx="88" cy="28" rx="31" ry="23" fill="url(#cheek)"/>
- <path d="M51 52L135 68 57 110Z" fill="#f59c20"/><path d="M58 57L115 67 61 80Z" fill="#ffd24d"/>
+ <!-- Open, smiling orange beak with a shaded inner mouth and tongue. -->
+ <path d="M45 45Q77 44 132 65Q121 115 76 115Q54 98 45 45Z" fill="#ff990b" stroke="#ae5106" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M68 68Q92 62 116 73Q111 99 79 105Q67 91 68 68Z" fill="#7e2929"/>
+ <ellipse cx="93" cy="98" rx="15" ry="8" fill="#f56675"/>
+ <path d="M48 52Q82 44 129 66L98 78Q68 72 52 65Z" fill="#ffd447" stroke="#fff4a7" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M109 80Q119 77 123 67" fill="none" stroke="#fff6c0" stroke-width="3" opacity=".8"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#052959" stroke-width="35" stroke-linecap="round"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#1164c9" stroke-width="26" stroke-linecap="round"/>
  <path d="M-91 83Q-14 107 88 89" fill="none" stroke="#71d8ff" stroke-width="5" opacity=".70" stroke-linecap="round"/>
  <path d="M-20 103L-12 84 1 94 14 83 23 102Q3 115-20 103Z" fill="#ffcb38" stroke="#fff1a7" stroke-width="3" stroke-linejoin="round"/>
  <path d="M-13 102L-4 105 12 102" fill="none" stroke="#ff8b06" stroke-width="2"/>
  <path d="M-94 -101Q-7 -147 93 -91" fill="none" stroke="#7d401c" stroke-width="23"/>
+ <path d="M-89 -104Q-7 -146 88 -94" fill="none" stroke="#bc833a" stroke-width="7" stroke-linecap="round"/>
  <circle cx="-60" cy="-113" r="43" fill="#a26028" stroke="#653a1f" stroke-width="7"/>
  <circle cx="-60" cy="-113" r="31" fill="url(#lens)" stroke="#f9c964" stroke-width="6"/>
  <ellipse cx="-69" cy="-125" rx="12" ry="8" fill="#ffffff" opacity=".62"/>
