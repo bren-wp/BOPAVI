@@ -177,7 +177,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         // Draw once in screen coordinates, extending behind safe areas and
         // letterbox bands (no empty sky strips above/below active gameplay).
-        if(worldBitmap!=null && !worldCoverRect.isEmpty) {
+        if(worldBitmap!=null && !worldCoverRect.isEmpty()) {
             fill(Color.WHITE)
             canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)
         }
