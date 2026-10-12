@@ -2068,3 +2068,20 @@ assert 'drawRockFacets(c,x,w,bottom+28f,751f)' in android_render
 assert 'drawRockFacets(c,x,w,2,top-30)' in ios_render
 assert 'drawRockFacets(c,x,w,bottom+28,751)' in ios_render
 print('PASS: both native gameplay paths draw faceted, textured island cliffs')
+
+# v0.1.66 gameplay image composition: aspect-fill only the FAR world art on
+# tall modern displays. Keep bird, HUD, gate physics and tap/drag in the fixed
+# logical 480x800 viewport; no screen-dependent hitboxes or touch offsets.
+assert 'private val worldCoverRect=RectF()' in android_render
+assert 'val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)' in android_render
+assert 'canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)' in android_render
+assert 'if(worldBitmap==null) drawBackground(canvas)' in android_render
+assert 'val scale=min(width/480f,height/800f)' in android_render
+assert 'worldCoverRect.isEmpty()' in android_render
+assert 'val scaleToCover=max(bound.width/world.size.width,' in ios_render
+assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,' in ios_render
+assert 'if worldBackdrop==nil {background(c)}' in ios_render
+assert 'let s=min(bound.width/480,bound.height/800)' in ios_render
+assert 'canvas.drawBitmap(worldBitmap,null,worldRect,p)' not in android_render
+assert 'background.draw(in:CGRect(x:0,y:0,width:480,height:800))' not in ios_render
+print('PASS: Android/iOS full-bleed background only; letterboxed physical gameplay geometry preserved')
