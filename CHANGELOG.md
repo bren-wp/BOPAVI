@@ -1,5 +1,7 @@
 ## v0.1.66 — Connected pilot faces and correctly articulated live gameplay (build 69)
 
+- Replaced tall-screen blank sky letterbox bands with **aspect-cover biome artwork** on Android and iOS: distant world art is centered and cropped to fill the full physical screen; active gameplay, character sprite scaling, HUD, inputs and collision coordinates remain under the original 480×800 fit transform. No extra image downloads or per-frame bitmaps.
+
 - Added layered faceted rock highlights and strata to the **real in-flight obstacle shafts** on both Canvas/Core Graphics renderers, confined to the original collision shapes (no physics changes).
 - **Bopi's detached-looking beak fixed at its SVG source**: redrew the pale muzzle between cheeks and open golden bill, dark inner mouth and tongue. Lower jaw now ends above the blue/gold scarf and stays attached to the face in home/selection/flight art.
 - **Vihor, Iskra, Orion**: each receives a larger continuous smiling bill, genuine inner mouth and lower-sitting colored scarf; the three original pilot colors, goggles, wings and unlock IDs remain unique.
