@@ -64,7 +64,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         R.drawable.world6,R.drawable.world7)
     private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
         BitmapFactory.Options().apply{inScaled=false})
-    private val worldRect=RectF(0f,0f,480f,800f)
+    // Cover the ENTIRE screen with the actual biome illustration on tall phones.
+    // Unlike stretching the gameplay simulation, aspect-fill only crops distant
+    // background artwork; bird/gates/HUD remain in the stable 480x800 world.
+    private val worldCoverRect=RectF()
     // Prebuilt world-specific sunlight, moonshine and crystal glow.
     // Cached shaders are reused across frames; no bitmap or shader creation while drawing.
     private val glowHues=intArrayOf(0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff)
@@ -101,6 +104,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         super.onSizeChanged(w,h,oldw,oldh)
         viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+        worldBitmap?.let { bmp ->
+            if(w>0 && h>0 && bmp.width>0 && bmp.height>0){
+                val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)
+                val fullWidth=bmp.width*cover
+                val fullHeight=bmp.height*cover
+                worldCoverRect.set((w-fullWidth)*.5f,(h-fullHeight)*.5f,
+                    (w+fullWidth)*.5f,(h+fullHeight)*.5f)
+            }
+        }
     }
     private var lastFrame = 0L
     private var sent = false
@@ -162,14 +174,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
             p.shader=null
         }
+        // Draw once in screen coordinates, extending behind safe areas and
+        // letterbox bands (no empty sky strips above/below active gameplay).
+        if(worldBitmap!=null && !worldCoverRect.isEmpty) {
+            fill(Color.WHITE)
+            canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)
+        }
         val scale=min(width/480f,height/800f)
         canvas.save()
         canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
         canvas.scale(scale,scale)
-        if(worldBitmap!=null) {
-            fill(Color.WHITE)
-            canvas.drawBitmap(worldBitmap,null,worldRect,p)
-        } else drawBackground(canvas)
+        if(worldBitmap==null) drawBackground(canvas)
         drawWorldLighting(canvas)
         drawParallaxIslands(canvas)
         // Light atmospheric layer moves independently of the static painted backdrop.
