@@ -1,3 +1,9 @@
+## v0.1.62 — Android 16 first-flap screenshot regression
+
+- Reproduced the Android 16 CI problem using downloaded GitHub Actions PNG artifacts: the first candidate pixel-for-pixel matched the idle screen and candidates 2–3 matched the Results screen. A single fixed delay could not capture the 60 Hz game while emulator screenshot IPC was slow.
+- **Debug builds only:** when GitHub starts the app with the explicit `bopavi_qa_capture_first_flap` Intent extra, the first *real* flap changes the simulation to active and renders the authentic live HUD/scene without advancing physics during external capture. The next actual input resumes the same flight. Release builds gate this behavior on `FLAG_DEBUGGABLE`, so user-facing gameplay is unchanged.
+- Capture three real `screencap -p` frames, validate PNGs and require idle, active and Results have different SHA-256 hashes, plus real Results accessibility evidence. If any active proof cannot be obtained, fail CI; never replace screenshot with reference art or UI mocks.
+
 ## v0.1.62 — Bird pilot replacement and screenshot validation
 
 - On Android and iOS, verify nine selectable bird pilots; slots **6/7/8** now show **Vihor, Iskra and Orion**, never the superseded human characters. They must have visibly distinct head shapes, gold goggles, body coloration and two independently moving wings in actual flight.
