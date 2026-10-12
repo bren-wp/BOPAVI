@@ -237,7 +237,9 @@ final class GameCanvas: UIView {
             .font:levelFont,.foregroundColor:UIColor.white])
         levelString.draw(at:CGPoint(x:277-levelString.size().width/2,y:85))
         progressLabel.draw(at:CGPoint(x:277-progressLabel.size().width/2,y:110))
-        accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
+        let seconds=max(0,Int(ceil(Double(game.magnetTime))))
+        accessibilityLabel="Bopi leti. Prolazi ukupno \(passed). Zvjezdice \(game.stars). " +
+            "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
