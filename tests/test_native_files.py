@@ -1414,7 +1414,12 @@ assert 't,l,r,b=max(regions)' in qa
 print('PASS: QA verifies distinct home header gear and main Settings CTA')
 
 # v0.1.48: idle preview draws once, then only after an actual flap.
-assert 'if(!paused && game.active && !game.finished && isAttachedToWindow)' in android_render
+# Live frames are scheduled while unpaused and active. The debug-only
+# on-device evidence hold suppresses frame advancement until an actual second
+# touch; production builds never enable this hold.
+assert 'if(!paused && !qaWaitingForCapture && game.active && !game.finished && isAttachedToWindow)' in android_render
+assert 'qaCaptureFirstFlap &&' in android_render
+assert 'ApplicationInfo.FLAG_DEBUGGABLE' in android_render
 assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_touch
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
