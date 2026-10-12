@@ -1,3 +1,13 @@
+## Iteration 27 — active flight HUD (v0.1.54)
+
+**Reference:** the seventh approved screenshot places a small gold coin wallet in the upper left, a long narrow progress gauge between a crown and finish flag at the top centre, a dedicated pause button at upper right, and three overlapping glassy status circles down the left edge. The old production UI occupied almost the whole top with three equal rectangular counters and then a separate long progress row.
+
+**Implementation:** Android and iOS now reserve 13–139 at top for the real coins, 146–406 for a crown-to-flag gauge, and three 66-unit sapphire status discs centred at x46, y175/249/323. The centre badge reports real level and gate progress; a second small line reports the cumulative gates completed. Circles report actual earned stars, shields and active magnet time, and darken when the power is inactive. No UI sprites are baked into the world image or made tappable as fake controls.
+
+**Evidence:** source parity regression checks; Android live flight screenshot captured in smoke only on confirmed active-flight accessibility state; existing signed-off Android 15/16 emulator and iOS simulator CI requirements unchanged. The reference's `1,280/2,000 m` is not valid for the current simulation, which tracks gates and abstract world distance, so invented metre labels are intentionally excluded.
+
+**Not yet matched:** volumetric flying Bopi, lush 3D scenery, fully illustrated crown/wing/coin buttons and particle trails, depth-of-field blur, glass shader and individual 1:1 screenshot-diff benchmarks. The full provided design is still a visual target.
+
 ## Iteration 26 — 2×4 worlds and genuinely distinct splash/home screens
 
 The user references show eight wide, visually rich world cards with compact text on top of the painting. The previous native apps laid out two columns and four rows, but each tile was 244 logical points tall on iOS and used 170px of Android artwork plus separate caption rows; the grid took far more vertical space than the target.
