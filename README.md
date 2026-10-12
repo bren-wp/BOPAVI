@@ -2,13 +2,13 @@
 
 <img src="docs/assets/logo.svg" alt="BOPAVI — krilati plavo-zlatni logotip s krunom" width="520">
 
-### MALI LETOVI • VELIKE PRIČE
+<h3>MALI LETOVI • VELIKE PRIČE</h3>
 
-**Poleti iznad oblaka. Otkrij čarobne svjetove. Neka svaki let bude nova avantura.**
+<p><strong>Poleti iznad oblaka. Otkrij čarobne svjetove. Neka svaki let bude nova avantura.</strong></p>
 
 <img src="docs/assets/hero.svg" alt="Bopi među lebdećim otocima" width="850">
 
-[**Preuzmi BOPAVI**](../../releases/latest) · [**Pogledaj svjetove**](#osam-svjetova-za-istraživanje) · [**Upoznaj letače**](#upoznaj-svoje-letače)
+<p><a href="../../releases/latest"><strong>Preuzmi BOPAVI</strong></a> · <a href="#osam-svjetova-za-istraživanje">Pogledaj svjetove</a> · <a href="#upoznaj-svoje-letače">Upoznaj letače</a></p>
 
 </div>
 
@@ -24,7 +24,7 @@ Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i 
 
 <img src="docs/assets/icon.svg" width="100" alt="Službena BOPAVI ikona">
 
-**Android · iPhone · Igranje bez internetske prijave · Bez oglasa · Bez kupnje stvarnim novcem**
+<p><strong>Android · iPhone · Igranje bez internetske prijave · Bez oglasa · Bez kupnje stvarnim novcem</strong></p>
 
 </div>
 
@@ -43,7 +43,7 @@ Ovo su **stvarne snimke pokrenute aplikacije** iz Android emulatora i iOS simula
 </table>
 <img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="Stvarni početni zaslon iOS simulatora BOPAVI igre" width="240">
 
-*Početni zaslon na iOS-u*
+<p><em>Početni zaslon na iOS-u</em></p>
 
 </div>
 
@@ -114,10 +114,8 @@ Tvoj napredak sprema se na uređaj. BOPAVI ne traži korisnički račun, nema og
 
 <img src="docs/assets/logo.svg" width="300" alt="BOPAVI">
 
-**MALI LETOVI • VELIKE PRIČE**
-
-*BOPAVI je svijet koji se otkriva jednim zamahom.*
-
-**© Brendigo**
+<p><strong>MALI LETOVI • VELIKE PRIČE</strong></p>
+<p><em>BOPAVI je svijet koji se otkriva jednim zamahom.</em></p>
+<p><strong>© Brendigo</strong></p>
 
 </div>
