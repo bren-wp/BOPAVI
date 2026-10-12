@@ -438,6 +438,45 @@ final class GameCanvas: UIView {
         rect(c,x+8+offset,bottom+15,13,5,hue,2,opacity)
         rect(c,right,bottom+15,13,5,hue,2,opacity)
     }
+    /// Bevelled crown coin, tied exclusively to the real pickup flags.
+    /// Uses Core Graphics primitives, with no frame-time image decoding.
+    private func drawRoyalCoin(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ phase:Float) {
+        let pulse:CGFloat=reducedMotion ? 0 : CGFloat(sin(game.time*4.2+phase))*1.4
+        let radius:CGFloat=17+pulse
+        oval(c,cx-radius-4,cy-radius-4,2*radius+8,2*radius+8,0xffcf53,0.27)
+        oval(c,cx-radius,cy-radius,2*radius,2*radius,0xaa5b09)
+        oval(c,cx-radius+2,cy-radius+2,2*radius-4,2*radius-4,0xffc333)
+        oval(c,cx-radius+5,cy-radius+5,2*radius-10,2*radius-10,0xec8e07)
+        oval(c,cx-radius+6,cy-radius+6,2*radius-12,2*radius-12,0xffb91a)
+        c.setFillColor(color(0xfff0ad))
+        c.beginPath()
+        c.move(to:CGPoint(x:cx-8,y:cy-5))
+        c.addLine(to:CGPoint(x:cx-4,y:cy))
+        c.addLine(to:CGPoint(x:cx,y:cy-8))
+        c.addLine(to:CGPoint(x:cx+4,y:cy))
+        c.addLine(to:CGPoint(x:cx+8,y:cy-5))
+        c.addLine(to:CGPoint(x:cx+6,y:cy+7))
+        c.addLine(to:CGPoint(x:cx-6,y:cy+7))
+        c.closePath();c.fillPath()
+        rect(c,cx-6,cy+5,12,3,0xffffff,1)
+        oval(c,cx-radius+4,cy-radius+4,6,5,0xffffff,0.67)
+    }
+    /// Illustration-only finish marker at the *actual* last gate, never a
+    /// fictional transition or additional collision boundary.
+    private func drawFinishPortal(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ phase:Float) {
+        let pulse:CGFloat=reducedMotion ? 0 : CGFloat(sin(game.time*2+phase))*1.5
+        let radius:CGFloat=30+pulse
+        oval(c,cx-radius-4,cy-radius-4,2*radius+8,2*radius+8,0x47cfff,0.20)
+        c.setStrokeColor(color(0x164eae,0.75));c.setLineWidth(6)
+        c.strokeEllipse(in:CGRect(x:cx-radius,y:cy-radius,width:2*radius,height:2*radius))
+        c.setStrokeColor(color(0x45e9ff));c.setLineWidth(3)
+        c.strokeEllipse(in:CGRect(x:cx-radius+3.5,y:cy-radius+3.5,
+                                  width:2*radius-7,height:2*radius-7))
+        c.setStrokeColor(color(0xe7ffff,0.82));c.setLineWidth(1.5)
+        c.strokeEllipse(in:CGRect(x:cx-radius+7,y:cy-radius+7,
+                                  width:2*radius-14,height:2*radius-14))
+        hudText("♛",cx-10,cy-51,hudIconFont,0xffdb63)
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -500,11 +539,12 @@ final class GameCanvas: UIView {
         courses(32,top-34);courses(bottom+34,744)
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
-                let center=(top+bottom)*0.5,mid=x+w*0.5
+        let center=(top+bottom)*0.5,mid=x+w*0.5
+        let finalGate=incoming ? index==game.upcomingGates.count-1 :
+            index==game.level.gates.count-1
+        if finalGate {drawFinishPortal(c,mid,center,g.phase)}
         if g.coin && (incoming || game.coinVisible(index)) {
-            let pulse:CGFloat = reducedMotion ? 0 : CGFloat(sin(game.time*5+g.phase))*2
-            oval(c,mid-16-pulse,center-16-pulse,32+2*pulse,32+2*pulse,pickupHues[g.kind]);oval(c,mid-9,center-9,18,18,0xffffff,0.46)
-            pickupSymbol.draw(at:CGPoint(x:mid-10,y:center-11))
+            drawRoyalCoin(c,mid,center,g.phase)
         }
         if g.star && (incoming || game.starVisible(index)) {star(c,mid+35,center-25,12,0xffe25d)}
         if g.power>0 && (incoming || game.powerVisible(index)) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
