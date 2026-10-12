@@ -321,7 +321,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func showHome(){
         let stack=menu("BOPAVI","")
         view.backgroundColor=UIColor(red:0.04,green:0.45,blue:0.79,alpha:1)
-        if let artwork=UIImage(named:"LaunchArt") {
+        if let artwork=UIImage(named:"HomeArt") {
             let backdrop=UIImageView(image:artwork)
             backdrop.translatesAutoresizingMaskIntoConstraints=false
             backdrop.contentMode = .scaleAspectFill
