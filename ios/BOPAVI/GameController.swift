@@ -43,6 +43,40 @@ private final class BopaviActionButton: UIButton {
     }
 }
 
+/// Gradient-backed Settings sheet; reflows with Dynamic Type and safe areas.
+private final class BopaviSettingsPanel: UIStackView {
+    private let fill=CAGradientLayer()
+    override init(frame:CGRect) {
+        super.init(frame:frame)
+        axis = .vertical
+        alignment = .fill
+        spacing = 10
+        isLayoutMarginsRelativeArrangement = true
+        layoutMargins = UIEdgeInsets(top:14,left:13,bottom:18,right:13)
+        fill.colors = [
+            UIColor(red:0.024,green:0.196,blue:0.431,alpha:0.97).cgColor,
+            UIColor(red:0.016,green:0.086,blue:0.192,alpha:0.99).cgColor
+        ]
+        fill.startPoint=CGPoint(x:0.5,y:0)
+        fill.endPoint=CGPoint(x:0.5,y:1)
+        fill.cornerRadius=27
+        layer.insertSublayer(fill,at:0)
+        layer.cornerRadius=27
+        layer.borderWidth=2
+        layer.borderColor=UIColor(red:0.259,green:0.812,blue:1,alpha:1).cgColor
+        layer.shadowColor=UIColor(red:0,green:0.3,blue:0.8,alpha:1).cgColor
+        layer.shadowOpacity=0.46
+        layer.shadowRadius=12
+        layer.shadowOffset=CGSize(width:0,height:6)
+    }
+    required init(coder:NSCoder){fatalError("Use programmatic initialization")}
+    override func layoutSubviews(){
+        super.layoutSubviews()
+        fill.frame=bounds
+        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:27).cgPath
+    }
+}
+
 /** Native UIKit menus and Core Graphics gameplay, no WKWebView. */
 final class GameController: UIViewController, UIDocumentPickerDelegate {
     private enum MenuOrigin { case home, settings, profile, shop }
@@ -154,7 +188,23 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             logo.contentMode = .scaleAspectFit
             logo.accessibilityElementsHidden=true
             logo.heightAnchor.constraint(equalToConstant:94).isActive=true
-            stack.addArrangedSubview(logo)
+            if title == "POSTAVKE" {
+                // Same selected-pilot header arrangement as Android, drawn from
+                // shipped standalone portrait art rather than a reference PNG.
+                let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                pilot.contentMode = .scaleAspectFit
+                pilot.isAccessibilityElement=false
+                pilot.widthAnchor.constraint(equalToConstant:117).isActive=true
+                pilot.heightAnchor.constraint(equalToConstant:117).isActive=true
+                let hero=UIStackView(arrangedSubviews:[logo,pilot])
+                hero.axis = .horizontal
+                hero.alignment = .center
+                hero.spacing = 3
+                hero.heightAnchor.constraint(equalToConstant:118).isActive=true
+                stack.addArrangedSubview(hero)
+            } else {
+                stack.addArrangedSubview(logo)
+            }
             let headline=label(title,31,.white,stack)
             headline.backgroundColor=UIColor(red:0.015,green:0.25,blue:0.56,alpha:0.96)
             headline.layer.cornerRadius=23
@@ -1775,12 +1825,16 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showSettings(){
         let s=menu("POSTAVKE","Prilagodi igru svom stilu")
-        sectionHeading("IZGLED I ZVUK",in:s)
-        volumeSlider("♫  Glazba",value:progress.musicVolume,in:s){value in
+        // The live settings are grouped over one deep-blue premium sheet.
+        // The document remains scrollable and every control keeps its handler.
+        let settingsPanel=BopaviSettingsPanel()
+        s.addArrangedSubview(settingsPanel)
+        sectionHeading("IZGLED I ZVUK",in:settingsPanel)
+        volumeSlider("♫  Glazba",value:progress.musicVolume,in:settingsPanel){value in
             self.progress.musicVolume=value
             self.sound.musicVolume=Float(value)/100
         }
-        volumeSlider("◖  Zvukovi",value:progress.effectsVolume,in:s){value in
+        volumeSlider("◖  Zvukovi",value:progress.effectsVolume,in:settingsPanel){value in
             self.progress.effectsVolume=value
             self.sound.effectsVolume=Float(value)/100
         }
@@ -1798,10 +1852,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.layer.cornerRadius=16
         hapticRow.layer.borderWidth=1
         hapticRow.layer.borderColor=UIColor(red:0.24,green:0.74,blue:1,alpha:0.65).cgColor
-        s.addArrangedSubview(hapticRow)
+        settingsPanel.addArrangedSubview(hapticRow)
         haptic.addAction(UIAction{_ in self.progress.hapticEnabled=haptic.isOn},for:.valueChanged)
-        sectionHeading("IGRAČ I TEŽINA",in:s)
-        label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,s)
+        sectionHeading("IGRAČ I TEŽINA",in:settingsPanel)
+        label("TEŽINA IGRE — utječe na brzinu i gravitaciju",16,.white,settingsPanel)
         // Match Android's genuine three-card choice while preserving the
         // exact same difficulty 0/1/2 persisted by ProgressStore.
         let modeNames=["LAGANO","NORMALNO","ZAHTJEVNO"]
@@ -1896,8 +1950,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             modeRow.addArrangedSubview(card)
         }
         refreshDifficultyCards()
-        s.addArrangedSubview(modeRow)
-        label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,s)
+        settingsPanel.addArrangedSubview(modeRow)
+        label("Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.",14,.white,settingsPanel)
         let player=UITextField()
         player.text=progress.playerName
         player.placeholder="Tvoje ime"
@@ -1907,35 +1961,35 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         player.layer.borderWidth=1
         player.layer.borderColor=UIColor(red:0.30,green:0.76,blue:1,alpha:0.7).cgColor
         player.heightAnchor.constraint(equalToConstant:52).isActive=true
-        s.addArrangedSubview(player)
-        button("SPREMI IME",in:s,primary:false){
+        settingsPanel.addArrangedSubview(player)
+        button("SPREMI IME",in:settingsPanel,primary:false){
             player.resignFirstResponder()
             self.progress.playerName=player.text ?? ""
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
         }
-        sectionHeading("DODATNE OPCIJE",in:s)
+        sectionHeading("DODATNE OPCIJE",in:settingsPanel)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
         toggle.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let toggleRow=UIStackView();toggleRow.axis = .horizontal;toggleRow.spacing=12
         let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
         l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-        toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);s.addArrangedSubview(toggleRow)
+        toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);settingsPanel.addArrangedSubview(toggleRow)
         toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
         let audio=UISwitch();audio.isOn=progress.soundEnabled
         audio.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
         let audioLabel=UILabel();audioLabel.text="Glazba i zvučni efekti";audioLabel.font=UIFont.systemFont(ofSize:16,weight:.medium);audioLabel.textColor = .white
         audioLabel.numberOfLines=0;audioLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-        audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);s.addArrangedSubview(audioRow)
+        audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);settingsPanel.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
 
-        button("🐤  LIKOVI",in:s,primary:false){self.showSkins()}
-        button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
-        button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
-        sectionHeading("PODACI I PRIVATNOST",in:s)
-        label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,s)
-        label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,s)
-        button("SPREMI KOPIJU NAPRETKA",in:s,primary:false){
+        button("🐤  LIKOVI",in:settingsPanel,primary:false){self.showSkins()}
+        button("🛍  TRGOVINA KOVANICAMA",in:settingsPanel,primary:false){self.showPerks()}
+        button("🏆  LOKALNA LJESTVICA",in:settingsPanel,primary:false){self.showLeaderboard()}
+        sectionHeading("PODACI I PRIVATNOST",in:settingsPanel)
+        label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,settingsPanel)
+        label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,settingsPanel)
+        button("SPREMI KOPIJU NAPRETKA",in:settingsPanel,primary:false){
             do {
                 let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
                 try self.progress.exportData().write(to:url,options:.atomic)
@@ -1944,7 +1998,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
         }
-        button("VRATI NAPREDAK IZ KOPIJE",in:s,primary:false){
+        button("VRATI NAPREDAK IZ KOPIJE",in:settingsPanel,primary:false){
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }

@@ -1,3 +1,11 @@
+## Iteration 33 — full Settings sheet and selected-pilot hero (v0.1.60 candidate)
+
+**Source-derived reference difference:** the reference POSTAVKE page has a wordmark + large flying Bopi above a single tall royal-blue, cyan-edged panel. v0.1.59 used centered wordmark, separate tile sections and no saved-pilot hero in Settings. The source had genuine persistent music/effects/haptic/difficulty controls but lacked this presentation hierarchy.
+
+**Implemented in native controls (both systems):** one responsive premium glass sheet over the existing world, with independent native sliders, switches, difficulty tiles, profile name editor, offline backup/restore and navigational actions. The Settings hero now uses the genuinely selected existing Bopi portrait rather than generic or composite screenshot art. Android uses GradientDrawable; iOS uses a cached gradient CAGradientLayer resized only on layout. Both retain safe-area scrolling and VoiceOver/accessibility semantics. The explicit HOME navigation remains outside the sheet; Pause does not navigate to this screen while a run is active.
+
+**Proof and limits:** Android QA already captures `android-settings.png`; release staging now checks that file's PNG header, dimensions and size, then publishes it unchanged along with a SHA-256 checksum. A reference illustration **is not** evidence of actual runtime pixels; real screenshot-diff review remains required on Android and iOS. The detailed 3D Bopi art, dimensional background, custom glossy fonts and concept-only cloud/diamond/logout controls are still absent. No claim of pixel-identical 1:1.
+
 ## Iteration 32 — cached pilot aura in live gameplay (v0.1.59 candidate)
 
 **Reference disparity:** the 12 October BOPAVI flight concept surrounds Bopi's goggles, animated wings and scarf with soft cyan/gold light. Existing actual Android/iOS gameplay renders the intact nine-pilot 2D sprites and physical wing beats but lacks this specific depth cue behind the pilot.
