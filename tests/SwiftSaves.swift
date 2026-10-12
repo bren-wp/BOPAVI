@@ -177,8 +177,8 @@ struct SwiftSaves {
         precondition(store.leaderboard().count==1)
         precondition(store.leaderboard()[0].name=="Novi Pilot" &&
                      store.leaderboard()[0].score==890)
-        let exported=String(data:try store.exportData(),encoding:.utf8)!
-        precondition(!exported.contains("Legacy Alias"))
+        let exportedPersonal=String(data:try store.exportData(),encoding:.utf8)!
+        precondition(!exportedPersonal.contains("Legacy Alias"))
         print("PASS: personal top-ten ownership, nickname rotation, privacy-safe legacy backup import")
         print("PASS: Swift v0.2-v0.6 migration, earned rating monotonicity, v6 backup integrity and invalid save rejection")
     }
