@@ -609,6 +609,11 @@ attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
   adb shell input tap "$center" "$((height*50/100))"
+  # Capture the first rendered frame after the REAL flap. Uiautomator dump
+  # can take several seconds; by then the bird may already have collided.
+  # The capture is accepted only if the following UI check confirms that
+  # the action started a flight (active GameView or genuine collision result).
+  capture android-gameplay-active
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
@@ -616,9 +621,9 @@ while [ "$attempt" -le 6 ]; do
       echo "FAIL: pause did not appear after actual first flight flap" >&2
       exit 1
     fi
-    # Capture the real active flight HUD while the flight is confirmed,
-    # never substitute the static reference concept artwork.
-    capture android-gameplay-active
+    # This screenshot was already captured immediately after the input.
+    # Do not recapture here: a slow accessibility dump can reach the result
+    # screen after the active frame has disappeared.
     flight_started=1
     break
   fi
@@ -633,6 +638,9 @@ while [ "$attempt" -le 6 ]; do
   if grep -q "Pixel Launcher isn't responding" qa/screenshots/android-current-ui.xml; then
     tap_play
   fi
+  # Launcher swallowed the gesture or the UI has not confirmed the flight.
+  # Discard that candidate; never publish a launcher/idle screenshot as play.
+  rm -f qa/screenshots/android-gameplay-active.png
   echo "Waiting for Bopi to start flying ($attempt/6)"
   attempt=$((attempt+1))
 done
