@@ -1713,8 +1713,7 @@ for profile in (android_profile,ios_profile):
                  'progress.collectibles(','MOJE NAGRADE',
                  'PRVI LET','ISTRAŽIVAČ','SAKUPLJAČ','VETERAN',
                  'MOJI NAJBOLJI SVJETOVI','POGLEDAJ SVA POSTIGNUĆA',
-                 'ODABERI DRUGOG LIKA','NavProfile','NavTasks',
-                 'NavCollection','NavShop'):
+                 'ODABERI DRUGOG LIKA'):
         assert text in profile,('Missing real profile feature',text)
     assert 'worldStars(' in profile and 'sorted' in profile
     assert 'if(earned)' in profile or 'earned ?' in profile
@@ -1726,6 +1725,10 @@ for profile in (android_profile,ios_profile):
     assert 'signOut' not in profile and 'cloudSave' not in profile
 assert 'progress.owned(' not in android_profile and 'progress.owned(' not in ios_profile
 assert 'portraitBox' in android_profile and 'portraitBox' in ios_profile
+for key in ('nav_profile','nav_tasks','nav_collection','nav_shop'):
+    assert key in android_profile,key
+for key in ('NavProfile','NavTasks','NavCollection','NavShop'):
+    assert key in ios_profile,key
 assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
 assert 'hero.axis = .horizontal' in ios_profile
 assert 'contentDescription=navNames[index]' in android_profile
