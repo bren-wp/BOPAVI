@@ -101,11 +101,11 @@
  <path d="M-92 -70Q-68 -87 -40 -78M20 -76Q53 -90 80 -67" fill="none" stroke="#06428f" stroke-width="7" opacity=".78" stroke-linecap="round"/>
  <ellipse cx="-76" cy="25" rx="30" ry="22" fill="url(#cheek)"/><ellipse cx="88" cy="28" rx="31" ry="23" fill="url(#cheek)"/>
  <!-- Open, smiling orange beak with a shaded inner mouth and tongue. -->
- <path d="M45 45Q77 44 132 65Q121 115 76 115Q54 98 45 45Z" fill="#ff990b" stroke="#ae5106" stroke-width="4" stroke-linejoin="round"/>
- <path d="M68 68Q92 62 116 73Q111 99 79 105Q67 91 68 68Z" fill="#7e2929"/>
- <ellipse cx="93" cy="98" rx="15" ry="8" fill="#f56675"/>
- <path d="M48 52Q82 44 129 66L98 78Q68 72 52 65Z" fill="#ffd447" stroke="#fff4a7" stroke-width="3" stroke-linejoin="round"/>
- <path d="M109 80Q119 77 123 67" fill="none" stroke="#fff6c0" stroke-width="3" opacity=".8"/>
+ <path d="M2 35Q34 27 92 50Q83 94 44 98Q13 84 2 35Z" fill="#ff990b" stroke="#ae5106" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M24 55Q53 48 77 61Q72 86 49 90Q32 77 24 55Z" fill="#7e2929"/>
+ <ellipse cx="51" cy="84" rx="12" ry="7" fill="#f56675"/>
+ <path d="M6 41Q38 31 89 52L57 65Q28 59 9 53Z" fill="#ffd447" stroke="#fff4a7" stroke-width="3" stroke-linejoin="round"/>
+ <path d="M70 69Q80 65 84 53" fill="none" stroke="#fff6c0" stroke-width="3" opacity=".8"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#052959" stroke-width="35" stroke-linecap="round"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#1164c9" stroke-width="26" stroke-linecap="round"/>
  <path d="M-91 83Q-14 107 88 89" fill="none" stroke="#71d8ff" stroke-width="5" opacity=".70" stroke-linecap="round"/>
