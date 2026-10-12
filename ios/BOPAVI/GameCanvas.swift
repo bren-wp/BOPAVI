@@ -43,6 +43,12 @@ final class GameCanvas: UIView {
     private let birdSprite:UIImage?
     private let leftWing:UIImage?
     private let rightWing:UIImage?
+    // Shared artwork geometry with Android's GameView: Bopi's 520-unit
+    // drawing uses a wide 148pt sprite; newer 160-unit birds are 160pt.
+    // Art scale and shoulder pivot do NOT change physics/collision bounds.
+    private let birdArtSize:CGFloat
+    private let leftWingPivot:CGPoint
+    private let rightWingPivot:CGPoint
     private let worldBackdrop:UIImage?
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
@@ -79,6 +85,12 @@ final class GameCanvas: UIView {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex))
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
+        self.birdArtSize=selectedSkin>=6 ? 160 : 148
+        let scale=birdArtSize/100
+        self.leftWingPivot=selectedSkin>=6 ? CGPoint(x:-12,y:4) :
+            CGPoint(x:-16*scale,y:5*scale)
+        self.rightWingPivot=selectedSkin>=6 ? CGPoint(x:12,y:4) :
+            CGPoint(x:15*scale,y:-4*scale)
         self.birdSprite=UIImage(named:"Bopi\(selectedSkin)")
         self.leftWing=UIImage(named:"BopiLeft\(selectedSkin)")
         self.rightWing=UIImage(named:"BopiRight\(selectedSkin)")
@@ -736,15 +748,26 @@ final class GameCanvas: UIView {
             // Real touch adds a crisp 17-degree upstroke that eases away in 240 ms.
             let wingAngle:CGFloat = reducedMotion ? 0 :
                 (CGFloat(sin(game.time*19))*23+flapStrength*17) * .pi / 180
+            let half=birdArtSize/2
             if let left=leftWing {
-                c.saveGState();c.translateBy(x:-16,y:5);c.rotate(by:wingAngle)
-                left.draw(in:CGRect(x:-34,y:-55,width:100,height:100));c.restoreGState()
+                c.saveGState()
+                c.translateBy(x:leftWingPivot.x,y:leftWingPivot.y)
+                c.rotate(by:wingAngle)
+                left.draw(in:CGRect(x:-half-leftWingPivot.x,
+                                    y:-half-leftWingPivot.y,
+                                    width:birdArtSize,height:birdArtSize))
+                c.restoreGState()
             }
             if let right=rightWing {
-                c.saveGState();c.translateBy(x:15,y:-4);c.rotate(by:-wingAngle)
-                right.draw(in:CGRect(x:-65,y:-46,width:100,height:100));c.restoreGState()
+                c.saveGState()
+                c.translateBy(x:rightWingPivot.x,y:rightWingPivot.y)
+                c.rotate(by:-wingAngle)
+                right.draw(in:CGRect(x:-half-rightWingPivot.x,
+                                     y:-half-rightWingPivot.y,
+                                     width:birdArtSize,height:birdArtSize))
+                c.restoreGState()
             }
-            sprite.draw(in:CGRect(x:-50,y:-50,width:100,height:100))
+            sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))
             c.restoreGState()
             return
         }
