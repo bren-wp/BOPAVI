@@ -697,7 +697,34 @@ if [ "$result_ready" -ne 1 ]; then
   adb logcat -d -t 250 | tail -n 100 || true
   exit 1
 fi
-capture android-result
+# The v0.1.61 Release published an active-flight PNG and Results PNG
+# with the exact same SHA-256 digest even though the UI tree reached Results.
+# A settled result frame must differ from BOTH game screenshots. Recapture
+# after an actual UI/vsync wait; never upload duplicate visual evidence.
+result_capture_unique=0
+result_capture_attempt=1
+while [ "$result_capture_attempt" -le 8 ]; do
+  dump_ui
+  if ! grep -q 'PONOVO' qa/screenshots/android-current-ui.xml ||
+     grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+    echo "FAIL: actual result UI disappeared before screenshot" >&2
+    exit 1
+  fi
+  sleep 0.40
+  capture android-result
+  if ! cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png &&
+     ! cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png; then
+    result_capture_unique=1
+    break
+  fi
+  echo "Waiting for distinct rendered results screenshot ($result_capture_attempt/8)"
+  result_capture_attempt=$((result_capture_attempt+1))
+done
+if [ "$result_capture_unique" -ne 1 ]; then
+  capture android-result-diagnostic || true
+  echo "FAIL: Results PNG duplicates active or idle gameplay after bounded retries" >&2
+  exit 1
+fi
 dump_ui
 python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys, xml.etree.ElementTree as ET
