@@ -1,3 +1,11 @@
+## Iteration 32 — cached pilot aura in live gameplay (v0.1.59 candidate)
+
+**Reference disparity:** the 12 October BOPAVI flight concept surrounds Bopi's goggles, animated wings and scarf with soft cyan/gold light. Existing actual Android/iOS gameplay renders the intact nine-pilot 2D sprites and physical wing beats but lacks this specific depth cue behind the pilot.
+
+**Change:** both platform renderers now paint the same 74-unit radial Bopi light (gold center, sky-blue middle, transparent edge), using one cached Android `RadialGradient` or one lazy iOS `CGGradient`. It gently expands by up to 13% from the real 240 ms `flapPulse`. Reduced-motion users get a steady, non-pulsing light. The real selected skin, separately animated wings, interactive controls, gameplay simulation, collision radius, scoring and local saves are unchanged. No new image, external library, purchase, network permission or tracking is added.
+
+**Acceptance still required:** Android API 35/36 and iOS simulator screenshots, startup/gameplay smoke, screenshot-difference review and cross-platform compilation. The supplied concept's detailed 3D feather and world art are still not reproduced; this does **not** establish 1:1 visual fidelity. Do not use reference artwork as a runtime screenshot.
+
 ## Iteration 31 — live profile gold rail and reference card hierarchy (v0.1.58)
 
 **Observed disparity:** previous v0.1.57 profile had only a text level strip under the portrait, tiny icon-only medals without unlock conditions, and world previews with no rank markers. The concept shows a gold progress rail below the large pilot portrait, descriptive achievement tiles and gold world-number badges.
