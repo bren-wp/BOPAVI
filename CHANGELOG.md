@@ -1,3 +1,11 @@
+## v0.1.49 — unobscured home logo and illustrated bottom navigation (build 52)
+
+- Corrected the overlapping home artwork observed in the real Android emulator screenshot: the winged BOPAVI logo is now placed below the live top wallet/avatar/settings controls in the shared 900×1600 art generator.
+- Replaced platform-specific decorative chess/star/diamond/box symbols with four original, stylized vector icons: Profile, Tasks, Collection and Shop. Android/iOS rasterize the same four SVGs during CI, and all controls remain independent, accessible and functional.
+- Added build-time checks for byte-identical Android/iOS icon PNGs, dimension checks, source-level navigation checks, QA instructions and improved public README copy.
+- Preserved the entire offline economy, all existing saved characters and levels, physics, flight control and pause lifecycle.
+- The original high-resolution reference renders remain a fidelity target; matching the icon identity and removing logo overlap is measurable progress, not a claim of full 3D/pixel 1:1.
+
 ## v0.1.48 — first-flight accessibility and idle performance (build 51)
 
 - Android Canvas no longer continually invalidates its static first-flight preview. The first tap immediately starts normal rendering, with reduced-motion support unchanged.
