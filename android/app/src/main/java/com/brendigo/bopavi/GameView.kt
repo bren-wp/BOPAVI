@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.view.View
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
@@ -39,7 +40,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
-    private val birdRect=RectF(-50f,-50f,50f,50f)
+    // Real Android emulator screenshot showed the prior 148/160 art still too small.
+    // Larger live sprites preserve the fixed simulation/collision geometry.
+    // Sprite viewport: Bopi = 520 SVG units; Vihor/Iskra/Orion = 160 units.
+    // Scale only art. The existing simulation hitbox and gate physics stay intact.
+    private val birdSize=if(selectedSkin>=6)235f else 220f
+    private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
+    // True SVG shoulder joints; the alternate pilots have narrower bodies.
+    // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
+    private val wingLeftPivotX=if(selectedSkin>=6)-12f*birdSize/160f else -16f*birdSize/100f
+    private val wingLeftPivotY=if(selectedSkin>=6)4f*birdSize/160f else 5f*birdSize/100f
+    private val wingRightPivotX=if(selectedSkin>=6)12f*birdSize/160f else 15f*birdSize/100f
+    private val wingRightPivotY=if(selectedSkin>=6)4f*birdSize/160f else -4f*birdSize/100f
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
         R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
@@ -53,7 +65,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         R.drawable.world6,R.drawable.world7)
     private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
         BitmapFactory.Options().apply{inScaled=false})
-    private val worldRect=RectF(0f,0f,480f,800f)
+    // Cover the ENTIRE screen with the actual biome illustration on tall phones.
+    // Unlike stretching the gameplay simulation, aspect-fill only crops distant
+    // background artwork; bird/gates/HUD remain in the stable 480x800 world.
+    private val worldCoverRect=RectF()
     // Prebuilt world-specific sunlight, moonshine and crystal glow.
     // Cached shaders are reused across frames; no bitmap or shader creation while drawing.
     private val glowHues=intArrayOf(0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff)
@@ -90,6 +105,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         super.onSizeChanged(w,h,oldw,oldh)
         viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+        worldBitmap?.let { bmp ->
+            if(w>0 && h>0 && bmp.width>0 && bmp.height>0){
+                val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)
+                val fullWidth=bmp.width*cover
+                val fullHeight=bmp.height*cover
+                worldCoverRect.set((w-fullWidth)*.5f,(h-fullHeight)*.5f,
+                    (w+fullWidth)*.5f,(h+fullHeight)*.5f)
+            }
+        }
     }
     private var lastFrame = 0L
     private var sent = false
@@ -151,14 +175,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
             p.shader=null
         }
+        // Draw once in screen coordinates, extending behind safe areas and
+        // letterbox bands (no empty sky strips above/below active gameplay).
+        if(worldBitmap!=null && !worldCoverRect.isEmpty()) {
+            fill(Color.WHITE)
+            canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)
+        }
         val scale=min(width/480f,height/800f)
         canvas.save()
         canvas.translate((width-480f*scale)/2,(height-800f*scale)/2)
         canvas.scale(scale,scale)
-        if(worldBitmap!=null) {
-            fill(Color.WHITE)
-            canvas.drawBitmap(worldBitmap,null,worldRect,p)
-        } else drawBackground(canvas)
+        if(worldBitmap==null) drawBackground(canvas)
         drawWorldLighting(canvas)
         drawParallaxIslands(canvas)
         // Light atmospheric layer moves independently of the static painted backdrop.
@@ -420,6 +447,37 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xffffe25d.toInt())
         c.drawPath(path,p)
     }
+    /** Faceted cliff surfaces inside the unchanged top/bottom collision shafts.
+     * Real art-only perspective makes the columns read as suspended stone
+     * instead of two flat rectangles. Reuses the shared Path and Paint.
+     */
+    private fun drawRockFacets(c:Canvas,x:Float,w:Float,start:Float,end:Float){
+        if(end-start<34f)return
+        val span=end-start
+        path.reset()
+        path.moveTo(x+4f,start+6f)
+        path.lineTo(x+w*.39f,start+11f)
+        path.lineTo(x+w*.61f,start+span*.56f)
+        path.lineTo(x+w*.24f,end-9f)
+        path.lineTo(x+4f,end-16f)
+        path.close()
+        fill(0x3cffffff);c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x+w*.61f,start+6f)
+        path.lineTo(x+w-16f,start+4f)
+        path.lineTo(x+w-16f,end-13f)
+        path.lineTo(x+w*.40f,end-7f)
+        path.lineTo(x+w*.61f,start+span*.56f)
+        path.close()
+        fill(0x59081836);c.drawPath(path,p)
+        // Short nonuniform stratum lines and highlights: no fake hitboxes.
+        path.reset()
+        path.moveTo(x+10f,start+span*.32f)
+        path.lineTo(x+w*.33f,start+span*.37f)
+        path.lineTo(x+w*.49f,start+span*.35f)
+        fill(0x64ffffff);p.style=Paint.Style.STROKE;p.strokeWidth=2f
+        c.drawPath(path,p);p.style=Paint.Style.FILL
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -433,6 +491,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+7f,bottom,x+w-5f,755f,shade,7f)
         rect(c,x,bottom,x+w-13f,755f,color,7f)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
+        drawRockFacets(c,x,w,2f,top-30f)
+        drawRockFacets(c,x,w,bottom+28f,751f)
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
@@ -603,7 +663,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,34f+sin(game.time*5f)*2f,p)
+            c.drawCircle(126f,game.y,61f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
         c.save();c.translate(126f,game.y)
@@ -627,11 +687,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             // Immediate upward wing response on touch, then a 240 ms return.
             val flap=if(reducedMotion)0f else sin(game.time*19f)*23f+flapStrength*17f
             wingLeftBitmap?.let { wing ->
-                c.save();c.rotate(flap,-16f,5f)
+                c.save();c.rotate(flap,wingLeftPivotX,wingLeftPivotY)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
             }
             wingRightBitmap?.let { wing ->
-                c.save();c.rotate(-flap,15f,-4f)
+                c.save();c.rotate(-flap,wingRightPivotX,wingRightPivotY)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
             }
             c.drawBitmap(birdBitmap,null,birdRect,p)

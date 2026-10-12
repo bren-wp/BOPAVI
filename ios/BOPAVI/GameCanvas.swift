@@ -43,6 +43,12 @@ final class GameCanvas: UIView {
     private let birdSprite:UIImage?
     private let leftWing:UIImage?
     private let rightWing:UIImage?
+    // Shared artwork geometry with Android's GameView: Bopi's 520-unit
+    // drawing uses 220pt sprite art; newer 160-unit birds use 235pt.
+    // Art scale and shoulder pivot do NOT change physics/collision bounds.
+    private let birdArtSize:CGFloat
+    private let leftWingPivot:CGPoint
+    private let rightWingPivot:CGPoint
     private let worldBackdrop:UIImage?
     private let feather:[UInt32]=[0x39b5fc,0xffc73e,0xff6883,0x9e86f6,0x45daad,0x6676a8]
     var onFinished: ((GameSimulation) -> Void)?
@@ -79,6 +85,16 @@ final class GameCanvas: UIView {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex))
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
+        let artSize:CGFloat=selectedSkin>=6 ? 235 : 220
+        self.birdArtSize=artSize
+        let scale=artSize/100
+        let premiumScale=artSize/160
+        self.leftWingPivot=selectedSkin>=6 ?
+            CGPoint(x:-12*premiumScale,y:4*premiumScale) :
+            CGPoint(x:-16*scale,y:5*scale)
+        self.rightWingPivot=selectedSkin>=6 ?
+            CGPoint(x:12*premiumScale,y:4*premiumScale) :
+            CGPoint(x:15*scale,y:-4*scale)
         self.birdSprite=UIImage(named:"Bopi\(selectedSkin)")
         self.leftWing=UIImage(named:"BopiLeft\(selectedSkin)")
         self.rightWing=UIImage(named:"BopiRight\(selectedSkin)")
@@ -212,13 +228,21 @@ final class GameCanvas: UIView {
             c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),
                 end:CGPoint(x:0,y:bound.height),options:[])
         }
+        // Far scenery fills the physical viewport without stretching Bopi or
+        // moving any 480x800 simulation/hitbox coordinates. On long iPhones
+        // it crops the image horizontally instead of showing empty sky bars.
+        if let world=worldBackdrop, world.size.width>0, world.size.height>0 {
+            let scaleToCover=max(bound.width/world.size.width,
+                                 bound.height/world.size.height)
+            let backdropWidth=world.size.width*scaleToCover
+            let backdropHeight=world.size.height*scaleToCover
+            world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,
+                                 y:(bound.height-backdropHeight)*0.5,
+                                 width:backdropWidth,height:backdropHeight))
+        }
         let s=min(bound.width/480,bound.height/800)
         c.saveGState();c.translateBy(x:(bound.width-480*s)/2,y:(bound.height-800*s)/2);c.scaleBy(x:s,y:s)
-        if let background=worldBackdrop {
-            background.draw(in:CGRect(x:0,y:0,width:480,height:800))
-        } else {
-            background(c)
-        }
+        if worldBackdrop==nil {background(c)}
         drawWorldLighting(c)
         drawParallaxIslands(c)
         // Shared lightweight atmospheric depth, rendered above the fixed landscape.
@@ -541,6 +565,36 @@ final class GameCanvas: UIView {
                                   width:2*radius-14,height:2*radius-14))
         hudText("♛",cx-10,cy-51,hudIconFont,0xffdb63)
     }
+    /// Subtle suspended-cliff facets, confined to the existing gate shafts.
+    /// Only drawn geometry changes: the BopaviCore opening and collision remain.
+    private func drawRockFacets(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                _ start:CGFloat,_ end:CGFloat){
+        let span=end-start
+        guard span>=34 else{return}
+        c.setFillColor(color(0xffffff,0.235))
+        c.beginPath()
+        c.move(to:CGPoint(x:x+4,y:start+6))
+        c.addLine(to:CGPoint(x:x+w*0.39,y:start+11))
+        c.addLine(to:CGPoint(x:x+w*0.61,y:start+span*0.56))
+        c.addLine(to:CGPoint(x:x+w*0.24,y:end-9))
+        c.addLine(to:CGPoint(x:x+4,y:end-16))
+        c.closePath();c.fillPath()
+        c.setFillColor(color(0x081836,0.35))
+        c.beginPath()
+        c.move(to:CGPoint(x:x+w*0.61,y:start+6))
+        c.addLine(to:CGPoint(x:x+w-16,y:start+4))
+        c.addLine(to:CGPoint(x:x+w-16,y:end-13))
+        c.addLine(to:CGPoint(x:x+w*0.40,y:end-7))
+        c.addLine(to:CGPoint(x:x+w*0.61,y:start+span*0.56))
+        c.closePath();c.fillPath()
+        c.setStrokeColor(color(0xffffff,0.39))
+        c.setLineWidth(2)
+        c.beginPath()
+        c.move(to:CGPoint(x:x+10,y:start+span*0.32))
+        c.addLine(to:CGPoint(x:x+w*0.33,y:start+span*0.37))
+        c.addLine(to:CGPoint(x:x+w*0.49,y:start+span*0.35))
+        c.strokePath()
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -551,6 +605,8 @@ final class GameCanvas: UIView {
         rect(c,x-7,top-28,w+12,28,cap,7)
         rect(c,x+7,bottom,w-12,755-bottom,shade,7);rect(c,x,bottom,w-13,755-bottom,hue,7)
         rect(c,x-7,bottom,w+12,27,cap,7)
+        drawRockFacets(c,x,w,2,top-30)
+        drawRockFacets(c,x,w,bottom+28,751)
         rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
@@ -712,7 +768,7 @@ final class GameCanvas: UIView {
         if game.magnetTime>0 {oval(c,92,CGFloat(game.y)-34,68,68,0x4fdfff,0.27)}
         if game.shield>0 {
             c.setStrokeColor(color(0x9fefff));c.setLineWidth(3)
-            let r:CGFloat=34+CGFloat(sin(game.time*5))*2
+            let r:CGFloat=61+CGFloat(sin(game.time*5))*2
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
@@ -736,15 +792,26 @@ final class GameCanvas: UIView {
             // Real touch adds a crisp 17-degree upstroke that eases away in 240 ms.
             let wingAngle:CGFloat = reducedMotion ? 0 :
                 (CGFloat(sin(game.time*19))*23+flapStrength*17) * .pi / 180
+            let half=birdArtSize/2
             if let left=leftWing {
-                c.saveGState();c.translateBy(x:-16,y:5);c.rotate(by:wingAngle)
-                left.draw(in:CGRect(x:-34,y:-55,width:100,height:100));c.restoreGState()
+                c.saveGState()
+                c.translateBy(x:leftWingPivot.x,y:leftWingPivot.y)
+                c.rotate(by:wingAngle)
+                left.draw(in:CGRect(x:-half-leftWingPivot.x,
+                                    y:-half-leftWingPivot.y,
+                                    width:birdArtSize,height:birdArtSize))
+                c.restoreGState()
             }
             if let right=rightWing {
-                c.saveGState();c.translateBy(x:15,y:-4);c.rotate(by:-wingAngle)
-                right.draw(in:CGRect(x:-65,y:-46,width:100,height:100));c.restoreGState()
+                c.saveGState()
+                c.translateBy(x:rightWingPivot.x,y:rightWingPivot.y)
+                c.rotate(by:-wingAngle)
+                right.draw(in:CGRect(x:-half-rightWingPivot.x,
+                                     y:-half-rightWingPivot.y,
+                                     width:birdArtSize,height:birdArtSize))
+                c.restoreGState()
             }
-            sprite.draw(in:CGRect(x:-50,y:-50,width:100,height:100))
+            sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))
             c.restoreGState()
             return
         }

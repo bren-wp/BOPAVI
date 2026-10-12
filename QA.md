@@ -1,3 +1,16 @@
+## v0.1.66 — Character silhouette, face, flap and screen regression gate
+- Check world 1 gameplay and selection uses visibly cyan crystalline towers, and world 6 has warm wooded scenery plus the glowing forest overlay; world 0 must remain uniquely green. Regression check source mappings and verify Android/iOS raster art parity without changing 8 stable world identifiers.
+
+- Compare actual Android 1080×2400 and iPhone tall-aspect screenshots: the selected world must extend behind safe-area and letterbox regions instead of flat sky strips; background crop is centered and never stretches characters or collision geometry. Validate portrait layout of active gameplay, pause and drag control on both platforms.
+
+- Gameplay obstacles now have matching geometric cliff facets on Android and iOS. Verify during real flight that overlays stay within top/bottom shafts and coin/gate physics remain identical.
+- Real reported defect: Bopi's bill looked detached from the face. Check the actual regenerated body, full-wing portrait, home art, pilot gallery and flight screenshots. The dark open mouth and gold upper bill must appear directly below the irises, seamlessly over the pale muzzle, while the scarf is not drawn over the lower jaw.
+- For Vihor, Iskra and Orion verify **complete wingtips** on Android and iOS, no raster clipping, no straight crop borders and no wing-root separation throughout an actual flap. They have independent 160-unit sprite coordinates and their own shoulder rotation centers.
+- Use `python tools/generate_images.py && python tools/verify_pilot_sprite_anatomy.py` in generated-art CI. Verify 9 × (body + left wing + right wing + full portrait) pixel parity on both platforms. Do not substitute reference mockups for native screenshots.
+- Verify same actual visual sizes and hinge positions between Android `GameView` and iOS `GameCanvas`: Bopi/other first-six art 220 logical units, three original birds 235. **No changes** to `GameSimulation` / `BopaviCore` physics, radius, persistence or virtual currency.
+- Check initial idle preview, touch flap / vertical drag, pause/resume, collision -> result, level selector, 9-character gallery, profile and settings on real Android 15/16 and iOS simulator runs. These regressions still block release.
+- Contrast with supplied reference art screen-by-screen: this iteration improves character anatomy and gameplay prominence but does not prove pixel-matched painterly 3D asset quality.
+
 ## v0.1.65 — Android 15 pilot focus-loss recovery and full dead-code audit
 
 1. Review Android 15 failure artifact in CI run 38312182026: `android-pilot-launch-diagnostic.xml` recorded actual Pixel Launcher nodes after nine authentic pilot cards were visible. It did **not** contain a BOPAVI GameView or prove why focus was lost.

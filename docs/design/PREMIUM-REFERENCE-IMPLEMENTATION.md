@@ -40,7 +40,7 @@ The concept references also display `diamonds`, `plus` top-up buttons, online/cl
 ## Acceptance / regression gates
 
 1. Build Android APK + **unsigned** AAB and iOS simulator + unsigned device app.
-2. Run Android API35/API36 end-to-end screenshots / interaction including Portantin, Noa, Any and no premature pause.
+2. Run Android API35/API36 end-to-end screenshots / interaction including Bopi, Vihor, Iskra and Orion, with actual unclipped character art and no premature pause.
 3. Run Kotlin, Swift parity tests, legacy save migration and privacy/source audits.
 4. Compare real screenshots against the supplied references and record mismatches **per screen** (layout, colors, typography, alignment, visual art, accessibility, safe areas). Do not claim 1:1 until independently verified.
 5. Confirm no CI or manual signing workflow runs on GitHub, no fake Play signed uploads.
