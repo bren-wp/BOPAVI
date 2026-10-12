@@ -85,8 +85,9 @@ final class GameCanvas: UIView {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex))
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
-        self.birdArtSize=selectedSkin>=6 ? 160 : 148
-        let scale=birdArtSize/100
+        let artSize:CGFloat=selectedSkin>=6 ? 160 : 148
+        self.birdArtSize=artSize
+        let scale=artSize/100
         self.leftWingPivot=selectedSkin>=6 ? CGPoint(x:-12,y:4) :
             CGPoint(x:-16*scale,y:5*scale)
         self.rightWingPivot=selectedSkin>=6 ? CGPoint(x:12,y:4) :
