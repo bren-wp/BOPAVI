@@ -115,13 +115,11 @@ jobs:
           name: rendered-graphics
           path: |
             android/app/src/main/res/drawable/app_icon.png
-            android/app/src/main/res/drawable-nodpi/hero.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
             android/app/src/main/res/drawable-nodpi/homeback.png
             android/app/src/main/res/drawable-nodpi/nav_*.png
             ios/BOPAVI/Assets.xcassets/Nav*.imageset/
-            ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
             ios/BOPAVI/Assets.xcassets/HomeArt.imageset/
@@ -246,6 +244,7 @@ jobs:
           path: |
             qa/screenshots/*.png
             qa/screenshots/*.xml
+            qa/screenshots/*.txt
           if-no-files-found: warn
           # A retry replaces incomplete screenshots uploaded by a failed attempt.
           overwrite: true
@@ -319,6 +318,7 @@ jobs:
           path: |
             qa/screenshots/*.png
             qa/screenshots/*.xml
+            qa/screenshots/*.txt
           if-no-files-found: warn
           overwrite: true
   ios:
