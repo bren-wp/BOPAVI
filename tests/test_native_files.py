@@ -2078,7 +2078,7 @@ assert 'canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)' in android_render
 assert 'if(worldBitmap==null) drawBackground(canvas)' in android_render
 assert 'val scale=min(width/480f,height/800f)' in android_render
 assert 'worldCoverRect.isEmpty()' in android_render
-assert 'val scaleToCover=max(bound.width/world.size.width,' in ios_render
+assert 'let scaleToCover=max(bound.width/world.size.width,' in ios_render
 assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,' in ios_render
 assert 'if worldBackdrop==nil {background(c)}' in ios_render
 assert 'let s=min(bound.width/480,bound.height/800)' in ios_render
