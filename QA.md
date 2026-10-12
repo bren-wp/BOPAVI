@@ -1,3 +1,11 @@
+## v0.1.61 — Animated Bopi feathers + world depth
+
+1. Verify the built art includes 15 separately detached paths per Bopi wing, with glowing feather veins and gold pilot-goggle reflections; animated wing sprites must still flap independently and use the actually selected saved skin on Android and iOS.
+2. Build all eight background worlds from source: castles, waterfall strands, rocky sky islands and tree crowns should display in actual gameplay behind moving, collidable obstacles and HUD; world indices and stored frontier keys must stay untouched.
+3. Check generated `world0.png` through `world7.png`, every animated wing and completed 9-character portrait for exact Android/iOS pixel parity. Reject missing assets, opaque sprites or identical characters.
+4. Run Android API35/API36 emulator installation/navigation/gameplay/collision, iOS simulator launch/screenshot, Swift physics and legacy save migration, and unsigned iPhone device build. Validate no new per-frame rasterization or allocations.
+5. Inspect authentic gameplay preview/active PNG frames for real movement, correct hero silhouette and non-obscuring waterfalls. The source-vector improvements do **not** prove the user-provided photorealistic concept is reproduced pixel-perfectly. Keep actual screenshots in README and release packages only.
+
 ## v0.1.60 — Settings glass, layout and actual screenshot acceptance
 
 1. Open POSTAVKE from Home on Android API35/API36 and iPhone simulator. The selected saved pilot must appear beside the BOPAVI logo; a unified rounded dark royal-blue sheet and cyan outline must contain the real settings controls and support full vertical scrolling and safe insets.
