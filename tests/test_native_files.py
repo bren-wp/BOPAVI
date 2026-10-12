@@ -1791,3 +1791,13 @@ assert ios_render.count('birdAuraGradient:CGGradient?')==1
 assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchanged hitboxes')
+
+# Keep the thirteen existing binaries/screenshots and provide independently
+# verifiable release hashes, generated in GitHub Actions after staging.
+assert 'Generate SHA-256 checksums for every release artifact' in workflow
+assert 'sha256sum \\' in workflow
+assert 'BOPAVI-iOS-Home.png > SHA256SUMS.txt' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
+assert 'dist/SHA256SUMS.txt' in workflow
+assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
+print('PASS: all 13 original release assets retained with a SHA-256 manifest')
