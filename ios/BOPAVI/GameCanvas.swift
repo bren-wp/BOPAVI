@@ -5,7 +5,6 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
-    private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
     private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
@@ -208,8 +207,6 @@ final class GameCanvas: UIView {
     private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
     private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
-    private let hudLabelFont=UIFont.systemFont(ofSize:13,weight:.bold)
-    private let hudLevelFont=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
