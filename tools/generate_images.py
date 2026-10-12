@@ -121,12 +121,15 @@ if bird is None:
 defs=re.search(r'<defs>(.*?)</defs>',hero_markup,re.S)
 if defs is None:
     raise RuntimeError('Hero gradient definitions missing')
-# Separate the four original blue feather paths into rear wing layers.
-# The main body no longer contains static wings, so flapping moves real pixels.
-feathers=list(re.finditer(r'<path d="[^"]+" fill="[^"]+"\s*/>',bird.group(1)))
-if len(feathers)<4:
-    raise RuntimeError('Cannot extract Bopi wing silhouettes')
-wing_shapes=[bird.group(1)[m.start():m.end()] for m in feathers[:4]]
+# Wing art uses explicitly marked paths, not fragile "first four paths".
+# Feather highlights travel with the existing animated wings rather than
+# remaining frozen on Bopi's torso. Saved skin indices never change.
+wing_shapes=[m.group(0) for m in re.finditer(
+    r'<path\b[^>]*\bdata-wing="(?:left|right)"[^>]*/>',bird.group(1))]
+wing_parts={side:[shape for shape in wing_shapes if f'data-wing="{side}"' in shape]
+            for side in ('left','right')}
+if any(len(wing_parts[side])<4 for side in ('left','right')):
+    raise RuntimeError('Cannot extract Bopi animated wing base and feather details')
 body_markup=bird.group(1)
 for shape in wing_shapes:
     body_markup=body_markup.replace(shape,'',1)
@@ -136,7 +139,7 @@ def raster(part):
          +part+'</g></svg>')
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
 original=raster(body_markup)
-original_wings=[raster(''.join(wing_shapes[:2])),raster(''.join(wing_shapes[2:4]))]
+original_wings=[raster(''.join(wing_parts[side])) for side in ('left','right')]
 def recolor(original_image,hue):
     if hue is None:
         return original_image.copy()
