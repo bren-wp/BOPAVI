@@ -1767,3 +1767,27 @@ assert 'rankMedal.isAccessibilityElement=false' in ios_profile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_profile
 assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
 print('PASS: world-star profile gauge, real award goals, ranked thumbnails, accessibility and offline save parity')
+
+# v0.1.59: flight aura follows the existing bird (not its collision geometry).
+# Keep both engines on the same logical radius, gradient stops and flap impulse;
+# all gradients/shaders are cached outside onDraw/draw.
+android_bird=android_canvas.split('private fun drawBird(c:Canvas){',1)[1].split('private fun drawLevelProgress(',1)[0]
+ios_bird=ios_render.split('private func bird(_ c:CGContext){',1)[1].split('private extension UIColor',1)[0]
+assert 'private val birdAuraShader=RadialGradient(0f,0f,74f,' in android_canvas
+assert 'intArrayOf(0x62fff3bb,0x3a2da9ff,0x002da9ff)' in android_canvas
+assert 'floatArrayOf(0f,.55f,1f)' in android_canvas
+assert 'private lazy var birdAuraGradient:CGGradient?' in ios_render
+assert 'locations:[0,0.55,1]' in ios_render
+assert 'endRadius:74,options:[]' in ios_bird
+assert 'auraImpulse=if(reducedMotion)0f' in android_bird
+assert 'auraImpulse:CGFloat=reducedMotion ? 0' in ios_bird
+assert '1f+auraImpulse*.13f' in android_bird
+assert '1+auraImpulse*0.13' in ios_bird
+assert android_bird.index('p.shader=birdAuraShader') < android_bird.index('c.rotate((game.velocity')
+assert ios_bird.index('c.drawRadialGradient(aura') < ios_bird.index('c.rotate(by:angle)')
+assert 'p.shader=null\n        c.restore()' in android_bird
+assert android_canvas.count('birdAuraShader=RadialGradient(')==1
+assert ios_render.count('birdAuraGradient:CGGradient?')==1
+assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchanged hitboxes')
