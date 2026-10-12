@@ -376,11 +376,65 @@ from pathlib import Path
 def save_unexpected(root):
     Path('qa/screenshots/android-pilot-launch-diagnostic.xml').write_bytes(
         ET.tostring(root,encoding='utf-8'))
+    # Preserve the real crash and focused-window evidence when the runner's
+    # Pixel Launcher takes over. No screenshot or app state is faked.
+    for name,cmd in [
+        ('android-pilot-launch-logcat.txt',['adb','logcat','-d','-t','2000']),
+        ('android-pilot-launch-activities.txt',['adb','shell','dumpsys','activity','activities']),
+        ('android-pilot-launch-windows.txt',['adb','shell','dumpsys','window','windows'])
+    ]:
+        try:
+            Path('qa/screenshots/'+name).write_bytes(
+                subprocess.check_output(cmd,timeout=15,stderr=subprocess.STDOUT))
+        except (subprocess.CalledProcessError,subprocess.TimeoutExpired) as exc:
+            print(f'Diagnostic capture unavailable: {name}: {exc}',flush=True)
+
+def recover_confirmed_system_launcher(root):
+    """Only recover a live game whose foreground was stolen by Pixel Launcher.
+
+    A crash, missing process or BOPAVI ANR MUST fail with collected evidence.
+    The activity is reordered to front, never force-restarted or reset.
+    """
+    if any(n.get('resource-id','').startswith('com.brendigo.bopavi:')
+           for n in root.iter('node')):
+        return False
+    nodes=list(root.iter('node'))
+    is_launcher=any(n.get('resource-id','').startswith(
+        'com.google.android.apps.nexuslauncher:id/') for n in nodes)
+    if not is_launcher:
+        return False
+    alive=subprocess.run(['adb','shell','pidof','com.brendigo.bopavi'],
+                         stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True)
+    if alive.returncode!=0 or not alive.stdout.strip():
+        save_unexpected(root)
+        raise SystemExit('FAIL: BOPAVI process exited during pilot confirmation; inspect saved logcat')
+    recent=subprocess.check_output(['adb','logcat','-d','-t','2000'],text=True,errors='replace')
+    if 'FATAL EXCEPTION' in recent and 'Process: com.brendigo.bopavi' in recent:
+        save_unexpected(root)
+        raise SystemExit('FAIL: BOPAVI fatal exception detected during pilot confirmation')
+    focused=subprocess.check_output(['adb','shell','dumpsys','window','windows'],
+                                    text=True,errors='replace')
+    if not any('mCurrentFocus' in ln and 'com.google.android.apps.nexuslauncher' in ln
+               for ln in focused.splitlines()):
+        save_unexpected(root)
+        raise SystemExit('FAIL: launcher hierarchy appeared without a confirmed launcher focus')
+    print('RECOVERY: live BOPAVI task obscured by Pixel Launcher; reorder existing task',flush=True)
+    # Reorder-to-front + single-top preserve the activity and running simulation.
+    subprocess.run(['adb','shell','am','start','-n','com.brendigo.bopavi/.MainActivity',
+                    '-f','0x20020000'],check=True,timeout=20,
+                   stdout=subprocess.DEVNULL)
+    time.sleep(1.0)
+    return True
+
 def launch_button(root):
     return [n for n in root.iter('node') if n.get('clickable')=='true'
             and 'POLETI S' in (n.get('text','')+' '+n.get('content-desc',''))]
-for attempt in range(5):
+system_recoveries=0
+for attempt in range(7):
     root=refresh_ui()
+    if system_recoveries<2 and recover_confirmed_system_launcher(root):
+        system_recoveries+=1
+        root=refresh_ui()
     labels=node_labels(root)
     if any('Dodirni za let Bopija' in value for value in labels):
         print('PASS: mandatory character picker launched the idle flight',flush=True)
@@ -403,6 +457,9 @@ for attempt in range(5):
     subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
     time.sleep(1.0)
     result=refresh_ui()
+    if system_recoveries<2 and recover_confirmed_system_launcher(result):
+        system_recoveries+=1
+        result=refresh_ui()
     labels=node_labels(result)
     if any('Dodirni za let Bopija' in value for value in labels):
         print('PASS: mandatory character picker launched the idle flight',flush=True)

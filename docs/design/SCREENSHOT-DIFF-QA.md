@@ -1,3 +1,10 @@
+## v0.1.65 — Accurate device screenshots and pilot-navigation regression
+
+- Production main CI after v0.1.64 failed with real launcher foreground at pilot confirmation, rather than a confirmed in-game idle state. Diagnostic XML from CI artifact `11774864120` establishes the focused UI looked like **Pixel Launcher**. This must not be misreported as a proven app crash or ignored as a test success.
+- CI now preserves crash/activity/window logs and only allows bounded recovery of a still-alive BOPAVI task hidden by focused launcher. The real idle GameView is still mandatory; a process crash, false button, wrong navigation destination or injected screenshot fails the build.
+- Removed unreferenced packaged composite Hero art, **not** the source Bopi vector used to generate live sprites. Runtime sprite rendering remains unchanged.
+- Visual comparison against the user-supplied 3D painting refs remains an open task on **all** screens. No new reference or generated image was placed into chat or presented as an authentic game screenshot.
+
 ## v0.1.64 — Personal records and reference screen fidelity
 
 The user supplied additional reference images for all eight world biomes, main menu, character choice, levels, profile, settings, pause, results, loading and brand guide. These are **desired style/geometry targets**, not verified live app output. Source-backed changes in this iteration focus on **Profile/Settings and personal records**, maintaining genuinely interactive controls. The visual gap remains large in the illustration style and lighting, and cannot honestly be called pixel-perfect.

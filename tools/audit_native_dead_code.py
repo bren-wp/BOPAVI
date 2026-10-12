@@ -1,57 +1,168 @@
 #!/usr/bin/env python3
-"""Conservative native dead-code audit. Never delete save or platform callbacks.
+"""BOPAVI: conservative whole-native-source, packaging and audio reachability audit.
 
-Private declarations are safe to flag when their identifier is never referred to
-again in their own compilation file; Kotlin imports are checked separately.
-This is a regression guard, not a claim to prove whole-program reachability.
+Runs on a clean GitHub checkout without Android SDK or an iOS simulator.
+This is an additional guard, not a compiler call-graph or a memory-leak proof.
+Platform callbacks, dynamic names, persisted field IDs and accessibility
+entry points are never automatically removed by token-count heuristics.
 """
 from pathlib import Path
+import hashlib
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID = ROOT / "android/app/src/main/java/com/brendigo/bopavi"
 IOS = ROOT / "ios/BOPAVI"
-SOURCES = [
-    *(ANDROID / filename for filename in (
+ANDROID_SOURCES = [
+    ANDROID / name for name in (
         "GameSimulation.kt", "GameView.kt", "LevelEngine.kt",
-        "MainActivity.kt", "ProgressStore.kt", "Soundscape.kt")),
-    *(IOS / filename for filename in (
-        "BopaviApp.swift", "BopaviCore.swift", "GameCanvas.swift",
-        "GameController.swift", "ProgressStore.swift", "Soundscape.swift")),
+        "MainActivity.kt", "ProgressStore.kt", "Soundscape.kt")
 ]
+IOS_SOURCES = [
+    IOS / name for name in (
+        "BopaviApp.swift", "BopaviCore.swift", "GameCanvas.swift",
+        "GameController.swift", "ProgressStore.swift", "Soundscape.swift")
+]
+SOURCES = ANDROID_SOURCES + IOS_SOURCES
 DECLARATIONS = {
-    ".kt": re.compile(r"\bprivate\s+(?:(?:suspend|lateinit)\s+)?(?:val|var|fun)\s+([A-Za-z_]\w*)\b"),
-    ".swift": re.compile(r"\bprivate(?:\([^)]+\))?\s+(?:let|var|func)\s+([A-Za-z_]\w*)\b"),
+    ".kt": re.compile(
+        r"\bprivate\s+(?:(?:suspend|lateinit)\s+)?(?:val|var|fun)\s+([A-Za-z_]\w*)\b"
+    ),
+    ".swift": re.compile(
+        r"\bprivate(?:\([^)]+\))?\s+(?:let|var|func)\s+([A-Za-z_]\w*)\b"
+    ),
 }
 KOTLIN_IMPORT = re.compile(r"(?m)^import\s+([\w.]+)(?:\s+as\s+(\w+))?\s*$")
+RESOURCE = re.compile(r"\bR\.(drawable|raw)\.([A-Za-z_]\w*)\b")
 
 
-def audit():
-    candidates = []
+def fail(issues):
+    if issues:
+        for issue in issues:
+            print(f"FAIL: {issue}")
+        raise SystemExit(1)
+
+
+def audit_private_declarations():
+    issues = []
     declarations = imports = 0
     for path in SOURCES:
-        src = path.read_text(encoding="utf-8")
-        for match in DECLARATIONS[path.suffix].finditer(src):
+        source = path.read_text(encoding="utf-8")
+        for match in DECLARATIONS[path.suffix].finditer(source):
             symbol = match.group(1)
             declarations += 1
-            if len(re.findall(rf"\b{re.escape(symbol)}\b", src)) == 1:
-                candidates.append((path, symbol, "private declaration"))
+            # Symbol is mentioned only at declaration site: flag for review.
+            # Keeping string/comments in this conservative pass avoids
+            # deleting reflection or callback registrations accidentally.
+            if len(re.findall(rf"\b{re.escape(symbol)}\b", source)) == 1:
+                issues.append(f"{path.relative_to(ROOT)}: {symbol} (private declaration unused)")
         if path.suffix == ".kt":
-            for match in KOTLIN_IMPORT.finditer(src):
+            for match in KOTLIN_IMPORT.finditer(source):
                 symbol = match.group(2) or match.group(1).split(".")[-1]
                 if symbol == "*":
                     continue
                 imports += 1
-                if len(re.findall(rf"\b{re.escape(symbol)}\b", src)) == 1:
-                    candidates.append((path, symbol, "unused import"))
-    if candidates:
-        for path, symbol, reason in candidates:
-            print(f"FAIL: {path.relative_to(ROOT)}: {symbol} ({reason})")
-        raise SystemExit(1)
-    print(
-        f"PASS: native dead-code regression — {len(SOURCES)} Kotlin/Swift files, "
-        f"{declarations} private declarations and {imports} Kotlin imports checked"
-    )
+                if len(re.findall(rf"\b{re.escape(symbol)}\b", source)) == 1:
+                    issues.append(f"{path.relative_to(ROOT)}: {symbol} (unused Kotlin import)")
+    fail(issues)
+    print(f"PASS: {len(SOURCES)} platform source units, {declarations} private "
+          f"members and {imports} explicit Kotlin imports scanned")
+
+
+def audit_resource_reachability():
+    android_text = "\n".join(path.read_text(encoding="utf-8") for path in ANDROID_SOURCES)
+    referenced = {"drawable": set(), "raw": set()}
+    for kind, name in RESOURCE.findall(android_text):
+        referenced[kind].add(name)
+    names = set()
+    for i in range(9):
+        names.update({f"bopi{i}", f"bopileft{i}", f"bopiright{i}", f"bopiportrait{i}"})
+    names.update({f"world{i}" for i in range(8)})
+    names.update({"logo", "homeback", "splash", "app_icon",
+                  "nav_profile", "nav_tasks", "nav_collection", "nav_shop",
+                  "bopavi_startup"})
+    issues = [f"Unrecognized drawable reference: {name}"
+              for name in sorted(referenced["drawable"] - names)]
+    # Every exported runtime sprite/portrait/world used by dynamic skin/world
+    # indexing must remain available on both OSes. Do not remove by grep.
+    expected_dynamic = {
+        *(f"bopi{i}" for i in range(9)),
+        *(f"bopileft{i}" for i in range(9)),
+        *(f"bopiright{i}" for i in range(9)),
+        *(f"bopiportrait{i}" for i in range(9)),
+        *(f"world{i}" for i in range(8)),
+        "logo", "homeback", "nav_profile", "nav_tasks", "nav_collection", "nav_shop",
+    }
+    issues.extend(f"Runtime drawable missing from source references: {name}"
+                  for name in sorted(expected_dynamic - referenced["drawable"]))
+    generator = (ROOT / "tools/generate_images.py").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github/workflows/native-ci.yml").read_text(encoding="utf-8")
+    hero_catalog = ROOT / "ios/BOPAVI/Assets.xcassets/Hero.imageset/Contents.json"
+    if (hero_catalog.exists() or "Hero.imageset" in generator or
+            "drawable-nodpi/hero.png" in generator or
+            "drawable-nodpi/hero.png" in workflow or "Hero.imageset" in workflow):
+        issues.append("Dead Hero PNG/catalog still packaged; keep docs/assets/hero.svg as sprite source")
+    # Logo, HomeArt and LaunchArt are real runtime or OS launch resources.
+    ios_source = "\n".join(path.read_text(encoding="utf-8") for path in IOS_SOURCES)
+    ios_plist = (IOS / "Info.plist").read_text(encoding="utf-8")
+    for token in ('UIImage(named:"Logo")', 'UIImage(named:"HomeArt")'):
+        if token not in ios_source:
+            issues.append(f"Referenced iOS app art missing: {token}")
+    if "<string>LaunchArt</string>" not in ios_plist:
+        issues.append("iOS system launch art missing")
+    if not (ROOT / "docs/assets/hero.svg").is_file():
+        issues.append("Source hero SVG must remain for Bopi sprite generator and README")
+    fail(issues)
+    print(f"PASS: {len(referenced['drawable'])} Android runtime drawable names, "
+          "8 environments, 9 pilots, 18 wings, launch/logo assets and no orphan Hero catalog")
+
+
+def audit_audio_pairing():
+    android_raw = ROOT / "android/app/src/main/res/raw"
+    ios_audio = IOS / "Audio"
+    android_names = {p.stem for p in android_raw.glob("*.wav")}
+    ios_names = {p.stem for p in ios_audio.glob("*.wav")}
+    expected = {"click", "collect", "hit", "level", "purchase", "tap"}
+    expected.update(f"world_{i}" for i in range(8))
+    sources = "\n".join(path.read_text(encoding="utf-8") for path in ANDROID_SOURCES)
+    declared = {name for kind, name in RESOURCE.findall(sources) if kind == "raw"}
+    issues = []
+    if android_names != expected:
+        issues.append(f"Android audio missing/orphan: {sorted(expected ^ android_names)}")
+    if ios_names != expected:
+        issues.append(f"iOS audio missing/orphan: {sorted(expected ^ ios_names)}")
+    if declared != expected:
+        issues.append(f"Audio lookup mismatch: {sorted(expected ^ declared)}")
+    for name in sorted(expected & android_names & ios_names):
+        a = hashlib.sha256((android_raw / f"{name}.wav").read_bytes()).digest()
+        b = hashlib.sha256((ios_audio / f"{name}.wav").read_bytes()).digest()
+        if a != b:
+            issues.append(f"Cross-platform audio differs: {name}")
+    fail(issues)
+    print("PASS: 14 paired runtime audio resources; no orphan WAV and byte-identical platforms")
+
+
+def audit_project_integration():
+    project = (ROOT / "ios/BOPAVI.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
+    issues = []
+    for path in IOS_SOURCES:
+        if path.name not in project:
+            issues.append(f"Swift source is unlinked from Xcode target: {path.name}")
+    manifest = (ROOT / "android/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+    if "android.permission.INTERNET" in manifest:
+        issues.append("Unexpected network permission in offline single-player game")
+    if 'android:allowBackup="false"' not in manifest:
+        issues.append("OS backup policy changed without explicit privacy review")
+    fail(issues)
+    print("PASS: six iOS source units linked to project, offline Android permission/backup contract")
+
+
+def audit():
+    audit_private_declarations()
+    audit_resource_reachability()
+    audit_audio_pairing()
+    audit_project_integration()
+    print("PASS: comprehensive static native dead-code / dead-asset / package audit")
 
 
 if __name__ == "__main__":

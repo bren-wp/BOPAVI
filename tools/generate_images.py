@@ -4,16 +4,16 @@ from PIL import Image
 import io, json, cairosvg
 r=Path(__file__).resolve().parents[1]
 a=r/'android/app/src/main/res';b=r/'ios/BOPAVI/Assets.xcassets'
-for p in [a/'drawable',a/'drawable-nodpi',b/'AppIcon.appiconset',b/'Hero.imageset',b/'Logo.imageset',b/'LaunchArt.imageset',b/'HomeArt.imageset']:p.mkdir(parents=True,exist_ok=True)
+for p in [a/'drawable',a/'drawable-nodpi',b/'AppIcon.appiconset',b/'Logo.imageset',b/'LaunchArt.imageset',b/'HomeArt.imageset']:p.mkdir(parents=True,exist_ok=True)
 icon=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/icon.svg'),output_width=1024,output_height=1024))).convert('RGB')
 icon.save(b/'AppIcon.appiconset/icon-1024.png',optimize=True)
 icon.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
 brand=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/logo.svg'),output_width=780))).convert('RGBA')
 brand.save(a/'drawable-nodpi/logo.png',optimize=True)
 brand.save(b/'Logo.imageset/logo.png',optimize=True)
+# This in-memory scene is required for launch composition and bird sprite extraction.
+# It is NOT a standalone packaged runtime PNG or iOS Hero catalog.
 hero=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/hero.svg'),output_width=900))).convert('RGB')
-hero.save(a/'drawable-nodpi/hero.png',optimize=True)
-hero.save(b/'Hero.imageset/hero.png',optimize=True)
 # Continuous bright sky below the floating islands instead of a flat navy band.
 launch=Image.new('RGB',(900,1600),(18,110,201))
 from PIL import ImageDraw
@@ -120,7 +120,6 @@ launch_art.save(b/'LaunchArt.imageset/launch.png',optimize=True)
 (b/'Logo.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'logo.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 (b/'LaunchArt.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'launch.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 (b/'HomeArt.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'home.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-(b/'Hero.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'hero.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 
 # Extract Bopi from the approved hero artwork, without external assets or sprite licenses.
 # Keep the same body, scarf and goggles on both native platforms.

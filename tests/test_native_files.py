@@ -1989,3 +1989,43 @@ assert 'if(requestCode!=42 && requestCode!=43)return' in android_ui
 assert 'Kopiju nije moguće otvoriti ili spremiti.' in android_ui
 assert 'rawName=row["name"]' not in ios_saves
 print("PASS: personal top-ten records, private export cleanup and no user-facing development/storage filler")
+
+# v0.1.65: the old packaged composite hero is dead; the source SVG still
+# generates all live winged sprites. Unused PNG/asset catalogs must stay gone.
+generator=(root/'tools/generate_images.py').read_text()
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+assert "Hero.imageset" not in generator
+assert "drawable-nodpi/hero.png" not in generator
+assert "drawable-nodpi/hero.png" not in workflow
+assert "Hero.imageset" not in workflow
+assert not (root/'ios/BOPAVI/Assets.xcassets/Hero.imageset/Contents.json').exists()
+assert (root/'docs/assets/hero.svg').exists()
+assert "hero_markup=" in generator
+assert "tools/audit_native_dead_code.py" in workflow
+audit=(root/'tools/audit_native_dead_code.py').read_text()
+for check in ('audit_private_declarations','audit_resource_reachability',
+              'audit_audio_pairing','audit_project_integration'):
+    assert 'def '+check+'(' in audit,check
+
+# Android 15's real previous failure had a Pixel Launcher foreground, not
+# a BOPAVI GameView. Recovery is allowed ONLY if the app process survived and
+# window focus is actually on the launcher; any genuine crash must still fail.
+qa=(root/'tools/qa_android_emulator.sh').read_text()
+for required in ('recover_confirmed_system_launcher',
+                 "['adb','shell','pidof','com.brendigo.bopavi']",
+                 "Process: com.brendigo.bopavi",
+                 'mCurrentFocus',
+                 'com.google.android.apps.nexuslauncher',
+                 '0x20020000',
+                 'system_recoveries<2',
+                 'android-pilot-launch-logcat.txt',
+                 'android-pilot-launch-activities.txt',
+                 'android-pilot-launch-windows.txt',
+                 'FAIL: BOPAVI process exited during pilot confirmation'):
+    assert required in qa,required
+assert 'qa/screenshots/*.txt' in workflow
+assert 'Dodirni za let Bopija' in qa
+assert 'verify_idle_preview' in qa
+assert 'Poleti u novu avanturu.' in ios_menu
+assert 'Odaberi letača i poleti u novu avanturu.' in android_menu
+print("PASS: dead-resource removal, 4-scope audit and real-process-only Android launcher recovery")

@@ -1,3 +1,13 @@
+## v0.1.65 — Android 15 pilot focus-loss recovery and full dead-code audit
+
+1. Review Android 15 failure artifact in CI run 38312182026: `android-pilot-launch-diagnostic.xml` recorded actual Pixel Launcher nodes after nine authentic pilot cards were visible. It did **not** contain a BOPAVI GameView or prove why focus was lost.
+2. Run full Android 15/16 UI flow. If Pixel Launcher steals window focus while `pidof com.brendigo.bopavi` is alive and no current BOPAVI FATAL EXCEPTION is present, **reorder** the existing activity to front (maximum two attempts) and require an authentic idle GameView. No forced process reset, screenshot replacement or bypass.
+3. For any non-launcher foreground, BOPAVI ANR, missing process, app crash, broken button or GameView not appearing, fail and upload real `android-pilot-launch-{diagnostic.xml,logcat.txt,activities.txt,windows.txt}`.
+4. Verify complete audio parity of 14 Android/iOS WAVs, references of 9 pilot bodies and 18 detached wings, 8 generated worlds, launch/logo assets, and no old unused Hero PNG catalog. Run `python tools/audit_native_dead_code.py`.
+5. Keep `docs/assets/hero.svg` as the genuine Bopi artwork source and README image; compile both apps after removal of only the unreferenced packaged Hero bitmap.
+6. Keep screenshot comparison honest. 3D reference art is not currently 1:1 in the actual app. Verify navigation, character selection, pause, score/rewards, save migration and private records on screenshots from the *running* builds.
+7. Require green PR CI and fresh main CI before merging/tagging release v0.1.65 build 68; check APK, unsigned AAB, iOS simulator/unsigned device app, actual screenshot PNGs, Google Play zip and SHA256SUMS.
+
 ## v0.1.64 — Personal scoreboard, privacy and polished screen QA
 
 1. Open **Postavke → Moji rekordi**. Check the dark-blue ranking cards have a gold best-result panel, readable portrait layout and only the user's ten highest *actual* flight scores. Every metric must originate in `ProgressStore` with zero placeholder rows.

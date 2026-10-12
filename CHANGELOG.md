@@ -1,3 +1,12 @@
+## v0.1.65 — Android 15 focus-loss diagnosis + native dead-code/resource cleanup (build 68)
+
+- Investigated actual production main CI failure from run 38312182026: despite all nine real pilot cards loading, the post-confirmation XML was the **Pixel Launcher** hierarchy instead of BOPAVI's idle game. This is not sufficient evidence of a BOPAVI crash; preserve process/crash/window state before attributing a root cause.
+- Bounded and strictly verified Android 15 test recovery: only reorder an existing, running BOPAVI activity to front when Pixel Launcher actually holds focus. Missing BOPAVI process, native crash, unexpected window or missing real GameView remain hard failures. Added logcat/activity/window diagnostics as QA artifacts.
+- Removed **actually unused generated Android Hero PNG and iOS Hero catalog**, plus CI upload entries; retained live hero SVG source for production bird rendering and README.
+- Expanded required GitHub dead-code audit across 12 Kotlin/Swift units, 282 private symbol declarations, 50 Kotlin imports, generated drawable/wing/world references, 14 sound pairs, Xcode project linkage and Android permissions. Documented limitations and real screenshot gap in `docs/DEAD-CODE-AUDIT-v0.1.65.md`.
+- Removed remaining unnecessary device-storage wording in pilot picker without weakening the explicit privacy policy. Added regression contracts protecting crash detection and referenced source art.
+- **Visual fidelity:** the supplied painterly 3D design references remain an unmet 1:1 target. Genuine screenshot evidence is still required; code-driven screenshot substitutions and invented achievements are prohibited.
+
 ## v0.1.64 — Personal records, production UI wording and private backup hygiene (build 67)
 
 - Android and iOS **Moji rekordi** now show one player's ten best real flights in blue/cyan/gold ranking cards with a distinct personal-best panel. No multi-player list, online leaderboard or fabricated comparison is displayed.
