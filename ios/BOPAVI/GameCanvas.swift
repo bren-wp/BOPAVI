@@ -44,7 +44,7 @@ final class GameCanvas: UIView {
     private let leftWing:UIImage?
     private let rightWing:UIImage?
     // Shared artwork geometry with Android's GameView: Bopi's 520-unit
-    // drawing uses a wide 148pt sprite; newer 160-unit birds are 160pt.
+    // drawing uses 220pt sprite art; newer 160-unit birds use 235pt.
     // Art scale and shoulder pivot do NOT change physics/collision bounds.
     private let birdArtSize:CGFloat
     private let leftWingPivot:CGPoint
@@ -85,12 +85,15 @@ final class GameCanvas: UIView {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex))
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
-        let artSize:CGFloat=selectedSkin>=6 ? 160 : 148
+        let artSize:CGFloat=selectedSkin>=6 ? 235 : 220
         self.birdArtSize=artSize
         let scale=artSize/100
-        self.leftWingPivot=selectedSkin>=6 ? CGPoint(x:-12,y:4) :
+        let premiumScale=artSize/160
+        self.leftWingPivot=selectedSkin>=6 ?
+            CGPoint(x:-12*premiumScale,y:4*premiumScale) :
             CGPoint(x:-16*scale,y:5*scale)
-        self.rightWingPivot=selectedSkin>=6 ? CGPoint(x:12,y:4) :
+        self.rightWingPivot=selectedSkin>=6 ?
+            CGPoint(x:12*premiumScale,y:4*premiumScale) :
             CGPoint(x:15*scale,y:-4*scale)
         self.birdSprite=UIImage(named:"Bopi\(selectedSkin)")
         self.leftWing=UIImage(named:"BopiLeft\(selectedSkin)")
@@ -757,7 +760,7 @@ final class GameCanvas: UIView {
         if game.magnetTime>0 {oval(c,92,CGFloat(game.y)-34,68,68,0x4fdfff,0.27)}
         if game.shield>0 {
             c.setStrokeColor(color(0x9fefff));c.setLineWidth(3)
-            let r:CGFloat=34+CGFloat(sin(game.time*5))*2
+            let r:CGFloat=61+CGFloat(sin(game.time*5))*2
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
