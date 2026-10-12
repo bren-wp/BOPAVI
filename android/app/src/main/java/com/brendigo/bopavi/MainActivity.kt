@@ -311,8 +311,8 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER
             background=gradient(if(world % 2 == 1)0xff6243ba.toInt() else 0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(d(85),d(29),Gravity.TOP or Gravity.RIGHT).apply{
-            setMargins(0,d(9),d(8),0)
+        },FrameLayout.LayoutParams(d(85),d(25),Gravity.TOP or Gravity.LEFT).apply{
+            setMargins(d(8),d(47),0,0)
         })
         artPanel.addView(TextView(this).apply{
             text="›";textSize=31f;setTextColor(Color.WHITE)
