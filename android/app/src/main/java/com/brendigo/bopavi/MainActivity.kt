@@ -1644,11 +1644,25 @@ class MainActivity : Activity() {
     }
     private fun showSettings(){
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
-        sectionHeading(b,"IZGLED I ZVUK")
-        volumeSlider(b,"♫  Glazba",progress.musicVolume()){
+        // The reference's tall royal-blue sheet is a *real* scrolling layout,
+        // not a screenshot or image with fake slider/switch controls.
+        val settingsPanel=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(13),d(12),d(13),d(18))
+            background=gradient(0xf706326e.toInt(),0xfc041631.toInt(),27).apply{
+                setStroke(d(2),0xff42cfff.toInt())
+            }
+            elevation=d(11).toFloat()
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        }
+        b.addView(settingsPanel,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(12);bottomMargin=d(10)
+        })
+        sectionHeading(settingsPanel,"IZGLED I ZVUK")
+        volumeSlider(settingsPanel,"♫  Glazba",progress.musicVolume()){
             progress.setMusicVolume(it);sound.musicVolume=it/100f
         }
-        volumeSlider(b,"◖  Zvukovi",progress.effectsVolume()){
+        volumeSlider(settingsPanel,"◖  Zvukovi",progress.effectsVolume()){
             progress.setEffectsVolume(it);sound.effectsVolume=it/100f
         }
         val haptic=Switch(this).apply {
@@ -1661,9 +1675,9 @@ class MainActivity : Activity() {
         haptic.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
         haptic.setPadding(d(12),d(10),d(12),d(10))
         haptic.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(haptic,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(7)})
-        sectionHeading(b,"IGRAČ I TEŽINA")
-        small(b,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
+        settingsPanel.addView(haptic,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(7)})
+        sectionHeading(settingsPanel,"IGRAČ I TEŽINA")
+        small(settingsPanel,"TEŽINA IGRE — utječe na brzinu i gravitaciju")
         // Three genuine selectable cards: reference-matched layout, existing
         // offline difficulty indices and no fake switches or baked-in text.
         val modeRow=LinearLayout(this).apply{
@@ -1737,8 +1751,8 @@ class MainActivity : Activity() {
             })
         }
         refreshDifficultyCards()
-        b.addView(modeRow,LinearLayout.LayoutParams(-1,-2))
-        small(b,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
+        settingsPanel.addView(modeRow,LinearLayout.LayoutParams(-1,-2))
+        small(settingsPanel,"Težina se primjenjuje na sljedeći let. Dosadašnji napredak ostaje spremljen.")
         val player=EditText(this).apply {
             hint="Tvoje ime"
             setSingleLine(true)
@@ -1749,36 +1763,36 @@ class MainActivity : Activity() {
             setPadding(d(14),0,d(14),0)
             background=gradient(0xff082b59.toInt(),0xff041b3b.toInt(),13)
         }
-        b.addView(player,LinearLayout.LayoutParams(-1,d(52)))
-        action(b,"SPREMI IME",false){
+        settingsPanel.addView(player,LinearLayout.LayoutParams(-1,d(52)))
+        action(settingsPanel,"SPREMI IME",false){
             progress.setPlayerName(player.text.toString())
             Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
         }
-        sectionHeading(b,"DODATNE OPCIJE")
+        sectionHeading(settingsPanel,"DODATNE OPCIJE")
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
         low.thumbTintList=ColorStateList.valueOf(gold)
         low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
         low.setPadding(d(12),d(10),d(12),d(10))
         low.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(low,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
+        settingsPanel.addView(low,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
         val audio=Switch(this).apply{text="Glazba i zvučni efekti";setTextColor(Color.WHITE);isChecked=progress.soundEnabled();setOnCheckedChangeListener{_,v->progress.setSoundEnabled(v);sound.enabled=v}}
         audio.thumbTintList=ColorStateList.valueOf(gold)
         audio.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
         audio.setPadding(d(12),d(10),d(12),d(10))
         audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-        b.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
+        settingsPanel.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
 
-        action(b,"🐤  LIKOVI",false){showSkins()}
-        action(b,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
-        action(b,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
-        sectionHeading(b,"PODACI I PRIVATNOST")
-        small(b,"BOPAVI — Mali let, velika avantura. Stvorio Brendigo.")
-        small(b,"Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.")
-        action(b,"SPREMI KOPIJU NAPRETKA",false){
+        action(settingsPanel,"🐤  LIKOVI",false){showSkins()}
+        action(settingsPanel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
+        action(settingsPanel,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
+        sectionHeading(settingsPanel,"PODACI I PRIVATNOST")
+        small(settingsPanel,"BOPAVI — Mali let, velika avantura. Stvorio Brendigo.")
+        small(settingsPanel,"Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.")
+        action(settingsPanel,"SPREMI KOPIJU NAPRETKA",false){
             val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json";putExtra(Intent.EXTRA_TITLE,"bopavi-save.json")}
             startActivityForResult(intent,42)
         }
-        action(b,"VRATI NAPREDAK IZ KOPIJE",false){
+        action(settingsPanel,"VRATI NAPREDAK IZ KOPIJE",false){
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
