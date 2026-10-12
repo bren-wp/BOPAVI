@@ -1368,7 +1368,7 @@ class MainActivity : Activity() {
 
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
-        val b=base("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
+        val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         val skin=progress.skin()
         val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
             R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
@@ -1619,19 +1619,71 @@ class MainActivity : Activity() {
     }
 
     private fun showLeaderboard(){
-        val b=base("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
+        val b=base("MOJI REKORDI","Tvojih deset najboljih letova")
         val entries=progress.leaderboard()
-        if(entries.isEmpty()) small(b,"Još nema rezultata. Odigraj let i osvoji bodove!")
-        for((index,item) in entries.withIndex()){
-            small(b,"${index+1}. ${item.name} · ${item.score} bodova")
-            small(b,"${LevelEngine.names[item.world]} · ${progress.difficultyNames[item.difficulty]} · ${item.gates} prolaza")
+        val best=entries.firstOrNull()
+        if(best!=null) {
+            val banner=LinearLayout(this).apply {
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                setPadding(d(16),d(16),d(16),d(17))
+                background=gradient(0xff0b65bf.toInt(),0xff061c46.toInt(),24).apply{
+                    setStroke(d(3),gold)
+                }
+                contentDescription="Osobni rekord: ${best.score} bodova"
+            }
+            title(banner,"♛  OSOBNI REKORD",18,gold)
+            title(banner,"${best.score} BODOVA",29,Color.WHITE)
+            b.addView(banner,LinearLayout.LayoutParams(-1,-2).apply{
+                topMargin=d(12);bottomMargin=d(9)
+            })
+        } else small(b,"Prvi rekord čeka tvoj sljedeći let!")
+        for((index,item) in entries.withIndex()) {
+            val highlighted=index==0
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(12),d(13),d(12),d(13))
+                background=gradient(if(highlighted)0xff1459a2.toInt() else 0xff0a3672.toInt(),
+                    0xff061a3b.toInt(),18).apply{
+                    setStroke(d(if(highlighted)2 else 1),if(highlighted)gold else electric)
+                }
+                contentDescription="Let ${index+1}, ${item.score} bodova, ${LevelEngine.names[item.world]}, ${item.gates} prolaza"
+            }
+            val medal=TextView(this).apply{
+                text=if(highlighted)"♛" else "${index+1}"
+                textSize=if(highlighted)29f else 22f
+                gravity=Gravity.CENTER;setTextColor(if(highlighted)gold else Color.WHITE)
+                typeface=Typeface.DEFAULT_BOLD
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            card.addView(medal,LinearLayout.LayoutParams(d(52),d(52)))
+            val info=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
+            info.addView(TextView(this).apply{
+                text="${item.score} BODOVA";textSize=20f;setTextColor(Color.WHITE)
+                typeface=Typeface.DEFAULT_BOLD
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            })
+            info.addView(TextView(this).apply{
+                text="${LevelEngine.names[item.world]} · ${progress.difficultyNames[item.difficulty]}"
+                textSize=12f;setTextColor(0xffd4eaff.toInt())
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            })
+            card.addView(info,LinearLayout.LayoutParams(0,-2,1f))
+            card.addView(TextView(this).apply {
+                text="⚑ ${item.gates}"
+                textSize=13f;setTextColor(gold);typeface=Typeface.DEFAULT_BOLD
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-2,-2).apply{leftMargin=d(8)})
+            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(8)})
         }
-        action(b,"POSTIGNUĆA",false){showAchievements()}
+        action(b,"★  MOJA POSTIGNUĆA",false){showAchievements()}
         back(b){showSettings()}
     }
     private fun showAchievements(){showAchievements(MenuOrigin.SETTINGS)}
     private fun showAchievements(origin:MenuOrigin){
-        val b=base("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
+        val b=base("POSTIGNUĆA","Nagrade koje si osvojio tijekom igre")
         small(b,"Dovršeni leveli: ${((0..7).sumOf { (progress.frontier(it)-1).toLong() })}")
         small(b,"Pobjede: ${progress.wins()}  ·  Pokušaji bez pobjede: ${progress.deaths()}")
         val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
@@ -1805,7 +1857,7 @@ class MainActivity : Activity() {
         settingsPanel.addView(player,LinearLayout.LayoutParams(-1,d(52)))
         action(settingsPanel,"SPREMI IME",false){
             progress.setPlayerName(player.text.toString())
-            Toast.makeText(this,"Ime je spremljeno na uređaju.",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,"Ime je promijenjeno.",Toast.LENGTH_SHORT).show()
         }
         sectionHeading(settingsPanel,"DODATNE OPCIJE")
         val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
@@ -1823,10 +1875,10 @@ class MainActivity : Activity() {
 
         action(settingsPanel,"🐤  LIKOVI",false){showSkins()}
         action(settingsPanel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
-        action(settingsPanel,"🏆  LOKALNA LJESTVICA",false){showLeaderboard()}
+        action(settingsPanel,"🏆  MOJI REKORDI",false){showLeaderboard()}
         sectionHeading(settingsPanel,"PODACI I PRIVATNOST")
         small(settingsPanel,"BOPAVI — Mali let, velika avantura. Stvorio Brendigo.")
-        small(settingsPanel,"Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.")
+        small(settingsPanel,"Bez oglasa, praćenja i kupnje stvarnim novcem.")
         action(settingsPanel,"SPREMI KOPIJU NAPRETKA",false){
             val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json";putExtra(Intent.EXTRA_TITLE,"bopavi-save.json")}
             startActivityForResult(intent,42)
@@ -1837,7 +1889,7 @@ class MainActivity : Activity() {
         }
         back(b){showHome()}
     }
-    @Deprecated("Activity result callbacks are used for a dependency-free Android sample")
+    @Deprecated("Document picker compatibility for existing Android installations")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
         super.onActivityResult(requestCode,resultCode,data)
         if(resultCode!=RESULT_OK || data?.data==null)return
