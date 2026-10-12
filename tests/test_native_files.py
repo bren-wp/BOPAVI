@@ -594,10 +594,14 @@ android_start=android_menu.split('private fun startGame(',1)[1].split('private f
 ios_start=ios_menu.split('private func startGame(',1)[1].split('private func showToast(',1)[0]
 android_touch=android_render.split('override fun onTouchEvent(',1)[1].split('override fun performClick(',1)[0]
 ios_touch=ios_render.split('override func touchesBegan(',1)[1].split('private func color(',1)[0]
-assert 'val firstFlap=!game.active' in android_touch
-assert 'if(firstFlap && game.active)onFlightStarted()' in android_touch
-assert 'let firstFlap = !game.active' in ios_touch
-assert 'if firstFlap && game.active {onFlightStarted?()}' in ios_touch
+android_click=android_render.split('override fun performClick(',1)[1].split('override fun onDetachedFromWindow(',1)[0]
+ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override func touchesBegan(',1)[0]
+assert 'performClick()' in android_touch
+assert 'val firstFlap=!game.active' in android_click
+assert 'if(firstFlap && game.active)onFlightStarted()' in android_click
+assert 'triggerFlap()' in ios_touch
+assert 'let firstFlap = !game.active' in ios_flap
+assert 'if firstFlap && game.active {onFlightStarted?()}' in ios_flap
 assert 'visibility=View.INVISIBLE' in android_start
 assert 'pauseButton?.visibility=View.VISIBLE' in android_start
 assert 'pause.isHidden=true' in ios_start
@@ -1393,3 +1397,20 @@ assert "('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·')" in qa
 assert 'if len(set(settings))!=2:' in qa
 assert 't,l,r,b=max(regions)' in qa
 print('PASS: QA verifies distinct home header gear and main Settings CTA')
+
+# v0.1.48: idle preview draws once, then only after an actual flap.
+assert 'if(!paused && game.active && !game.finished && isAttachedToWindow)' in android_render
+assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_touch
+assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
+assert 'super.performClick()' in android_click
+assert 'if(!paused && !game.finished)' in android_click
+assert 'string:"DODIRNI ZA LET"' in ios_render
+assert 'idlePrompt.draw(at:' in ios_render
+assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
+assert 'if paused {stop()} else {start()}' in ios_render
+assert 'override func accessibilityActivate()->Bool' in ios_render
+assert 'isAccessibilityElement=true' in ios_render
+assert 'triggerFlap()' in ios_touch and 'game.flap()' not in ios_touch
+assert 'start()' in ios_flap and 'setNeedsDisplay()' in ios_flap
+assert 'guard !paused && !game.finished else{return false}' in ios_render
+print('PASS: idle frame scheduling, on-canvas prompt and accessible first flap')

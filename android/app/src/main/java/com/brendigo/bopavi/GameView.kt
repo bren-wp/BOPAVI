@@ -191,7 +191,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 if(game.level.world==5||game.level.world==7)0xff171f53.toInt() else 0xff64c881.toInt())
         }
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && !game.finished && isAttachedToWindow) {
+        if(!paused && game.active && !game.finished && isAttachedToWindow) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
         }
     }
@@ -642,18 +642,21 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        if(event.actionMasked==MotionEvent.ACTION_DOWN){
-            if(!paused && !game.finished){
-                val firstFlap=!game.active
-                game.flap()
-                if(firstFlap && game.active)onFlightStarted()
-                contentDescription="Bopi leti"
-                onFlap();performClick();invalidate()
-            }
-            return true
+        // Flap immediately on DOWN; accessibility activates the same click path.
+        if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
+        return true
+    }
+    override fun performClick():Boolean {
+        super.performClick()
+        if(!paused && !game.finished){
+            val firstFlap=!game.active
+            game.flap()
+            if(firstFlap && game.active)onFlightStarted()
+            contentDescription="Bopi leti"
+            onFlap()
+            invalidate()
         }
         return true
     }
-    override fun performClick():Boolean {super.performClick();return true}
     override fun onDetachedFromWindow(){paused=true;super.onDetachedFromWindow()}
 }
