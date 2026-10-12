@@ -1867,3 +1867,21 @@ assert "Image.alpha_composite(wings,body)" in generator
 assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: 30+ animated feather contours, gold goggle bevels and shared eight-world skyfalls')
+
+# v0.1.62 — no release may reuse an active-flight screenshot for Results.
+# The artifact digests in v0.1.61 were identical despite different labels.
+emulator=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'result_capture_unique=0' in emulator
+assert 'result_capture_attempt=1' in emulator
+assert 'result_capture_attempt" -le 8' in emulator
+assert 'cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png' in emulator
+assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png' in emulator
+assert 'Results PNG duplicates active or idle gameplay after bounded retries' in emulator
+assert 'grep -q \'PONOVO\'' in emulator
+assert 'capture android-result-diagnostic' in emulator
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+assert "results=Path('dist/BOPAVI-Android-Results.png')" in workflow
+assert 'for earlier in (ready,active):' in workflow
+assert 'Results screenshot duplicates gameplay screenshot:' in workflow
+assert 'results UI screenshot distinct from both idle and active gameplay' in workflow
+print('PASS: real Results screenshot cannot equal active or idle flight release capture')
