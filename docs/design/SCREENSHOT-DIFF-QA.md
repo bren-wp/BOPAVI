@@ -1,3 +1,11 @@
+## Iteration 24 — full-height background, actual screenshots and README integrity
+
+- Android GameView and iOS GameCanvas previously drew an opaque solid-color ground stripe from logical coordinate y=751 to the bottom of their 480×800 gameplay scene after restoring the canvas. That stripe erased foreground fantasy world details independently of the painted world raster. Both paths now draw the complete illustrative scene and rely on their already-existing full-viewport sky fill for letterboxes.
+- Marketing README has been redesigned around the real shipped logo, icon, character SVGs, four footer illustrations, live game features and verified emulator/simulator screenshot gallery. Gallery URLs point to current GitHub Release assets, not concept images.
+- Release stage now fails closed unless it can download real Android QA screenshots (home, pilot picker, idle flight, results) and an iOS simulator home capture. All images are checked for genuine PNG structure and portrait dimensions; no UI is generated or painted for this gallery.
+- Kotlin/Swift declaration/import audit found and removed one unused Android property and three unused imports. The new conservative guard runs in CI; fallback sprite rendering, accessibility callbacks, physics and save migration remain.
+- Visual gaps: premium 3D-like Bopi fur/feather shading, modeled castles/waterfalls, complete HUD composition and 10-screen native pixel comparison are **still open**. This iteration improves a reproducible occlusion problem and truthful visual documentation, not full 1:1 parity.
+
 ## Iteration 23 — Bopi facial features and animated feather detail
 
 - Compared reference mascot eyes/beak/goggles with the production source SVG. The existing Bopi source had near-flat dark pupil ovals and a closed triangular beak. New shared layers create more dimensional cyan irises, distinct white catchlights, blue brows, a mouth and tongue, reflective crest and additional aviator strap highlights.
