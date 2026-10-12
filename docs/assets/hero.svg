@@ -121,12 +121,15 @@
  <ellipse cx="66" cy="-3" rx="4" ry="7" fill="#c9fcff" opacity=".9"/>
  <path d="M-92 -70Q-68 -87 -40 -78M20 -76Q53 -90 80 -67" fill="none" stroke="#06428f" stroke-width="7" opacity=".78" stroke-linecap="round"/>
  <ellipse cx="-76" cy="25" rx="30" ry="22" fill="url(#cheek)"/><ellipse cx="88" cy="28" rx="31" ry="23" fill="url(#cheek)"/>
- <!-- Open, smiling orange beak with a shaded inner mouth and tongue. -->
- <path d="M2 35Q34 27 92 50Q83 94 44 98Q13 84 2 35Z" fill="#ff990b" stroke="#ae5106" stroke-width="4" stroke-linejoin="round"/>
- <path d="M24 55Q53 48 77 61Q72 86 49 90Q32 77 24 55Z" fill="#7e2929"/>
- <ellipse cx="51" cy="84" rx="12" ry="7" fill="#f56675"/>
- <path d="M6 41Q38 31 89 52L57 65Q28 59 9 53Z" fill="#ffd447" stroke="#fff4a7" stroke-width="3" stroke-linejoin="round"/>
- <path d="M70 69Q80 65 84 53" fill="none" stroke="#fff6c0" stroke-width="3" opacity=".8"/>
+ <!-- Connected white muzzle anchors the bill directly to Bopi's cheek; the
+      lower jaw ends ABOVE the scarf rather than looking like a loose shape. -->
+ <path d="M-33 37Q-22 7 14 5Q66 2 100 29Q111 58 90 76Q37 91-12 68Q-35 55-33 37Z" fill="url(#belly)" stroke="#d0efff" stroke-width="2.5"/>
+ <path d="M-4 30Q16 16 49 20Q81 21 97 43Q91 70 65 81Q34 87 14 68Q3 53-4 30Z" fill="#ff9a16" stroke="#a95112" stroke-width="4.5" stroke-linejoin="round"/>
+ <path d="M15 44Q42 37 86 52Q78 75 60 77Q35 76 22 61Z" fill="#672536" stroke="#e17d23" stroke-width="2.5" stroke-linejoin="round"/>
+ <path d="M32 65Q52 61 65 73Q54 79 40 72Z" fill="#fc7681" opacity=".95"/>
+ <path d="M-1 33Q19 20 48 24Q80 24 93 43L63 52Q28 47 8 48Z" fill="#ffd647" stroke="#fff4b2" stroke-width="3.2" stroke-linejoin="round"/>
+ <path d="M0 31Q24 17 49 22" fill="none" stroke="#fff9d2" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+ <path d="M84 51Q83 62 73 68" fill="none" stroke="#fff2b3" stroke-width="3" stroke-linecap="round" opacity=".78"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#052959" stroke-width="35" stroke-linecap="round"/>
  <path d="M-108 87Q-16 117 98 92" fill="none" stroke="#1164c9" stroke-width="26" stroke-linecap="round"/>
  <path d="M-91 83Q-14 107 88 89" fill="none" stroke="#71d8ff" stroke-width="5" opacity=".70" stroke-linecap="round"/>
