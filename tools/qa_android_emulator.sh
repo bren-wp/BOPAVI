@@ -615,32 +615,36 @@ flight_started=0
 attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
-  # Capture on-device immediately after the tap, in the SAME adb shell
-  # transaction. The former host round-trip + sleep + screencap took >2s on
-  # CI emulators: by then the bird had hit the ground and both named PNGs
-  # were actually the Results screen (same SHA-256 in v0.1.61).
-  # This is a genuine platform screencap, never a mock/rendered fixture.
-  adb shell "input tap $center $((height*50/100)); sleep 0.12; screencap -p /sdcard/bopavi-active-flight.png"
-  adb exec-out cat /sdcard/bopavi-active-flight.png > qa/screenshots/android-gameplay-active.png
-  python3 - qa/screenshots/android-gameplay-active.png <<'PY'
-import sys
+  # Capture several real on-device frames after ONE first flap.
+  # Emulator latency can keep the first frame idle, then render real gameplay,
+  # then finish before a host-side screenshot reaches the Surface compositor.
+  # Preserve every candidate; only a frame different from BOTH the verified
+  # idle screen and the eventual result can become the release gameplay image.
+  adb shell "input tap $center $((height*50/100)); sleep 0.27; screencap -p /sdcard/bopavi-flight-1.png; sleep 0.22; screencap -p /sdcard/bopavi-flight-2.png; sleep 0.22; screencap -p /sdcard/bopavi-flight-3.png"
+  for frame in 1 2 3; do
+    adb exec-out cat "/sdcard/bopavi-flight-$frame.png" > "qa/screenshots/android-flight-candidate-$frame.png"
+    python3 - "qa/screenshots/android-flight-candidate-$frame.png" <<'PY'
 from pathlib import Path
-s=Path(sys.argv[1]).read_bytes()
-assert len(s)>2000 and s.startswith(bytes.fromhex("89504e470d0a1a0a"))
-print("PASS: gameplay screenshot captured in the same on-device tap transaction")
+import sys
+data=Path(sys.argv[1]).read_bytes()
+assert len(data)>2000 and data.startswith(bytes.fromhex("89504e470d0a1a0a"))
 PY
-  # An unchanged preview is not evidence of flight. Do not silently replace
-  # with an eventual result screen; try another *real* flap while still alive.
-  if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
-    rm -f qa/screenshots/android-gameplay-active.png
-    echo "No active HUD pixels yet; retrying actual input before any UI dump"
+  done
+  live_candidate_found=0
+  for frame in 1 2 3; do
+    file="qa/screenshots/android-flight-candidate-$frame.png"
+    if ! cmp -s qa/screenshots/android-gameplay-ready.png "$file"; then
+      cp "$file" qa/screenshots/android-gameplay-active.png
+      live_candidate_found=1
+      break
+    fi
+  done
+  if [ "$live_candidate_found" -ne 1 ]; then
+    echo "No changed in-flight frame was rendered; retrying genuine first flap"
     attempt=$((attempt+1))
     sleep 0.10
     continue
   fi
-  test -s qa/screenshots/android-gameplay-active.png || {
-    echo "FAIL: no genuine active gameplay screenshot was captured" >&2; exit 1;
-  }
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
@@ -726,7 +730,24 @@ while [ "$result_capture_attempt" -le 8 ]; do
   fi
   sleep 0.40
   capture android-result
-  if ! cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png &&
+  # The first changed frame may still be an early Results transition. Before
+  # judging validity, inspect all stored *real* screencaps from the first tap.
+  # No filtering by UI mock, sprite files or reference images is permitted.
+  selected_real_flight=0
+  for candidate in qa/screenshots/android-flight-candidate-*.png; do
+    if [ -s "$candidate" ] &&
+       ! cmp -s qa/screenshots/android-gameplay-ready.png "$candidate" &&
+       ! cmp -s qa/screenshots/android-result.png "$candidate"; then
+      cp "$candidate" qa/screenshots/android-gameplay-active.png
+      selected_real_flight=1
+      break
+    fi
+  done
+  if [ "$selected_real_flight" -ne 1 ]; then
+    echo "No genuinely different gameplay frame in captured first-flap sequence"
+  fi
+  if [ "$selected_real_flight" -eq 1 ] &&
+     ! cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png &&
      ! cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png; then
     result_capture_unique=1
     break
