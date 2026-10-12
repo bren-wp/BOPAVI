@@ -1492,8 +1492,8 @@ print('PASS: detailed royal-blue Bopi mascot with truly detached animated feathe
 # These are genuine 480x800 scenery art layers; physics remains untouched.
 assert 'val groundTop=' not in android_canvas
 assert 'let groundTop=' not in ios_canvas
-assert 'canvas.drawBitmap(worldBitmap,null,worldRect,p)' in android_canvas
-assert 'background.draw(in:CGRect(x:0,y:0,width:480,height:800))' in ios_canvas
+assert 'canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)' in android_canvas
+assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,' in ios_canvas
 assert 'drawColor(skyA[game.level.world])' in android_canvas
 # Real release captures, NOT the conceptual reference images, are the only
 # source for README screenshots. A missing capture fails publication.
