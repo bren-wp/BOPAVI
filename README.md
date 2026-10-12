@@ -38,6 +38,7 @@ Ovo su **stvarne snimke pokrenute aplikacije** iz Android emulatora i iOS simula
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android početni zaslon BOPAVI igre" width="205"><br><b>Početni zaslon</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pilots.png" alt="Stvarni Android odabir lika s ilustriranim karticama" width="205"><br><b>Odabir letača</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Priprema za let</b></td>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka leta sa zlatnim krunama, svjetlećim prolazima i aktivnim HUD-om" width="205"><br><b>Let u tijeku</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni Android zaslon rezultata igre" width="205"><br><b>Rezultati</b></td>
 </tr>
 </table>
@@ -85,7 +86,7 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 
 ## Tvoj let, tvoja pravila
 
-**Svaki prolaz te vodi bliže cilju.** Tijekom leta prati plavu traku od krune do ciljne zastavice, skupljaj zlatne kovanice i zvjezdice te čuvaj štit i magnet za trenutke kada ti najviše trebaju. Sve što vidiš na ekranu odražava tvoju stvarnu avanturu — od napretka do nagrada.
+**Svaki prolaz te vodi bliže cilju.** Zlatna kruna svijetli na svakoj kovanici, a posljednji prolaz dionice obilježen je plavim čarobnim portalom.  Tijekom leta prati plavu traku od krune do ciljne zastavice, skupljaj zlatne kovanice i zvjezdice te čuvaj štit i magnet za trenutke kada ti najviše trebaju. Sve što vidiš na ekranu odražava tvoju stvarnu avanturu — od napretka do nagrada.
 
 - **Dodirni za let:** svaki dodir pokreće novi zamah krilima.
 - **Skupljaj nagrade:** kovanice, zvijezde i korisne dodatke.
