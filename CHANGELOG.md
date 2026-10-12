@@ -1,3 +1,11 @@
+## v0.1.50 — Bopi expression and animated feather-depth art (build 53)
+
+- Refined the single source-of-truth Bopi illustration: azure iris gradients, double eye catchlights, curved brows, a visibly open orange beak with mouth and tongue, glossy head crest, bronze pilot strap highlights, and the existing blue scarf with the golden crown emblem. These changes bring the mascot closer to the supplied premium references without pretending to recreate the original high-detail 3D artwork.
+- Added six separate cyan and blue wing-feather highlights (three per wing). Replaced the brittle four-path selector in the build-time image generator with explicit left/right wing path markers, keeping every highlight attached to its real animated wing rather than painting static feathers onto the torso.
+- Android and iOS still use the same generated Bopi sprite source, with nine preserved character indices, 18 independently animated wing sprites and nine full-wing menu portraits. Other pilots and level art are unchanged.
+- Added regression coverage of SVG structure, gradients, body-versus-wing extraction, and original nine-pilot mappings. Version 0.1.50 / build 53.
+- No changes to physics, hitboxes, procedural levels, saved progress, rewards or offline purchasing. Pixel-perfect visual matching, hardware performance and signed store publishing are not claimed.
+
 ## v0.1.49 — unobscured home logo and illustrated bottom navigation (build 52)
 
 - Corrected the overlapping home artwork observed in the real Android emulator screenshot: the winged BOPAVI logo is now placed below the live top wallet/avatar/settings controls in the shared 900×1600 art generator.
