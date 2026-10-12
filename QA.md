@@ -1,3 +1,12 @@
+## v0.1.55 — gold coins and last-gate portals
+
+- In all eight worlds, confirm rendered coins are gold with a legible miniature raised crown, not coloured world biome icons. A coin must disappear only on its **real collected** flag (including when magnet is active), while the actual score/coin count updates as before.
+- For both a normal level and an endless level transition, verify the cyan/blue portal appears only on the **last actual gate** of the current or queued next level. It must not show prematurely on ordinary gates and must never move or change the physical gap.
+- Verify the finish marker's gold crown does not occlude player sprite, pickups or HUD; the crown follows the same dynamically moving gate centre on Android and iOS.
+- With reduced motion enabled, the coin radius and portal rim are static while still visible. Ensure no per-frame bitmap decodes, new image instances or gameplay physics changes.
+- Run Android 15/16 emulator gameplay/collect/collision checks, iOS simulator launch and core/save tests, source/dead-code/privacy audit, and verify that `BOPAVI-Android-Flight-Active.png` is captured from the real running game, validated as PNG and delivered in the exact-version release.
+- Review genuine current-flight evidence against the provided BOPAVI 3D reference. Mark detailed 3D art / environment as an unresolved visual gap, not completed 1:1.
+
 ## v0.1.54 — true in-flight HUD and reference layout
 
 - On Android API 35/API 36 and iOS simulator, start actual gameplay. After the first flap, confirm top-left coin wallet, centre-top crown-to-flag bar, and native Pause at top-right with no overlap or input interception.

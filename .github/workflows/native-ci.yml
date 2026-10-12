@@ -406,6 +406,7 @@ jobs:
               'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png',
               'dist/real-screenshots/android/android-pilot-picker.png':'BOPAVI-Android-Pilots.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
+              'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
               'dist/real-screenshots/ios/BOPAVI-iOS-home.png':'BOPAVI-iOS-Home.png'
           }
@@ -449,7 +450,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -469,6 +470,7 @@ jobs:
             dist/BOPAVI-Android-Worlds.png \
             dist/BOPAVI-Android-Pilots.png \
             dist/BOPAVI-Android-Flight-Preview.png \
+            dist/BOPAVI-Android-Flight-Active.png \
             dist/BOPAVI-Android-Results.png \
             dist/BOPAVI-iOS-Home.png \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \

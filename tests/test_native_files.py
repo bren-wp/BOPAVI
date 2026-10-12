@@ -466,8 +466,8 @@ for duration,base,travel in ((0.36,24,42),(0.65,33,48)):
         assert 0 <= (1-progress) <= 1
 
 # v0.1.14: moving obstacles expose cosmetic lip accents without changing colliders.
-android_gate=android_canvas.split("private fun drawMovingGateRimCues(",1)[1].split("private fun drawGate(",1)[0]
-ios_gate=ios_canvas.split("private func drawMovingGateRimCues(",1)[1].split("private func gate(",1)[0]
+android_gate=android_canvas.split("private fun drawMovingGateRimCues(",1)[1].split("private fun drawRoyalCoin(",1)[0]
+ios_gate=ios_canvas.split("private func drawMovingGateRimCues(",1)[1].split("private func drawRoyalCoin(",1)[0]
 for source in (android_gate,ios_gate):
     assert "movement<=0" in source
     assert "reducedMotion" in source
@@ -1609,3 +1609,39 @@ assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
 print('PASS: screenshot-proportioned cross-platform race gauge, 3 honest HUD orbs and preserved Pause')
+
+# v0.1.55: coins are bevelled GOLD crowns in every biome, not generic
+# biome-coloured dots; last-gate cyan portals track actual simulation geometry.
+# All elements are paint-only, parity-tested and reduce motion correctly.
+and_coin=android_canvas.split("private fun drawRoyalCoin(",1)[1].split("private fun drawFinishPortal(",1)[0]
+ios_coin=ios_canvas.split("private func drawRoyalCoin(",1)[1].split("private func drawFinishPortal(",1)[0]
+and_portal=android_canvas.split("private fun drawFinishPortal(",1)[1].split("private fun drawGate(",1)[0]
+ios_portal=ios_canvas.split("private func drawFinishPortal(",1)[1].split("private func gate(",1)[0]
+for source in (and_coin,ios_coin):
+    for hue in ("ffcf53","ffc333","ec8e07","ffb91a","fff0ad"):
+        assert hue in source, (hue, source[:160])
+    assert "reducedMotion" in source and "game.time" in source
+    assert "BitmapFactory" not in source and "UIImage(" not in source
+    assert "game.step(" not in source and "game.flap(" not in source
+    assert "new Path(" not in source and "CGPath(" not in source and "CGMutablePath(" not in source
+for source in (and_portal,ios_portal):
+    assert "30" in source and "reducedMotion" in source
+    assert "game.time" in source and "phase" in source
+    assert "45e9ff" in source and "e7ffff" in source
+    assert "BitmapFactory" not in source and "UIImage(" not in source
+    assert "game.step(" not in source and "game.flap(" not in source
+android_gate_body=android_canvas.split("private fun drawGate(",1)[1].split("private fun drawFeedbackSparkles(",1)[0]
+ios_gate_body=ios_canvas.split("private func gate(",1)[1].split("private func star(",1)[0]
+for source in (android_gate_body,ios_gate_body):
+    assert "drawRoyalCoin(" in source and "drawFinishPortal(" in source
+    assert "coinVisible(index)" in source
+    assert "incoming" in source
+    assert "lastIndex" in source or "gates.count-1" in source
+    assert source.index("drawFinishPortal(") < source.index("drawRoyalCoin(")
+    assert "if" in source and "finalGate" in source
+    assert "game.score(" not in source
+assert "pickupSymbol" not in ios_canvas
+assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png'" in workflow
+assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
+assert "BOPAVI-Android-Flight-Active.png" in (root/'README.md').read_text()
+print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-motion and genuine flight release evidence")
