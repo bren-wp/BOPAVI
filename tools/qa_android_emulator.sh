@@ -4,7 +4,10 @@ set -eu
 mkdir -p qa/screenshots
 adb wait-for-device
 adb install -r qa/apk/app-debug.apk
-adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+# Debug-only QA: keep the real first active frame stable through slow Pixel
+# screencap calls. GameSimulation resumes with a second genuine flap, and the
+# production (non-debuggable) build ignores this Intent extra entirely.
+adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
 sleep 3
 adb shell pidof com.brendigo.bopavi
 
@@ -645,6 +648,10 @@ PY
     sleep 0.10
     continue
   fi
+  # The first real flap is held only in a debuggable QA launch. Release
+  # it now with a second physical input, after preserving pixel-proof PNGs.
+  # This runs the ordinary real-time GameSimulation to its actual collision.
+  adb shell input tap "$center" "$((height*50/100))"
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
