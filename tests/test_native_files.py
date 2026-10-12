@@ -1570,3 +1570,8 @@ assert "'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-World
 assert "dist/BOPAVI-Android-Worlds.png" in workflow
 assert 'BOPAVI-Android-Worlds.png' in readme
 print('PASS: authentic Android eight-world screenshot is captured and published alongside native builds')
+
+assert '            android/app/src/main/res/drawable-nodpi/homeback.png' in workflow
+assert '            ios/BOPAVI/Assets.xcassets/HomeArt.imageset/' in workflow
+assert "('homeback.png','home.png','HomeArt')" in workflow
+print('PASS: startup and home scenes are included in build artifacts on both native platforms')
