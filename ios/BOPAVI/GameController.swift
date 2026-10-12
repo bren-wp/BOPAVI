@@ -1576,8 +1576,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.layer.borderWidth=2
             tile.layer.borderColor=UIColor(red:0.0,green:0.83,blue:1,alpha:1).cgColor
             tile.backgroundColor=UIColor(red:0.03,green:0.23,blue:0.50,alpha:1)
-            tile.accessibilityLabel=BopaviCore.names[world]+", "+
-                String(progress.worldStars(world))+" od 30 zvjezdica; otvori levele"
+            tile.accessibilityLabel=BopaviCore.names[world] + ", " + String(progress.worldStars(world)) + " od 30 zvjezdica; otvori levele"
             let content=UIStackView()
             content.translatesAutoresizingMaskIntoConstraints=false
             content.axis = .vertical;content.spacing=0
