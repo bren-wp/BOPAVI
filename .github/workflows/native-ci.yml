@@ -45,6 +45,14 @@ jobs:
               assert ios_image.size==(960,1600), (world,'wrong iOS canvas size')
               assert android_image.tobytes()==ios_image.tobytes(), (world,'mismatched pixels')
               assert android_path.read_bytes()==ios_path.read_bytes(), (world,'mismatched PNG')
+          # Four decorative icons must have exactly matching Android/iOS pixels.
+          for key in ('profile','tasks','collection','shop'):
+              android=Path('android/app/src/main/res/drawable-nodpi')/f'nav_{key}.png'
+              ios=Path('ios/BOPAVI/Assets.xcassets')/f'Nav{key.capitalize()}.imageset'/f'nav_{key}.png'
+              assert android.is_file() and ios.is_file(), key
+              icon=Image.open(android).convert('RGBA')
+              assert icon.size==(128,128) and icon.getbbox(), key
+              assert android.read_bytes()==ios.read_bytes(), key
           # Guard against the previous pale-yellow logo rasterization bug.
           logo=Image.open('android/app/src/main/res/drawable-nodpi/logo.png').convert('RGBA')
           pixels=logo.getdata()
@@ -95,6 +103,8 @@ jobs:
             android/app/src/main/res/drawable-nodpi/hero.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
+            android/app/src/main/res/drawable-nodpi/nav_*.png
+            ios/BOPAVI/Assets.xcassets/Nav*.imageset/
             ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
