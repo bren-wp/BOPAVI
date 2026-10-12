@@ -16,7 +16,7 @@
 
 ## Svaka avantura počinje jednim zamahom 🪽
 
-Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i krilima koja ga vode preko lebdećih otoka, začaranih dvoraca, kristalnog neba i slapova. U **BOPAVI-ju** izmjenjuju se svjetovi s dodirom za zamah i svjetovi s povlačenjem prsta za upravljanje visinom. Zaobiđi prepreke, skupljaj kovanice i zvjezdice te pronađi vlastiti ritam leta.
+Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i krilima koja ga vode preko lebdećih otoka, začaranih dvoraca, kristalnog neba i slapova. U **BOPAVI-ju** svih osam svjetova koristi isto TAP-TAP upravljanje: jedan dodir znači jedan zamah krilima. Zaobiđi prepreke, skupljaj kovanice i zvjezdice te pronađi vlastiti ritam leta.
 
 **Osam fantastičnih svjetova**, devet jedinstveno oslikanih letača i više od milijun proceduralnih izazova po svijetu donose avanturu koja se nastavlja. Nove dionice dolaze bez prekida trenutnog leta.
 
@@ -90,7 +90,7 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 
 **Svaki prolaz te vodi bliže cilju.** Zlatna kruna svijetli na svakoj kovanici, a posljednji prolaz dionice obilježen je plavim čarobnim portalom.  Tijekom leta prati plavu traku od krune do ciljne zastavice, skupljaj zlatne kovanice i zvjezdice te čuvaj štit i magnet za trenutke kada ti najviše trebaju. Sve što vidiš na ekranu odražava tvoju stvarnu avanturu — od napretka do nagrada.
 
-- **Upravljaj letom:** dodir za zamah u četiri svijeta; povlačenje gore/dolje u preostala četiri.
+- **Upravljaj letom:** jedan dodir = jedan zamah krilima u svih osam svjetova, uz prirodnu gravitaciju.
 - **Skupljaj nagrade:** kovanice, zvijezde i korisne dodatke.
 - **Otkrij svoj ritam:** biraj između lakše, normalne i zahtjevnije težine.
 - **Odmori kada poželiš:** nastavi, ponovi let ili se vrati u izbornik.
