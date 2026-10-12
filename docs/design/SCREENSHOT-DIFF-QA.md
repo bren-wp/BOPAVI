@@ -1,3 +1,13 @@
+## Iteration 28 — crown coins and actual final-gate portal (v0.1.55)
+
+**Reference divergence:** gameplay #7 shows bright bevelled circular gold crown coins and a glowing blue finish portal. Previous gameplay used world-coloured pickup circles with generic biome glyphs and had no visual cue for the final procedural gate. This mismatched the reference despite accurate gameplay logic.
+
+**Implemented on both platforms:** golden concentric coin discs with real vector crown embossing, subtle glint and gentle optional pulse; shimmering sapphire/cyan finish portal with gold crown attached only to `level.gates.lastIndex` (or queued `upcomingGates.lastIndex`). The artwork paints from the existing simulation's gate center and visibility state — no fake buttons, inventory, off-network data, collision change or per-frame bitmap allocations. Reduced motion disables pulsation.
+
+**Evidence:** shared source regressions + Android/iOS native build and QA screenshot artifacts. Release workflow now requires and publishes a real, emulator-captured active-flight screenshot, in addition to idle flight and home images. This provides a reproducible, visually inspectable path for comparison with concept #7.
+
+**Unresolved:** large-scale textured 3D mascot/feathers, volumetric castle-and-waterfall scenery, detailed glass materials, frame-perfect 9:16 screenshots and a complete pixel-by-pixel benchmark against all ten static concept images.
+
 ## Iteration 27 — active flight HUD (v0.1.54)
 
 **Reference:** the seventh approved screenshot places a small gold coin wallet in the upper left, a long narrow progress gauge between a crown and finish flag at the top centre, a dedicated pause button at upper right, and three overlapping glassy status circles down the left edge. The old production UI occupied almost the whole top with three equal rectangular counters and then a separate long progress row.
