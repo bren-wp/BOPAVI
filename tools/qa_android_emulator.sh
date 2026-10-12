@@ -442,7 +442,14 @@ if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
 if any("IZGLED I ZVUK" in text for text in texts):
     raise SystemExit("FAIL: PROFIL incorrectly opened settings")
-print("PASS: dedicated PROFILE screen shows saved pilot data",flush=True)
+# Only an actual emulator frame of the visited, validated profile qualifies
+# as visual evidence. Never substitute the uploaded concept artwork.
+from pathlib import Path
+capture=subprocess.run(["adb","exec-out","screencap","-p"],check=True,capture_output=True)
+if not capture.stdout.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(capture.stdout)<2000:
+    raise SystemExit("FAIL: genuine profile screenshot missing or invalid")
+Path("qa/screenshots/android-profile.png").write_bytes(capture.stdout)
+print("PASS: dedicated PROFILE screen shows saved pilot data and real screenshot",flush=True)
 subprocess.run(["adb","shell","input","keyevent","4"],check=True)
 time.sleep(1)
 root=dump()
