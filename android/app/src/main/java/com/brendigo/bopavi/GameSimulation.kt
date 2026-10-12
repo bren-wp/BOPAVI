@@ -11,6 +11,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private val gravityFactor = when(this.difficulty) { 0 -> .87f; 2 -> 1.12f; else -> 1f }
     var level = initialLevel
         private set
+    /** Alternate world rule; never changes during seamless level transitions. */
+    val dragControl:Boolean = initialLevel.world % 2 == 1
+    private var steeringTarget:Float? = null
     var totalPassed = 0
         private set
     var y = 366f; private set
@@ -75,6 +78,16 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         flapPulse = .24f
         flaps++
     }
+    /** Drag steering stays inside the existing simulation and collision pipeline. */
+    fun steer(targetY:Float) {
+        if(finished || !dragControl || !targetY.isFinite()) return
+        steeringTarget=targetY.coerceIn(radius+5f,753f-radius)
+        if(!active) {
+            active=true
+            velocity=0f
+            flapPulse=.24f
+        }
+    }
     fun step(delta: Float) {
         if (!active || finished) return
         // Preserve short frame stalls; a long background interruption is bounded.
@@ -88,7 +101,15 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     private fun advance(dt: Float) {
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
-        velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
+        val target=steeringTarget
+        if(dragControl && target!=null) {
+            // Bounded proportional velocity and easing: no teleporting through gates.
+            val desired=((target-y)*7f).coerceIn(-310f,310f)
+            val blend=(dt*14f).coerceIn(0f,1f)
+            velocity += (desired-velocity)*blend
+        } else {
+            velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
+        }
         y += velocity * dt
         preciseDistance += (level.speed * speedFactor * dt).toDouble()
         distance = preciseDistance.toFloat()
