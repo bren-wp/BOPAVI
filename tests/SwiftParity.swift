@@ -12,7 +12,7 @@ struct SwiftParity {
                 precondition(seen.insert(sig).inserted)
                 precondition((11...15).contains(l.gates.count))
                 precondition((140...212).contains(l.speed))
-                precondition(l.gates.allSatisfy{$0.gap>=165 && (48...88).contains($0.width)})
+                precondition(l.gates.allSatisfy{$0.gap>=165 && $0.width >= 48 && $0.width <= 88})
                 precondition(Set(l.gates.map{$0.width}).count>=3)
                 precondition(l.gates.allSatisfy {g in let o=BopaviCore.opening(g,100);return o.bottom-o.top >= 145})
                 checked += 1
