@@ -1,6 +1,6 @@
 ## BOPAVI — Mali letovi • Velike priče
 
-Android and iOS now share a blue/cyan/gold premium UI direction drawn from the supplied BOPAVI screens: three illustrated primary home destinations, four functioning shortcuts (including a dedicated offline player profile), three-column character gallery, coordinated settings and dark score cards. The updated winged logo is generated from the same SVG into both apps. Gameplay physics, local saves and the offline earned-coin economy are retained. **The screens are not yet pixel-identical** to the concept artwork; see [visual implementation contract](docs/design/PREMIUM-REFERENCE-IMPLEMENTATION.md) for the outstanding art exports and side-by-side device QA. No online gems, fake cloud sync or paid controls are presented.
+Android and iOS now share a blue/cyan/gold premium UI direction drawn from the supplied BOPAVI screens: three illustrated primary home destinations, four functioning shortcuts (including a dedicated offline player profile), three-column character gallery, coordinated settings and dark score cards. The updated winged logo is generated from the same SVG into both apps. Gameplay physics, local saves and the offline earned-coin economy are retained. **Exact 1:1 artwork fidelity is still under development**; see [visual implementation contract](docs/design/PREMIUM-REFERENCE-IMPLEMENTATION.md) for the outstanding art exports and side-by-side device QA. No online gems, fake cloud sync or paid controls are presented.
 
 <p align="center"><img src="docs/assets/logo.svg" width="450" alt="BOPAVI — Mali let, velika avantura"></p>
 <p align="center"><strong>MALI LETOVI • VELIKE PRIČE</strong></p>
@@ -79,7 +79,7 @@ Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak
 
 ## 📱 Android i iOS
 
-Obje mobilne inačice imaju interaktivni početni ekran i uputu **DODIRNI ZA LET** prije prvog zamaha krilima. Dodir i aktivacija čitačem zaslona pokreću stvarni let; mirovanje ne troši bateriju nepotrebnim kontinuiranim renderiranjem, a animacije se nastavljaju tijekom igranja.
+Na početnom ekranu BOPAVI logo više se ne preklapa s pravim brojačima igrača, a PROFIL, ZADACI, KOLEKCIJA i TRGOVINA imaju zajedničke ilustrirane ikone na Androidu i iOS-u. Svaki prečac vodi na stvarni sadržaj. Obje mobilne inačice imaju interaktivni početni ekran i uputu **DODIRNI ZA LET** prije prvog zamaha krilima. Dodir i aktivacija čitačem zaslona pokreću stvarni let; mirovanje ne troši bateriju nepotrebnim kontinuiranim renderiranjem, a animacije se nastavljaju tijekom igranja.
 
 
 

@@ -423,13 +423,10 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
         }
-        val entries=listOf(
-            Triple("♙","PROFIL",0),
-            Triple("★","ZADACI",1),
-            Triple("✦","KOLEKCIJA",2),
-            Triple("▣","TRGOVINA",3)
-        )
-        for((symbol,label,index) in entries){
+        val entries=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
+        val footerIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
+            R.drawable.nav_collection,R.drawable.nav_shop)
+        for((index,label) in entries.withIndex()){
             val tab=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL
                 gravity=Gravity.CENTER
@@ -437,9 +434,10 @@ class MainActivity : Activity() {
                 contentDescription=label
                 background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),
                     gradient(0xff1358a5.toInt(),0xff071e46.toInt(),14),null)
-                addView(TextView(this@MainActivity).apply{
-                    text=symbol;textSize=25f;setTextColor(if(index==3)gold else Color.WHITE)
-                    gravity=Gravity.CENTER
+                addView(ImageView(this@MainActivity).apply{
+                    setImageResource(footerIcons[index])
+                    scaleType=ImageView.ScaleType.FIT_CENTER
+                    setPadding(d(1),d(1),d(1),d(1))
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 },LinearLayout.LayoutParams(-1,d(29)))
                 addView(TextView(this@MainActivity).apply{

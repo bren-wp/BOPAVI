@@ -102,7 +102,7 @@ for cx,cy,sc in [(-35,1570,1.1),(900,1530,1.1),(360,1620,1.4)]:
         scene.ellipse((x-rx*sc,y-ry*sc,x+rx*sc,y+ry*sc),fill=(250,255,255,113))
 logoCrop=brand.copy()
 logoCrop.thumbnail((740,250),Image.Resampling.LANCZOS)
-launch.paste(logoCrop,((900-logoCrop.width)//2,130),logoCrop)
+launch.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)
 launch.save(a/'drawable-nodpi/splash.png',optimize=True)
 launch.save(b/'LaunchArt.imageset/launch.png',optimize=True)
 (b/'Contents.json').write_text(json.dumps({'info':{'author':'xcode','version':1}}))
@@ -247,6 +247,19 @@ for skin in range(9):
     setdir.mkdir(parents=True,exist_ok=True)
     portrait.save(setdir/name,optimize=True)
     (setdir/'Contents.json').write_text(json.dumps({
+        'images':[{'filename':name,'idiom':'universal'}],
+        'info':{'author':'xcode','version':1}
+    }))
+# Four shared illustrated footer symbols, rendered once for both apps.
+for key in ('profile','tasks','collection','shop'):
+    name=f'nav_{key}.png'
+    icon=Image.open(io.BytesIO(cairosvg.svg2png(
+        url=str(r/'docs/assets'/f'nav-{key}.svg'),output_width=128,output_height=128))).convert('RGBA')
+    icon.save(a/'drawable-nodpi'/name,optimize=True)
+    catalog=b/f'Nav{key.capitalize()}.imageset'
+    catalog.mkdir(parents=True,exist_ok=True)
+    icon.save(catalog/name,optimize=True)
+    (catalog/'Contents.json').write_text(json.dumps({
         'images':[{'filename':name,'idiom':'universal'}],
         'info':{'author':'xcode','version':1}
     }))

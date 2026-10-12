@@ -3,7 +3,7 @@
 Priložene kompozitne reference služi kao vizualni cilj, ali nisu gotovi pojedinačni spriteovi ni dokaz da su postojeći zasloni identični. Ne kopirati tuđe oznake SkyHop ili Flybo, njihove trgovine stvarnim novcem, oglase ili online ljestvice. Originalni proizvod zadržava naziv BOPAVI i offline napredak.
 
 ## Obvezna kompozicija
-- Splash: portret s plavim nebom do svih rubova, veliko narančasto-zlatno BOPAVI slovo s plavom 3D sjenom, Bopi s pilotskim naočalama i crvenim šalom, lebdeći travnati otoci, vodopadi i slojevi oblaka. Jedan logotip, bez ponavljanja.
+- Splash: portret s plavim nebom do svih rubova, veliko narančasto-zlatno BOPAVI slovo s plavom 3D sjenom, Bopi s pilotskim naočalama i tamno-plavom maramom s oznakom zlatne krune, lebdeći travnati otoci, vodopadi i slojevi oblaka. Jedan logotip, bez ponavljanja.
 - Početni ekran: ilustrirani Bopi, čitljiv logo, mali brojač osvojenih kovanica i jedan dominantni zeleni **IGRAJ**. Bez izdvojenih gumba za svjetove, trgovinu, likove, nagrade, postavke ili poseban način leta.
 - Svjetovi: osam tematski različitih kartica i scena, **svi odmah dostupni** bez lokota na svijetu; pojedinačni leveli otključavaju se napredovanjem. Jasna navigacija bez prikaza ukupnog broja svih levela.
 - Gameplay: Bopi s odvojenim krilima, jasne prepreke, predmeti i HUD, pouzdana kolizija. Kadriranje i sigurne zone moraju se usporediti na Android/iOS screenshotovima.
@@ -14,7 +14,7 @@ Usporediti zasebne snimke stvarne aplikacije, po ekranima, na jednakom omjeru za
 
 # BOPAVI — produkcijski vizualni smjer v0.5.0
 
-- Lik Bopi: pilotske naočale, crveni šal, animirani zamasi krila, treptanje, nagib tijela i čestice leta.
+- Lik Bopi: pilotske naočale, plava marama sa zlatnom krunom, animirani zamasi krila, treptanje, nagib tijela i čestice leta.
 - Osam svjetova: livade/plutajući otoci; plaža/valovi i palme; led/snježne pahulje; vulkan/lava; hram/stupovi; noć/mjesec i krijesnice; kristalna šuma/kristalne igle; svemir/planeti i orbite.
 - Različiti predmeti za skupljanje: zvjezdice, školjke, pahulje, iskre, perje, mjesečev prah, kristali, zvjezdani prah.
 - Sučelja: početni ekran samo BOPAVI, prikaz Bopija, stanje kovanica i IGRAJ; ostale radnje u pauzi i nakon pokušaja.

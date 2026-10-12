@@ -438,10 +438,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         navigation.layer.borderWidth=2
         navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
         let tabs:[(String,String,()->Void)]=[
-            ("♙","PROFIL",{self.showProfile()}),
-            ("★","ZADACI",{self.showAchievements(.home)}),
-            ("✦","KOLEKCIJA",{self.showSkins(.home)}),
-            ("▣","TRGOVINA",{self.showPerks(.home)})
+            ("NavProfile","PROFIL",{self.showProfile()}),
+            ("NavTasks","ZADACI",{self.showAchievements(.home)}),
+            ("NavCollection","KOLEKCIJA",{self.showSkins(.home)}),
+            ("NavShop","TRGOVINA",{self.showPerks(.home)})
         ]
         for (icon,title,handler) in tabs {
             let tab=UIButton(type:.system)
@@ -450,11 +450,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
             tab.layer.cornerRadius=13
             tab.heightAnchor.constraint(equalToConstant:62).isActive=true
-            let glyph=UILabel()
-            glyph.text=icon;glyph.textAlignment = .center
-            glyph.textColor = title=="TRGOVINA"
-                ? UIColor(red:1,green:0.78,blue:0.25,alpha:1) : .white
-            glyph.font=UIFont.systemFont(ofSize:25,weight:.semibold)
+            let glyph=UIImageView(image:UIImage(named:icon))
+            glyph.contentMode = .scaleAspectFit
+            glyph.isAccessibilityElement=false
             let caption=UILabel()
             caption.text=title;caption.textAlignment = .center
             caption.textColor = .white

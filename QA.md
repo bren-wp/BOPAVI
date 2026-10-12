@@ -1,3 +1,11 @@
+## v0.1.49 — home branding and shared illustrated footer
+
+- Capture actual Home screenshots from Android 15 and 16 emulators and iOS simulator, including short and tall portrait devices. BOPAVI crown and lettering must appear **below** the accessible real avatar/best-score/coins/gear header, not obscured by it.
+- Check four vector-sourced footer tiles: silver Profile silhouette, checklist Tasks, cyan feather Collection, gold/blue chest Shop. The icon is decorative, the tile and its accessible textual label are the only action.
+- Tap every tile, verify the correct real destination and backward navigation, then inspect persisted score, pilot portrait, coins, unlocks and best results. No virtual paid gems, online logout, advertisements or placeholder views.
+- In the graphics CI job confirm 128×128 transparent PNGs for all four icons and exactly byte-identical Android/iOS renderings. Review screenshot legibility, native color contrast, safe-area spacing and small/large fonts.
+- The simple existing vector-based Bopi/environment is still visually behind the 3D concept references; inspect and log that separately. iOS/Android device packaging is unsigned and no physical-device test is claimed.
+
 ## v0.1.48 — idle preview, accessibility and frame scheduling
 
 - On Android 15/16 emulator and iOS simulator, start a new flight from the pilot picker: the dark translucent DODIRNI ZA LET hint appears before the first flap. No premature gameplay HUD or Pause button.

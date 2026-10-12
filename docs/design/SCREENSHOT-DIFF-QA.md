@@ -1,3 +1,11 @@
+## Iteration 22 — premium footer art and measured home layering fix
+
+- Real Android v0.1.48 screenshot showed the interactive four-part wallet obscuring the crown/letters of the painted BOPAVI logo. The shared launch-art logo Y coordinate is adjusted from 130 to 230 (900×1600 art coordinates), separating functional top header from brand artwork across Android/iOS.
+- Shared Bopi SVG now uses a dark/sky-blue collar and gold crown badge instead of the previous pink scarf, while preserving detached animated wing geometry. Compare the actual post-build character on both platforms.
+- Shared original source SVGs now render a person icon, clipboard, cyan feather and gold/blue treasure chest. Both native apps use the same icon bitmaps with separately accessible real buttons. This fixes the former monochrome chess/star/diamond/box mismatch with the four premium footer reference icons.
+- CI checks four equal 128px icon dimensions and byte equality of both platforms; source regression checks ensure actual native navigation remains.
+- **Not 1:1 yet:** the hero mascot, floating islands, elaborate lighting, 3D-appearing logo and some screen proportions need more art work and real screenshot review. Do not count the new flat/vector imagery as a full reproduction of the supplied references.
+
 ## Iteration 21 — first-flight hint and no idle frame churn
 
 - Android and iOS now share an on-canvas DODIRNI ZA LET prompt at the same 480x800 logical location. It is overlaid on genuine game art and removed on the first flap, not a fake clickable screenshot.
