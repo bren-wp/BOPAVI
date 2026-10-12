@@ -1,3 +1,12 @@
+## v0.1.63 — Real drag steering in four worlds (build 66)
+
+- Four worlds now use **vertical finger dragging** instead of tap-to-flap: Kristalno nebo, Noćni dvorci, Nebeske kule and Zvjezdani bezdani (internal world IDs 1, 3, 5, 7). Zeleni otoci, Lava vrhovi, Biserno more and Čarobna šuma retain the original flap impulse and gravity.
+- Android MotionEvent ACTION_DOWN/ACTION_MOVE and iOS touchesBegan/touchesMoved convert the finger's letterboxed screen coordinate to the identical **480×800** simulation grid. Input sets a finite, clamped height target; the bird follows with bounded **310-unit/s** velocity and stable per-step damping. The bird is never teleported between gates and collision/pickup/completion rules stay unchanged.
+- Drag worlds start on the first touch, activate real game audio/pause/perk lifecycle only once, and offer upward accessible activation. The first screen and world cards indicate **POVUCI GORE / DOLJE** or **TAP ZA ZAMAH**; pause help reflects the selected mode.
+- Added Kotlin JVM and real Swift regression scenarios for alternating-world selection, smooth motion, rejected NaN/Infinity inputs, unchanged flap physics, and no fake flap counts. Android/iOS source parity tests and compact world-card badge layout checks added.
+- Preserved all saved data, game-world IDs, skin IDs, premium artwork assets, collision boxes, 1,048,576-level procedural catalog, continuous transitions and release artifact contracts.
+- **1:1 status:** the new controls follow reference screen concepts, but vector/Canvas artwork does not yet reproduce 3D fantasy backgrounds and mascot reflections pixel-for-pixel. The README must continue showing genuine platform captures, never concept images.
+
 ## v0.1.62 — Debug-only stable active-gameplay screenshot capture (build 65)
 
 - Diagnosed an Android 16 emulator-only failure using actual failed-run screenshot artifacts: the capture window skipped directly from the idle scene to Results. Production physics was correct but slow emulator screencap could not record a short-lived first-flight frame.
