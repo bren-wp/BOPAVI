@@ -1426,7 +1426,8 @@ assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
 assert 'string:"DODIRNI ZA LET"' in ios_render
-assert 'idlePrompt.draw(at:' in ios_render
+assert 'let prompt=game.dragControl ? dragPrompt : idlePrompt' in ios_render
+assert 'prompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
 assert 'if paused {stop()} else {start()}' in ios_render
 assert 'override func accessibilityActivate()->Bool' in ios_render
