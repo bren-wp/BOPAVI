@@ -1,3 +1,11 @@
+## v0.1.62 — Reject stale gameplay/Results screenshot evidence
+
+- Reproduce the v0.1.61 evidence issue: downloaded Release `BOPAVI-Android-Results.png` and `BOPAVI-Android-Flight-Active.png` have identical SHA-256 digests. The in-app Results view can still have different accessibility text; a UI tree alone does not prove distinct pixels.
+- Android 15/16 real-emulator script MUST confirm the Results UI and PONOVO action and wait for a distinct rendered frame. If the image matches either idle or active flight after eight bounded capture retries, fail with `android-result-diagnostic.png` and no published version.
+- Independent Release staging SHA-256 assertion MUST refuse identical `BOPAVI-Android-Results.png`, `BOPAVI-Android-Flight-Active.png` and `BOPAVI-Android-Flight-Preview.png`. Keep the actual 15-attachment packaging and `SHA256SUMS.txt`.
+- Verify in Results that the selected pilot, achieved score, earned rewards and return/retry actions originate from real saved values. Do not treat the reference concept as a captured UI frame.
+- Android lint/JVM, API35/API36 installation/gameplay/collision/navigation, iOS simulator/device builds, physics and legacy save migration remain release gates; they must all pass again.
+
 ## v0.1.61 — Animated Bopi feathers + world depth
 
 1. Verify the built art includes 15 separately detached paths per Bopi wing, with glowing feather veins and gold pilot-goggle reflections; animated wing sprites must still flap independently and use the actually selected saved skin on Android and iOS.
