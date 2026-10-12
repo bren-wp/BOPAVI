@@ -1,3 +1,12 @@
+## v0.1.54 — true in-flight HUD and reference layout
+
+- On Android API 35/API 36 and iOS simulator, start actual gameplay. After the first flap, confirm top-left coin wallet, centre-top crown-to-flag bar, and native Pause at top-right with no overlap or input interception.
+- Confirm centre progress changes only with **current-level passed gates**; `LEVEL n · passed/total` and cumulative `PROLAZI UKUPNO` must be from GameSimulation and stay consistent across procedural level transitions. Avoid made-up metres from supplied marketing concept.
+- Confirm three circular indicators at x=46 world units, y=175/249/323: earned stars, shield count, remaining magnet seconds. Inactive powers must be dimmed, badges must be decorative and a tap anywhere outside the native Pause still triggers the original real flap.
+- Check readability and full-screen scaling on narrow Android 15/16 devices and iOS device cutouts; simulator frame and Android 480×800 scene coordinates must agree.
+- Android QA captures `android-gameplay-active.png` only after `Bopi leti` accessibility state is present. It must be from the running game, not a graphic mockup. Ensure all prior QA screenshots, level transitions, result, pause settings, iOS save tests and build checks remain green.
+- Conduct a side-by-side review against reference #7 on genuine device screenshots. Visual 1:1 **remains incomplete** until high-fidelity approved mascot, scenic assets, depth cues and effects are independently integrated and validated.
+
 ## v0.1.53 — reference world gallery and separate launch/home images
 
 - On Android 15/16 and iOS simulator, open SVJETOVI from the live home action. Check two card columns and four rows on a tall phone, with illustration, world number, title and genuine ★ stars/30 plus saved best score **inside the tile**. Scroll as needed on short screens, preserving touch-size and accessibility.

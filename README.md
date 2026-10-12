@@ -85,6 +85,8 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 
 ## Tvoj let, tvoja pravila
 
+**Svaki prolaz te vodi bliže cilju.** Tijekom leta prati plavu traku od krune do ciljne zastavice, skupljaj zlatne kovanice i zvjezdice te čuvaj štit i magnet za trenutke kada ti najviše trebaju. Sve što vidiš na ekranu odražava tvoju stvarnu avanturu — od napretka do nagrada.
+
 - **Dodirni za let:** svaki dodir pokreće novi zamah krilima.
 - **Skupljaj nagrade:** kovanice, zvijezde i korisne dodatke.
 - **Otkrij svoj ritam:** biraj između lakše, normalne i zahtjevnije težine.

@@ -1016,9 +1016,14 @@ print('PASS: 9-skin featured-row parity, layered hero and after-selection flight
 android_hud=android_canvas.split('private fun drawHud(',1)[1].split('override fun onTouchEvent(',1)[0]
 ios_hud=ios_canvas.split('private func drawBoostHUD(',1)[1].split('private func drawWorldLighting(',1)[0]
 for hud in (android_hud,ios_hud):
-    for value in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
+    for value in ('game.coins','game.stars','game.shield','game.magnetTime'):
         assert value in hud,value
-    assert 'LEVEL' in hud and 'ŠTIT ×' in hud and 'MAGNET ' in hud
+    # Reference orbs are passive indicators, never phantom store buttons.
+    assert 'hudOrb(' in hud
+for progress in (android_progress,ios_progress):
+    assert 'game.displayLevel' in progress
+    assert 'LEVEL ' in progress
+    assert 'hudGlass(' in progress
 for progress in (android_progress,ios_progress):
     assert 'game.passed' in progress and 'game.totalPassed' in progress
     assert 'PROLAZI UKUPNO' in progress
@@ -1515,10 +1520,10 @@ assert 'private func hudGlass(' in ios_game
 assert 'private func hudGoldCoin(' in ios_game
 assert 'hudCoinFont=UIFont.systemFont' in ios_game
 assert 'hudText("♛",24,31,hudCoinFont' in ios_game
-assert 'hudGlass(c,13f,21f,144f,75f)' in android_game
-assert 'hudGlass(c,13,21,131,54)' in ios_game
-assert 'hudGlass(c,13f,169f,154f,211f)' in android_game
-assert 'hudGlass(c,13,169,141,42)' in ios_game
+assert 'hudGlass(c,13f,21f,139f,75f)' in android_game
+assert 'hudGlass(c,13,21,126,54)' in ios_game
+assert 'hudOrb(c,46f,175f,"★"' in android_game
+assert 'hudOrb(c,46,175,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1575,3 +1580,32 @@ assert '            android/app/src/main/res/drawable-nodpi/homeback.png' in wor
 assert '            ios/BOPAVI/Assets.xcassets/HomeArt.imageset/' in workflow
 assert "('homeback.png','home.png','HomeArt')" in workflow
 print('PASS: startup and home scenes are included in build artifacts on both native platforms')
+
+# v0.1.54 — active-flight reference hierarchy: left actual wallet + three
+# circular star/shield/magnet readouts, top-centred crown-to-flag race gauge
+# and separately clickable platform Pause. Both use actual gate progress,
+# never advertise fictional distances measured in metres.
+for source in (android_game,ios_game):
+    assert 'private ' in source
+    assert 'hudOrb(' in source
+    assert source.count('hudOrb(')>=4   # one implementation + three live orbs
+    assert 'game.passed' in source and 'game.level.gates' in source
+    assert 'game.stars' in source and 'game.shield' in source
+    assert 'game.magnetTime' in source and 'game.coins' in source
+    assert 'game.displayLevel' in source
+    # Concepts may be named in comments; actual HUD paint calls may not
+    # print the reference mockup's imaginary 1,280 / 2,000 metres.
+    for forbidden in ('text(c,"1,280','hudText("1,280','text(c,"2,000','hudText("2,000'):
+        assert forbidden not in source
+    assert '⚑' in source
+    assert 'game.flap()' in source
+assert 'hudGlass(c,146f,18f,406f,77f)' in android_game
+assert 'hudGlass(c,146,18,260,59)' in ios_game
+assert 'hudOrb(c,46f,249f,"◆"' in android_game
+assert 'hudOrb(c,46,249,"◆"' in ios_game
+assert 'hudOrb(c,46f,323f,"∩"' in android_game
+assert 'hudOrb(c,46,323,"∩"' in ios_game
+assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
+assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
+assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
+print('PASS: screenshot-proportioned cross-platform race gauge, 3 honest HUD orbs and preserved Pause')

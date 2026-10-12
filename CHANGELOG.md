@@ -1,3 +1,12 @@
+## v0.1.54 — Bopi flight HUD matches reference hierarchy (build 57)
+
+- Redesigned the real active-flight HUD on **Android Canvas and iOS Core Graphics** to use the reference's left coin wallet, a single central crown-to-flag progress gauge and a vertical rail of three blue/gold circular icons. The native, genuinely tappable pause button retains its own reserved top-right space.
+- The central bar shows **actual current-level gates passed/total**, not invented metre counts from the static visual mockup. A separate slim live row shows current level and lifetime total passes, including across continuous procedural transitions.
+- Circular badges display **actual earned stars, equipped shields and remaining magnet seconds**; inactive powers are subdued and no decorative circle pretends to be a purchase/activation button. Preserved accessibility state and all original touch-to-flap physics.
+- No modification to world/character IDs, save schema, navigation, difficulty, collisions, pickups, rewarded ad logic or core physics. Verified regression contracts were extended for both renderers.
+- Android 15 QA now saves an authentic **active-flight HUD screenshot** after confirming the game is actually flying. This evidence remains separate from concept art; production release assets still require the existing authentic screenshot QA gates.
+- Android+iOS bump together to **v0.1.54 (build 57)**. High-detail 3D-feather, material shading and painted background fidelity remain below the reference; **this is not a claim of completed pixel-perfect 1:1 visual parity.**
+
 ## v0.1.53 — compact eight-world gallery and independent branded intro (build 56)
 
 - Android and iOS world galleries now match the 2×4 composition of the supplied concept more closely: short, full-bleed scenic cards with the actual world title, genuine earned stars and saved best score overlaid directly on each world image. Kept the world badge, blue forward affordance, gold selected outline and entire card as one accessible tap target.

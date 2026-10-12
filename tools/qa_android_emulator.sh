@@ -616,6 +616,9 @@ while [ "$attempt" -le 6 ]; do
       echo "FAIL: pause did not appear after actual first flight flap" >&2
       exit 1
     fi
+    # Capture the real active flight HUD while the flight is confirmed,
+    # never substitute the static reference concept artwork.
+    capture android-gameplay-active
     flight_started=1
     break
   fi
