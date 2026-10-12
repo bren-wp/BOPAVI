@@ -262,7 +262,8 @@ class MainActivity : Activity() {
             contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
                 "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
                 "zvjezdice ${progress.worldStars(world)} od 30" +
-                if(world==progress.chosenWorld()) ", odabrano" else ""
+                (if(world % 2 == 1) ", upravljanje povlačenjem" else ", upravljanje dodirom") +
+                (if(world==progress.chosenWorld()) ", odabrano" else "")
             setOnClickListener{sound.effect("click");onClick()}
         }
         val artPanel=FrameLayout(this).apply{
@@ -302,6 +303,16 @@ class MainActivity : Activity() {
         }
         artPanel.addView(badge,FrameLayout.LayoutParams(d(64),d(36),Gravity.TOP or Gravity.LEFT).apply{
             setMargins(d(8),d(8),0,0)
+        })
+        // Mode badge mirrors the real touch handler; card remains one tap target.
+        artPanel.addView(TextView(this).apply{
+            text=if(world % 2 == 1) "↕ POVUCI" else "● TAP"
+            textSize=10f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            background=gradient(if(world % 2 == 1)0xff6243ba.toInt() else 0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(d(85),d(29),Gravity.TOP or Gravity.RIGHT).apply{
+            setMargins(0,d(9),d(8),0)
         })
         artPanel.addView(TextView(this).apply{
             text="›";textSize=31f;setTextColor(Color.WHITE)
@@ -508,7 +519,8 @@ class MainActivity : Activity() {
     }
     private fun showLevels(world:Int,page:Int){
         currentWorld=world;progress.chooseWorld(world)
-        val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]}")
+        val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]} · " +
+            (if(world % 2 == 1) "POVUCI GORE / DOLJE" else "TAP ZA ZAMAH"))
         val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
         val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
         val start=((safePage-1)/20)*20+1
@@ -966,7 +978,9 @@ class MainActivity : Activity() {
         quick("✦","KONTROLE"){
             android.app.AlertDialog.Builder(this)
                 .setTitle("Kontrole leta")
-                .setMessage("Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
+                .setMessage(if(currentWorld % 2 == 1)
+                    "Povuci prst gore ili dolje za visinu leta. Kretanje je postupno; izbjegavaj prepreke. Pauza se pojavljuje nakon početka leta."
+                    else "Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
                 .setPositiveButton("U REDU",null).show()
         }
         quick("⚙","POSTAVKE"){
