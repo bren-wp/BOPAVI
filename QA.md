@@ -1,3 +1,7 @@
+### v0.1.55 release capture timing safeguard
+
+A confirmed flight may collide while `uiautomator dump` is still running. Capture the screenshot **immediately after the real injected flap**, before the one-second delay and accessibility dump; only retain it once the subsequent UI proves flight started or reached the real collision result. Failed/unacknowledged gesture candidates are deleted, not published. The GitHub release fails closed if `android-gameplay-active.png` is missing, invalid or too small. This prevents substituting an idle concept or result for an actual gameplay frame.
+
 ## v0.1.55 — gold coins and last-gate portals
 
 - In all eight worlds, confirm rendered coins are gold with a legible miniature raised crown, not coloured world biome icons. A coin must disappear only on its **real collected** flag (including when magnet is active), while the actual score/coin count updates as before.

@@ -1645,3 +1645,18 @@ assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Andr
 assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
 assert "BOPAVI-Android-Flight-Active.png" in (root/'README.md').read_text()
 print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-motion and genuine flight release evidence")
+
+# v0.1.55 release hotfix: slow UI automation may see a result long after
+# a genuine flap. Preserve the ACTUAL in-flight screenshot taken immediately
+# after input, before sleep/dump; do not allow unconfirmed input candidates.
+qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
+for required in ('capture android-gameplay-active','sleep 1','dump_ui',
+                 'rm -f qa/screenshots/android-gameplay-active.png',
+                 "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
+    assert required in qa_flight_loop,required
+assert qa_flight_loop.index('adb shell input tap "$center"') < qa_flight_loop.index('capture android-gameplay-active')
+assert qa_flight_loop.index('capture android-gameplay-active') < qa_flight_loop.index('sleep 1')
+assert qa_flight_loop.index('capture android-gameplay-active') < qa_flight_loop.index('dump_ui')
+assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png'" in workflow
+assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
+print('PASS: first active-flight frame survives slow accessibility dump and is mandatory in release')
