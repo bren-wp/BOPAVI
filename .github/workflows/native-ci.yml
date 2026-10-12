@@ -423,6 +423,16 @@ jobs:
                   raise SystemExit(f'Invalid portrait device capture: {src} ({width}x{height})')
               copyfile(source,Path('dist')/dest)
               print(f'PASS: real screenshot {dest} ({width}x{height})')
+          # The preceding v0.1.55 release accidentally published identical
+          # preflight/active PNGs. Distinct pixel frames are required evidence.
+          # These images are produced by the same adb screencap encoder, so
+          # a byte-identical output proves no new game frame was recorded.
+          from hashlib import sha256
+          ready=Path('dist/BOPAVI-Android-Flight-Preview.png')
+          active=Path('dist/BOPAVI-Android-Flight-Active.png')
+          if sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest():
+              raise SystemExit('Active gameplay screenshot is identical to idle flight; release blocked')
+          print('PASS: distinct actual preflight and active flight PNG frames')
           PY
       - name: Verify exact-version assets and explicitly unsigned Android bundle
         run: |
