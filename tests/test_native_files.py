@@ -1456,7 +1456,9 @@ assert wing_layers.count('left')>=4 and wing_layers.count('right')>=4
 assert 'id="irisBopi"' in bird_markup and 'id="featherGlint"' in bird_markup
 assert 'fill="#7e2929"' in bird_markup and 'fill="#f56675"' in bird_markup
 assert 'Q-50 -145 -13 -162' in bird_markup
+assert 'M2 35Q34 27 92 50' in bird_markup
 generation=(root/'tools/generate_images.py').read_text()
+assert 'shadow_oval' in generation and "body_markup.replace(shadow_oval,'',1)" in generation
 assert 'wing_parts={side:' in generation
 assert 'for shape in wing_shapes' in generation
 assert "wing_parts[side]" in generation
