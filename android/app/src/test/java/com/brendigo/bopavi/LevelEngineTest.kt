@@ -6,6 +6,35 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun dragWorldsUseBoundedPhysicsWhileTapWorldsRemainUnchanged() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            val game=GameSimulation(LevelEngine.create(world,1))
+            assertEquals(world % 2 == 1,game.dragControl)
+            game.steer(680f)
+            if(world % 2 == 0) {
+                assertFalse(game.active)
+                assertEquals(366f,game.y,0f)
+                game.flap()
+                assertEquals(-255f,game.velocity,0f)
+            } else {
+                assertTrue(game.active)
+                assertEquals(366f,game.y,0f) // No teleport at input time.
+                assertEquals(0,game.flaps) // Drag is not a fake wing tap.
+                game.step(.1f)
+                assertTrue(game.y>366f && game.y<410f)
+                assertTrue(game.velocity in -310f..310f)
+                val previous=game.y
+                game.steer(Float.NaN)
+                game.steer(Float.POSITIVE_INFINITY)
+                assertEquals(previous,game.y,0f)
+                game.steer(75f)
+                repeat(5){game.step(.06f)}
+                assertTrue("Dragging upward should steer instead of teleport",game.y<previous)
+                assertFalse(game.finished)
+            }
+        }
+    }
+
     @Test fun eachTapRetriggersCosmeticWingbeatWithoutChangingPhysics() {
         val flight=GameSimulation(LevelEngine.create(0,2))
         assertEquals(0f,flight.flapPulse,0f)
