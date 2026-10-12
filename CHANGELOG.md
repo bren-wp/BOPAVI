@@ -1,3 +1,12 @@
+## v0.1.66 — Connected pilot faces and correctly articulated live gameplay (build 69)
+
+- **Bopi's detached-looking beak fixed at its SVG source**: redrew the pale muzzle between cheeks and open golden bill, dark inner mouth and tongue. Lower jaw now ends above the blue/gold scarf and stays attached to the face in home/selection/flight art.
+- **Vihor, Iskra, Orion**: each receives a larger continuous smiling bill, genuine inner mouth and lower-sitting colored scarf; the three original pilot colors, goggles, wings and unlock IDs remain unique.
+- Corrected **original cropped SVG/PNG viewports** for all three alternative pilots from `-65 -65 130 130` to `-80 -80 160 160`, preserving the outer wingtips in portrait and active flying renders.
+- Made pilots more legible within the real game playfield: **148 logical pixels for Bopi-family sprites, 160 for the three original pilots**. Both Android Canvas and iOS Core Graphics calculate independent real shoulder-rotation centers for those two asset coordinate systems. Wings stay attached and the real flight physics, collision radius and procedural levels remain unchanged.
+- Added generated **PNG-pixel anatomy QA**: every actual Android/iOS pilot body/wing/portrait is checked for nonempty shaded bill, open smile, uncropped wing alpha boundaries, visible wing feathers and identical cross-platform pixels. CI runs this check before native builds; source tests enforce the source geometry.
+- No reference screenshots were baked into the app, no new user data capture or network services were added, and the goal of full art/UI 1:1 remains open pending real side-by-side device screenshots and higher-fidelity illustrations.
+
 ## v0.1.65 — Android 15 focus-loss diagnosis + native dead-code/resource cleanup (build 68)
 
 - Investigated actual production main CI failure from run 38312182026: despite all nine real pilot cards loading, the post-confirmation XML was the **Pixel Launcher** hierarchy instead of BOPAVI's idle game. This is not sufficient evidence of a BOPAVI crash; preserve process/crash/window state before attributing a root cause.
