@@ -1657,13 +1657,13 @@ print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-
 # a genuine flap. Preserve the ACTUAL in-flight screenshot taken immediately
 # after input, before sleep/dump; do not allow unconfirmed input candidates.
 qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
-for required in ('screencap -p /sdcard/bopavi-active-flight.png','sleep 1','dump_ui',
+for required in ('screencap -p /sdcard/bopavi-flight-1.png','sleep 1','dump_ui',
                  'rm -f qa/screenshots/android-gameplay-active.png',
                  "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
     assert required in qa_flight_loop,required
-assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-active-flight.png')
-assert qa_flight_loop.index('screencap -p /sdcard/bopavi-active-flight.png') < qa_flight_loop.index('sleep 1')
-assert qa_flight_loop.index('screencap -p /sdcard/bopavi-active-flight.png') < qa_flight_loop.index('dump_ui')
+assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
+assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('sleep 1')
+assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('dump_ui')
 assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png'" in workflow
 assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
 print('PASS: first active-flight frame survives slow accessibility dump and is mandatory in release')
@@ -1700,9 +1700,14 @@ print("PASS: cross-platform vector gold stars and allocation-free iOS rounded pa
 
 # v0.1.56: forensic check of 0.1.55 screenshot hashes found that
 # active flight == idle preview. CI must now require distinct real PNGs.
-assert 'sleep 0.12; screencap -p /sdcard/bopavi-active-flight.png' in qa_flight_loop
-assert 'adb exec-out cat /sdcard/bopavi-active-flight.png > qa/screenshots/android-gameplay-active.png' in qa_flight_loop
-assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-active-flight.png')
+assert 'sleep 0.27; screencap -p /sdcard/bopavi-flight-1.png' in qa_flight_loop
+assert 'android-flight-candidate-$frame.png' in qa_flight_loop
+assert 'screencap -p /sdcard/bopavi-flight-2.png' in qa_flight_loop
+assert 'screencap -p /sdcard/bopavi-flight-3.png' in qa_flight_loop
+assert 'selected_real_flight=0' in qa
+assert 'qa/screenshots/android-flight-candidate-*.png' in qa
+assert 'cmp -s qa/screenshots/android-result.png "$candidate"' in qa
+assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
 assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png' in qa_flight_loop
 assert 'FAIL: active screenshot duplicates pre-flight preview' in qa_flight_loop
 assert "sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest()" in workflow
