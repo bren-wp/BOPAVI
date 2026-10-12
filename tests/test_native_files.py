@@ -1054,7 +1054,8 @@ print('PASS: nine real full-wing portraits in all menus, with preserved detached
 
 # v0.1.34: bottom PROFILE is not a misleading alias for Settings.
 assert '0->showProfile()' in android_menu
-assert '("♙","PROFIL",{self.showProfile()})' in ios_menu
+assert '("NavProfile","PROFIL",{self.showProfile()})' in ios_menu
+assert 'UIImageView(image:UIImage(named:icon))' in ios_menu
 for controller,signature,expected in ((android_menu,'private fun showProfile()',
                                       'Letački profil, '),
                                      (ios_menu,'private func showProfile()',
