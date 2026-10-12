@@ -1,105 +1,123 @@
-## BOPAVI — Mali letovi • Velike priče
+<div align="center">
 
-Android and iOS now share a blue/cyan/gold premium UI direction drawn from the supplied BOPAVI screens: three illustrated primary home destinations, four functioning shortcuts (including a dedicated offline player profile), three-column character gallery, coordinated settings and dark score cards. The BOPAVI logo and Bopi's expressive aviator art are generated from shared vector sources into both apps, including separately animated, detailed wings. Gameplay physics, local saves and the offline earned-coin economy are retained. **Exact 1:1 artwork fidelity is still under development**; see [visual implementation contract](docs/design/PREMIUM-REFERENCE-IMPLEMENTATION.md) for the outstanding art exports and side-by-side device QA. No online gems, fake cloud sync or paid controls are presented.
+<img src="docs/assets/logo.svg" alt="BOPAVI — krilati plavo-zlatni logotip s krunom" width="520">
 
-<p align="center"><img src="docs/assets/logo.svg" width="450" alt="BOPAVI — Mali let, velika avantura"></p>
-<p align="center"><strong>MALI LETOVI • VELIKE PRIČE</strong></p>
-<p align="center"><img src="docs/assets/hero.svg" alt="Bopi leti među oblacima i lebdećim otocima" width="100%"></p>
+### MALI LETOVI • VELIKE PRIČE
 
-<p align="center">
-  <a href="../../releases"><img src="https://img.shields.io/github/v/release/bren-wp/BOPAVI?include_prereleases&label=Izdanje" alt="Najnovije GitHub izdanje"></a>
-  <a href="../../actions/workflows/native-ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/bren-wp/BOPAVI/native-ci.yml?branch=main&label=Android%20%2B%20iOS%20CI" alt="Status provjera"></a>
-  <img src="https://img.shields.io/badge/jezici-Hrvatski-187dd0" alt="Hrvatski jezik">
-  <img src="https://img.shields.io/badge/Offline-Bez%20oglasa-179b79" alt="Offline, bez oglasa">
-</p>
+**Poleti iznad oblaka. Otkrij čarobne svjetove. Neka svaki let bude nova avantura.**
 
-# Poleti u svijet BOPAVI-ja 🪽
+<img src="docs/assets/hero.svg" alt="Bopi među lebdećim otocima" width="850">
 
-**BOPAVI** je arkadna igra letenja za Android i iPhone u kojoj jedan dodir pokreće krila, a svaki prolaz donosi novi izazov. Osmisli put između lebdećih otoka, skupljaj predmete i otkrivaj osam različitih svjetova. Svjetovi su dostupni odmah; leveli u pojedinom svijetu otključavaju se redom, a nakon velikog broja jedinstvenih levela avantura nastavlja beskrajnim remiksima.
+[**Preuzmi BOPAVI**](../../releases/latest) · [**Pogledaj svjetove**](#osam-svjetova-za-istraživanje) · [**Upoznaj letače**](#upoznaj-svoje-letače)
 
-Nema internetske prijave, reklama, praćenja ni kupnje stvarnim novcem. Napredak i najbolji rezultati spremaju se lokalno na tvoj uređaj.
-
-## ✨ Odaberi svog letača
-
-**Prije svakog leta** odaberi lik na zasebnom ekranu s pravim ilustriranim karticama svih devet letača. I Bopi i Portantin imaju vlastiti prepoznatljiv izgled; izbor potvrđuješ gumbom **POLETI S...**. Odabrani izgled ostaje spremljen. Postojeće boje kupljene kovanicama ne gube se prilikom ažuriranja.
-
-**Pošteno otključavanje:** ako želiš novog lika koji se otključava virtualnim kovanicama, prije trošenja dobivaš poseban dijalog s točnom cijenom. Možeš odustati bez promjene salda. Već otključani likovi i Portantin mogu se birati bez naknade. **Noa (220)** i **Any (240)** otključavaju se kovanicama osvojenima u igri.
-
-<figure>
-  <img src="docs/assets/portantin.svg" alt="Portantin: krilati čovječuljak sa zaštitnim naočalama, kirurškom maskicom i rukavicama nosi drugog čovječuljka na leđima" width="260">
-</figure>
-
-### Upoznaj Portantina
-
-**Portantin** je novi besplatni član ekipe: simpatični krilati čovječuljak koji nosi malog suputnika na leđima. Ima prepoznatljive pilotske naočale, kiruršku maskicu, rukavice i zasebno animirana krila. Ilustracija je izvorni SVG iz projekta, a Android i iOS koriste zasebno generirane spriteove iz **istog umjetničkog izvora**.
-
-| Lik | Prepoznatljiv izgled | Kako otključati |
-|---|---|---|
-| 🐦 **Bopi** | Klasični plavi pilot | Dostupan odmah |
-| ☀️ **Sunny** | Zlatne nijanse | Kovanice iz igre |
-| 🍓 **Berry** | Ružičaste nijanse | Kovanice iz igre |
-| 🌙 **Luna** | Ljubičaste nijanse | Kovanice iz igre |
-| 🌿 **Mint** | Mentol-zelene nijanse | Kovanice iz igre |
-| 🌑 **Shadow** | Tamne nijanse | Kovanice iz igre |
-| 🪽 **Portantin** | Krilati nosač sa suputnikom i zaštitnom opremom | **Besplatan od početka** |
-| ⚡ **Noa** | Nebeski istraživač sa safirnim pilotskim odijelom, vizir-naočalama i električno plavim krilima | **220 kovanica** |
-| ✨ **Any** | Zvjezdana čarobnica s ljubičastom kosom, zvjezdanom tijarom, haljinom i ružičastim krilima | **240 kovanica** |
-
-<p align="center">
-<img src="docs/assets/noa.svg" width="240" alt="Noa — nebeski istraživač s električno plavim krilima">
-<img src="docs/assets/any.svg" width="240" alt="Any — čarobnica sa zvjezdanom tijarom i ružičastim krilima">
-</p>
-
-**Noa i Any — dva premium letača, dvije različite avanture.** Noa istražuje granice neba; Any donosi čaroliju zvijezda. Oba lika imaju vlastite siluete tijela i dva odvojena, animirana krila, a tijekom stvarnog leta prikazuju se upravo njihovi odgovarajući spriteovi na Androidu i iOS-u. Kao i svi drugi likovi, igraju po jednakim pravilima: bez prednosti u brzini, fizici ili kolizijama, bez plaćanja stvarnim novcem.
-
-## 🌍 Osam svjetova — jedan neprekinuti let
-
-| Svijet | Što skupljaš | Atmosfera |
-|---|---|---|
-| 🌿 **Zeleni otoci** | Zvjezdice | Zeleni lebdeći otoci, dvorci i slapovi |
-| 💎 **Kristalno nebo** | Kristali | Sjajni kristalni tornjevi u oblacima |
-| 🌋 **Lava vrhovi** | Iskre | Vulkanski vrhovi i slapovi lave |
-| 🌙 **Noćni dvorci** | Mjesečev prah | Mjesečina i začarani dvorci |
-| 🐚 **Biserno more** | Školjke | Tirkizno podmorje i koralji |
-| 🏛️ **Nebeske kule** | Perje | Zlatne kule i nebeski portali |
-| 🍄 **Čarobna šuma** | Vilinski prah | Čarobna stabla i svjetleće gljive |
-| 🪐 **Zvjezdani bezdani** | Zvjezdani prah | Nebeski portali i kozmički otoci |
-
-**Ne postoji rez između uzastopnih levela u istom letu.** Sljedeće se prepreke pripremaju unaprijed i prirodno ulaze u kadar uz **isti stvarni razmak prepreka tekuće zone**, čak i kad se težina mijenja; odabrani lik ne vraćaju se na početak, kamera i pozadina nastavljaju se pomicati, a prikaz ukupnih prolaza stalno raste. Nema zaslona učitavanja ni novog početka pri promjeni broja levela.
-
-## 🎮 Kako igrati
-
-1. Na početnom ekranu odaberi **IGRAJ** ili najprije pogledaj **SVJETOVI**.
-2. **Izaberi lika** i potvrdi **POLETI S...**; promjena lika ne troši kovanice ako je već dostupan.
-3. **Dodirni ekran** da Bopi ili Portantin zamahne krilima. Izbjegavaj prepreke i skupljaj predmete.
-4. Pauza i HUD pojavljuju se **tek nakon prvog stvarnog zamaha**. Kupljeni štit i magnet troše se tek tim zamahom, ne otvaranjem pregleda leta. Svaki dovršeni level vodi u sljedeći bez prekida.
-5. Napredak, lokalna ljestvica, postignuća i sigurnosna kopija dostupni su kroz **POSTAVKE**. Na Androidu tipka Natrag tijekom leta otvara pauzu, a zaslon rezultata prikazuje ukupan broj prolaza tijekom cijelog pokušaja.
-
-**Normalni ●**, **izazovni ⚡**, **bonus ✦** i **elitni ♛** leveli različite su vrste postojećeg proceduralnog generatora. Osvojene virtualne kovanice služe samo za otključavanje boja i dodataka poput štita ili magneta.
-
-## 📱 Android i iOS
-
-Na početnom ekranu BOPAVI logo više se ne preklapa s pravim brojačima igrača, a PROFIL, ZADACI, KOLEKCIJA i TRGOVINA imaju zajedničke ilustrirane ikone na Androidu i iOS-u. Svaki prečac vodi na stvarni sadržaj. Obje mobilne inačice imaju interaktivni početni ekran i uputu **DODIRNI ZA LET** prije prvog zamaha krilima. Dodir i aktivacija čitačem zaslona pokreću stvarni let; mirovanje ne troši bateriju nepotrebnim kontinuiranim renderiranjem, a animacije se nastavljaju tijekom igranja.
-
-
-
-Projekt održava dvije zasebne aplikacije: Kotlin/Android Canvas i Swift/UIKit/Core Graphics. Fizika, generiranje levela, bodovi, pravila, izbor likova i spremanje napretka međusobno se provjeravaju Kotlin/Swift testovima.
-
-**[Preuzmi najnovije razvojno izdanje](../../releases)** · **[GitHub CI](../../actions/workflows/native-ci.yml)** · **[Google Play — upute za izdavača](docs/GOOGLE-PLAY-PUBLISHING.md)** · **[Tekst Play Store](docs/play/STORE-LISTING-hr-HR.md)** · **[Politika privatnosti](docs/play/PRIVACY_POLICY.md)** · **[Detaljni QA](QA.md)** · **[Povijest izmjena](CHANGELOG.md)**
-
-**Priprema za Google Play (aktualni razvojni ciklus):** Ovo izdanje donosi stvarno usklađene premium ekrane Androida i iOS-a, devet cjelovitih portreta, bogatiju grafiku osam svjetova, rezultat i nagrade iz stvarnih podataka, bolje postavke i pristupačnost; postojeće precizno neprekinuto kretanje i regresijski testovi ostaju. Android cilja API 36 i podržava novu gestu Natrag. Gradle više nema konfiguraciju produkcijskog potpisa, a CI provjerava da je AAB stvarno nepotpisan prije objave. Nazivi izdanja i Play ZIP-a sada se automatski izvode iz usklađenih Android/iOS verzija. Redovni javni GitHub Release i dalje sadržava **nepotpisani** Android AAB i razvojni APK, iOS simulator/device ZIP te ZIP s Play ikonom, promotivnom grafikom i stvarnim Android emulator screenshotovima. Za budući Google Play upload izdavač potpisuje bundle isključivo privatno, izvan GitHub Actionsa, s već odobrenim upload ključem. Objava u trgovinama, provjera Play Console računa, javni privacy policy URL, regulatorni obrasci i testiranje na fizičkim uređajima **nisu automatski dovršeni**.
-
-**Za izdavača:** [Google Play vodič korak-po-korak](docs/GOOGLE-PLAY-PUBLISHING.md) · [Data safety](docs/play/GOOGLE-PLAY-DATA-SAFETY.md) · [Kontrolni popis](docs/play/RELEASE-CHECKLIST.md) · [Politika privatnosti](docs/play/privacy-policy.html).
-
-## 🔐 Privatnost, kvaliteta i optimizacija
-
-- Nema internetske dozvole, računa, oglasa, telemetrije ni kupnji stvarnim novcem.
-- Napredak se čuva lokalno. Izvoz i uvoz JSON kopija su dobrovoljni; ulaz je strogo ograničen na **550 kB** prije učitavanja i provjerava format i raspone.
-- Slike likova i svjetova generiraju se tijekom builda iz izvornog materijala u repozitoriju. Nema preuzimanja sredstava tijekom igranja.
-- Sljedeći proceduralni level izračunava se unaprijed i čuva za nastavak bez vidljivog poskakivanja prepreka.
-- Android emulator i iOS simulator provjeravaju pokretanje, a zasebni paritetni i testovi spremanja štite od regresija. Potpuna vizualna podudarnost **1:1 na svim fizičkim uređajima nije još dokazana**.
+</div>
 
 ---
 
-<p align="center"><img src="docs/assets/icon.svg" alt="BOPAVI ikonica" width="105"></p>
-<p align="center"><strong>BOPAVI — Mali letovi • Velike priče.</strong><br>Stvorio Brendigo 💙</p>
+## Svaka avantura počinje jednim zamahom 🪽
+
+Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i krilima koja ga vode preko lebdećih otoka, začaranih dvoraca, kristalnog neba i slapova. U **BOPAVI-ju** jedan dodir znači novi zamah: zaobiđi prepreke, skupljaj kovanice i zvijezde te pronađi vlastiti ritam leta.
+
+**Osam fantastičnih svjetova**, devet jedinstveno oslikanih letača i više od milijun proceduralnih izazova po svijetu donose avanturu koja se nastavlja. Nove dionice dolaze bez prekida trenutnog leta.
+
+<div align="center">
+
+<img src="docs/assets/icon.svg" width="100" alt="Službena BOPAVI ikona">
+
+**Android · iPhone · Igranje bez internetske prijave · Bez oglasa · Bez kupnje stvarnim novcem**
+
+</div>
+
+## Pogledaj pravu igru
+
+Ovo su **stvarne snimke pokrenute aplikacije** iz Android emulatora i iOS simulatora, a ne ilustracije iz konceptualnog dizajna. Galerija se ažurira sa svakim provjerenim GitHub izdanjem.
+
+<div align="center">
+<table>
+<tr>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android početni zaslon BOPAVI igre" width="205"><br><b>Početni zaslon</b></td>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pilots.png" alt="Stvarni Android odabir lika s ilustriranim karticama" width="205"><br><b>Odabir letača</b></td>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Priprema za let</b></td>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni Android zaslon rezultata igre" width="205"><br><b>Rezultati</b></td>
+</tr>
+</table>
+<img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="Stvarni početni zaslon iOS simulatora BOPAVI igre" width="240">
+
+*Početni zaslon na iOS-u*
+
+</div>
+
+## Osam svjetova za istraživanje
+
+| Svijet | Avantura |
+|:--|:--|
+| 🌿 **Zeleni otoci** | Zeleni lebdeći otoci, dvorci i slapovi |
+| 💎 **Kristalno nebo** | Svjetlucavi kristali i visoke nebeske građevine |
+| 🌋 **Lava vrhovi** | Vulkanski krajolici, vatra i užarene prepreke |
+| 🌙 **Noćni dvorci** | Mjesečina, tamni tornjevi i tajanstvene sjene |
+| 🐚 **Biserno more** | Tirkizne dubine, koralji i biserni svijet |
+| 🏛️ **Nebeske kule** | Drevni tornjevi, visoki otoci i portali |
+| 🍄 **Čarobna šuma** | Začarana stabla, gljive i vilinska svjetla |
+| 🪐 **Zvjezdani bezdani** | Kozmičke stijene, zvijezde i nebeske tajne |
+
+Otključavaj levele redom, osvajaj zvjezdice, vraćaj se po bolji rezultat i nastavi letjeti kroz nove proceduralne dionice. Svaki svijet čuva tvoj napredak.
+
+## Upoznaj svoje letače
+
+Bopi je tek početak! Pronađi pilota koji odgovara tvojoj avanturi. Svih devet letača ima svoj ilustrirani izgled, a nova otključavanja koriste isključivo kovanice osvojene u igri.
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><img src="docs/assets/portantin.svg" alt="Portantin, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Portantin</b></td>
+<td align="center"><img src="docs/assets/noa.svg" alt="Noa, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Noa</b></td>
+<td align="center"><img src="docs/assets/any.svg" alt="Any, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Any</b></td>
+</tr>
+</table>
+</div>
+
+**Bopi · Sunny · Berry · Luna · Mint · Shadow · Portantin · Noa · Any**
+
+Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači ostaju tvoji, a napredak se ne gubi pri ažuriranju.
+
+## Tvoj let, tvoja pravila
+
+- **Dodirni za let:** svaki dodir pokreće novi zamah krilima.
+- **Skupljaj nagrade:** kovanice, zvijezde i korisne dodatke.
+- **Otkrij svoj ritam:** biraj između lakše, normalne i zahtjevnije težine.
+- **Odmori kada poželiš:** nastavi, ponovi let ili se vrati u izbornik.
+- **Istražuj dalje:** između uzastopnih proceduralnih levela let se nastavlja bez novog početka.
+- **Čuvaj svoju avanturu:** najbolji rezultati, otključani likovi i napredak spremaju se lokalno.
+
+## Otkrij što te čeka
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><img src="docs/assets/nav-profile.svg" width="60" alt="Profil"><br><b>Profil</b><br>Vlastiti napredak</td>
+<td align="center"><img src="docs/assets/nav-tasks.svg" width="60" alt="Zadaci"><br><b>Zadaci</b><br>Novi ciljevi</td>
+<td align="center"><img src="docs/assets/nav-collection.svg" width="60" alt="Kolekcija"><br><b>Kolekcija</b><br>Tvoji letači</td>
+<td align="center"><img src="docs/assets/nav-shop.svg" width="60" alt="Trgovina"><br><b>Trgovina</b><br>Virtualne kovanice</td>
+</tr>
+</table>
+</div>
+
+## Preuzmi i poleti
+
+BOPAVI je dostupan kao testno izdanje za Android i iOS. U [najnovijem izdanju](../../releases/latest) nalaze se Android APK i AAB te paketi za iOS simulator i uređaj. **APK je razvojni paket, a AAB i iOS device paket nisu potpisani za distribuciju kroz trgovine.** Za objavu u Google Playu i App Storeu potrebni su odgovarajući izdavački potpisi.
+
+Tvoj napredak sprema se na uređaj. BOPAVI ne traži korisnički račun, nema oglase i ne nudi kupnju stvarnim novcem.
+
+---
+
+<div align="center">
+
+<img src="docs/assets/logo.svg" width="300" alt="BOPAVI">
+
+**MALI LETOVI • VELIKE PRIČE**
+
+*BOPAVI je svijet koji se otkriva jednim zamahom.*
+
+**© Brendigo**
+
+</div>
