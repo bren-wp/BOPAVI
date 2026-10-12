@@ -1,3 +1,9 @@
+## v0.1.47 CI failure diagnosis and regression fix
+
+- Android 15 emulator proved BOPAVI installed/launched successfully and captured `android-home.png`, then stopped at the **outdated smoke assertion** `home must expose one accessible clickable POSTAVKE, got 2`. Both visible references show top settings gear and a separate central settings button.
+- Updated the emulator QA script to demand **exactly two distinct accessible POSTAVKE actions** and separately verify active profile, achievements and earned-coin header controls. Its settings tap now selects the **lower main CTA**, so menu-navigation smoke remains deterministic while testing the new gear's presence and hitbox.
+- This does not waive an app ANR or a failed navigation test; the genuine emulator gameplay tests, screenshots, Android 16 smoke and iOS build must still pass before merging.
+ 
 ## v0.1.47 — accessible interactive home header
 
 - Check header on narrow Android 15/16 and iOS simulator: selected Bopi avatar is visible, best score and earned coins are real local values, and settings gear is reachable without scrolling. No control overlap with cutouts, hero, safe areas or navigation.

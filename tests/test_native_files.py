@@ -1385,3 +1385,11 @@ assert 'self.showPerks(.home)' in ios_home
 assert 'self.showSettings()' in ios_home
 assert 'best.widthAnchor.constraint(equalTo:coins.widthAnchor)' in ios_home
 print('PASS: live Android/iOS four-action home header with honest earned currency')
+
+# v0.1.47 UI smoke must allow the reference's two independent Settings
+# controls (top gear and main CTA), never mask genuine broken navigation.
+assert 'expected={"IGRAJ":1,"SVJETOVI":1,"POSTAVKE":2}' in qa
+assert "('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·')" in qa
+assert 'if len(set(settings))!=2:' in qa
+assert 't,l,r,b=max(regions)' in qa
+print('PASS: QA verifies distinct home header gear and main Settings CTA')
