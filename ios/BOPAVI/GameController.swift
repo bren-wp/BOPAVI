@@ -2063,9 +2063,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label("Bez oglasa, praćenja i kupnje stvarnim novcem.",14,.white,settingsPanel)
         button("SPREMI KOPIJU NAPRETKA",in:settingsPanel,primary:false){
             do {
-                let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
-                try self.progress.exportData().write(to:url,options:.atomic)
+                // Each voluntary export is unique, protected, and deleted once shared.
+                let url=FileManager.default.temporaryDirectory
+                    .appendingPathComponent("bopavi-save-\(UUID().uuidString).json")
+                try self.progress.exportData().write(to:url,options:[.atomic,.completeFileProtectionUnlessOpen])
                 let activity=UIActivityViewController(activityItems:[url],applicationActivities:nil)
+                activity.completionWithItemsHandler={_,_,_,_ in
+                    try? FileManager.default.removeItem(at:url)
+                }
                 activity.popoverPresentationController?.sourceView=self.view
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
@@ -2091,7 +2096,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             sound.effectsVolume=Float(progress.effectsVolume)/100
             showHome();alert("Uspješno","Napredak je uvezen.")
         }
-        catch {alert("Uvoz nije uspio",error.localizedDescription)}
+        catch {alert("Uvoz nije uspio","Provjeri da je odabrana valjana BOPAVI kopija napretka.")}
     }
     private func alert(_ title:String,_ message:String){let a=UIAlertController(title:title,message:message,preferredStyle:.alert);a.addAction(UIAlertAction(title:"U redu",style:.default));present(a,animated:true)}
 }
