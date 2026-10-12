@@ -26,6 +26,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // endless level begins; the renderer draws its bar each frame without allocation.
     private var lastProgressPassed = -1
     private var progressTitle = ""
+    private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,8)
@@ -669,6 +670,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
         hudOrb(c,46f,323f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
+        val status="Bopi leti. Prolazi ukupno ${game.totalPassed}. Zvjezdice ${game.stars}. " +
+            "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
+        if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
         // Flap immediately on DOWN; accessibility activates the same click path.
