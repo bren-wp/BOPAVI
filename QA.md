@@ -4,7 +4,8 @@
 2. Confirm golden coins and last-gate cyan portals introduced in v0.1.55 are unchanged, including on sequential endless levels.
 3. Check iOS rounded HUD panels, status badges and gate-corner seams visually at normal and reduced-motion settings. The drawing routine now builds four quarter arcs in the active CGContext, rather than allocating a temporary CGPath for each shape.
 4. Run Android 15/16 and iOS simulator visual smoke, Android lint/JVM tests, iOS Swift build and physics/save tests, and source inventory/dead-code/privacy checks.
-5. Compare actual gameplay captures with the reference, noting any remaining image-specific geometry or rendering discrepancies. Do not claim measured FPS or power savings without a device benchmark.
+5. The v0.1.55 `BOPAVI-Android-Flight-Active.png` was discovered byte-identical to `BOPAVI-Android-Flight-Preview.png` despite successful build. QA must capture only after an initial render, confirm a real flap, and reject identical preflight/active captures. Release packaging enforces unequal SHA-256 digests. Do not describe the v0.1.55 active screenshot as proof of a real gameplay frame.
+6. Compare actual gameplay captures with the reference, noting any remaining image-specific geometry or rendering discrepancies. Do not claim measured FPS or power savings without a device benchmark.
 
 ### v0.1.55 release capture timing safeguard
 
