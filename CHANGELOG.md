@@ -1,5 +1,6 @@
 ## v0.1.66 — Connected pilot faces and correctly articulated live gameplay (build 69)
 
+- Added layered faceted rock highlights and strata to the **real in-flight obstacle shafts** on both Canvas/Core Graphics renderers, confined to the original collision shapes (no physics changes).
 - **Bopi's detached-looking beak fixed at its SVG source**: redrew the pale muzzle between cheeks and open golden bill, dark inner mouth and tongue. Lower jaw now ends above the blue/gold scarf and stays attached to the face in home/selection/flight art.
 - **Vihor, Iskra, Orion**: each receives a larger continuous smiling bill, genuine inner mouth and lower-sitting colored scarf; the three original pilot colors, goggles, wings and unlock IDs remain unique.
 - Corrected **original cropped SVG/PNG viewports** for all three alternative pilots from `-65 -65 130 130` to `-80 -80 160 160`, preserving the outer wingtips in portrait and active flying renders.
