@@ -604,7 +604,9 @@ android_click=android_render.split('override fun performClick(',1)[1].split('ove
 ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override func touchesBegan(',1)[0]
 assert 'performClick()' in android_touch
 assert 'val firstFlap=!game.active' in android_click
-assert 'if(firstFlap && game.active)onFlightStarted()' in android_click
+assert 'if(firstFlap && game.active) {' in android_click
+assert android_click.count('onFlightStarted()')==1
+assert android_click.index('onFlightStarted()') < android_click.index('if(qaCaptureEnabled) qaWaitingForCapture=true')
 assert 'triggerFlap()' in ios_touch
 assert 'let firstFlap = !game.active' in ios_flap
 assert 'if firstFlap && game.active {onFlightStarted?()}' in ios_flap
