@@ -12,13 +12,14 @@ struct SwiftParity {
                 precondition(seen.insert(sig).inserted)
                 precondition((11...15).contains(l.gates.count))
                 precondition((140...212).contains(l.speed))
-                precondition(l.gates.allSatisfy{$0.gap>=165})
+                precondition(l.gates.allSatisfy{$0.gap>=165 && (48...88).contains($0.width)})
+                precondition(Set(l.gates.map{$0.width}).count>=3)
                 precondition(l.gates.allSatisfy {g in let o=BopaviCore.opening(g,100);return o.bottom-o.top >= 145})
                 checked += 1
             }
             for n in numbers {
                 let l=BopaviCore.create(w,n)
-                print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))")
+                print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))|\(l.gates.prefix(5).map{String(Int($0.width))}.joined(separator:","))")
                 var reconstructed=0
                 for (i,g) in l.gates.prefix(10).enumerated(){reconstructed |= Int((g.center-332)/26) << (i*2)}
                 precondition(reconstructed == n-1)
@@ -32,28 +33,17 @@ struct SwiftParity {
             precondition(x.gates.count>=11 && x.gates.allSatisfy {g in let o=BopaviCore.opening(g,123);return o.bottom-o.top>=145})
             print("S|4|\(ordinal)|\(BopaviCore.signature(x))")
         }
-        // New alternating-world steering must not teleport or affect tap worlds.
+        // All worlds use one touch-to-flap impulse, without drag steering.
         for world in 0..<8 {
             let flight=GameSimulation(BopaviCore.create(world,1))
-            precondition(flight.dragControl == (world % 2 == 1))
-            flight.steer(680)
-            if world % 2 == 0 {
-                precondition(!flight.active && flight.y == 366)
-                flight.flap()
-                precondition(flight.velocity == -255)
-            } else {
-                precondition(flight.active && flight.y == 366 && flight.flaps == 0)
-                flight.step(0.1)
-                precondition(flight.y > 366 && flight.y < 410)
-                precondition((-310...310).contains(flight.velocity))
-                let before=flight.y
-                flight.steer(.nan)
-                flight.steer(.infinity)
-                precondition(flight.y == before)
-                flight.steer(75)
-                for _ in 0..<5 {flight.step(0.06)}
-                precondition(flight.y < before && !flight.finished)
-            }
+            precondition(!flight.active && flight.radius == 18)
+            flight.flap()
+            precondition(flight.active && flight.flaps == 1 && flight.velocity == -255)
+            let before=flight.y
+            flight.step(0.016)
+            precondition(flight.y < before)
+            flight.flap()
+            precondition(flight.flaps == 2)
         }
         let continuous=GameSimulation(BopaviCore.createStream(0,1_048_576),endless:true,initialOrdinal:1_048_576)
         precondition(continuous.displayLevel==1_048_576)
@@ -67,7 +57,7 @@ struct SwiftParity {
         do {
             let l=BopaviCore.create(0,2)
             let g=l.gates[0]
-            let hit=BopaviCore.Gate(x:154,center:510,gap:160,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let hit=BopaviCore.Gate(x:148,center:510,gap:160,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
             let custom=BopaviCore.Level(world:0,number:2,zone:l.zone,speed:140,wind:0,gates:[hit],type:l.type)
             let direct=GameSimulation(custom)
             direct.flap();direct.step(1/60)
@@ -79,7 +69,7 @@ struct SwiftParity {
         do {
             let level=BopaviCore.create(0,2)
             let g=level.gates[0]
-            let safe=BopaviCore.Gate(x:154,center:366,gap:220,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let safe=BopaviCore.Gate(x:148,center:366,gap:220,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
             let run=GameSimulation(BopaviCore.Level(world:0,number:2,zone:level.zone,speed:140,wind:0,gates:[safe],type:level.type))
             run.flap();run.step(1/60)
             precondition(!run.finished,"False collision inside safe gap")
