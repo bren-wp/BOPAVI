@@ -61,6 +61,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             floatArrayOf(0f,1f),Shader.TileMode.CLAMP)
     }
 
+    // One cached cyan/gold radial halo gives the animated pilot more depth.
+    // The shader stays in logical bird coordinates and never changes hitboxes.
+    private val birdAuraShader=RadialGradient(0f,0f,74f,
+        intArrayOf(0x62fff3bb,0x3a2da9ff,0x002da9ff),
+        floatArrayOf(0f,.55f,1f),Shader.TileMode.CLAMP)
+
     private val pickupHues=intArrayOf(0xffffc83b.toInt(),0xffffba83.toInt(),0xffa5efff.toInt(),0xffff9836.toInt(),0xfffff1ad.toInt(),0xffc5adff.toInt(),0xff89f7ef.toInt(),0xffc3a6ff.toInt())
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
@@ -595,6 +601,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.style=Paint.Style.FILL
         }
         c.save();c.translate(126f,game.y)
+        // Soft sky-blue/gold light remains behind the real moving wings and body.
+        // A flap enlarges only the light, not the sprite or collision radius.
+        val auraImpulse=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
+        c.save()
+        val auraScale=1f+auraImpulse*.13f
+        c.scale(auraScale,auraScale)
+        fill(Color.WHITE)
+        p.shader=birdAuraShader
+        c.drawCircle(0f,0f,74f,p)
+        p.shader=null
+        c.restore()
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
         val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
         val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
