@@ -1,3 +1,10 @@
+## Iteration 23 — Bopi facial features and animated feather detail
+
+- Compared reference mascot eyes/beak/goggles with the production source SVG. The existing Bopi source had near-flat dark pupil ovals and a closed triangular beak. New shared layers create more dimensional cyan irises, distinct white catchlights, blue brows, a mouth and tongue, reflective crest and additional aviator strap highlights.
+- The previous generator assumed the **first four** matching SVG paths were two wings. Newly added feather art would have silently been rendered into Bopi's body instead of animated wings. The extraction now uses explicit `data-wing="left|right"` labels on each flying feather stroke and only composites the body independently. This prevents a real animation mismatch on both platforms.
+- Both mobile apps use the same build-time sprite art and the same unchanged collision math. No new runtime allocation or effects were introduced and no saves/IDs/economy were migrated.
+- **Unresolved reference gap:** independent 3D-quality feather sprites, lush volumetric islands/waterfalls and lighting, and all-ten-screen pixel-diff human review. This improves Bopi's silhouette and expressiveness but is **not** a 1:1 reproduction of the supplied concept render.
+
 ## Iteration 22 — premium footer art and measured home layering fix
 
 - Real Android v0.1.48 screenshot showed the interactive four-part wallet obscuring the crown/letters of the painted BOPAVI logo. The shared launch-art logo Y coordinate is adjusted from 130 to 230 (900×1600 art coordinates), separating functional top header from brand artwork across Android/iOS.
