@@ -83,6 +83,7 @@
  <path d="M-118 -91Q-100 -53 -73 -21" fill="none" stroke="#c4f7ff" stroke-width="3" opacity=".65" stroke-linecap="round" data-wing="left"/>
  <path d="M-207 -38Q-194 -28 -186 -26" fill="none" stroke="#ffffff" stroke-width="2" opacity=".82" stroke-linecap="round" data-wing="left"/>
  <path d="M-155 6Q-148 18 -136 20" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".66" stroke-linecap="round" data-wing="left"/>
+ <path d="M-179 -21Q-170 -9 -156 -7" fill="none" stroke="#deffff" stroke-width="2" opacity=".86" stroke-linecap="round" data-wing="left"/>
  <path d="M210 -85Q181 -59 153 -51Q177 -39 202 -53Z" fill="#146edc" opacity=".93" data-wing="right"/>
  <path d="M202 -71Q177 -40 141 -30Q164 -15 194 -38Z" fill="#45bfff" opacity=".80" data-wing="right"/>
  <path d="M189 -48Q164 -18 130 -13Q151 1 178 -24Z" fill="#80dcff" opacity=".73" data-wing="right"/>
@@ -92,6 +93,7 @@
  <path d="M110 -120Q104 -78 76 -40" fill="none" stroke="#c5f7ff" stroke-width="3" opacity=".66" stroke-linecap="round" data-wing="right"/>
  <path d="M194 -74Q184 -61 173 -57" fill="none" stroke="#ffffff" stroke-width="2" opacity=".8" stroke-linecap="round" data-wing="right"/>
  <path d="M154 -18Q147 -7 136 -2" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".65" stroke-linecap="round" data-wing="right"/>
+ <path d="M177 -42Q165 -32 152 -28" fill="none" stroke="#deffff" stroke-width="2" opacity=".86" stroke-linecap="round" data-wing="right"/>
  <path d="M-136 100L-219 61-186 151-129 132Z" fill="#116ad3"/>
  <path d="M-115 125L-190 98-176 142Z" fill="#63d3ff"/>
  <path d="M-39 105q-40 42-19 61l43-48z" fill="#f9a729"/>
