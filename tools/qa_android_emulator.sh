@@ -615,17 +615,25 @@ flight_started=0
 attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
-  adb shell input tap "$center" "$((height*50/100))"
-  # Allow at least one actual render/vsync after the injected flap.
-  # Immediate screencap can capture the old idle frame even when input
-  # succeeds. Keep the wait short enough to avoid falling to the result UI.
-  sleep 0.25
-  capture android-gameplay-active
-  # Fail closed on the stale-frame case detected in the v0.1.55 release:
-  # its 'active' and 'ready' PNGs were byte-identical.
+  # Capture on-device immediately after the tap, in the SAME adb shell
+  # transaction. The former host round-trip + sleep + screencap took >2s on
+  # CI emulators: by then the bird had hit the ground and both named PNGs
+  # were actually the Results screen (same SHA-256 in v0.1.61).
+  # This is a genuine platform screencap, never a mock/rendered fixture.
+  adb shell "input tap $center $((height*50/100)); sleep 0.12; screencap -p /sdcard/bopavi-active-flight.png"
+  adb exec-out cat /sdcard/bopavi-active-flight.png > qa/screenshots/android-gameplay-active.png
+  python3 - qa/screenshots/android-gameplay-active.png <<'PY'
+import sys
+from pathlib import Path
+s=Path(sys.argv[1]).read_bytes()
+assert len(s)>2000 and s.startswith(bytes.fromhex("89504e470d0a1a0a"))
+print("PASS: gameplay screenshot captured in the same on-device tap transaction")
+PY
+  # An unchanged preview is not evidence of flight. Do not silently replace
+  # with an eventual result screen; try another *real* flap while still alive.
   if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
-    sleep 0.20
-    capture android-gameplay-active
+    rm -f qa/screenshots/android-gameplay-active.png
+    echo "First on-device capture remained idle; checking gameplay lifecycle"
   fi
   sleep 1
   dump_ui
