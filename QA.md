@@ -1,3 +1,12 @@
+## v0.1.63 — Alternate control physics and artwork QA
+
+1. On Android 15/16 and iOS simulator enter world 0 and confirm **TAP ZA ZAMAH**: every actual down event triggers exactly one historical -255 velocity flap, no movement on touch-drag alone, and lives/rewards still work.
+2. Enter worlds **1,3,5,7** and confirm **POVUCI GORE / DOLJE**: first touch starts the same game lifecycle, follows finger up/down gradually with a bounded 310-unit/s velocity, does not jump across barriers, and collects only actually touched coins.
+3. Test short/long displays and safe-area letterboxing: coordinates map from view pixels to 480×800 world space; NaN/Infinity targets are discarded; touch MOVE must not play sound/charge a perk on every movement event. Screen-reader activation must remain a real meaningful action.
+4. Verify collision on visible obstacle caps (including shield absorption), procedural transition over level boundaries, pause/settings/resume, results, offline save migration and all nine real sprite selections.
+5. Confirm each world tile has a compact legible TAP/POVUCI label that doesn't cover the world number, and results, gameplay and menu screenshot files contain *real and distinct* application screenshots.
+6. Complete full Kotlin lint/JUnit, Android 15/16 emulator, Swift simulator/physics and iOS device build before PR merge. Repeat full CI on main before release; check 15+ required artifacts and SHA-256 after publication.
+
 ## v0.1.62 — Android 16 first-flap screenshot regression
 
 - Reproduced the Android 16 CI problem using downloaded GitHub Actions PNG artifacts: the first candidate pixel-for-pixel matched the idle screen and candidates 2–3 matched the Results screen. A single fixed delay could not capture the 60 Hz game while emulator screenshot IPC was slow.

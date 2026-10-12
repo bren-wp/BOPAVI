@@ -8,6 +8,8 @@ final class GameCanvas: UIView {
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
     private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
+    private let dragPrompt=NSAttributedString(string:"POVUCI GORE / DOLJE",attributes:[
+        .font:UIFont.systemFont(ofSize:23,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
@@ -85,7 +87,7 @@ final class GameCanvas: UIView {
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
         isAccessibilityElement=true
         accessibilityTraits.insert(.button)
-        accessibilityLabel="Dodirni za let Bopija"
+        accessibilityLabel=game.dragControl ? "Povuci gore ili dolje za upravljanje Bopijem" : "Dodirni za let Bopija"
         backgroundColor=UIColor(rgb:skyA[game.level.world])
     }
     required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
@@ -135,13 +137,39 @@ final class GameCanvas: UIView {
         start()
         setNeedsDisplay()
     }
+    /// Convert safe letterboxed view touch to logical physics coordinates.
+    private func steerTouch(_ touch:UITouch) {
+        guard game.dragControl && !paused && !game.finished else{return}
+        let size=bounds.size
+        let scale=min(size.width/480,size.height/800)
+        guard scale>0 else{return}
+        let logicalY=Float((touch.location(in:self).y-(size.height-800*scale)/2)/scale)
+        let firstDrag = !game.active
+        game.steer(logicalY)
+        if firstDrag && game.active {
+            onFlightStarted?()
+            onFlap?() // One activation sound, never one per movement event.
+        }
+        start()
+        setNeedsDisplay()
+    }
     override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {
         super.touchesBegan(touches,with:event)
-        triggerFlap()
+        if game.dragControl {if let touch=touches.first {steerTouch(touch)}}
+        else {triggerFlap()}
+    }
+    override func touchesMoved(_ touches:Set<UITouch>,with event:UIEvent?) {
+        super.touchesMoved(touches,with:event)
+        if game.dragControl, let touch=touches.first {steerTouch(touch)}
     }
     override func accessibilityActivate()->Bool {
         guard !paused && !game.finished else{return false}
-        triggerFlap()
+        if game.dragControl {
+            let firstDrag = !game.active
+            game.steer(game.y-56)
+            if firstDrag && game.active {onFlightStarted?();onFlap?()}
+            start();setNeedsDisplay()
+        } else {triggerFlap()}
         return true
     }
     private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
@@ -218,7 +246,8 @@ final class GameCanvas: UIView {
         // Matches Android idle hint in the 480x800 logical game coordinates.
         if !game.active && !game.finished {
             rect(c,71,565,338,73,0x102654,27,0.80)
-            idlePrompt.draw(at:CGPoint(x:240-idlePrompt.size().width/2,y:579))
+            let prompt=game.dragControl ? dragPrompt : idlePrompt
+            prompt.draw(at:CGPoint(x:240-prompt.size().width/2,y:579))
         }
         // Before the first actual flight, no HUD overlays the illustrated intro.
         if game.active && !game.finished {

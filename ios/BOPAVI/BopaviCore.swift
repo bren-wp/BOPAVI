@@ -149,6 +149,9 @@ final class GameSimulation {
     private var speedFactor:Float { difficulty == 0 ? 0.9 : (difficulty == 2 ? 1.12 : 1) }
     private var gravityFactor:Float { difficulty == 0 ? 0.87 : (difficulty == 2 ? 1.12 : 1) }
     let endless: Bool
+    /// Same odd-numbered world IDs as the Android steering rule.
+    var dragControl:Bool {level.world % 2 == 1}
+    private var steeringTarget:Float?
     private(set) var totalPassed=0
     private(set) var y: Float = 366
     private(set) var velocity: Float = 0
@@ -219,6 +222,12 @@ final class GameSimulation {
         guard !finished else { return }
         active = true; velocity = -255; flapPulse = 0.24; flaps += 1
     }
+    /// Drag changes a target, not the bird's coordinates or collision boxes.
+    func steer(_ targetY:Float) {
+        guard !finished && dragControl && targetY.isFinite else {return}
+        steeringTarget=min(753-radius,max(radius+5,targetY))
+        if !active {active=true;velocity=0;flapPulse=0.24}
+    }
     func step(_ delta: Float) {
         guard active && !finished else { return }
         // Keep parity with Android: replay up to 100 ms after short frame stalls.
@@ -232,7 +241,13 @@ final class GameSimulation {
     }
     private func advance(_ dt: Float) {
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt); flapPulse = max(0,flapPulse-dt)
-        velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
+        if dragControl, let target=steeringTarget {
+            let desired=max(-310,min(310,(target-y)*7))
+            let blend=max(0,min(1,dt*14))
+            velocity += (desired-velocity)*blend
+        } else {
+            velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
+        }
         y += velocity*dt
         preciseDistance += Double(level.speed*speedFactor*dt)
         distance = Float(preciseDistance)

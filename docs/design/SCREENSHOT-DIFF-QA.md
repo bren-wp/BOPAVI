@@ -1,3 +1,20 @@
+## v0.1.63 — World-specific gesture concepts versus actual gameplay
+
+The supplied reference set shows a crystal-space and enchanted-fantasy world with portrait HUD, crown coins, enormous sculpted cliff faces, floating cities and exceptionally detailed 3D mascot feathers. The *new* reference world grid differentiates tap and vertical dragging. This iteration implements the **actual input/physics/UI difference** in the native apps rather than a static illustration.
+
+| World ID | World | Real control |
+| --- | --- | --- |
+| 0 | Zeleni otoci | TAP (flap) |
+| 1 | Kristalno nebo | POVUCI (vertical drag) |
+| 2 | Lava vrhovi | TAP (flap) |
+| 3 | Noćni dvorci | POVUCI (vertical drag) |
+| 4 | Biserno more | TAP (flap) |
+| 5 | Nebeske kule | POVUCI (vertical drag) |
+| 6 | Čarobna šuma | TAP (flap) |
+| 7 | Zvjezdani bezdani | POVUCI (vertical drag) |
+
+**Remaining visual gaps:** background castles and rock textures, glass HUD bevels, Bopi's eye/goggle depth, dynamic particles, and scene-to-scene 3D lighting still diverge from the user concept art. Real Android/iOS emulator screen captures and objective geometry/visual comparisons remain required before describing any screen as 1:1.
+
 ## Iteration 34 — feather silhouette and floating-world depth (v0.1.61 candidate)
 
 **Observed remaining concept gap:** Bopi's reference has separately shaped translucent feather vanes and reflective pilot goggles. Existing SVG wings have very few wide shapes. The reference flying scene combines large multidimensional castles, misty waterfalls, forest canopies and sculpted floating cliffs; the prior deterministic 2D world generator only had a few broad polygons and plain water streaks.

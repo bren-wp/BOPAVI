@@ -32,6 +32,29 @@ struct SwiftParity {
             precondition(x.gates.count>=11 && x.gates.allSatisfy {g in let o=BopaviCore.opening(g,123);return o.bottom-o.top>=145})
             print("S|4|\(ordinal)|\(BopaviCore.signature(x))")
         }
+        // New alternating-world steering must not teleport or affect tap worlds.
+        for world in 0..<8 {
+            let flight=GameSimulation(BopaviCore.create(world,1))
+            precondition(flight.dragControl == (world % 2 == 1))
+            flight.steer(680)
+            if world % 2 == 0 {
+                precondition(!flight.active && flight.y == 366)
+                flight.flap()
+                precondition(flight.velocity == -255)
+            } else {
+                precondition(flight.active && flight.y == 366 && flight.flaps == 0)
+                flight.step(0.1)
+                precondition(flight.y > 366 && flight.y < 410)
+                precondition((-310...310).contains(flight.velocity))
+                let before=flight.y
+                flight.steer(.nan)
+                flight.steer(.infinity)
+                precondition(flight.y == before)
+                flight.steer(75)
+                for _ in 0..<5 {flight.step(0.06)}
+                precondition(flight.y < before && !flight.finished)
+            }
+        }
         let continuous=GameSimulation(BopaviCore.createStream(0,1_048_576),endless:true,initialOrdinal:1_048_576)
         precondition(continuous.displayLevel==1_048_576)
         let s=GameSimulation(BopaviCore.create(0,1))

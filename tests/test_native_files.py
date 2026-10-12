@@ -605,7 +605,8 @@ ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override fun
 assert 'performClick()' in android_touch
 assert 'val firstFlap=!game.active' in android_click
 assert 'if(firstFlap && game.active) {' in android_click
-assert android_click.count('onFlightStarted()')==1
+assert android_click.count('onFlightStarted()')==2  # once in accessible drag, once in classic tap
+assert 'if(firstDrag && game.active){onFlightStarted();onFlap()}' in android_click
 assert android_click.index('onFlightStarted()') < android_click.index('if(qaCaptureEnabled) qaWaitingForCapture=true')
 assert 'triggerFlap()' in ios_touch
 assert 'let firstFlap = !game.active' in ios_flap
@@ -1425,7 +1426,8 @@ assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
 assert 'string:"DODIRNI ZA LET"' in ios_render
-assert 'idlePrompt.draw(at:' in ios_render
+assert 'let prompt=game.dragControl ? dragPrompt : idlePrompt' in ios_render
+assert 'prompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
 assert 'if paused {stop()} else {start()}' in ios_render
 assert 'override func accessibilityActivate()->Bool' in ios_render
@@ -1935,3 +1937,25 @@ assert 'adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_q
 assert 'adb shell input tap "$center" "$((height*50/100))"' in qa_flight_loop
 assert 'qaWaitingForCapture' not in ios_canvas and 'qaCaptureFirstFlap' not in ios_menu
 print('PASS: real debug-only first-flap capture, production physics unchanged, second-touch resume')
+
+# v0.1.63: control modes are real physics/input, not cosmetic badges.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios_game=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_view=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_view=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+android_ui=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios_ui=(root/'ios/BOPAVI/GameController.swift').read_text()
+for engine in (android_game,ios_game):
+    assert 'world % 2 == 1' in engine, 'missing 4 real drag-control worlds'
+    assert 'steeringTarget' in engine and 'desired' in engine and 'blend' in engine
+    assert '310' in engine and '*7' in engine and '*14' in engine
+    assert 'y += velocity' in engine and 'damage()' in engine, 'collisions must remain in the simulation'
+assert 'MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE -> steerTouch(event.y)' in android_view
+assert 'override func touchesMoved(' in ios_view and 'steerTouch(touch)' in ios_view
+for ui in (android_ui,ios_ui):
+    assert '↕ POVUCI' in ui and '● TAP' in ui
+    assert 'POVUCI GORE / DOLJE' in ui and 'TAP ZA ZAMAH' in ui
+assert 'POVUCI GORE / DOLJE' in android_view and 'POVUCI GORE / DOLJE' in ios_view
+assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_view
+assert 'triggerFlap()' in ios_view
+print('PASS: native drag steering and classic tap wings coexist across all 8 worlds')
