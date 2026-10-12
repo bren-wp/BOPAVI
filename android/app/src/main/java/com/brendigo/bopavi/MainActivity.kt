@@ -1367,7 +1367,6 @@ class MainActivity : Activity() {
             max=30;progress=profileStars
             progressTintList=ColorStateList.valueOf(gold)
             progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
-            progressDrawable?.setTint(gold)
             contentDescription="Zvjezdice svijeta ${LevelEngine.names[profileWorld]}: ${profileStars} od 30"
         }
         portraitBox.addView(profileStarGauge,
