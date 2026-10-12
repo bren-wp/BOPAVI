@@ -1,3 +1,11 @@
+## v0.1.60 — Premium Settings: real glass panel and chosen pilot (build 63)
+
+- Rebuilt **POSTAVKE** on Android and iOS as a single large, scrollable royal-blue/cyan glass sheet instead of isolated dark tiles on the world scene. The logo shares the hero header with the **actually selected pilot portrait** from the saved skin ID; no screenshot or concept image masquerades as interactive UI.
+- All existing volume sliders, persisted audio gain, vibrations, three selectable difficulty cards, local player name, reduced-motion option, offline data import/export and navigation still use their original functional handlers. The gameplay Pause settings lifecycle remains untouched.
+- The iOS panel uses a layout-resized cached gradient layer and safe-area scroll view, while Android uses its existing GradientDrawable and responsive LinearLayout; neither adds per-frame game allocations or third-party SDKs.
+- Release CI now preserves the original 13 artifacts and additionally publishes an **actual emulator-captured Android Settings screenshot** plus `SHA256SUMS.txt` with 14 verified payload hashes (15 release attachments in total). README displays only that real capture, never the user's concept art.
+- Version/build synchronized as v0.1.60/63. **Not 1:1:** the concept's photorealistic feather detail, typographic embossing and world-art depth are not reproduced; no fictional cloud saves, diamonds, notifications, logout or purchases have been introduced.
+
 ## v0.1.59 — Bopi's animated flight light (build 62)
 
 - The real playable Bopi now has the same soft gold-to-cyan radial aura on Android Canvas and iOS Core Graphics, derived directly from the user's flight reference. It sits behind the actual selected pilot and individually animated wings, not over gameplay as a static screenshot.
