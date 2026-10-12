@@ -30,6 +30,9 @@ jobs:
           sprites=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{i}.png').convert('RGBA') for i in range(9)]
           assert all(im.size==(512,512) and im.getextrema()[3][0]==0 and im.getextrema()[3][1]==255 for im in sprites)
           assert len({im.tobytes() for im in sprites})==9
+          # A background shadow must never be painted onto a moving bird:
+          # this pixel was nonzero in v0.1.49's static body artwork.
+          assert sprites[0].getpixel((255,430))[3]==0, 'menu ground shadow leaked into flight torso'
           worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
           assert all(im.size==(960,1600) for im in worlds)
           assert len({im.resize((80,120)).tobytes() for im in worlds})==8
