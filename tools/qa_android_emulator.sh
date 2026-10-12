@@ -633,8 +633,14 @@ PY
   # with an eventual result screen; try another *real* flap while still alive.
   if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
     rm -f qa/screenshots/android-gameplay-active.png
-    echo "First on-device capture remained idle; checking gameplay lifecycle"
+    echo "No active HUD pixels yet; retrying actual input before any UI dump"
+    attempt=$((attempt+1))
+    sleep 0.10
+    continue
   fi
+  test -s qa/screenshots/android-gameplay-active.png || {
+    echo "FAIL: no genuine active gameplay screenshot was captured" >&2; exit 1;
+  }
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
