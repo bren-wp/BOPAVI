@@ -324,8 +324,8 @@ if not any('ODABERI LIKA' in s or 'POLETI S' in s for s in node_labels(root)):
 
 # The nine cards extend beyond the emulator viewport. Verify actual rendered
 # accessibility cards while scrolling, not just the initially visible portion.
-required={'Portantin','Noa','Any'}
-all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Portantin','Noa','Any'}
+required={'Vihor','Iskra','Orion'}
+all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'}
 seen=set()
 for attempt in range(12):
     labels=node_labels(root)
@@ -338,18 +338,18 @@ for attempt in range(12):
     # Preserve evidence that an actual card row moved instead of counting
     # swipes swallowed by a recurring Pixel Launcher ANR dialog.
     before=next((n.get('bounds') for n in root.iter('node')
-                 if 'Portantin, ' in n.get('content-desc','')),None)
+                 if 'Vihor, ' in n.get('content-desc','')),None)
     swipe_gallery(root,up=True)
     root=refresh_ui()
     after=next((n.get('bounds') for n in root.iter('node')
-                if 'Portantin, ' in n.get('content-desc','')),None)
+                if 'Vihor, ' in n.get('content-desc','')),None)
     if before==after and before is not None and attempt>=2:
         print(f'Gallery not advancing after gesture {attempt+1}; checking system overlays',flush=True)
 if not all_pilots <= seen:
     raise SystemExit(f'FAIL: missing characters after actual gallery scroll: {sorted(all_pilots-seen)}')
 if not required <= seen:
     raise SystemExit(f'FAIL: missing featured pilots: {sorted(required-seen)}')
-print('PASS: scrolled full 3x3 gallery and found all nine pilots, including Portantin, Noa and Any',flush=True)
+print('PASS: scrolled full 3x3 gallery and found all nine pilots, including Vihor, Iskra and Orion',flush=True)
 
 # Flight confirmation is intentionally BELOW all nine cards. Scroll toward
 # the bottom, not back to the header: both cannot fit in one phone viewport.
