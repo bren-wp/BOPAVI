@@ -39,7 +39,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
-    private val birdRect=RectF(-50f,-50f,50f,50f)
+    // The concept bird is a foreground hero, not a tiny 100px badge.
+    // Sprite viewport: Bopi = 520 SVG units; Vihor/Iskra/Orion = 160 units.
+    // Scale only art. The existing simulation hitbox and gate physics stay intact.
+    private val birdSize=if(selectedSkin>=6)160f else 148f
+    private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
+    // True SVG shoulder joints; the alternate pilots have narrower bodies.
+    // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
+    private val wingLeftPivotX=if(selectedSkin>=6)-12f else -16f*birdSize/100f
+    private val wingLeftPivotY=if(selectedSkin>=6)4f else 5f*birdSize/100f
+    private val wingRightPivotX=if(selectedSkin>=6)12f else 15f*birdSize/100f
+    private val wingRightPivotY=if(selectedSkin>=6)4f else -4f*birdSize/100f
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
         R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
@@ -627,11 +637,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             // Immediate upward wing response on touch, then a 240 ms return.
             val flap=if(reducedMotion)0f else sin(game.time*19f)*23f+flapStrength*17f
             wingLeftBitmap?.let { wing ->
-                c.save();c.rotate(flap,-16f,5f)
+                c.save();c.rotate(flap,wingLeftPivotX,wingLeftPivotY)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
             }
             wingRightBitmap?.let { wing ->
-                c.save();c.rotate(-flap,15f,-4f)
+                c.save();c.rotate(-flap,wingRightPivotX,wingRightPivotY)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
             }
             c.drawBitmap(birdBitmap,null,birdRect,p)
