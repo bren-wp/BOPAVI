@@ -639,7 +639,7 @@ class MainActivity : Activity() {
     private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
         val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
-        // Featured first row matches the approved Portantin / Noa / Any
+        // Featured pilots show three actual winged birds, not old human illustrations
         // reference. Indices remain original so offline saves and prices stay stable.
         val displayOrder=intArrayOf(6,7,8,0,1,2,3,4,5)
         val cardWorlds=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
@@ -812,9 +812,9 @@ class MainActivity : Activity() {
         b.addView(preview,LinearLayout.LayoutParams(-1,d(216)).apply{bottomMargin=d(7)})
         title(b,progress.skinNames[idx],25,gold)
         small(b,when(idx) {
-            6 -> "Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom."
-            7 -> "Noa: premium nebeski istraživač s električno plavim krilima, vizir-naočalama i zvjezdanim oklopom."
-            8 -> "Any: premium čarobnica s ružičastim krilima, zvjezdanom tijarom i ljubičastom haljinom."
+            6 -> "Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima."
+            7 -> "Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem."
+            8 -> "Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima."
             else -> "Izaberi svog letača. Odabir se čuva na uređaju."
         })
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
@@ -1028,7 +1028,8 @@ class MainActivity : Activity() {
                 }
             },
             onCollect={sound.effect("collect")},
-            onShieldImpact={sound.effect("hit")})
+            onShieldImpact={sound.effect("hit")},
+            qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true)
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
@@ -1338,7 +1339,7 @@ class MainActivity : Activity() {
     }
     private fun showSkins(){showSkins(MenuOrigin.SETTINGS)}
     private fun showSkins(origin:MenuOrigin,shopOrigin:MenuOrigin=MenuOrigin.SETTINGS){
-        val b=base("LIKOVI","Devet letača, uključujući Nou i Any")
+        val b=base("LIKOVI","Devet krilatih pilota: Vihor, Iskra i Orion")
         small(b,"Stanje: ${progress.coins()} kovanica")
         characterGallery(b){showSkins(origin,shopOrigin)}
         back(b){

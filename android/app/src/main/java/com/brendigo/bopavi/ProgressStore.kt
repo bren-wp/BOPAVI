@@ -40,8 +40,19 @@ class ProgressStore(context: Context) {
         return awarded
     }
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
-    val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow", "portantin", "noa", "any")
-    val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow", "Portantin", "Noa", "Any")
+    // IDs/owned bits are stable. Map old backup slugs to their replacement
+    // pilots, so installing this version never resets chosen skin or currency.
+    val skins = listOf("bopi", "sunny", "berry", "luna", "mint", "shadow", "vihor", "iskra", "orion")
+    val skinNames = listOf("Bopi", "Sunny", "Berry", "Luna", "Mint", "Shadow", "Vihor", "Iskra", "Orion")
+    fun skinIndexForSlug(value:String):Int {
+        val normalized=when(value) {
+            "portantin" -> "vihor"
+            "noa" -> "iskra"
+            "any" -> "orion"
+            else -> value
+        }
+        return skins.indexOf(normalized)
+    }
     val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)
     fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
     fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
@@ -261,9 +272,9 @@ class ProgressStore(context: Context) {
         val ownedArray=s.optJSONArray("owned")
         var mask=1
         if(ownedArray!=null)for(i in 0 until ownedArray.length()){
-            val ix=skins.indexOf(ownedArray.optString(i));if(ix>=0)mask=mask or (1 shl ix)
+            val ix=skinIndexForSlug(ownedArray.optString(i));if(ix>=0)mask=mask or (1 shl ix)
         }
-        val selected=skins.indexOf(s.optString("skin","bopi"))
+        val selected=skinIndexForSlug(s.optString("skin","bopi"))
         e.putInt("owned_mask",mask).putInt("skin_index",if(selected==6 || (selected>=0 && (mask and (1 shl selected))!=0))selected else 0)
         e.putInt("wins",s.optInt("wins",0).coerceIn(0,100000000))
         e.putInt("deaths",s.optInt("deaths",0).coerceIn(0,100000000))

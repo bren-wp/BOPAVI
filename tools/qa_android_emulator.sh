@@ -4,7 +4,10 @@ set -eu
 mkdir -p qa/screenshots
 adb wait-for-device
 adb install -r qa/apk/app-debug.apk
-adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+# Debug-only QA: keep the real first active frame stable through slow Pixel
+# screencap calls. GameSimulation resumes with a second genuine flap, and the
+# production (non-debuggable) build ignores this Intent extra entirely.
+adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
 sleep 3
 adb shell pidof com.brendigo.bopavi
 
@@ -324,8 +327,8 @@ if not any('ODABERI LIKA' in s or 'POLETI S' in s for s in node_labels(root)):
 
 # The nine cards extend beyond the emulator viewport. Verify actual rendered
 # accessibility cards while scrolling, not just the initially visible portion.
-required={'Portantin','Noa','Any'}
-all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Portantin','Noa','Any'}
+required={'Vihor','Iskra','Orion'}
+all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'}
 seen=set()
 for attempt in range(12):
     labels=node_labels(root)
@@ -338,18 +341,18 @@ for attempt in range(12):
     # Preserve evidence that an actual card row moved instead of counting
     # swipes swallowed by a recurring Pixel Launcher ANR dialog.
     before=next((n.get('bounds') for n in root.iter('node')
-                 if 'Portantin, ' in n.get('content-desc','')),None)
+                 if 'Vihor, ' in n.get('content-desc','')),None)
     swipe_gallery(root,up=True)
     root=refresh_ui()
     after=next((n.get('bounds') for n in root.iter('node')
-                if 'Portantin, ' in n.get('content-desc','')),None)
+                if 'Vihor, ' in n.get('content-desc','')),None)
     if before==after and before is not None and attempt>=2:
         print(f'Gallery not advancing after gesture {attempt+1}; checking system overlays',flush=True)
 if not all_pilots <= seen:
     raise SystemExit(f'FAIL: missing characters after actual gallery scroll: {sorted(all_pilots-seen)}')
 if not required <= seen:
     raise SystemExit(f'FAIL: missing featured pilots: {sorted(required-seen)}')
-print('PASS: scrolled full 3x3 gallery and found all nine pilots, including Portantin, Noa and Any',flush=True)
+print('PASS: scrolled full 3x3 gallery and found all nine pilots, including Vihor, Iskra and Orion',flush=True)
 
 # Flight confirmation is intentionally BELOW all nine cards. Scroll toward
 # the bottom, not back to the header: both cannot fit in one phone viewport.
@@ -615,18 +618,40 @@ flight_started=0
 attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
-  adb shell input tap "$center" "$((height*50/100))"
-  # Allow at least one actual render/vsync after the injected flap.
-  # Immediate screencap can capture the old idle frame even when input
-  # succeeds. Keep the wait short enough to avoid falling to the result UI.
-  sleep 0.25
-  capture android-gameplay-active
-  # Fail closed on the stale-frame case detected in the v0.1.55 release:
-  # its 'active' and 'ready' PNGs were byte-identical.
-  if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
-    sleep 0.20
-    capture android-gameplay-active
+  # Capture several real on-device frames after ONE first flap.
+  # Emulator latency can keep the first frame idle, then render real gameplay,
+  # then finish before a host-side screenshot reaches the Surface compositor.
+  # Preserve every candidate; only a frame different from BOTH the verified
+  # idle screen and the eventual result can become the release gameplay image.
+  adb shell "input tap $center $((height*50/100)); sleep 0.27; screencap -p /sdcard/bopavi-flight-1.png; sleep 0.22; screencap -p /sdcard/bopavi-flight-2.png; sleep 0.22; screencap -p /sdcard/bopavi-flight-3.png"
+  for frame in 1 2 3; do
+    adb exec-out cat "/sdcard/bopavi-flight-$frame.png" > "qa/screenshots/android-flight-candidate-$frame.png"
+    python3 - "qa/screenshots/android-flight-candidate-$frame.png" <<'PY'
+from pathlib import Path
+import sys
+data=Path(sys.argv[1]).read_bytes()
+assert len(data)>2000 and data.startswith(bytes.fromhex("89504e470d0a1a0a"))
+PY
+  done
+  live_candidate_found=0
+  for frame in 1 2 3; do
+    file="qa/screenshots/android-flight-candidate-$frame.png"
+    if ! cmp -s qa/screenshots/android-gameplay-ready.png "$file"; then
+      cp "$file" qa/screenshots/android-gameplay-active.png
+      live_candidate_found=1
+      break
+    fi
+  done
+  if [ "$live_candidate_found" -ne 1 ]; then
+    echo "No changed in-flight frame was rendered; retrying genuine first flap"
+    attempt=$((attempt+1))
+    sleep 0.10
+    continue
   fi
+  # The first real flap is held only in a debuggable QA launch. Release
+  # it now with a second physical input, after preserving pixel-proof PNGs.
+  # This runs the ordinary real-time GameSimulation to its actual collision.
+  adb shell input tap "$center" "$((height*50/100))"
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
@@ -697,7 +722,51 @@ if [ "$result_ready" -ne 1 ]; then
   adb logcat -d -t 250 | tail -n 100 || true
   exit 1
 fi
-capture android-result
+# The v0.1.61 Release published an active-flight PNG and Results PNG
+# with the exact same SHA-256 digest even though the UI tree reached Results.
+# A settled result frame must differ from BOTH game screenshots. Recapture
+# after an actual UI/vsync wait; never upload duplicate visual evidence.
+result_capture_unique=0
+result_capture_attempt=1
+while [ "$result_capture_attempt" -le 8 ]; do
+  dump_ui
+  if ! grep -q 'PONOVO' qa/screenshots/android-current-ui.xml ||
+     grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
+    echo "FAIL: actual result UI disappeared before screenshot" >&2
+    exit 1
+  fi
+  sleep 0.40
+  capture android-result
+  # The first changed frame may still be an early Results transition. Before
+  # judging validity, inspect all stored *real* screencaps from the first tap.
+  # No filtering by UI mock, sprite files or reference images is permitted.
+  selected_real_flight=0
+  for candidate in qa/screenshots/android-flight-candidate-*.png; do
+    if [ -s "$candidate" ] &&
+       ! cmp -s qa/screenshots/android-gameplay-ready.png "$candidate" &&
+       ! cmp -s qa/screenshots/android-result.png "$candidate"; then
+      cp "$candidate" qa/screenshots/android-gameplay-active.png
+      selected_real_flight=1
+      break
+    fi
+  done
+  if [ "$selected_real_flight" -ne 1 ]; then
+    echo "No genuinely different gameplay frame in captured first-flap sequence"
+  fi
+  if [ "$selected_real_flight" -eq 1 ] &&
+     ! cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png &&
+     ! cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png; then
+    result_capture_unique=1
+    break
+  fi
+  echo "Waiting for distinct rendered results screenshot ($result_capture_attempt/8)"
+  result_capture_attempt=$((result_capture_attempt+1))
+done
+if [ "$result_capture_unique" -ne 1 ]; then
+  capture android-result-diagnostic || true
+  echo "FAIL: Results PNG duplicates active or idle gameplay after bounded retries" >&2
+  exit 1
+fi
 dump_ui
 python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys, xml.etree.ElementTree as ET

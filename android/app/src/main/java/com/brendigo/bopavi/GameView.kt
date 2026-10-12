@@ -19,7 +19,13 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false) : View(context) {
+    // QA-only freeze after a REAL first flap. The drawn view remains the actual
+    // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
+    // Android release builds cannot enable this even via an injected Intent.
+    private val qaCaptureEnabled = qaCaptureFirstFlap &&
+        (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
+    private var qaWaitingForCapture = false
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Only rebuild the textual progress label when a gate is passed or a new
@@ -110,7 +116,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val now=System.nanoTime()
         // Use actual vsync-to-vsync elapsed time at 60/90/120 Hz. The previous
         // 3/4-of-60Hz threshold updated physics at only ~45 Hz on 90 Hz phones.
-        if(!paused && !game.finished) {
+        if(!paused && !qaWaitingForCapture && !game.finished) {
             if(lastFrame==0L) lastFrame=now
             val elapsed=(now-lastFrame).coerceAtLeast(0L)
             if(elapsed>=1_000_000L) {
@@ -194,7 +200,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // A former opaque ground stripe hid the lower floating-island scenery,
         // including on narrow and notched phones. Letterboxing is filled above.
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && game.active && !game.finished && isAttachedToWindow) {
+        if(!paused && !qaWaitingForCapture && game.active && !game.finished && isAttachedToWindow) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
         }
     }
@@ -752,9 +758,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     override fun performClick():Boolean {
         super.performClick()
         if(!paused && !game.finished){
-            val firstFlap=!game.active
-            game.flap()
-            if(firstFlap && game.active)onFlightStarted()
+            if(qaWaitingForCapture) {
+                // A second genuine touch resumes the *same* run, not a replay.
+                // No synthetic score, forced collision, or screenshot is used.
+                qaWaitingForCapture=false
+                lastFrame=0L
+                game.flap()
+            } else {
+                val firstFlap=!game.active
+                game.flap()
+                if(firstFlap && game.active) {
+                    onFlightStarted()
+                    if(qaCaptureEnabled) qaWaitingForCapture=true
+                }
+            }
             contentDescription="Bopi leti"
             onFlap()
             invalidate()

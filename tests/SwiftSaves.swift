@@ -101,12 +101,30 @@ struct SwiftSaves {
         precondition(store.costs[7] == 220 && store.costs[8] == 240)
         precondition(!store.owned(7) && !store.owned(8))
         precondition(store.selectOrBuy(7) && store.coins() == 280 && store.skinIndex() == 7)
-        precondition(store.selectOrBuy(7) && store.coins() == 280, "Noa must not be charged twice")
+        precondition(store.selectOrBuy(7) && store.coins() == 280, "Iskra must not be charged twice")
         precondition(store.selectOrBuy(8) && store.coins() == 40 && store.skinIndex() == 8)
         precondition(!store.selectOrBuy(9), "Invalid character is not selectable")
         let premiumSave = try store.exportData()
         try store.importData(premiumSave)
         precondition(store.owned(7) && store.owned(8) && store.skinIndex() == 8 && store.coins() == 40)
+        precondition(store.skins[6] == "vihor" && store.skins[7] == "iskra" && store.skins[8] == "orion")
+        // v0.1.62: import real legacy backups made with the three older
+        // identifiers. All owned bits and the selected index must survive.
+        var oldBirds=premium["save"] as! [String:Any]
+        oldBirds["owned"]=["bopi","portantin","noa","any"]
+        oldBirds["skin"]="any"
+        let legacyData=try JSONSerialization.data(withJSONObject:[
+            "format":"bopavi-save","exportVersion":5,"save":oldBirds
+        ])
+        try store.importData(legacyData)
+        precondition(store.owned(6) && store.owned(7) && store.owned(8))
+        precondition(store.skinIndex()==8 && store.coins()==500,
+                     "Original pilots must map into the new bird art without losing any save value")
+        let migratedData=try store.exportData()
+        let migratedBody=try JSONSerialization.jsonObject(with:migratedData) as! [String:Any]
+        let migratedSave=migratedBody["save"] as! [String:Any]
+        precondition((migratedSave["skin"] as? String)=="orion",
+                     "New saves must only contain the new public pilot label")
         try store.importData(bytes)
         precondition(store.skinIndex() == 1 && store.owned(1) && !store.owned(7))
 

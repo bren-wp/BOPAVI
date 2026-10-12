@@ -33,8 +33,14 @@ final class ProgressStore {
         return awarded
     }
     func best(_ world:Int) -> Int { defaults.integer(forKey:"best_\(world)") }
-    let skins=["bopi","sunny","berry","luna","mint","shadow","portantin","noa","any"]
-    let skinNames=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Portantin","Noa","Any"]
+    // Public pilots changed, but legacy backup labels still resolve to the
+    // SAME 6/7/8 slots. UserDefaults' saved skin_index and owned_mask remain.
+    let skins=["bopi","sunny","berry","luna","mint","shadow","vihor","iskra","orion"]
+    let skinNames=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion"]
+    func skinIndexForSlug(_ name:String)->Int? {
+        let canonical=["portantin":"vihor","noa":"iskra","any":"orion"][name] ?? name
+        return skins.firstIndex(of:canonical)
+    }
     let costs=[0,60,80,110,130,160,0,220,240]
     func skinIndex()->Int { min(8,max(0,defaults.integer(forKey:"skin_index"))) }
     func owned(_ index:Int)->Bool { index == 6 || ((0...8).contains(index) && ((defaults.integer(forKey:"owned_mask") == 0 ? 1 : defaults.integer(forKey:"owned_mask")) & (1 << index)) != 0) }
@@ -280,9 +286,9 @@ final class ProgressStore {
             for w in 0..<8 { defaults.set(min(100_000_000,max(0,scores[w])),forKey:"best_\(w)") }
         }
         var mask=1
-        if let ownedList=s["owned"] as? [String]{for item in ownedList {if let index=skins.firstIndex(of:item){mask |= 1 << index}}}
+        if let ownedList=s["owned"] as? [String]{for item in ownedList {if let index=skinIndexForSlug(item){mask |= 1 << index}}}
         defaults.set(mask,forKey:"owned_mask")
-        let selected=skins.firstIndex(of:s["skin"] as? String ?? "bopi") ?? 0
+        let selected=skinIndexForSlug(s["skin"] as? String ?? "bopi") ?? 0
         defaults.set((selected == 6 || (mask & (1 << selected)) != 0) ? selected : 0,forKey:"skin_index")
         for stat in ["wins","deaths","flaps","endlessBest","endlessRuns"] {
             let value=min(100_000_000,max(0,s[stat] as? Int ?? 0))

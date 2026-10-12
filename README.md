@@ -75,14 +75,14 @@ Bopi je tek početak! Pronađi pilota koji odgovara tvojoj avanturi. Svih devet 
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="docs/assets/portantin.svg" alt="Portantin, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Portantin</b></td>
-<td align="center"><img src="docs/assets/noa.svg" alt="Noa, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Noa</b></td>
-<td align="center"><img src="docs/assets/any.svg" alt="Any, lik iz stvarnog BOPAVI umjetničkog izvora" width="185"><br><b>Any</b></td>
+<td align="center"><img src="docs/assets/vihor.svg" alt="Vihor, izvorna tirkizna ptica s pilotskim naočalama" width="185"><br><b>Vihor</b></td>
+<td align="center"><img src="docs/assets/iskra.svg" alt="Iskra, izvorna ružičasta kolibrica sa zlatnim naočalama" width="185"><br><b>Iskra</b></td>
+<td align="center"><img src="docs/assets/orion.svg" alt="Orion, izvorni ljubičasti sova-pilot s kozmičkim krilima" width="185"><br><b>Orion</b></td>
 </tr>
 </table>
 </div>
 
-**Bopi · Sunny · Berry · Luna · Mint · Shadow · Portantin · Noa · Any**
+**Bopi · Sunny · Berry · Luna · Mint · Shadow · Vihor · Iskra · Orion**
 
 Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači ostaju tvoji, a napredak se ne gubi pri ažuriranju.
 

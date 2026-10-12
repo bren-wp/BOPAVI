@@ -549,19 +549,25 @@ assert "upcomingGates().withIndex()" in android_render
 assert "upcomingGates.enumerated()" in ios_render
 assert "upcomingGateX" in android_render and "upcomingGateX" in ios_render
 
-# v0.1.24: pre-flight choice and original editable Portantin art on both OSes.
-port_svg=(root/'docs/assets/portantin.svg').read_text()
-for element in ('wing-left','wing-right','Kirur','mask','maskicom','rukavic','Portantin'):
-    assert element.lower() in port_svg.lower(),element
+# The new three birds replace former people, preserving native IDs 6-8.
 artgen=(root/'tools/generate_images.py').read_text()
-for resource in ('bopi6','bopileft6','bopiright6','Bopi6','BopiLeft6','BopiRight6'):
-    assert resource in artgen
+for new_bird in ('vihor','iskra','orion'):
+    asset=root/'docs/assets'/f'{new_bird}.svg'
+    assert asset.is_file()
+    svg=ET.parse(asset).getroot()
+    assert svg.attrib['viewBox']=='-65 -65 130 130'
+    groups=[element.attrib.get('id') for element in svg.iter()]
+    assert groups.count('wing-left')==1 and groups.count('wing-right')==1
+    assert new_bird in artgen
+assert "for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):" in artgen
+for old_bird in ('portantin','noa','any'):
+    assert not (root/'docs/assets'/f'{old_bird}.svg').exists()
 assert "R.drawable.bopi6" in android_render and 'UIImage(named:"Bopi' in ios_render
 android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun startGame(',1)[0]
 ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func startGame(',1)[0]
 for view in (android_picker,ios_picker):
     assert 'POLETI S' in view and 'ODABERI LIKA' in view
-    assert 'Portantin' in view and 'characterGallery(' in view
+    assert 'Vihor' in view and 'Iskra' in view and 'Orion' in view and 'characterGallery(' in view
     assert 'startGame(' in view
 android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
 ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
@@ -584,7 +590,7 @@ qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'tap_selected_pilot' in qa and 'android-pilot-picker' in qa
 for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt','ios/BOPAVI/ProgressStore.swift'):
     store=(root/path).read_text()
-    assert 'portantin' in store and 'Portantin' in store
+    assert '"portantin"' in store and '"Vihor"' in store and '"Iskra"' in store and '"Orion"' in store
     assert 'skin_index' in store
 
 # v0.1.23: never show gameplay controls on home or before the first flap.
@@ -598,7 +604,9 @@ android_click=android_render.split('override fun performClick(',1)[1].split('ove
 ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override func touchesBegan(',1)[0]
 assert 'performClick()' in android_touch
 assert 'val firstFlap=!game.active' in android_click
-assert 'if(firstFlap && game.active)onFlightStarted()' in android_click
+assert 'if(firstFlap && game.active) {' in android_click
+assert android_click.count('onFlightStarted()')==1
+assert android_click.index('onFlightStarted()') < android_click.index('if(qaCaptureEnabled) qaWaitingForCapture=true')
 assert 'triggerFlap()' in ios_touch
 assert 'let firstFlap = !game.active' in ios_flap
 assert 'if firstFlap && game.active {onFlightStarted?()}' in ios_flap
@@ -738,10 +746,11 @@ from xml.etree import ElementTree as ET
 catalogs=[(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text(),
           (root/'ios/BOPAVI/ProgressStore.swift').read_text()]
 for inventory in catalogs:
-    for text in ('"Noa"','"Any"','"noa"','"any"','220','240','owned_mask','skin_index'):
+    for text in ('"Vihor"','"Iskra"','"Orion"','"portantin"','"noa"','"any"',
+                 '220','240','owned_mask','skin_index','skinIndexForSlug'):
         assert text in inventory,text
     assert '0..8' in inventory or '0...8' in inventory
-for index,character in ((7,'noa'),(8,'any')):
+for index,character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
     document=ET.parse(root/'docs/assets'/f'{character}.svg').getroot()
     assert document.attrib['viewBox']=='-65 -65 130 130'
     identifiers=[element.get('id') for element in document.iter()]
@@ -823,14 +832,14 @@ assert 'for recovery_attempt in range(6):' in gallery_qa
 assert 'Pixel Launcher isn\'t responding' in gallery_qa
 assert "raise SystemExit(f'FAIL: character gallery remained non-scrollable" in gallery_qa
 assert "candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']" in gallery_qa
-assert 'required={\'Portantin\',\'Noa\',\'Any\'}' in android_qa
+assert "required={'Vihor','Iskra','Orion'}" in android_qa
 # A launcher "Wait" tap repeats the same system ANR; force-stop only its
 # verified package and keep actual gallery/flight assertions mandatory.
 assert gallery_qa.count("com.google.android.apps.nexuslauncher")==1
 assert "'am','force-stop'" in gallery_qa
 assert "subprocess.run(['adb','shell','pidof','com.brendigo.bopavi']" in gallery_qa
 assert "missing characters after actual gallery scroll" in android_qa
-assert "all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Portantin','Noa','Any'}" in android_qa
+assert "all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'}" in android_qa
 assert 'if all_pilots <= seen: break' in android_qa
 assert 'if len(buttons)==1:' in android_qa
 assert "swipe_gallery(root,up=True)" in android_qa
@@ -1405,7 +1414,12 @@ assert 't,l,r,b=max(regions)' in qa
 print('PASS: QA verifies distinct home header gear and main Settings CTA')
 
 # v0.1.48: idle preview draws once, then only after an actual flap.
-assert 'if(!paused && game.active && !game.finished && isAttachedToWindow)' in android_render
+# Live frames are scheduled while unpaused and active. The debug-only
+# on-device evidence hold suppresses frame advancement until an actual second
+# touch; production builds never enable this hold.
+assert 'if(!paused && !qaWaitingForCapture && game.active && !game.finished && isAttachedToWindow)' in android_render
+assert 'qaCaptureFirstFlap &&' in android_render
+assert 'ApplicationInfo.FLAG_DEBUGGABLE' in android_render
 assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_touch
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
@@ -1468,7 +1482,7 @@ assert 'wing_parts={side:' in generation
 assert 'for shape in wing_shapes' in generation
 assert "wing_parts[side]" in generation
 assert 'wing_shapes[:2]' not in generation and 'wing_shapes[2:4]' not in generation
-for stable in ("'bopi6','Bopi6'", "((7,'noa'),(8,'any'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
+for stable in ("((6,'vihor'),(7,'iskra'),(8,'orion'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
     assert stable in generation
 print('PASS: detailed royal-blue Bopi mascot with truly detached animated feather layers')
 
@@ -1650,13 +1664,13 @@ print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-
 # a genuine flap. Preserve the ACTUAL in-flight screenshot taken immediately
 # after input, before sleep/dump; do not allow unconfirmed input candidates.
 qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
-for required in ('capture android-gameplay-active','sleep 1','dump_ui',
+for required in ('screencap -p /sdcard/bopavi-flight-1.png','sleep 1','dump_ui',
                  'rm -f qa/screenshots/android-gameplay-active.png',
                  "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
     assert required in qa_flight_loop,required
-assert qa_flight_loop.index('adb shell input tap "$center"') < qa_flight_loop.index('capture android-gameplay-active')
-assert qa_flight_loop.index('capture android-gameplay-active') < qa_flight_loop.index('sleep 1')
-assert qa_flight_loop.index('capture android-gameplay-active') < qa_flight_loop.index('dump_ui')
+assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
+assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('sleep 1')
+assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('dump_ui')
 assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png'" in workflow
 assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
 print('PASS: first active-flight frame survives slow accessibility dump and is mandatory in release')
@@ -1693,9 +1707,14 @@ print("PASS: cross-platform vector gold stars and allocation-free iOS rounded pa
 
 # v0.1.56: forensic check of 0.1.55 screenshot hashes found that
 # active flight == idle preview. CI must now require distinct real PNGs.
-assert 'sleep 0.25' in qa_flight_loop
-assert 'sleep 0.20' in qa_flight_loop
-assert qa_flight_loop.index('adb shell input tap "$center"') < qa_flight_loop.index('sleep 0.25') < qa_flight_loop.index('capture android-gameplay-active')
+assert 'sleep 0.27; screencap -p /sdcard/bopavi-flight-1.png' in qa_flight_loop
+assert 'android-flight-candidate-$frame.png' in qa_flight_loop
+assert 'screencap -p /sdcard/bopavi-flight-2.png' in qa_flight_loop
+assert 'screencap -p /sdcard/bopavi-flight-3.png' in qa_flight_loop
+assert 'selected_real_flight=0' in qa
+assert 'qa/screenshots/android-flight-candidate-*.png' in qa
+assert 'cmp -s qa/screenshots/android-result.png "$candidate"' in qa
+assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
 assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png' in qa_flight_loop
 assert 'FAIL: active screenshot duplicates pre-flight preview' in qa_flight_loop
 assert "sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest()" in workflow
@@ -1867,3 +1886,52 @@ assert "Image.alpha_composite(wings,body)" in generator
 assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: 30+ animated feather contours, gold goggle bevels and shared eight-world skyfalls')
+
+# v0.1.62 — no release may reuse an active-flight screenshot for Results.
+# The artifact digests in v0.1.61 were identical despite different labels.
+emulator=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'result_capture_unique=0' in emulator
+assert 'result_capture_attempt=1' in emulator
+assert 'result_capture_attempt" -le 8' in emulator
+assert 'cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png' in emulator
+assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png' in emulator
+assert 'Results PNG duplicates active or idle gameplay after bounded retries' in emulator
+assert 'grep -q \'PONOVO\'' in emulator
+assert 'capture android-result-diagnostic' in emulator
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+assert "results=Path('dist/BOPAVI-Android-Results.png')" in workflow
+assert 'for earlier in (ready,active):' in workflow
+assert 'Results screenshot duplicates gameplay screenshot:' in workflow
+assert 'results UI screenshot distinct from both idle and active gameplay' in workflow
+print('PASS: real Results screenshot cannot equal active or idle flight release capture')
+
+# v0.1.62 — new bird identities and prior saves resolve to same indices.
+for inventory in catalogs:
+    for pair in (('portantin','vihor'),('noa','iskra'),('any','orion')):
+        assert all('"' + name + '"' in inventory for name in pair)
+    assert 'skinIndexForSlug' in inventory
+for fragment in ('(6,\'vihor\')','(7,\'iskra\')','(8,\'orion\')'):
+    assert fragment in artgen
+for controller in (android_menu,ios_menu):
+    assert all(name in controller for name in ('Vihor','Iskra','Orion'))
+    assert not any(text in controller for text in ('Portantin:','Noa:','Any:'))
+print('PASS: 3 individual premium birds, stable skin indices and legacy save alias mapping')
+
+# v0.1.62 — API36's slow Surface compositor otherwise exposes only the
+# idle frame and later Results. A real debug-only first-flap state remains
+# renderable until a second genuine touch continues the actual simulation.
+# No non-debuggable binary can activate this screenshot timing accommodation.
+android_view=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'qaCaptureFirstFlap:Boolean = false' in android_view
+assert 'ApplicationInfo.FLAG_DEBUGGABLE' in android_view
+assert 'qaCaptureFirstFlap &&' in android_view
+assert 'if(qaCaptureEnabled) qaWaitingForCapture=true' in android_view
+assert 'if(!paused && !qaWaitingForCapture && !game.finished)' in android_view
+assert 'if(!paused && !qaWaitingForCapture && game.active' in android_view
+assert 'qaWaitingForCapture=false' in android_view and 'lastFrame=0L' in android_view
+assert 'game.flap()' in android_view.split('if(qaWaitingForCapture)',1)[1].split('} else {',1)[0]
+assert 'qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true' in android_menu
+assert 'adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true' in qa
+assert 'adb shell input tap "$center" "$((height*50/100))"' in qa_flight_loop
+assert 'qaWaitingForCapture' not in ios_canvas and 'qaCaptureFirstFlap' not in ios_menu
+print('PASS: real debug-only first-flap capture, production physics unchanged, second-touch resume')

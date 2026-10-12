@@ -1,3 +1,25 @@
+## v0.1.62 — Android 16 first-flap screenshot regression
+
+- Reproduced the Android 16 CI problem using downloaded GitHub Actions PNG artifacts: the first candidate pixel-for-pixel matched the idle screen and candidates 2–3 matched the Results screen. A single fixed delay could not capture the 60 Hz game while emulator screenshot IPC was slow.
+- **Debug builds only:** when GitHub starts the app with the explicit `bopavi_qa_capture_first_flap` Intent extra, the first *real* flap changes the simulation to active and renders the authentic live HUD/scene without advancing physics during external capture. The next actual input resumes the same flight. Release builds gate this behavior on `FLAG_DEBUGGABLE`, so user-facing gameplay is unchanged.
+- Capture three real `screencap -p` frames, validate PNGs and require idle, active and Results have different SHA-256 hashes, plus real Results accessibility evidence. If any active proof cannot be obtained, fail CI; never replace screenshot with reference art or UI mocks.
+
+## v0.1.62 — Bird pilot replacement and screenshot validation
+
+- On Android and iOS, verify nine selectable bird pilots; slots **6/7/8** now show **Vihor, Iskra and Orion**, never the superseded human characters. They must have visibly distinct head shapes, gold goggles, body coloration and two independently moving wings in actual flight.
+- Verify paid unlock prices and ownership masks are unchanged (index 6 free, index 7 costs 220 earned coins, index 8 costs 240). Changing an existing selected skin must not reset progress or award virtual currency.
+- **Migration:** import authentic v1–v6 local JSON saves with legacy slugs `portantin`, `noa`, `any`. Verify the same owned bits, selected slot, balance and stars; new exports must use `vihor`, `iskra`, `orion`. Run SwiftSaves and Kotlin source tests.
+- **Android emulator:** record active gameplay with a device-side screencap in the same ADB tap transaction, before slow host capture/UI dump. Require actual Results UI and different recorded idle/active/result PNG hashes. No renamed reference art, synthetic screenshots or disabled QA checks.
+- Compare reference screens at portrait safe-area sizes on Android 15/16 and iOS simulator. Bopi, glossy UI, worlds and 3D lighting are still not fully 1:1; record remaining deviations.
+
+## v0.1.62 — Authentic results screenshot integrity (build 65)
+
+- Reproduce the v0.1.61 evidence issue: downloaded Release `BOPAVI-Android-Results.png` and `BOPAVI-Android-Flight-Active.png` have identical SHA-256 digests. The in-app Results view can still have different accessibility text; a UI tree alone does not prove distinct pixels.
+- Android 15/16 real-emulator script MUST confirm the Results UI and PONOVO action and wait for a distinct rendered frame. If the image matches either idle or active flight after eight bounded capture retries, fail with `android-result-diagnostic.png` and no published version.
+- Independent Release staging SHA-256 assertion MUST refuse identical `BOPAVI-Android-Results.png`, `BOPAVI-Android-Flight-Active.png` and `BOPAVI-Android-Flight-Preview.png`. Keep the actual 15-attachment packaging and `SHA256SUMS.txt`.
+- Verify in Results that the selected pilot, achieved score, earned rewards and return/retry actions originate from real saved values. Do not treat the reference concept as a captured UI frame.
+- Android lint/JVM, API35/API36 installation/gameplay/collision/navigation, iOS simulator/device builds, physics and legacy save migration remain release gates; they must all pass again.
+
 ## v0.1.61 — Animated Bopi feathers + world depth
 
 1. Verify the built art includes 15 separately detached paths per Bopi wing, with glowing feather veins and gold pilot-goggle reflections; animated wing sprites must still flap independently and use the actually selected saved skin on Android and iOS.

@@ -695,7 +695,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// A new virtual-coin purchase always requires a second explicit approval.
     private func characterGallery(in stack:UIStackView,refresh:@escaping()->Void) {
         // Keep canonical skin indices (and existing saves) unchanged. The
-        // reference foregrounds Portantin, Noa and Any in the first visual row.
+        // Three new bird pilots retain original skin slot IDs 6–8.
         let displayOrder=[6,7,8,0,1,2,3,4,5]
         for start in stride(from:0,to:displayOrder.count,by:3) {
             let row=UIStackView()
@@ -913,9 +913,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         label(progress.skinNames[selected],26,UIColor(red:1,green:0.86,blue:0.49,alpha:1),s)
         switch selected {
-        case 6: label("Portantin: krilati čovječuljak sa zaštitnom opremom i suputnikom.",15,.white,s)
-        case 7: label("Noa: premium nebeski istraživač s električno plavim krilima, vizir-naočalama i zvjezdanim oklopom.",15,.white,s)
-        case 8: label("Any: premium čarobnica s ružičastim krilima, zvjezdanom tijarom i ljubičastom haljinom.",15,.white,s)
+        case 6: label("Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima.",15,.white,s)
+        case 7: label("Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem.",15,.white,s)
+        case 8: label("Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima.",15,.white,s)
         default: label("Izaberi svog letača. Odabir se čuva na uređaju.",15,.white,s)
         }
         label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
@@ -1474,7 +1474,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showSkins(){showSkins(.settings)}
     private func showSkins(_ origin:MenuOrigin,shopOrigin:MenuOrigin = .settings){
-        let s=menu("LIKOVI","Devet letača, uključujući Nou i Any")
+        let s=menu("LIKOVI","Devet krilatih pilota: Vihor, Iskra i Orion")
         label("Stanje: \(progress.coins()) kovanica",20,.white,s)
         characterGallery(in:s){self.showSkins(origin,shopOrigin:shopOrigin)}
         let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL"
