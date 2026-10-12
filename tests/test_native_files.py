@@ -466,8 +466,8 @@ for duration,base,travel in ((0.36,24,42),(0.65,33,48)):
         assert 0 <= (1-progress) <= 1
 
 # v0.1.14: moving obstacles expose cosmetic lip accents without changing colliders.
-android_gate=android_canvas.split("private fun drawMovingGateRimCues(",1)[1].split("private fun drawGate(",1)[0]
-ios_gate=ios_canvas.split("private func drawMovingGateRimCues(",1)[1].split("private func gate(",1)[0]
+android_gate=android_canvas.split("private fun drawMovingGateRimCues(",1)[1].split("private fun drawRoyalCoin(",1)[0]
+ios_gate=ios_canvas.split("private func drawMovingGateRimCues(",1)[1].split("private func drawRoyalCoin(",1)[0]
 for source in (android_gate,ios_gate):
     assert "movement<=0" in source
     assert "reducedMotion" in source
