@@ -190,45 +190,30 @@ for skin,hue in enumerate(palette):
         catalog.mkdir(exist_ok=True)
         wing.save(catalog/(wing_name+'.png'),optimize=True)
         (catalog/'Contents.json').write_text(json.dumps({'images':[{'filename':wing_name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-# Portantin is maintained as one source SVG. Split transparent body and wings
-# before rasterizing to exactly matching Android/iOS sprite assets.
-port_source=(r/'docs/assets/portantin.svg').read_text()
-port_defs=re.search(r'<defs>(.*?)</defs>',port_source,re.S)
-port_l=re.search(r'<g id="wing-left">.*?</g>',port_source,re.S)
-port_r=re.search(r'<g id="wing-right">.*?</g>',port_source,re.S)
-if port_defs is None or port_l is None or port_r is None:
-    raise RuntimeError('Portantin SVG has missing body/wing layers')
-port_body=re.sub(r'<g id="wing-(?:left|right)">.*?</g>','',port_source,flags=re.S)
-def render_portantin(part):
+# Three original bird pilots replace the former human pilot illustrations.
+# IMPORTANT: keep saved skin indices 6/7/8 and generated Bopi6..8 sprite
+# names stable, so owned masks, picked pilot and offline v1..v6 backups survive.
+# The legacy backup slugs ("portantin", "noa", "any") remain internal aliases.
+def render_bird_pilot(part):
     part=re.sub(r'^.*?<svg[^>]*>','',part,count=1,flags=re.S)
     part=re.sub(r'</svg>.*','',part,flags=re.S)
     xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-65 -65 130 130" width="512" height="512">'+part+'</svg>'
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
-for part,name,catalog in ((port_body,'bopi6','Bopi6'),
-                          ('<defs>'+port_defs.group(1)+'</defs>'+port_l.group(0),'bopileft6','BopiLeft6'),
-                          ('<defs>'+port_defs.group(1)+'</defs>'+port_r.group(0),'bopiright6','BopiRight6')):
-    sprite=render_portantin(part)
-    sprite.save(a/'drawable-nodpi'/(name+'.png'),optimize=True)
-    assetset=b/(catalog+'.imageset')
-    assetset.mkdir(exist_ok=True)
-    sprite.save(assetset/(name+'.png'),optimize=True)
-    (assetset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-# Unique premium Noa / Any silhouettes and separately flapping SVG wing groups.
-# All Android/iOS sprites are rendered from the same checked-in sources.
-for skin,character in ((7,'noa'),(8,'any')):
+for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
     source=(r/'docs/assets'/f'{character}.svg').read_text()
-    definitions=re.search(r'<defs>(.*?)</defs>',source,re.S)
-    wings=[re.search(r'<g id="wing-'+side+r'">.*?</g>',source,re.S) for side in ('left','right')]
-    if definitions is None or any(w is None for w in wings):
-        raise RuntimeError(f'{character}: missing wing layers or gradients')
+    defs=re.search(r'<defs>(.*?)</defs>',source,re.S)
+    left=re.search(r'<g id="wing-left">.*?</g>',source,re.S)
+    right=re.search(r'<g id="wing-right">.*?</g>',source,re.S)
+    if defs is None or left is None or right is None:
+        raise RuntimeError(f'{character}: missing original wings or gradients')
     body=re.sub(r'<g id="wing-(?:left|right)">.*?</g>','',source,flags=re.S)
-    layers=((body,f'bopi{skin}',f'Bopi{skin}'),
-            ('<defs>'+definitions.group(1)+'</defs>'+wings[0].group(0),f'bopileft{skin}',f'BopiLeft{skin}'),
-            ('<defs>'+definitions.group(1)+'</defs>'+wings[1].group(0),f'bopiright{skin}',f'BopiRight{skin}'))
-    for part,name,catalog in layers:
-        sprite=render_portantin(part)
+    parts=((body, f'bopi{skin}', f'Bopi{skin}'),
+           ('<defs>'+defs.group(1)+'</defs>'+left.group(0),f'bopileft{skin}',f'BopiLeft{skin}'),
+           ('<defs>'+defs.group(1)+'</defs>'+right.group(0),f'bopiright{skin}',f'BopiRight{skin}'))
+    for markup, name, catalog in parts:
+        sprite=render_bird_pilot(markup)
         if sprite.getbbox() is None:
-            raise RuntimeError(f'{character}: empty sprite {name}')
+            raise RuntimeError(f'{character}: empty native flight sprite {name}')
         sprite.save(a/'drawable-nodpi'/(name+'.png'),optimize=True)
         assetset=b/(catalog+'.imageset')
         assetset.mkdir(exist_ok=True)
