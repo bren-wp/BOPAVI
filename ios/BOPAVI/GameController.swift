@@ -937,7 +937,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         case 6: label("Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima.",15,.white,s)
         case 7: label("Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem.",15,.white,s)
         case 8: label("Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima.",15,.white,s)
-        default: label("Izaberi svog letača. Odabir se čuva na uređaju.",15,.white,s)
+        default: label("Izaberi svog letača. Poleti u novu avanturu.",15,.white,s)
         }
         label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
         sectionHeading("ODABERI SVOG LETAČA",in:s)
