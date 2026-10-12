@@ -39,17 +39,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
-    // The concept bird is a foreground hero, not a tiny 100px badge.
+    // Real Android emulator screenshot showed the prior 148/160 art still too small.
+    // Larger live sprites preserve the fixed simulation/collision geometry.
     // Sprite viewport: Bopi = 520 SVG units; Vihor/Iskra/Orion = 160 units.
     // Scale only art. The existing simulation hitbox and gate physics stay intact.
-    private val birdSize=if(selectedSkin>=6)160f else 148f
+    private val birdSize=if(selectedSkin>=6)235f else 220f
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
     // True SVG shoulder joints; the alternate pilots have narrower bodies.
     // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
-    private val wingLeftPivotX=if(selectedSkin>=6)-12f else -16f*birdSize/100f
-    private val wingLeftPivotY=if(selectedSkin>=6)4f else 5f*birdSize/100f
-    private val wingRightPivotX=if(selectedSkin>=6)12f else 15f*birdSize/100f
-    private val wingRightPivotY=if(selectedSkin>=6)4f else -4f*birdSize/100f
+    private val wingLeftPivotX=if(selectedSkin>=6)-12f*birdSize/160f else -16f*birdSize/100f
+    private val wingLeftPivotY=if(selectedSkin>=6)4f*birdSize/160f else 5f*birdSize/100f
+    private val wingRightPivotX=if(selectedSkin>=6)12f*birdSize/160f else 15f*birdSize/100f
+    private val wingRightPivotY=if(selectedSkin>=6)4f*birdSize/160f else -4f*birdSize/100f
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
         R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
@@ -646,7 +647,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,34f+sin(game.time*5f)*2f,p)
+            c.drawCircle(126f,game.y,61f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
         c.save();c.translate(126f,game.y)
