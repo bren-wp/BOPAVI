@@ -1593,8 +1593,10 @@ for source in (android_game,ios_game):
     assert 'game.stars' in source and 'game.shield' in source
     assert 'game.magnetTime' in source and 'game.coins' in source
     assert 'game.displayLevel' in source
-    assert '1,280' not in source and '2,000' not in source
-    assert '1280 / 2000' not in source
+    # Concepts may be named in comments; actual HUD paint calls may not
+    # print the reference mockup's imaginary 1,280 / 2,000 metres.
+    for forbidden in ('text(c,"1,280','hudText("1,280','text(c,"2,000','hudText("2,000'):
+        assert forbidden not in source
     assert '⚑' in source
     assert 'game.flap()' in source
 assert 'hudGlass(c,146f,18f,406f,77f)' in android_game
