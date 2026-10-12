@@ -325,7 +325,7 @@ class MainActivity : Activity() {
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply {
-            setImageResource(R.drawable.splash)
+            setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
