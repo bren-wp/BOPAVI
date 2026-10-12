@@ -1,3 +1,11 @@
+## Iteration 34 — feather silhouette and floating-world depth (v0.1.61 candidate)
+
+**Observed remaining concept gap:** Bopi's reference has separately shaped translucent feather vanes and reflective pilot goggles. Existing SVG wings have very few wide shapes. The reference flying scene combines large multidimensional castles, misty waterfalls, forest canopies and sculpted floating cliffs; the prior deterministic 2D world generator only had a few broad polygons and plain water streaks.
+
+**Actual shared-source change:** the approved Bopi SVG now contains 15 individually marked left/right feather paths, including layered blue feather segments, white ribs and soft reflective highlights. The existing build splits these paths from the body, preserving actual wing-flap motion on both native platforms. Goggle bevel reflections and scarf edging are also refined. The eight deterministic generated world sources now add five curved waterfall strands, translucent drifting-spray **appearance** (static scenic pixels), faceted rock chips, clusters of miniature crowns and receding bridges; all live gates, HUD, characters, physics and saved values are unchanged.
+
+**QA gate:** the GitHub graphics job must render all eight 960x1600 world textures and nine skin/wing/portrait collections and verify byte-for-byte Android/iOS equality; emulator gameplay captures and Swift/Android smoke tests remain mandatory. The new art is stylized vector rasterization, **not 1:1 3D concept art**; no static screenshot is substituted for running gameplay.
+
 ## Iteration 33 — full Settings sheet and selected-pilot hero (v0.1.60 candidate)
 
 **Source-derived reference difference:** the reference POSTAVKE page has a wordmark + large flying Bopi above a single tall royal-blue, cyan-edged panel. v0.1.59 used centered wordmark, separate tile sections and no saved-pilot hero in Settings. The source had genuine persistent music/effects/haptic/difficulty controls but lacked this presentation hierarchy.

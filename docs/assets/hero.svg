@@ -73,6 +73,27 @@
  <path d="M203 -81Q164 -46 112 -9" fill="none" stroke="url(#featherGlint)" stroke-width="8" opacity=".86" stroke-linecap="round" data-wing="right"/>
  <path d="M176 -42Q141 -13 99 17" fill="none" stroke="#d2faff" stroke-width="5" opacity=".82" stroke-linecap="round" data-wing="right"/>
  <path d="M111 -108Q111 -68 81 -22" fill="none" stroke="#d5faff" stroke-width="6" opacity=".76" stroke-linecap="round" data-wing="right"/>
+ <!-- Articulated layered flight feathers: each highlight is extracted with its owning wing and follows the real flap. -->
+ <path d="M-229 -49Q-197 -25 -169 -23Q-194 -11 -216 -27Z" fill="#1377df" opacity=".93" data-wing="left"/>
+ <path d="M-215 -38Q-184 -12 -152 -7Q-179 9 -203 -7Z" fill="#47b9ff" opacity=".81" data-wing="left"/>
+ <path d="M-197 -20Q-173 8 -137 14Q-157 27 -185 10Z" fill="#76d7ff" opacity=".73" data-wing="left"/>
+ <path d="M-177 -1Q-150 27 -118 31Q-136 45 -165 25Z" fill="#b6eeff" opacity=".75" data-wing="left"/>
+ <path d="M-154 -23Q-135 8 -105 11" fill="none" stroke="#d8f9ff" stroke-width="3" opacity=".77" stroke-linecap="round" data-wing="left"/>
+ <path d="M-135 -55Q-122 -19 -93 6" fill="none" stroke="#58bdff" stroke-width="4" opacity=".82" stroke-linecap="round" data-wing="left"/>
+ <path d="M-118 -91Q-100 -53 -73 -21" fill="none" stroke="#c4f7ff" stroke-width="3" opacity=".65" stroke-linecap="round" data-wing="left"/>
+ <path d="M-207 -38Q-194 -28 -186 -26" fill="none" stroke="#ffffff" stroke-width="2" opacity=".82" stroke-linecap="round" data-wing="left"/>
+ <path d="M-155 6Q-148 18 -136 20" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".66" stroke-linecap="round" data-wing="left"/>
+ <path d="M-179 -21Q-170 -9 -156 -7" fill="none" stroke="#deffff" stroke-width="2" opacity=".86" stroke-linecap="round" data-wing="left"/>
+ <path d="M210 -85Q181 -59 153 -51Q177 -39 202 -53Z" fill="#146edc" opacity=".93" data-wing="right"/>
+ <path d="M202 -71Q177 -40 141 -30Q164 -15 194 -38Z" fill="#45bfff" opacity=".80" data-wing="right"/>
+ <path d="M189 -48Q164 -18 130 -13Q151 1 178 -24Z" fill="#80dcff" opacity=".73" data-wing="right"/>
+ <path d="M173 -25Q149 3 114 9Q137 22 160 -5Z" fill="#b3efff" opacity=".75" data-wing="right"/>
+ <path d="M158 -46Q135 -15 110 -6" fill="none" stroke="#d9faff" stroke-width="3" opacity=".79" stroke-linecap="round" data-wing="right"/>
+ <path d="M134 -83Q128 -41 95 -20" fill="none" stroke="#53beff" stroke-width="4" opacity=".8" stroke-linecap="round" data-wing="right"/>
+ <path d="M110 -120Q104 -78 76 -40" fill="none" stroke="#c5f7ff" stroke-width="3" opacity=".66" stroke-linecap="round" data-wing="right"/>
+ <path d="M194 -74Q184 -61 173 -57" fill="none" stroke="#ffffff" stroke-width="2" opacity=".8" stroke-linecap="round" data-wing="right"/>
+ <path d="M154 -18Q147 -7 136 -2" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".65" stroke-linecap="round" data-wing="right"/>
+ <path d="M177 -42Q165 -32 152 -28" fill="none" stroke="#deffff" stroke-width="2" opacity=".86" stroke-linecap="round" data-wing="right"/>
  <path d="M-136 100L-219 61-186 151-129 132Z" fill="#116ad3"/>
  <path d="M-115 125L-190 98-176 142Z" fill="#63d3ff"/>
  <path d="M-39 105q-40 42-19 61l43-48z" fill="#f9a729"/>
@@ -121,6 +142,12 @@
  <circle cx="62" cy="-110" r="31" fill="url(#lens)" stroke="#f9c964" stroke-width="6"/>
  <ellipse cx="52" cy="-123" rx="13" ry="9" fill="#ffffff" opacity=".58"/>
  <ellipse cx="50" cy="-122" rx="13" ry="6" fill="white" opacity=".66" transform="rotate(-26 50 -122)"/>
+ <!-- Rim light and polished-gold bevel on the pilot goggles: no external sprite. -->
+ <path d="M-99 -128Q-92 -158 -57 -158Q-30 -157 -19 -136" fill="none" stroke="#fff1a2" stroke-width="5" opacity=".89" stroke-linecap="round"/>
+ <path d="M22 -123Q29 -156 63 -155Q90 -151 100 -125" fill="none" stroke="#ffe9a1" stroke-width="5" opacity=".87" stroke-linecap="round"/>
+ <path d="M-92 -85Q-65 -70 -38 -91 M30 -78Q64 -65 93 -90" fill="none" stroke="#6c381f" stroke-width="3" opacity=".5" stroke-linecap="round"/>
+ <circle cx="-90" cy="-142" r="4" fill="#fff7ca"/><circle cx="87" cy="-143" r="4" fill="#fff7ca"/>
+ <path d="M-74 96Q-35 114 5 114Q40 114 79 99" fill="none" stroke="#dffaff" stroke-width="2.5" opacity=".62" stroke-linecap="round"/>
  </g>
  <g fill="#fff7a7" opacity=".94"><path d="M205 243l8 19 21 2-16 14 5 21-18-11-19 11 5-21-16-14 22-2Z"/><path d="M715 445l9 18 21 3-16 15 4 21-18-11-18 11 5-21-17-15 22-3Z"/></g>
 </svg>

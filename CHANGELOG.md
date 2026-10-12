@@ -1,3 +1,11 @@
+## v0.1.61 — Animated Bopi feather detail and cinematic fantasy worlds (build 64)
+
+- Reworked the official Bopi SVG source with **30 separately animated, wing-owned feather paths** (15 left / 15 right), layered sky-blue and white feather ribs, richer optical glints, polished gold goggle rims and scarf highlights. The existing two animated wing layers extract those paths automatically: the feathers now actually move with the real flap rather than staying fixed to the torso.
+- Added a richer atmospheric landmark pass to all eight existing world background sources: variable-length waterfall strands, transparent waterfall spray and mist, segmented cliff highlights, miniature treetop crowns and receding sky bridges where appropriate. Generated assets are rasterized once during the build and distributed **byte-identically** to Android and iOS, replacing no gameplay with static concept screenshots.
+- Added source regression checks for the wing-owned feather geometry and scenic art pipeline. Existing selected-pilot IDs, nine characters, hitboxes, continuous procedural transitions, physics, local saves and offline operation are unchanged.
+- Synchronized Android/iOS version and build to **0.1.61 / 64**; release remains gated by Android 15/16 emulator navigation and collision QA, iOS device/simulator smoke, authentic screenshot evidence, asset checks and SHA-256.
+- **Reference parity:** noticeably more layered 2D art but *not pixel-identical* to the reference's prerendered 3D bird, castles and textured cliffs. Captured device screenshots remain the sole runtime proof; detailed 3D assets and 1:1 review remain future work.
+
 ## v0.1.60 — Premium Settings: real glass panel and chosen pilot (build 63)
 
 - Rebuilt **POSTAVKE** on Android and iOS as a single large, scrollable royal-blue/cyan glass sheet instead of isolated dark tiles on the world scene. The logo shares the hero header with the **actually selected pilot portrait** from the saved skin ID; no screenshot or concept image masquerades as interactive UI.
