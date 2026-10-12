@@ -1,3 +1,11 @@
+## v0.1.62 — Three new premium bird pilots and honest gameplay proof (build 65)
+
+- Replaced the old human-character art with **Vihor** (turquoise sky swift), **Iskra** (coral-pink hummingbird) and **Orion** (starry violet owl). All three are individually authored SVGs with large expressive eyes, gold pilot goggles, layered flight feathers, royal scarves and distinct crests. Each bird is split into genuine independently animated left/right wings and a body, with identical rasterized PNGs on Android and iOS.
+- Replaced their visible names, descriptions and real card illustrations throughout the character picker, home/profile and README. Deleted the superseded human SVG art. The nine slots, prices, ownership mask, `skin_index`, scoring and hitboxes remain untouched.
+- New JSON backup exports write `vihor`, `iskra`, `orion`. **Old saves containing `portantin`, `noa`, `any` import into the same slots** with zero coin loss and no repurchase; Swift migration regression covers owned bits, selected pilot and balance.
+- **CI gameplay screenshot hotfix:** recorded the flap and a genuine on-device PNG screenshot in the same ADB session, before slow runner round trips can advance the simulation to the results screen. Original idle/active/result screenshots must be different; a stale or missing image fails the emulator and independent SHA-256 release checks.
+- Layout and art still require per-screen actual-device comparisons against the supplied concept art; no pixel-identical 3D match is claimed.
+
 ## v0.1.62 — Authentic results screenshot integrity (build 65)
 
 - Fixed a real release-quality defect found by inspecting v0.1.61 GitHub asset SHA-256 digests: `BOPAVI-Android-Results.png` had the **same pixels** as `BOPAVI-Android-Flight-Active.png`, despite its Results filename and separate accessibility-tree tests.
