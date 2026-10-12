@@ -1,3 +1,12 @@
+## v0.1.55 — Royal crown collectibles & real last-gate portals (build 58)
+
+- Render actual **coins** as reusable, bevelled gold crown medals in all eight worlds on Android Canvas and iOS Core Graphics. They no longer look like world-specific unlabelled glowing circles. Existing coin pickup flags, currency, score, magnet and save logic are unchanged.
+- Mark the **actual final gate of each level** with a cyan circular magical finish portal and a golden crown, including approaching streamed gates. The existing collision geometry remains authoritative; the portal is strictly visual, not a fictional exit or instant win.
+- Pulse effects respect reduced-motion settings; reused native rendering objects do not decode or allocate images inside the gameplay animation loop.
+- Extend source QA for material palette parity, icon geometry, actual final-gate identification, reduced-motion, input/physics noninterference, and real screenshot release verification.
+- Include a real, emulator-captured **active gameplay screenshot** as an additional versioned GitHub Release asset and in the marketing README gallery. Retain generated assets from the game itself, not user concept art.
+- Android and iOS v0.1.55 build 58. **The stylised 2D game is still not pixel-perfect with the supplied high-end 3D concepts.**
+
 ## v0.1.54 — Bopi flight HUD matches reference hierarchy (build 57)
 
 - Redesigned the real active-flight HUD on **Android Canvas and iOS Core Graphics** to use the reference's left coin wallet, a single central crown-to-flag progress gauge and a vertical rail of three blue/gold circular icons. The native, genuinely tappable pause button retains its own reserved top-right space.
