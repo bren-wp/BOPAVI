@@ -189,14 +189,14 @@ for skin,hue in enumerate(palette):
         catalog.mkdir(exist_ok=True)
         wing.save(catalog/(wing_name+'.png'),optimize=True)
         (catalog/'Contents.json').write_text(json.dumps({'images':[{'filename':wing_name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-# Three original bird pilots replace the former human pilot illustrations.
+# Three original bird pilots now retain every feather tip in the same full 160-unit raster viewport.
 # IMPORTANT: keep saved skin indices 6/7/8 and generated Bopi6..8 sprite
 # names stable, so owned masks, picked pilot and offline v1..v6 backups survive.
 # The legacy backup slugs ("portantin", "noa", "any") remain internal aliases.
 def render_bird_pilot(part):
     part=re.sub(r'^.*?<svg[^>]*>','',part,count=1,flags=re.S)
     part=re.sub(r'</svg>.*','',part,flags=re.S)
-    xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-65 -65 130 130" width="512" height="512">'+part+'</svg>'
+    xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="512" height="512">'+part+'</svg>'
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
 for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
     source=(r/'docs/assets'/f'{character}.svg').read_text()
