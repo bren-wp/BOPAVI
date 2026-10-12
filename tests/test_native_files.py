@@ -1797,7 +1797,44 @@ print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchan
 assert 'Generate SHA-256 checksums for every release artifact' in workflow
 assert 'sha256sum \\' in workflow
 assert 'BOPAVI-iOS-Home.png > SHA256SUMS.txt' in workflow
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
 assert 'dist/SHA256SUMS.txt' in workflow
 assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
-print('PASS: all 13 original release assets retained with a SHA-256 manifest')
+print('PASS: original release assets and authentic Settings capture have SHA-256 manifest')
+
+# v0.1.60: the reference's settings screen is one scrolling glass sheet,
+# featuring real chosen-pilot art, not a composited screenshot of controls.
+settings_android=android_menu.split('private fun showSettings(){',1)[1].split('@Deprecated("Activity result',1)[0]
+settings_ios=ios_menu.split('private func showSettings(){',1)[1].split('func documentPicker(',1)[0]
+base_android=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
+menu_ios=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
+assert 'val settingsPanel=LinearLayout(this).apply' in settings_android
+assert 'setStroke(d(2),0xff42cfff.toInt())' in settings_android
+assert 'BopaviSettingsPanel: UIStackView' in ios_menu
+assert 'let settingsPanel=BopaviSettingsPanel()' in settings_ios
+assert 'layer.borderWidth=2' in ios_menu
+assert 'if(label=="POSTAVKE")' in base_android
+assert 'portraits[progress.skin().coerceIn(0,8)]' in base_android
+assert 'if title == "POSTAVKE"' in menu_ios
+assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in menu_ios
+for label in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST"):
+    assert 'sectionHeading(settingsPanel,"'+label+'")' in settings_android,label
+    assert 'sectionHeading("'+label+'",in:settingsPanel)' in settings_ios,label
+for source in (settings_android,settings_ios):
+    for saved in ("musicVolume","effectsVolume","hapticEnabled","difficulty",
+                  "playerName","lessMotion","soundEnabled","export","import"):
+        # export/import use existing actions and actual saved data, not cloud placeholders.
+        if saved not in ("export","import"):
+            assert saved in source,(saved,"settings persistence")
+    assert "cloudSave" not in source and "signOut" not in source
+assert 'back(b){showHome()}' in settings_android
+assert 'button("‹  POČETNA",in:s,primary:false){self.showHome()}' in settings_ios
+for text in ("SPREMI IME","SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE"):
+    assert 'action(settingsPanel,"'+text+'"' in settings_android,text
+    assert 'button("'+text+'",in:settingsPanel' in settings_ios,text
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+assert "'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png'" in workflow
+assert 'dist/BOPAVI-Android-Settings.png' in workflow
+assert 'BOPAVI-Android-Settings.png' in (root/'README.md').read_text()
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
+print("PASS: responsive settings glass panels, saved pilot, functional audio/privacy, screenshot proof")
