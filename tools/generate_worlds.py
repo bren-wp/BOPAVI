@@ -180,6 +180,56 @@ def detailed_landmarks(index: int) -> str:
             'stroke-width="1.6" opacity=".65" stroke-linecap="round"/>')
     return "".join(parts)
 
+def foreground_cloud_bank(index: int) -> str:
+    """Soft foreground clouds replacing the former flat ground-colored strip.
+
+    This is static world illustration, behind all live gates and collectibles.
+    Night, volcanic and underwater palettes preserve the biome atmosphere.
+    """
+    if index in (5, 7):
+        top, middle, shadow = "#b5bdff", "#7469bc", "#30336e"
+    elif index == 3:
+        top, middle, shadow = "#ffe0b9", "#d67b8b", "#6c405d"
+    elif index == 6:
+        top, middle, shadow = "#dafff9", "#8fd6e8", "#3486b5"
+    else:
+        top, middle, shadow = "#ffffff", "#c7ecff", "#65b5e3"
+    parts = [
+        '<defs>'
+        '<linearGradient id="cloud-bank" x1="0" y1="0" x2=".1" y2="1">'
+        f'<stop stop-color="{top}"/><stop offset=".55" stop-color="{middle}"/>'
+        f'<stop offset="1" stop-color="{shadow}"/></linearGradient>'
+        '<radialGradient id="cloud-soft">'
+        f'<stop stop-color="{top}" stop-opacity=".95"/>'
+        f'<stop offset=".66" stop-color="{middle}" stop-opacity=".63"/>'
+        f'<stop offset="1" stop-color="{middle}" stop-opacity="0"/>'
+        '</radialGradient>'
+        '</defs>',
+        '<path d="M0 800 V772 Q39 735 87 760 Q142 710 196 751 '
+        'Q253 721 304 758 Q371 709 431 748 Q463 738 480 759 '
+        'V800Z" fill="url(#cloud-bank)" opacity=".82"/>',
+    ]
+    # Curves are deliberately irregular; a straight horizon implies a ground
+    # plane in a world that should float entirely above the clouds.
+    for n in range(8):
+        x = -36 + n * 77 + (index * 13 + n * 17) % 26
+        y = 764 + (n % 3) * 12
+        width = 60 + (n % 4) * 9
+        parts.append(
+            f'<ellipse cx="{x}" cy="{y}" rx="{width}" ry="{26 + n%3*8}" '
+            'fill="url(#cloud-soft)" opacity=".79"/>'
+        )
+    for n in range(5):
+        x = 17 + n * 115
+        y = 751 + (n % 2) * 11
+        parts.append(
+            f'<path d="M{x} {y} q22 -13 49 -4" fill="none" '
+            f'stroke="{top}" stroke-width="2.5" opacity=".57" '
+            'stroke-linecap="round"/>'
+        )
+    return "".join(parts)
+
+
 def shapes(index: int):
     sky1, sky2, turf, shade, rock, shine = THEMES[index]
     rng = random.Random(950 + index)
@@ -267,9 +317,9 @@ def shapes(index: int):
             add(f'<circle cx="{x}" cy="{y}" r="{13+i*5}" fill="{shine}" opacity=".53"/>')
     # Landmarks use the same static raster on both platforms; gates stay on top.
     add(detailed_landmarks(index))
-    # Ground is deliberately below the obstacle play region, with a soft lip.
-    add(f'<rect x="0" y="757" width="480" height="43" fill="{shade}"/>'
-        f'<path d="M0 754 Q110 741 225 753 T480 750 V772 H0Z" fill="url(#ledge)"/>')
+    # The illustrated world has no solid ground; clouds visually support
+    # floating cliffs without covering the collision corridor or UI.
+    add(foreground_cloud_bank(index))
     add('</svg>')
     return "".join(items)
 

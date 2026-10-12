@@ -1,3 +1,12 @@
+## v0.1.52 — floating-cloud worlds and premium live flight HUD (build 55)
+
+- Replaced the actual build-time background generator's opaque ground-colored rectangle with layered, biome-aware foreground cloudbanks for all eight worlds. The fantasy islands now fade into clouds rather than terminating at a flat ground stripe. Night, lava, underwater and daytime palettes are independently respected.
+- Redesigned the in-flight coin, star, level, shield and magnet HUD on Android Canvas and iOS Core Graphics using common midnight-blue glass chips, luminous cyan edges and reflective highlights. The virtual gold coin uses an illustrated crown instead of a generic dot.
+- HUD values remain directly bound to real earned coins, collected stars, level ordinals, shield charges and remaining magnet seconds. The separate native Pause button stays functional; no fictional diamonds, hearts or rewards were added.
+- Cached the iOS crown typeface rather than constructing a font each rendered frame. No per-frame asset decoding or downloaded artwork was introduced.
+- Preserved all save identifiers, nine pilots, eight world IDs, procedural stream continuity, collision geometry, player input, camera timing and offline currency. Added source regressions and updated the Android/iOS versions to **0.1.52 (build 55)**.
+- High-detail 3D sprite and castle/waterfall quality and all-ten-screen exact 1:1 screenshot comparisons remain incomplete; a green build alone is not proof of pixel-identical reference artwork.
+
 ## v0.1.51 — immersive gameplay scenery, verified screenshots and public README (build 54)
 
 - Android and iOS no longer paint an opaque fixed-color stripe over the lower 49 logical pixels of the active 480×800 game world. The complete illustrated floating-island scenery remains visible on portrait devices, with letterbox sky handling preserved. Collision, camera, flight timing and native controls are unchanged.

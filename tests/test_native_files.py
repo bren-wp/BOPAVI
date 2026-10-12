@@ -1494,3 +1494,33 @@ assert '<img src="docs/assets/logo.svg"' in readme
 assert 'Priprema za let' in readme  # preview is not falsely called active flight
 assert 'groundTop' not in android_canvas and 'groundTop' not in ios_canvas
 print('PASS: real device screenshot marketing gallery, full-height world art and native dead-code guard')
+
+# v0.1.52 — every actual generated mobile world backdrop must float above
+# layered clouds; a flat rectangle at y=757 made the game look grounded.
+world_source=(root/'tools/generate_worlds.py').read_text()
+assert 'def foreground_cloud_bank(index: int)' in world_source
+assert 'add(foreground_cloud_bank(index))' in world_source
+assert 'fill="url(#cloud-bank)"' in world_source
+assert 'fill="url(#cloud-soft)"' in world_source
+assert 'x="0" y="757" width="480" height="43"' not in world_source
+assert 'WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)' in world_source
+assert 'for world in range(8)' in world_source
+
+# Premium chips are real game HUD, not a static mockup, on both platforms.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_game=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+assert 'private fun hudGlass(' in android_game
+assert 'private fun hudGoldCoin(' in android_game
+assert 'private func hudGlass(' in ios_game
+assert 'private func hudGoldCoin(' in ios_game
+assert 'hudCoinFont=UIFont.systemFont' in ios_game
+assert 'hudText("♛",24,31,hudCoinFont' in ios_game
+assert 'hudGlass(c,13f,21f,144f,75f)' in android_game
+assert 'hudGlass(c,13,21,131,54)' in ios_game
+assert 'hudGlass(c,13f,169f,154f,211f)' in android_game
+assert 'hudGlass(c,13,169,141,42)' in ios_game
+for source in (android_game,ios_game):
+    for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
+        assert expression in source
+    assert 'game.flap()' in source
+print('PASS: 8 biome cloud banks and cross-platform native-glass HUD with live values')

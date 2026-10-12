@@ -207,6 +207,7 @@ final class GameCanvas: UIView {
     }
     private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
+    private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudLabelFont=UIFont.systemFont(ofSize:13,weight:.bold)
     private let hudLevelFont=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
@@ -231,26 +232,43 @@ final class GameCanvas: UIView {
         hudText("\(game.passed)/\(total)",346,116,hudLabelFont,0xe8f5ff)
         accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
     }
+    /// Source-matched, state-driven glass counters shared with Android Canvas.
+    /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
+    private func hudGlass(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat) {
+        rect(c,x,y,w,h,0x062755,24,0.929)
+        c.setStrokeColor(color(0x43d8ff,196.0/255))
+        c.setLineWidth(2.2)
+        c.addPath(CGPath(roundedRect:CGRect(x:x+1.5,y:y+1.5,width:w-3,height:h-3),
+                         cornerWidth:22,cornerHeight:22,transform:nil))
+        c.strokePath()
+        rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
+        rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
+    }
+    private func hudGoldCoin(_ c:CGContext) {
+        oval(c,17,25,37,45,0xf9a70e)
+        oval(c,21,29,29,37,0xffdf5f)
+        oval(c,24,32,23,30,0xec9500)
+        hudText("♛",24,31,hudCoinFont,0xfff3a4)
+    }
     private func drawBoostHUD(_ c:CGContext) {
-        // Top-right reserve protects the separately actionable Pause button.
-        rect(c,13,21,131,54,0x062a62,24,0.90)
-        rect(c,17,25,37,45,0xef9f0a,22)
-        hudText("●",27,33,hudIconFont,0xffe685)
+        // Real earned coins, stars and ordinal; x>405 remains tappable Pause.
+        hudGlass(c,13,21,131,54)
+        hudGoldCoin(c)
         hudText("\(game.coins)",66,33,hudCountFont,0xffffff)
-        rect(c,155,21,120,54,0x062a62,24,0.90)
+        hudGlass(c,155,21,120,54)
         hudText("★",169,33,hudIconFont,0xffcd59)
         hudText("\(game.stars)",206,33,hudCountFont,0xffffff)
-        rect(c,285,21,120,54,0x062a62,24,0.90)
+        hudGlass(c,285,21,120,54)
         hudText("LEVEL",297,29,hudLabelFont,0xbdefff)
         hudText("\(game.displayLevel)",300,46,hudLevelFont,0xffffff)
         if game.shield>0 {
-            rect(c,13,169,141,42,0x08295a,21,0.92)
+            hudGlass(c,13,169,141,42)
             rect(c,18,173,35,34,0x147fce,17)
             hudText("◆",26,180,hudLevelFont,0xbfffff)
             hudText("ŠTIT ×\(game.shield)",63,181,boostFont,0xffffff)
         }
         if game.magnetTime>0 {
-            rect(c,13,216,152,42,0x08295a,21,0.92)
+            hudGlass(c,13,216,152,42)
             rect(c,18,221,35,33,0x147fce,17)
             hudText("∩",27,226,hudLevelFont,0xffd266)
             let seconds=Int(ceil(Double(game.magnetTime)))

@@ -1,3 +1,12 @@
+## v0.1.52 — fantasy cloudbank and HUD parity
+
+- Rebuild assets and confirm all eight `world0..world7` background images are generated from the updated common source. Compare the lower 43 pixels: the old opaque straight horizon at y=757 must not reappear; clouds should extend to the frame bottom.
+- On Android API35/36 and iOS Simulator, begin a real flight and inspect top-left coin counter, star count, active level ordinal and progress bar. The three dark-blue HUD glass chips have cyan borders, highlights and gold crown coin, with actual counters from GameSimulation. Pause remains an independently clickable native control on the right.
+- Acquire shield/magnet in real gameplay and confirm the blue glass effect chips show the *real* charge/time, disappear on depletion and never obscure the player or controls.
+- Exercise a level transition in one flight. Neither the live counters nor current-level progress should show fabricated rewards or reset total passes; physics/hitbox/gate timing are unchanged.
+- Run Python source audit and world generator, Android lint/JVM and both emulators, iOS physics/saves plus simulator/device build, screenshot and package checks. No release until all tests on the final commit pass.
+- Capture actual emulator/simulator screenshots and compare against each supplied reference. Exact 1:1 likeness of volumetric 3D feathers, castle lighting and UI proportions is NOT yet established.
+
 ## v0.1.51 — full-height gameplay, marketing screenshots and dead-code QA
 
 - Android API35/API36 and iOS Simulator: capture the game before first flap and during flight. The final 49 logical pixels of each illustrated backdrop must remain intact, including clouds and floating-island scenery. No flat green or midnight-blue band is permitted after drawing the world image. Confirm any letterbox area remains properly sky-filled.
