@@ -121,22 +121,32 @@ if bird is None:
 defs=re.search(r'<defs>(.*?)</defs>',hero_markup,re.S)
 if defs is None:
     raise RuntimeError('Hero gradient definitions missing')
-# Separate the four original blue feather paths into rear wing layers.
-# The main body no longer contains static wings, so flapping moves real pixels.
-feathers=list(re.finditer(r'<path d="[^"]+" fill="[^"]+"\s*/>',bird.group(1)))
-if len(feathers)<4:
-    raise RuntimeError('Cannot extract Bopi wing silhouettes')
-wing_shapes=[bird.group(1)[m.start():m.end()] for m in feathers[:4]]
+# Wing art uses explicitly marked paths, not fragile "first four paths".
+# Feather highlights travel with the existing animated wings rather than
+# remaining frozen on Bopi's torso. Saved skin indices never change.
+wing_shapes=[m.group(0) for m in re.finditer(
+    r'<path\b[^>]*\bdata-wing="(?:left|right)"[^>]*/>',bird.group(1))]
+wing_parts={side:[shape for shape in wing_shapes if f'data-wing="{side}"' in shape]
+            for side in ('left','right')}
+if any(len(wing_parts[side])<4 for side in ('left','right')):
+    raise RuntimeError('Cannot extract Bopi animated wing base and feather details')
 body_markup=bird.group(1)
 for shape in wing_shapes:
     body_markup=body_markup.replace(shape,'',1)
+# The source painting contains a soft ground shadow under the flying bird.
+# Keep it in the menu scenery, but never attach it to a moving flight sprite:
+# an apparent hovering oval otherwise follows the player throughout gameplay.
+shadow_oval='<ellipse cx="10" cy="164" rx="146" ry="28" fill="#1a7ea7" opacity=".16" filter="url(#shadow)"/>'
+if shadow_oval not in body_markup:
+    raise RuntimeError('Expected Bopi background shadow for sprite separation')
+body_markup=body_markup.replace(shadow_oval,'',1)
 def raster(part):
     xml=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
          'viewBox="-260 -260 520 520"><defs>'+defs.group(1)+'</defs><g>'
          +part+'</g></svg>')
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
 original=raster(body_markup)
-original_wings=[raster(''.join(wing_shapes[:2])),raster(''.join(wing_shapes[2:4]))]
+original_wings=[raster(''.join(wing_parts[side])) for side in ('left','right')]
 def recolor(original_image,hue):
     if hue is None:
         return original_image.copy()

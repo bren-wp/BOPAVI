@@ -1443,3 +1443,26 @@ assert 'stroke="#f33f5e"' not in bopi_svg
 assert 'stroke="#1164c9"' in bopi_svg
 assert 'L-12 84 1 94 14 83' in bopi_svg
 print('PASS: blue pilot scarf and crown identity shared with animated body source')
+
+# v0.1.50 — feather detail must stay in animated wings, never torso.
+from xml.etree import ElementTree as SvgTree
+bird_markup=(root/'docs/assets/hero.svg').read_text()
+parsed=SvgTree.fromstring(bird_markup)
+wing_layers=[
+    el.attrib.get('data-wing') for el in parsed.iter()
+    if el.attrib.get('data-wing') in ('left','right')
+]
+assert wing_layers.count('left')>=4 and wing_layers.count('right')>=4
+assert 'id="irisBopi"' in bird_markup and 'id="featherGlint"' in bird_markup
+assert 'fill="#7e2929"' in bird_markup and 'fill="#f56675"' in bird_markup
+assert 'Q-50 -145 -13 -162' in bird_markup
+assert 'M2 35Q34 27 92 50' in bird_markup
+generation=(root/'tools/generate_images.py').read_text()
+assert 'shadow_oval' in generation and "body_markup.replace(shadow_oval,'',1)" in generation
+assert 'wing_parts={side:' in generation
+assert 'for shape in wing_shapes' in generation
+assert "wing_parts[side]" in generation
+assert 'wing_shapes[:2]' not in generation and 'wing_shapes[2:4]' not in generation
+for stable in ("'bopi6','Bopi6'", "((7,'noa'),(8,'any'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
+    assert stable in generation
+print('PASS: detailed royal-blue Bopi mascot with truly detached animated feather layers')
