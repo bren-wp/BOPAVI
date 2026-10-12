@@ -258,7 +258,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         tile.accessibilityLabel="\(BopaviCore.names[world]), otključano, " +
             "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
             "rekord \(progress.best(world)), zvjezdice \(progress.worldStars(world)) od 30" +
-            (selected ? ", odabrano" : "")
+            (selected ? ", odabrano" : "") +
+            (world % 2 == 1 ? ", upravljanje povlačenjem" : ", upravljanje dodirom")
         tile.heightAnchor.constraint(equalToConstant:144).isActive=true
         tile.accessibilityHint="Otvori levele svijeta"
         if selected {tile.accessibilityTraits.insert(.selected)}
@@ -308,6 +309,25 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         number.isUserInteractionEnabled=false
         number.accessibilityElementsHidden=true
         tile.addSubview(number)
+        // Same control mode as the real simulation, not a decorative button.
+        let mode=UILabel()
+        mode.text=world % 2 == 1 ? "↕ POVUCI" : "● TAP"
+        mode.font=UIFont.systemFont(ofSize:10,weight:.heavy)
+        mode.textAlignment = .center;mode.textColor = .white
+        mode.backgroundColor=world % 2 == 1
+            ? UIColor(red:0.37,green:0.22,blue:0.70,alpha:0.97)
+            : UIColor(red:0.04,green:0.39,blue:0.70,alpha:0.97)
+        mode.layer.cornerRadius=14;mode.clipsToBounds=true
+        mode.layer.borderWidth=1
+        mode.layer.borderColor=UIColor(red:0.35,green:0.85,blue:1,alpha:1).cgColor
+        mode.isUserInteractionEnabled=false;mode.accessibilityElementsHidden=true
+        mode.translatesAutoresizingMaskIntoConstraints=false;tile.addSubview(mode)
+        NSLayoutConstraint.activate([
+            mode.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12),
+            mode.topAnchor.constraint(equalTo:tile.topAnchor,constant:12),
+            mode.widthAnchor.constraint(equalToConstant:85),
+            mode.heightAnchor.constraint(equalToConstant:29)
+        ])
         let arrow=UILabel()
         arrow.text="›";arrow.font=UIFont.systemFont(ofSize:30,weight:.heavy)
         arrow.textColor = .white;arrow.textAlignment = .center
@@ -528,7 +548,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
-        let s=menu("LEVELI","Odaberite level · \(BopaviCore.names[world])")
+        let s=menu("LEVELI","Odaberite level · \(BopaviCore.names[world]) · " +
+            (world % 2 == 1 ? "POVUCI GORE / DOLJE" : "TAP ZA ZAMAH"))
         let maxNumber=min(BopaviCore.levelsPerWorld,progress.frontier(world))
         let safePage=max(1,min(page,BopaviCore.levelsPerWorld))
         let start=((safePage-1)/20)*20+1
@@ -1108,7 +1129,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.pause()
         }
         quick("✦\nKONTROLE",label:"Kontrole"){
-            self.alert("Kontrole leta","Dodirni zaslon za zamah krilima. Pauza se pojavljuje tek nakon početka leta.")
+            self.alert("Kontrole leta",canvas.game.dragControl
+                ? "Povuci prst gore ili dolje kako bi Bopi glatko mijenjao visinu. Izbjegavaj prepreke i skupljaj nagrade."
+                : "Dodirni zaslon za zamah krilima. Pauza se pojavljuje tek nakon početka leta.")
         }
         quick("⚙\nPOSTAVKE",label:"Postavke"){
             pauseSettings.isHidden.toggle()
