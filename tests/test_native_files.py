@@ -1809,8 +1809,8 @@ assert ios_bird.index('c.drawRadialGradient(aura') < ios_bird.index('c.rotate(by
 assert 'p.shader=null\n        c.restore()' in android_bird
 assert android_canvas.count('birdAuraShader=RadialGradient(')==1
 assert ios_render.count('birdAuraGradient:CGGradient?')==1
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchanged hitboxes')
 
 # Keep the thirteen existing binaries/screenshots and provide independently
@@ -1885,8 +1885,8 @@ assert "for side in ('left','right')" in generator
 assert "wing=recolor(original_wing,hue)" in generator
 assert "Image.alpha_composite(wings,body)" in generator
 # No gameplay math, saved skin identifiers or distribution signing touched.
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: 30+ animated feather contours, gold goggle bevels and shared eight-world skyfalls')
 
 # v0.1.62 — no release may reuse an active-flight screenshot for Results.
@@ -2054,8 +2054,8 @@ assert 'left.draw(in:CGRect(x:-half-leftWingPivot.x,' in ios_render
 assert 'right.draw(in:CGRect(x:-half-rightWingPivot.x,' in ios_render
 assert (root/'tools/verify_pilot_sprite_anatomy.py').is_file()
 assert 'python tools/verify_pilot_sprite_anatomy.py' in workflow
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: attached beak, uncropped wings, smaller pilot art and paired body hitboxes')
 
 # v0.1.66 floating island obstacle polish is visual only, inside the old
