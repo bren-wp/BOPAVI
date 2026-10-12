@@ -1623,7 +1623,7 @@ for source in (and_coin,ios_coin):
     assert "reducedMotion" in source and "game.time" in source
     assert "BitmapFactory" not in source and "UIImage(" not in source
     assert "game.step(" not in source and "game.flap(" not in source
-    assert "Path()" not in source and "CGPath(" not in source
+    assert "new Path(" not in source and "CGPath(" not in source and "CGMutablePath(" not in source
 for source in (and_portal,ios_portal):
     assert "30" in source and "reducedMotion" in source
     assert "game.time" in source and "phase" in source
