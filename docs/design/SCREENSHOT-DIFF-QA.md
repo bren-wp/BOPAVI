@@ -1,3 +1,11 @@
+## Iteration 29 — same in-flight star shapes, less per-frame allocation (v0.1.56)
+
+**Specific cross-platform mismatch:** Android rendered actual flying star pickups using the level's font-dependent, biome-specific collectible glyph, whereas iOS already rendered a real five-point gold star. The two games showed different shapes despite identical pickup rules. Android now draws the same 10-point star path, size, placement and gold colour as the iOS Core Graphics renderer; both use actual saved-progress/visible-pickup logic without fake diamonds or currencies.
+
+**Confirmed code hot spot:** iOS's frequently called rounded-rectangle painter constructed a new `CGPath(roundedRect:)` for each HUD/gate fragment per frame. It now uses four bounded quarter arcs in the existing CGContext. This reduces explicit path-object creation while retaining the same circular-corner radius and saved-state-independent draw commands. Benchmark claims are intentionally withheld until measured on devices.
+
+**Remaining visual gaps:** the same approved illustrated 2D mascot and islands are used. Volumetric 3D feather textures, castles, backgrounds, ornaments and 1:1 pixel-diff QA of all reference screens remain outstanding.
+
 ## Iteration 28 — crown coins and actual final-gate portal (v0.1.55)
 
 **Reference divergence:** gameplay #7 shows bright bevelled circular gold crown coins and a glowing blue finish portal. Previous gameplay used world-coloured pickup circles with generic biome glyphs and had no visual cue for the final procedural gate. This mismatched the reference despite accurate gameplay logic.
