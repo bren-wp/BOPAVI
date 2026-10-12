@@ -1,3 +1,9 @@
+## v0.1.62 — Debug-only stable active-gameplay screenshot capture (build 65)
+
+- Diagnosed an Android 16 emulator-only failure using actual failed-run screenshot artifacts: the capture window skipped directly from the idle scene to Results. Production physics was correct but slow emulator screencap could not record a short-lived first-flight frame.
+- Added an **opt-in, debuggable-only** first-flap hold for screenshot testing: renders the genuine active GameSimulation and HUD until the next actual tap resumes that very same simulation. This is never active for signed, non-debuggable release builds. No invented score, simulated collision, reference mockup or gameplay HUD placeholder is used.
+- Retained strict independent idle/active/Results PNG uniqueness and real game navigation assertions on both Android 15 and 16. QA no longer depends on host-side capture latency.
+
 ## v0.1.62 — Three new premium bird pilots and honest gameplay proof (build 65)
 
 - Replaced the old human-character art with **Vihor** (turquoise sky swift), **Iskra** (coral-pink hummingbird) and **Orion** (starry violet owl). All three are individually authored SVGs with large expressive eyes, gold pilot goggles, layered flight feathers, royal scarves and distinct crests. Each bird is split into genuine independently animated left/right wings and a body, with identical rasterized PNGs on Android and iOS.
