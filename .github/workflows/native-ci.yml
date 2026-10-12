@@ -448,6 +448,25 @@ jobs:
           python tools/verify_play_release.py --aab dist/app-release.aab
           echo "BOPAVI_TAG=$tag" >> "$GITHUB_ENV"
           echo "BOPAVI_PLAY_ARCHIVE=$play_archive" >> "$GITHUB_ENV"
+      - name: Generate SHA-256 checksums for every release artifact
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum \
+            app-debug.apk \
+            app-release.aab \
+            "$BOPAVI_PLAY_ARCHIVE" \
+            BOPAVI-iOS-Simulator.zip \
+            BOPAVI-iOS-unsigned-device.zip \
+            BOPAVI-Android-Home.png \
+            BOPAVI-Android-Profile.png \
+            BOPAVI-Android-Worlds.png \
+            BOPAVI-Android-Pilots.png \
+            BOPAVI-Android-Flight-Preview.png \
+            BOPAVI-Android-Flight-Active.png \
+            BOPAVI-Android-Results.png \
+            BOPAVI-iOS-Home.png > SHA256SUMS.txt
+          test "$(wc -l < SHA256SUMS.txt)" -eq 13
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -461,7 +480,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Profile.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Profile.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -485,6 +504,7 @@ jobs:
             dist/BOPAVI-Android-Flight-Active.png \
             dist/BOPAVI-Android-Results.png \
             dist/BOPAVI-iOS-Home.png \
+            dist/SHA256SUMS.txt \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "BOPAVI $tag — Android / iOS" \
             --notes-file dist/release-notes.md
