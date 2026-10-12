@@ -1690,3 +1690,14 @@ for width,height,requested in [(1,1,2),(8,36,18),(64,240,7),(480,800,27)]:
     for theta in [0,math.pi/2,math.pi,3*math.pi/2]:
         assert math.isfinite(radius*math.cos(theta))
 print("PASS: cross-platform vector gold stars and allocation-free iOS rounded panels")
+
+# v0.1.56: forensic check of 0.1.55 screenshot hashes found that
+# active flight == idle preview. CI must now require distinct real PNGs.
+assert 'sleep 0.25' in qa_flight_loop
+assert 'sleep 0.20' in qa_flight_loop
+assert qa_flight_loop.index('adb shell input tap "$center"') < qa_flight_loop.index('sleep 0.25') < qa_flight_loop.index('capture android-gameplay-active')
+assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png' in qa_flight_loop
+assert 'FAIL: active screenshot duplicates pre-flight preview' in qa_flight_loop
+assert "sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest()" in workflow
+assert "Active gameplay screenshot is identical to idle flight; release blocked" in workflow
+print("PASS: authentic flight proof cannot repeat the idle preflap PNG frame")
