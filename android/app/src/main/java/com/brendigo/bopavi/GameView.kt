@@ -595,20 +595,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
+        // The concept is a single centre-top race gauge (crown -> flag).
+        // Actual procedural levels have gates, not mapped metres: never
+        // present invented 1,280m/2,000m figures from reference art.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=(game.passed.toFloat()/total.toFloat()).coerceIn(0f,1f)
-        rect(c,14f,87f,400f,107f,0xee041638.toInt(),12f)
-        rect(c,19f,91f,395f,103f,0xff164a84.toInt(),7f)
-        if(ratio>0f) {
-            rect(c,19f,91f,19f+376f*ratio,103f,0xff18c9ff.toInt(),6f)
-            rect(c,20f,92f,20f+374f*ratio,96f,0x99dfffff.toInt(),2f)
+        hudGlass(c,146f,18f,406f,77f)
+        text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
+        text(c,"⚑",389f,57f,26f,Color.WHITE,true)
+        rect(c,181f,34f,376f,55f,0xff05234e.toInt(),10f)
+        rect(c,184f,38f,373f,51f,0xff0b66bf.toInt(),7f)
+        if(ratio>0f){
+            rect(c,184f,38f,184f+189f*ratio,51f,0xff15cfff.toInt(),7f)
+            rect(c,185f,39f,185f+187f*ratio,43f,0xaaffffff.toInt(),2f)
         }
-        rect(c,124f,112f,304f,145f,0xea062653.toInt(),16f)
-        text(c,progressTitle,214f,134f,15f,Color.WHITE,true)
-        text(c,"♛",207f,87f,19f,0xffffcd59.toInt(),true)
-        // The small fraction refers to the current procedural level only.
-        // Cumulative PROLAZI never resets when a seamless level advances.
-        text(c,"${game.passed}/$total",366f,130f,13f,0xffe8f5ff.toInt(),true)
+        rect(c,171f,80f,382f,107f,0xe7062859.toInt(),14f)
+        text(c,"LEVEL ${game.displayLevel}  ·  ${game.passed}/$total",277f,99f,15f,Color.WHITE,true)
+        text(c,progressTitle,277f,124f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
@@ -631,30 +634,41 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,24f,32f,47f,62f,0xffec9500.toInt())
         text(c,"♛",35f,55f,22f,0xfffff3a4.toInt(),true)
     }
+    /** Three illustrated HUD orbs from the reference left rail. These are
+     * indicators, NOT faux buttons. Every number comes from the simulation.
+     * Dimmed inactive powers cannot be mistaken for equipped abilities.
+     */
+    private fun hudOrb(c:Canvas,cx:Float,cy:Float,icon:String,count:String,
+                       accent:Int,enabled:Boolean) {
+        val rim=if(enabled)accent else 0xff5d83ac.toInt()
+        oval(c,cx-33f,cy-33f,cx+33f,cy+33f,0xbb031630.toInt())
+        oval(c,cx-30f,cy-30f,cx+30f,cy+30f,rim)
+        oval(c,cx-27f,cy-27f,cx+27f,cy+27f,0xff06417b.toInt())
+        oval(c,cx-25f,cy-24f,cx+25f,cy+24f,
+            if(enabled)0xff0d5ba2.toInt() else 0xff132b4b.toInt())
+        text(c,icon,cx,cy+11f,33f,if(enabled)Color.WHITE else 0xffa4bdd6.toInt(),true)
+        val bubbleX=cx+25f
+        val bubbleY=cy+26f
+        oval(c,bubbleX-17f,bubbleY-15f,bubbleX+17f,bubbleY+15f,0xff071d45.toInt())
+        oval(c,bubbleX-14f,bubbleY-12f,bubbleX+14f,bubbleY+12f,
+            if(enabled)0xff125aab.toInt() else 0xff27405f.toInt())
+        text(c,count,bubbleX,bubbleY+5f,15f,Color.WHITE,true)
+    }
     private fun drawHud(c:Canvas){
-        // Three compact real counters; reserve x>405 for the native Pause view.
-        hudGlass(c,13f,21f,144f,75f)
+        // Reference: left coin wallet, centre race bar, right real Pause view.
+        // No extra rectangular level/star chips covering the flying scene.
+        hudGlass(c,13f,21f,139f,75f)
         hudGoldCoin(c)
         text(c,"${game.coins}",66f,55f,23f,Color.WHITE)
-        hudGlass(c,155f,21f,275f,75f)
-        text(c,"★",169f,56f,27f,0xffffcd59.toInt())
-        text(c,"${game.stars}",206f,55f,23f,Color.WHITE)
-        hudGlass(c,285f,21f,405f,75f)
-        text(c,"LEVEL",297f,44f,13f,0xffbdefff.toInt())
-        text(c,"${game.displayLevel}",300f,65f,20f,Color.WHITE)
-        if(game.shield>0){
-            hudGlass(c,13f,169f,154f,211f)
-            rect(c,18f,173f,53f,207f,0xff147fce.toInt(),17f)
-            text(c,"◆",35f,197f,21f,0xffbfffff.toInt(),true)
-            text(c,"ŠTIT ×${game.shield}",63f,196f,17f,Color.WHITE)
-        }
-        if(game.magnetTime>0f){
-            hudGlass(c,13f,216f,165f,258f)
-            rect(c,18f,221f,53f,254f,0xff147fce.toInt(),17f)
-            text(c,"∩",35f,245f,23f,0xffffd266.toInt(),true)
-            val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt()
-            text(c,"MAGNET ${seconds}s",62f,245f,16f,Color.WHITE)
-        }
+
+        // Fixed screen-space slots, grounded in actual earned stars/boosts.
+        // Keep them outside the central bird and upcoming collision gates.
+        hudOrb(c,46f,175f,"★","${game.stars}",0xffffce43.toInt(),true)
+        hudOrb(c,46f,249f,"◆","${game.shield}",
+            0xff54e5ff.toInt(),game.shield>0)
+        val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
+        hudOrb(c,46f,323f,"∩","$seconds",
+            0xff41dfff.toInt(),game.magnetTime>0f)
     }
     override fun onTouchEvent(event:MotionEvent):Boolean {
         // Flap immediately on DOWN; accessibility activates the same click path.
