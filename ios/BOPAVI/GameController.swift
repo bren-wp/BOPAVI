@@ -188,7 +188,23 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             logo.contentMode = .scaleAspectFit
             logo.accessibilityElementsHidden=true
             logo.heightAnchor.constraint(equalToConstant:94).isActive=true
-            stack.addArrangedSubview(logo)
+            if title == "POSTAVKE" {
+                // Same selected-pilot header arrangement as Android, drawn from
+                // shipped standalone portrait art rather than a reference PNG.
+                let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                pilot.contentMode = .scaleAspectFit
+                pilot.isAccessibilityElement=false
+                pilot.widthAnchor.constraint(equalToConstant:117).isActive=true
+                pilot.heightAnchor.constraint(equalToConstant:117).isActive=true
+                let hero=UIStackView(arrangedSubviews:[logo,pilot])
+                hero.axis = .horizontal
+                hero.alignment = .center
+                hero.spacing = 3
+                hero.heightAnchor.constraint(equalToConstant:118).isActive=true
+                stack.addArrangedSubview(hero)
+            } else {
+                stack.addArrangedSubview(logo)
+            }
             let headline=label(title,31,.white,stack)
             headline.backgroundColor=UIColor(red:0.015,green:0.25,blue:0.56,alpha:0.96)
             headline.layer.cornerRadius=23
