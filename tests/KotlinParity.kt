@@ -11,7 +11,8 @@ fun main() {
             check(seen.add(sig)) { "duplicate $w:$n" }
             check(l.gates.size in 11..15)
             check(l.speed in 140f..212f)
-            check(l.gates.all {it.gap>=165f})
+            check(l.gates.all {it.gap>=165f && it.width in 48f..88f})
+            check(l.gates.map {it.width}.toSet().size>=3)
             check(l.gates.all {LevelEngine.opening(it,100f).let {o->o.bottom-o.top>=145f} })
             checked++
         }
@@ -19,7 +20,7 @@ fun main() {
             val l=LevelEngine.create(w,n)
             val fmt=java.lang.String.format(java.util.Locale.US,"%.4f",l.speed)
             val gap=java.lang.String.format(java.util.Locale.US,"%.4f",l.gates[0].gap)
-            println("V|$w|$n|${l.zone}|${l.type}|${l.gates.size}|$fmt|$gap|${LevelEngine.signature(l)}")
+            println("V|$w|$n|${l.zone}|${l.type}|${l.gates.size}|$fmt|$gap|${LevelEngine.signature(l)}|${l.gates.take(5).joinToString(","){it.width.toInt().toString()}}")
             check(l.gates.take(10).mapIndexed {i,g -> (((g.center-332f)/26f).toInt() shl (i*2)) }.fold(0) {a,b->a or b} == n-1)
         }
     }
@@ -32,6 +33,14 @@ fun main() {
         check(x.gates.size>=11 && x.gates.all{LevelEngine.opening(it,123f).let {o->o.bottom-o.top>=145f}})
         println("S|4|$ordinal|${LevelEngine.signature(x)}")
     }
+    for(world in 0 until 8) {
+        val tap=GameSimulation(LevelEngine.create(world,1))
+        check(!tap.active && tap.radius==18f)
+        tap.flap();check(tap.active && tap.flaps==1 && tap.velocity == -255f)
+        val before=tap.y
+        tap.step(.016f);check(tap.y<before)
+        tap.flap();check(tap.flaps==2)
+    }
     val continuous=GameSimulation(LevelEngine.createStream(0,1_048_576L),endless=true,initialOrdinal=1_048_576L)
     check(continuous.displayLevel==1_048_576L)
     val s=GameSimulation(LevelEngine.create(0,1))
@@ -43,7 +52,7 @@ fun main() {
     // before the pillar shaft, and the run must end within this frame.
     run {
         val level=LevelEngine.create(0,2)
-        val hit=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val hit=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val custom=level.copy(gates=listOf(hit),speed=140f,wind=0f)
         val direct=GameSimulation(custom)
         direct.flap();direct.step(1f/60f)
@@ -54,7 +63,7 @@ fun main() {
     }
     run {
         val level=LevelEngine.create(0,2)
-        val safe=level.gates[0].copy(x=154f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val safe=level.gates[0].copy(x=148f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
         val run=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f))
         run.flap();run.step(1f/60f)
         check(!run.finished) {"False collision inside safe gap"}
