@@ -1,3 +1,13 @@
+## Iteration 25 — sky-island cloud depth and live premium HUD
+
+**Source mismatch found:** World illustration generation still ended each background with an opaque solid ground-colored rectangle at y=757, even after the native overpaint stripe was removed in v0.1.51. All eight rebuilt background rasters now use per-biome layered cloudbanks with irregular silhouettes instead, retaining their full artwork extent and original world index mapping.
+
+**HUD mismatch addressed:** Rendered coin, star, ordinal and power-up counters had flat midnight rectangles and an abstract coin dot. Android/iOS now draw equivalent cyan-outlined translucent blue pills, a layered crown coin emblem and reflective trim. All numeric values remain sourced from real game state, independent of concept screenshot numbers. Existing accessibility and Pause button architecture are untouched.
+
+**Regression scope:** World generators and the Android/iOS HUD helpers have shared source tests. iOS crown typeface is retained rather than repeatedly created in the frame loop. No gameplay rebalancing, changes to virtual coins, save migration or collision boundaries.
+
+**Remaining visual deficit:** The supplied reference depicts high-detail 3D-like models, volumetric waterfalls, sculpted buttons and very detailed environment assets. The current shared SVG-to-raster art is still a 2D illustration. Screenshot evidence and pixel-diff results for all ten screens are needed before any honest 1:1 claim.
+
 ## Iteration 24 — full-height background, actual screenshots and README integrity
 
 - Android GameView and iOS GameCanvas previously drew an opaque solid-color ground stripe from logical coordinate y=751 to the bottom of their 480×800 gameplay scene after restoring the canvas. That stripe erased foreground fantasy world details independently of the painted world raster. Both paths now draw the complete illustrative scene and rely on their already-existing full-viewport sky fill for letterboxes.
