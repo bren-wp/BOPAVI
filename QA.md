@@ -1,3 +1,12 @@
+## v0.1.48 — idle preview, accessibility and frame scheduling
+
+- On Android 15/16 emulator and iOS simulator, start a new flight from the pilot picker: the dark translucent DODIRNI ZA LET hint appears before the first flap. No premature gameplay HUD or Pause button.
+- Leave the idle preview visible for 10 seconds. Android should not request recurring frame invalidations and iOS should not start a CADisplayLink. Verify no blank/stale first frame.
+- Touch once, then inspect one flap event, one equipped-boost deduction, activated HUD/Pause, hidden idle hint and smoothly advancing scenery. Repeated touch continues flight without resetting progress.
+- Test Android TalkBack activate and iOS VoiceOver activate: the accessibility click also flaps exactly once, without consuming purchased boosts again.
+- Pause, open the in-pause settings panel, resume, background/foreground the app, and use reduced motion. Observe stable frame timing and no rendering loop while paused.
+- Preserve original local saves and level/character IDs; compare true device/simulator screenshots against the ten concept references. Physical-device performance and 1:1 art are not yet verified.
+
 ## v0.1.47 CI failure diagnosis and regression fix
 
 - Android 15 emulator proved BOPAVI installed/launched successfully and captured `android-home.png`, then stopped at the **outdated smoke assertion** `home must expose one accessible clickable POSTAVKE, got 2`. Both visible references show top settings gear and a separate central settings button.
