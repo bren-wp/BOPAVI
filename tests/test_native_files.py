@@ -1909,3 +1909,22 @@ for controller in (android_menu,ios_menu):
     assert all(name in controller for name in ('Vihor','Iskra','Orion'))
     assert not any(text in controller for text in ('Portantin:','Noa:','Any:'))
 print('PASS: 3 individual premium birds, stable skin indices and legacy save alias mapping')
+
+# v0.1.62 — API36's slow Surface compositor otherwise exposes only the
+# idle frame and later Results. A real debug-only first-flap state remains
+# renderable until a second genuine touch continues the actual simulation.
+# No non-debuggable binary can activate this screenshot timing accommodation.
+android_view=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+assert 'qaCaptureFirstFlap:Boolean = false' in android_view
+assert 'ApplicationInfo.FLAG_DEBUGGABLE' in android_view
+assert 'qaCaptureFirstFlap &&' in android_view
+assert 'if(qaCaptureEnabled) qaWaitingForCapture=true' in android_view
+assert 'if(!paused && !qaWaitingForCapture && !game.finished)' in android_view
+assert 'if(!paused && !qaWaitingForCapture && game.active' in android_view
+assert 'qaWaitingForCapture=false' in android_view and 'lastFrame=0L' in android_view
+assert 'game.flap()' in android_view.split('if(qaWaitingForCapture)',1)[1].split('} else {',1)[0]
+assert 'qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true' in android_menu
+assert 'adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true' in qa
+assert 'adb shell input tap "$center" "$((height*50/100))"' in qa_flight_loop
+assert 'qaWaitingForCapture' not in ios_canvas and 'qaCaptureFirstFlap' not in ios_menu
+print('PASS: real debug-only first-flap capture, production physics unchanged, second-touch resume')
