@@ -246,8 +246,8 @@ assert 'im.save(assets/(name+".png"),optimize=True)' in worlds
 
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios=(root/'ios/BOPAVI/GameController.swift').read_text()
-assert 'R.drawable.splash' in android and 'CENTER_CROP' in android
-assert 'UIImage(named:"LaunchArt")' in ios and 'scaleAspectFill' in ios
+assert 'R.drawable.homeback' in android and 'CENTER_CROP' in android
+assert 'UIImage(named:"HomeArt")' in ios and 'scaleAspectFill' in ios
 for source in (android,ios):
     assert '🔒' in source and '▶  IGRAJ' in source
 ci=(root/'.github/workflows/native-ci.yml').read_text()
@@ -1539,3 +1539,22 @@ assert 'number.topAnchor.constraint(equalTo:tile.topAnchor,constant:12)' in ios_
 assert 'worldTile(row,w){showLevels(w,1)}' in android_menu
 assert 'worldTile(world,in:row){self.showLevels(world,page:1)}' in ios_menu
 print('PASS: compact Android/iOS world gallery with interactive 2x4 image cards and real star counts')
+
+# v0.1.53 — the OS launch image and fully interactive home menu have distinct
+# scene compositions. Both are generated from approved existing art for the
+# exact same Android/iOS assets; progress bar is never faked in a still image.
+image_source=(root/'tools/generate_images.py').read_text()
+assert "home_art.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)" in image_source
+assert "launch_art.paste(logoCrop,((900-logoCrop.width)//2,865),logoCrop)" in image_source
+assert "home_art.save(a/'drawable-nodpi/homeback.png'" in image_source
+assert "home_art.save(b/'HomeArt.imageset/home.png'" in image_source
+assert "launch_art.save(a/'drawable-nodpi/splash.png'" in image_source
+assert "launch_art.save(b/'LaunchArt.imageset/launch.png'" in image_source
+assert "b/'HomeArt.imageset/Contents.json'" in image_source
+assert 'setImageResource(R.drawable.homeback)' in android_menu
+assert 'UIImage(named:"HomeArt")' in ios_menu
+assert "android:drawable=\"@drawable/splash\"" in (root/'android/app/src/main/res/drawable/bopavi_startup.xml').read_text()
+assert "<string>LaunchArt</string>" in (root/'ios/BOPAVI/Info.plist').read_text()
+for live in ('showPilotPicker(world,progress.streamFrontier(world))','showWorlds()','showSettings()'):
+    assert live in android_menu
+print('PASS: distinct, shared Android/iOS launch/home graphics preserve live menu controls')
