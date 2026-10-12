@@ -4,7 +4,7 @@
 2. Tap once to flap: only the aura softly expands in the already-existing 240 ms response window. Hitboxes, wing geometry and the physical flight arc must stay unchanged, including collisions and shield/magnet activation.
 3. Turn on Nježnije animacije and restart flight. Aura should remain at its baseline scale, without pulsing or creating additional bitmap/gradient allocations per frame.
 4. Leave and resume the app mid-flight; verify pausing and restarting the real gameplay does not reset a run or reissue coin/reward payouts.
-5. Run static parity/audit tests, Android lint, Kotlin unit tests, real Android emulator screenshot capture, iOS simulator build/smoke, Save migration tests, privacy audit and verify final release asset hashes. Record screenshots and visual gaps; **do not claim 1:1 3D illustration parity** until independent comparison confirms it.
+5. Run static parity/audit tests, Android lint, Kotlin unit tests, real Android emulator screenshot capture, iOS simulator build/smoke, Save migration tests and privacy audit. Verify release `SHA256SUMS.txt` has 13 entries matching the published unchanged filenames and byte-for-byte downloads. Record screenshots and visual gaps; **do not claim 1:1 3D illustration parity** until independent comparison confirms it.
 
 ## v0.1.58 — profile visual and saved-value parity
 
