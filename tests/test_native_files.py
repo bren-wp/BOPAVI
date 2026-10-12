@@ -1838,3 +1838,32 @@ assert 'dist/BOPAVI-Android-Settings.png' in workflow
 assert 'BOPAVI-Android-Settings.png' in (root/'README.md').read_text()
 assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
 print("PASS: responsive settings glass panels, saved pilot, functional audio/privacy, screenshot proof")
+
+# v0.1.61 — world + mascot artwork is regenerated from the same source
+# files for both platforms; animated feathers belong to their owning wing.
+hero_xml=ET.parse(root/'docs/assets/hero.svg').getroot()
+svg_paths=[e for e in hero_xml.iter() if e.tag.endswith('path')]
+for side in ('left','right'):
+    feather_paths=[e for e in svg_paths if e.attrib.get('data-wing')==side]
+    assert len(feather_paths)>=15,(side,'missing separate animated wing feather contours')
+    assert any(e.attrib.get('fill')=='none' for e in feather_paths),(side,'missing bright feather ribs')
+    assert any(e.attrib.get('fill','').startswith('#') for e in feather_paths),(side,'missing layered feather color')
+hero_svg=(root/'docs/assets/hero.svg').read_text()
+assert 'Rim light and polished-gold bevel' in hero_svg
+assert 'Articulated layered flight feathers' in hero_svg
+source=(root/'tools/generate_worlds.py').read_text()
+for fragment in ('Cinematic landmark pass','id="falls-mist"',
+                 'waterfall_world = index in (0, 1, 2, 4, 5, 6)',
+                 'for n, length in enumerate((166, 189, 154, 174, 132))',
+                 'for n in range(9):','for n in range(6):',
+                 'for n in range(5):','cinematic'):
+    assert fragment.lower() in source.lower(),fragment
+generator=(root/'tools/generate_images.py').read_text()
+assert "wing_parts={side:" in generator
+assert "for side in ('left','right')" in generator
+assert "wing=recolor(original_wing,hue)" in generator
+assert "Image.alpha_composite(wings,body)" in generator
+# No gameplay math, saved skin identifiers or distribution signing touched.
+assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+print('PASS: 30+ animated feather contours, gold goggle bevels and shared eight-world skyfalls')
