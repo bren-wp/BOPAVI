@@ -1,3 +1,11 @@
+## v0.1.62 — Authentic results screenshot integrity (build 65)
+
+- Fixed a real release-quality defect found by inspecting v0.1.61 GitHub asset SHA-256 digests: `BOPAVI-Android-Results.png` had the **same pixels** as `BOPAVI-Android-Flight-Active.png`, despite its Results filename and separate accessibility-tree tests.
+- Android emulator QA now waits for a confirmed **PONOVO / Results UI**, captures a fresh screenshot after an actual render wait, and retries up to eight bounded times until the Results PNG differs from **both** idle and active gameplay captures. Repeated identical frames cause a hard CI failure with a diagnostic capture; no fallback or fabricated image.
+- GitHub Release staging independently checks SHA-256 of `BOPAVI-Android-Results.png` against both gameplay images. A mislabeled or stale Results screenshot can no longer be published with a green Release workflow.
+- Added cross-platform source/CI regression tests, maintained all 15 release attachments, real result values, local progress, all nine pilots, physics and hitboxes. Versions synchronized at 0.1.62 / build 65.
+- **1:1 status:** Screenshot correctness is a prerequisite to measurement, not proof of pixel-identical 3D reference art.
+
 ## v0.1.61 — Animated Bopi feather detail and cinematic fantasy worlds (build 64)
 
 - Reworked the official Bopi SVG source with **30 separately animated, wing-owned feather paths** (15 left / 15 right), layered sky-blue and white feather ribs, richer optical glints, polished gold goggle rims and scarf highlights. The existing two animated wing layers extract those paths automatically: the feathers now actually move with the real flap rather than staying fixed to the torso.
