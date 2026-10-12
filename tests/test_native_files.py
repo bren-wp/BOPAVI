@@ -1532,7 +1532,7 @@ assert 'let detail=UILabel()' not in ios_tile
 assert 'artPanel.addView(TextView(this).apply' in android_tile
 assert 'collection.text="★ \\(progress.worldStars(world))/30' in ios_tile
 assert 'text="★ ${progress.worldStars(world)}/30' in android_tile
-assert 'FrameLayout.LayoutParams(-1,d(132))' in android_tile
+assert 'row.addView(artPanel,LinearLayout.LayoutParams(-1,d(132)))' in android_tile
 assert 'tile.heightAnchor.constraint(equalToConstant:144)' in ios_tile
 assert 'footerShade.topAnchor.constraint(equalTo:tile.topAnchor,constant:83)' in ios_tile
 assert 'number.topAnchor.constraint(equalTo:tile.topAnchor,constant:12)' in ios_tile
