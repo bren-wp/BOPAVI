@@ -435,6 +435,11 @@ jobs:
           if sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest():
               raise SystemExit('Active gameplay screenshot is identical to idle flight; release blocked')
           print('PASS: distinct actual preflight and active flight PNG frames')
+          results=Path('dist/BOPAVI-Android-Results.png')
+          for earlier in (ready,active):
+              if sha256(results.read_bytes()).digest()==sha256(earlier.read_bytes()).digest():
+                  raise SystemExit(f'Results screenshot duplicates gameplay screenshot: {earlier.name}; release blocked')
+          print('PASS: results UI screenshot distinct from both idle and active gameplay')
           PY
       - name: Verify exact-version assets and explicitly unsigned Android bundle
         run: |
