@@ -1,3 +1,10 @@
+## v0.1.47 — real illustrated home header navigation (build 50)
+
+- Brought the Android/iOS home header closer to the supplied BOPAVI reference: the current unlocked pilot avatar is now visible, alongside separately tappable best-score and earned-coin capsules and an actual settings shortcut. All four are accessible buttons with real navigation, not flat screenshot elements.
+- Avatar opens offline Profile; high score opens Achievements; earned coins open the existing offline coin shop with home return semantics; gear opens Settings. Preserved navigation on both platforms, game progress, existing pilots, levels and earned-coin economy. No unsupported gem counter, cloud accounts, payment UI or promotional ads.
+- Made narrow-phone top controls 48dp/pt high with equally expanding data capsules and accessible descriptions; icons remain independent of artwork. Existing bottom four-tab navigation and hero remain functional.
+- Added cross-platform source regression checks and manual emulator accessibility/layout checklist. Android+iOS v0.1.47 (build 50). Exact pixel parity with supplied reference graphics remains unverified.
+
 ## v0.1.46 — honest locked-page navigation and page status (build 49)
 
 - Fixed a cross-platform UX bug introduced in the v0.1.45 future-page preview: locked preview-only pages still exposed **NASTAVI LET**, which launched the saved frontier rather than any level shown on screen. The Continue action is now rendered only on pages containing unlocked levels.

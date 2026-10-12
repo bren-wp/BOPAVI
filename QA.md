@@ -1,3 +1,10 @@
+## v0.1.47 — accessible interactive home header
+
+- Check header on narrow Android 15/16 and iOS simulator: selected Bopi avatar is visible, best score and earned coins are real local values, and settings gear is reachable without scrolling. No control overlap with cutouts, hero, safe areas or navigation.
+- Tap avatar: actual Profile, back Home. Tap top score: Achievements, back Home. Tap coins: offline Coin Shop, back Home. Tap settings: Settings, back Home. Repeat after selecting a different owned character and buying a skin; avatar and coin values must update when returning home.
+- Verify VoiceOver/TalkBack reads all four independent actions and narrow display + larger accessibility text scales. No fake diamonds, unimplemented login or real-money items; game state survives navigation.
+- Verify Android 15/16 emulator and iOS simulator/device compilation, signed production store packaging remains a separate requirement. Pixel-perfect 1:1 reference comparison not yet approved.
+
 ## v0.1.46 — Android emulator system launcher recovery
 
 - GitHub-hosted Android API35 occasionally renders the verified system dialog `Pixel Launcher isn't responding` over an otherwise running BOPAVI app immediately after boot. Recover only the exact system alert and re-dump the live app UI before judging home navigation.

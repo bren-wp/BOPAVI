@@ -350,13 +350,65 @@ class MainActivity : Activity() {
         }
         scroll.addView(layout)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
-        // Preserve the artwork logo, keep score and coin values live.
-        val wallets=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-        wallets.addView(chip("🏆  ${progress.bestPoints()}"),
-            LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(6)})
-        wallets.addView(chip("●  ${progress.coins()}"),
-            LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(6)})
-        layout.addView(wallets,LinearLayout.LayoutParams(-1,-2))
+        // All four header elements are accessible live actions, never
+        // screenshots or non-clickable mock currency. Use the saved pilot.
+        val wallets=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+        }
+        val avatar=ImageView(this).apply{
+            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
+                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+                R.drawable.bopiportrait8)
+            setImageResource(portraits[progress.skin().coerceIn(0,8)])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
+                shape=GradientDrawable.OVAL
+                setStroke(d(2),gold)
+            }
+            clipToOutline=true
+            setPadding(d(3),d(3),d(3),d(3))
+            isClickable=true;isFocusable=true
+            contentDescription="PROFIL · ${progress.skinNames[progress.skin().coerceIn(0,8)]}"
+            setOnClickListener{sound.effect("click");showProfile()}
+        }
+        wallets.addView(avatar,LinearLayout.LayoutParams(d(50),d(50)).apply{
+            rightMargin=d(5)
+        })
+        val best=chip("🏆  ${progress.bestPoints()}").apply{
+            setTextColor(Color.WHITE)
+            setPadding(d(4),d(9),d(4),d(9))
+            isClickable=true;isFocusable=true
+            contentDescription="ZADACI I POSTIGNUĆA · najbolji rezultat ${progress.bestPoints()}"
+            setOnClickListener{sound.effect("click");showAchievements(MenuOrigin.HOME)}
+        }
+        wallets.addView(best,LinearLayout.LayoutParams(0,d(48),1f).apply{
+            rightMargin=d(4)
+        })
+        val coins=chip("♛  ${progress.coins()}").apply{
+            setTextColor(gold)
+            setPadding(d(4),d(9),d(4),d(9))
+            isClickable=true;isFocusable=true
+            contentDescription="TRGOVINA · ${progress.coins()} osvojenih kovanica"
+            setOnClickListener{sound.effect("click");showPerks(MenuOrigin.HOME)}
+        }
+        wallets.addView(coins,LinearLayout.LayoutParams(0,d(48),1f).apply{
+            rightMargin=d(4)
+        })
+        val gear=TextView(this).apply{
+            text="⚙";textSize=27f;gravity=Gravity.CENTER
+            setTextColor(Color.WHITE)
+            background=gradient(0xff147bdc.toInt(),0xff05265c.toInt(),18).apply{
+                setStroke(d(2),electric)
+            }
+            isClickable=true;isFocusable=true
+            contentDescription="POSTAVKE"
+            setOnClickListener{sound.effect("click");showSettings()}
+        }
+        wallets.addView(gear,LinearLayout.LayoutParams(d(48),d(48)))
+        layout.addView(wallets,LinearLayout.LayoutParams(-1,d(52)))
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
