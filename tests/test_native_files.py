@@ -1733,4 +1733,10 @@ assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
 assert 'hero.axis = .horizontal' in ios_profile
 assert 'contentDescription=navNames[index]' in android_profile
 assert 'tab.accessibilityLabel=item.1' in ios_profile
+assert 'qa/screenshots/android-profile.png' in android_emulator
+assert 'dedicated PROFILE screen shows saved pilot data and real screenshot' in android_emulator
+assert "'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png'" in workflow
+assert 'dist/BOPAVI-Android-Profile.png' in workflow
+assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
+print('PASS: verified genuine profile screenshot required in release and README')
 print('PASS: live offline profile, award thresholds, premium world previews and four real native tabs on both platforms')
