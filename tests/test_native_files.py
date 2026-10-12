@@ -555,7 +555,7 @@ for new_bird in ('vihor','iskra','orion'):
     asset=root/'docs/assets'/f'{new_bird}.svg'
     assert asset.is_file()
     svg=ET.parse(asset).getroot()
-    assert svg.attrib['viewBox']=='-65 -65 130 130'
+    assert svg.attrib['viewBox']=='-80 -80 160 160'
     groups=[element.attrib.get('id') for element in svg.iter()]
     assert groups.count('wing-left')==1 and groups.count('wing-right')==1
     assert new_bird in artgen
@@ -753,7 +753,7 @@ for inventory in catalogs:
     assert '0..8' in inventory or '0...8' in inventory
 for index,character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
     document=ET.parse(root/'docs/assets'/f'{character}.svg').getroot()
-    assert document.attrib['viewBox']=='-65 -65 130 130'
+    assert document.attrib['viewBox']=='-80 -80 160 160'
     identifiers=[element.get('id') for element in document.iter()]
     assert identifiers.count('wing-left')==1 and identifiers.count('wing-right')==1
     assert f"'{character}'" in artgen
@@ -1475,9 +1475,9 @@ wing_layers=[
 ]
 assert wing_layers.count('left')>=4 and wing_layers.count('right')>=4
 assert 'id="irisBopi"' in bird_markup and 'id="featherGlint"' in bird_markup
-assert 'fill="#7e2929"' in bird_markup and 'fill="#f56675"' in bird_markup
+assert 'fill="#672536"' in bird_markup and 'fill="#fc7681"' in bird_markup
 assert 'Q-50 -145 -13 -162' in bird_markup
-assert 'M2 35Q34 27 92 50' in bird_markup
+assert 'M-4 30Q16 16 49 20' in bird_markup
 generation=(root/'tools/generate_images.py').read_text()
 assert 'shadow_oval' in generation and "body_markup.replace(shadow_oval,'',1)" in generation
 assert 'wing_parts={side:' in generation
@@ -2029,3 +2029,32 @@ assert 'verify_idle_preview' in qa
 assert 'Poleti u novu avanturu.' in ios_menu
 assert 'Odaberi letača i poleti u novu avanturu.' in android_menu
 print("PASS: dead-resource removal, 4-scope audit and real-process-only Android launcher recovery")
+
+# v0.1.66 — attached bill, complete wing margins and true shoulder joints.
+hero=(root/'docs/assets/hero.svg').read_text()
+assert 'Connected white muzzle anchors the bill directly to Bopi' in hero
+assert 'Q91 70 65 81' in hero, 'lower jaw lost'
+assert 'stroke="#fff4b2"' in hero, 'upper bill gloss lost'
+assert 'M2 35Q34 27 92 50' not in hero, 'old detached beak returned'
+generator=(root/'tools/generate_images.py').read_text()
+assert 'viewBox="-80 -80 160 160" width="512" height="512"' in generator
+for pilot in ('vihor','iskra','orion'):
+    source=(root/'docs/assets'/f'{pilot}.svg').read_text()
+    assert 'viewBox="-80 -80 160 160"' in source
+    assert 'M-12 13 Q0 7 13 13' in source, (pilot,'smile missing')
+    assert 'M-13 34 Q0 39 15 33' in source, (pilot,'scarf must lie below bill')
+for name,source in (('Android',android_render),('iOS',ios_render)):
+    for token in ('wingLeftPivot','wingRightPivot') if name=='Android' else ('leftWingPivot','rightWingPivot'):
+        assert token in source,(name,token)
+    assert ('160f else 148f' in source) if name=='Android' else ('160 : 148' in source)
+assert 'private val birdRect=RectF(-birdSize*.5f' in android_render
+assert 'sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))' in ios_render
+assert 'rotate(flap,wingLeftPivotX,wingLeftPivotY)' in android_render
+assert 'rotate(-flap,wingRightPivotX,wingRightPivotY)' in android_render
+assert 'left.draw(in:CGRect(x:-half-leftWingPivot.x,' in ios_render
+assert 'right.draw(in:CGRect(x:-half-rightWingPivot.x,' in ios_render
+assert (root/'tools/verify_pilot_sprite_anatomy.py').is_file()
+assert 'python tools/verify_pilot_sprite_anatomy.py' in workflow
+assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+print('PASS: fixed anatomy, zero-crop wings, live 148/160px pilot art and unchanged collision model')
