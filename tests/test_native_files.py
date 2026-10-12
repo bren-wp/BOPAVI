@@ -349,7 +349,7 @@ for store in (android_save,ios_save):
     assert "difficulty" in store
     assert "if(world==maxWorld()" not in store and "if world==maxWorld()" not in store
 for ui in (android,ios):
-    assert "LOKALNA LJESTVICA" in ui and "POSTIGNUĆA" in ui
+    assert "MOJI REKORDI" in ui and "POSTIGNUĆA" in ui
     assert "Težina se primjenjuje na sljedeći let" in ui
 assert "if(accessible)" not in android and "if accessible" not in ios
 
@@ -662,7 +662,7 @@ android_settings=android_menu.split("private fun showSettings()",1)[1].split("ov
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
     for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
-                  "LIKOVI","TRGOVINA KOVANICAMA","LOKALNA LJESTVICA"):
+                  "LIKOVI","TRGOVINA KOVANICAMA","MOJI REKORDI"):
         assert title in settings
     assert 'showSkins()' in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
