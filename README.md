@@ -98,7 +98,7 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 
 ## Tvoj letački dnevnik
 
-**Svaki let ostavlja trag.** U vlastitom profilu vidiš odabranog pilota, osvojene rezultate, prikupljene kovanice, dovršene levele i pobjede. Četiri sjajne značke prate tvoje stvarne uspjehe, a tri najbolja svijeta vode te ravno do sljedećih izazova.
+**Svaki let ostavlja trag.** U vlastitom profilu vidiš odabranog pilota, osvojene rezultate, prikupljene kovanice, dovršene levele i pobjede. Četiri sjajne značke jasno prikazuju što je potrebno za svaki uspjeh, a tri najbolja svijeta vode te ravno do sljedećih izazova. Zlatna traka prikazuje koliko si zvjezdica osvojio u odabranom svijetu, bez izmišljenih iskustvenih bodova.
 
 Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju — sve je povezano s tvojim napretkom spremljenim na uređaju. **Nema obavezne registracije, izmišljenih nagrada ni računa u oblaku.**
 
