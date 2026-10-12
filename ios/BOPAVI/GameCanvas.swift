@@ -207,6 +207,7 @@ final class GameCanvas: UIView {
     }
     private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
+    private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudLabelFont=UIFont.systemFont(ofSize:13,weight:.bold)
     private let hudLevelFont=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
@@ -247,7 +248,7 @@ final class GameCanvas: UIView {
         oval(c,17,25,37,45,0xf9a70e)
         oval(c,21,29,29,37,0xffdf5f)
         oval(c,24,32,23,30,0xec9500)
-        hudText("♛",24,31,UIFont.systemFont(ofSize:22,weight:.heavy),0xfff3a4)
+        hudText("♛",24,31,hudCoinFont,0xfff3a4)
     }
     private func drawBoostHUD(_ c:CGContext) {
         // Real earned coins, stars and ordinal; x>405 remains tappable Pause.
