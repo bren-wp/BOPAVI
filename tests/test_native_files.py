@@ -1434,3 +1434,12 @@ assert 'UIImageView(image:UIImage(named:icon))' in ios_home
 assert 'tab.accessibilityLabel=title' in ios_home
 assert 'Nav*.imageset/' in (root/'.github/workflows/native-ci.yml').read_text()
 print('PASS: unobscured logo placement and 4 shared accessible native footer icons')
+
+# Reference mascot identity: no legacy pink tail/scarf; badge is a real
+# drawable element in the one shared Bopi source.
+bopi_svg=(root/'docs/assets/hero.svg').read_text()
+assert 'fill="#f53760"' not in bopi_svg
+assert 'stroke="#f33f5e"' not in bopi_svg
+assert 'stroke="#1164c9"' in bopi_svg
+assert 'L-12 84 1 94 14 83' in bopi_svg
+print('PASS: blue pilot scarf and crown identity shared with animated body source')
