@@ -1459,6 +1459,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         portraitBox.layer.cornerRadius=20
         portraitBox.layer.borderWidth=2
         portraitBox.layer.borderColor=UIColor(red:1,green:0.76,blue:0.30,alpha:1).cgColor
+        portraitBox.isAccessibilityElement=true
+        portraitBox.accessibilityLabel="Letački profil, "+progress.playerName+", lik "+progress.skinNames[skin]
         portraitBox.widthAnchor.constraint(equalToConstant:124).isActive=true
         let portrait=UIImageView(image:UIImage(named:"BopiPortrait"+String(skin)))
         portrait.contentMode = .scaleAspectFit
