@@ -2058,3 +2058,13 @@ assert 'python tools/verify_pilot_sprite_anatomy.py' in workflow
 assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: fixed anatomy, zero-crop wings, live 148/160px pilot art and unchanged collision model')
+
+# v0.1.66 floating island obstacle polish is visual only, inside the old
+# top/bottom shaft bounds; no physics or save changes.
+assert 'private fun drawRockFacets(' in android_render
+assert 'private func drawRockFacets(' in ios_render
+assert 'drawRockFacets(c,x,w,2f,top-30f)' in android_render
+assert 'drawRockFacets(c,x,w,bottom+28f,751f)' in android_render
+assert 'drawRockFacets(c,x,w,2,top-30)' in ios_render
+assert 'drawRockFacets(c,x,w,bottom+28,751)' in ios_render
+print('PASS: both native gameplay paths draw faceted, textured island cliffs')
