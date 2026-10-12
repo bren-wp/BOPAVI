@@ -1,3 +1,11 @@
+## v0.1.48 — first-flight accessibility and idle performance (build 51)
+
+- Android Canvas no longer continually invalidates its static first-flight preview. The first tap immediately starts normal rendering, with reduced-motion support unchanged.
+- iOS Core Graphics now presents the matching DODIRNI ZA LET in-game label. CADisplayLink runs only during active, unpaused gameplay and resets elapsed-time state across resume.
+- Android TalkBack click and iOS VoiceOver activation execute the same flap path as normal touch, rather than being inert. The first-flap boost and pause reveal remain single-shot.
+- Added source-level regression guards and version parity. Physics, score calculations, pilot save IDs, coin balances and level progression remain unchanged.
+- Android/iOS v0.1.48 (build 51) requires green emulator/simulator/build QA before release. Exact pixel fidelity to the premium reference illustrations is not claimed.
+
 ## v0.1.47 — real illustrated home header navigation (build 50)
 
 - Brought the Android/iOS home header closer to the supplied BOPAVI reference: the current unlocked pilot avatar is now visible, alongside separately tappable best-score and earned-coin capsules and an actual settings shortcut. All four are accessible buttons with real navigation, not flat screenshot elements.

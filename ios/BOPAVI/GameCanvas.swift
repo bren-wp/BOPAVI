@@ -7,6 +7,8 @@ final class GameCanvas: UIView {
     let skinIndex: Int
     private let boostFont=UIFont.systemFont(ofSize:16,weight:.heavy)
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
+    private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
+        .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
@@ -43,7 +45,13 @@ final class GameCanvas: UIView {
     private var link: CADisplayLink?
     private var previous: CFTimeInterval = 0
     private var reported = false
-    var paused = false { didSet { previous = 0;setNeedsDisplay() } }
+    var paused = false {
+        didSet {
+            previous=0
+            if paused {stop()} else {start()}
+            setNeedsDisplay()
+        }
+    }
     private let skyA: [UInt32] = [0x159df7,0x18b5e7,0x418ddc,0x6e287e,0x45aaf6,0x131a4b,0x123969,0x0b123f]
     private let skyB: [UInt32] = [0xd0f8ff,0xffe3b2,0xedfbff,0xffa36d,0xffe9b6,0x7461bc,0x60f6d5,0x5955a9]
     // Biome-specific glints and near-field leaves drawn with Core Graphics.
@@ -65,12 +73,26 @@ final class GameCanvas: UIView {
         self.worldBackdrop=UIImage(named:"World\(game.level.world)")
         super.init(frame:.zero)
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
+        isAccessibilityElement=true
+        accessibilityTraits.insert(.button)
         accessibilityLabel="Dodirni za let Bopija"
         backgroundColor=UIColor(rgb:skyA[game.level.world])
     }
     required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
-    override func didMoveToWindow(){super.didMoveToWindow();if window != nil {start()} else {stop()}}
-    private func start(){guard link == nil else{return};let l=CADisplayLink(target:self,selector:#selector(frameTick(_:)));let hz=Float(min(120,window?.screen.maximumFramesPerSecond ?? 60));l.preferredFrameRateRange=CAFrameRateRange(minimum:30,maximum:reducedMotion ? 30 : hz,preferred:reducedMotion ? 30 : hz);l.add(to:.main,forMode:.common);link=l}
+    override func didMoveToWindow(){
+        super.didMoveToWindow()
+        if window != nil {start();setNeedsDisplay()} else {stop()}
+    }
+    private func start(){
+        // The idle preview is static; only active, unpaused flights require a display link.
+        guard link == nil && window != nil && game.active && !game.finished && !paused else{return}
+        let l=CADisplayLink(target:self,selector:#selector(frameTick(_:)))
+        let hz=Float(min(120,window?.screen.maximumFramesPerSecond ?? 60))
+        l.preferredFrameRateRange=CAFrameRateRange(minimum:30,
+            maximum:reducedMotion ? 30 : hz,preferred:reducedMotion ? 30 : hz)
+        l.add(to:.main,forMode:.common)
+        link=l
+    }
     func stop(){link?.invalidate();link=nil;previous=0}
     @objc private func frameTick(_ l:CADisplayLink){
         if paused {previous=0;return}
@@ -93,14 +115,24 @@ final class GameCanvas: UIView {
             DispatchQueue.main.async { [weak self] in guard let self=self else{return};if self.window != nil {self.onFinished?(self.game)} }
         }
     }
-    override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {
-        super.touchesBegan(touches,with:event)
+    private func triggerFlap(){
         guard !paused && !game.finished else{return}
         let firstFlap = !game.active
         game.flap()
         if firstFlap && game.active {onFlightStarted?()}
         accessibilityLabel="Bopi leti"
         onFlap?()
+        start()
+        setNeedsDisplay()
+    }
+    override func touchesBegan(_ touches:Set<UITouch>,with event:UIEvent?) {
+        super.touchesBegan(touches,with:event)
+        triggerFlap()
+    }
+    override func accessibilityActivate()->Bool {
+        guard !paused && !game.finished else{return false}
+        triggerFlap()
+        return true
     }
     private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
     private func rect(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ rad:CGFloat=0,_ alpha:CGFloat=1){
@@ -149,6 +181,11 @@ final class GameCanvas: UIView {
             gate(c,g,x,i)
         }
         bird(c)
+        // Matches Android idle hint in the 480x800 logical game coordinates.
+        if !game.active && !game.finished {
+            rect(c,71,565,338,73,0x102654,27,0.80)
+            idlePrompt.draw(at:CGPoint(x:240-idlePrompt.size().width/2,y:579))
+        }
         // Before the first actual flight, no HUD overlays the illustrated intro.
         if game.active && !game.finished {
             drawBoostHUD(c)

@@ -1,3 +1,10 @@
+## Iteration 21 — first-flight hint and no idle frame churn
+
+- Android and iOS now share an on-canvas DODIRNI ZA LET prompt at the same 480x800 logical location. It is overlaid on genuine game art and removed on the first flap, not a fake clickable screenshot.
+- Android no longer requests recurring redraws while the preview is idle. iOS starts its display link only after first flap and stops it while paused. TalkBack/VoiceOver activation now triggers the same real flap handler as touch.
+- No physics, save-data, inventory or procedural level semantics changed. Actual perspective, 3D mascot quality, and exact reference composition remain a measurable art gap.
+- Require fresh Android API35/36 and iOS simulator QA evidence before claiming runtime verification; manual pixel comparison and physical-device battery measurements are outstanding.
+
 ## Iteration 20 — interactive BOPAVI home header
 
 - Reference-inspired avatar/earned-currency/settings top bar implemented as true Android/iOS controls. Selected pilot image is from existing checked-in art. Profile, achievements, offline coin shop and settings are actionable; text counters derive from saves.

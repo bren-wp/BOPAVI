@@ -392,6 +392,7 @@ jobs:
             echo "Verified previous publication of $tag at the tested commit with all five artifacts."
             exit 0
           fi
+          python tools/release_notes.py > dist/release-notes.md
           gh release create "$tag" \
             dist/app-debug.apk \
             dist/app-release.aab \
@@ -399,5 +400,5 @@ jobs:
             dist/BOPAVI-iOS-Simulator.zip \
             dist/BOPAVI-iOS-unsigned-device.zip \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "BOPAVI $tag — safer unsigned Android/iOS releases" \
-            --notes "BOPAVI $tag hardens the Android/iOS release pipeline: versions and marketing archive filenames come from verified platform metadata instead of stale hardcoded values; GitHub Gradle builds can no longer be upload-signed through environment variables; both build and publication explicitly reject a signed AAB via JAR signature checks. Android API 35/36 emulator QA, Kotlin lint/tests, iOS simulator launch, Swift tests, unsigned iOS device build, offline gameplay and saved data remain covered. APK is debug; AAB and iOS device build are UNSIGNED and are not Play/App Store distributables. Store approval, hardware testing and exact reference-art parity are not claimed."
+            --title "BOPAVI $tag — Android / iOS" \
+            --notes-file dist/release-notes.md
