@@ -1946,7 +1946,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         player.layer.borderColor=UIColor(red:0.30,green:0.76,blue:1,alpha:0.7).cgColor
         player.heightAnchor.constraint(equalToConstant:52).isActive=true
         settingsPanel.addArrangedSubview(player)
-        button("SPREMI IME",in:s,primary:false){
+        button("SPREMI IME",in:settingsPanel,primary:false){
             player.resignFirstResponder()
             self.progress.playerName=player.text ?? ""
             self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
@@ -1967,13 +1967,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);settingsPanel.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
 
-        button("🐤  LIKOVI",in:s,primary:false){self.showSkins()}
-        button("🛍  TRGOVINA KOVANICAMA",in:s,primary:false){self.showPerks()}
-        button("🏆  LOKALNA LJESTVICA",in:s,primary:false){self.showLeaderboard()}
+        button("🐤  LIKOVI",in:settingsPanel,primary:false){self.showSkins()}
+        button("🛍  TRGOVINA KOVANICAMA",in:settingsPanel,primary:false){self.showPerks()}
+        button("🏆  LOKALNA LJESTVICA",in:settingsPanel,primary:false){self.showLeaderboard()}
         sectionHeading("PODACI I PRIVATNOST",in:settingsPanel)
         label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,settingsPanel)
         label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,settingsPanel)
-        button("SPREMI KOPIJU NAPRETKA",in:s,primary:false){
+        button("SPREMI KOPIJU NAPRETKA",in:settingsPanel,primary:false){
             do {
                 let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
                 try self.progress.exportData().write(to:url,options:.atomic)
@@ -1982,7 +1982,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
         }
-        button("VRATI NAPREDAK IZ KOPIJE",in:s,primary:false){
+        button("VRATI NAPREDAK IZ KOPIJE",in:settingsPanel,primary:false){
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
