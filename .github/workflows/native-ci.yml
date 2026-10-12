@@ -48,6 +48,18 @@ jobs:
               assert ios_image.size==(960,1600), (world,'wrong iOS canvas size')
               assert android_image.tobytes()==ios_image.tobytes(), (world,'mismatched pixels')
               assert android_path.read_bytes()==ios_path.read_bytes(), (world,'mismatched PNG')
+          # Both fullscreen scenes must be present in the build artifact
+          # and be byte-identical on Android and iOS.
+          for android_name, ios_name, ios_folder in (
+              ('splash.png','launch.png','LaunchArt'),
+              ('homeback.png','home.png','HomeArt'),
+          ):
+              android_path=Path('android/app/src/main/res/drawable-nodpi')/android_name
+              ios_path=Path('ios/BOPAVI/Assets.xcassets')/f'{ios_folder}.imageset'/ios_name
+              assert android_path.is_file() and ios_path.is_file(), (android_name,ios_name)
+              assert android_path.read_bytes()==ios_path.read_bytes(), (android_name,'mismatched scene')
+          assert (Path('android/app/src/main/res/drawable-nodpi/splash.png').read_bytes()
+                  != Path('android/app/src/main/res/drawable-nodpi/homeback.png').read_bytes()), 'startup/home not distinct'
           # Four decorative icons must have exactly matching Android/iOS pixels.
           for key in ('profile','tasks','collection','shop'):
               android=Path('android/app/src/main/res/drawable-nodpi')/f'nav_{key}.png'
@@ -106,11 +118,13 @@ jobs:
             android/app/src/main/res/drawable-nodpi/hero.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
+            android/app/src/main/res/drawable-nodpi/homeback.png
             android/app/src/main/res/drawable-nodpi/nav_*.png
             ios/BOPAVI/Assets.xcassets/Nav*.imageset/
             ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
+            ios/BOPAVI/Assets.xcassets/HomeArt.imageset/
             android/app/src/main/res/drawable-nodpi/bopi*.png
             ios/BOPAVI/Assets.xcassets/BopiLeft*.imageset/
             ios/BOPAVI/Assets.xcassets/BopiRight*.imageset/
