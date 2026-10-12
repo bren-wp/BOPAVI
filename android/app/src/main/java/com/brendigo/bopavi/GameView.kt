@@ -355,6 +355,43 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+8f+offset,bottom+15f,x+21f+offset,bottom+20f,color,2f)
         rect(c,right,bottom+15f,right+13f,bottom+20f,color,2f)
     }
+    /** Bevelled gold crown coins use real collectible visibility and a single
+     * reusable Path/Paint. No animation-loop asset or shader allocations.
+     * The actual pickup radius stays defined exclusively by GameSimulation.
+     */
+    private fun drawRoyalCoin(c:Canvas,cx:Float,cy:Float,phase:Float) {
+        val pulse=if(reducedMotion)0f else sin(game.time*4.2f+phase)*1.4f
+        val radius=17f+pulse
+        oval(c,cx-radius-4f,cy-radius-4f,cx+radius+4f,cy+radius+4f,0x44ffcf53)
+        oval(c,cx-radius,cy-radius,cx+radius,cy+radius,0xffaa5b09.toInt())
+        oval(c,cx-radius+2f,cy-radius+2f,cx+radius-2f,cy+radius-2f,0xffffc333.toInt())
+        oval(c,cx-radius+5f,cy-radius+5f,cx+radius-5f,cy+radius-5f,0xffec8e07.toInt())
+        oval(c,cx-radius+6f,cy-radius+6f,cx+radius-6f,cy+radius-6f,0xffffb91a.toInt())
+        // A geometric crown is reliable even on devices lacking emoji fonts.
+        path.reset();path.moveTo(cx-8f,cy-5f)
+        path.lineTo(cx-4f,cy);path.lineTo(cx,cy-8f)
+        path.lineTo(cx+4f,cy);path.lineTo(cx+8f,cy-5f)
+        path.lineTo(cx+6f,cy+7f);path.lineTo(cx-6f,cy+7f)
+        path.close();fill(0xfffff0ad.toInt());c.drawPath(path,p)
+        rect(c,cx-6f,cy+5f,cx+6f,cy+8f,0xffffffff.toInt(),1f)
+        oval(c,cx-radius+4f,cy-radius+4f,cx-radius+10f,cy-radius+9f,0xaaffffff.toInt())
+    }
+    /** A visual checkpoint at the real LAST gate. It adds no fake win state,
+     * no hitbox, and never changes the continuous procedural transition.
+     */
+    private fun drawFinishPortal(c:Canvas,cx:Float,cy:Float,phase:Float) {
+        val pulse=if(reducedMotion)0f else sin(game.time*2f+phase)*1.5f
+        val r=30f+pulse
+        oval(c,cx-r-4f,cy-r-4f,cx+r+4f,cy+r+4f,0x3347cfff)
+        fill(0xff164eae.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=6f
+        p.alpha=190;c.drawCircle(cx,cy,r,p)
+        fill(0xff45e9ff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
+        c.drawCircle(cx,cy,r-3.5f,p)
+        fill(0xffe7ffff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
+        p.alpha=210;c.drawCircle(cx,cy,r-7f,p)
+        p.style=Paint.Style.FILL;p.alpha=255
+        text(c,"♛",cx,cy-38f,21f,0xffffdb63.toInt(),true)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -428,12 +465,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         courses(32f,top-34f);courses(bottom+34f,744f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
-                val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
+        val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
+        val finalGate=if(incoming)index==game.upcomingGates().lastIndex
+            else index==game.level.gates.lastIndex
+        if(finalGate)drawFinishPortal(c,middle,center,g.phase)
         if(g.coin && (incoming || game.coinVisible(index))) {
-            val pulse=if(reducedMotion)0f else sin(game.time*5f+g.phase)*2f
-            oval(c,middle-16f-pulse,center-16f-pulse,middle+16f+pulse,center+16f+pulse,pickupHues[g.kind])
-            oval(c,middle-11f,center-11f,middle+11f,center+11f,0x66ffffff)
-            text(c,LevelEngine.collectibleIcons[g.kind],middle,center+7f,18f,Color.WHITE,true)
+            drawRoyalCoin(c,middle,center,g.phase)
         }
         if(g.star && (incoming || game.starVisible(index))){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
         if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
