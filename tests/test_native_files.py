@@ -1414,3 +1414,22 @@ assert 'triggerFlap()' in ios_touch and 'game.flap()' not in ios_touch
 assert 'start()' in ios_flap and 'setNeedsDisplay()' in ios_flap
 assert 'guard !paused && !game.finished else{return false}' in ios_render
 print('PASS: idle frame scheduling, on-canvas prompt and accessible first flap')
+
+# v0.1.49: footer illustration art is built from shared source SVGs
+# and is never a second, inaccessible/fake button.
+render=(root/'tools/generate_images.py').read_text()
+assert '((900-logoCrop.width)//2,230)' in render
+assert '((900-logoCrop.width)//2,130)' not in render
+android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
+ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
+for key in ('profile','tasks','collection','shop'):
+    source=root/'docs/assets'/f'nav-{key}.svg'
+    assert source.is_file()
+    assert '<svg' in source.read_text() and 'viewBox="0 0 128 128"' in source.read_text()
+    assert f'R.drawable.nav_{key}' in android_home
+    assert f'Nav{key.capitalize()}' in ios_home
+assert 'setImageResource(footerIcons[index])' in android_home
+assert 'UIImageView(image:UIImage(named:icon))' in ios_home
+assert 'tab.accessibilityLabel=title' in ios_home
+assert 'Nav*.imageset/' in (root/'.github/workflows/native-ci.yml').read_text()
+print('PASS: unobscured logo placement and 4 shared accessible native footer icons')
