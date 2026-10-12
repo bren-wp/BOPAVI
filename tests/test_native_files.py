@@ -1558,3 +1558,15 @@ assert "<string>LaunchArt</string>" in (root/'ios/BOPAVI/Info.plist').read_text(
 for live in ('showPilotPicker(world,progress.streamFrontier(world))','showWorlds()','showSettings()'):
     assert live in android_menu
 print('PASS: distinct, shared Android/iOS launch/home graphics preserve live menu controls')
+
+# Release gallery now includes an authentic eight-world Android screenshot
+# captured before any scroll, not an exported marketing layout.
+qa_script=(root/'tools/qa_android_emulator.sh').read_text()
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+readme=(root/'README.md').read_text()
+assert "qa/screenshots/android-worlds.png" in qa_script
+assert "bytes.fromhex('89504e470d0a1a0a')" in qa_script
+assert "'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png'" in workflow
+assert "dist/BOPAVI-Android-Worlds.png" in workflow
+assert 'BOPAVI-Android-Worlds.png' in readme
+print('PASS: authentic Android eight-world screenshot is captured and published alongside native builds')
