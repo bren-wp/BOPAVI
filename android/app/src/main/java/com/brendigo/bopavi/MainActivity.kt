@@ -149,11 +149,35 @@ class MainActivity : Activity() {
             }
         }
         showNativeView(root)
-        ImageView(this).apply {
-            setImageResource(R.drawable.logo)
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }.also{body.addView(it,LinearLayout.LayoutParams(-1,d(94)))}
+        if(label=="POSTAVKE") {
+            // Genuine chosen-pilot art beside the wordmark, not a static
+            // screenshot or a fake character. Matches the reference header.
+            val hero=LinearLayout(this).apply {
+                orientation=LinearLayout.HORIZONTAL
+                gravity=Gravity.CENTER_VERTICAL
+            }
+            hero.addView(ImageView(this).apply {
+                setImageResource(R.drawable.logo)
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,d(110),1f))
+            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
+                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+                R.drawable.bopiportrait8)
+            hero.addView(ImageView(this).apply {
+                setImageResource(portraits[progress.skin().coerceIn(0,8)])
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(117),d(117)))
+            body.addView(hero,LinearLayout.LayoutParams(-1,d(118)))
+        } else {
+            ImageView(this).apply {
+                setImageResource(R.drawable.logo)
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }.also{body.addView(it,LinearLayout.LayoutParams(-1,d(94)))}
+        }
         if(label!="BOPAVI")title(body,label,31,Color.WHITE)
         if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,14,0xffc9edff.toInt())
         return body
