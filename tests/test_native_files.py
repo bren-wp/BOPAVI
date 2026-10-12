@@ -1649,7 +1649,7 @@ print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-
 # v0.1.55 release hotfix: slow UI automation may see a result long after
 # a genuine flap. Preserve the ACTUAL in-flight screenshot taken immediately
 # after input, before sleep/dump; do not allow unconfirmed input candidates.
-qa_flight_loop=qa.split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
+qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
 for required in ('capture android-gameplay-active','sleep 1','dump_ui',
                  'rm -f qa/screenshots/android-gameplay-active.png',
                  "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
