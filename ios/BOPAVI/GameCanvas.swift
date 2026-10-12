@@ -193,11 +193,9 @@ final class GameCanvas: UIView {
         }
         // The native premium pause modal owns this layer, without duplicate text.
         c.restoreGState()
-        let groundTop=(bound.height-800*s)/2+751*s
-        if groundTop<bound.height {
-            rect(c,0,groundTop,bound.width,bound.height-groundTop,
-                game.level.world == 5 || game.level.world == 7 ? 0x171f53 : 0x64c881)
-        }
+        // Preserve the painted island/clouds down to the final scene pixel:
+        // a legacy opaque ground-colored stripe covered the bottom artwork.
+        // The full-window sky is already filled before the 480x800 canvas.
     }
     /// Single UIKit-free illustrated HUD: the separately clickable Pause
     /// button remains a real UIButton above the scene, not a painted sprite.

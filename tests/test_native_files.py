@@ -1466,3 +1466,31 @@ assert 'wing_shapes[:2]' not in generation and 'wing_shapes[2:4]' not in generat
 for stable in ("'bopi6','Bopi6'", "((7,'noa'),(8,'any'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
     assert stable in generation
 print('PASS: detailed royal-blue Bopi mascot with truly detached animated feather layers')
+
+# v0.1.51 — backgrounds must not be erased by the legacy solid bottom band.
+# These are genuine 480x800 scenery art layers; physics remains untouched.
+assert 'val groundTop=' not in android_canvas
+assert 'let groundTop=' not in ios_canvas
+assert 'canvas.drawBitmap(worldBitmap,null,worldRect,p)' in android_canvas
+assert 'background.draw(in:CGRect(x:0,y:0,width:480,height:800))' in ios_canvas
+assert 'drawColor(skyA[game.level.world])' in android_canvas
+# Real release captures, NOT the conceptual reference images, are the only
+# source for README screenshots. A missing capture fails publication.
+ci=(root/'.github/workflows/native-ci.yml').read_text()
+readme=(root/'README.md').read_text()
+for image in (
+    'BOPAVI-Android-Home.png','BOPAVI-Android-Pilots.png',
+    'BOPAVI-Android-Flight-Preview.png','BOPAVI-Android-Results.png',
+    'BOPAVI-iOS-Home.png'
+):
+    assert image in ci and image in readme, image
+assert "name: QA-Android-visual-flow" in ci
+assert "name: QA-iOS-home-screenshot" in ci
+assert "Missing authentic emulator screenshot" in ci
+assert "struct.unpack('>II'" in ci
+assert "python tools/audit_native_dead_code.py" in ci
+assert 'MALI LETOVI • VELIKE PRIČE' in readme
+assert '<img src="docs/assets/logo.svg"' in readme
+assert 'Priprema za let' in readme  # preview is not falsely called active flight
+assert 'groundTop' not in android_canvas and 'groundTop' not in ios_canvas
+print('PASS: real device screenshot marketing gallery, full-height world art and native dead-code guard')

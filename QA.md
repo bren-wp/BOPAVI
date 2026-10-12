@@ -1,3 +1,12 @@
+## v0.1.51 — full-height gameplay, marketing screenshots and dead-code QA
+
+- Android API35/API36 and iOS Simulator: capture the game before first flap and during flight. The final 49 logical pixels of each illustrated backdrop must remain intact, including clouds and floating-island scenery. No flat green or midnight-blue band is permitted after drawing the world image. Confirm any letterbox area remains properly sky-filled.
+- Complete actual touch navigation to pilot picker, gameplay and results; check Pause/Continue, game-over, collision, reduced motion, varied aspect ratios and saved progress. Collision bounds and physics must be identical to v0.1.50.
+- Source audit scans all twelve Kotlin/Swift source files for private declarations used only once and Kotlin imports with no reference. Confirm original Android unused `sunset` field and unused `abs`, `max` and `ViewGroup` imports are absent. Preserve OS callbacks and intentionally retained fallback drawing.
+- Publishing after all CI checks: `dist/BOPAVI-Android-Home.png`, `-Pilots.png`, `-Flight-Preview.png`, `-Results.png`, and `BOPAVI-iOS-Home.png` must originate directly from QA artifacts. Validate PNG header and actual portrait dimensions; publish beside the five existing development distribution packages.
+- README must show exactly these authentic captures via the latest GitHub Release, with 'Priprema za let' accurately denoting idle flight. Do not substitute the user-supplied 3D reference marketing mockups for a game screenshot.
+- 1:1 pixel-diff assessment of the supplied reference images, real-world hardware profiling and signed Play/App Store distribution remain separate unmet acceptance requirements.
+
 ## v0.1.50 — high-detail Bopi art and animation QA
 
 - Build with the existing image generator and inspect the actual blue Bopi on Android API35/API36 and iOS Simulator: eyes have inner azure irises and multiple catchlights; the beak is visibly open and positioned centrally enough to read above the scarf; the pilot goggles and gold crown scarf remain legible without overlap.

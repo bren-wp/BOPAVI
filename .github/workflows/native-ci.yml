@@ -128,6 +128,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install --quiet pillow
       - run: python tests/test_native_files.py
+      - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - name: Require a new version for every pull request
         if: github.event_name == 'pull_request'
@@ -370,6 +371,43 @@ jobs:
           path: dist
           pattern: BOPAVI-*
           merge-multiple: true
+      # These images are unmodified pixels captured by actual CI emulators,
+      # not the conceptual BOPAVI marketing reference renders.
+      - uses: actions/download-artifact@v4
+        with:
+          name: QA-Android-visual-flow
+          path: dist/real-screenshots/android
+      - uses: actions/download-artifact@v4
+        with:
+          name: QA-iOS-home-screenshot
+          path: dist/real-screenshots/ios
+      - name: Stage authentic Android and iOS screenshots for README gallery
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from shutil import copyfile
+          import struct
+          captures = {
+              'dist/real-screenshots/android/android-home.png':'BOPAVI-Android-Home.png',
+              'dist/real-screenshots/android/android-pilot-picker.png':'BOPAVI-Android-Pilots.png',
+              'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
+              'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
+              'dist/real-screenshots/ios/BOPAVI-iOS-home.png':'BOPAVI-iOS-Home.png'
+          }
+          for src, dest in captures.items():
+              source=Path(src)
+              if not source.is_file():
+                  raise SystemExit(f'Missing authentic emulator screenshot: {src}')
+              with source.open('rb') as handle:
+                  header=handle.read(24)
+              if len(header)!=24 or header[:8]!=bytes.fromhex('89504e470d0a1a0a') or header[12:16]!=b'IHDR':
+                  raise SystemExit(f'Invalid PNG evidence: {src}')
+              width,height=struct.unpack('>II',header[16:24])
+              if width < 320 or height < 600 or height <= width or source.stat().st_size < 2000:
+                  raise SystemExit(f'Invalid portrait device capture: {src} ({width}x{height})')
+              copyfile(source,Path('dist')/dest)
+              print(f'PASS: real screenshot {dest} ({width}x{height})')
+          PY
       - name: Verify exact-version assets and explicitly unsigned Android bundle
         run: |
           set -euo pipefail
@@ -383,7 +421,7 @@ jobs:
           python tools/verify_play_release.py --aab dist/app-release.aab
           echo "BOPAVI_TAG=$tag" >> "$GITHUB_ENV"
           echo "BOPAVI_PLAY_ARCHIVE=$play_archive" >> "$GITHUB_ENV"
-      - name: Publish only a new tested commit with five verified release files
+      - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -396,7 +434,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -412,6 +450,11 @@ jobs:
             "dist/$BOPAVI_PLAY_ARCHIVE" \
             dist/BOPAVI-iOS-Simulator.zip \
             dist/BOPAVI-iOS-unsigned-device.zip \
+            dist/BOPAVI-Android-Home.png \
+            dist/BOPAVI-Android-Pilots.png \
+            dist/BOPAVI-Android-Flight-Preview.png \
+            dist/BOPAVI-Android-Results.png \
+            dist/BOPAVI-iOS-Home.png \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "BOPAVI $tag — Android / iOS" \
             --notes-file dist/release-notes.md

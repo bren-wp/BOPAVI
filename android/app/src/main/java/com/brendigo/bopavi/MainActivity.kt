@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -39,7 +38,6 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
-    private val sunset = 0xffff8a00.toInt()
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */

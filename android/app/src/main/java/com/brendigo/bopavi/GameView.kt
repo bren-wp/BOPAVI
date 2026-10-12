@@ -14,9 +14,7 @@ import android.graphics.Typeface
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 
@@ -185,11 +183,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
-        val groundTop=(height-800f*scale)/2f+751f*scale
-        if(groundTop<height) {
-            rect(canvas,0f,groundTop,width.toFloat(),height.toFloat(),
-                if(game.level.world==5||game.level.world==7)0xff171f53.toInt() else 0xff64c881.toInt())
-        }
+        // The illustrated world already owns its entire 480x800 canvas.
+        // A former opaque ground stripe hid the lower floating-island scenery,
+        // including on narrow and notched phones. Letterboxing is filled above.
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
         if(!paused && game.active && !game.finished && isAttachedToWindow) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
