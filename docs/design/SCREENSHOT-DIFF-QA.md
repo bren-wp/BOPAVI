@@ -1,3 +1,7 @@
+## v0.1.66 — Tall-screen world scene coverage
+
+Authentic Android CI screenshots at 1080×2400 showed broad plain-color sky bands above/below the fixed 480×800 simulation. Both native renderers now aspect-cover the far biomes across the entire physical screen but retain the original exact physics/HUD/touch transforms. Retest using emulator/device PNG comparisons. This removes one concrete composition gap, **not** the remaining substantial painterly 3D illustration mismatch.
+
 ## v0.1.65 — Accurate device screenshots and pilot-navigation regression
 
 - Production main CI after v0.1.64 failed with real launcher foreground at pilot confirmation, rather than a confirmed in-game idle state. Diagnostic XML from CI artifact `11774864120` establishes the focused UI looked like **Pixel Launcher**. This must not be misreported as a proven app crash or ignored as a test success.
