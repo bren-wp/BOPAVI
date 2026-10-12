@@ -228,13 +228,21 @@ final class GameCanvas: UIView {
             c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),
                 end:CGPoint(x:0,y:bound.height),options:[])
         }
+        // Far scenery fills the physical viewport without stretching Bopi or
+        // moving any 480x800 simulation/hitbox coordinates. On long iPhones
+        // it crops the image horizontally instead of showing empty sky bars.
+        if let world=worldBackdrop, world.size.width>0, world.size.height>0 {
+            let scaleToCover=max(bound.width/world.size.width,
+                                 bound.height/world.size.height)
+            let backdropWidth=world.size.width*scaleToCover
+            let backdropHeight=world.size.height*scaleToCover
+            world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,
+                                 y:(bound.height-backdropHeight)*0.5,
+                                 width:backdropWidth,height:backdropHeight))
+        }
         let s=min(bound.width/480,bound.height/800)
         c.saveGState();c.translateBy(x:(bound.width-480*s)/2,y:(bound.height-800*s)/2);c.scaleBy(x:s,y:s)
-        if let background=worldBackdrop {
-            background.draw(in:CGRect(x:0,y:0,width:480,height:800))
-        } else {
-            background(c)
-        }
+        if worldBackdrop==nil {background(c)}
         drawWorldLighting(c)
         drawParallaxIslands(c)
         // Shared lightweight atmospheric depth, rendered above the fixed landscape.
