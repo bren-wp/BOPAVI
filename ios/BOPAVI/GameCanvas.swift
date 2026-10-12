@@ -25,6 +25,18 @@ final class GameCanvas: UIView {
         }
     }()
 
+    // Reused translucent two-tone light, matched to Android's 74pt aura.
+    // Create gradient colors once rather than inside CADisplayLink.
+    private lazy var birdAuraGradient:CGGradient? = {
+        let colors=[
+            UIColor(red:1,green:243.0/255,blue:187.0/255,alpha:98.0/255).cgColor,
+            UIColor(red:45.0/255,green:169.0/255,blue:1,alpha:58.0/255).cgColor,
+            UIColor(red:45.0/255,green:169.0/255,blue:1,alpha:0).cgColor
+        ] as CFArray
+        return CGGradient(colorsSpace:CGColorSpaceCreateDeviceRGB(),
+                          colors:colors,locations:[0,0.55,1])
+    }()
+
     private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private let birdSprite:UIImage?
     private let leftWing:UIImage?
@@ -675,6 +687,17 @@ final class GameCanvas: UIView {
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
+        // A cached radial cyan/gold light follows the real pilot and flap input.
+        // Never scale the sprite or modify the physical collision radius.
+        if let aura=birdAuraGradient {
+            let auraImpulse:CGFloat=reducedMotion ? 0 : max(0,min(1,CGFloat(game.flapPulse)/0.24))
+            let auraScale:CGFloat=1+auraImpulse*0.13
+            c.saveGState()
+            c.scaleBy(x:auraScale,y:auraScale)
+            c.drawRadialGradient(aura,startCenter:.zero,startRadius:0,
+                                 endCenter:.zero,endRadius:74,options:[])
+            c.restoreGState()
+        }
         let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * .pi / 180
         c.rotate(by:angle)
         let flapStrength:CGFloat = reducedMotion ? 0 : max(0,min(1,CGFloat(game.flapPulse)/0.24))
