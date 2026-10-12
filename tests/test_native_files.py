@@ -2046,7 +2046,7 @@ for pilot in ('vihor','iskra','orion'):
 for name,source in (('Android',android_render),('iOS',ios_render)):
     for token in ('wingLeftPivot','wingRightPivot') if name=='Android' else ('leftWingPivot','rightWingPivot'):
         assert token in source,(name,token)
-    assert ('160f else 148f' in source) if name=='Android' else ('160 : 148' in source)
+    assert ('235f else 220f' in source) if name=='Android' else ('235 : 220' in source)
 assert 'private val birdRect=RectF(-birdSize*.5f' in android_render
 assert 'sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))' in ios_render
 assert 'rotate(flap,wingLeftPivotX,wingLeftPivotY)' in android_render
