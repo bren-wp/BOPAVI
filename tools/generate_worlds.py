@@ -171,6 +171,77 @@ def detailed_landmarks(index: int) -> str:
             cy=269+math.sin(angle)*105
             add(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{2+k%3}" '
                 'fill="#e4dcff" opacity=".83"/>')
+    # Cinematic landmark pass: rock facets, real flowing waterfall strands,
+    # clustered canopies and bright mist. These are *background-only* pixels;
+    # live gates, the chosen bird, score and touch controls stay independent.
+    # Drawn once at build time for identical Android/iOS full-screen assets.
+    add('<defs><radialGradient id="falls-mist">'
+        '<stop stop-color="#f2ffff" stop-opacity=".82"/>'
+        '<stop offset=".48" stop-color="#a6f6ff" stop-opacity=".37"/>'
+        '<stop offset="1" stop-color="#b1eaff" stop-opacity="0"/>'
+        '</radialGradient></defs>')
+    waterfall_world = index in (0, 1, 2, 4, 5, 6)
+    if waterfall_world:
+        waterfall_tint = "#8af6ff" if index not in (2, 5) else "#b9cdff"
+        # Three unequal strands curve beneath the same landmark; they have
+        # translucent edges rather than a single flat bright rectangle.
+        for n, length in enumerate((166, 189, 154, 174, 132)):
+            source_x = 324 + n * 12
+            source_y = 356 + (n % 2) * 3
+            destination_x = source_x - 9 + (n % 3) * 6
+            destination_y = source_y + length
+            add(f'<path d="M{source_x} {source_y} Q{source_x-13} '
+                f'{source_y+length*.54:.1f} {destination_x} {destination_y}" '
+                f'fill="none" stroke="{waterfall_tint}" '
+                f'stroke-width="{5+(n%2)*4}" opacity=".55" '
+                'stroke-linecap="round"/>')
+            add(f'<path d="M{source_x-1} {source_y+11} Q{source_x-6} '
+                f'{source_y+length*.54:.1f} {destination_x-2} {destination_y-8}" '
+                'fill="none" stroke="#efffff" stroke-width="2" opacity=".69"/>')
+        add('<ellipse cx="350" cy="535" rx="67" ry="29" fill="url(#falls-mist)"/>')
+        for n in range(11):
+            x = 312 + (n*37) % 94
+            y = 469 + (n*19) % 90
+            add(f'<circle cx="{x}" cy="{y}" r="{1.1+(n%3)*.7:.1f}" '
+                'fill="#edffff" opacity=".57"/>')
+    # Faceted cliff faces below the right landmark: specular edges,
+    # fine cracks and embedded mineral chips suggest physical thickness.
+    for n in range(9):
+        sx = 303 + (n * 37) % 132
+        sy = 354 + (n * 41) % 57
+        ex = sx + (n % 3 - 1) * 11
+        ey = sy + 19 + n % 4 * 6
+        add(f'<path d="M{sx} {sy} L{ex} {ey}" fill="none" '
+            f'stroke="{shine if n%3 == 0 else shade}" stroke-width="{1+n%3}" '
+            'stroke-opacity=".42" stroke-linecap="round"/>')
+    # Small tree crowns trace a soft irregular silhouette along floating
+    # terraces. Biome-specific luminous highlights replace generic circles.
+    if index in (0, 1, 4, 5):
+        canopy = "#8bf3ae" if index in (0, 1) else "#d6d4ff" if index==5 else "#ffe0a2"
+        trunk = "#376b5d" if index in (0, 1) else "#79655b"
+        for n in range(6):
+            tx = 292 + n * 30
+            ty = 332 - (n % 3) * 4
+            size = 8 + (n % 3) * 3
+            add(f'<path d="M{tx} {ty+4} q-2 {-size} 0 {-size*2}" '
+                f'stroke="{trunk}" stroke-width="4" fill="none"/>')
+            add(f'<ellipse cx="{tx-5}" cy="{ty-size*2}" rx="{size}" '
+                f'ry="{size*.64:.1f}" fill="{shade}" opacity=".91"/>')
+            add(f'<ellipse cx="{tx+4}" cy="{ty-size*2-4}" rx="{size*.8:.1f}" '
+                f'ry="{size*.68:.1f}" fill="{canopy}" opacity=".85"/>')
+            add(f'<ellipse cx="{tx-2}" cy="{ty-size*2-8}" rx="{size*.46:.1f}" '
+                f'ry="{size*.28:.1f}" fill="#f3ffe7" opacity=".51"/>')
+    # Receding bridge and distant miniature archways reinforce perspective.
+    if index in (0, 1, 4, 5):
+        rim = "#c8ecff" if index!=5 else "#aaa1f8"
+        add(f'<path d="M244 320 Q281 290 308 321" '
+            f'fill="none" stroke="{rim}" stroke-width="8" opacity=".60"/>'
+            '<path d="M244 321 Q281 302 308 322" fill="none" '
+            'stroke="#385681" stroke-width="3" opacity=".49"/>')
+        for n in range(5):
+            x = 249 + n*12
+            add(f'<path d="M{x} 315 v{-4-n%2*4}" '
+                'stroke="#ebf7ff" stroke-width="2" opacity=".55"/>')
     # Foreground sparkle and highlights are small and never contain interface
     # labels/counters. The same deterministic XML yields identical Android/iOS art.
     for k in range(7):
