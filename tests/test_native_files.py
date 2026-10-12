@@ -110,7 +110,7 @@ for renderer_path in ('android/app/src/main/java/com/brendigo/bopavi/GameView.kt
 assert 'sin(game.time*19f)*23f+flapStrength*17f' in android_render
 assert 'flapStrength*17' in ios_render
 
-# v0.1.21: names and local progress readable *outside* the world art.
+# Names and local progress are live overlays on the world artwork, never baked into it.
 android_menu=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios_menu=(root/'ios/BOPAVI/GameController.swift').read_text()
 android_tile=android_menu.split('private fun worldTile(',1)[1].split('private fun showHome()',1)[0]
@@ -137,7 +137,7 @@ print('PASS: responsive native world cards and real 8-world save-metric QA')
 for card in (android_tile,ios_tile):
     assert 'chosenWorld()' in card
     assert 'streamFrontier(world)' in card
-    assert 'collectibleIcons[world]' in card
+    assert 'collectibles(world)' in card
     assert 'otključano' in card
 # Premium world cards render the same actual illustrations within a
 # framed image panel plus a decorative (non-tappable) world badge and arrow.
@@ -146,10 +146,10 @@ assert 'artPanel.addView(ImageView(this)' in android_tile
 assert 'world+1' in android_tile and 'world+1' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'arrow.isUserInteractionEnabled=false' in ios_tile
-assert 'row.addView(TextView(this)' in android_tile
-assert 'preview.heightAnchor.constraint(equalToConstant:170)' in ios_tile
-assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:138)' in ios_tile
-assert 'detail.topAnchor.constraint(equalTo:tile.topAnchor,constant:184)' in ios_tile
+assert 'artPanel.addView(TextView(this)' in android_tile
+assert 'preview.heightAnchor.constraint(equalToConstant:132)' in ios_tile
+assert 'headline.topAnchor.constraint(equalTo:tile.topAnchor,constant:85)' in ios_tile
+assert 'collection.topAnchor.constraint(equalTo:tile.topAnchor,constant:114)' in ios_tile
 assert 'tile.accessibilityLabel' in ios_tile
 for source,signature in ((android_menu,'private fun showResult('),(ios_menu,'private func showResult(')):
     result=source.split(signature,1)[1]
@@ -1167,15 +1167,15 @@ for source in (android_tile,ios_tile):
     assert 'collectibles(world)' in source
     assert 'best(world)' in source
     assert 'name.uppercase()' in source or 'names[world].uppercased()' in source
-assert 'FrameLayout.LayoutParams(-1,d(39),Gravity.BOTTOM)' in android_tile
-assert 'FrameLayout.LayoutParams(-1,d(56),Gravity.BOTTOM)' in android_tile
+assert 'FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM)' in android_tile
+assert 'FrameLayout.LayoutParams(-1,d(70),Gravity.BOTTOM)' in android_tile
 assert 'RippleDrawable(ColorStateList.valueOf(0x33ffffff)' in android_tile
-assert 'artPanel,LinearLayout.LayoutParams(-1,d(170))' in android_tile
+assert 'artPanel,LinearLayout.LayoutParams(-1,d(132))' in android_tile
 assert 'footerShade.isUserInteractionEnabled=false' in ios_tile
 assert 'tile.accessibilityTraits.insert(.selected)' in ios_tile
 assert 'tile.accessibilityHint="Otvori levele svijeta"' in ios_tile
-assert 'tile.heightAnchor.constraint(equalToConstant:244)' in ios_tile
-assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-54)' in ios_tile
+assert 'tile.heightAnchor.constraint(equalToConstant:144)' in ios_tile
+assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12)' in ios_tile
 for forbidden in ('text="★  ${progress.worldStars(world)}/30"', 'earned.text="★  \\(progress.worldStars(world))/30"'):
     assert forbidden not in android_tile+ios_tile
 print('PASS: responsive premium world card overlay, native labels and saved metric parity')
@@ -1524,3 +1524,18 @@ for source in (android_game,ios_game):
         assert expression in source
     assert 'game.flap()' in source
 print('PASS: 8 biome cloud banks and cross-platform native-glass HUD with live values')
+
+# v0.1.53 — compact 2x4, reference-proportioned art cards:
+# progress and score must be real text over the image, not detached tall rows.
+assert 'row.addView(TextView(this)' not in android_tile
+assert 'let detail=UILabel()' not in ios_tile
+assert 'artPanel.addView(TextView(this).apply' in android_tile
+assert 'collection.text="★ \\(progress.worldStars(world))/30' in ios_tile
+assert 'text="★ ${progress.worldStars(world)}/30' in android_tile
+assert 'FrameLayout.LayoutParams(-1,d(132))' in android_tile
+assert 'tile.heightAnchor.constraint(equalToConstant:144)' in ios_tile
+assert 'footerShade.topAnchor.constraint(equalTo:tile.topAnchor,constant:83)' in ios_tile
+assert 'number.topAnchor.constraint(equalTo:tile.topAnchor,constant:12)' in ios_tile
+assert 'worldTile(row,w){showLevels(w,1)}' in android_menu
+assert 'worldTile(world,in:row){self.showLevels(world,page:1)}' in ios_menu
+print('PASS: compact Android/iOS world gallery with interactive 2x4 image cards and real star counts')
