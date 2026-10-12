@@ -1,3 +1,9 @@
+## Iteration 20 — interactive BOPAVI home header
+
+- Reference-inspired avatar/earned-currency/settings top bar implemented as true Android/iOS controls. Selected pilot image is from existing checked-in art. Profile, achievements, offline coin shop and settings are actionable; text counters derive from saves.
+- Fixed redundant static home-chip UI without introducing an imaginary diamond balance or remotely purchased currency. Layout flexes on narrow devices.
+- Exact 3D mascot, logo extrusion and pixel-diff parity still require validated production graphics.
+
 ## Iteration 19 — page status and locked preview correctness
 
 - The 20-tile illustrated level cards retain reference composition and original saved lock/reward state. Added a compact actual page count and stars summary; a wholly locked page now has no misleading start-flight action, while its back and return-to-frontier controls remain available.

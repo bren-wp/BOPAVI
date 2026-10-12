@@ -69,15 +69,28 @@ verify_three_home_actions(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
-names=("IGRAJ","SVJETOVI","POSTAVKE")
+# The reference shows the header gear *and* the central SETTINGS CTA.
+# Both must be independently clickable, instead of rejecting valid UX.
+expected={"IGRAJ":1,"SVJETOVI":1,"POSTAVKE":2}
 nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
-for name in names:
+for name,count in expected.items():
     matches=[n for n in nodes if name in (n.get('text','')+' '+n.get('content-desc',''))]
-    if len(matches)!=1:
-        raise SystemExit(f'FAIL: home must expose one accessible clickable {name}, got {len(matches)}')
-    bounds=matches[0].get('bounds','')
-    if not bounds or bounds.startswith('[0,0][0,0]'):
-        raise SystemExit(f'FAIL: {name} has invalid button bounds')
+    if len(matches)!=count:
+        raise SystemExit(f'FAIL: home requires {count} accessible {name} actions, got {len(matches)}')
+    for entry in matches:
+        bounds=entry.get('bounds','')
+        if not bounds or bounds.startswith('[0,0][0,0]'):
+            raise SystemExit(f'FAIL: {name} has invalid button bounds')
+# Confirm other new header actions are individually accessible.
+for label in ('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·'):
+    found=[n for n in nodes if label in n.get('content-desc','')]
+    if len(found)!=1:
+        raise SystemExit(f'FAIL: missing actual tappable home header {label}: {len(found)}')
+# Settings gear and middle settings CTA must have separate screen rectangles.
+settings=[n.get('bounds') for n in nodes if 'POSTAVKE' in
+          (n.get('text','')+' '+n.get('content-desc',''))]
+if len(set(settings))!=2:
+    raise SystemExit('FAIL: top settings gear overlaps central settings CTA')
 # A pause control or gameplay status on the first screen is always a regression.
 for n in root.iter('node'):
     label=(n.get('text','')+' '+n.get('content-desc',''))
@@ -93,11 +106,17 @@ import re, subprocess, sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and
          'POSTAVKE' in (n.get('text','')+' '+n.get('content-desc',''))]
-if len(buttons)!=1:
-    raise SystemExit(f'FAIL: expected one accessible POSTAVKE shortcut, found {len(buttons)}')
-match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
-if not match: raise SystemExit('FAIL: invalid settings shortcut bounds')
-l,t,r,b=map(int,match.groups())
+if len(buttons)!=2:
+    raise SystemExit(f'FAIL: expected header gear and central POSTAVKE CTA, found {len(buttons)}')
+regions=[]
+for button in buttons:
+    match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',button.get('bounds',''))
+    if not match: raise SystemExit('FAIL: invalid settings shortcut bounds')
+    l,t,r,b=map(int,match.groups())
+    regions.append((t,l,r,b))
+# The lower button is the original large action. The new top gear has its
+# own independent tap target and was already checked in home accessibility.
+t,l,r,b=max(regions)
 subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
 PY
 }

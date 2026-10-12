@@ -354,24 +354,69 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // The art already includes the mascot and game title; only live,
         // clickable controls and player-dependent values sit on top.
         stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
+        // Real home navigation: current pilot, earned results, coins and
+        // settings. Each separately accessible element has a working action.
         let walletRow=UIStackView()
-        walletRow.axis = .horizontal;walletRow.alignment = .fill
-        walletRow.distribution = .fillEqually;walletRow.spacing=10
-        for item in ["🏆  \(progress.bestPoints())","●  \(progress.coins())"] {
-            let chip=UILabel()
-            chip.text=item
-            chip.textColor = .white
-            chip.font=UIFont.systemFont(ofSize:16,weight:.heavy)
-            chip.textAlignment = .center
-            chip.adjustsFontSizeToFitWidth=true
-            chip.minimumScaleFactor=0.75
+        walletRow.axis = .horizontal
+        walletRow.alignment = .center
+        walletRow.distribution = .fill
+        walletRow.spacing=5
+        let avatar=UIButton(type:.custom)
+        avatar.setImage(UIImage(named:"BopiPortrait\(progress.skinIndex())"),for:.normal)
+        avatar.imageView?.contentMode = .scaleAspectFit
+        avatar.contentVerticalAlignment = .fill
+        avatar.contentHorizontalAlignment = .fill
+        avatar.backgroundColor=UIColor(red:0.02,green:0.28,blue:0.59,alpha:0.96)
+        avatar.layer.cornerRadius=24
+        avatar.layer.borderWidth=2
+        avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
+        avatar.clipsToBounds=true
+        avatar.accessibilityLabel="PROFIL · \(progress.skinNames[progress.skinIndex()])"
+        avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
+        avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
+        avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
+        walletRow.addArrangedSubview(avatar)
+        func headerChip(_ title:String,_ description:String,_ color:UIColor,
+                        _ action:@escaping()->Void)->UIButton {
+            let chip=UIButton(type:.system)
+            chip.setTitle(title,for:.normal)
+            chip.setTitleColor(color,for:.normal)
+            chip.titleLabel?.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+            chip.titleLabel?.adjustsFontSizeToFitWidth=true
+            chip.titleLabel?.minimumScaleFactor=0.65
             chip.backgroundColor=UIColor(red:0.03,green:0.14,blue:0.35,alpha:0.93)
-            chip.layer.cornerRadius=21;chip.clipsToBounds=true
+            chip.layer.cornerRadius=20
             chip.layer.borderWidth=1
             chip.layer.borderColor=UIColor(red:0.40,green:0.84,blue:1,alpha:0.9).cgColor
-            chip.heightAnchor.constraint(equalToConstant:44).isActive=true
-            walletRow.addArrangedSubview(chip)
+            chip.accessibilityLabel=description
+            chip.heightAnchor.constraint(equalToConstant:48).isActive=true
+            chip.setContentHuggingPriority(.defaultLow,for:.horizontal)
+            chip.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+            chip.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
+            return chip
         }
+        let best=headerChip("🏆  \(progress.bestPoints())",
+            "ZADACI I POSTIGNUĆA · najbolji rezultat \(progress.bestPoints())",
+            .white){self.showAchievements(.home)}
+        walletRow.addArrangedSubview(best)
+        let coins=headerChip("♛  \(progress.coins())",
+            "TRGOVINA · \(progress.coins()) osvojenih kovanica",
+            UIColor(red:1,green:0.83,blue:0.37,alpha:1)){self.showPerks(.home)}
+        walletRow.addArrangedSubview(coins)
+        best.widthAnchor.constraint(equalTo:coins.widthAnchor).isActive=true
+        let gear=UIButton(type:.system)
+        gear.setTitle("⚙",for:.normal)
+        gear.setTitleColor(.white,for:.normal)
+        gear.titleLabel?.font=UIFont.systemFont(ofSize:26,weight:.bold)
+        gear.backgroundColor=UIColor(red:0.03,green:0.29,blue:0.61,alpha:0.96)
+        gear.layer.cornerRadius=17
+        gear.layer.borderWidth=2
+        gear.layer.borderColor=UIColor(red:0.27,green:0.84,blue:1,alpha:1).cgColor
+        gear.accessibilityLabel="POSTAVKE"
+        gear.widthAnchor.constraint(equalToConstant:48).isActive=true
+        gear.heightAnchor.constraint(equalToConstant:48).isActive=true
+        gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
+        walletRow.addArrangedSubview(gear)
         stack.addArrangedSubview(walletRow)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)

@@ -321,8 +321,9 @@ assert 'if: always()' in ci and 'qa/screenshots/*.xml' in ci
 # Two truly dynamic, identically sized top counters are built from one
 # loop; no stale one-wallet-height assumption after premium redesign.
 ios_home=(root/'ios/BOPAVI/GameController.swift').read_text().split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
-assert 'for item in ["🏆' in ios_home and 'progress.bestPoints()' in ios_home
-assert 'progress.coins()' in ios_home and 'chip.heightAnchor.constraint(equalToConstant:44)' in ios_home
+assert 'headerChip("🏆' in ios_home and 'progress.bestPoints()' in ios_home
+assert 'headerChip("♛' in ios_home and 'progress.coins()' in ios_home
+assert 'walletRow.distribution = .fill' in ios_home
 assert 'wallet.heightAnchor.constraint(equalToConstant:' not in ios_home
 
 # All eight biomes are available immediately; a saved frontier is per-world.
@@ -1358,3 +1359,37 @@ assert 'titles != ["Pixel Launcher isn\'t responding"]' in android_qa
 assert 'com.google.android.apps.nexuslauncher' in android_qa
 assert 'adb shell pidof com.brendigo.bopavi' in main_loop
 print('PASS: bounded Android startup recovery only for verified system launcher ANR')
+
+# v0.1.47: all four home header controls must be live and clickable.
+# No fictitious gem counter or placeholder account is acceptable offline.
+android_home=android_menu.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0]
+ios_home=ios_menu.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
+for home in (android_home,ios_home):
+    assert 'PROFIL ·' in home
+    assert 'ZADACI I POSTIGNUĆA' in home
+    assert 'TRGOVINA ·' in home
+    assert 'POSTAVKE' in home
+    assert 'progress.coins()' in home and 'progress.bestPoints()' in home
+    assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
+assert 'val avatar=ImageView(this)' in android_home
+assert 'R.drawable.bopiportrait8' in android_home
+assert 'showProfile()' in android_home
+assert 'showAchievements(MenuOrigin.HOME)' in android_home
+assert 'showPerks(MenuOrigin.HOME)' in android_home
+assert 'showSettings()' in android_home
+assert 'LinearLayout.LayoutParams(0,d(48),1f)' in android_home
+assert 'avatar.setImage(UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_home
+assert 'self.showProfile()' in ios_home
+assert 'self.showAchievements(.home)' in ios_home
+assert 'self.showPerks(.home)' in ios_home
+assert 'self.showSettings()' in ios_home
+assert 'best.widthAnchor.constraint(equalTo:coins.widthAnchor)' in ios_home
+print('PASS: live Android/iOS four-action home header with honest earned currency')
+
+# v0.1.47 UI smoke must allow the reference's two independent Settings
+# controls (top gear and main CTA), never mask genuine broken navigation.
+assert 'expected={"IGRAJ":1,"SVJETOVI":1,"POSTAVKE":2}' in qa
+assert "('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·')" in qa
+assert 'if len(set(settings))!=2:' in qa
+assert 't,l,r,b=max(regions)' in qa
+print('PASS: QA verifies distinct home header gear and main Settings CTA')
