@@ -609,11 +609,17 @@ attempt=1
 while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited before flight" >&2; exit 1; }
   adb shell input tap "$center" "$((height*50/100))"
-  # Capture the first rendered frame after the REAL flap. Uiautomator dump
-  # can take several seconds; by then the bird may already have collided.
-  # The capture is accepted only if the following UI check confirms that
-  # the action started a flight (active GameView or genuine collision result).
+  # Allow at least one actual render/vsync after the injected flap.
+  # Immediate screencap can capture the old idle frame even when input
+  # succeeds. Keep the wait short enough to avoid falling to the result UI.
+  sleep 0.25
   capture android-gameplay-active
+  # Fail closed on the stale-frame case detected in the v0.1.55 release:
+  # its 'active' and 'ready' PNGs were byte-identical.
+  if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
+    sleep 0.20
+    capture android-gameplay-active
+  fi
   sleep 1
   dump_ui
   if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
@@ -621,15 +627,22 @@ while [ "$attempt" -le 6 ]; do
       echo "FAIL: pause did not appear after actual first flight flap" >&2
       exit 1
     fi
-    # This screenshot was already captured immediately after the input.
-    # Do not recapture here: a slow accessibility dump can reach the result
-    # screen after the active frame has disappeared.
+    # The screenshot was taken after input, but before slow UI automation.
+    # Never publish an unchanged idle frame as active gameplay.
+    if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
+      echo "FAIL: active screenshot duplicates pre-flight preview" >&2
+      exit 1
+    fi
     flight_started=1
     break
   fi
   if grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
     if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
       echo "FAIL: pause leaked into completed result screen" >&2
+      exit 1
+    fi
+    if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
+      echo "FAIL: result acknowledged flight but screenshot is the unchanged idle frame" >&2
       exit 1
     fi
     flight_started=1
