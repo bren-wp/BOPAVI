@@ -217,19 +217,26 @@ final class GameCanvas: UIView {
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
         }
+        // Crown-to-flag race gauge matches Android and the concept placement.
+        // Gate progress is authoritative; the game has no defined metres.
         let total=max(1,game.level.gates.count)
         let ratio=max(0,min(1,CGFloat(game.passed)/CGFloat(total)))
-        rect(c,14,87,386,20,0x041638,12,0.93)
-        rect(c,19,91,376,12,0x164a84,6)
+        hudGlass(c,146,18,260,59)
+        hudText("♛",154,28,hudIconFont,0xffd45b)
+        hudText("⚑",376,29,hudIconFont,0xffffff)
+        rect(c,181,34,195,21,0x05234e,10)
+        rect(c,184,38,189,13,0x0b66bf,7)
         if ratio>0 {
-            rect(c,19,91,376*ratio,12,0x18c9ff,6)
-            rect(c,20,92,374*ratio,4,0xdfffff,2,0.60)
+            rect(c,184,38,189*ratio,13,0x15cfff,7)
+            rect(c,185,39,187*ratio,4,0xffffff,2,0.67)
         }
-        rect(c,124,112,180,33,0x062653,16,0.92)
-        let centeredX=214-progressLabel.size().width/2
-        progressLabel.draw(at:CGPoint(x:centeredX,y:117))
-        hudText("♛",196,64,hudIconFont,0xffcd59)
-        hudText("\(game.passed)/\(total)",346,116,hudLabelFont,0xe8f5ff)
+        rect(c,171,80,211,27,0x062859,14,0.91)
+        let levelText="LEVEL \(game.displayLevel)  ·  \(game.passed)/\(total)"
+        let levelFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
+        let levelString=NSAttributedString(string:levelText,attributes:[
+            .font:levelFont,.foregroundColor:UIColor.white])
+        levelString.draw(at:CGPoint(x:277-levelString.size().width/2,y:85))
+        progressLabel.draw(at:CGPoint(x:277-progressLabel.size().width/2,y:110))
         accessibilityLabel="Bopi leti. Prolazi ukupno \(passed)"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
@@ -250,30 +257,37 @@ final class GameCanvas: UIView {
         oval(c,24,32,23,30,0xec9500)
         hudText("♛",24,31,hudCoinFont,0xfff3a4)
     }
+    /// These source-styled orbs are indicators, not phantom tappable items.
+    /// Readouts come only from the live simulation's stars and boosts.
+    private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
+                        _ count:String,_ accent:UInt32,_ enabled:Bool) {
+        let rim:UInt32=enabled ? accent : 0x5d83ac
+        oval(c,cx-33,cy-33,66,66,0x031630,0.73)
+        oval(c,cx-30,cy-30,60,60,rim)
+        oval(c,cx-27,cy-27,54,54,0x06417b)
+        oval(c,cx-25,cy-24,50,48,enabled ? 0x0d5ba2 : 0x132b4b)
+        let symbol=NSAttributedString(string:icon,attributes:[
+            .font:UIFont.systemFont(ofSize:33,weight:.black),
+            .foregroundColor:UIColor(rgb:enabled ? 0xffffff : 0xa4bdd6)])
+        symbol.draw(at:CGPoint(x:cx-symbol.size().width/2,y:cy-symbol.size().height/2))
+        let bx=cx+25,by=cy+26
+        oval(c,bx-17,by-15,34,30,0x071d45)
+        oval(c,bx-14,by-12,28,24,enabled ? 0x125aab : 0x27405f)
+        let number=NSAttributedString(string:count,attributes:[
+            .font:UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy),
+            .foregroundColor:UIColor.white])
+        number.draw(at:CGPoint(x:bx-number.size().width/2,y:by-number.size().height/2))
+    }
     private func drawBoostHUD(_ c:CGContext) {
-        // Real earned coins, stars and ordinal; x>405 remains tappable Pause.
-        hudGlass(c,13,21,131,54)
+        // The icon/number hierarchy mirrors Android, leaving the top-right
+        // reserved for the real UIKit Pause button.
+        hudGlass(c,13,21,126,54)
         hudGoldCoin(c)
         hudText("\(game.coins)",66,33,hudCountFont,0xffffff)
-        hudGlass(c,155,21,120,54)
-        hudText("★",169,33,hudIconFont,0xffcd59)
-        hudText("\(game.stars)",206,33,hudCountFont,0xffffff)
-        hudGlass(c,285,21,120,54)
-        hudText("LEVEL",297,29,hudLabelFont,0xbdefff)
-        hudText("\(game.displayLevel)",300,46,hudLevelFont,0xffffff)
-        if game.shield>0 {
-            hudGlass(c,13,169,141,42)
-            rect(c,18,173,35,34,0x147fce,17)
-            hudText("◆",26,180,hudLevelFont,0xbfffff)
-            hudText("ŠTIT ×\(game.shield)",63,181,boostFont,0xffffff)
-        }
-        if game.magnetTime>0 {
-            hudGlass(c,13,216,152,42)
-            rect(c,18,221,35,33,0x147fce,17)
-            hudText("∩",27,226,hudLevelFont,0xffd266)
-            let seconds=Int(ceil(Double(game.magnetTime)))
-            hudText("MAGNET \(seconds)s",62,228,boostFont,0xffffff)
-        }
+        hudOrb(c,46,175,"★","\(game.stars)",0xffce43,true)
+        hudOrb(c,46,249,"◆","\(game.shield)",0x54e5ff,game.shield>0)
+        let seconds=max(0,Int(ceil(Double(game.magnetTime))))
+        hudOrb(c,46,323,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
