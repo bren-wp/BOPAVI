@@ -252,18 +252,18 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        // Native gradient/title overlay stays readable over every offline
-        // biome without embedding labels, rewards or buttons inside the art.
+        // Reference-style 2×4 cards: genuine metrics and labels overlay the
+        // lower illustration. No duplicated text rows below every image.
         artPanel.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x00071c38,0x09071c38,0xb803122f.toInt()))
+                intArrayOf(0x00071c38,0x17071c38,0xe903122f.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         artPanel.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x0004162f,0xef021329.toInt()))
+                intArrayOf(0x0004162f,0xf5021329.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,d(56),Gravity.BOTTOM))
+        },FrameLayout.LayoutParams(-1,d(70),Gravity.BOTTOM))
         val badge=TextView(this).apply{
             text="♛  ${world+1}"
             setTextColor(Color.WHITE);textSize=15f
@@ -285,12 +285,12 @@ class MainActivity : Activity() {
             background=gradient(0xff0bbcff.toInt(),0xff0650bc.toInt(),21)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(d(38),d(38),Gravity.BOTTOM or Gravity.RIGHT).apply{
-            setMargins(0,0,d(8),d(8))
+            setMargins(0,0,d(8),d(13))
         })
-        // Title is a live label over its world illustration, like the
-        // reference gallery; the arrow remains a separate decorative layer.
+        // Title and progress are both live overlays; the entire card remains
+        // one accessible tap target even on small phones.
         artPanel.addView(TextView(this).apply{
-            text="${if(world==progress.chosenWorld()) "✓ " else ""}${name.uppercase()}"
+            text=name.uppercase()
             textSize=15f;setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER_VERTICAL or Gravity.LEFT
@@ -299,26 +299,22 @@ class MainActivity : Activity() {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,d(39),Gravity.BOTTOM).apply{
-            leftMargin=d(10);rightMargin=d(49);bottomMargin=d(3)
+        },FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM).apply{
+            leftMargin=d(10);rightMargin=d(8);bottomMargin=d(29)
         })
-        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(170)).apply{bottomMargin=d(5)})
-        row.addView(TextView(this).apply{
-            text="LEVEL ${progress.streamFrontier(world)}  ·  ${LevelEngine.collectibleIcons[world]} ${progress.collectibles(world)}"
-            textSize=12f;setTextColor(0xffd5eaff.toInt());gravity=Gravity.CENTER
+        artPanel.addView(TextView(this).apply{
+            text="★ ${progress.worldStars(world)}/30  ·  ♛ ${progress.best(world)}"
+            textSize=13f;setTextColor(0xffffd166.toInt())
+            gravity=Gravity.CENTER_VERTICAL or Gravity.LEFT
             typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
-            setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+            setAutoSizeTextTypeUniformWithConfiguration(9,13,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
+            setShadowLayer(d(2).toFloat(),0f,d(1).toFloat(),0xff00142e.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(23)))
-        row.addView(TextView(this).apply{
-            text="★ ${progress.worldStars(world)}/30   ·   ♛ ${progress.best(world)}"
-            textSize=13f;setTextColor(0xffffd166.toInt());gravity=Gravity.CENTER
-            typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
-            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(26)))
+        },FrameLayout.LayoutParams(-1,d(25),Gravity.BOTTOM).apply{
+            leftMargin=d(10);rightMargin=d(50);bottomMargin=d(3)
+        })
+        row.addView(artPanel,LinearLayout.LayoutParams(-1,d(132)))
         parent.addView(row,LinearLayout.LayoutParams(0,-2,1f).apply{
             setMargins(d(4),d(5),d(4),d(7))
         })
@@ -329,7 +325,7 @@ class MainActivity : Activity() {
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply {
-            setImageResource(R.drawable.splash)
+            setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))

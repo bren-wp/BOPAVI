@@ -48,6 +48,18 @@ jobs:
               assert ios_image.size==(960,1600), (world,'wrong iOS canvas size')
               assert android_image.tobytes()==ios_image.tobytes(), (world,'mismatched pixels')
               assert android_path.read_bytes()==ios_path.read_bytes(), (world,'mismatched PNG')
+          # Both fullscreen scenes must be present in the build artifact
+          # and be byte-identical on Android and iOS.
+          for android_name, ios_name, ios_folder in (
+              ('splash.png','launch.png','LaunchArt'),
+              ('homeback.png','home.png','HomeArt'),
+          ):
+              android_path=Path('android/app/src/main/res/drawable-nodpi')/android_name
+              ios_path=Path('ios/BOPAVI/Assets.xcassets')/f'{ios_folder}.imageset'/ios_name
+              assert android_path.is_file() and ios_path.is_file(), (android_name,ios_name)
+              assert android_path.read_bytes()==ios_path.read_bytes(), (android_name,'mismatched scene')
+          assert (Path('android/app/src/main/res/drawable-nodpi/splash.png').read_bytes()
+                  != Path('android/app/src/main/res/drawable-nodpi/homeback.png').read_bytes()), 'startup/home not distinct'
           # Four decorative icons must have exactly matching Android/iOS pixels.
           for key in ('profile','tasks','collection','shop'):
               android=Path('android/app/src/main/res/drawable-nodpi')/f'nav_{key}.png'
@@ -106,11 +118,13 @@ jobs:
             android/app/src/main/res/drawable-nodpi/hero.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
+            android/app/src/main/res/drawable-nodpi/homeback.png
             android/app/src/main/res/drawable-nodpi/nav_*.png
             ios/BOPAVI/Assets.xcassets/Nav*.imageset/
             ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png
             ios/BOPAVI/Assets.xcassets/Logo.imageset/
             ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
+            ios/BOPAVI/Assets.xcassets/HomeArt.imageset/
             android/app/src/main/res/drawable-nodpi/bopi*.png
             ios/BOPAVI/Assets.xcassets/BopiLeft*.imageset/
             ios/BOPAVI/Assets.xcassets/BopiRight*.imageset/
@@ -389,6 +403,7 @@ jobs:
           import struct
           captures = {
               'dist/real-screenshots/android/android-home.png':'BOPAVI-Android-Home.png',
+              'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png',
               'dist/real-screenshots/android/android-pilot-picker.png':'BOPAVI-Android-Pilots.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
@@ -434,7 +449,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -451,6 +466,7 @@ jobs:
             dist/BOPAVI-iOS-Simulator.zip \
             dist/BOPAVI-iOS-unsigned-device.zip \
             dist/BOPAVI-Android-Home.png \
+            dist/BOPAVI-Android-Worlds.png \
             dist/BOPAVI-Android-Pilots.png \
             dist/BOPAVI-Android-Flight-Preview.png \
             dist/BOPAVI-Android-Results.png \

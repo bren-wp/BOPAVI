@@ -1,3 +1,15 @@
+## Iteration 26 — 2×4 worlds and genuinely distinct splash/home screens
+
+The user references show eight wide, visually rich world cards with compact text on top of the painting. The previous native apps laid out two columns and four rows, but each tile was 244 logical points tall on iOS and used 170px of Android artwork plus separate caption rows; the grid took far more vertical space than the target.
+
+**Implementation:** Android tile art now has a 132dp height and no external title/statistic rows; iOS tile is 144pt tall with a 132pt art viewport. The real world title, world number, authentic stars/30, best score and action arrow are overlaid at equivalent positions. The surrounding art is dimmed just enough for legibility. Every world remains interactive and supports existing save IDs.
+
+**Second reference divergence:** A single image previously represented both startup loading and the home menu, so the requested arrangement (flying bird above winged wordmark in splash versus logo above bird on the menu) could not both be correct. The build generator now outputs a separate start and home scene for Android/iOS from existing game SVG artwork, without static buttons, fake loading percentages or new online dependencies.
+
+**Evidence added:** Automated Android smoke captures `android-worlds.png` from the real interactive grid. Successful releases publish the image and the README gallery links to its real screenshot, with the existing PNG signature, portrait resolution and size checks.
+
+**Still open:** Native art uses reusable SVG/raster 2D bird and islands rather than the reference's fully modeled 3D-feather mascot and high-resolution fantasy backgrounds; ten reference screens have not yet passed quantitative 1:1 diffs. Do not misrepresent staged render screenshots as game UI.
+
 ## Iteration 25 — sky-island cloud depth and live premium HUD
 
 **Source mismatch found:** World illustration generation still ended each background with an opaque solid ground-colored rectangle at y=757, even after the native overpaint stripe was removed in v0.1.51. All eight rebuilt background rasters now use per-biome layered cloudbanks with irregular silhouettes instead, retaining their full artwork extent and original world index mapping.

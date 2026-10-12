@@ -186,6 +186,14 @@ root=dump()
 entry=[n for n in nodes(root) if 'SVJETOVI' in (n.get('text','')+' '+n.get('content-desc',''))]
 if len(entry)!=1: raise SystemExit(f'FAIL: expected one home SVJETOVI action, got {len(entry)}')
 tap(entry[0]);time.sleep(1.1)
+# Authentic portrait screenshot used for visual comparison and README.
+# The 2x4 gallery remains independently tappable; this is not a mockup.
+with open('qa/screenshots/android-worlds.png','wb') as target:
+    subprocess.run(['adb','exec-out','screencap','-p'],stdout=target,
+                   check=True,timeout=22)
+with open('qa/screenshots/android-worlds.png','rb') as captured:
+    if captured.read(8)!=bytes.fromhex('89504e470d0a1a0a'):
+        raise SystemExit('FAIL: Android worlds screenshot is not a valid PNG')
 seen=set()
 for attempt in range(13):
     root=dump()
