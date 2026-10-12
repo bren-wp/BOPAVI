@@ -1,3 +1,12 @@
+## v0.1.51 — immersive gameplay scenery, verified screenshots and public README (build 54)
+
+- Android and iOS no longer paint an opaque fixed-color stripe over the lower 49 logical pixels of the active 480×800 game world. The complete illustrated floating-island scenery remains visible on portrait devices, with letterbox sky handling preserved. Collision, camera, flight timing and native controls are unchanged.
+- Rebuilt the public-facing README with the BOPAVI logo, official icon, original pilot illustrations, eight worlds, functional game description and four navigation icon assets. Developer implementation details are in QA/docs rather than in the marketing introduction.
+- Every new GitHub Release now includes five extra **real, unmodified emulator/simulator screenshots** (Android Home, pilot picker, first-flight idle preview, results and iOS Home). The README gallery links to `releases/latest/download/` assets, not the ten concept references. Publication fails if any screenshot is absent, not a real PNG or has invalid dimensions.
+- Audited twelve Kotlin/Swift source files, removed the unused Android `sunset` field plus three unused imports, and added a conservative CI dead-code regression checker for private declarations and Kotlin imports. Kept all platform callbacks, sprite fallbacks and save migration handlers.
+- Maintains saved progress, all nine character mappings, eight worlds, difficulty/physics, earned-coin economy, accessibility and separate Android/iOS builds. Added source tests and documented audit limitations.
+- **No unsupported 1:1 claim:** the existing art is still stylized 2D and does not yet match the high-resolution 3D concept render, and physical hardware/store signing are unverified.
+
 ## v0.1.50 — Bopi expression and animated feather-depth art (build 53)
 
 - Refined the single source-of-truth Bopi illustration: azure iris gradients, double eye catchlights, curved brows, a visibly open orange beak with mouth and tongue, glossy head crest, bronze pilot strap highlights, and the existing blue scarf with the golden crown emblem. Moved the smile toward the face center so it stays visible above the scarf. These changes bring the mascot closer to the supplied premium references without pretending to recreate the original high-detail 3D artwork.
