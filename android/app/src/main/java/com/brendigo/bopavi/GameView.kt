@@ -16,6 +16,7 @@ import android.view.MotionEvent
 import android.view.View
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
