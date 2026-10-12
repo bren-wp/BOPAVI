@@ -1,3 +1,12 @@
+## v0.1.56 — star parity and iOS frame-budget verification
+
+1. Verify earned star pickups display as the same **gold 5-point shapes** on Android and iOS in every biome and still disappear only after their real collection events.
+2. Confirm golden coins and last-gate cyan portals introduced in v0.1.55 are unchanged, including on sequential endless levels.
+3. Check iOS rounded HUD panels, status badges and gate-corner seams visually at normal and reduced-motion settings. The drawing routine now builds four quarter arcs in the active CGContext, rather than allocating a temporary CGPath for each shape.
+4. Run Android 15/16 and iOS simulator visual smoke, Android lint/JVM tests, iOS Swift build and physics/save tests, and source inventory/dead-code/privacy checks.
+5. The v0.1.55 `BOPAVI-Android-Flight-Active.png` was discovered byte-identical to `BOPAVI-Android-Flight-Preview.png` despite successful build. QA must capture only after an initial render, confirm a real flap, and reject identical preflight/active captures. Release packaging enforces unequal SHA-256 digests. Do not describe the v0.1.55 active screenshot as proof of a real gameplay frame.
+6. Compare actual gameplay captures with the reference, noting any remaining image-specific geometry or rendering discrepancies. Do not claim measured FPS or power savings without a device benchmark.
+
 ### v0.1.55 release capture timing safeguard
 
 A confirmed flight may collide while `uiautomator dump` is still running. Capture the screenshot **immediately after the real injected flap**, before the one-second delay and accessibility dump; only retain it once the subsequent UI proves flight started or reached the real collision result. Failed/unacknowledged gesture candidates are deleted, not published. The GitHub release fails closed if `android-gameplay-active.png` is missing, invalid or too small. This prevents substituting an idle concept or result for an actual gameplay frame.

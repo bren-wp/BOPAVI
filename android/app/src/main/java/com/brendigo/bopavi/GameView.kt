@@ -392,6 +392,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL;p.alpha=255
         text(c,"♛",cx,cy-38f,21f,0xffffdb63.toInt(),true)
     }
+    /** Five-point collectible art matches the iOS Core Graphics gold star;
+     * no font-dependent biome glyph and no new Path allocation in flight.
+     */
+    private fun drawGoldStar(c:Canvas,cx:Float,cy:Float,radius:Float) {
+        path.reset()
+        for(i in 0 until 10) {
+            val angle=i*3.1415927f/5f-3.1415927f/2f
+            val r=if(i%2==0)radius else radius*.43f
+            val x=cx+cos(angle)*r
+            val y=cy+sin(angle)*r
+            if(i==0)path.moveTo(x,y) else path.lineTo(x,y)
+        }
+        path.close()
+        fill(0xffffe25d.toInt())
+        c.drawPath(path,p)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -472,7 +488,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(g.coin && (incoming || game.coinVisible(index))) {
             drawRoyalCoin(c,middle,center,g.phase)
         }
-        if(g.star && (incoming || game.starVisible(index))){text(c,LevelEngine.collectibleIcons[g.kind],middle+35f,center-25f,26f,0xffffe25d.toInt(),true)}
+        if(g.star && (incoming || game.starVisible(index))){drawGoldStar(c,middle+35f,center-25f,12f)}
         if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.

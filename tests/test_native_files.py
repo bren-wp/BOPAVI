@@ -1660,3 +1660,44 @@ assert qa_flight_loop.index('capture android-gameplay-active') < qa_flight_loop.
 assert "'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png'" in workflow
 assert "dist/BOPAVI-Android-Flight-Active.png" in workflow
 print('PASS: first active-flight frame survives slow accessibility dump and is mandatory in release')
+
+# v0.1.56: neither platform depends on a device font for flying gold stars,
+# and iOS no longer allocates a new CGPath per rounded HUD/gate fragment.
+android_star=android_canvas.split("private fun drawGoldStar(",1)[1].split("private fun drawGate(",1)[0]
+ios_star=ios_canvas.split("private func star(",1)[1].split("private func ",1)[0]
+for source in (android_star,ios_star):
+    assert "0" in source and "10" in source
+    assert ".43" in source
+    assert "cos(" in source and "sin(" in source
+    assert "game.step(" not in source and "game.flap(" not in source
+assert "path.reset()" in android_star and "c.drawPath(path,p)" in android_star
+assert "new Path(" not in android_star
+assert "drawGoldStar(c,middle+35f,center-25f,12f)" in android_canvas
+assert "star(c,mid+35,center-25,12,0xffe25d)" in ios_canvas
+android_pickups=android_canvas.split("private fun drawGate(",1)[1].split("private fun drawFeedbackSparkles(",1)[0]
+assert "LevelEngine.collectibleIcons[g.kind]" not in android_pickups
+ios_rect=ios_canvas.split("private func rect(",1)[1].split("private func oval(",1)[0]
+assert "CGPath(roundedRect:" not in ios_rect
+assert "c.addArc(" in ios_rect and ios_rect.count("c.addArc(")==4
+assert "c.beginPath()" in ios_rect and "c.fillPath()" in ios_rect
+assert "radius:r" in ios_rect and "min(rad,width/2,height/2)" in ios_rect
+assert "guard width>0 && height>0 else {return}" in ios_rect
+# The four quarter circles should retain the Android rounded-rectangle bounds.
+import math
+for width,height,requested in [(1,1,2),(8,36,18),(64,240,7),(480,800,27)]:
+    radius=min(requested,width/2,height/2)
+    assert 0<=radius<=width/2 and 0<=radius<=height/2
+    for theta in [0,math.pi/2,math.pi,3*math.pi/2]:
+        assert math.isfinite(radius*math.cos(theta))
+print("PASS: cross-platform vector gold stars and allocation-free iOS rounded panels")
+
+# v0.1.56: forensic check of 0.1.55 screenshot hashes found that
+# active flight == idle preview. CI must now require distinct real PNGs.
+assert 'sleep 0.25' in qa_flight_loop
+assert 'sleep 0.20' in qa_flight_loop
+assert qa_flight_loop.index('adb shell input tap "$center"') < qa_flight_loop.index('sleep 0.25') < qa_flight_loop.index('capture android-gameplay-active')
+assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png' in qa_flight_loop
+assert 'FAIL: active screenshot duplicates pre-flight preview' in qa_flight_loop
+assert "sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest()" in workflow
+assert "Active gameplay screenshot is identical to idle flight; release blocked" in workflow
+print("PASS: authentic flight proof cannot repeat the idle preflap PNG frame")

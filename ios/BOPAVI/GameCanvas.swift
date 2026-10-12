@@ -133,8 +133,32 @@ final class GameCanvas: UIView {
         return true
     }
     private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
-    private func rect(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ rad:CGFloat=0,_ alpha:CGFloat=1){
-        c.setFillColor(color(rgb,alpha));let r=CGRect(x:x,y:y,width:max(0,w),height:max(0,h));if rad>0 {c.addPath(CGPath(roundedRect:r,cornerWidth:rad,cornerHeight:rad,transform:nil));c.fillPath()} else {c.fill(r)}
+    /// Rounded panels share one CGContext path; avoid allocating a CGPath
+    /// every time a gate, rim, status badge or HUD control is drawn.
+    /// Four quarter arcs preserve the same radius as Android drawRoundRect.
+    private func rect(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,
+                      _ rgb:UInt32,_ rad:CGFloat=0,_ alpha:CGFloat=1) {
+        let width=max(0,w), height=max(0,h)
+        guard width>0 && height>0 else {return}
+        c.setFillColor(color(rgb,alpha))
+        if rad<=0 {c.fill(CGRect(x:x,y:y,width:width,height:height));return}
+        let r=min(rad,width/2,height/2)
+        c.beginPath()
+        c.move(to:CGPoint(x:x+r,y:y))
+        c.addLine(to:CGPoint(x:x+width-r,y:y))
+        c.addArc(center:CGPoint(x:x+width-r,y:y+r),radius:r,
+                 startAngle:-.pi/2,endAngle:0,clockwise:false)
+        c.addLine(to:CGPoint(x:x+width,y:y+height-r))
+        c.addArc(center:CGPoint(x:x+width-r,y:y+height-r),radius:r,
+                 startAngle:0,endAngle:.pi/2,clockwise:false)
+        c.addLine(to:CGPoint(x:x+r,y:y+height))
+        c.addArc(center:CGPoint(x:x+r,y:y+height-r),radius:r,
+                 startAngle:.pi/2,endAngle:.pi,clockwise:false)
+        c.addLine(to:CGPoint(x:x,y:y+r))
+        c.addArc(center:CGPoint(x:x+r,y:y+r),radius:r,
+                 startAngle:.pi,endAngle:3 * .pi/2,clockwise:false)
+        c.closePath()
+        c.fillPath()
     }
     private func oval(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat,_ rgb:UInt32,_ alpha:CGFloat=1){c.setFillColor(color(rgb,alpha));c.fillEllipse(in:CGRect(x:x,y:y,width:w,height:h))}
     private func triangle(_ c:CGContext,_ a:CGPoint,_ b:CGPoint,_ d:CGPoint,_ rgb:UInt32){
