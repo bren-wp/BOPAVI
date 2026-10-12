@@ -133,6 +133,13 @@ if any(len(wing_parts[side])<4 for side in ('left','right')):
 body_markup=bird.group(1)
 for shape in wing_shapes:
     body_markup=body_markup.replace(shape,'',1)
+# The source painting contains a soft ground shadow under the flying bird.
+# Keep it in the menu scenery, but never attach it to a moving flight sprite:
+# an apparent hovering oval otherwise follows the player throughout gameplay.
+shadow_oval='<ellipse cx="10" cy="164" rx="146" ry="28" fill="#1a7ea7" opacity=".16" filter="url(#shadow)"/>'
+if shadow_oval not in body_markup:
+    raise RuntimeError('Expected Bopi background shadow for sprite separation')
+body_markup=body_markup.replace(shadow_oval,'',1)
 def raster(part):
     xml=('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" '
          'viewBox="-260 -260 520 520"><defs>'+defs.group(1)+'</defs><g>'
