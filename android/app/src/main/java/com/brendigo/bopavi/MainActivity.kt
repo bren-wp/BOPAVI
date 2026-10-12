@@ -1359,6 +1359,29 @@ class MainActivity : Activity() {
             typeface=Typeface.DEFAULT_BOLD
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(27)))
+        // A real saved-world star gauge, not fabricated XP or a distance bar.
+        val profileWorld=progress.chosenWorld()
+        val profileStars=progress.worldStars(profileWorld).coerceIn(0,30)
+        val profileStarGauge=android.widget.ProgressBar(this,null,
+            android.R.attr.progressBarStyleHorizontal).apply{
+            max=30;progress=profileStars
+            progressTintList=ColorStateList.valueOf(gold)
+            progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
+            progressDrawable?.setTint(gold)
+            contentDescription="Zvjezdice svijeta ${LevelEngine.names[profileWorld]}: ${profileStars} od 30"
+        }
+        portraitBox.addView(profileStarGauge,
+            LinearLayout.LayoutParams(-1,d(12)).apply{
+                leftMargin=d(9);rightMargin=d(9);topMargin=d(4)
+            })
+        portraitBox.addView(TextView(this).apply{
+            text="★  ${profileStars}/30 · ${LevelEngine.names[profileWorld]}"
+            gravity=Gravity.CENTER;textSize=10f;setTextColor(Color.WHITE)
+            setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(27)))
         hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(8)})
         val stats=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
         stats.addView(TextView(this).apply{
@@ -1418,6 +1441,12 @@ class MainActivity : Activity() {
             Triple("⚑","VETERAN",progress.wins()>=10))
         val badgeRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
         for((icon,name,earned) in awards){
+            val requirement=when(name){
+                "PRVI LET" -> "1 pobjeda"
+                "ISTRAŽIVAČ" -> "5 svjetova"
+                "SAKUPLJAČ" -> "500 predmeta"
+                else -> "10 pobjeda"
+            }
             val tile=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
                 setPadding(d(2),d(6),d(2),d(6))
@@ -1425,7 +1454,7 @@ class MainActivity : Activity() {
                     0xff061d44.toInt(),15).apply{
                     setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
                 }
-                contentDescription=name+", "+if(earned)"osvojeno" else "zaključano"
+                contentDescription=name+", cilj "+requirement+", "+if(earned)"osvojeno" else "zaključano"
             }
             tile.addView(TextView(this).apply{
                 text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
@@ -1438,7 +1467,14 @@ class MainActivity : Activity() {
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(23)))
-            badgeRow.addView(tile,LinearLayout.LayoutParams(0,d(78),1f).apply{
+            tile.addView(TextView(this).apply{
+                text=requirement;textSize=9f;gravity=Gravity.CENTER
+                setTextColor(0xffc5e9ff.toInt());setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(8,9,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(22)))
+            badgeRow.addView(tile,LinearLayout.LayoutParams(0,d(101),1f).apply{
                 setMargins(d(2),0,d(2),0)
             })
         }
@@ -1450,7 +1486,7 @@ class MainActivity : Activity() {
         val worldArt=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
             R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
         val gallery=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-        for(world in ranked){
+        for((rank,world) in ranked.withIndex()){
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL;isClickable=true;isFocusable=true
                 background=gradient(0xff0d5aa4.toInt(),0xff061d40.toInt(),15).apply{
@@ -1460,10 +1496,22 @@ class MainActivity : Activity() {
                     progress.worldStars(world)+" od 30 zvjezdica; otvori levele"
                 setOnClickListener{sound.effect("click");showLevels(world,1)}
             }
-            card.addView(ImageView(this).apply{
+            val artFrame=FrameLayout(this)
+            artFrame.addView(ImageView(this).apply{
                 setImageResource(worldArt[world]);scaleType=ImageView.ScaleType.CENTER_CROP
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(81)))
+            },FrameLayout.LayoutParams(-1,-1))
+            artFrame.addView(TextView(this).apply{
+                text="♛ ${rank+1}";textSize=12f;setTextColor(gold)
+                gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+                background=gradient(0xff123f88.toInt(),0xff071d44.toInt(),15).apply{
+                    setStroke(d(1),gold)
+                }
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(d(46),d(28),Gravity.TOP or Gravity.LEFT).apply{
+                leftMargin=d(5);topMargin=d(5)
+            })
+            card.addView(artFrame,LinearLayout.LayoutParams(-1,d(81)))
             card.addView(TextView(this).apply{
                 text=LevelEngine.names[world].uppercase();setTextColor(Color.WHITE)
                 textSize=11f;gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
@@ -1482,7 +1530,7 @@ class MainActivity : Activity() {
             })
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
-        action(b,"✎  UREDI PROFIL I POSTAVKE",true){showSettings()}
+        action(b,"✎  UREDI PROFIL",true){showSettings()}
         action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
