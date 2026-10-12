@@ -1,3 +1,12 @@
+## v0.1.53 — reference world gallery and separate launch/home images
+
+- On Android 15/16 and iOS simulator, open SVJETOVI from the live home action. Check two card columns and four rows on a tall phone, with illustration, world number, title and genuine ★ stars/30 plus saved best score **inside the tile**. Scroll as needed on short screens, preserving touch-size and accessibility.
+- Ensure all eight world cards are genuinely tappable and open the correct saved world level grid. No locked paid states or fictional stars should appear.
+- Android `verify_world_cards` captures `qa/screenshots/android-worlds.png` from the running emulator before scroll. The release workflow rejects missing/invalid captures and publishes `BOPAVI-Android-Worlds.png` to the real README gallery.
+- Compare splash composition (Bopi above wordmark) against home composition (logo above Bopi with still-interactive buttons and footer). Android startup uses `@drawable/splash`, home uses `homeback`; iOS launch uses `LaunchArt`, home uses `HomeArt`.
+- Run complete Android Kotlin lint/JVM, Android 15/16 smoke, iOS simulator+unsigned device Swift physics/save/launch, asset generation, native source/dead-code audit, emulator screenshots and SHA-256 verification. The release is blocked if any mandatory check fails.
+- Visual acceptance remains incomplete for pixel-identical 3D Bopi, volumetric waterfalls, sculpted premium fonts/buttons and 10-screen screenshot-diff. Do not mark 1:1 complete without new high-fidelity project assets and real-device comparative evidence.
+
 ## v0.1.52 — fantasy cloudbank and HUD parity
 
 - Rebuild assets and confirm all eight `world0..world7` background images are generated from the updated common source. Compare the lower 43 pixels: the old opaque straight horizon at y=757 must not reappear; clouds should extend to the frame bottom.
