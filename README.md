@@ -47,6 +47,7 @@ Ovo su **stvarne snimke pokrenute aplikacije** iz Android emulatora i iOS simula
 <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Worlds.png" alt="Stvarna Android galerija osam interaktivnih svjetova BOPAVI igre" width="240"><p><em>Osam svjetova na Androidu</em></p></td>
 <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="Stvarni početni zaslon iOS simulatora BOPAVI igre" width="240"><p><em>Početni zaslon na iOS-u</em></p></td>
 <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Profile.png" alt="Stvarna snimka profila s vlastitim rezultatom, značkama i najboljim svjetovima na Android emulatoru" width="240"><p><em>Tvoj letački dnevnik</em></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Stvarne postavke igre na Android emulatoru s glasnoćom, odabranom težinom i lokalnim postavkama" width="240"><p><em>Prilagodi svoj let</em></p></td>
 </tr>
 </table>
 
