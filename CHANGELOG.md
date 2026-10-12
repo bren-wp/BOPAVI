@@ -4,6 +4,7 @@
 - Both systems use a preallocated 74-unit light and the existing 240 ms wing-flap impulse to gently increase glow radius, without allocating any new gradients during the frame loop. Reduced-motion mode removes the scale animation.
 - Physics, difficulty, collisions (23-unit hitbox), procedural streaming, player/skin IDs, inventory, coin payout, save formats and offline privacy are unchanged.
 - Extended the cross-platform source regression suite to verify effect parity, render order, cached gradient creation and reduced-motion behavior. Android/iOS version/build are synchronized at 0.1.59 / 62.
+- The GitHub Release workflow now additionally publishes `SHA256SUMS.txt`, with cryptographic hashes of all **13 retained** binary, Play-listing and authentic screenshot artifacts. Hashes are generated after successful staging; existing filenames and unsigned-signing policy are unchanged.
 - **Visual status:** this improves real flight lighting; the detailed 3D mascot feathers, castles and premium art in the reference are not yet pixel-identical. Validate actual Android 15/16 and iOS emulator/simulator screenshots and CI before claiming release readiness.
 
 ## v0.1.58 — Profil: stvarni napredak, jasnije značke i rangirani svjetovi (build 61)
