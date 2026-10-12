@@ -554,6 +554,36 @@ final class GameCanvas: UIView {
                                   width:2*radius-14,height:2*radius-14))
         hudText("♛",cx-10,cy-51,hudIconFont,0xffdb63)
     }
+    /// Subtle suspended-cliff facets, confined to the existing gate shafts.
+    /// Only drawn geometry changes: the BopaviCore opening and collision remain.
+    private func drawRockFacets(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                _ start:CGFloat,_ end:CGFloat){
+        let span=end-start
+        guard span>=34 else{return}
+        c.setFillColor(color(0xffffff,0.235))
+        c.beginPath()
+        c.move(to:CGPoint(x:x+4,y:start+6))
+        c.addLine(to:CGPoint(x:x+w*0.39,y:start+11))
+        c.addLine(to:CGPoint(x:x+w*0.61,y:start+span*0.56))
+        c.addLine(to:CGPoint(x:x+w*0.24,y:end-9))
+        c.addLine(to:CGPoint(x:x+4,y:end-16))
+        c.closePath();c.fillPath()
+        c.setFillColor(color(0x081836,0.35))
+        c.beginPath()
+        c.move(to:CGPoint(x:x+w*0.61,y:start+6))
+        c.addLine(to:CGPoint(x:x+w-16,y:start+4))
+        c.addLine(to:CGPoint(x:x+w-16,y:end-13))
+        c.addLine(to:CGPoint(x:x+w*0.40,y:end-7))
+        c.addLine(to:CGPoint(x:x+w*0.61,y:start+span*0.56))
+        c.closePath();c.fillPath()
+        c.setStrokeColor(color(0xffffff,0.39))
+        c.setLineWidth(2)
+        c.beginPath()
+        c.move(to:CGPoint(x:x+10,y:start+span*0.32))
+        c.addLine(to:CGPoint(x:x+w*0.33,y:start+span*0.37))
+        c.addLine(to:CGPoint(x:x+w*0.49,y:start+span*0.35))
+        c.strokePath()
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -564,6 +594,8 @@ final class GameCanvas: UIView {
         rect(c,x-7,top-28,w+12,28,cap,7)
         rect(c,x+7,bottom,w-12,755-bottom,shade,7);rect(c,x,bottom,w-13,755-bottom,hue,7)
         rect(c,x-7,bottom,w+12,27,cap,7)
+        drawRockFacets(c,x,w,2,top-30)
+        drawRockFacets(c,x,w,bottom+28,751)
         rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
