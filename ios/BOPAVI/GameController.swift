@@ -323,8 +323,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         mode.isUserInteractionEnabled=false;mode.accessibilityElementsHidden=true
         mode.translatesAutoresizingMaskIntoConstraints=false;tile.addSubview(mode)
         NSLayoutConstraint.activate([
-            mode.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12),
-            mode.topAnchor.constraint(equalTo:tile.topAnchor,constant:12),
+            mode.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:12),
+            mode.topAnchor.constraint(equalTo:tile.topAnchor,constant:54),
             mode.widthAnchor.constraint(equalToConstant:85),
             mode.heightAnchor.constraint(equalToConstant:29)
         ])
