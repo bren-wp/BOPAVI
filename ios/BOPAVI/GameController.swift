@@ -1439,78 +1439,216 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
     }
 
-    /// A real offline profile for the PROFIL home tab (no account or cloud).
+    /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
         let s=menu("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
         let skin=progress.skinIndex()
         let hero=UIStackView()
-        hero.axis = .vertical
-        hero.alignment = .fill
-        hero.spacing=5
+        hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
+        hero.layoutMargins=UIEdgeInsets(top:11,left:8,bottom:11,right:8)
         hero.isLayoutMarginsRelativeArrangement=true
-        hero.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:14,right:14)
-        hero.backgroundColor=UIColor(red:0.035,green:0.17,blue:0.39,alpha:0.97)
+        hero.backgroundColor=UIColor(red:0.035,green:0.16,blue:0.38,alpha:0.98)
         hero.layer.cornerRadius=24
         hero.layer.borderWidth=2
-        hero.layer.borderColor=UIColor(red:0.22,green:0.78,blue:1,alpha:1).cgColor
-        hero.isAccessibilityElement=true
-        hero.accessibilityLabel="Letački profil, \(progress.playerName), lik \(progress.skinNames[skin])"
-        let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(skin)"))
+        hero.layer.borderColor=UIColor(red:0.0,green:0.82,blue:1,alpha:1).cgColor
+        hero.accessibilityIdentifier="profile-live-card"
+        let portraitBox=UIStackView()
+        portraitBox.axis = .vertical;portraitBox.spacing=2
+        portraitBox.alignment = .fill
+        portraitBox.backgroundColor=UIColor(red:0.03,green:0.31,blue:0.68,alpha:1)
+        portraitBox.layer.cornerRadius=20
+        portraitBox.layer.borderWidth=2
+        portraitBox.layer.borderColor=UIColor(red:1,green:0.76,blue:0.30,alpha:1).cgColor
+        portraitBox.isAccessibilityElement=true
+        portraitBox.accessibilityLabel="Letački profil, "+progress.playerName+", lik "+progress.skinNames[skin]
+        portraitBox.widthAnchor.constraint(equalToConstant:124).isActive=true
+        let portrait=UIImageView(image:UIImage(named:"BopiPortrait"+String(skin)))
         portrait.contentMode = .scaleAspectFit
-        portrait.heightAnchor.constraint(equalToConstant:164).isActive=true
+        portrait.heightAnchor.constraint(equalToConstant:151).isActive=true
         portrait.isAccessibilityElement=false
-        hero.addArrangedSubview(portrait)
-        let name=label(progress.playerName,26,.white,hero)
-        name.font=UIFont.systemFont(ofSize:26,weight:.heavy)
-        name.isAccessibilityElement=false
-        let pilot=label("✦  "+progress.skinNames[skin].uppercased()+"  ✦",14,
-            UIColor(red:1,green:0.77,blue:0.30,alpha:1),hero)
-        pilot.isAccessibilityElement=false
-        s.addArrangedSubview(hero)
-        sectionHeading("TVOJI REZULTATI",in:s)
-        let total=(0..<8).reduce(Int64(0)) { result,world in
-            result+Int64(progress.frontier(world)-1)
+        portraitBox.addArrangedSubview(portrait)
+        let levelLabel=label("LEVEL "+String(progress.streamFrontier(progress.chosenWorld())),
+            11,UIColor(red:1,green:0.77,blue:0.30,alpha:1),portraitBox)
+        levelLabel.heightAnchor.constraint(equalToConstant:27).isActive=true
+        hero.addArrangedSubview(portraitBox)
+        let stats=UIStackView()
+        stats.axis = .vertical;stats.alignment = .fill;stats.spacing=3
+        let pilotName=label(progress.playerName.uppercased(),20,.white,stats)
+        pilotName.textAlignment = .left
+        pilotName.adjustsFontSizeToFitWidth=true;pilotName.minimumScaleFactor=0.55
+        pilotName.numberOfLines=1
+        let pilotSubtitle=label(progress.skinNames[skin]+" · pilot",12,
+            UIColor(red:0.78,green:0.91,blue:1,alpha:1),stats)
+        pilotSubtitle.textAlignment = .left
+        let eyebrow=label("TVOJI REZULTATI",11,
+            UIColor(red:1,green:0.77,blue:0.30,alpha:1),stats)
+        eyebrow.textAlignment = .left
+        let completed=(0..<8).reduce(Int64(0)) { sum,world in
+            sum+Int64(progress.frontier(world)-1)
         }
-        let stats:[(String,String)]=[
+        let actualStats:[(String,String)]=[
             ("★  Najbolji rezultat",String(progress.bestPoints())),
             ("●  Osvojene kovanice",String(progress.coins())),
-            ("♛  Dovršeni leveli",String(total)),
+            ("♛  Dovršeni leveli",String(completed)),
             ("⚑  Pobjede",String(progress.wins()))
         ]
-        for (caption,value) in stats {
-            let row=UIStackView()
-            row.axis = .horizontal
-            row.alignment = .center
-            row.spacing=8
-            row.layoutMargins=UIEdgeInsets(top:11,left:16,bottom:11,right:16)
-            row.isLayoutMarginsRelativeArrangement=true
-            row.backgroundColor=UIColor(red:0.025,green:0.14,blue:0.32,alpha:0.97)
-            row.layer.cornerRadius=18
-            row.layer.borderWidth=1
-            row.layer.borderColor=UIColor(red:0.32,green:0.81,blue:1,alpha:0.95).cgColor
-            row.isAccessibilityElement=true
-            row.accessibilityLabel=caption+": "+value
-            let title=UILabel()
-            title.text=caption
-            title.textColor = .white
-            title.font=UIFont.systemFont(ofSize:15,weight:.bold)
-            title.numberOfLines=1
-            title.adjustsFontSizeToFitWidth=true
-            title.minimumScaleFactor=0.75
-            title.isAccessibilityElement=false
+        for (caption,value) in actualStats {
+            let tile=UIStackView()
+            tile.axis = .horizontal;tile.alignment = .center;tile.spacing=3
+            tile.isLayoutMarginsRelativeArrangement=true
+            tile.layoutMargins=UIEdgeInsets(top:5,left:4,bottom:5,right:4)
+            tile.backgroundColor=UIColor(red:0.035,green:0.17,blue:0.38,alpha:1)
+            tile.layer.cornerRadius=12
+            tile.isAccessibilityElement=true
+            tile.accessibilityLabel=caption+": "+value
+            let textLabel=UILabel()
+            textLabel.text=caption;textLabel.textColor = .white
+            textLabel.font=UIFont.systemFont(ofSize:10,weight:.semibold)
+            textLabel.minimumScaleFactor=0.65
+            textLabel.adjustsFontSizeToFitWidth=true
+            textLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
             let metric=UILabel()
             metric.text=value
-            metric.textColor=UIColor(red:1,green:0.80,blue:0.30,alpha:1)
-            metric.font=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
-            metric.isAccessibilityElement=false
-            row.addArrangedSubview(title)
-            row.addArrangedSubview(metric)
-            s.addArrangedSubview(row)
+            metric.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
+            metric.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.heavy)
+            metric.setContentCompressionResistancePriority(.required,for:.horizontal)
+            tile.addArrangedSubview(textLabel);tile.addArrangedSubview(metric)
+            tile.heightAnchor.constraint(equalToConstant:35).isActive=true
+            stats.addArrangedSubview(tile)
         }
+        hero.addArrangedSubview(stats)
+        s.addArrangedSubview(hero)
         label("Odabrani svijet: "+BopaviCore.names[progress.chosenWorld()],15,.white,s)
-        button("✎  UREDI PROFIL I POSTAVKE",in:s,primary:false){self.showSettings()}
+        sectionHeading("MOJE NAGRADE",in:s)
+        let explored=(0..<8).filter{progress.frontier($0)>1}.count
+        let collected=(0..<8).reduce(Int64(0)) { sum,w in
+            sum+Int64(progress.collectibles(w))
+        }
+        let awards:[(String,String,Bool)]=[
+            ("✦","PRVI LET",progress.wins()>0),
+            ("🌍","ISTRAŽIVAČ",explored>=5),
+            ("♛","SAKUPLJAČ",collected>=500),
+            ("⚑","VETERAN",progress.wins()>=10)
+        ]
+        let badgeRow=UIStackView()
+        badgeRow.axis = .horizontal;badgeRow.distribution = .fillEqually;badgeRow.spacing=4
+        for (icon,name,earned) in awards {
+            let tile=UIStackView()
+            tile.axis = .vertical;tile.alignment = .fill
+            tile.isLayoutMarginsRelativeArrangement=true
+            tile.layoutMargins=UIEdgeInsets(top:5,left:2,bottom:5,right:2)
+            tile.backgroundColor=earned
+                ? UIColor(red:0.07,green:0.30,blue:0.63,alpha:1)
+                : UIColor(red:0.15,green:0.21,blue:0.32,alpha:1)
+            tile.layer.cornerRadius=15;tile.layer.borderWidth=2
+            tile.layer.borderColor=(earned
+                ? UIColor(red:1,green:0.78,blue:0.30,alpha:1)
+                : UIColor(red:0.45,green:0.52,blue:0.65,alpha:1)).cgColor
+            tile.isAccessibilityElement=true
+            tile.accessibilityLabel=name+", "+(earned ? "osvojeno":"zaključano")
+            let glyph=label(earned ? icon:"🔒",24,
+                UIColor(red:1,green:0.77,blue:0.30,alpha:1),tile)
+            glyph.heightAnchor.constraint(equalToConstant:39).isActive=true
+            let caption=label(name,10,.white,tile)
+            caption.numberOfLines=1
+            caption.adjustsFontSizeToFitWidth=true
+            caption.minimumScaleFactor=0.72
+            caption.heightAnchor.constraint(equalToConstant:23).isActive=true
+            tile.heightAnchor.constraint(equalToConstant:78).isActive=true
+            badgeRow.addArrangedSubview(tile)
+        }
+        s.addArrangedSubview(badgeRow)
+        button("★  POGLEDAJ SVA POSTIGNUĆA",in:s,primary:false){
+            self.showAchievements(.profile)
+        }
+        sectionHeading("MOJI NAJBOLJI SVJETOVI",in:s)
+        let ranked=(0..<8).sorted {
+            let left=progress.worldStars($0),right=progress.worldStars($1)
+            if left != right{return left>right}
+            let bestLeft=progress.best($0),bestRight=progress.best($1)
+            return bestLeft == bestRight ? $0<$1 : bestLeft>bestRight
+        }
+        let worldRow=UIStackView()
+        worldRow.axis = .horizontal;worldRow.distribution = .fillEqually;worldRow.spacing=6
+        for world in ranked.prefix(3){
+            let tile=UIButton(type:.custom)
+            tile.layer.cornerRadius=15;tile.clipsToBounds=true
+            tile.layer.borderWidth=2
+            tile.layer.borderColor=UIColor(red:0.0,green:0.83,blue:1,alpha:1).cgColor
+            tile.backgroundColor=UIColor(red:0.03,green:0.23,blue:0.50,alpha:1)
+            tile.accessibilityLabel=BopaviCore.names[world] + ", " + String(progress.worldStars(world)) + " od 30 zvjezdica; otvori levele"
+            let content=UIStackView()
+            content.translatesAutoresizingMaskIntoConstraints=false
+            content.axis = .vertical;content.spacing=0
+            content.isUserInteractionEnabled=false
+            tile.addSubview(content)
+            NSLayoutConstraint.activate([
+                content.leadingAnchor.constraint(equalTo:tile.leadingAnchor),
+                content.trailingAnchor.constraint(equalTo:tile.trailingAnchor),
+                content.topAnchor.constraint(equalTo:tile.topAnchor),
+                content.bottomAnchor.constraint(equalTo:tile.bottomAnchor)
+            ])
+            let art=UIImageView(image:UIImage(named:"World"+String(world)))
+            art.contentMode = .scaleAspectFill;art.clipsToBounds=true
+            art.heightAnchor.constraint(equalToConstant:81).isActive=true
+            content.addArrangedSubview(art)
+            let title=label(BopaviCore.names[world].uppercased(),11,.white,content)
+            title.numberOfLines=1;title.adjustsFontSizeToFitWidth=true
+            title.minimumScaleFactor=0.72
+            title.heightAnchor.constraint(equalToConstant:26).isActive=true
+            let stars=label("★ "+String(progress.worldStars(world))+"/30",12,
+                UIColor(red:1,green:0.77,blue:0.30,alpha:1),content)
+            stars.heightAnchor.constraint(equalToConstant:25).isActive=true
+            tile.heightAnchor.constraint(equalToConstant:132).isActive=true
+            tile.addAction(UIAction{_ in
+                self.sound.effect("click");self.showLevels(world,page:1)
+            },for:.touchUpInside)
+            worldRow.addArrangedSubview(tile)
+        }
+        s.addArrangedSubview(worldRow)
+        button("✎  UREDI PROFIL I POSTAVKE",in:s){self.showSettings()}
         button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins(.profile)}
-        button("★  POSTIGNUĆA",in:s,primary:false){self.showAchievements(.profile)}
+        let footer=UIStackView()
+        footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
+        footer.isLayoutMarginsRelativeArrangement=true
+        footer.layoutMargins=UIEdgeInsets(top:6,left:5,bottom:6,right:5)
+        footer.backgroundColor=UIColor(red:0.012,green:0.13,blue:0.32,alpha:0.96)
+        footer.layer.cornerRadius=22;footer.layer.borderWidth=2
+        footer.layer.borderColor=UIColor(red:0.0,green:0.82,blue:1,alpha:1).cgColor
+        let tabs:[(String,String,()->Void)]=[
+            ("NavProfile","PROFIL",{self.showProfile()}),
+            ("NavTasks","ZADACI",{self.showAchievements(.profile)}),
+            ("NavCollection","KOLEKCIJA",{self.showSkins(.profile)}),
+            ("NavShop","TRGOVINA",{self.showPerks(.profile)})
+        ]
+        for (index,item) in tabs.enumerated(){
+            let tab=UIButton(type:.custom)
+            tab.backgroundColor=index==0
+                ? UIColor(red:0.60,green:0.36,blue:0.05,alpha:1)
+                : UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.8)
+            tab.layer.cornerRadius=13
+            tab.heightAnchor.constraint(equalToConstant:59).isActive=true
+            tab.accessibilityLabel=item.1+(index==0 ? ", odabrano":"")
+            let content=UIStackView()
+            content.axis = .vertical;content.translatesAutoresizingMaskIntoConstraints=false
+            content.isUserInteractionEnabled=false
+            let glyph=UIImageView(image:UIImage(named:item.0))
+            glyph.contentMode = .scaleAspectFit
+            glyph.heightAnchor.constraint(equalToConstant:28).isActive=true
+            content.addArrangedSubview(glyph)
+            let name=label(item.1,11,.white,content)
+            name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.72
+            name.heightAnchor.constraint(equalToConstant:22).isActive=true
+            tab.addSubview(content)
+            NSLayoutConstraint.activate([
+                content.centerYAnchor.constraint(equalTo:tab.centerYAnchor),
+                content.leadingAnchor.constraint(equalTo:tab.leadingAnchor,constant:2),
+                content.trailingAnchor.constraint(equalTo:tab.trailingAnchor,constant:-2)
+            ])
+            tab.addAction(UIAction{_ in self.sound.effect("click");item.2()},for:.touchUpInside)
+            footer.addArrangedSubview(tab)
+        }
+        s.addArrangedSubview(footer)
         button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
 

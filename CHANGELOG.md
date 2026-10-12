@@ -1,3 +1,13 @@
+## v0.1.57 — Your sky pilot's real profile (build 60)
+
+- Redesigned **PROFIL** on Android and iOS to follow the provided portrait/metrics composition: illustrated selected pilot in a gold-edged portrait on the left, compact live save-driven stats on the right, navy/cyan beveled panels and gold highlights.
+- New four-badge achievement showcase derives its state exclusively from saved wins, explored-world progress and lifetime saved collectible counts. No fictional currency, fake cloud account, invented score or achievement-granting side effect.
+- New top-three world illustration gallery ranks worlds by actually earned 0–30 stars and verified per-world records; tapping a card opens the real level selector.
+- Profile-specific, accessible and clickable four-tab bottom navigation (PROFIL, ZADACI, KOLEKCIJA, TRGOVINA) with active gold selection, preserving origin-aware return behavior on both platforms.
+- Profile editing, character switching and full achievements remain connected to real Settings, skin gallery and achievements. Existing game physics, unlock IDs, payouts, save compatibility and coin balances are unchanged.
+- Added static regression coverage for Android/iOS parity, actual player metrics, non-spendable achievement tiles and live navigation. All nine character portraits and eight world images are existing game resources, not new generated art.
+- This iteration improves reference layout hierarchy but does **not** assert perfect 1:1: reference artwork has richer 3D shading and concept-only controls not supported by the game's real offline economy.
+
 ## v0.1.56 — Matching golden stars and a leaner iOS renderer (build 59)
 
 - Android's existing collectible stars now use the same precise ten-vertex, five-point gold geometry and 12-pixel radius as iOS rather than depending on world-specific font glyphs. **Visibility, value, magnet, collisions, score and saved progress remain unchanged.**

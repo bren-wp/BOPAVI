@@ -1701,3 +1701,42 @@ assert 'FAIL: active screenshot duplicates pre-flight preview' in qa_flight_loop
 assert "sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest()" in workflow
 assert "Active gameplay screenshot is identical to idle flight; release blocked" in workflow
 print("PASS: authentic flight proof cannot repeat the idle preflap PNG frame")
+
+# v0.1.57: real profile layout parity and persistence invariants.
+android_profile=android_menu.split('private fun showProfile(){',1)[1].split('private fun showLeaderboard(){',1)[0]
+ios_profile=ios_menu.split('private func showProfile(){',1)[1].split('private func showLeaderboard(){',1)[0]
+for profile in (android_profile,ios_profile):
+    for text in ('Letački profil, ','TVOJI REZULTATI','Najbolji rezultat',
+                 'Osvojene kovanice','Dovršeni leveli','Pobjede',
+                 'progress.bestPoints()','progress.coins()','progress.wins()',
+                 'progress.frontier(','progress.worldStars(','progress.best(',
+                 'progress.collectibles(','MOJE NAGRADE',
+                 'PRVI LET','ISTRAŽIVAČ','SAKUPLJAČ','VETERAN',
+                 'MOJI NAJBOLJI SVJETOVI','POGLEDAJ SVA POSTIGNUĆA',
+                 'ODABERI DRUGOG LIKA'):
+        assert text in profile,('Missing real profile feature',text)
+    assert 'worldStars(' in profile and 'sorted' in profile
+    assert 'if(earned)' in profile or 'earned ?' in profile
+    assert '500' in profile and '10' in profile
+    assert 'showHome()' in profile
+    assert 'showSettings()' in profile
+    assert 'showLevels(' in profile
+    assert 'scoreCoinsClaimed' not in profile and 'claimBonusCoins()' not in profile
+    assert 'signOut' not in profile and 'cloudSave' not in profile
+assert 'progress.owned(' not in android_profile and 'progress.owned(' not in ios_profile
+assert 'portraitBox' in android_profile and 'portraitBox' in ios_profile
+for key in ('nav_profile','nav_tasks','nav_collection','nav_shop'):
+    assert key in android_profile,key
+for key in ('NavProfile','NavTasks','NavCollection','NavShop'):
+    assert key in ios_profile,key
+assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
+assert 'hero.axis = .horizontal' in ios_profile
+assert 'contentDescription=navNames[index]' in android_profile
+assert 'tab.accessibilityLabel=item.1' in ios_profile
+assert 'qa/screenshots/android-profile.png' in android_emulator
+assert 'dedicated PROFILE screen shows saved pilot data and real screenshot' in android_emulator
+assert "'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png'" in workflow
+assert 'dist/BOPAVI-Android-Profile.png' in workflow
+assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
+print('PASS: verified genuine profile screenshot required in release and README')
+print('PASS: live offline profile, award thresholds, premium world previews and four real native tabs on both platforms')

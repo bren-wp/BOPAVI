@@ -46,6 +46,7 @@ Ovo su **stvarne snimke pokrenute aplikacije** iz Android emulatora i iOS simula
 <tr>
 <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Worlds.png" alt="Stvarna Android galerija osam interaktivnih svjetova BOPAVI igre" width="240"><p><em>Osam svjetova na Androidu</em></p></td>
 <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="Stvarni početni zaslon iOS simulatora BOPAVI igre" width="240"><p><em>Početni zaslon na iOS-u</em></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Profile.png" alt="Stvarna snimka profila s vlastitim rezultatom, značkama i najboljim svjetovima na Android emulatoru" width="240"><p><em>Tvoj letački dnevnik</em></p></td>
 </tr>
 </table>
 
@@ -94,6 +95,12 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 - **Odmori kada poželiš:** nastavi, ponovi let ili se vrati u izbornik.
 - **Istražuj dalje:** između uzastopnih proceduralnih levela let se nastavlja bez novog početka.
 - **Čuvaj svoju avanturu:** najbolji rezultati, otključani likovi i napredak spremaju se lokalno.
+
+## Tvoj letački dnevnik
+
+**Svaki let ostavlja trag.** U vlastitom profilu vidiš odabranog pilota, osvojene rezultate, prikupljene kovanice, dovršene levele i pobjede. Četiri sjajne značke prate tvoje stvarne uspjehe, a tri najbolja svijeta vode te ravno do sljedećih izazova.
+
+Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju — sve je povezano s tvojim napretkom spremljenim na uređaju. **Nema obavezne registracije, izmišljenih nagrada ni računa u oblaku.**
 
 ## Otkrij što te čeka
 

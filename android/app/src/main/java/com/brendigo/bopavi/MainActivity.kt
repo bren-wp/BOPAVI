@@ -1327,85 +1327,208 @@ class MainActivity : Activity() {
         }
     }
 
-    /** The home PROFIL shortcut exposes actual local data instead of opening Settings. */
+    /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
         val skin=progress.skin()
-        val portraits=intArrayOf(
-            R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
-            R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8
-        )
+        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+            R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
+            R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+            R.drawable.bopiportrait8)
         val hero=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            gravity=Gravity.CENTER
-            setPadding(d(14),d(12),d(14),d(14))
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(8),d(11),d(8),d(11))
             background=gradient(0xf40b4189.toInt(),0xf3051b40.toInt(),24).apply{
                 setStroke(d(2),electric)
             }
-            contentDescription="Letački profil, "+progress.playerName()+", lik "+
-                progress.skinNames[skin]
+            contentDescription="Letački profil, "+progress.playerName()+", lik "+progress.skinNames[skin]
         }
-        hero.addView(ImageView(this).apply{
-            setImageResource(portraits[skin])
-            scaleType=ImageView.ScaleType.FIT_CENTER
+        val portraitBox=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+            background=gradient(0xff126bd1.toInt(),0xff041d48.toInt(),20).apply{
+                setStroke(d(2),gold)
+            }
+        }
+        portraitBox.addView(ImageView(this).apply{
+            setImageResource(portraits[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(164)))
-        hero.addView(TextView(this).apply{
-            text=progress.playerName()
-            textSize=26f
-            setTextColor(Color.WHITE)
-            gravity=Gravity.CENTER
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,-2))
-        hero.addView(TextView(this).apply{
-            text="✦  "+progress.skinNames[skin].uppercase()+"  ✦"
-            textSize=14f
-            setTextColor(gold)
-            gravity=Gravity.CENTER
+        },LinearLayout.LayoutParams(-1,d(151)))
+        portraitBox.addView(TextView(this).apply{
+            text="LEVEL "+progress.streamFrontier(progress.chosenWorld())
+            textSize=11f;setTextColor(gold);gravity=Gravity.CENTER
             typeface=Typeface.DEFAULT_BOLD
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(5)})
-        b.addView(hero,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(14)})
-        sectionHeading(b,"TVOJI REZULTATI")
+        },LinearLayout.LayoutParams(-1,d(27)))
+        hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(8)})
+        val stats=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
+        stats.addView(TextView(this).apply{
+            text=progress.playerName().uppercase()
+            textSize=20f;setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(11,20,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,d(29)))
+        stats.addView(TextView(this).apply{
+            text=progress.skinNames[skin]+" · pilot"
+            textSize=12f;setTextColor(0xffc5e9ff.toInt())
+        },LinearLayout.LayoutParams(-1,d(23)))
+        stats.addView(TextView(this).apply{
+            text="TVOJI REZULTATI";textSize=11f;setTextColor(gold)
+            typeface=Typeface.DEFAULT_BOLD
+        },LinearLayout.LayoutParams(-1,d(21)))
+        val completed=(0..7).sumOf{(progress.frontier(it)-1).toLong()}
         val rows=listOf(
             "★  Najbolji rezultat" to progress.bestPoints().toString(),
             "●  Osvojene kovanice" to progress.coins().toString(),
-            "♛  Dovršeni leveli" to (0..7).sumOf{
-                (progress.frontier(it)-1).toLong()
-            }.toString(),
-            "⚑  Pobjede" to progress.wins().toString()
-        )
+            "♛  Dovršeni leveli" to completed.toString(),
+            "⚑  Pobjede" to progress.wins().toString())
         for((caption,value) in rows){
             val tile=LinearLayout(this).apply{
-                orientation=LinearLayout.HORIZONTAL
-                gravity=Gravity.CENTER_VERTICAL
-                setPadding(d(16),d(11),d(16),d(11))
-                background=gradient(0xf20c3975.toInt(),0xf2051a40.toInt(),18).apply{
-                    setStroke(d(1),0xff55cfff.toInt())
-                }
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(5),d(5),d(5),d(5))
+                background=gradient(0xff12549a.toInt(),0xff071e45.toInt(),13)
                 contentDescription=caption+": "+value
             }
             tile.addView(TextView(this).apply{
-                text=caption
-                setTextColor(Color.WHITE)
-                textSize=15f
-                typeface=Typeface.DEFAULT_BOLD
+                text=caption;setTextColor(Color.WHITE);textSize=11f
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(0,-2,1f))
             tile.addView(TextView(this).apply{
-                text=value
-                setTextColor(gold)
-                textSize=20f
-                typeface=Typeface.DEFAULT_BOLD
-                gravity=Gravity.END
-            },LinearLayout.LayoutParams(-2,-2))
-            b.addView(tile,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
+                text=value;setTextColor(gold);textSize=14f;typeface=Typeface.DEFAULT_BOLD
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-2,-2).apply{leftMargin=d(3)})
+            stats.addView(tile,LinearLayout.LayoutParams(-1,d(35)).apply{bottomMargin=d(3)})
         }
+        hero.addView(stats,LinearLayout.LayoutParams(0,-2,0.58f))
+        b.addView(hero,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(13)})
         small(b,"Odabrani svijet: "+LevelEngine.names[progress.chosenWorld()])
-        action(b,"✎  UREDI PROFIL I POSTAVKE",false){showSettings()}
+        sectionHeading(b,"MOJE NAGRADE")
+        // Unlock badges from already-persisted achievements; never grant
+        // phantom currency, XP, cloud rewards or fabricated milestones.
+        val explored=(0..7).count{progress.frontier(it)>1}
+        val collected=(0..7).sumOf{progress.collectibles(it).toLong()}
+        val awards=listOf(
+            Triple("✦","PRVI LET",progress.wins()>0),
+            Triple("🌍","ISTRAŽIVAČ",explored>=5),
+            Triple("♛","SAKUPLJAČ",collected>=500L),
+            Triple("⚑","VETERAN",progress.wins()>=10))
+        val badgeRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        for((icon,name,earned) in awards){
+            val tile=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                setPadding(d(2),d(6),d(2),d(6))
+                background=gradient(if(earned)0xff1355a5.toInt() else 0xff283852.toInt(),
+                    0xff061d44.toInt(),15).apply{
+                    setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
+                }
+                contentDescription=name+", "+if(earned)"osvojeno" else "zaključano"
+            }
+            tile.addView(TextView(this).apply{
+                text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
+                setTextColor(gold);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(39)))
+            tile.addView(TextView(this).apply{
+                text=name;textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                setSingleLine(true);typeface=Typeface.DEFAULT_BOLD
+                setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(23)))
+            badgeRow.addView(tile,LinearLayout.LayoutParams(0,d(78),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+        }
+        b.addView(badgeRow,LinearLayout.LayoutParams(-1,-2))
+        action(b,"★  POGLEDAJ SVA POSTIGNUĆA",false){showAchievements(MenuOrigin.PROFILE)}
+        sectionHeading(b,"MOJI NAJBOLJI SVJETOVI")
+        val ranked=(0..7).sortedWith(compareByDescending<Int>{progress.worldStars(it)}
+            .thenByDescending{progress.best(it)}.thenBy{it}).take(3)
+        val worldArt=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
+            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val gallery=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        for(world in ranked){
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;isClickable=true;isFocusable=true
+                background=gradient(0xff0d5aa4.toInt(),0xff061d40.toInt(),15).apply{
+                    setStroke(d(2),electric)
+                }
+                contentDescription=LevelEngine.names[world]+", "+
+                    progress.worldStars(world)+" od 30 zvjezdica; otvori levele"
+                setOnClickListener{sound.effect("click");showLevels(world,1)}
+            }
+            card.addView(ImageView(this).apply{
+                setImageResource(worldArt[world]);scaleType=ImageView.ScaleType.CENTER_CROP
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(81)))
+            card.addView(TextView(this).apply{
+                text=LevelEngine.names[world].uppercase();setTextColor(Color.WHITE)
+                textSize=11f;gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(26)))
+            card.addView(TextView(this).apply{
+                text="★ "+progress.worldStars(world)+"/30"
+                textSize=12f;setTextColor(gold);gravity=Gravity.CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(25)))
+            gallery.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
+                setMargins(d(3),0,d(3),0)
+            })
+        }
+        b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
+        action(b,"✎  UREDI PROFIL I POSTAVKE",true){showSettings()}
         action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
-        action(b,"★  POSTIGNUĆA",false){showAchievements(MenuOrigin.PROFILE)}
+        // The same four native navigation actions as on the home screen.
+        val footer=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            setPadding(d(4),d(6),d(4),d(6))
+            background=gradient(0xf3062a64.toInt(),0xfa041736.toInt(),23).apply{
+                setStroke(d(2),electric)
+            }
+        }
+        val navNames=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
+        val navIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
+            R.drawable.nav_collection,R.drawable.nav_shop)
+        for(index in 0..3){
+            val tab=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                isClickable=true;isFocusable=true
+                background=gradient(if(index==0)0xff9b6311.toInt() else 0xff12549c.toInt(),
+                    0xff081e49.toInt(),14)
+                contentDescription=navNames[index]+if(index==0)", odabrano" else ""
+                addView(ImageView(this@MainActivity).apply{
+                    setImageResource(navIcons[index]);scaleType=ImageView.ScaleType.FIT_CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(28)))
+                addView(TextView(this@MainActivity).apply{
+                    text=navNames[index];textSize=11f
+                    gravity=Gravity.CENTER;setTextColor(Color.WHITE)
+                    typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(22)))
+                setOnClickListener{
+                    sound.effect("click")
+                    when(index){
+                        0->showProfile()
+                        1->showAchievements(MenuOrigin.PROFILE)
+                        2->showSkins(MenuOrigin.PROFILE)
+                        else->showPerks(MenuOrigin.PROFILE)
+                    }
+                }
+            }
+            footer.addView(tab,LinearLayout.LayoutParams(0,d(59),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+        }
+        b.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
         back(b){showHome()}
     }
 
