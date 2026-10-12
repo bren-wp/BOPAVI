@@ -1,3 +1,15 @@
+## Iteration 30 — real offline profile, achievements and worlds (v0.1.57)
+
+**Reference:** new BOPAVI PROFIL concept alongside the ten previously supplied game references. The concept includes blue/gold portrait, live metrics, four achievement seals, three favorite worlds, orange Edit Profile and a persistent four-tab footer.
+
+**Before:** both platforms showed a full-width stacked portrait and name, followed by separate results rows. No profile achievement badge row, top-world gallery or bottom tabs.
+
+**After:** portrait and stats share a compact horizontal navy/cyan hero card. Four achievement seals display *computed* earned/locked status from local completed-world progress, wins and collectibles. Three world illustration cards are ranked by saved stars and scores, with real navigation to levels. Gold editing CTA, existing settings and character gallery, and accessible four-tab footer are interactive on Android and iOS.
+
+**Data boundary:** all scores/balances and selected pilots come from ProgressStore. No manufactured level, experience, diamond or inventory values; no fake cloud sync/sign-out. Existing character IDs, level continuity and save schema are unchanged.
+
+**Unresolved:** the reference shows volumetric 3D feathers, high-resolution beveled insignia and a highly specific layout that cannot be certified pixel-identical without actual emulator/simulator screenshot overlay comparison at multiple aspect ratios. Current artwork is drawn from the game's own existing image resources. QA must mark remaining visual differences explicitly.
+
 ## Iteration 29 — same in-flight star shapes, less per-frame allocation (v0.1.56)
 
 **Specific cross-platform mismatch:** Android rendered actual flying star pickups using the level's font-dependent, biome-specific collectible glyph, whereas iOS already rendered a real five-point gold star. The two games showed different shapes despite identical pickup rules. Android now draws the same 10-point star path, size, placement and gold colour as the iOS Core Graphics renderer; both use actual saved-progress/visible-pickup logic without fake diamonds or currencies.
