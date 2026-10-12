@@ -1,5 +1,7 @@
 ## v0.1.66 — Character silhouette, face, flap and screen regression gate
 
+- Compare actual Android 1080×2400 and iPhone tall-aspect screenshots: the selected world must extend behind safe-area and letterbox regions instead of flat sky strips; background crop is centered and never stretches characters or collision geometry. Validate portrait layout of active gameplay, pause and drag control on both platforms.
+
 - Gameplay obstacles now have matching geometric cliff facets on Android and iOS. Verify during real flight that overlays stay within top/bottom shafts and coin/gate physics remain identical.
 - Real reported defect: Bopi's bill looked detached from the face. Check the actual regenerated body, full-wing portrait, home art, pilot gallery and flight screenshots. The dark open mouth and gold upper bill must appear directly below the irises, seamlessly over the pale muzzle, while the scarf is not drawn over the lower jaw.
 - For Vihor, Iskra and Orion verify **complete wingtips** on Android and iOS, no raster clipping, no straight crop borders and no wing-root separation throughout an actual flap. They have independent 160-unit sprite coordinates and their own shoulder rotation centers.
