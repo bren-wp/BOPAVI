@@ -4,6 +4,7 @@
 - Core Graphics now draws its frequently reused rounded gameplay panels directly into the current drawing context rather than allocating a fresh `CGPath(roundedRect:)` for every HUD and obstacle rectangle.
 - Both implementations preserve accessibility and reduced-motion behaviour, as well as the continuous streamed-level transitions and offline-only game model.
 - Static regression tests enforce native star parity, visual position and the four quarter-circle rounded corners across narrow and full-size rectangles.
+- Verified the published v0.1.55 `BOPAVI-Android-Flight-Active.png` hash was **identical** to the preflight PNG. Android QA now waits for an actual redraw, retries a stale image and fails if preflight/active frames remain identical; release staging independently rejects duplicate SHA-256 screenshots instead of marketing an idle shot as gameplay.
 - Pixel-perfect reference art remains an uncompleted goal; neither generic 2D scenery nor simplified mascot sprites are described as photorealistic 3D.
 
 ## v0.1.55 — Royal crown collectibles & real last-gate portals (build 58)
