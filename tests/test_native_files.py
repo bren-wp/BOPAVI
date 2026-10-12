@@ -605,8 +605,8 @@ ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override fun
 assert 'performClick()' in android_touch
 assert 'val firstFlap=!game.active' in android_click
 assert 'if(firstFlap && game.active) {' in android_click
-assert android_click.count('onFlightStarted()')==2  # once in accessible drag, once in classic tap
-assert 'if(firstDrag && game.active){onFlightStarted();onFlap()}' in android_click
+assert android_click.count('onFlightStarted()')==1  # a single first-flap callback for every world
+assert 'firstDrag' not in android_click and 'game.steer' not in android_click
 assert android_click.index('onFlightStarted()') < android_click.index('if(qaCaptureEnabled) qaWaitingForCapture=true')
 assert 'triggerFlap()' in ios_touch
 assert 'let firstFlap = !game.active' in ios_flap
