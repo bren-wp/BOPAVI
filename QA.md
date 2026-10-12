@@ -1,4 +1,5 @@
 ## v0.1.66 — Character silhouette, face, flap and screen regression gate
+- Check world 1 gameplay and selection uses visibly cyan crystalline towers, and world 6 has warm wooded scenery plus the glowing forest overlay; world 0 must remain uniquely green. Regression check source mappings and verify Android/iOS raster art parity without changing 8 stable world identifiers.
 
 - Compare actual Android 1080×2400 and iPhone tall-aspect screenshots: the selected world must extend behind safe-area and letterbox regions instead of flat sky strips; background crop is centered and never stretches characters or collision geometry. Validate portrait layout of active gameplay, pause and drag control on both platforms.
 
