@@ -1892,9 +1892,14 @@ class MainActivity : Activity() {
     @Deprecated("Document picker compatibility for existing Android installations")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
         super.onActivityResult(requestCode,resultCode,data)
+        if(requestCode!=42 && requestCode!=43)return
         if(resultCode!=RESULT_OK || data?.data==null)return
         try {
-            if(requestCode==42){contentResolver.openOutputStream(data.data!!)?.bufferedWriter(Charsets.UTF_8)?.use{it.write(progress.exportJson())}}
+            if(requestCode==42){
+                val stream=contentResolver.openOutputStream(data.data!!)
+                    ?: error("Izvoz nije dostupan.")
+                stream.bufferedWriter(Charsets.UTF_8).use{it.write(progress.exportJson())}
+            }
             if(requestCode==43){
                 val input=contentResolver.openInputStream(data.data!!) ?: error("Datoteka nije dostupna.")
                 // Reject oversized and hostile document-provider data while reading,
@@ -1917,7 +1922,10 @@ class MainActivity : Activity() {
             }
             Toast.makeText(this,"Napredak uspješno ${if(requestCode==42)"izvezen" else "uvezen"}.",Toast.LENGTH_LONG).show()
             if(requestCode==43)showHome()
-        }catch(e:Exception){Toast.makeText(this,"Pogreška: ${e.message}",Toast.LENGTH_LONG).show()}
+        }catch(e:Exception){
+            // Do not expose provider paths or the contents of a private save.
+            Toast.makeText(this,"Kopiju nije moguće otvoriti ili spremiti.",Toast.LENGTH_LONG).show()
+        }
     }
     // The same navigation semantics apply to Android 8-12 hardware Back and
     // Android 13-16 predictive Back, without losing the current flight.
