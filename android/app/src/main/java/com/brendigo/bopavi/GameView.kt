@@ -610,27 +610,46 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Cumulative PROLAZI never resets when a seamless level advances.
         text(c,"${game.passed}/$total",366f,130f,13f,0xffe8f5ff.toInt(),true)
     }
+    /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
+     *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
+     *  All counters remain real GameSimulation values.
+     */
+    private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
+        rect(c,l,t,r,b,0xed062755.toInt(),24f)
+        fill(0xff43d8ff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=2.2f
+        p.alpha=196
+        c.drawRoundRect(l+1.5f,t+1.5f,r-1.5f,b-1.5f,22f,22f,p)
+        p.style=Paint.Style.FILL
+        rect(c,l+14f,t+5f,r-14f,t+8f,0x98d3faff.toInt(),2f)
+        rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
+    }
+    private fun hudGoldCoin(c:Canvas) {
+        oval(c,17f,25f,54f,70f,0xfff9a70e.toInt())
+        oval(c,21f,29f,50f,66f,0xffffdf5f.toInt())
+        oval(c,24f,32f,47f,62f,0xffec9500.toInt())
+        text(c,"♛",35f,55f,22f,0xfffff3a4.toInt(),true)
+    }
     private fun drawHud(c:Canvas){
-        // Semitransparent midnight-blue glass chips and gold/cyan highlights.
-        // Keep top-right clear for the separately clickable pause control.
-        rect(c,13f,21f,144f,75f,0xe8062a62.toInt(),24f)
-        rect(c,17f,25f,54f,70f,0xffef9f0a.toInt(),22f)
-        text(c,"●",35f,55f,27f,0xffffe685.toInt(),true)
+        // Three compact real counters; reserve x>405 for the native Pause view.
+        hudGlass(c,13f,21f,144f,75f)
+        hudGoldCoin(c)
         text(c,"${game.coins}",66f,55f,23f,Color.WHITE)
-        rect(c,155f,21f,275f,75f,0xe8062a62.toInt(),24f)
+        hudGlass(c,155f,21f,275f,75f)
         text(c,"★",169f,56f,27f,0xffffcd59.toInt())
         text(c,"${game.stars}",206f,55f,23f,Color.WHITE)
-        rect(c,285f,21f,405f,75f,0xe8062a62.toInt(),24f)
+        hudGlass(c,285f,21f,405f,75f)
         text(c,"LEVEL",297f,44f,13f,0xffbdefff.toInt())
         text(c,"${game.displayLevel}",300f,65f,20f,Color.WHITE)
         if(game.shield>0){
-            rect(c,13f,169f,154f,211f,0xec08295a.toInt(),21f)
+            hudGlass(c,13f,169f,154f,211f)
             rect(c,18f,173f,53f,207f,0xff147fce.toInt(),17f)
             text(c,"◆",35f,197f,21f,0xffbfffff.toInt(),true)
             text(c,"ŠTIT ×${game.shield}",63f,196f,17f,Color.WHITE)
         }
         if(game.magnetTime>0f){
-            rect(c,13f,216f,165f,258f,0xec08295a.toInt(),21f)
+            hudGlass(c,13f,216f,165f,258f)
             rect(c,18f,221f,53f,254f,0xff147fce.toInt(),17f)
             text(c,"∩",35f,245f,23f,0xffffd266.toInt(),true)
             val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt()
