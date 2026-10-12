@@ -1,4 +1,5 @@
 ## v0.1.66 — Connected pilot faces and correctly articulated live gameplay (build 69)
+- Corrected shared **Crystal Sky** and **Enchanted Forest** environment selection: world 1 now renders its actual icy/cyan crystal-spire scene rather than the unrelated sandy skyline; world 6 uses a distinct woodland palette and enchanted canopy rather than repeating Green Islands. Saved world indices, world unlocks and procedural seeds do not change.
 
 - Replaced tall-screen blank sky letterbox bands with **aspect-cover biome artwork** on Android and iOS: distant world art is centered and cropped to fill the full physical screen; active gameplay, character sprite scaling, HUD, inputs and collision coordinates remain under the original 480×800 fit transform. No extra image downloads or per-frame bitmaps.
 
