@@ -1,3 +1,11 @@
+## v0.1.50 — high-detail Bopi art and animation QA
+
+- Build with the existing image generator and inspect the actual blue Bopi on Android API35/API36 and iOS Simulator: eyes have inner azure irises and multiple catchlights; the beak is visibly open; the pilot goggles and gold crown scarf remain legible without overlap.
+- In the pilot picker, verify the fully winged Bopi portrait still renders at all sizes and that all nine existing skins remain individually selectable and priced. Do not alter saved skin indices, rewards or state on upgrade.
+- In gameplay, trigger consecutive wingbeats, pause, resume and background the app. Six newly authored feather glints must move with their respective left/right wing sprites, not remain fixed on the torso; collision radii, collected coins and player position remain unchanged.
+- CI must confirm Android/iOS sprite PNG equality for all nine bodies, 18 wings, nine portraits; check graphics dimensions, emulator first-flight and resume, Swift saves/physics and Android Kotlin tests.
+- Record a fresh screenshot comparison with the user's premium Bopi reference; generated vector shading is still not full 3D/rendered equivalence. Repeat manual testing at reduced motion, small/large phones and a physical device before claiming production hardware readiness.
+
 ## v0.1.49 — home branding and shared illustrated footer
 
 - Capture actual Home screenshots from Android 15 and 16 emulators and iOS simulator, including short and tall portrait devices. BOPAVI crown and lettering must appear **below** the accessible real avatar/best-score/coins/gear header, not obscured by it.
