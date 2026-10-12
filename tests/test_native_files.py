@@ -1461,6 +1461,6 @@ assert 'wing_parts={side:' in generation
 assert 'for shape in wing_shapes' in generation
 assert "wing_parts[side]" in generation
 assert 'wing_shapes[:2]' not in generation and 'wing_shapes[2:4]' not in generation
-for stable in ("('bopi6','Bopi6')", "((7,'noa'),(8,'any'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
+for stable in ("'bopi6','Bopi6'", "((7,'noa'),(8,'any'))", "f'Bopi{skin}.imageset'", 'range(9)','Image.alpha_composite(wings,body)'):
     assert stable in generation
 print('PASS: detailed royal-blue Bopi mascot with truly detached animated feather layers')
