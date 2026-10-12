@@ -1,3 +1,11 @@
+## Iteration 31 — live profile gold rail and reference card hierarchy (v0.1.58)
+
+**Observed disparity:** previous v0.1.57 profile had only a text level strip under the portrait, tiny icon-only medals without unlock conditions, and world previews with no rank markers. The concept shows a gold progress rail below the large pilot portrait, descriptive achievement tiles and gold world-number badges.
+
+**Implemented:** Android `ProgressBar` and iOS `UIProgressView` now show authentic saved-world stars `min(worldStars(chosenWorld),30) / 30` under the avatar, rather than inventing character XP or flight metres. Four medal cards show actual achievement thresholds with locked/unlocked states from original data. Top-world cards now overlay true ranking numbers on original game assets; taps still open actual level lists. Android/iOS native labels remain dynamically sourced from the save and readable with assistive technology.
+
+**Reference constraint:** the profile illustration in the conversation contains fabricated numbers and high-end painted 3D assets. These are not copied into the local save, and pixel-for-pixel 1:1 is **not** verified. QA must compare the new runtime emulator and simulator screenshots on narrow/large displays; feather rendering, typography, decorative medal assets and lighting are still visually different.
+
 ## Iteration 30 — real offline profile, achievements and worlds (v0.1.57)
 
 **Reference:** new BOPAVI PROFIL concept alongside the ten previously supplied game references. The concept includes blue/gold portrait, live metrics, four achievement seals, three favorite worlds, orange Edit Profile and a persistent four-tab footer.
