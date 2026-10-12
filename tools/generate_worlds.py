@@ -397,7 +397,11 @@ def shapes(index: int):
 # Reference gallery index -> corresponding existing scenic source.
 # Gameplay world IDs and save-key indices DO NOT change.
 # The forest uses an original woodland overlay to avoid duplicate island art.
-WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)
+# Match *visual content* to the eight established world IDs, not just tint:
+# 1 now has genuine crystal/snow spires; 6 has its own warm woodland
+# baseline plus the enchanted-forest canopy, instead of duplicating world 0.
+# This changes generated scenery only. Game/save world IDs remain unchanged.
+WORLD_SCENE_SOURCE = (0, 2, 3, 5, 6, 4, 1, 7)
 REFERENCE_WORLD_NAMES = (
     "Zeleni otoci", "Kristalno nebo", "Lava vrhovi", "Noćni dvorci",
     "Biserno more", "Nebeske kule", "Čarobna šuma", "Zvjezdani bezdani",
