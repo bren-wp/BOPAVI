@@ -1,3 +1,5 @@
+Scene-to-world alignment: world 1 Crystal Sky now maps to icy cyan crystal artwork, and world 6 Enchanted Forest uses the woodland scene plus dedicated luminous foliage overlay (formerly world 0 duplicate). This is a concrete correction, not 1:1 illustration fidelity.
+
 ## v0.1.66 — Tall-screen world scene coverage
 
 Authentic Android CI screenshots at 1080×2400 showed broad plain-color sky bands above/below the fixed 480×800 simulation. Both native renderers now aspect-cover the far biomes across the entire physical screen but retain the original exact physics/HUD/touch transforms. Retest using emulator/device PNG comparisons. This removes one concrete composition gap, **not** the remaining substantial painterly 3D illustration mismatch.
