@@ -430,6 +430,37 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xffffe25d.toInt())
         c.drawPath(path,p)
     }
+    /** Faceted cliff surfaces inside the unchanged top/bottom collision shafts.
+     * Real art-only perspective makes the columns read as suspended stone
+     * instead of two flat rectangles. Reuses the shared Path and Paint.
+     */
+    private fun drawRockFacets(c:Canvas,x:Float,w:Float,start:Float,end:Float){
+        if(end-start<34f)return
+        val span=end-start
+        path.reset()
+        path.moveTo(x+4f,start+6f)
+        path.lineTo(x+w*.39f,start+11f)
+        path.lineTo(x+w*.61f,start+span*.56f)
+        path.lineTo(x+w*.24f,end-9f)
+        path.lineTo(x+4f,end-16f)
+        path.close()
+        fill(0x3cffffff);c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x+w*.61f,start+6f)
+        path.lineTo(x+w-16f,start+4f)
+        path.lineTo(x+w-16f,end-13f)
+        path.lineTo(x+w*.40f,end-7f)
+        path.lineTo(x+w*.61f,start+span*.56f)
+        path.close()
+        fill(0x59081836);c.drawPath(path,p)
+        // Short nonuniform stratum lines and highlights: no fake hitboxes.
+        path.reset()
+        path.moveTo(x+10f,start+span*.32f)
+        path.lineTo(x+w*.33f,start+span*.37f)
+        path.lineTo(x+w*.49f,start+span*.35f)
+        fill(0x64ffffff);p.style=Paint.Style.STROKE;p.strokeWidth=2f
+        c.drawPath(path,p);p.style=Paint.Style.FILL
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -443,6 +474,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+7f,bottom,x+w-5f,755f,shade,7f)
         rect(c,x,bottom,x+w-13f,755f,color,7f)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
+        drawRockFacets(c,x,w,2f,top-30f)
+        drawRockFacets(c,x,w,bottom+28f,751f)
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
