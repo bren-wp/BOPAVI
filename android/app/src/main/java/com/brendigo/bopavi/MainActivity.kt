@@ -827,7 +827,7 @@ class MainActivity : Activity() {
             6 -> "Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima."
             7 -> "Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem."
             8 -> "Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima."
-            else -> "Izaberi svog letača. Odabir se čuva na uređaju."
+            else -> "Odaberi letača i poleti u novu avanturu."
         })
         small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
         sectionHeading(b,"ODABERI SVOG LETAČA")
