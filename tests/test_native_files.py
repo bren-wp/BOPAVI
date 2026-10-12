@@ -1164,7 +1164,7 @@ for n in ref_names:
 for source in (android_levels,ios_levels):
     for value in ('1_048_576','8','Zeleni otoci','Zvjezdani bezdani'):
         assert value in source
-assert 'WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)' in worlds
+assert 'WORLD_SCENE_SOURCE = (0, 2, 3, 5, 6, 4, 1, 7)' in worlds
 assert 'enchanted_forest_overlay()' in worlds
 assert 'svg=shapes(source_index)' in worlds
 assert 'if world==6:' in worlds
@@ -1524,7 +1524,7 @@ assert 'add(foreground_cloud_bank(index))' in world_source
 assert 'fill="url(#cloud-bank)"' in world_source
 assert 'fill="url(#cloud-soft)"' in world_source
 assert 'x="0" y="757" width="480" height="43"' not in world_source
-assert 'WORLD_SCENE_SOURCE = (0, 1, 3, 5, 6, 4, 0, 7)' in world_source
+assert 'WORLD_SCENE_SOURCE = (0, 2, 3, 5, 6, 4, 1, 7)' in world_source
 assert 'for world in range(8)' in world_source
 
 # Premium chips are real game HUD, not a static mockup, on both platforms.
