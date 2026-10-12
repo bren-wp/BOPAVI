@@ -6,7 +6,6 @@ This is an additional guard, not a compiler call-graph or a memory-leak proof.
 Platform callbacks, dynamic names, persisted field IDs and accessibility
 entry points are never automatically removed by token-count heuristics.
 """
-from collections import Counter
 from pathlib import Path
 import hashlib
 import re
