@@ -1,3 +1,13 @@
+## v0.1.57 — profile layout, live badges and top worlds
+
+1. On Android 15/16 and iPhone Simulator, open the real PROFIL home nav tab: check a gold-outlined **current pilot** portrait on the left and four **real** statistics on the right. Test a small 9:16 device and a tall phone; nothing should overlap or clip beyond its scrollable content.
+2. Using existing local progress, ensure name, selected character, next stream level, best score, coin balance, completed levels and wins change accurately after real runs or a save import, without any placeholders from the reference (e.g., 12,450 points/320 coins).
+3. Earn or import progress to verify four badges: PRVI LET for the first win; ISTRAŽIVAČ after completing at least one level in five worlds; SAKUPLJAČ after at least 500 saved collectibles; VETERAN after 10 wins. A locked badge must never claim to be earned.
+4. Verify the top-three cards are sorted by earned world stars (then best per-world score) and use existing World0–World7 art. Tap a card to open that world's **real** level list, not a static image.
+5. Tap PROFIL/ZADACI/KOLEKCIJA/TRGOVINA in the footer. Every button must navigate correctly and offer a path back. Test Settings and character selection from profile without changing saved progress or spending a coin merely by opening a card.
+6. Confirm that backgrounding, orientation controls and reduced-motion settings still work, then run full native source/dead-code audits and Android/iOS build/simulator QA.
+7. Compare real runtime screenshots against the supplied reference profile. Record discrepancies in 3D art depth, logo, screen spacing and tile quality instead of reporting 1:1 without evidence.
+
 ## v0.1.56 — star parity and iOS frame-budget verification
 
 1. Verify earned star pickups display as the same **gold 5-point shapes** on Android and iOS in every biome and still disappear only after their real collection events.
