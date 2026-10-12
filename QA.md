@@ -1,3 +1,13 @@
+## v0.1.64 — Personal scoreboard, privacy and polished screen QA
+
+1. Open **Postavke → Moji rekordi**. Check the dark-blue ranking cards have a gold best-result panel, readable portrait layout and only the user's ten highest *actual* flight scores. Every metric must originate in `ProgressStore` with zero placeholder rows.
+2. Change the player nickname in Postavke, reopen Moji rekordi and verify the same sorted runs, gate counts, world IDs and difficulty are retained, with no older player aliases shown or written to new exports.
+3. Import valid legacy v1–v6 save JSON that includes a different `leaderboard[].name`; verify score history is retained under the imported player profile, without resurrecting historical names or paying a reward twice. Reject malformed/oversized backups without changing progress.
+4. iOS: export with the share sheet, cancel and complete it, and verify the unique protected temporary document is deleted via completion handler. Android: cancel picker, use inaccessible destination, and verify there is no false success toast, raw provider path, crash or leaked JSON.
+5. Review Profile, Achievements and Settings: no irrelevant "saved on phone", local-leaderboard or developer/testing banners. Actual privacy/legal policy content remains available in GitHub documentation. All scrollable panels, VoiceOver/TalkBack and small screens must remain usable.
+6. Run privacy audit, Kotlin/JVM, Android 15+16 emulator screenshots, Swift saves/physics and simulator/device builds; only publish when PR and main GitHub CI are both green. Confirm SHA256SUMS and the artifact set.
+7. Continue **1:1 art gap review**: compare actual Android/iOS screenshots of home, world cards, level picker, character gallery, gameplay, pause, result, profile and settings against supplied 19 reference images. Do not substitute concept images for real app screenshots.
+
 ## v0.1.63 — Alternate control physics and artwork QA
 
 1. On Android 15/16 and iOS simulator enter world 0 and confirm **TAP ZA ZAMAH**: every actual down event triggers exactly one historical -255 velocity flap, no movement on touch-drag alone, and lives/rewards still work.

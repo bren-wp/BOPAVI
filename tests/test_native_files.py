@@ -349,7 +349,7 @@ for store in (android_save,ios_save):
     assert "difficulty" in store
     assert "if(world==maxWorld()" not in store and "if world==maxWorld()" not in store
 for ui in (android,ios):
-    assert "LOKALNA LJESTVICA" in ui and "POSTIGNUĆA" in ui
+    assert "MOJI REKORDI" in ui and "POSTIGNUĆA" in ui
     assert "Težina se primjenjuje na sljedeći let" in ui
 assert "if(accessible)" not in android and "if accessible" not in ios
 
@@ -662,7 +662,7 @@ android_settings=android_menu.split("private fun showSettings()",1)[1].split("ov
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
     for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
-                  "LIKOVI","TRGOVINA KOVANICAMA","LOKALNA LJESTVICA"):
+                  "LIKOVI","TRGOVINA KOVANICAMA","MOJI REKORDI"):
         assert title in settings
     assert 'showSkins()' in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
@@ -695,7 +695,7 @@ for home in (android_home,ios_home):
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
-                  'Tvoje ime','Bez oglasa i kupnje stvarnim novcem',
+                  'Tvoje ime','Bez oglasa, praćenja i kupnje stvarnim novcem.',
                   'KUPI ','KOVANICA','BODOVA','Stvorio Brendigo'):
         assert label in ui, label
     for deprecated in ('Smanji animacije (30 FPS)','(v0.1–v0.5)',
@@ -1959,3 +1959,33 @@ assert 'POVUCI GORE / DOLJE' in android_view and 'POVUCI GORE / DOLJE' in ios_vi
 assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_view
 assert 'triggerFlap()' in ios_view
 print('PASS: native drag steering and classic tap wings coexist across all 8 worlds')
+
+# v0.1.64: one player profile, no stale nickname or local-storage banners in UI.
+android_ui=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios_ui=(root/'ios/BOPAVI/GameController.swift').read_text()
+android_saves=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+ios_saves=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+for ui in (android_ui,ios_ui):
+    assert 'menu("MOJI REKORDI"' in ui or 'base("MOJI REKORDI"' in ui
+    assert 'Osobni rekord' in ui and 'MOJA POSTIGNUĆA' in ui
+    assert '🏆  MOJI REKORDI' in ui
+    assert 'LOKALNA LJESTVICA' not in ui
+    assert 'Najbolji stvarni rezultati na ovom uređaju' not in ui
+    assert 'Tvoj napredak spremljen je samo na uređaju' not in ui
+    assert 'Ime je spremljeno na uređaju' not in ui
+    assert 'Tvoj letački dnevnik i osobni rezultati' in ui
+assert 'LocalScore(playerName(),score,world,mode,gates)' in android_saves
+assert 'JSONObject().put("name",restoredName)' in android_saves
+assert 'return LocalScore(name:playerName' in ios_saves
+assert 'return ["name":playerName,"score":score' in ios_saves
+assert 'let scores=leaderboard().map(scoreDictionary)' in ios_saves
+assert 'val entries=JSONArray()' in android_saves.split('fun setPlayerName(',1)[1].split('data class LocalScore',1)[0]
+assert 'bopavi-save-\\(UUID().uuidString).json' in ios_ui
+assert '.completeFileProtectionUnlessOpen' in ios_ui
+assert 'activity.completionWithItemsHandler=' in ios_ui
+assert 'FileManager.default.removeItem(at:url)' in ios_ui
+assert 'val stream=contentResolver.openOutputStream' in android_ui
+assert 'if(requestCode!=42 && requestCode!=43)return' in android_ui
+assert 'Kopiju nije moguće otvoriti ili spremiti.' in android_ui
+assert 'rawName=row["name"]' not in ios_saves
+print("PASS: personal top-ten records, private export cleanup and no user-facing development/storage filler")

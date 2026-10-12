@@ -1,3 +1,12 @@
+## v0.1.64 — Personal records and reference screen fidelity
+
+The user supplied additional reference images for all eight world biomes, main menu, character choice, levels, profile, settings, pause, results, loading and brand guide. These are **desired style/geometry targets**, not verified live app output. Source-backed changes in this iteration focus on **Profile/Settings and personal records**, maintaining genuinely interactive controls. The visual gap remains large in the illustration style and lighting, and cannot honestly be called pixel-perfect.
+
+- **Implemented**: single-player top-ten ranking with highlighted personal best; historical nicknames normalized; no public/cloud scoreboard; removed redundant saved-on-device UI wording; safeguarded voluntary backup exports on both platforms.
+- **Still pending for 1:1**: painterly 3D Bopi feathers/goggles, dense castles/clouds/waterfalls, foreground bloom and per-world 3D islands; redesigned crown HUD and pause/result cards; objective screenshots and pixel-overlay review at matching resolution.
+- **Production privacy policy remains explicit** that gameplay data persists in platform app storage and users control voluntary backup exports. Hiding irrelevant consumer copy must not hide mandatory truthful data disclosures.
+- **Real artifact rule**: only emulator/device screenshots may be published as `BOPAVI-Android-*.png` / `BOPAVI-iOS-*.png`. Never commit UI references as if they were an actual running app.
+
 ## v0.1.63 — World-specific gesture concepts versus actual gameplay
 
 The supplied reference set shows a crystal-space and enchanted-fantasy world with portrait HUD, crown coins, enormous sculpted cliff faces, floating cities and exceptionally detailed 3D mascot feathers. The *new* reference world grid differentiates tap and vertical dragging. This iteration implements the **actual input/physics/UI difference** in the native apps rather than a static illustration.

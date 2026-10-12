@@ -1514,7 +1514,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
-        let s=menu("PROFIL","Tvoj letački dnevnik · podaci samo na uređaju")
+        let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         let skin=progress.skinIndex()
         let hero=UIStackView()
         hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
@@ -1781,24 +1781,73 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
 
     private func showLeaderboard(){
-        let s=menu("LJESTVICA","Najbolji stvarni rezultati na ovom uređaju")
+        let stack=menu("MOJI REKORDI","Tvojih deset najboljih letova")
         let entries=progress.leaderboard()
-        if entries.isEmpty {label("Još nema rezultata. Odigraj let i osvoji bodove!",16,.white,s)}
-        for (index,item) in entries.enumerated() {
-            label("\(index+1). \(item.name) · \(item.score) bodova",18,.white,s)
-            label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty]) · \(item.gates) prolaza",14,.white,s)
+        if let best=entries.first {
+            let banner=UIStackView()
+            banner.axis = .vertical;banner.alignment = .fill;banner.spacing=3
+            banner.isLayoutMarginsRelativeArrangement=true
+            banner.layoutMargins=UIEdgeInsets(top:15,left:13,bottom:17,right:13)
+            banner.backgroundColor=UIColor(red:0.025,green:0.29,blue:0.64,alpha:0.98)
+            banner.layer.cornerRadius=23
+            banner.layer.borderWidth=3
+            banner.layer.borderColor=UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
+            banner.isAccessibilityElement=true
+            banner.accessibilityLabel="Osobni rekord: \(best.score) bodova"
+            label("♛  OSOBNI REKORD",18,UIColor(red:1,green:0.79,blue:0.32,alpha:1),banner)
+            let score=label("\(best.score) BODOVA",29,.white,banner)
+            score.font=UIFont.monospacedDigitSystemFont(ofSize:29,weight:.heavy)
+            stack.addArrangedSubview(banner)
+        } else {
+            label("Prvi rekord čeka tvoj sljedeći let!",17,.white,stack)
         }
-        button("POSTIGNUĆA",in:s,primary:false){self.showAchievements()}
-        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
+        for (index,item) in entries.enumerated() {
+            let champion=index==0
+            let card=UIStackView()
+            card.axis = .horizontal;card.alignment = .center;card.spacing=9
+            card.isLayoutMarginsRelativeArrangement=true
+            card.layoutMargins=UIEdgeInsets(top:12,left:12,bottom:12,right:12)
+            card.backgroundColor=UIColor(red:0.025,green:champion ? 0.29 : 0.16,
+                                         blue:champion ? 0.55 : 0.37,alpha:1)
+            card.layer.cornerRadius=18;card.layer.borderWidth=champion ? 2 : 1
+            card.layer.borderColor=champion
+                ? UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
+                : UIColor(red:0.10,green:0.78,blue:1,alpha:1).cgColor
+            card.isAccessibilityElement=true
+            card.accessibilityLabel="Let \(index+1), \(item.score) bodova, \(BopaviCore.names[item.world]), \(item.gates) prolaza"
+            let medal=UILabel()
+            medal.text=champion ? "♛" : String(index+1)
+            medal.textAlignment = .center;medal.font=UIFont.systemFont(ofSize:champion ? 29:22,weight:.heavy)
+            medal.textColor=champion ? UIColor(red:1,green:0.77,blue:0.30,alpha:1) : .white
+            medal.widthAnchor.constraint(equalToConstant:49).isActive=true
+            medal.heightAnchor.constraint(equalToConstant:50).isActive=true
+            card.addArrangedSubview(medal)
+            let detail=UIStackView()
+            detail.axis = .vertical;detail.alignment = .fill;detail.spacing=2
+            let main=label("\(item.score) BODOVA",20,.white,detail)
+            main.font=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
+            main.adjustsFontSizeToFitWidth=true;main.minimumScaleFactor=0.72
+            let location=label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty])",12,
+                               UIColor(red:0.83,green:0.94,blue:1,alpha:1),detail)
+            location.adjustsFontSizeToFitWidth=true;location.minimumScaleFactor=0.7
+            card.addArrangedSubview(detail)
+            let gates=UILabel()
+            gates.text="⚑ \(item.gates)";gates.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
+            gates.font=UIFont.monospacedDigitSystemFont(ofSize:13,weight:.heavy)
+            gates.setContentCompressionResistancePriority(.required,for:.horizontal)
+            card.addArrangedSubview(gates)
+            stack.addArrangedSubview(card)
+        }
+        button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements()}
+        button("‹  POSTAVKE",in:stack,primary:false){self.showSettings()}
     }
     private func showAchievements(){showAchievements(.settings)}
     private func showAchievements(_ origin:MenuOrigin){
-        let s=menu("POSTIGNUĆA","Tvoj napredak spremljen je samo na uređaju")
+        let s=menu("POSTIGNUĆA","Nagrade koje si osvojio tijekom igre")
         let total=(0..<8).reduce(0){$0+self.progress.frontier($1)-1}
         label("Dovršeni leveli: \(total)",19,.white,s)
         label("Pobjede: \(progress.wins()) · Pokušaji bez pobjede: \(progress.deaths())",17,.white,s)
-        label("Napredak je spremljen samo na ovom uređaju.",17,.white,s)
-        for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
+         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
         let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL" : "POSTAVKE"
         button("‹  "+backTitle,in:s,primary:false){
             switch origin {
@@ -1988,7 +2037,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("SPREMI IME",in:settingsPanel,primary:false){
             player.resignFirstResponder()
             self.progress.playerName=player.text ?? ""
-            self.alert("Spremljeno","Ime igrača spremljeno je samo na ovom uređaju.")
+            self.alert("Spremljeno","Ime igrača je promijenjeno.")
         }
         sectionHeading("DODATNE OPCIJE",in:settingsPanel)
         let toggle=UISwitch();toggle.isOn=progress.lessMotion
@@ -2008,15 +2057,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
         button("🐤  LIKOVI",in:settingsPanel,primary:false){self.showSkins()}
         button("🛍  TRGOVINA KOVANICAMA",in:settingsPanel,primary:false){self.showPerks()}
-        button("🏆  LOKALNA LJESTVICA",in:settingsPanel,primary:false){self.showLeaderboard()}
+        button("🏆  MOJI REKORDI",in:settingsPanel,primary:false){self.showLeaderboard()}
         sectionHeading("PODACI I PRIVATNOST",in:settingsPanel)
         label("BOPAVI — Mali let, velika avantura. Stvorio Brendigo.",14,.white,settingsPanel)
-        label("Bez oglasa i kupnje stvarnim novcem. Tvoj napredak ostaje na uređaju.",14,.white,settingsPanel)
+        label("Bez oglasa, praćenja i kupnje stvarnim novcem.",14,.white,settingsPanel)
         button("SPREMI KOPIJU NAPRETKA",in:settingsPanel,primary:false){
             do {
-                let url=FileManager.default.temporaryDirectory.appendingPathComponent("bopavi-save.json")
-                try self.progress.exportData().write(to:url,options:.atomic)
+                // Each voluntary export is unique, protected, and deleted once shared.
+                let url=FileManager.default.temporaryDirectory
+                    .appendingPathComponent("bopavi-save-\(UUID().uuidString).json")
+                try self.progress.exportData().write(to:url,options:[.atomic,.completeFileProtectionUnlessOpen])
                 let activity=UIActivityViewController(activityItems:[url],applicationActivities:nil)
+                activity.completionWithItemsHandler={_,_,_,_ in
+                    try? FileManager.default.removeItem(at:url)
+                }
                 activity.popoverPresentationController?.sourceView=self.view
                 self.present(activity,animated:true)
             } catch {self.alert("Izvoz nije uspio",error.localizedDescription)}
@@ -2042,7 +2096,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             sound.effectsVolume=Float(progress.effectsVolume)/100
             showHome();alert("Uspješno","Napredak je uvezen.")
         }
-        catch {alert("Uvoz nije uspio",error.localizedDescription)}
+        catch {alert("Uvoz nije uspio","Provjeri da je odabrana valjana BOPAVI kopija napretka.")}
     }
     private func alert(_ title:String,_ message:String){let a=UIAlertController(title:title,message:message,preferredStyle:.alert);a.addAction(UIAlertAction(title:"U redu",style:.default));present(a,animated:true)}
 }

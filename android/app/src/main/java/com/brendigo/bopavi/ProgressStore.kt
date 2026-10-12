@@ -141,7 +141,14 @@ class ProgressStore(context: Context) {
     fun playerName(): String = prefs.getString("player_name", "Igrač") ?: "Igrač"
     fun setPlayerName(value: String) {
         val clean = value.trim().take(24).filter { it.isLetterOrDigit() || it == ' ' || it == '_' || it == '-' }
-        prefs.edit().putString("player_name", clean.ifBlank { "Igrač" }).apply()
+        val displayName=clean.ifBlank { "Igrač" }
+        prefs.edit().putString("player_name",displayName).apply()
+        // Rename one player's history instead of retaining older public aliases.
+        val entries=JSONArray()
+        for(item in leaderboard())entries.put(JSONObject().put("name",displayName)
+            .put("score",item.score).put("world",item.world)
+            .put("difficulty",item.difficulty).put("gates",item.gates))
+        prefs.edit().putString("local_leaderboard",entries.toString()).apply()
     }
     data class LocalScore(val name:String, val score:Int, val world:Int, val difficulty:Int, val gates:Int)
     val difficultyNames = listOf("Opušteno", "Standardno", "Izazovno")
@@ -155,7 +162,7 @@ class ProgressStore(context: Context) {
             val world=v.optInt("world",-1); val mode=v.optInt("difficulty",-1)
             val score=v.optInt("score",-1); val gates=v.optInt("gates",-1)
             if(world !in 0..7 || mode !in 0..2 || score !in 0..100000000 || gates !in 0..100000000) return@mapNotNull null
-            LocalScore(v.optString("name","Igrač").take(24).ifBlank { "Igrač" },score,world,mode,gates)
+            LocalScore(playerName(),score,world,mode,gates)
         }.sortedWith(compareByDescending<LocalScore>{it.score}.thenByDescending{it.gates}).take(10)
     }
     private fun saveLocalScore(game:GameSimulation) {
@@ -299,10 +306,8 @@ class ProgressStore(context: Context) {
             val w=row.optInt("world",-1);val mode=row.optInt("difficulty",-1)
             val score=row.optInt("score",-1);val gates=row.optInt("gates",-1)
             if(w in 0..7 && mode in 0..2 && score in 0..100000000 && gates in 0..100000000) {
-                val name=row.optString("name","Igrač").trim().take(24).filter {
-                    it.isLetterOrDigit() || it==' ' || it=='_' || it=='-'
-                }.ifBlank { "Igrač" }
-                board.put(JSONObject().put("name",name).put("score",score)
+                // Keep v1-v6 score history without showing previous player aliases.
+                board.put(JSONObject().put("name",restoredName).put("score",score)
                     .put("world",w).put("difficulty",mode).put("gates",gates))
             }
         }

@@ -156,6 +156,30 @@ struct SwiftSaves {
         let afterInvalid=try store.exportData()
         precondition(rejectedStars && afterInvalid==beforeInvalid,
                      "Rejected rating import modified real saved progress")
+        // v0.1.64: an old name is never a second player on a private top-ten list.
+        let historical:[[String:Any]]=[
+            ["name":"Stari Profil","score":510,"world":2,"difficulty":1,"gates":4],
+            ["name":"Tuđe Ime","score":310,"world":0,"difficulty":0,"gates":2]
+        ]
+        let historicalData=try JSONSerialization.data(withJSONObject:historical)
+        UserDefaults.standard.set(String(data:historicalData,encoding:.utf8)!,forKey:"local_leaderboard")
+        store.playerName="Novi Pilot"
+        precondition(store.leaderboard().count==2)
+        precondition(store.leaderboard().allSatisfy{$0.name=="Novi Pilot"})
+        let persisted=UserDefaults.standard.string(forKey:"local_leaderboard") ?? ""
+        precondition(!persisted.contains("Stari Profil") && !persisted.contains("Tuđe Ime"))
+        var imported=try JSONSerialization.jsonObject(with:store.exportData()) as! [String:Any]
+        var importedSave=imported["save"] as! [String:Any]
+        importedSave["leaderboard"]=[["name":"Legacy Alias","score":890,
+                                      "world":1,"difficulty":1,"gates":7]]
+        imported["save"]=importedSave
+        try store.importData(JSONSerialization.data(withJSONObject:imported))
+        precondition(store.leaderboard().count==1)
+        precondition(store.leaderboard()[0].name=="Novi Pilot" &&
+                     store.leaderboard()[0].score==890)
+        let exportedPersonal=String(data:try store.exportData(),encoding:.utf8)!
+        precondition(!exportedPersonal.contains("Legacy Alias"))
+        print("PASS: personal top-ten ownership, nickname rotation, privacy-safe legacy backup import")
         print("PASS: Swift v0.2-v0.6 migration, earned rating monotonicity, v6 backup integrity and invalid save rejection")
     }
 }

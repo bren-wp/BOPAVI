@@ -135,7 +135,14 @@ final class ProgressStore {
             let allowed = newValue.trimmingCharacters(in:.whitespacesAndNewlines).filter {
                 $0.isLetter || $0.isNumber || $0 == " " || $0 == "_" || $0 == "-"
             }
-            defaults.set(allowed.isEmpty ? "Igrač" : String(allowed.prefix(24)),forKey:"player_name")
+            let displayName=allowed.isEmpty ? "Igrač" : String(allowed.prefix(24))
+            defaults.set(displayName,forKey:"player_name")
+            // Existing flights belong to the one personal record collection.
+            let scores=leaderboard().map(scoreDictionary)
+            if let data=try? JSONSerialization.data(withJSONObject:scores),
+               let text=String(data:data,encoding:.utf8) {
+                defaults.set(text,forKey:"local_leaderboard")
+            }
         }
     }
     struct LocalScore {
@@ -159,7 +166,7 @@ final class ProgressStore {
                   let mode=row["difficulty"] as? Int, (0...2).contains(mode),
                   let score=row["score"] as? Int, (0...100_000_000).contains(score),
                   let gates=row["gates"] as? Int, (0...100_000_000).contains(gates) else { return nil }
-            return LocalScore(name:String((row["name"] as? String ?? "Igrač").prefix(24)),
+            return LocalScore(name:playerName,
                               score:score,world:world,difficulty:mode,gates:gates)
         }.sorted { $0.score == $1.score ? $0.gates > $1.gates : $0.score > $1.score }
     }
@@ -307,11 +314,8 @@ final class ProgressStore {
                   let mode=row["difficulty"] as? Int, (0...2).contains(mode),
                   let score=row["score"] as? Int, (0...100_000_000).contains(score),
                   let gates=row["gates"] as? Int, (0...100_000_000).contains(gates) else {return nil}
-            let rawName=row["name"] as? String ?? "Igrač"
-            let name=String(rawName.prefix(24).filter {
-                $0.isLetter || $0.isNumber || $0 == " " || $0 == "_" || $0 == "-"
-            })
-            return ["name":name.isEmpty ? "Igrač" : name,"score":score,"world":world,
+            // Historical backup scores stay playable, old aliases do not.
+            return ["name":playerName,"score":score,"world":world,
                     "difficulty":mode,"gates":gates]
         }
         if let bytes=try? JSONSerialization.data(withJSONObject:cleanBoard),

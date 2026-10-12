@@ -16,7 +16,7 @@
 
 ## Svaka avantura počinje jednim zamahom 🪽
 
-Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i krilima koja ga vode preko lebdećih otoka, začaranih dvoraca, kristalnog neba i slapova. U **BOPAVI-ju** jedan dodir znači novi zamah: zaobiđi prepreke, skupljaj kovanice i zvijezde te pronađi vlastiti ritam leta.
+Upoznaj **Bopija**, vedrog plavog pilota sa zlatnim naočalama, velikim srcem i krilima koja ga vode preko lebdećih otoka, začaranih dvoraca, kristalnog neba i slapova. U **BOPAVI-ju** izmjenjuju se svjetovi s dodirom za zamah i svjetovi s povlačenjem prsta za upravljanje visinom. Zaobiđi prepreke, skupljaj kovanice i zvjezdice te pronađi vlastiti ritam leta.
 
 **Osam fantastičnih svjetova**, devet jedinstveno oslikanih letača i više od milijun proceduralnih izazova po svijetu donose avanturu koja se nastavlja. Nove dionice dolaze bez prekida trenutnog leta.
 
@@ -90,18 +90,18 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 
 **Svaki prolaz te vodi bliže cilju.** Zlatna kruna svijetli na svakoj kovanici, a posljednji prolaz dionice obilježen je plavim čarobnim portalom.  Tijekom leta prati plavu traku od krune do ciljne zastavice, skupljaj zlatne kovanice i zvjezdice te čuvaj štit i magnet za trenutke kada ti najviše trebaju. Sve što vidiš na ekranu odražava tvoju stvarnu avanturu — od napretka do nagrada.
 
-- **Dodirni za let:** svaki dodir pokreće novi zamah krilima.
+- **Upravljaj letom:** dodir za zamah u četiri svijeta; povlačenje gore/dolje u preostala četiri.
 - **Skupljaj nagrade:** kovanice, zvijezde i korisne dodatke.
 - **Otkrij svoj ritam:** biraj između lakše, normalne i zahtjevnije težine.
 - **Odmori kada poželiš:** nastavi, ponovi let ili se vrati u izbornik.
 - **Istražuj dalje:** između uzastopnih proceduralnih levela let se nastavlja bez novog početka.
-- **Čuvaj svoju avanturu:** najbolji rezultati, otključani likovi i napredak spremaju se lokalno.
+- **Osvoji osobni rekord:** tvojih deset najboljih letova čini tvoju vlastitu ljestvicu.
 
 ## Tvoj letački dnevnik
 
 **Svaki let ostavlja trag.** U vlastitom profilu vidiš odabranog pilota, osvojene rezultate, prikupljene kovanice, dovršene levele i pobjede. Četiri sjajne značke jasno prikazuju što je potrebno za svaki uspjeh, a tri najbolja svijeta vode te ravno do sljedećih izazova. Zlatna traka prikazuje koliko si zvjezdica osvojio u odabranom svijetu, bez izmišljenih iskustvenih bodova.
 
-Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju — sve je povezano s tvojim napretkom spremljenim na uređaju. **Nema obavezne registracije, izmišljenih nagrada ni računa u oblaku.**
+Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju. **Moji rekordi** prikazuju samo tvoje rezultate; promjena nadimka ne briše povijest letova. Ne postoji javna ljestvica ni obavezna registracija.
 
 ## Otkrij što te čeka
 
@@ -118,9 +118,9 @@ Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju — sve je po
 
 ## Preuzmi i poleti
 
-BOPAVI je dostupan kao testno izdanje za Android i iOS. U [najnovijem izdanju](../../releases/latest) nalaze se Android APK i AAB te paketi za iOS simulator i uređaj. **APK je razvojni paket, a AAB i iOS device paket nisu potpisani za distribuciju kroz trgovine.** Za objavu u Google Playu i App Storeu potrebni su odgovarajući izdavački potpisi.
+U [najnovijem izdanju](../../releases/latest) dostupni su Android APK i AAB te iOS simulator i device paketi. **AAB i iOS device paket nisu distribucijski potpisani**; objava u Google Playu i App Storeu zahtijeva izdavačko potpisivanje. APK je namijenjen izravnoj instalaciji i provjeri aplikacije.
 
-Tvoj napredak sprema se na uređaj. BOPAVI ne traži korisnički račun, nema oglase i ne nudi kupnju stvarnim novcem.
+BOPAVI nema mrežnu ljestvicu, korisničke račune, oglase ni kupnju stvarnim novcem. Kopiju napretka možeš izvesti ili vratiti na vlastiti zahtjev.
 
 ---
 

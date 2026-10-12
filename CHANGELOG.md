@@ -1,3 +1,13 @@
+## v0.1.64 — Personal records, production UI wording and private backup hygiene (build 67)
+
+- Android and iOS **Moji rekordi** now show one player's ten best real flights in blue/cyan/gold ranking cards with a distinct personal-best panel. No multi-player list, online leaderboard or fabricated comparison is displayed.
+- Renaming the player updates the names attached to earlier ranked flights; backups v1–v6 still migrate actual scores and saved world/difficulty/gate records, but outdated player aliases are replaced with the current player's sanitized name. Existing earned scores and coins are preserved.
+- Removed nonessential device-storage and development language from visible Profile, Achievements and Settings UI while keeping the **actual optional import/export** controls and accurate platform privacy disclosures in dedicated policy files.
+- Android document export fails explicitly if a provider cannot open the destination, does not report false success, and no longer displays raw document-provider exception details. Existing 550K character import guard and validation remain in place.
+- iOS volunteer-export documents now use unique temporary filenames, file protection while not actively opened, and deletion after the share sheet completes or is dismissed. Imported document errors use a stable generic message rather than surfacing provider paths. iOS import remains bound to 550K bytes and sandboxed document picker.
+- Added real Swift persistence regression tests for renamed rankings and imported legacy nicknames, plus Android/iOS source-contract tests to prevent accidentally reintroducing public-looking ranked lists or insecure export handling.
+- All screenshot references remain **target concepts**, not evidence of 1:1 graphics. The gameplay backdrop and 3D bird art still require separate per-screen, device-captured visual iteration; no flat screenshots are treated as working controls.
+
 ## v0.1.63 — Real drag steering in four worlds (build 66)
 
 - Four worlds now use **vertical finger dragging** instead of tap-to-flap: Kristalno nebo, Noćni dvorci, Nebeske kule and Zvjezdani bezdani (internal world IDs 1, 3, 5, 7). Zeleni otoci, Lava vrhovi, Biserno more and Čarobna šuma retain the original flap impulse and gravity.
