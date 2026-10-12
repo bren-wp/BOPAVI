@@ -4,6 +4,8 @@
 
 **Confirmed code hot spot:** iOS's frequently called rounded-rectangle painter constructed a new `CGPath(roundedRect:)` for each HUD/gate fragment per frame. It now uses four bounded quarter arcs in the existing CGContext. This reduces explicit path-object creation while retaining the same circular-corner radius and saved-state-independent draw commands. Benchmark claims are intentionally withheld until measured on devices.
 
+**Screenshot evidence correction:** A SHA-256 audit of the published v0.1.55 images revealed that `BOPAVI-Android-Flight-Active.png` exactly duplicated the idle `BOPAVI-Android-Flight-Preview.png`. Build success alone was therefore insufficient for an active-frame claim. v0.1.56 delays capture briefly after the real injected flap and requires different preflight/active file digests during CI and final release staging. The v0.1.55 asset remains historically inaccurate; it is not retroactively described as valid gameplay proof.
+
 **Remaining visual gaps:** the same approved illustrated 2D mascot and islands are used. Volumetric 3D feather textures, castles, backgrounds, ornaments and 1:1 pixel-diff QA of all reference screens remain outstanding.
 
 ## Iteration 28 — crown coins and actual final-gate portal (v0.1.55)
