@@ -46,7 +46,9 @@ object LevelEngine {
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)
             gates += Gate(
                 x = 560f + i * (242f - zone * 2), center = center,
-                gap = gap - r.next() * 3f, width = 64f,
+                gap = gap - r.next() * 3f,
+                // Nine seeded widths. Even the widest pillar leaves a reachable horizontal approach.
+                width = 48f + ((i * 5 + (r.next() * 9f).toInt()) % 9) * 5f,
                 movement = if (active) 7f + r.next() * 9f else 0f,
                 phase = r.next() * 6.283185f,
                 kind = world, coin = i % 3 != 2 || type == 1,
