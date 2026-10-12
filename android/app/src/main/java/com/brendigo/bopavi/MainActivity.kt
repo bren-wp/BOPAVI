@@ -1484,6 +1484,51 @@ class MainActivity : Activity() {
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL I POSTAVKE",true){showSettings()}
         action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
+        // The same four native navigation actions as on the home screen.
+        val footer=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            setPadding(d(4),d(6),d(4),d(6))
+            background=gradient(0xf3062a64.toInt(),0xfa041736.toInt(),23).apply{
+                setStroke(d(2),electric)
+            }
+        }
+        val navNames=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
+        val navIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
+            R.drawable.nav_collection,R.drawable.nav_shop)
+        for(index in 0..3){
+            val tab=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
+                isClickable=true;isFocusable=true
+                background=gradient(if(index==0)0xff9b6311.toInt() else 0xff12549c.toInt(),
+                    0xff081e49.toInt(),14)
+                contentDescription=navNames[index]+if(index==0)", odabrano" else ""
+                addView(ImageView(this@MainActivity).apply{
+                    setImageResource(navIcons[index]);scaleType=ImageView.ScaleType.FIT_CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(28)))
+                addView(TextView(this@MainActivity).apply{
+                    text=navNames[index];textSize=11f
+                    gravity=Gravity.CENTER;setTextColor(Color.WHITE)
+                    typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(22)))
+                setOnClickListener{
+                    sound.effect("click")
+                    when(index){
+                        0->showProfile()
+                        1->showAchievements(MenuOrigin.PROFILE)
+                        2->showSkins(MenuOrigin.PROFILE)
+                        else->showPerks(MenuOrigin.PROFILE)
+                    }
+                }
+            }
+            footer.addView(tab,LinearLayout.LayoutParams(0,d(59),1f).apply{
+                setMargins(d(2),0,d(2),0)
+            })
+        }
+        b.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
         back(b){showHome()}
     }
 
