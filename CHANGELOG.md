@@ -1,3 +1,12 @@
+## v0.1.53 — compact eight-world gallery and independent branded intro (build 56)
+
+- Android and iOS world galleries now match the 2×4 composition of the supplied concept more closely: short, full-bleed scenic cards with the actual world title, genuine earned stars and saved best score overlaid directly on each world image. Kept the world badge, blue forward affordance, gold selected outline and entire card as one accessible tap target.
+- Removed the previous tall, duplicated caption/score rows below every world illustration. The compact gallery improves visibility on portrait mobile displays without inventing trophy/diamond rewards or locking worlds that the actual game makes playable.
+- The previously shared menu/OS launch bitmap is now **two different build-time assets** for Android and iOS. Home retains the upper wordmark and fully functional live navigation. The startup image puts the flying Bopi first and the winged BOPAVI wordmark below, closer to the separate supplied splash reference. No fake progress bar was added.
+- Android emulator QA now captures a genuine `android-worlds.png` screenshot of the interactive card grid. The verified release workflow publishes it as `BOPAVI-Android-Worlds.png` next to the existing authentic emulator/simulator shots. README marketing gallery shows the real scene.
+- All offline progress keys, eight world indices, nine pilot IDs, level-unlocking rules, procedural flight, physics and currency handling are preserved. Android and iOS versions advance to **0.1.53 (build 56)** with source regressions.
+- **This is a measured UI/composition improvement, NOT 1:1 3D illustration or pixel matching**. The original concept still exceeds the in-app 2D art detail and should not be presented as emulator output.
+
 ## v0.1.52 — floating-cloud worlds and premium live flight HUD (build 55)
 
 - Replaced the actual build-time background generator's opaque ground-colored rectangle with layered, biome-aware foreground cloudbanks for all eight worlds. The fantasy islands now fade into clouds rather than terminating at a flat ground stripe. Night, lava, underwater and daytime palettes are independently respected.
