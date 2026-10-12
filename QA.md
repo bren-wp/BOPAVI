@@ -1,3 +1,12 @@
+## v0.1.60 — Settings glass, layout and actual screenshot acceptance
+
+1. Open POSTAVKE from Home on Android API35/API36 and iPhone simulator. The selected saved pilot must appear beside the BOPAVI logo; a unified rounded dark royal-blue sheet and cyan outline must contain the real settings controls and support full vertical scrolling and safe insets.
+2. Change music/effects sliders and the haptic toggle. Verify immediate sound gain changes, percentage labels, and saved values after cold restart. Change LAGANO/NORMALNO/ZAHTJEVNO and confirm exactly the chosen saved value survives launch; game physics must change **only on the next new flight**.
+3. Change player name, reduced motion and master sound, exit settings, return and verify actual saved state. Test export/import on both systems and ensure old player coins, pilot ID, saved stars and procedural frontier do not reset.
+4. Enter Settings **from active Pause** and return to the same flight; there must be no silent restart, duplicate boost consumption, automatic resume, or loss of run state.
+5. Verify Android emulator UI smoke scrolls to and taps difficulty cards, and `qa/screenshots/android-settings.png` is an **actual** screenshot captured only after native Settings is open. Release must package it as `BOPAVI-Android-Settings.png`; require 14 entries in SHA256SUMS plus all prior payloads.
+6. Compare the real iOS and Android visuals with the user's premium Settings concept. The 3D render, exact typography, language selector and fake account/cloud logout from the illustration remain **unimplemented**; do not advertise 1:1 pixel fidelity or unsupported online functionality.
+
 ## v0.1.59 — Bopi flight aura, platform parity and release checks
 
 1. Start actual flight with each of the nine stored pilots on Android API35/API36 and iPhone simulator. Confirm the translucent gold-to-cyan Bopi lighting is *behind* the moving wings and body and does not hide obstacles, pickups or active HUD.
