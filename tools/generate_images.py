@@ -11,6 +11,9 @@ icon.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',o
 brand=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/logo.svg'),output_width=780))).convert('RGBA')
 brand.save(a/'drawable-nodpi/logo.png',optimize=True)
 brand.save(b/'Logo.imageset/logo.png',optimize=True)
+# This in-memory scene is required for launch composition and bird sprite extraction.
+# It is NOT a standalone packaged runtime PNG or iOS Hero catalog.
+hero=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/hero.svg'),output_width=900))).convert('RGB')
 # Continuous bright sky below the floating islands instead of a flat navy band.
 launch=Image.new('RGB',(900,1600),(18,110,201))
 from PIL import ImageDraw
