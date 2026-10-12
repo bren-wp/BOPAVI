@@ -1,3 +1,12 @@
+## v0.1.58 — profile visual and saved-value parity
+
+1. With zero saved world stars and then with imported/earned nonzero stars, open PROFIL on Android 15/16 and iOS: the golden portrait progress bar must equal `min(30, worldStars(chosenWorld)) / 30`, with the accurate visible `n/30` label and meaningful screen-reader value.
+2. Change selected world in gameplay menus, reopen profile and confirm the bar and caption update without inventing XP/metres or altering existing saved progress. Test a long Croatian world name and a long player name on small screens.
+3. Achievement cards must show `1 pobjeda`, `5 svjetova`, `500 predmeta` and `10 pobjeda`. Verify first win, fifth explored world, 500 real collected items and tenth win independently; previously earned badges must not disappear.
+4. The first, second and third best-world pictures must display numbered crowns and the same real world thumbnail, saved star count and tappable world destination. Confirm the top-three ordering after increasing saved stars in another world.
+5. Tap UREDI PROFIL and change the player name in working settings. Return to the profile and confirm updated name persists across cold restart. Bottom navigation and old profile actions remain functional and accessible.
+6. Inspect *real* Android emulator/iOS simulator screenshots against the new reference at multiple aspect ratios; if exact materials, bird details and spacing differ, document them. Full native CI, source audits, emulator tests and release checksum validation remain mandatory.
+
 ## v0.1.57 — profile layout, live badges and top worlds
 
 1. On Android 15/16 and iPhone Simulator, open the real PROFIL home nav tab: check a gold-outlined **current pilot** portrait on the left and four **real** statistics on the right. Test a small 9:16 device and a tall phone; nothing should overlap or clip beyond its scrollable content.

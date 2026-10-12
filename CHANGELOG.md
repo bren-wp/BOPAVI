@@ -1,3 +1,11 @@
+## v0.1.58 — Profil: stvarni napredak, jasnije značke i rangirani svjetovi (build 61)
+
+- The Android/iOS PROFILE portrait card now includes a gold progress rail for the **saved selected-world stars / 30**, with accessible narration. This deliberately replaces the inaccurate XP/metres bar suggested by concept art.
+- Award cards now show exact existing unlock requirements (first win, five discovered worlds, 500 collected items, ten wins), while preserving real earned/locked statuses. Locked achievements never award fabricated currency or claim to be unlocked.
+- The top three worlds now have small numbered royal medals over the **existing genuine game world art**; ranking and taps still use real saved stars and best scores. The main profile CTA is simplified to UREDI PROFIL and continues to the working profile-name/settings editor.
+- Android and iOS share a consistent layout with no new user accounts, virtual diamonds or save migrations. Existing game physics, level unlocks, currency and profile data remain unchanged. Production screenshot QA and native build tests are required before release.
+- **Visual statement:** meaningful reference fidelity improvement only; a complete high-detail 3D 1:1 recreation has not been verified.
+
 ## v0.1.57 — Your sky pilot's real profile (build 60)
 
 - Redesigned **PROFIL** on Android and iOS to follow the provided portrait/metrics composition: illustrated selected pilot in a gold-edged portrait on the left, compact live save-driven stats on the right, navy/cyan beveled panels and gold highlights.

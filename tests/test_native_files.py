@@ -1740,3 +1740,30 @@ assert 'dist/BOPAVI-Android-Profile.png' in workflow
 assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
 print('PASS: verified genuine profile screenshot required in release and README')
 print('PASS: live offline profile, award thresholds, premium world previews and four real native tabs on both platforms')
+
+# v0.1.58: profile visual fidelity must remain attached to *saved* progress.
+# The reference shows an XP/metres gauge; the offline game has neither, so
+# the gold progress rail is honest selected-world stars (0..30).
+for profile in (android_profile,ios_profile):
+    for grounded in ('progress.chosenWorld()', 'progress.worldStars(profileWorld)',
+                     'profileStars', 'profileStarGauge' if profile == android_profile else 'starGauge',
+                     'profileStars', 'profileWorld', '30', 'requirement',
+                     '1 pobjeda', '5 svjetova', '500 predmeta', '10 pobjeda',
+                     'MOJE NAGRADE', 'MOJI NAJBOLJI SVJETOVI',
+                     'for((rank,world) in ranked.withIndex())' if profile == android_profile
+                     else 'for (rank,world) in ranked.prefix(3).enumerated()',
+                     '♛', 'URED'+'I PROFIL'):
+        assert grounded in profile, ('profile visual contract',grounded)
+    assert 'showLevels(' in profile and 'showSettings()' in profile
+    assert 'progress.wins()>=10' in profile or 'progress.wins()>=10' in profile
+    assert 'progress.frontier(' in profile and 'progress.collectibles(' in profile
+    assert '1000 / 2000' not in profile and 'playerXP' not in profile
+assert 'profileStarGauge.contentDescription=' not in android_profile  # property assigned within apply
+assert 'contentDescription="Zvjezdice svijeta' in android_profile
+assert 'UIProgressView(progressViewStyle:.default)' in ios_profile
+assert 'starGauge.accessibilityValue=' in ios_profile
+assert 'artFrame.addView' in android_profile and 'artFrame.addSubview' in ios_profile
+assert 'rankMedal.isAccessibilityElement=false' in ios_profile
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_profile
+assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
+print('PASS: world-star profile gauge, real award goals, ranked thumbnails, accessibility and offline save parity')
