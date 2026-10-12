@@ -95,6 +95,12 @@ Izaberi lika, pogledaj njegov status i potvrdi svoj odabir. Otključani letači 
 - **Istražuj dalje:** između uzastopnih proceduralnih levela let se nastavlja bez novog početka.
 - **Čuvaj svoju avanturu:** najbolji rezultati, otključani likovi i napredak spremaju se lokalno.
 
+## Tvoj letački dnevnik
+
+**Svaki let ostavlja trag.** U vlastitom profilu vidiš odabranog pilota, osvojene rezultate, prikupljene kovanice, dovršene levele i pobjede. Četiri sjajne značke prate tvoje stvarne uspjehe, a tri najbolja svijeta vode te ravno do sljedećih izazova.
+
+Odaberi drugog letača, promijeni svoje ime ili istraži kolekciju — sve je povezano s tvojim napretkom spremljenim na uređaju. **Nema obavezne registracije, izmišljenih nagrada ni računa u oblaku.**
+
 ## Otkrij što te čeka
 
 <div align="center">
