@@ -101,7 +101,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = "Dodirni za let Bopija"
+        contentDescription = if(game.dragControl) "Povuci gore ili dolje za upravljanje Bopijem" else "Dodirni za let Bopija"
         p.isFilterBitmap = true
     }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
@@ -192,7 +192,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
-            text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
+            text(canvas,if(game.dragControl)"POVUCI GORE / DOLJE" else "DODIRNI ZA LET",240f,613f,if(game.dragControl)23f else 30f,Color.WHITE,true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
@@ -750,14 +750,42 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
+    /** Map letterboxed touch coordinates to the same 480x800 space as collision. */
+    private fun steerTouch(rawY:Float) {
+        if(paused || game.finished || !game.dragControl || width<=0 || height<=0)return
+        val scale=min(width/480f,height/800f)
+        if(scale<=0f)return
+        val logicalY=(rawY-(height-800f*scale)*.5f)/scale
+        val firstDrag=!game.active
+        game.steer(logicalY)
+        if(firstDrag && game.active) {
+            onFlightStarted()
+            onFlap() // Single start cue, never a sound per MOVE event.
+        }
+        invalidate()
+    }
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        // Flap immediately on DOWN; accessibility activates the same click path.
-        if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
+        if(game.dragControl) {
+            when(event.actionMasked) {
+                MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE -> steerTouch(event.y)
+                MotionEvent.ACTION_CANCEL,MotionEvent.ACTION_UP -> Unit
+            }
+        } else {
+            // Preserve tap-to-flap input and its existing accessibility path.
+            if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
+        }
         return true
     }
     override fun performClick():Boolean {
         super.performClick()
         if(!paused && !game.finished){
+            if(game.dragControl) {
+                val firstDrag=!game.active
+                game.steer(game.y-56f) // VoiceOver/TalkBack can still steer upward.
+                if(firstDrag && game.active){onFlightStarted();onFlap()}
+                invalidate()
+                return true
+            }
             if(qaWaitingForCapture) {
                 // A second genuine touch resumes the *same* run, not a replay.
                 // No synthetic score, forced collision, or screenshot is used.
