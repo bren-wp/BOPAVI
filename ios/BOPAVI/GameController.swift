@@ -1607,6 +1607,47 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         s.addArrangedSubview(worldRow)
         button("✎  UREDI PROFIL I POSTAVKE",in:s){self.showSettings()}
         button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins(.profile)}
+        let footer=UIStackView()
+        footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
+        footer.isLayoutMarginsRelativeArrangement=true
+        footer.layoutMargins=UIEdgeInsets(top:6,left:5,bottom:6,right:5)
+        footer.backgroundColor=UIColor(red:0.012,green:0.13,blue:0.32,alpha:0.96)
+        footer.layer.cornerRadius=22;footer.layer.borderWidth=2
+        footer.layer.borderColor=UIColor(red:0.0,green:0.82,blue:1,alpha:1).cgColor
+        let tabs:[(String,String,()->Void)]=[
+            ("NavProfile","PROFIL",{self.showProfile()}),
+            ("NavTasks","ZADACI",{self.showAchievements(.profile)}),
+            ("NavCollection","KOLEKCIJA",{self.showSkins(.profile)}),
+            ("NavShop","TRGOVINA",{self.showPerks(.profile)})
+        ]
+        for (index,item) in tabs.enumerated(){
+            let tab=UIButton(type:.custom)
+            tab.backgroundColor=index==0
+                ? UIColor(red:0.60,green:0.36,blue:0.05,alpha:1)
+                : UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.8)
+            tab.layer.cornerRadius=13
+            tab.heightAnchor.constraint(equalToConstant:59).isActive=true
+            tab.accessibilityLabel=item.1+(index==0 ? ", odabrano":"")
+            let content=UIStackView()
+            content.axis = .vertical;content.translatesAutoresizingMaskIntoConstraints=false
+            content.isUserInteractionEnabled=false
+            let glyph=UIImageView(image:UIImage(named:item.0))
+            glyph.contentMode = .scaleAspectFit
+            glyph.heightAnchor.constraint(equalToConstant:28).isActive=true
+            content.addArrangedSubview(glyph)
+            let name=label(item.1,11,.white,content)
+            name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.72
+            name.heightAnchor.constraint(equalToConstant:22).isActive=true
+            tab.addSubview(content)
+            NSLayoutConstraint.activate([
+                content.centerYAnchor.constraint(equalTo:tab.centerYAnchor),
+                content.leadingAnchor.constraint(equalTo:tab.leadingAnchor,constant:2),
+                content.trailingAnchor.constraint(equalTo:tab.trailingAnchor,constant:-2)
+            ])
+            tab.addAction(UIAction{_ in self.sound.effect("click");item.2()},for:.touchUpInside)
+            footer.addArrangedSubview(tab)
+        }
+        s.addArrangedSubview(footer)
         button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
 
