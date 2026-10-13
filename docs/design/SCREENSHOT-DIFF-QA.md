@@ -316,3 +316,9 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - The emulator's **real** Home PNG is checked for clickable targets entirely inside physical screenshot bounds, 40dp minimum bounds and no overlapping hit rectangles; keep API35/API36 tests and iOS simulator capture.
 - **Acceptance not yet claimed:** pixel-for-pixel Bopi/wordmark/environment fidelity; cross-platform side-by-side screenshot approval; additional device sizes. Separate clean artwork layers are needed rather than an entire screenshot with baked-in fictitious counters.
 - CI and screenshot review must pass before merge. v0.1.81 must not be published manually from this documentation.
+
+
+### v0.1.80 baseline evidence inspected for this PR
+- Android workflow artifact 11858433751: actual 1080×2400 HOME shows Bopi, winged wordmark, the three CTAs and four active footer tabs. Illustration depth, lighting and mascot anatomy remain far from the new concept images.
+- iOS workflow artifact 11858883855: actual 1206×2622 PNG **does not show any Home CTA or bottom tab**. It shows only oversized background artwork beneath the system status/dynamic-island region. The old screenshot smoke accepted this because it checked only that the PNG file was non-empty.
+- v0.1.81 adds a bounded simulator retry plus an AppKit PNG verifier that requires both the gold IGRAJ band and navy footer navigation. This is a necessary evidence gate, not proof of pixel-level fidelity.
