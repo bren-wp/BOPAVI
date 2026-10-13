@@ -204,17 +204,34 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(18),d(18),d(18),d(28))
         }
-        val scroll=ScrollView(this).apply{
-            isFillViewport=true;isVerticalScrollBarEnabled=false
-            clipToPadding=false
-            addView(body)
-        }
-        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
-        if(Build.VERSION.SDK_INT>=35){
-            scroll.setOnApplyWindowInsetsListener{v,insets->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
-                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+        if(label=="TRGOVINA" || label=="MOJI REKORDI"){
+            // Finite menus fit physical safe areas instead of hiding content
+            // in a long scroller. Do not apply a double root inset.
+            val fitted=FitViewportColumn(this)
+            fitted.addView(body)
+            root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
+            fitted.setOnApplyWindowInsetsListener{v,insets->
+                if(Build.VERSION.SDK_INT>=30){
+                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                }
                 insets
+            }
+        } else {
+            val scroll=ScrollView(this).apply{
+                isFillViewport=true;isVerticalScrollBarEnabled=false
+                clipToPadding=false
+                addView(body)
+            }
+            root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+            if(Build.VERSION.SDK_INT>=35){
+                scroll.setOnApplyWindowInsetsListener{v,insets->
+                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                    insets
+                }
             }
         }
         showNativeView(root)
