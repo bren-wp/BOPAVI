@@ -79,12 +79,13 @@ private final class BopaviSettingsPanel: UIStackView {
 
 /** Native UIKit menus and Core Graphics gameplay, no WKWebView. */
 final class GameController: UIViewController, UIDocumentPickerDelegate {
-    private enum MenuOrigin { case home, settings, profile, shop }
+    private enum MenuOrigin { case home, settings, profile, shop, records }
     private let progress=ProgressStore()
     private let sound=Soundscape()
     private let collectHaptic=UISelectionFeedbackGenerator()
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
+    private var recordsReturnToSettings=false
     private var startupPending=false
     private var currentMenuName="BOPAVI"
     private var gameWorld=0
@@ -253,7 +254,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // bottom navigation. Keep scrolling for information-dense submenus.
         scroll.alwaysBounceVertical=title != "BOPAVI"
         scroll.isScrollEnabled=title != "BOPAVI"
-        if title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" {
+        if title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" {
             scroll.isScrollEnabled=false
             scroll.alwaysBounceVertical=false
         }
@@ -267,7 +268,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL"
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA"
         stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
@@ -320,7 +321,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         backgroundGradient?.frame=view.bounds
         // PROFILE combines a real pilot card, earned awards and best worlds.
         // Fit the native stack (not a screenshot) into each device safe-area.
-        guard currentMenuName == "PROFIL",
+        guard (currentMenuName == "PROFIL" || currentMenuName == "POSTIGNUĆA"),
               let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
               let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
               scroll.bounds.height>0,stack.bounds.height>0 else{return}
@@ -1700,6 +1701,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         showLeaderboardPage(0,fromSettings:currentMenuName=="POSTAVKE")
     }
     private func showLeaderboardPage(_ page:Int,fromSettings:Bool){
+        recordsReturnToSettings=fromSettings
         let stack=menu("MOJI REKORDI","Tvojih deset najboljih letova")
         let entries=progress.leaderboard()
         if let best=entries.first {
@@ -1780,23 +1782,105 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
             stack.addArrangedSubview(nav)
         }
-        button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements()}
+        button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements(.records)}
         button(fromSettings ? "‹  POSTAVKE" : "‹  POČETNA",in:stack,primary:false){
             if fromSettings {self.showSettings()} else {self.showHome()}
         }
     }
     private func showAchievements(){showAchievements(.settings)}
     private func showAchievements(_ origin:MenuOrigin){
-        let s=menu("POSTIGNUĆA","Nagrade koje si osvojio tijekom igre")
-        let total=(0..<8).reduce(0){$0+self.progress.frontier($1)-1}
-        label("Dovršeni leveli: \(total)",19,.white,s)
-        label("Pobjede: \(progress.wins()) · Pokušaji bez pobjede: \(progress.deaths())",17,.white,s)
-         for w in 0..<8 {label("\(BopaviCore.names[w]) · najbolji rezultat \(progress.best(w))",16,.white,s)}
-        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL" : "POSTAVKE"
+        let s=menu("POSTIGNUĆA","Tvoj napredak kroz svih osam svjetova")
+        let finished=(0..<8).reduce(0){$0+max(0,progress.frontier($1)-1)}
+        let stats=UIStackView()
+        stats.axis = .horizontal
+        stats.distribution = .fillEqually
+        stats.alignment = .center
+        stats.backgroundColor=UIColor(red:0.025,green:0.21,blue:0.48,alpha:0.98)
+        stats.layer.cornerRadius=18
+        stats.layer.borderWidth=2
+        stats.layer.borderColor=UIColor(red:1,green:0.79,blue:0.31,alpha:1).cgColor
+        stats.isAccessibilityElement=true
+        stats.accessibilityLabel="Dovršeni leveli: \(finished), Pobjede: \(progress.wins()), Pokušaji bez pobjede: \(progress.deaths())"
+        stats.heightAnchor.constraint(equalToConstant:64).isActive=true
+        for (name,value) in [("LEVELI",finished),("POBJEDE",progress.wins()),
+                             ("LETOVI",progress.wins()+progress.deaths())] {
+            let cell=UILabel()
+            cell.text="\(name)\n\(value)"
+            cell.numberOfLines=2
+            cell.textAlignment = .center
+            cell.textColor = .white
+            cell.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.heavy)
+            cell.isAccessibilityElement=false
+            stats.addArrangedSubview(cell)
+        }
+        s.addArrangedSubview(stats)
+        let section=label("NAPREDAK PO SVJETOVIMA",14,.white,s)
+        section.textAlignment = .left
+        section.backgroundColor=UIColor(red:0.025,green:0.16,blue:0.37,alpha:1)
+        section.layer.cornerRadius=14
+        section.layer.borderWidth=1
+        section.layer.borderColor=UIColor(red:0.22,green:0.79,blue:1,alpha:1).cgColor
+        section.clipsToBounds=true
+        section.heightAnchor.constraint(equalToConstant:34).isActive=true
+        for row in 0..<4 {
+            let columns=UIStackView()
+            columns.axis = .horizontal
+            columns.distribution = .fillEqually
+            columns.spacing=6
+            for col in 0..<2 {
+                let w=row*2+col
+                let stars=progress.worldStars(w)
+                let level=progress.streamFrontier(w)
+                let record=progress.best(w)
+                let card=UIButton(type:.custom)
+                card.backgroundColor=w==progress.chosenWorld()
+                    ? UIColor(red:0.05,green:0.28,blue:0.59,alpha:0.98)
+                    : UIColor(red:0.025,green:0.15,blue:0.32,alpha:0.98)
+                card.layer.cornerRadius=17
+                card.layer.borderWidth=2
+                card.layer.borderColor=(w==progress.chosenWorld()
+                    ? UIColor(red:1,green:0.80,blue:0.32,alpha:1)
+                    : worldAccents[w]).cgColor
+                card.heightAnchor.constraint(equalToConstant:71).isActive=true
+                card.accessibilityLabel="\(BopaviCore.names[w]), zvjezdice \(stars) od 30, level \(level), rekord \(record). Otvori levele"
+                let heading=UILabel()
+                heading.text=BopaviCore.names[w].uppercased()
+                heading.textColor = .white
+                heading.font=UIFont.systemFont(ofSize:12,weight:.heavy)
+                heading.adjustsFontSizeToFitWidth=true
+                heading.minimumScaleFactor=0.76
+                let values=UILabel()
+                values.text="★ \(stars)/30  ·  ♛ \(record)"
+                values.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.bold)
+                values.textColor=UIColor(red:1,green:0.83,blue:0.39,alpha:1)
+                values.adjustsFontSizeToFitWidth=true
+                values.minimumScaleFactor=0.8
+                let inner=UIStackView(arrangedSubviews:[heading,values])
+                inner.axis = .vertical
+                inner.spacing=3
+                inner.isUserInteractionEnabled=false
+                inner.translatesAutoresizingMaskIntoConstraints=false
+                card.addSubview(inner)
+                NSLayoutConstraint.activate([
+                    inner.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:9),
+                    inner.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-7),
+                    inner.centerYAnchor.constraint(equalTo:card.centerYAnchor)
+                ])
+                card.addAction(UIAction{[weak self] _ in
+                    self?.sound.effect("click")
+                    self?.showLevels(w,page:1)
+                },for:.touchUpInside)
+                columns.addArrangedSubview(card)
+            }
+            s.addArrangedSubview(columns)
+        }
+        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL"
+                     : origin == .records ? "REKORDI" : "POSTAVKE"
         button("‹  "+backTitle,in:s,primary:false){
             switch origin {
             case .home: self.showHome()
             case .profile: self.showProfile()
+            case .records: self.showLeaderboardPage(0,fromSettings:self.recordsReturnToSettings)
             default: self.showSettings()
             }
         }
