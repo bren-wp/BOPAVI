@@ -1712,6 +1712,10 @@ class MainActivity : Activity() {
             column.addView(row,LinearLayout.LayoutParams(-1,d(53)).apply{
                 bottomMargin=d(6)
             })
+            // During exact-height measurement FitViewportColumn distributes
+            // spare height between REAL controls. Compact phones keep the
+            // intrinsic dimensions instead of clipping or forcing scrolling.
+            column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         }
         option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
             val enabled=!progress.soundEnabled()
