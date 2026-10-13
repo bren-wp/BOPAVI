@@ -273,10 +273,10 @@ final class GameCanvas: UIView {
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
             lastProgressPassed=passed
         }
-        // Crown-to-flag race gauge matches Android and the concept placement.
-        // Gate progress is authoritative; the game has no defined metres.
+        // Continuous actual course distance, matching the native Android gauge.
+        // Never display fictitious metre values from the static reference.
         let total=max(1,game.level.gates.count)
-        let ratio=max(0,min(1,CGFloat(game.passed)/CGFloat(total)))
+        let ratio=CGFloat(game.levelProgress)
         hudGlass(c,146,18,260,59)
         hudText("♛",154,28,hudIconFont,0xffd45b)
         hudText("⚑",376,29,hudIconFont,0xffffff)
