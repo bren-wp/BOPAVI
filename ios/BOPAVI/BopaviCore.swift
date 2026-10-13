@@ -278,7 +278,7 @@ final class GameSimulation {
                         levelOrigin=nextOrigin
                         level=incoming
                         prepareNext()
-                        levelTransition=0
+                        levelTransition=0.85
                         passed=0
                         levelStars=0
                         collectedCoins=Array(repeating:false,count:level.gates.count)
