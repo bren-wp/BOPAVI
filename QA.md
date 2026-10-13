@@ -1,3 +1,11 @@
+## v0.1.79 — Records and Achievements acceptance
+1. Home → Records: verify an honest first-run empty state or the exact locally saved best ten runs, two entries per page, real score/world/gate counts and functioning Next/Previous.
+2. Records → My Achievements: show eight selectable 2×4 world achievements without scrolling, preserving world ordering and real worldStars, streamFrontier, best and completed-level counts. Never show fabricated online ranking or unlock data.
+3. Achievements → Back must return to Records; Records → Back must return to the original Home/Settings screen. Test Android hardware/gesture Back and iOS on-screen Back, preserving local save state.
+4. On compact Android and iPhone, test the full safe-area viewport. Tap world badges to open their real level grids; ensure no level is automatically started.
+5. Run tools/audit_native_dead_code.py, Python native-file regression suite, Android lint/JVM/APK/AAB, Android API35/36 UI smoke, authentic screenshot gallery, iOS simulator/unsigned device builds, Swift physics/save tests, and SHA-256 release asset verification.
+6. Concept screenshots are visual targets only: do not claim 1:1 until device screenshot differences have been inspected. Continue the other menus before gameplay.
+
 ## v0.1.78 — Profile / native one-screen audit and visual acceptance
 1. From the Home avatar or bottom navigation, open Profile on compact Android, tall Android 16 and small/notched iPhones. Bopi, user record stats, earned-only four awards, three ranked-world previews, Edit Profile, and all four bottom tabs must fit without swiping and allow genuine taps.
 2. Confirm Profile's world-star progress shows actual saved stars (0–30) and world/level, never invented XP or metres; ranked worlds have real saved counts. Test empty and progressed profiles.

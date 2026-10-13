@@ -381,6 +381,41 @@ for name,expected,path in (
     if not png.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(png)<2000:
         raise SystemExit(f"FAIL: invalid {name} screenshot")
     Path("qa/screenshots",path).write_bytes(png)
+    if name=="REKORDI":
+        # Test the actual Records -> Achievements -> Records round-trip.
+        # Every one of the eight save-backed world cards must fit without
+        # scrolling or send Back to the Settings screen by mistake.
+        record_actions=[n for n in root.iter("node") if n.get("clickable")=="true"
+                        and "MOJA POSTIGNUĆA" in (n.get("text","")+" "+n.get("content-desc",""))]
+        if len(record_actions)!=1: raise SystemExit("FAIL: Records achievement action missing")
+        hit=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",record_actions[0].get("bounds",""))
+        if not hit: raise SystemExit("FAIL: invalid Records achievement bounds")
+        l,t,r,b=map(int,hit.groups())
+        subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],
+                       check=True,timeout=15)
+        time.sleep(.7)
+        achievements=dump()
+        ach_labels=[n.get("content-desc","") for n in achievements.iter("node")
+                    if n.get("clickable")=="true"]
+        world_names=("Zeleni otoci","Kristalno nebo","Lava vrhovi","Noćni dvorci",
+                     "Biserno more","Nebeske kule","Čarobna šuma","Zvjezdani bezdani")
+        for world in world_names:
+            if not any(world.casefold()+"," in value.casefold()
+                       and "zvjezdice " in value and "rekord " in value
+                       and "Otvori levele" in value for value in ach_labels):
+                raise SystemExit("FAIL: live achievement world inaccessible: "+world)
+        frame=subprocess.run(["adb","exec-out","screencap","-p"],
+                             check=True,capture_output=True,timeout=20).stdout
+        if not frame.startswith(bytes.fromhex("89504e470d0a1a0a")):
+            raise SystemExit("FAIL: achievements screenshot invalid")
+        Path("qa/screenshots/android-achievements.png").write_bytes(frame)
+        subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
+        time.sleep(.7)
+        after=dump()
+        returned=[n.get("text","")+" "+n.get("content-desc","") for n in after.iter("node")]
+        if not any("MOJI REKORDI" in v for v in returned):
+            raise SystemExit("FAIL: Achievements Back did not restore Records")
+        print("PASS: eight save-backed achievement cards and Records round-trip",flush=True)
     subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
     time.sleep(.7)
     home=dump()

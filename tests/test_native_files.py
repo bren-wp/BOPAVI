@@ -2221,3 +2221,34 @@ assert 'if stack.transform != desired' in ios_menu
 assert 'back.accessibilityLabel="Natrag na početnu"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
+
+
+# v0.1.79: navigation from saved-records to the no-scroll achievement gallery
+# must preserve its origin (Home vs Settings), instead of returning to an
+# unrelated menu. All eight world badges are generated from actual saved data.
+android_achievements=android_menu.split('private fun showAchievements(origin:MenuOrigin){',1)[1].split('private fun volumeSlider(',1)[0]
+ios_achievements=ios_menu.split('private func showAchievements(_ origin:MenuOrigin){',1)[1].split('private func volumeSlider(',1)[0]
+for source in (android_achievements,ios_achievements):
+    for value in ('POSTIGNUĆA','NAPREDAK PO SVJETOVIMA','worldStars','frontier(',
+                  'streamFrontier','best(','wins()','deaths()'):
+        assert value in source,('achievements',value)
+    assert 'showLevels(' in source
+    assert 'recordsReturnToSettings' in source
+    assert 'REKORD' not in source or 'REKORDI' in source
+    assert 'cloudSave' not in source and 'playerXP' not in source
+assert 'private var recordsReturnToSettings=false' in android_menu
+assert 'private var recordsReturnToSettings=false' in ios_menu
+assert 'recordsReturnToSettings=fromSettings' in android_menu
+assert 'recordsReturnToSettings=fromSettings' in ios_menu
+assert 'showAchievements(MenuOrigin.RECORDS)' in android_menu
+assert 'showAchievements(.records)' in ios_menu
+assert 'MenuOrigin.RECORDS -> showLeaderboardPage(0,recordsReturnToSettings)' in android_achievements
+assert 'case .records: self.showLeaderboardPage(0,fromSettings:self.recordsReturnToSettings)' in ios_achievements
+assert 'for(row in 0..3)' in android_achievements and 'for(col in 0..1)' in android_achievements
+assert 'for row in 0..<4' in ios_achievements and 'for col in 0..<2' in ios_achievements
+assert 'if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA")' in android_menu
+assert 'title == "POSTIGNUĆA"' in ios_menu
+assert 'currentMenuName == "POSTIGNUĆA"' in ios_menu
+assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'FAIL: Achievements Back did not restore Records' in (root/'tools/qa_android_emulator.sh').read_text()
+print('PASS: v0.1.79 eight real achievement cards and correct Records navigation')
