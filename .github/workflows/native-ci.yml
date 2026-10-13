@@ -469,12 +469,11 @@ jobs:
             BOPAVI-Android-Settings.png \
             BOPAVI-Android-Profile.png \
             BOPAVI-Android-Worlds.png \
-            BOPAVI-Android-Pilots.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
             BOPAVI-Android-Results.png \
             BOPAVI-iOS-Home.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 14
+          test "$(wc -l < SHA256SUMS.txt)" -eq 13
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -488,7 +487,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Settings.png BOPAVI-Android-Profile.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Settings.png BOPAVI-Android-Profile.png BOPAVI-Android-Worlds.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -508,7 +507,6 @@ jobs:
             dist/BOPAVI-Android-Settings.png \
             dist/BOPAVI-Android-Profile.png \
             dist/BOPAVI-Android-Worlds.png \
-            dist/BOPAVI-Android-Pilots.png \
             dist/BOPAVI-Android-Flight-Preview.png \
             dist/BOPAVI-Android-Flight-Active.png \
             dist/BOPAVI-Android-Results.png \
