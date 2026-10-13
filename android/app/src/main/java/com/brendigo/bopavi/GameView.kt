@@ -29,10 +29,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var qaWaitingForCapture = false
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
-    // Only rebuild the textual progress label when a gate is passed or a new
-    // endless level begins; the renderer draws its bar each frame without allocation.
+    // Update point totals on change and the real distance readout at 10 Hz,
+    // rather than allocating formatted text on every animation frame.
     private var lastProgressPassed = -1
+    private var lastProgressScore = -1
+    private var lastDistanceTick = -1
     private var progressTitle = ""
+    private var distanceTitle = ""
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
@@ -869,12 +872,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawLevelProgress(c:Canvas) {
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
-            progressTitle="PROLAZI UKUPNO  $passed"
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        // Physically travelled course distance animates smoothly between gates.
-        // The reference metre label cannot be shown: no metre scale exists.
+        // Real points and game-world travel units, never fictional metres.
+        // "PROLAZI UKUPNO" remains spoken and level gates remain in the bar.
+        val score=game.score()
+        if(score!=lastProgressScore) {
+            lastProgressScore=score
+            progressTitle="BODOVI $score"
+        }
+        val distanceTick=(game.time*10f).toInt()
+        if(distanceTick!=lastDistanceTick) {
+            lastDistanceTick=distanceTick
+            distanceTitle="PUT ${game.distance.toInt()}"
+        }
+        // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
         hudGlass(c,146f,18f,381f,77f)
@@ -893,7 +906,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val levelLabel=if(entering)"LEVEL ${game.displayLevel}  ·  NOVI LET"
             else "LEVEL ${game.displayLevel}  ·  ${game.passed}/$total"
         text(c,levelLabel,267f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,267f,124f,12f,0xffddf4ff.toInt(),true)
+        text(c,progressTitle,204f,124f,12f,0xffddf4ff.toInt(),true)
+        text(c,distanceTitle,330f,124f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
@@ -942,32 +956,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         return walletDisplay
     }
-    /** Three illustrated HUD orbs from the reference left rail. These are
-     * indicators, NOT faux buttons. Every number comes from the simulation.
-     * Dimmed inactive powers cannot be mistaken for equipped abilities.
-     */
+    /** Three compact top-row status chips. Passive, truthful game indicators. */
     private fun hudOrb(c:Canvas,cx:Float,cy:Float,icon:String,count:String,
                        accent:Int,enabled:Boolean) {
-        // Reduce obstructive rail ornaments, not their underlying earned values.
-        // A transform keeps the three cached orb positions and iOS parity.
-        c.save()
-        c.translate(cx,cy)
-        c.scale(.72f,.72f)
-        c.translate(-cx,-cy)
+        // All passive power readouts share a narrow TOP HUD row. No large
+        // floating side badges intercept the player's view of an obstacle.
         val rim=if(enabled)accent else 0xff5d83ac.toInt()
-        oval(c,cx-33f,cy-33f,cx+33f,cy+33f,0xbb031630.toInt())
-        oval(c,cx-30f,cy-30f,cx+30f,cy+30f,rim)
-        oval(c,cx-27f,cy-27f,cx+27f,cy+27f,0xff06417b.toInt())
-        oval(c,cx-25f,cy-24f,cx+25f,cy+24f,
-            if(enabled)0xff0d5ba2.toInt() else 0xff132b4b.toInt())
-        text(c,icon,cx,cy+11f,33f,if(enabled)Color.WHITE else 0xffa4bdd6.toInt(),true)
-        val bubbleX=cx+25f
-        val bubbleY=cy+26f
-        oval(c,bubbleX-17f,bubbleY-15f,bubbleX+17f,bubbleY+15f,0xff071d45.toInt())
-        oval(c,bubbleX-14f,bubbleY-12f,bubbleX+14f,bubbleY+12f,
-            if(enabled)0xff125aab.toInt() else 0xff27405f.toInt())
-        text(c,count,bubbleX,bubbleY+5f,15f,Color.WHITE,true)
-        c.restore()
+        hudGlass(c,cx-45f,cy-19f,cx+45f,cy+19f)
+        oval(c,cx-37f,cy-13f,cx-13f,cy+13f,rim)
+        oval(c,cx-34f,cy-10f,cx-16f,cy+10f,0xff052855.toInt())
+        text(c,icon,cx-25f,cy+7f,18f,
+            if(enabled)Color.WHITE else 0xffa4bdd6.toInt(),true)
+        text(c,count,cx+15f,cy+7f,17f,Color.WHITE,true)
     }
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.
@@ -984,13 +984,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
         text(c,"LET +${game.coins}",112f,99f,11f,0xffffd76a.toInt(),true)
 
-        // Fixed screen-space slots, grounded in actual earned stars/boosts.
-        // Keep them outside the central bird and upcoming collision gates.
-        hudOrb(c,46f,175f,"★","${game.stars}",0xffffce43.toInt(),true)
-        hudOrb(c,46f,249f,"◆","${game.shield}",
+        // The three narrow chips remain under the safe-top race gauge, entirely
+        // above Bopi and the moving gate corridor.
+        hudOrb(c,170f,154f,"★","${game.stars}",0xffffce43.toInt(),true)
+        hudOrb(c,267f,154f,"◆","${game.shield}",
             0xff54e5ff.toInt(),game.shield>0)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,46f,323f,"∩","$seconds",
+        hudOrb(c,364f,154f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
         val status="Bopi leti. Novčanik ${balance} kovanica. U ovom letu skupljeno ${game.coins}. " +
             "Prolazi ukupno ${game.totalPassed}. Zvjezdice ${game.stars}. " +

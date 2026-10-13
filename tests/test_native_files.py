@@ -1386,8 +1386,8 @@ assert 'hudCoinFont=UIFont.systemFont' in ios_game
 assert 'hudText("♛",86,33,hudCoinFont' in ios_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
-assert 'hudOrb(c,46f,175f,"★"' in android_game
-assert 'hudOrb(c,46,175,"★"' in ios_game
+assert 'hudOrb(c,170f,154f,"★"' in android_game
+assert 'hudOrb(c,170,154,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1465,10 +1465,10 @@ for source in (android_game,ios_game):
     assert 'game.flap()' in source
 assert 'hudGlass(c,146f,18f,381f,77f)' in android_game
 assert 'hudGlass(c,146,18,235,59)' in ios_game
-assert 'hudOrb(c,46f,249f,"◆"' in android_game
-assert 'hudOrb(c,46,249,"◆"' in ios_game
-assert 'hudOrb(c,46f,323f,"∩"' in android_game
-assert 'hudOrb(c,46,323,"∩"' in ios_game
+assert 'hudOrb(c,267f,154f,"◆"' in android_game
+assert 'hudOrb(c,267,154,"◆"' in ios_game
+assert 'hudOrb(c,364f,154f,"∩"' in android_game
+assert 'hudOrb(c,364,154,"∩"' in ios_game
 assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
@@ -2043,7 +2043,7 @@ for source in (android_game,ios_game):
     assert 'drawCliffShaft(' in source
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
-    assert '0.72' in source or '.72f' in source
+    assert 'hudGlass(c,cx-45' in source
 assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
@@ -2066,3 +2066,29 @@ for source in (android_render,ios_render):
     assert 'facet' in source and 'nearMouth' in source
     assert source.count('drawCliffShaft(')>=3
 print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms')
+
+# v0.1.74: status badges must be compact and strictly top-aligned on both
+# native canvases, not repeatedly drawn down the left edge of the playfield.
+for render,orb_prefix in ((android_game,'hudOrb(c,'),(ios_game,'hudOrb(c,')):
+    hud=render.split('private fun drawHud(',1)[1] if 'private fun drawHud(' in render else render.split('private func drawBoostHUD(',1)[1]
+    for suffix in ('170','267','364'):
+        assert orb_prefix+suffix in hud, suffix
+    for retired in ('hudOrb(c,46f,175f','hudOrb(c,46f,249f','hudOrb(c,46f,323f',
+                    'hudOrb(c,46,175','hudOrb(c,46,249','hudOrb(c,46,323'):
+        assert retired not in render, retired
+    assert 'hudGlass(c,cx-45' in render
+assert 'safeAreaInsets.top+4*hudScale' in ios_game
+assert 'topInset+4f*hudScale' in android_game
+print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both platforms')
+
+# v0.1.74: score and actual world-distance must be visible on both native
+# physical-top HUDs; only regenerate their textual labels at 10 Hz or on events.
+for render in (android_game,ios_game):
+    assert 'lastProgressScore' in render and 'lastDistanceTick' in render
+    assert 'BODOVI ' in render and 'PUT ' in render
+    assert 'game.distance' in render and 'game.score()' in render
+    assert 'game.time*10' in render
+    assert 'PROLAZI UKUPNO' in render
+assert 'distanceTitle=' in android_game
+assert 'distanceLabel=NSAttributedString' in ios_game
+print('PASS: actual score + game-distance visible on both top HUDs with throttled text updates')

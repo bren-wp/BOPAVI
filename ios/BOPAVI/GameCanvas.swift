@@ -5,7 +5,7 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
-    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
+    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
     private var lastLevelBadgeText=""
@@ -13,7 +13,10 @@ final class GameCanvas: UIView {
     private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
+    private var distanceLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
+    private var lastProgressScore = -1
+    private var lastDistanceTick = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
@@ -294,8 +297,8 @@ final class GameCanvas: UIView {
     private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     // The three HUD orbs keep stable symbols and count labels between frames.
     // Only a *changed* live counter rebuilds its attributed text.
-    private let hudOrbSymbolFont=UIFont.systemFont(ofSize:33,weight:.black)
-    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
+    private let hudOrbSymbolFont=UIFont.systemFont(ofSize:19,weight:.black)
+    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
     private lazy var hudOrbActiveSymbols:[NSAttributedString] = ["★","◆","∩"].map { icon in
         NSAttributedString(string:icon,attributes:[
             .font:hudOrbSymbolFont,.foregroundColor:UIColor.white])
@@ -310,12 +313,24 @@ final class GameCanvas: UIView {
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
-            progressLabel=NSAttributedString(string:"PROLAZI UKUPNO  \(passed)",
-                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+            // "PROLAZI UKUPNO" remains available in the live accessibility label.
             lastProgressPassed=passed
         }
-        // Continuous actual course distance, matching the native Android gauge.
-        // Never display fictitious metre values from the static reference.
+        let score=game.score()
+        if score != lastProgressScore {
+            lastProgressScore=score
+            progressLabel=NSAttributedString(string:"BODOVI \(score)",
+                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+        }
+        // Sample real world-distance units at 10 Hz, avoiding per-frame
+        // NSAttributedString allocation and fake metre claims.
+        let distanceTick=Int(game.time*10)
+        if distanceTick != lastDistanceTick {
+            lastDistanceTick=distanceTick
+            distanceLabel=NSAttributedString(string:"PUT \(Int(game.distance))",
+                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+        }
+        // Continuous actual course fraction, matching the Android gauge.
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
         hudGlass(c,146,18,235,59)
@@ -340,11 +355,13 @@ final class GameCanvas: UIView {
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
         cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:85))
-        progressLabel.draw(at:CGPoint(x:267-progressLabel.size().width/2,y:110))
+        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:110))
+        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:110))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
         accessibilityLabel="Bopi leti. Novčanik \(balance) kovanica. U ovom letu skupljeno \(game.coins). " +
-            "Prolazi ukupno \(passed). Zvjezdice \(game.stars). " +
+            "Prolazi ukupno \(passed). Bodovi \(score). Udaljenost \(Int(game.distance)) jedinica. " +
+            "Zvjezdice \(game.stars). " +
             "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
@@ -388,34 +405,26 @@ final class GameCanvas: UIView {
         }
         return walletDisplay
     }
-    /// These source-styled orbs are indicators, not phantom tappable items.
-    /// Readouts come only from the live simulation's stars and boosts.
+    /// Readable, passive top-row badges: no side-rail obstruction of the flight.
     private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
                         _ count:String,_ accent:UInt32,_ enabled:Bool) {
-        // Preserve truthful badge values while reducing rail occlusion.
-        c.saveGState()
-        c.translateBy(x:cx,y:cy)
-        c.scaleBy(x:0.72,y:0.72)
-        c.translateBy(x:-cx,y:-cy)
+        // Match Android's compact top HUD. No vertical orb rail covers flight.
         let rim:UInt32=enabled ? accent : 0x5d83ac
-        oval(c,cx-33,cy-33,66,66,0x031630,0.73)
-        oval(c,cx-30,cy-30,60,60,rim)
-        oval(c,cx-27,cy-27,54,54,0x06417b)
-        oval(c,cx-25,cy-24,50,48,enabled ? 0x0d5ba2 : 0x132b4b)
+        hudGlass(c,cx-45,cy-19,90,38)
+        oval(c,cx-37,cy-13,24,26,rim)
+        oval(c,cx-34,cy-10,18,20,0x052855)
         let slot=icon=="★" ? 0 : (icon=="◆" ? 1 : 2)
         let symbol=enabled ? hudOrbActiveSymbols[slot] : hudOrbInactiveSymbols[slot]
-        symbol.draw(at:CGPoint(x:cx-symbol.size().width/2,y:cy-symbol.size().height/2))
-        let bx=cx+25,by=cy+26
-        oval(c,bx-17,by-15,34,30,0x071d45)
-        oval(c,bx-14,by-12,28,24,enabled ? 0x125aab : 0x27405f)
+        symbol.draw(at:CGPoint(x:cx-25-symbol.size().width/2,
+                               y:cy-symbol.size().height/2))
         if hudOrbCachedValues[slot] != count {
             hudOrbCachedValues[slot]=count
             hudOrbCachedNumbers[slot]=NSAttributedString(string:count,attributes:[
                 .font:hudOrbCounterFont,.foregroundColor:UIColor.white])
         }
         let number=hudOrbCachedNumbers[slot]
-        number.draw(at:CGPoint(x:bx-number.size().width/2,y:by-number.size().height/2))
-        c.restoreGState()
+        number.draw(at:CGPoint(x:cx+15-number.size().width/2,
+                               y:cy-number.size().height/2))
     }
     private func drawBoostHUD(_ c:CGContext) {
         // The icon/number hierarchy mirrors Android, leaving the top-right
@@ -430,10 +439,10 @@ final class GameCanvas: UIView {
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
         hudText("LET +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,46,175,"★","\(game.stars)",0xffce43,true)
-        hudOrb(c,46,249,"◆","\(game.shield)",0x54e5ff,game.shield>0)
+        hudOrb(c,170,154,"★","\(game.stars)",0xffce43,true)
+        hudOrb(c,267,154,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,46,323,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
+        hudOrb(c,364,154,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
