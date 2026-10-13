@@ -328,6 +328,57 @@ print("PASS: profile Android Back returns to playable home",flush=True)
 PY
 }
 
+# Verify Shop and Records from the real Home footer, then ensure Back
+# returns to Home. Capture *authentic* emulator frames for visual review.
+verify_shop_records_tabs(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+from pathlib import Path
+def dump():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-tabs.xml"],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
+    raw=subprocess.run(["adb","exec-out","cat","/sdcard/bopavi-tabs.xml"],
+                       check=True,capture_output=True,timeout=15).stdout
+    return ET.fromstring(raw)
+def tap_tab(name):
+    root=dump()
+    matches=[n for n in root.iter("node") if n.get("clickable")=="true"
+             and n.get("content-desc")==name]
+    if len(matches)!=1: raise SystemExit(f"FAIL: expected exactly one {name} footer tab")
+    bounds=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",matches[0].get("bounds",""))
+    if not bounds: raise SystemExit(f"FAIL: malformed bounds for {name}")
+    left,top,right,bottom=map(int,bounds.groups())
+    subprocess.run(["adb","shell","input","tap",
+                    str((left+right)//2),str((top+bottom)//2)],check=True,timeout=15)
+    time.sleep(.8)
+for name,expected,path in (
+    ("TRGOVINA","OPREMA ZA BOPIJEV LET","android-shop.png"),
+    ("REKORDI","MOJI REKORDI","android-records.png"),
+):
+    tap_tab(name)
+    root=dump()
+    labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
+    if not any(expected in v for v in labels):
+        raise SystemExit(f"FAIL: {name} destination not open")
+    if name=="TRGOVINA" and not all(any(text in v for v in labels) for text in ("KUPI ŠTIT","KUPI MAGNET")):
+        raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
+    if name=="REKORDI" and not any("Prvi rekord čeka" in v or "OSOBNI REKORD" in v for v in labels):
+        raise SystemExit("FAIL: offline records neither show real results nor honest empty state")
+    png=subprocess.run(["adb","exec-out","screencap","-p"],
+                       check=True,capture_output=True,timeout=20).stdout
+    if not png.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(png)<2000:
+        raise SystemExit(f"FAIL: invalid {name} screenshot")
+    Path("qa/screenshots",path).write_bytes(png)
+    subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
+    time.sleep(.7)
+    home=dump()
+    text=[n.get("text","")+" "+n.get("content-desc","") for n in home.iter("node")]
+    if not all(any(token in value for value in text) for token in ("IGRAJ","SVJETOVI","POSTAVKE")):
+        raise SystemExit(f"FAIL: {name} Back did not restore Home")
+    print(f"PASS: {name} functional tab and actual screenshot",flush=True)
+PY
+}
+
 gameplay_ready=0
 home_captured=0
 attempt=1
@@ -430,6 +481,7 @@ while [ "$attempt" -le 6 ]; do
     fi
     echo "PASS: settings opens and returns to the three-button home"
     verify_profile_tab
+    verify_shop_records_tabs
     verify_world_cards
     sleep 1
     dump_ui
