@@ -1602,8 +1602,9 @@ assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
 assert 'hero.axis = .horizontal' in ios_profile
 assert 'contentDescription=navNames[index]' in android_profile
 assert 'tab.accessibilityLabel=item.1' in ios_profile
-assert 'qa/screenshots/android-profile.png' in android_emulator
-assert 'dedicated PROFILE screen shows saved pilot data and real screenshot' in android_emulator
+profile_qa=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'qa/screenshots/android-profile.png' in profile_qa
+assert 'dedicated PROFILE screen shows saved pilot data and real screenshot' in profile_qa
 assert "'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png'" in workflow
 assert 'dist/BOPAVI-Android-Profile.png' in workflow
 assert 'BOPAVI-Android-Profile.png' in (root/'README.md').read_text()
