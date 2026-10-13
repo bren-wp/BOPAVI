@@ -86,6 +86,13 @@ final class GameCanvas: UIView {
         return CGGradient(colorsSpace:CGColorSpaceCreateDeviceRGB(),colors:pair,locations:[0,1])
     }()
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
+    // Shared obstacle palettes. Creating these two Swift arrays inside gate()
+    // allocated repeatedly on 60/90/120 Hz devices.
+    private let biomeReliefAccents:[UInt32]=[0x87ef82,0xbd74ff,0xff8b39,0xffd782,
+                                            0x6ff4ec,0xffe7a0,0x6ceab4,0xbb92ff]
+    private let biomeReliefGlints:[UInt32]=[0xd4ffb0,0x7ef4ff,0xffcf70,0xffefa8,
+                                           0xffb6e7,0xffffff,0xffa7e7,0x85dfff]
+
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0}) {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=0 // Bopi-only gameplay; legacy saved ownership is retained.
@@ -277,6 +284,21 @@ final class GameCanvas: UIView {
     private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
     private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
+    // The three HUD orbs keep stable symbols and count labels between frames.
+    // Only a *changed* live counter rebuilds its attributed text.
+    private let hudOrbSymbolFont=UIFont.systemFont(ofSize:33,weight:.black)
+    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
+    private lazy var hudOrbActiveSymbols:[NSAttributedString] = ["★","◆","∩"].map { icon in
+        NSAttributedString(string:icon,attributes:[
+            .font:hudOrbSymbolFont,.foregroundColor:UIColor.white])
+    }
+    private lazy var hudOrbInactiveSymbols:[NSAttributedString] = ["★","◆","∩"].map { icon in
+        NSAttributedString(string:icon,attributes:[
+            .font:hudOrbSymbolFont,.foregroundColor:UIColor(rgb:0xa4bdd6)])
+    }
+    private var hudOrbCachedValues=["","",""]
+    private var hudOrbCachedNumbers=Array(repeating:NSAttributedString(string:""),count:3)
+
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
@@ -367,16 +389,18 @@ final class GameCanvas: UIView {
         oval(c,cx-30,cy-30,60,60,rim)
         oval(c,cx-27,cy-27,54,54,0x06417b)
         oval(c,cx-25,cy-24,50,48,enabled ? 0x0d5ba2 : 0x132b4b)
-        let symbol=NSAttributedString(string:icon,attributes:[
-            .font:UIFont.systemFont(ofSize:33,weight:.black),
-            .foregroundColor:UIColor(rgb:enabled ? 0xffffff : 0xa4bdd6)])
+        let slot=icon=="★" ? 0 : (icon=="◆" ? 1 : 2)
+        let symbol=enabled ? hudOrbActiveSymbols[slot] : hudOrbInactiveSymbols[slot]
         symbol.draw(at:CGPoint(x:cx-symbol.size().width/2,y:cy-symbol.size().height/2))
         let bx=cx+25,by=cy+26
         oval(c,bx-17,by-15,34,30,0x071d45)
         oval(c,bx-14,by-12,28,24,enabled ? 0x125aab : 0x27405f)
-        let number=NSAttributedString(string:count,attributes:[
-            .font:UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy),
-            .foregroundColor:UIColor.white])
+        if hudOrbCachedValues[slot] != count {
+            hudOrbCachedValues[slot]=count
+            hudOrbCachedNumbers[slot]=NSAttributedString(string:count,attributes:[
+                .font:hudOrbCounterFont,.foregroundColor:UIColor.white])
+        }
+        let number=hudOrbCachedNumbers[slot]
         number.draw(at:CGPoint(x:bx-number.size().width/2,y:by-number.size().height/2))
     }
     private func drawBoostHUD(_ c:CGContext) {
@@ -592,10 +616,8 @@ final class GameCanvas: UIView {
     /// Cosmetic geometry is identical to Android; never narrows the flight gap.
     private func drawBiomeGateRelief(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
                                      _ top:CGFloat,_ bottom:CGFloat,_ world:Int) {
-        let accents:[UInt32]=[0x87ef82,0xbd74ff,0xff8b39,0xffd782,
-                              0x6ff4ec,0xffe7a0,0x6ceab4,0xbb92ff]
-        let glints:[UInt32]=[0xd4ffb0,0x7ef4ff,0xffcf70,0xffefa8,
-                             0xffb6e7,0xffffff,0xffa7e7,0x85dfff]
+        let accents=biomeReliefAccents
+        let glints=biomeReliefGlints
         for side in 0...1 {
             let edge=side==0 ? top : bottom
             let sign:CGFloat=side==0 ? -1 : 1
