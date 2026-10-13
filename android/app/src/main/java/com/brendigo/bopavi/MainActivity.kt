@@ -1546,8 +1546,10 @@ class MainActivity : Activity() {
         back(b){showHome()}
     }
 
-    private fun showLeaderboard(){showLeaderboardPage(0)}
-    private fun showLeaderboardPage(page:Int){
+    private fun showLeaderboard(){
+        showLeaderboardPage(0,selectedScreen=="POSTAVKE" || selectedScreen=="settings")
+    }
+    private fun showLeaderboardPage(page:Int,fromSettings:Boolean){
         val b=base("MOJI REKORDI","Tvojih deset najboljih letova")
         val entries=progress.leaderboard()
         val best=entries.firstOrNull()
@@ -1566,7 +1568,7 @@ class MainActivity : Activity() {
                 topMargin=d(12);bottomMargin=d(9)
             })
         } else small(b,"Prvi rekord čeka tvoj sljedeći let!")
-        val perPage=3
+        val perPage=2
         val pageCount=maxOf(1,(entries.size+perPage-1)/perPage)
         val current=page.coerceIn(0,pageCount-1)
         for((index,item) in entries.withIndex().drop(current*perPage).take(perPage)) {
@@ -1619,7 +1621,7 @@ class MainActivity : Activity() {
                     background=gradient(if(enabled)0xff117bcf.toInt() else 0xff29456b.toInt(),
                         0xff05264e.toInt(),16).apply{setStroke(d(1),electric)}
                     isEnabled=enabled
-                    setOnClickListener{showLeaderboardPage(next)}
+                    setOnClickListener{showLeaderboardPage(next,fromSettings)}
                 }
                 nav.addView(item,LinearLayout.LayoutParams(0,d(49),1f).apply{
                     leftMargin=d(2);rightMargin=d(2)
@@ -1632,7 +1634,7 @@ class MainActivity : Activity() {
         }
         b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(b,"★  MOJA POSTIGNUĆA",false){showAchievements()}
-        back(b){showSettings()}
+        back(b){if(fromSettings)showSettings() else showHome()}
     }
     private fun showAchievements(){showAchievements(MenuOrigin.SETTINGS)}
     private fun showAchievements(origin:MenuOrigin){
