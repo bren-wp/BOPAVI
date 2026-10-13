@@ -6,31 +6,52 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
-    @Test fun dragWorldsUseBoundedPhysicsWhileTapWorldsRemainUnchanged() {
+    @Test fun everyWorldUsesTapImpulseWithoutDragSteering() {
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val game=GameSimulation(LevelEngine.create(world,1))
-            assertEquals(world % 2 == 1,game.dragControl)
-            game.steer(680f)
-            if(world % 2 == 0) {
-                assertFalse(game.active)
-                assertEquals(366f,game.y,0f)
+            assertFalse(game.active)
+            assertEquals(18f,game.radius,0f)
+            game.flap()
+            assertEquals(-255f,game.velocity,0f)
+            assertEquals(1,game.flaps)
+            val before=game.y
+            game.step(1f/60f)
+            assertTrue("Tap must produce upward travel in world $world",game.y < before)
+            game.flap()
+            assertEquals(2,game.flaps)
+        }
+    }
+
+    @Test fun proceduralGatesHaveVariedWidthsAndReachableOpenings() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) for (number in listOf(1,30,61,360,1001)) {
+            val level=LevelEngine.create(world,number)
+            assertEquals(level.gates,LevelEngine.create(world,number).gates)
+            assertTrue(level.gates.map { it.width }.toSet().size >= 3)
+            assertTrue(level.gates.all { it.width in 48f..88f })
+            assertTrue(level.gates.all { LevelEngine.opening(it,0f).let { opening ->
+                opening.bottom - opening.top >= 2*18f+100f
+            } })
+            assertTrue(level.gates.zipWithNext().all { (one,two) ->
+                kotlin.math.abs(one.center - two.center) <= 108f
+            })
+        }
+    }
+
+    @Test fun seamlessLevelJunctionNeverCreatesAnEmptyVisibleCourse() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            for (number in listOf(1,2,62,122,182,242,302,360,1048576)) {
+                val level=LevelEngine.create(world,number)
+                val game=GameSimulation(level,endless=true)
+                val last=level.gates.last()
+                val interval=last.x-level.gates[level.gates.lastIndex-1].x
+                val seam=(interval-32f).coerceIn(190f,208f)
+                val firstNext=game.upcomingGateX(game.upcomingGates().first())
+                assertEquals(seam,firstNext-game.gateX(last),.01f)
+                assertTrue(seam+340f<=550f) // Incoming visible before outgoing leaves.
+                assertEquals(0f,game.levelProgress,0f)
                 game.flap()
-                assertEquals(-255f,game.velocity,0f)
-            } else {
-                assertTrue(game.active)
-                assertEquals(366f,game.y,0f) // No teleport at input time.
-                assertEquals(0,game.flaps) // Drag is not a fake wing tap.
-                game.step(.1f)
-                assertTrue(game.y>366f && game.y<410f)
-                assertTrue(game.velocity in -310f..310f)
-                val previous=game.y
-                game.steer(Float.NaN)
-                game.steer(Float.POSITIVE_INFINITY)
-                assertEquals(previous,game.y,0f)
-                game.steer(75f)
-                repeat(5){game.step(.06f)}
-                assertTrue("Dragging upward should steer instead of teleport",game.y<previous)
-                assertFalse(game.finished)
+                game.step(.05f)
+                assertTrue("world $world level $number",game.levelProgress in 0.0001f..0.9999f)
             }
         }
     }
@@ -104,7 +125,7 @@ class LevelEngineTest {
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
-        val near=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val near=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val synthetic=level.copy(gates=listOf(near),speed=140f,wind=0f)
         val flight=GameSimulation(synthetic)
         flight.flap()
@@ -116,7 +137,7 @@ class LevelEngineTest {
 
     @Test fun shieldAbsorbsExactlyOneCapImpact() {
         val level=LevelEngine.create(0,2)
-        val near=level.gates[0].copy(x=154f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val near=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val flight=GameSimulation(level.copy(gates=listOf(near),speed=140f,wind=0f),initialShield=1)
         flight.flap()
         flight.step(1f/60f)
@@ -126,7 +147,7 @@ class LevelEngineTest {
     }
     @Test fun illustratedBirdSurvivesSafeCapOverlap() {
         val level=LevelEngine.create(0,2)
-        val safe=level.gates[0].copy(x=154f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
+        val safe=level.gates[0].copy(x=148f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)
         val run=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f))
         run.flap();run.step(1f/60f)
         assertFalse("Do not kill bird when its body remains inside visible opening",run.finished)
@@ -172,8 +193,8 @@ class LevelEngineTest {
     }
 
     @Test fun streamingKeepsRealGateRhythmAcrossEveryChallengeZone() {
-        // The per-level gate interval is smaller in tougher zones. Incoming
-        // obstacles must inherit that interval instead of a fixed 242px gap.
+        // The next-level interval is compressed 32 units for an uninterrupted flight. Incoming
+        // obstacles retain a safe 190–208-unit gap instead of a fixed 242px stretch.
         for(world in 0 until LevelEngine.WORLD_COUNT) {
             for(number in listOf(2,62,122,182,242,302,360)) {
                 val level=LevelEngine.create(world,number)
@@ -181,7 +202,7 @@ class LevelEngineTest {
                 val oldLast=stream.gateX(level.gates.last())
                 val lastSpacing=level.gates.last().x-level.gates[level.gates.lastIndex-1].x
                 val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
-                assertEquals("world=$world level=$number",lastSpacing,firstNext-oldLast,0.001f)
+                assertEquals("world=$world level=$number",(lastSpacing-32f).coerceIn(190f,208f),firstNext-oldLast,0.001f)
                 assertEquals(0f,stream.distance,0f)
                 assertFalse(stream.active)
             }
@@ -199,7 +220,7 @@ class LevelEngineTest {
         val current=sim.level.gates.first()
         val upcoming=sim.upcomingGates().first()
         val spacing=sim.level.gates.last().x-sim.level.gates[sim.level.gates.lastIndex-1].x
-        assertEquals(spacing,sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
+        assertEquals((spacing-32f).coerceIn(190f,208f),sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
         assertEquals(current.x,sim.gateX(current),.0001f)
     }
 
@@ -292,7 +313,7 @@ class LevelEngineTest {
 
     @Test fun shieldDoesNotConsumeMultipleChargesFromOneContinuousImpact() {
         val level = LevelEngine.create(0, 2)
-        val obstacle = level.gates[0].copy(x=154f, center=510f, gap=160f, movement=0f, coin=false, star=false, power=0)
+        val obstacle = level.gates[0].copy(x=148f, center=510f, gap=160f, movement=0f, coin=false, star=false, power=0)
         val game = GameSimulation(level.copy(gates=listOf(obstacle), speed=140f, wind=0f), initialShield=2)
         game.flap()
         repeat(8) { game.step(1f / 120f) }

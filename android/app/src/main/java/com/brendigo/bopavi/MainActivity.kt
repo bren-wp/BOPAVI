@@ -262,7 +262,7 @@ class MainActivity : Activity() {
             contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
                 "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
                 "zvjezdice ${progress.worldStars(world)} od 30" +
-                (if(world % 2 == 1) ", upravljanje povlačenjem" else ", upravljanje dodirom") +
+                ", upravljanje dodirom" +
                 (if(world==progress.chosenWorld()) ", odabrano" else "")
             setOnClickListener{sound.effect("click");onClick()}
         }
@@ -306,10 +306,10 @@ class MainActivity : Activity() {
         })
         // Mode badge mirrors the real touch handler; card remains one tap target.
         artPanel.addView(TextView(this).apply{
-            text=if(world % 2 == 1) "↕ POVUCI" else "● TAP"
+            text="● TAP"
             textSize=10f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
             gravity=Gravity.CENTER
-            background=gradient(if(world % 2 == 1)0xff6243ba.toInt() else 0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
+            background=gradient(0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(d(85),d(25),Gravity.TOP or Gravity.LEFT).apply{
             setMargins(d(8),d(47),0,0)
@@ -520,7 +520,7 @@ class MainActivity : Activity() {
     private fun showLevels(world:Int,page:Int){
         currentWorld=world;progress.chooseWorld(world)
         val b=base("LEVELI","Odaberite level · ${LevelEngine.names[world]} · " +
-            (if(world % 2 == 1) "POVUCI GORE / DOLJE" else "TAP ZA ZAMAH"))
+            "TAP ZA ZAMAH")
         val maxNumber=progress.frontier(world).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
         val safePage=page.coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
         val start=((safePage-1)/20)*20+1
@@ -978,9 +978,8 @@ class MainActivity : Activity() {
         quick("✦","KONTROLE"){
             android.app.AlertDialog.Builder(this)
                 .setTitle("Kontrole leta")
-                .setMessage(if(currentWorld % 2 == 1)
-                    "Povuci prst gore ili dolje za visinu leta. Kretanje je postupno; izbjegavaj prepreke. Pauza se pojavljuje nakon početka leta."
-                    else "Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
+                .setMessage("Dodirni zaslon za svaki zamah krilima u svih osam svjetova. " +
+                    "Pauza je dostupna nakon početka leta; izbjegavaj prepreke i skupljaj nagrade.")
                 .setPositiveButton("U REDU",null).show()
         }
         quick("⚙","POSTAVKE"){

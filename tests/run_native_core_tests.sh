@@ -23,7 +23,7 @@ for a,b in zip(ka[:-1],sw[:-1]):
     assert x[:6]==y[:6],(x,y)
     assert abs(float(x[6])-float(y[6]))<.001,(x,y)
     assert abs(float(x[7])-float(y[7]))<.001,(x,y)
-    assert x[8]==y[8],(x,y)
+    assert x[8:10]==y[8:10],(x,y) # Compare signatures and first five pillar widths
 assert ka[-1].startswith('TEST|KOTLIN|OK|')
 assert sw[-1].startswith('TEST|SWIFT|OK|')
 print(f'PASS: {len(ka)-1} Android/iOS generator vectors agree, 24,000 generated configurations per platform, plus simulation checks.')

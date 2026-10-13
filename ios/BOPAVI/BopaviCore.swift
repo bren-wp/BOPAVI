@@ -50,7 +50,8 @@ enum BopaviCore {
             last = center
             let active = (zone >= 2 && i >= 5 && (i+number+world)%3 == 0) || (type == 2 && i >= 4 && i%3 == 0) || (world == 4 && i >= 4 && i%4 == 0)
             gates.append(Gate(x:560 + Float(i*(242-zone*2)), center:center,
-                              gap:gap-rng.next()*3, width:64,
+                              gap:gap-rng.next()*3,
+                              width:48 + Float(((i*5 + Int(rng.next()*9)) % 9)*5),
                               movement:active ? 7+rng.next()*9 : 0, phase:rng.next()*6.283185,
                               kind:world, coin:i%3 != 2 || type == 1, star:i%4 == 2 || type == 1,
                               power:i >= 2 && (number+i+world)%11 == 0 ? 1 : i >= 2 && (number+i+world)%13 == 0 ? 2 : 0))
@@ -149,9 +150,6 @@ final class GameSimulation {
     private var speedFactor:Float { difficulty == 0 ? 0.9 : (difficulty == 2 ? 1.12 : 1) }
     private var gravityFactor:Float { difficulty == 0 ? 0.87 : (difficulty == 2 ? 1.12 : 1) }
     let endless: Bool
-    /// Same odd-numbered world IDs as the Android steering rule.
-    var dragControl:Bool {level.world % 2 == 1}
-    private var steeringTarget:Float?
     private(set) var totalPassed=0
     private(set) var y: Float = 366
     private(set) var velocity: Float = 0
@@ -164,16 +162,24 @@ final class GameSimulation {
     private var nextLevel:BopaviCore.Level?
     private var nextOrigin:Double = 0
     func gateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)}
+    /// Display-only progress through the real generated course.
+    var levelProgress:Float {
+        guard let last=level.gates.last else{return 0}
+        let finish=Double(last.x)+Double(last.width)+Double(radius-birdX)
+        if finish<=0{return 1}
+        return min(1,max(0,Float((preciseDistance-levelOrigin)/finish)))
+    }
     var upcomingGates:[BopaviCore.Gate] {nextLevel?.gates ?? []}
     func upcomingGateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:nextOrigin,travelled:preciseDistance)}
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
-        // The latest gate interval varies by challenge zone; keep that exact
-        // spacing through the level boundary instead of inserting 242px.
+        // Reduce the seam by 32 logical units while preserving the real
+        // last-to-first world-space position and a safe 190–208-unit interval.
         let last=level.gates.count-1
-        let spacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
-        nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)
+        let ordinarySpacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
+        let transitionSpacing=min(208,max(190,ordinarySpacing-32))
+        nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(transitionSpacing)-Double(next.gates[0].x)
         nextLevel=next
     }
     private(set) var levelTransition: Float = 0
@@ -201,8 +207,8 @@ final class GameSimulation {
     func starVisible(_ index:Int) -> Bool { !collectedStars[index] }
     func powerVisible(_ index:Int) -> Bool { !collectedPowers[index] }
     let birdX: Float = 126
-    // Match the visible Bopi body and pillar cap widths.
-    let radius: Float = 23
+    // Body-only hitbox, reduced together with art without counting moving wings.
+    let radius: Float = 18
     var completionCount = 0
     var displayLevel:Int
     var completedOrdinal=0
@@ -222,12 +228,6 @@ final class GameSimulation {
         guard !finished else { return }
         active = true; velocity = -255; flapPulse = 0.24; flaps += 1
     }
-    /// Drag changes a target, not the bird's coordinates or collision boxes.
-    func steer(_ targetY:Float) {
-        guard !finished && dragControl && targetY.isFinite else {return}
-        steeringTarget=min(753-radius,max(radius+5,targetY))
-        if !active {active=true;velocity=0;flapPulse=0.24}
-    }
     func step(_ delta: Float) {
         guard active && !finished else { return }
         // Keep parity with Android: replay up to 100 ms after short frame stalls.
@@ -241,13 +241,8 @@ final class GameSimulation {
     }
     private func advance(_ dt: Float) {
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt); flapPulse = max(0,flapPulse-dt)
-        if dragControl, let target=steeringTarget {
-            let desired=max(-310,min(310,(target-y)*7))
-            let blend=max(0,min(1,dt*14))
-            velocity += (desired-velocity)*blend
-        } else {
-            velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
-        }
+        // Same physics and flap control as the Android simulation in every world.
+        velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
         y += velocity*dt
         preciseDistance += Double(level.speed*speedFactor*dt)
         distance = Float(preciseDistance)

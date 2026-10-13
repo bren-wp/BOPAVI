@@ -183,7 +183,7 @@ android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt')
 ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'x - 7f < birdX + radius' in android
 assert 'x-7 < birdX+radius' in ios
-assert 'val radius = 23f' in android and 'let radius: Float = 23' in ios
+assert 'val radius = 18f' in android and 'let radius: Float = 18' in ios
 # Hero artwork must be an illustration, not a tiny screenshot/CTA embedded in a screenshot.
 hero=(root/'docs/assets/hero.svg').read_text()
 assert 'POLETI U AVANTURU!' not in hero and 'IGRAJ!' not in hero
@@ -268,8 +268,8 @@ assert 'level.gates[last].x-level.gates[last-1].x' in swift
 # Repeated Float addition loses collision precision at long-running level seams.
 assert 'private var preciseDistance = 0.0' in andr
 assert 'private var preciseDistance:Double = 0' in swift
-assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
-assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+transitionSpacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
+assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(transitionSpacing)-Double(next.gates[0].x)' in swift
 assert 'WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)' in andr
 assert 'WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)' in swift
 assert '(gateX.toDouble() + origin - travelled).toFloat()' in andr
@@ -284,7 +284,7 @@ assert 'distance=0;passed=0' not in swift
 # v0.1.25: the generator must not silently replace the real zone interval
 # with a magic constant; actual Kotlin/Swift parity tests exercise the spacing.
 assert 'if(level.gates.size>=2)' in andr
-assert 'let spacing:Float=last>0' in swift
+assert 'let ordinarySpacing:Float=last>0' in swift
 # Keep fixed body raster dimensions; only separated wings may rotate.
 assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
@@ -605,8 +605,8 @@ ios_flap=ios_render.split('private func triggerFlap()',1)[1].split('override fun
 assert 'performClick()' in android_touch
 assert 'val firstFlap=!game.active' in android_click
 assert 'if(firstFlap && game.active) {' in android_click
-assert android_click.count('onFlightStarted()')==2  # once in accessible drag, once in classic tap
-assert 'if(firstDrag && game.active){onFlightStarted();onFlap()}' in android_click
+assert android_click.count('onFlightStarted()')==1  # a single first-flap callback for every world
+assert 'firstDrag' not in android_click and 'game.steer' not in android_click
 assert android_click.index('onFlightStarted()') < android_click.index('if(qaCaptureEnabled) qaWaitingForCapture=true')
 assert 'triggerFlap()' in ios_touch
 assert 'let firstFlap = !game.active' in ios_flap
@@ -1426,8 +1426,8 @@ assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
 assert 'string:"DODIRNI ZA LET"' in ios_render
-assert 'let prompt=game.dragControl ? dragPrompt : idlePrompt' in ios_render
-assert 'prompt.draw(at:' in ios_render
+assert 'idlePrompt.draw(at:' in ios_render and 'dragPrompt' not in ios_render
+assert 'idlePrompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
 assert 'if paused {stop()} else {start()}' in ios_render
 assert 'override func accessibilityActivate()->Bool' in ios_render
@@ -1809,8 +1809,8 @@ assert ios_bird.index('c.drawRadialGradient(aura') < ios_bird.index('c.rotate(by
 assert 'p.shader=null\n        c.restore()' in android_bird
 assert android_canvas.count('birdAuraShader=RadialGradient(')==1
 assert ios_render.count('birdAuraGradient:CGGradient?')==1
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchanged hitboxes')
 
 # Keep the thirteen existing binaries/screenshots and provide independently
@@ -1885,8 +1885,8 @@ assert "for side in ('left','right')" in generator
 assert "wing=recolor(original_wing,hue)" in generator
 assert "Image.alpha_composite(wings,body)" in generator
 # No gameplay math, saved skin identifiers or distribution signing touched.
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
 print('PASS: 30+ animated feather contours, gold goggle bevels and shared eight-world skyfalls')
 
 # v0.1.62 — no release may reuse an active-flight screenshot for Results.
@@ -1938,7 +1938,7 @@ assert 'adb shell input tap "$center" "$((height*50/100))"' in qa_flight_loop
 assert 'qaWaitingForCapture' not in ios_canvas and 'qaCaptureFirstFlap' not in ios_menu
 print('PASS: real debug-only first-flap capture, production physics unchanged, second-touch resume')
 
-# v0.1.63: control modes are real physics/input, not cosmetic badges.
+# v0.1.67: eight identical touch controls; dragging cannot steer the bird.
 android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 ios_game=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 android_view=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
@@ -1946,19 +1946,18 @@ ios_view=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
 android_ui=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 ios_ui=(root/'ios/BOPAVI/GameController.swift').read_text()
 for engine in (android_game,ios_game):
-    assert 'world % 2 == 1' in engine, 'missing 4 real drag-control worlds'
-    assert 'steeringTarget' in engine and 'desired' in engine and 'blend' in engine
-    assert '310' in engine and '*7' in engine and '*14' in engine
-    assert 'y += velocity' in engine and 'damage()' in engine, 'collisions must remain in the simulation'
-assert 'MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE -> steerTouch(event.y)' in android_view
-assert 'override func touchesMoved(' in ios_view and 'steerTouch(touch)' in ios_view
-for ui in (android_ui,ios_ui):
-    assert '↕ POVUCI' in ui and '● TAP' in ui
-    assert 'POVUCI GORE / DOLJE' in ui and 'TAP ZA ZAMAH' in ui
-assert 'POVUCI GORE / DOLJE' in android_view and 'POVUCI GORE / DOLJE' in ios_view
+    assert 'dragControl' not in engine and 'steeringTarget' not in engine
+    assert 'steer(' not in engine and 'func steer(' not in engine
+    assert '685' in engine and '255' in engine, 'gravity and flap impulse must remain'
+    assert 'y += velocity' in engine, 'collisions must use actual physics position'
 assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in android_view
-assert 'triggerFlap()' in ios_view
-print('PASS: native drag steering and classic tap wings coexist across all 8 worlds')
+assert 'steerTouch' not in android_view and 'steerTouch' not in ios_view
+assert 'override func touchesMoved(' not in ios_view
+assert 'if !touches.isEmpty {triggerFlap()}' in ios_view
+for ui in (android_ui,ios_ui):
+    assert '"● TAP"' in ui and '"TAP ZA ZAMAH"' in ui and 'POVUCI' not in ui
+assert 'POVUCI' not in android_view and 'POVUCI' not in ios_view
+print('PASS: Android and iOS tap-only controls, game physics and accessibility')
 
 # v0.1.64: one player profile, no stale nickname or local-storage banners in UI.
 android_ui=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
@@ -2046,7 +2045,7 @@ for pilot in ('vihor','iskra','orion'):
 for name,source in (('Android',android_render),('iOS',ios_render)):
     for token in ('wingLeftPivot','wingRightPivot') if name=='Android' else ('leftWingPivot','rightWingPivot'):
         assert token in source,(name,token)
-    assert ('235f else 220f' in source) if name=='Android' else ('235 : 220' in source)
+    assert ('188f else 176f' in source) if name=='Android' else ('188 : 176' in source)
 assert 'private val birdRect=RectF(-birdSize*.5f' in android_render
 assert 'sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))' in ios_render
 assert 'rotate(flap,wingLeftPivotX,wingLeftPivotY)' in android_render
@@ -2055,9 +2054,9 @@ assert 'left.draw(in:CGRect(x:-half-leftWingPivot.x,' in ios_render
 assert 'right.draw(in:CGRect(x:-half-rightWingPivot.x,' in ios_render
 assert (root/'tools/verify_pilot_sprite_anatomy.py').is_file()
 assert 'python tools/verify_pilot_sprite_anatomy.py' in workflow
-assert 'radius = 23f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
-assert 'radius: Float = 23' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
-print('PASS: fixed anatomy, zero-crop wings, live 148/160px pilot art and unchanged collision model')
+assert 'radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'radius: Float = 18' in (root/'ios/BOPAVI/BopaviCore.swift').read_text()
+print('PASS: attached beak, uncropped wings, smaller pilot art and paired body hitboxes')
 
 # v0.1.66 floating island obstacle polish is visual only, inside the old
 # top/bottom shaft bounds; no physics or save changes.
@@ -2085,3 +2084,31 @@ assert 'let s=min(bound.width/480,bound.height/800)' in ios_render
 assert 'canvas.drawBitmap(worldBitmap,null,worldRect,p)' not in android_render
 assert 'background.draw(in:CGRect(x:0,y:0,width:480,height:800))' not in ios_render
 print('PASS: Android/iOS full-bleed background only; letterboxed physical gameplay geometry preserved')
+
+# v0.1.67 cross-platform seeded pillar diversity and proportional art.
+kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+assert 'width = 48f +' in kotlin_level and 'width:48 + Float(' in swift_level
+assert '((i * 5 +' in kotlin_level and '((i*5 +' in swift_level
+assert 'birdSize=if(selectedSkin>=6)188f else 176f' in android_view
+assert 'let artSize:CGFloat=selectedSkin>=6 ? 188 : 176' in ios_view
+assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
+assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
+print('PASS: proportional pilots, pivot attachment, shared procedural widths')
+
+# v0.1.67 visual and gameplay polish: no long empty transition, no invented
+# metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios_game=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_canvas=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_canvas=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+for game in (android_game,ios_game):
+    assert 'ordinarySpacing' in game and 'transitionSpacing' in game
+    assert '32' in game and '190' in game and '208' in game
+    assert 'levelProgress' in game and 'preciseDistance' in game
+for canvas in (android_canvas,ios_canvas):
+    assert 'game.levelProgress' in canvas
+    assert 'width-aware' in canvas.lower() or 'responsive cap details' in canvas.lower()
+assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
+print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')

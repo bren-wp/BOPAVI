@@ -40,11 +40,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
-    // Real Android emulator screenshot showed the prior 148/160 art still too small.
-    // Larger live sprites preserve the fixed simulation/collision geometry.
-    // Sprite viewport: Bopi = 520 SVG units; Vihor/Iskra/Orion = 160 units.
-    // Scale only art. The existing simulation hitbox and gate physics stay intact.
-    private val birdSize=if(selectedSkin>=6)235f else 220f
+    // In-flight art reduced by 20% for all nine pilots, with matching body hitboxes.
+    // Both groups retain their own shoulder pivots so their wings stay attached.
+    private val birdSize=if(selectedSkin>=6)188f else 176f
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
     // True SVG shoulder joints; the alternate pilots have narrower bodies.
     // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
@@ -125,7 +123,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = if(game.dragControl) "Povuci gore ili dolje za upravljanje Bopijem" else "Dodirni za let Bopija"
+        contentDescription = "Dodirni za let Bopija"
         p.isFilterBitmap = true
     }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
@@ -219,7 +217,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
-            text(canvas,if(game.dragControl)"POVUCI GORE / DOLJE" else "DODIRNI ZA LET",240f,613f,if(game.dragControl)23f else 30f,Color.WHITE,true)
+            text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
@@ -493,6 +491,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawRockFacets(c,x,w,2f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,751f)
+        // Width-aware material flecks make both narrow and wide pillars look
+        // finished; every speck stays strictly inside the collision cap.
+        val fleck=when(g.kind){
+            0->0xffb7ed7a.toInt();1->0xff9af7ff.toInt()
+            2->0xffffd06e.toInt();3->0xffffe29a.toInt()
+            4->0xfff8e5cc.toInt();5->0xffffe6a1.toInt()
+            6->0xffa7ffdf.toInt();else->0xffd9baff.toInt()
+        }
+        for(j in 0..2) {
+            val fx=x+9f+(w-22f)*j*.5f
+            val inset=if(j==1)2f else 0f
+            oval(c,fx,top-17f+inset,fx+5f,top-12f+inset,fleck)
+            oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
+        }
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
@@ -732,11 +744,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        // The concept is a single centre-top race gauge (crown -> flag).
-        // Actual procedural levels have gates, not mapped metres: never
-        // present invented 1,280m/2,000m figures from reference art.
+        // Physically travelled course distance animates smoothly between gates.
+        // The reference metre label cannot be shown: no metre scale exists.
         val total=game.level.gates.size.coerceAtLeast(1)
-        val ratio=(game.passed.toFloat()/total.toFloat()).coerceIn(0f,1f)
+        val ratio=game.levelProgress
         hudGlass(c,146f,18f,406f,77f)
         text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
         text(c,"⚑",389f,57f,26f,Color.WHITE,true)
@@ -810,42 +821,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
-    /** Map letterboxed touch coordinates to the same 480x800 space as collision. */
-    private fun steerTouch(rawY:Float) {
-        if(paused || game.finished || !game.dragControl || width<=0 || height<=0)return
-        val scale=min(width/480f,height/800f)
-        if(scale<=0f)return
-        val logicalY=(rawY-(height-800f*scale)*.5f)/scale
-        val firstDrag=!game.active
-        game.steer(logicalY)
-        if(firstDrag && game.active) {
-            onFlightStarted()
-            onFlap() // Single start cue, never a sound per MOVE event.
-        }
-        invalidate()
-    }
+    /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        if(game.dragControl) {
-            when(event.actionMasked) {
-                MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE -> steerTouch(event.y)
-                MotionEvent.ACTION_CANCEL,MotionEvent.ACTION_UP -> Unit
-            }
-        } else {
-            // Preserve tap-to-flap input and its existing accessibility path.
-            if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
-        }
+        if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
         return true
     }
     override fun performClick():Boolean {
         super.performClick()
         if(!paused && !game.finished){
-            if(game.dragControl) {
-                val firstDrag=!game.active
-                game.steer(game.y-56f) // VoiceOver/TalkBack can still steer upward.
-                if(firstDrag && game.active){onFlightStarted();onFlap()}
-                invalidate()
-                return true
-            }
             if(qaWaitingForCapture) {
                 // A second genuine touch resumes the *same* run, not a replay.
                 // No synthetic score, forced collision, or screenshot is used.

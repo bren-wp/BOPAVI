@@ -1,3 +1,18 @@
+## v0.1.67 — final reference UI/UX and seamless procedural flight pass
+- Android/iOS **world-transition seam** is now 190–208 logical units; the next gate should appear while the previous obstacle remains onscreen, without a blank field, a camera snap, or a new game session. Verify at several zone tiers and after thousands of completed levels.
+- Progress bar must advance smoothly with actual course travel between pillars, while the displayed level and total passed counters come from the simulation. Do not label procedural distances as fictitious metres.
+- Nine different-width pillar textures must stay inside their true impact geometry on both platforms: grass, gems, lava, moonstone, coral, ivory, forest and meteor materials. No cosmetic protrusion outside the collision cap.
+- Validate actual startup branding and all screens against the attached concept art on at least one small and one tall device: logo and hero scale, safe-area/keyboard insets, real bottom navigation, touch targets, profile and settings content, world cards, level lock states, pause/result screens.
+- All eight worlds use one tap-to-flap control scheme; VoiceOver/TalkBack world descriptions must not say swipe or drag. Validate real progress after game close/relaunch, background/foreground and user data migration.
+- CI gates remain mandatory: Python/Swift/Kotlin parity, Android lint/JVM/APK/AAB, Android 15/16 emulators, iOS simulator launch and unsigned device build, QA screenshots, privacy and dead-code audit. Pixel-perfect **1:1 must not be claimed without a side-by-side image diff on real captures**.
+
+## v0.1.67 — Tap-only flight and varied obstacle release gate
+1. On Android 15/16 and iOS, enter gameplay in each of the **eight worlds**. A screen press produces exactly one wingbeat; moving or holding that finger must never steer or generate further impulses. TalkBack and VoiceOver activation must perform the same flap.
+2. Check all nine pilots in authentic gameplay captures. The first six use 176 logical art units, the remaining three use 188; the physics body radius is 18. Confirm wings remain attached at their real joints and have no collision area.
+3. Validate seeded pillars have multiple widths per level within 48–88 logical units, correctly drawn/colliding cap geometry, fair vertical openings and continuous progression with intact saved state.
+4. Run Kotlin and Swift parity, Android JVM/lint/APK/AAB, Android 15/16 emulator navigation and screenshot QA, iOS simulator and unsigned device builds, privacy and dead-code audits. Compare device screenshots screen by screen with the user's references; do not claim 1:1 before that review.
+5. Require a green PR CI before merge, green main CI before release, verified artifacts and SHA-256 manifest. AAB/iOS device output remains unsigned for publisher-side signing.
+
 ## v0.1.66 — Character silhouette, face, flap and screen regression gate
 - Check world 1 gameplay and selection uses visibly cyan crystalline towers, and world 6 has warm wooded scenery plus the glowing forest overlay; world 0 must remain uniquely green. Regression check source mappings and verify Android/iOS raster art parity without changing 8 stable world identifiers.
 

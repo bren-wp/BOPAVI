@@ -11,9 +11,6 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private val gravityFactor = when(this.difficulty) { 0 -> .87f; 2 -> 1.12f; else -> 1f }
     var level = initialLevel
         private set
-    /** Alternate world rule; never changes during seamless level transitions. */
-    val dragControl:Boolean = initialLevel.world % 2 == 1
-    private var steeringTarget:Float? = null
     var totalPassed = 0
         private set
     var y = 366f; private set
@@ -28,16 +25,25 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
     fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
+    /** Continuous distance-based HUD ratio, not a staircase of completed gates. */
+    val levelProgress:Float get() {
+        val last = level.gates.lastOrNull() ?: return 0f
+        val finish = last.x.toDouble() + last.width.toDouble() + radius - birdX
+        if (finish <= 0.0) return 1f
+        return ((preciseDistance - levelOrigin) / finish).toFloat().coerceIn(0f,1f)
+    }
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
     fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
-        // Match the *current* level's actual gate spacing, which varies
-        // by zone. A constant 242px creates a subtle rhythm jump in later zones.
-        val spacing=if(level.gates.size>=2)
+        // Compress only the junction by 32 logical units, keeping 190–208 units
+        // between the last/first caps. Next scenery and obstacles enter before
+        // the old level ends: no blank camera stretch or hidden teleport.
+        val ordinarySpacing=if(level.gates.size>=2)
             level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 242f
-        nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()
+        val transitionSpacing=(ordinarySpacing-32f).coerceIn(190f,208f)
+        nextOrigin=levelOrigin+level.gates.last().x.toDouble()+transitionSpacing.toDouble()-upcoming.gates.first().x.toDouble()
         nextLevel=upcoming
     }
     var levelTransition = 0f; private set
@@ -69,24 +75,14 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun starVisible(index: Int) = !collectedStars[index]
     fun powerVisible(index: Int) = !collectedPowers[index]
     val birdX = 126f
-    // Body sprite is about 49px wide; a 16px circle missed visible pillar caps.
-    val radius = 23f
+    // Tight body-only hitbox; wings and transparent sprite padding never collide.
+    val radius = 18f
     fun flap() {
         if (finished) return
         active = true
         velocity = -255f
         flapPulse = .24f
         flaps++
-    }
-    /** Drag steering stays inside the existing simulation and collision pipeline. */
-    fun steer(targetY:Float) {
-        if(finished || !dragControl || !targetY.isFinite()) return
-        steeringTarget=targetY.coerceIn(radius+5f,753f-radius)
-        if(!active) {
-            active=true
-            velocity=0f
-            flapPulse=.24f
-        }
     }
     fun step(delta: Float) {
         if (!active || finished) return
@@ -101,15 +97,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     private fun advance(dt: Float) {
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
-        val target=steeringTarget
-        if(dragControl && target!=null) {
-            // Bounded proportional velocity and easing: no teleporting through gates.
-            val desired=((target-y)*7f).coerceIn(-310f,310f)
-            val blend=(dt*14f).coerceIn(0f,1f)
-            velocity += (desired-velocity)*blend
-        } else {
-            velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
-        }
+        // All eight worlds use the same tap impulse, gravity and terminal speed.
+        velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
         preciseDistance += (level.speed * speedFactor * dt).toDouble()
         distance = preciseDistance.toFloat()
