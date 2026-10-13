@@ -1,3 +1,9 @@
+## v0.1.74 — Compact top-flight power indicators (build 77)
+- Android and iOS: replace the large left-edge vertical star/shield/magnet orb rail with three narrow, consistently spaced top-row status chips below the distance/progress gauge, leaving the full middle and lower flight viewport unobstructed.
+- Display actual earned stars, remaining shield charges, and remaining magnet seconds. Keep both renderers' cached iOS counter strings, existing accessibility announcements, notch-safe HUD projection and the real platform Pause action.
+- Retain collision physics, the eight seeded biome obstacle variants, Bopi's hitbox, endless level continuity, offline saves and all existing artwork without adding assets or network dependencies.
+- Extend native-source regressions to reject a return to obstructive side badges. Real simulator/device image comparisons to the original references remain required; no unverified 1:1 visual claim.
+
 ## v0.1.73 — Individually seeded floating-island cliffs (build 76)
 - Gameplay rendering on Android and iOS now varies obstacle silhouettes using each gate's procedural phase as well as its world and position; adjacent pillars no longer repeat the same cliff-seed pattern every level.
 - Added three mineral planes inside each stone shaft, with consistent shading and deterministic layout across Android Canvas and iOS Core Graphics. No new sprite assets, network calls or runtime image decoding.
