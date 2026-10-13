@@ -251,6 +251,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // bottom navigation. Keep scrolling for information-dense submenus.
         scroll.alwaysBounceVertical=title != "BOPAVI"
         scroll.isScrollEnabled=title != "BOPAVI"
+        if title == "TRGOVINA" || title == "MOJI REKORDI" {
+            scroll.isScrollEnabled=false
+            scroll.alwaysBounceVertical=false
+        }
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -261,10 +265,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        stack.spacing=title == "BOPAVI" ? 7 : 12
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI"
+        stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
             UIEdgeInsets(top:12,left:18,bottom:12,right:18) :
+            compact ? UIEdgeInsets(top:7,left:12,bottom:8,right:12) :
             UIEdgeInsets(top:18,left:18,bottom:28,right:18)
         stack.isLayoutMarginsRelativeArrangement=true
         scroll.addSubview(stack)
@@ -278,7 +284,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let logo=UIImageView(image:UIImage(named:"Logo"))
             logo.contentMode = .scaleAspectFit
             logo.accessibilityElementsHidden=true
-            logo.heightAnchor.constraint(equalToConstant:94).isActive=true
+            logo.heightAnchor.constraint(equalToConstant:compact ? 68 : 94).isActive=true
             if title == "POSTAVKE" {
                 // Same selected-pilot header arrangement as Android, drawn from
                 // shipped standalone portrait art rather than a reference PNG.
@@ -302,7 +308,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             headline.layer.borderWidth=2
             headline.layer.borderColor=UIColor(red:0.28,green:0.83,blue:1,alpha:1).cgColor
             headline.clipsToBounds=true
-            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:58).isActive=true
+            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:compact ? 49 : 58).isActive=true
             if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.79,green:0.93,blue:1,alpha:1),stack)}
         }
         return stack
@@ -1327,42 +1333,56 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showPerks(){showPerks(.settings)}
     private func showPerks(_ origin:MenuOrigin){
-        let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
-        label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
-        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",15,.white,s)
+        let s=menu("TRGOVINA","")
+        label("♛  \(progress.coins()) KOVANICA",24,
+              UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
+        label("Za kovanice osvojene igrom — bez stvarnog novca.",14,.white,s)
         let bonus=progress.bonusCoinsAvailable()
         if bonus>0 {
             button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
-                let earned=self.progress.claimBonusCoins()
-                if earned>0 {self.sound.effect("purchase");self.showPerks(origin)}
+                if self.progress.claimBonusCoins()>0 {
+                    self.sound.effect("purchase");self.showPerks(origin)
+                }
             }
         }
-
-        label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
+        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",13,.white,s)
         sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
+        let cardRow=UIStackView()
+        cardRow.axis = .horizontal
+        cardRow.alignment = .fill
+        cardRow.distribution = .fillEqually
+        cardRow.spacing=7
         for n in 0..<2 {
             let name=n==0 ? "ŠTIT" : "MAGNET"
-            let extra=n==0 ? "Upija jedan stvarni sudar." : "Privlači predmete tijekom 8 sekundi."
+            let extra=n==0 ? "Upija jedan stvarni sudar." :
+                             "Privlači predmete tijekom 8 sekundi."
             let card=UIStackView()
-            card.axis = .vertical;card.alignment = .fill;card.spacing=5
+            card.axis = .vertical;card.alignment = .fill
+            card.spacing=4
             card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:10,right:14)
+            card.layoutMargins=UIEdgeInsets(top:9,left:6,bottom:9,right:6)
             card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
-            card.layer.cornerRadius=20;card.layer.borderWidth=2
+            card.layer.cornerRadius=19;card.layer.borderWidth=2
             card.layer.borderColor=(n==0 ?
                 UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
                 UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
-            label("\(n==0 ? "🛡" : "🧲")  \(name)  ·  \(progress.perkPrices[n]) ♛",
-                  19,UIColor(red:1,green:0.87,blue:0.50,alpha:1),card)
-            label("\(extra)  U torbi: \(progress.perkCount(n))",14,.white,card)
-            button("KUPI \(name) · \(progress.perkPrices[n]) KOVANICA",in:card,primary:false){
-                if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks(origin)}
-                else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
+            label(n==0 ? "🛡" : "🧲",36,.white,card)
+            label(name,19,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
+            label("\(progress.perkPrices[n]) ♛ · U torbi: \(progress.perkCount(n))",
+                  12,.white,card)
+            label(extra,12,UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
+            button("KUPI \(name)",in:card,primary:false){
+                if self.progress.buyPerk(n){
+                    self.sound.effect("purchase");self.showPerks(origin)
+                } else {
+                    self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
+                }
             }
-            s.addArrangedSubview(card)
+            cardRow.addArrangedSubview(card)
         }
-        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
-        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",14,.white,s)
+        s.addArrangedSubview(cardRow)
+        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",13,.white,s)
+        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",13,.white,s)
         button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
             if origin == .home {self.showHome()} else {self.showSettings()}
         }
