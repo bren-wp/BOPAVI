@@ -104,13 +104,13 @@ if image[:8] != bytes.fromhex('89504e470d0a1a0a'):
     raise SystemExit('FAIL: Home QA requires a real PNG screenshot')
 width,height=struct.unpack('>II',image[16:24])
 density_output=subprocess.check_output(['adb','shell','wm','density'],text=True)
-densities=re.findall(r'(?:Physical|Override) density:\\s*(\\d+)',density_output)
+densities=re.findall(r'(?:Physical|Override) density:\s*(\d+)',density_output)
 if not densities:
     raise SystemExit('FAIL: cannot determine screen density for touch target QA')
 min_touch=round(40*int(densities[-1])/160)
 regions=[]
 for entry in nodes:
-    rect=re.fullmatch(r'\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]',entry.get('bounds',''))
+    rect=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',entry.get('bounds',''))
     if rect is None:
         raise SystemExit('FAIL: malformed Home clickable bounds')
     left,top,right,bottom=map(int,rect.groups())
