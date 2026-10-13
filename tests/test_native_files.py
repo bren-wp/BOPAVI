@@ -2280,7 +2280,7 @@ for file in ('docs/play/TERMS_OF_USE.md','docs/play/terms-of-use.html',
 terms=(root/'docs/play/TERMS_OF_USE.md').read_text()
 html=(root/'docs/play/terms-of-use.html').read_text()
 readme=(root/'README.md').read_text()
-for token in ('Brendigo','virtual','data','https://github.com/bren-wp/BOPAVI/issues'):
+for token in ('Brendigo','virtual','progress','https://github.com/bren-wp/BOPAVI/issues'):
     assert token.casefold() in terms.casefold(),token
 assert '<section lang="hr">' in html and '<section lang="en">' in html
 for value in ("[Privacy Policy](docs/play/PRIVACY_POLICY.md)",
