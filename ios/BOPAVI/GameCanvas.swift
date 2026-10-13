@@ -261,13 +261,21 @@ final class GameCanvas: UIView {
             rect(c,71,565,338,73,0x102654,27,0.80)
             idlePrompt.draw(at:CGPoint(x:240-idlePrompt.size().width/2,y:579))
         }
-        // Before the first actual flight, no HUD overlays the illustrated intro.
-        if game.active && !game.finished {
-            drawBoostHUD(c)
-            drawLevelProgress(c)
-        }
         // The native premium pause modal owns this layer, without duplicate text.
         c.restoreGState()
+        // Position HUD in the physical safe-area coordinate space, not the
+        // vertically letterboxed 480x800 gameplay camera. This preserves
+        // one top-edge reference hierarchy across all iPhone aspect ratios.
+        if game.active && !game.finished {
+            let hudScale=min(bound.width/480,bound.height/640)
+            c.saveGState()
+            c.translateBy(x:(bound.width-480*hudScale)*0.5,
+                          y:safeAreaInsets.top+4*hudScale)
+            c.scaleBy(x:hudScale,y:hudScale)
+            drawBoostHUD(c)
+            drawLevelProgress(c)
+            c.restoreGState()
+        }
         // Preserve the painted island/clouds down to the final scene pixel:
         // a legacy opaque ground-colored stripe covered the bottom artwork.
         // The full-window sky is already filled before the 480x800 canvas.
@@ -310,19 +318,19 @@ final class GameCanvas: UIView {
         // Never display fictitious metre values from the static reference.
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
-        hudGlass(c,146,18,260,59)
+        hudGlass(c,146,18,235,59)
         hudText("♛",154,28,hudIconFont,0xffd45b)
-        hudText("⚑",376,29,hudIconFont,0xffffff)
-        rect(c,181,34,195,21,0x05234e,10)
-        rect(c,184,38,189,13,0x0b66bf,7)
+        hudText("⚑",350,29,hudIconFont,0xffffff)
+        rect(c,181,34,173,21,0x05234e,10)
+        rect(c,184,38,167,13,0x0b66bf,7)
         if ratio>0 {
-            rect(c,184,38,189*ratio,13,0x15cfff,7)
-            rect(c,185,39,187*ratio,4,0xffffff,2,0.67)
+            rect(c,184,38,167*ratio,13,0x15cfff,7)
+            rect(c,185,39,165*ratio,4,0xffffff,2,0.67)
         }
         // The existing race gauge briefly celebrates level entry without
         // covering obstacles or interrupting the continuous simulation.
         let entering=game.levelTransition>0
-        rect(c,171,80,211,27,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
+        rect(c,171,80,193,27,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
         let levelText=entering ? "LEVEL \(game.displayLevel)  ·  NOVI LET" :
             "LEVEL \(game.displayLevel)  ·  \(game.passed)/\(total)"
         if lastLevelBadgeText != levelText {
@@ -331,8 +339,8 @@ final class GameCanvas: UIView {
                 .font:levelBadgeFont,
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
-        cachedLevelBadge.draw(at:CGPoint(x:277-cachedLevelBadge.size().width/2,y:85))
-        progressLabel.draw(at:CGPoint(x:277-progressLabel.size().width/2,y:110))
+        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:85))
+        progressLabel.draw(at:CGPoint(x:267-progressLabel.size().width/2,y:110))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
         accessibilityLabel="Bopi leti. Novčanik \(balance) kovanica. U ovom letu skupljeno \(game.coins). " +
@@ -384,6 +392,11 @@ final class GameCanvas: UIView {
     /// Readouts come only from the live simulation's stars and boosts.
     private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
                         _ count:String,_ accent:UInt32,_ enabled:Bool) {
+        // Preserve truthful badge values while reducing rail occlusion.
+        c.saveGState()
+        c.translateBy(x:cx,y:cy)
+        c.scaleBy(x:0.72,y:0.72)
+        c.translateBy(x:-cx,y:-cy)
         let rim:UInt32=enabled ? accent : 0x5d83ac
         oval(c,cx-33,cy-33,66,66,0x031630,0.73)
         oval(c,cx-30,cy-30,60,60,rim)
@@ -402,6 +415,7 @@ final class GameCanvas: UIView {
         }
         let number=hudOrbCachedNumbers[slot]
         number.draw(at:CGPoint(x:bx-number.size().width/2,y:by-number.size().height/2))
+        c.restoreGState()
     }
     private func drawBoostHUD(_ c:CGContext) {
         // The icon/number hierarchy mirrors Android, leaving the top-right
@@ -685,15 +699,50 @@ final class GameCanvas: UIView {
         c.addLine(to:CGPoint(x:x+w*0.49,y:start+span*0.35))
         c.strokePath()
     }
+    /// Deterministic, fractured cliff silhouettes instead of repetitive
+    /// full-height flat pillars. The active cap still owns collision geometry;
+    /// the painted rock tapers only into already-solid off-passage space.
+    private func drawCliffShaft(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                _ start:CGFloat,_ end:CGFloat,_ shadow:UInt32,
+                                _ stone:UInt32,_ seed:Int) {
+        guard end-start>=6 else{return}
+        let span=end-start
+        c.beginPath()
+        for i in 0...6 {
+            let y=start+span*CGFloat(i)/6
+            let nearMouth=seed<0 ? i==6 : i==0
+            let variation=((seed*11+i*7)%9+9)%9
+            let inset:CGFloat=nearMouth ? 1 : 7+CGFloat(variation)
+            if i==0 {c.move(to:CGPoint(x:x+inset,y:y))}
+            else {c.addLine(to:CGPoint(x:x+inset,y:y))}
+        }
+        for i in stride(from:6,through:0,by:-1) {
+            let y=start+span*CGFloat(i)/6
+            let nearMouth=seed<0 ? i==6 : i==0
+            let variation=((seed*3+i*13)%11+11)%11
+            let inset:CGFloat=nearMouth ? 1 : 5+CGFloat(variation)
+            c.addLine(to:CGPoint(x:x+w-inset,y:y))
+        }
+        c.closePath()
+        c.setFillColor(color(shadow));c.fillPath()
+        let left=x+12+CGFloat(abs(seed)%3)*3
+        c.beginPath()
+        c.move(to:CGPoint(x:left,y:start+span*0.09))
+        c.addLine(to:CGPoint(x:x+w*0.53,y:start+span*0.20))
+        c.addLine(to:CGPoint(x:x+w*0.67,y:end-span*0.11))
+        c.addLine(to:CGPoint(x:left+4,y:end-span*0.05))
+        c.closePath()
+        c.setFillColor(color(stone,196.0/255));c.fillPath()
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
         let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
         let shade:UInt32 = g.kind==0 ? 0x6e5c63 : dark[g.kind]
         let cap:UInt32 = g.kind==0 ? 0x55ce6c : hue
-        rect(c,x+7,0,w-12,top,shade,7);rect(c,x,0,w-13,top,hue,8)
+        drawCliffShaft(c,x,w,0,top,shade,hue,-(index+1+g.kind*7))
         rect(c,x-7,top-28,w+12,28,cap,7)
-        rect(c,x+7,bottom,w-12,755-bottom,shade,7);rect(c,x,bottom,w-13,755-bottom,hue,7)
+        drawCliffShaft(c,x,w,bottom,755,shade,hue,index+1+g.kind*7)
         rect(c,x-7,bottom,w+12,27,cap,7)
         drawRockFacets(c,x,w,2,top-30)
         drawRockFacets(c,x,w,bottom+28,751)
