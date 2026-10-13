@@ -123,6 +123,46 @@ t,l,r,b=max(regions)
 subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
 PY
 }
+
+# Validate native legal disclosure from the actual no-scroll Settings footer.
+verify_settings_legal(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+def dump():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-legal.xml"],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
+    blob=subprocess.run(["adb","exec-out","cat","/sdcard/bopavi-legal.xml"],
+                        check=True,capture_output=True,timeout=15).stdout
+    return ET.fromstring(blob)
+for button in ("POLITIKA PRIVATNOSTI","UVJETI KORIŠTENJA"):
+    home=dump()
+    candidates=[n for n in home.iter("node") if n.get("clickable")=="true"
+                and n.get("content-desc")==button]
+    if len(candidates)!=1:
+        raise SystemExit(f"FAIL: expected one native {button} legal footer button")
+    bounds=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",candidates[0].get("bounds",""))
+    if not bounds: raise SystemExit(f"FAIL: invalid legal footer bounds {button}")
+    left,top,right,bottom=map(int,bounds.groups())
+    if right<=left or bottom<=top:
+        raise SystemExit(f"FAIL: noninteractive legal footer bounds {button}")
+    subprocess.run(["adb","shell","input","tap",
+                    str((left+right)//2),str((top+bottom)//2)],check=True,timeout=15)
+    time.sleep(.4)
+    dialog=dump()
+    labels=[n.get("text","") for n in dialog.iter("node")]
+    if not any(button==label for label in labels):
+        raise SystemExit(f"FAIL: legal native dialog did not open: {button}")
+    if not any("Brendigo" in label for label in labels):
+        raise SystemExit(f"FAIL: legal publisher missing: {button}")
+    subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
+    time.sleep(.3)
+    again=dump()
+    if not any(n.get("content-desc")=="NAPREDNE POSTAVKE" for n in again.iter("node")):
+        raise SystemExit("FAIL: legal notice Back did not restore compact Settings")
+print("PASS: privacy/terms native footer, truthful Brendigo notices and no-scroll return",
+      flush=True)
+PY
+}
 # Verify actual touch selection and persisted difficulty without disturbing
 # the user's normal default before the gameplay/collision QA starts.
 verify_difficulty_cards(){
@@ -488,6 +528,7 @@ while [ "$attempt" -le 6 ]; do
       exit 1
     fi
     capture android-settings
+    verify_settings_legal
     verify_difficulty_cards
     adb shell input keyevent 4
     sleep 1
