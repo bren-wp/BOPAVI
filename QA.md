@@ -1,7 +1,7 @@
 ## v0.1.74 — Compact safe-top gameplay HUD acceptance
 1. On a small Android phone, tall API36 device and notched iPhone, start a **real** flight and confirm star, shield and magnet chips form one horizontal row immediately below the real course gauge, inside the physical top-safe-area projection.
 2. Compare active-flight screenshots side by side across Android/iOS: no oversized passive badge may cover the left flight corridor; the real Pause control remains visible, unobstructed and tappable.
-3. Collect a star, lose a shield and let magnet expire; verify truthful numbers, accessibility narration, no frozen iOS cached counters, and no new labels allocated per frame.
+3. Collect a star, pass a gate, lose a shield and let magnet expire; verify actual points, sampled travel units, shield/magnet/star counts, accessibility narration, no frozen iOS counters, and a maximum 10 Hz regeneration rate for distance strings.
 4. Continue across a streamed level junction while flying through different biome cliffs; verify gate hitbox position, continuous scenery and that top badges never obscure Bopi.
 5. Block publication on failed Android lint/JVM/APK/AAB, API35/36 emulator gameplay QA, iOS simulator/device compilation, native regressions, missing screenshot evidence or a mismatch in the 13 release SHA-256 records.
 6. This targeted HUD pass does **not** complete pixel-accurate world, menu, shop or profile redesign; verify those against supplied reference imagery separately.

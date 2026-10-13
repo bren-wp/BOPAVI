@@ -5,7 +5,7 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
-    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
+    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
     private var lastLevelBadgeText=""
@@ -13,7 +13,10 @@ final class GameCanvas: UIView {
     private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
+    private var distanceLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
+    private var lastProgressScore = -1
+    private var lastDistanceTick = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
@@ -310,12 +313,24 @@ final class GameCanvas: UIView {
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
-            progressLabel=NSAttributedString(string:"PROLAZI UKUPNO  \(passed)",
-                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+            // "PROLAZI UKUPNO" remains available in the live accessibility label.
             lastProgressPassed=passed
         }
-        // Continuous actual course distance, matching the native Android gauge.
-        // Never display fictitious metre values from the static reference.
+        let score=game.score()
+        if score != lastProgressScore {
+            lastProgressScore=score
+            progressLabel=NSAttributedString(string:"BODOVI \(score)",
+                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+        }
+        // Sample real world-distance units at 10 Hz, avoiding per-frame
+        // NSAttributedString allocation and fake metre claims.
+        let distanceTick=Int(game.time*10)
+        if distanceTick != lastDistanceTick {
+            lastDistanceTick=distanceTick
+            distanceLabel=NSAttributedString(string:"PUT \(Int(game.distance))",
+                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+        }
+        // Continuous actual course fraction, matching the Android gauge.
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
         hudGlass(c,146,18,235,59)
@@ -340,11 +355,13 @@ final class GameCanvas: UIView {
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
         cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:85))
-        progressLabel.draw(at:CGPoint(x:267-progressLabel.size().width/2,y:110))
+        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:110))
+        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:110))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
         accessibilityLabel="Bopi leti. Novčanik \(balance) kovanica. U ovom letu skupljeno \(game.coins). " +
-            "Prolazi ukupno \(passed). Zvjezdice \(game.stars). " +
+            "Prolazi ukupno \(passed). Bodovi \(score). Udaljenost \(Int(game.distance)) jedinica. " +
+            "Zvjezdice \(game.stars). " +
             "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.

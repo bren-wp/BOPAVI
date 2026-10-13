@@ -1,6 +1,6 @@
 ## v0.1.74 — Compact top-flight power indicators (build 77)
 - Android and iOS: replace the large left-edge vertical star/shield/magnet orb rail with three narrow, consistently spaced top-row status chips below the distance/progress gauge, leaving the full middle and lower flight viewport unobstructed.
-- Display actual earned stars, remaining shield charges, and remaining magnet seconds. Keep both renderers' cached iOS counter strings, existing accessibility announcements, notch-safe HUD projection and the real platform Pause action.
+- Display actual earned stars, remaining shield charges, and remaining magnet seconds. Add a native top readout for actual scored points and travelled game-world distance without making up metres; cache distance labels at 10 Hz to avoid per-frame string allocation. Preserve notch-safe positioning, cached iOS counters, accessibility and the real platform Pause action.
 - Retain collision physics, the eight seeded biome obstacle variants, Bopi's hitbox, endless level continuity, offline saves and all existing artwork without adding assets or network dependencies.
 - Extend native-source regressions to reject a return to obstructive side badges. Real simulator/device image comparisons to the original references remain required; no unverified 1:1 visual claim.
 

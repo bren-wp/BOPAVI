@@ -2080,3 +2080,15 @@ for render,orb_prefix in ((android_game,'hudOrb(c,'),(ios_game,'hudOrb(c,')):
 assert 'safeAreaInsets.top+4*hudScale' in ios_game
 assert 'topInset+4f*hudScale' in android_game
 print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both platforms')
+
+# v0.1.74: score and actual world-distance must be visible on both native
+# physical-top HUDs; only regenerate their textual labels at 10 Hz or on events.
+for render in (android_game,ios_game):
+    assert 'lastProgressScore' in render and 'lastDistanceTick' in render
+    assert 'BODOVI ' in render and 'PUT ' in render
+    assert 'game.distance' in render and 'game.score()' in render
+    assert 'game.time*10' in render
+    assert 'PROLAZI UKUPNO' in render
+assert 'distanceTitle=' in android_game
+assert 'distanceLabel=NSAttributedString' in ios_game
+print('PASS: actual score + game-distance visible on both top HUDs with throttled text updates')

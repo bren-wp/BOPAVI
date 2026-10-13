@@ -29,10 +29,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var qaWaitingForCapture = false
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
-    // Only rebuild the textual progress label when a gate is passed or a new
-    // endless level begins; the renderer draws its bar each frame without allocation.
+    // Update point totals on change and the real distance readout at 10 Hz,
+    // rather than allocating formatted text on every animation frame.
     private var lastProgressPassed = -1
+    private var lastProgressScore = -1
+    private var lastDistanceTick = -1
     private var progressTitle = ""
+    private var distanceTitle = ""
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
@@ -869,12 +872,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawLevelProgress(c:Canvas) {
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
-            progressTitle="PROLAZI UKUPNO  $passed"
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        // Physically travelled course distance animates smoothly between gates.
-        // The reference metre label cannot be shown: no metre scale exists.
+        // Real points and game-world travel units, never fictional metres.
+        // "PROLAZI UKUPNO" remains spoken and level gates remain in the bar.
+        val score=game.score()
+        if(score!=lastProgressScore) {
+            lastProgressScore=score
+            progressTitle="BODOVI $score"
+        }
+        val distanceTick=(game.time*10f).toInt()
+        if(distanceTick!=lastDistanceTick) {
+            lastDistanceTick=distanceTick
+            distanceTitle="PUT ${game.distance.toInt()}"
+        }
+        // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
         hudGlass(c,146f,18f,381f,77f)
@@ -893,7 +906,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val levelLabel=if(entering)"LEVEL ${game.displayLevel}  ·  NOVI LET"
             else "LEVEL ${game.displayLevel}  ·  ${game.passed}/$total"
         text(c,levelLabel,267f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,267f,124f,12f,0xffddf4ff.toInt(),true)
+        text(c,progressTitle,204f,124f,12f,0xffddf4ff.toInt(),true)
+        text(c,distanceTitle,330f,124f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
