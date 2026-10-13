@@ -975,7 +975,7 @@ for controller,signature,expected in ((android_menu,'private fun showProfile()',
                                      (ios_menu,'private func showProfile()',
                                       'Letački profil, ')):
     assert signature in controller
-    profile=controller.split(signature,1)[1].split('showLeaderboard()',1)[0]
+    profile=controller.split(signature,1)[1].split('private fun showLeaderboard()' if 'private fun showProfile()' in signature else 'private func showLeaderboard()',1)[0]
     for content in ('TVOJI REZULTATI','Najbolji rezultat','Osvojene kovanice',
                     'Dovršeni leveli','Pobjede','progress.bestPoints()',
                     'progress.coins()','progress.wins()','showHome()'):
