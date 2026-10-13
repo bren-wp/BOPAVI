@@ -568,14 +568,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         for(i in 0..steps) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 7f+((seed*11+i*7)%9)
+            val inset=if(nearMouth)1f else 7f+(((seed*11+i*7)%9+9)%9)
             val lx=x+inset
             if(i==0)path.moveTo(lx,y) else path.lineTo(lx,y)
         }
         for(i in steps downTo 0) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 5f+((seed*3+i*13)%11)
+            val inset=if(nearMouth)1f else 5f+(((seed*3+i*13)%11+11)%11)
             path.lineTo(x+w-inset,y)
         }
         path.close()
@@ -583,7 +583,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawPath(path,p)
         // Large angled mineral face gives each cliff a unique lit silhouette.
         path.reset()
-        val left=x+12f+(seed%3)*3f
+        val left=x+12f+(kotlin.math.abs(seed)%3)*3f
         path.moveTo(left,start+span*.09f)
         path.lineTo(x+w*.53f,start+span*.20f)
         path.lineTo(x+w*.67f,end-span*.11f)
