@@ -262,7 +262,7 @@ class MainActivity : Activity() {
             contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
                 "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
                 "zvjezdice ${progress.worldStars(world)} od 30" +
-                (if(world % 2 == 1) ", upravljanje povlačenjem" else ", upravljanje dodirom") +
+                ", upravljanje dodirom" +
                 (if(world==progress.chosenWorld()) ", odabrano" else "")
             setOnClickListener{sound.effect("click");onClick()}
         }
