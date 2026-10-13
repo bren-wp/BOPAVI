@@ -1535,9 +1535,9 @@ assert 'private fun hudGoldCoin(' in android_game
 assert 'private func hudGlass(' in ios_game
 assert 'private func hudGoldCoin(' in ios_game
 assert 'hudCoinFont=UIFont.systemFont' in ios_game
-assert 'hudText("♛",24,31,hudCoinFont' in ios_game
-assert 'hudGlass(c,13f,21f,139f,75f)' in android_game
-assert 'hudGlass(c,13,21,126,54)' in ios_game
+assert 'hudText("♛",86,33,hudCoinFont' in ios_game
+assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
+assert 'hudGlass(c,73,22,72,53)' in ios_game
 assert 'hudOrb(c,46f,175f,"★"' in android_game
 assert 'hudOrb(c,46,175,"★"' in ios_game
 for source in (android_game,ios_game):
@@ -2112,3 +2112,31 @@ for canvas in (android_canvas,ios_canvas):
 assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
 print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')
+
+# v0.1.68 — pilot portrait + verified persistent offline wallet in both
+# frame-synchronous HUDs. No invented balances or accessibility truncation.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_game=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+android_menu=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios_menu=(root/'ios/BOPAVI/GameController.swift').read_text()
+for source in (android_game,ios_game):
+    assert 'hudPilotPortrait(' in source
+    assert 'hudPortrait' in source
+    assert 'walletLabel(' in source
+    assert 'game.coins' in source
+    assert '100_000_000' in source
+    assert 'coin' in source.lower()
+    assert '.1fM' in source and '.1fK' in source
+    assert 'Kovanice' in source and 'balance' in source
+    assert 'hudGoldCoin(' in source
+assert 'portraitSprites[selectedSkin]' in android_game
+assert 'BopiPortrait\\(selectedSkin)' in ios_game
+assert 'walletCoins={progress.coins()}' in android_menu
+assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
+assert 'private val hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
+assert 'coinWallet()+game.coins' in ios_game
+assert 'walletCoins().toLong()+game.coins' in android_game
+# The real pause remains an accessible native button outside the drawn HUD.
+assert 'onFlightStarted=' in android_menu and 'pauseButton?.visibility=View.VISIBLE' in android_menu
+assert 'gameCanvas.onFlightStarted' in ios_menu and 'pause?.isHidden=false' in ios_menu
+print('PASS: in-flight real pilot portrait, offline wallet with exact accessibility, and preserved native pause')
