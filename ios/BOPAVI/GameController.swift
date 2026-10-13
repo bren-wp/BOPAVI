@@ -253,7 +253,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // bottom navigation. Keep scrolling for information-dense submenus.
         scroll.alwaysBounceVertical=title != "BOPAVI"
         scroll.isScrollEnabled=title != "BOPAVI"
-        if title == "TRGOVINA" || title == "MOJI REKORDI" {
+        if title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" {
             scroll.isScrollEnabled=false
             scroll.alwaysBounceVertical=false
         }
@@ -267,7 +267,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        let compact = title == "TRGOVINA" || title == "MOJI REKORDI"
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL"
         stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
@@ -315,7 +315,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         return stack
     }
-    override func viewDidLayoutSubviews(){super.viewDidLayoutSubviews();backgroundGradient?.frame=view.bounds}
+    override func viewDidLayoutSubviews(){
+        super.viewDidLayoutSubviews()
+        backgroundGradient?.frame=view.bounds
+        // PROFILE combines a real pilot card, earned awards and best worlds.
+        // Fit the native stack (not a screenshot) into each device safe-area.
+        guard currentMenuName == "PROFIL",
+              let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
+              let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
+              scroll.bounds.height>0,stack.bounds.height>0 else{return}
+        let naturalHeight=stack.bounds.height
+        let fit=min(CGFloat(1),scroll.bounds.height/naturalHeight)
+        let topShift=-(naturalHeight*(1-fit)/2)
+        stack.transform=CGAffineTransform(scaleX:fit,y:fit)
+            .translatedBy(x:0,y:fit>0 ? topShift/fit : 0)
+    }
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
         l.numberOfLines=0;l.textAlignment = .center;l.text=text
@@ -1392,10 +1406,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
         let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
+        // All metrics, badges and world ranks are derived from offline saves.
+        let back=UIButton(type:.system)
+        back.setTitle("‹  POČETNA",for:.normal)
+        back.setTitleColor(.white,for:.normal)
+        back.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
+        back.backgroundColor=UIColor(red:0.04,green:0.29,blue:0.62,alpha:0.96)
+        back.layer.cornerRadius=15
+        back.accessibilityLabel="Natrag na početnu"
+        back.heightAnchor.constraint(equalToConstant:34).isActive=true
+        back.addAction(UIAction{_ in self.showHome()},for:.touchUpInside)
+        s.addArrangedSubview(back)
         let skin=0
         let hero=UIStackView()
         hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
-        hero.layoutMargins=UIEdgeInsets(top:11,left:8,bottom:11,right:8)
+        hero.layoutMargins=UIEdgeInsets(top:6,left:7,bottom:6,right:7)
         hero.isLayoutMarginsRelativeArrangement=true
         hero.backgroundColor=UIColor(red:0.035,green:0.16,blue:0.38,alpha:0.98)
         hero.layer.cornerRadius=24
@@ -1414,12 +1439,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         portraitBox.widthAnchor.constraint(equalToConstant:124).isActive=true
         let portrait=UIImageView(image:UIImage(named:"BopiPortrait"+String(skin)))
         portrait.contentMode = .scaleAspectFit
-        portrait.heightAnchor.constraint(equalToConstant:151).isActive=true
+        portrait.heightAnchor.constraint(equalToConstant:105).isActive=true
         portrait.isAccessibilityElement=false
         portraitBox.addArrangedSubview(portrait)
         let levelLabel=label("LEVEL "+String(progress.streamFrontier(progress.chosenWorld())),
             11,UIColor(red:1,green:0.77,blue:0.30,alpha:1),portraitBox)
-        levelLabel.heightAnchor.constraint(equalToConstant:27).isActive=true
+        levelLabel.heightAnchor.constraint(equalToConstant:20).isActive=true
         // Gauge the selected world's *saved* stars. No invented XP, metres
         // or account level: it is a real 0...30 world completion indicator.
         let profileWorld=progress.chosenWorld()
@@ -1429,7 +1454,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         starGauge.progressTintColor=UIColor(red:1,green:0.76,blue:0.30,alpha:1)
         starGauge.trackTintColor=UIColor(red:0.06,green:0.24,blue:0.49,alpha:1)
         starGauge.transform=CGAffineTransform(scaleX:1,y:3)
-        starGauge.heightAnchor.constraint(equalToConstant:12).isActive=true
+        starGauge.heightAnchor.constraint(equalToConstant:8).isActive=true
         starGauge.isAccessibilityElement=true
         starGauge.accessibilityLabel="Zvjezdice svijeta "+BopaviCore.names[profileWorld]
         starGauge.accessibilityValue="\(profileStars) od 30"
@@ -1437,7 +1462,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let starCaption=label("★  \(profileStars)/30 · "+BopaviCore.names[profileWorld],10,.white,portraitBox)
         starCaption.numberOfLines=1
         starCaption.adjustsFontSizeToFitWidth=true;starCaption.minimumScaleFactor=0.8
-        starCaption.heightAnchor.constraint(equalToConstant:27).isActive=true
+        starCaption.heightAnchor.constraint(equalToConstant:18).isActive=true
         hero.addArrangedSubview(portraitBox)
         let stats=UIStackView()
         stats.axis = .vertical;stats.alignment = .fill;stats.spacing=3
@@ -1481,12 +1506,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             metric.font=UIFont.monospacedDigitSystemFont(ofSize:14,weight:.heavy)
             metric.setContentCompressionResistancePriority(.required,for:.horizontal)
             tile.addArrangedSubview(textLabel);tile.addArrangedSubview(metric)
-            tile.heightAnchor.constraint(equalToConstant:35).isActive=true
+            tile.heightAnchor.constraint(equalToConstant:27).isActive=true
             stats.addArrangedSubview(tile)
         }
         hero.addArrangedSubview(stats)
         s.addArrangedSubview(hero)
-        label("Odabrani svijet: "+BopaviCore.names[progress.chosenWorld()],15,.white,s)
+        // Saved-world identity is already in the live star gauge.
         sectionHeading("MOJE NAGRADE",in:s)
         let explored=(0..<8).filter{progress.frontier($0)>1}.count
         let collected=(0..<8).reduce(Int64(0)) { sum,w in
@@ -1523,23 +1548,30 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.accessibilityLabel=name+", cilj "+requirement+", "+(earned ? "osvojeno":"zaključano")
             let glyph=label(earned ? icon:"🔒",24,
                 UIColor(red:1,green:0.77,blue:0.30,alpha:1),tile)
-            glyph.heightAnchor.constraint(equalToConstant:39).isActive=true
+            glyph.heightAnchor.constraint(equalToConstant:26).isActive=true
             let caption=label(name,10,.white,tile)
             caption.numberOfLines=1
             caption.adjustsFontSizeToFitWidth=true
             caption.minimumScaleFactor=0.72
-            caption.heightAnchor.constraint(equalToConstant:23).isActive=true
+            caption.heightAnchor.constraint(equalToConstant:18).isActive=true
             let goal=label(requirement,9,UIColor(red:0.77,green:0.91,blue:1,alpha:1),tile)
             goal.numberOfLines=1;goal.adjustsFontSizeToFitWidth=true
             goal.minimumScaleFactor=0.75
-            goal.heightAnchor.constraint(equalToConstant:22).isActive=true
-            tile.heightAnchor.constraint(equalToConstant:101).isActive=true
+            goal.heightAnchor.constraint(equalToConstant:17).isActive=true
+            tile.heightAnchor.constraint(equalToConstant:75).isActive=true
             badgeRow.addArrangedSubview(tile)
         }
         s.addArrangedSubview(badgeRow)
-        button("★  POGLEDAJ SVA POSTIGNUĆA",in:s,primary:false){
-            self.showAchievements(.profile)
-        }
+        let allAwards=UIButton(type:.system)
+        allAwards.setTitle("★  SVE NAGRADE  ›",for:.normal)
+        allAwards.setTitleColor(.white,for:.normal)
+        allAwards.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
+        allAwards.backgroundColor=UIColor(red:0.05,green:0.32,blue:0.66,alpha:1)
+        allAwards.layer.cornerRadius=16
+        allAwards.heightAnchor.constraint(equalToConstant:37).isActive=true
+        allAwards.accessibilityLabel="Pogledaj sva postignuća"
+        allAwards.addAction(UIAction{_ in self.showAchievements(.profile)},for:.touchUpInside)
+        s.addArrangedSubview(allAwards)
         sectionHeading("MOJI NAJBOLJI SVJETOVI",in:s)
         let ranked=(0..<8).sorted {
             let left=progress.worldStars($0),right=progress.worldStars($1)
@@ -1569,7 +1601,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
             let artFrame=UIView()
             artFrame.clipsToBounds=true
-            artFrame.heightAnchor.constraint(equalToConstant:81).isActive=true
+            artFrame.heightAnchor.constraint(equalToConstant:59).isActive=true
             let art=UIImageView(image:UIImage(named:"World"+String(world)))
             art.translatesAutoresizingMaskIntoConstraints=false
             art.contentMode = .scaleAspectFill;art.clipsToBounds=true
@@ -1600,19 +1632,24 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let title=label(BopaviCore.names[world].uppercased(),11,.white,content)
             title.numberOfLines=1;title.adjustsFontSizeToFitWidth=true
             title.minimumScaleFactor=0.72
-            title.heightAnchor.constraint(equalToConstant:26).isActive=true
+            title.heightAnchor.constraint(equalToConstant:22).isActive=true
             let stars=label("★ "+String(progress.worldStars(world))+"/30",12,
                 UIColor(red:1,green:0.77,blue:0.30,alpha:1),content)
-            stars.heightAnchor.constraint(equalToConstant:25).isActive=true
-            tile.heightAnchor.constraint(equalToConstant:132).isActive=true
+            stars.heightAnchor.constraint(equalToConstant:19).isActive=true
+            tile.heightAnchor.constraint(equalToConstant:100).isActive=true
             tile.addAction(UIAction{_ in
                 self.sound.effect("click");self.showLevels(world,page:1)
             },for:.touchUpInside)
             worldRow.addArrangedSubview(tile)
         }
         s.addArrangedSubview(worldRow)
-        button("✎  UREDI PROFIL",in:s){self.showSettings()}
-        label("Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.",14,.white,s)
+        let editProfile=BopaviActionButton(primary:true)
+        editProfile.setTitle("✎  UREDI PROFIL",for:.normal)
+        editProfile.accessibilityLabel="Uredi profil"
+        editProfile.heightAnchor.constraint(equalToConstant:53).isActive=true
+        editProfile.addAction(UIAction{_ in self.showSettings()},for:.touchUpInside)
+        s.addArrangedSubview(editProfile)
+        // Bopi identity remains accessible in the hero and local progress data.
         let footer=UIStackView()
         footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
         footer.isLayoutMarginsRelativeArrangement=true
@@ -1632,18 +1669,18 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 ? UIColor(red:0.60,green:0.36,blue:0.05,alpha:1)
                 : UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.8)
             tab.layer.cornerRadius=13
-            tab.heightAnchor.constraint(equalToConstant:59).isActive=true
+            tab.heightAnchor.constraint(equalToConstant:49).isActive=true
             tab.accessibilityLabel=item.1+(index==0 ? ", odabrano":"")
             let content=UIStackView()
             content.axis = .vertical;content.translatesAutoresizingMaskIntoConstraints=false
             content.isUserInteractionEnabled=false
             let glyph=UIImageView(image:UIImage(named:item.0))
             glyph.contentMode = .scaleAspectFit
-            glyph.heightAnchor.constraint(equalToConstant:28).isActive=true
+            glyph.heightAnchor.constraint(equalToConstant:25).isActive=true
             content.addArrangedSubview(glyph)
             let name=label(item.1,11,.white,content)
             name.adjustsFontSizeToFitWidth=true;name.minimumScaleFactor=0.72
-            name.heightAnchor.constraint(equalToConstant:22).isActive=true
+            name.heightAnchor.constraint(equalToConstant:17).isActive=true
             tab.addSubview(content)
             NSLayoutConstraint.activate([
                 content.centerYAnchor.constraint(equalTo:tab.centerYAnchor),
@@ -1654,7 +1691,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             footer.addArrangedSubview(tab)
         }
         s.addArrangedSubview(footer)
-        button("‹  POČETNA",in:s,primary:false){self.showHome()}
+        // Top-left native Back control replaces a redundant 58-point footer.
     }
 
     private func showLeaderboard(){
