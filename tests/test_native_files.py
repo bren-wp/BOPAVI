@@ -2133,6 +2133,7 @@ for source in (android_overview,ios_overview):
     assert 'soundEnabled' in source and 'hapticEnabled' in source
     assert 'lessMotion' in source
 assert 'FitViewportColumn(this)' in android_overview
+assert 'column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))' in android_overview
 assert 'Type.displayCutout()' in android_overview
 assert 'setOnApplyWindowInsetsListener' in android_overview
 assert 'rows.distribution = .fillEqually' in ios_overview
