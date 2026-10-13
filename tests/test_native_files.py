@@ -794,7 +794,7 @@ for level_ui in (android_levels,ios_levels):
     assert 'PRETHODNIH 20' in level_ui and 'POKRENI ODABRANI LEVEL' in level_ui
 assert 'private fun levelTile(' in android_levels
 assert 'private func levelTile(' in ios_levels
-assert 'R.drawable.world0' in android_levels and 'UIImage(named:"World\\(world)")' in ios_levels
+assert 'worldDrawableIds' in android_levels and 'R.drawable.world0' in android_menu and 'UIImage(named:"World\\(world)")' in ios_levels
 assert 'if(unlocked)' in android_levels and 'if unlocked' in ios_levels
 for ui in (android_menu,ios_menu):
     assert 'volumeSlider(' in ui and 'musicVolume' in ui and 'effectsVolume' in ui
@@ -2293,3 +2293,37 @@ for dev_copy in ("The AAB and iOS device archive are not distribution-signed",
                  "legacy skin save aliases"):
     assert dev_copy not in readme
 print('PASS: v0.1.80 Brendigo privacy/terms accessible in non-scroll native Settings and truthful live-screenshot README')
+
+# v0.1.81 — all menu destinations fit the viewport, never scroll.
+# Separate Settings pages retain genuine callbacks and persistent state.
+for title in ('"SVJETOVI"','"LEVELI"','"POSTAVKE"'):
+    assert title in android_base,title
+    assert title in ios_menu_base,title
+assert 'val fitted=FitViewportColumn(this)' in android_base
+assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
+assert 'scroll.isScrollEnabled=false' in ios_menu_base
+assert 'currentMenuName == "SVJETOVI"' in ios_menu
+assert 'currentMenuName == "LEVELI"' in ios_menu
+assert 'currentMenuName == "POSTAVKE"' in ios_menu
+assert 'scroll.bounds.height/naturalHeight' in ios_menu
+assert 'private fun showSettingsDetails(page:Int)' in android_menu
+assert 'private func showSettingsDetails(page:Int)' in ios_menu
+for src in (android_menu,ios_menu):
+    for title in ('IZGLED I ZVUK','IGRAČ I TEŽINA','DODATNE OPCIJE',
+                  'PODACI I PRIVATNOST','PRETHODNA','SLJEDEĆA'):
+        assert title in src,('settings pagination',title)
+assert 'if(!visible)settingsPanel.removeView(view)' in android_menu
+assert 'element.isHidden = !keep' in ios_menu
+for screen in (android_levels,ios_levels):
+    assert 'PRETHODNIH 20' in screen and 'SLJEDEĆIH 20' in screen
+    assert 'POKRENI ODABRANI LEVEL' in screen and 'NASTAVI' in screen
+assert android_menu.count('private val worldDrawableIds=intArrayOf(')==1
+assert android_menu.count('R.drawable.world0')>=1
+assert 'val art=worldDrawableIds' in android_menu
+assert 'val scenes=worldDrawableIds' in android_menu
+assert 'val worldArt=worldDrawableIds' in android_menu
+assert "FAIL: world cards require scrolling" in qa_script
+assert "expected twenty level tiles on initial no-scroll page" in qa_script
+assert "qa/screenshots/android-levels.png" in qa_script
+assert "Settings has three FITTED pages" in qa_script
+print('PASS: v0.1.81 viewport fit, 3 Settings pages, 20 levels and cached world art')
