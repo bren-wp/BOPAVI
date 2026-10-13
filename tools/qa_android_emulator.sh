@@ -189,6 +189,17 @@ def dump():
     xml=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
                        check=True,capture_output=True,text=True,timeout=15).stdout
     return ET.fromstring(xml)
+# Settings has three FITTED pages, not a hidden scrolling view.
+# Select the second page using its real Next control.
+first=dump()
+advance=[n for n in first.iter('node') if n.get('clickable')=='true'
+         and 'SLJEDEĆA' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(advance)!=1: raise SystemExit('FAIL: missing next Settings page action')
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',advance[0].get('bounds',''))
+if not m: raise SystemExit('FAIL: Settings page bounds malformed')
+l,t,r,b=map(int,m.groups())
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+time.sleep(.5)
 def target(name):
     root=dump()
     matches=[n for n in root.iter('node') if n.get('clickable')=='true'
@@ -196,18 +207,13 @@ def target(name):
     if len(matches)>1: raise SystemExit(f'FAIL: duplicate difficulty card {name}')
     return matches[0] if matches else None
 def locate(name):
-    for _ in range(9):
-        found=target(name)
-        if found is not None:
-            match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',found.get('bounds',''))
-            if match:
-                l,t,r,b=map(int,match.groups())
-                if r>l and b>t:
-                    return found,(l+r)//2,(t+b)//2
-        subprocess.run(['adb','shell','input','swipe','190','740','190','335','440'],
-                       check=True,timeout=12)
-        time.sleep(.32)
-    raise SystemExit(f'FAIL: accessible {name} card not reachable by real swipe')
+    found=target(name)
+    if found is None: raise SystemExit(f'FAIL: {name} hidden on page 2')
+    match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',found.get('bounds',''))
+    if not match: raise SystemExit(f'FAIL: bad {name} coordinates')
+    l,t,r,b=map(int,match.groups())
+    if r<=l or b<=t: raise SystemExit(f'FAIL: empty {name} bounds')
+    return found,(l+r)//2,(t+b)//2
 for name,expected in [('LAGANO','LAGANO'),('NORMALNO','NORMALNO')]:
     card,x,y=locate(name)
     subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True,timeout=12)
@@ -253,22 +259,39 @@ with open('qa/screenshots/android-worlds.png','rb') as captured:
     if captured.read(8)!=bytes.fromhex('89504e470d0a1a0a'):
         raise SystemExit('FAIL: Android worlds screenshot is not a valid PNG')
 seen=set()
-for attempt in range(13):
-    root=dump()
-    for node in nodes(root):
-        title=node.get('content-desc','')
-        for name in worlds:
-            if title.startswith(name+', otključano,'):
-                if not all(piece in title for piece in ('level ','prikupljeno ','rekord ','zvjezdice ',' od 30')):
-                    raise SystemExit(f'FAIL: world missing real save metrics: {name}')
-                seen.add(name)
-    if len(seen)==8:break
-    subprocess.run(['adb','shell','input','swipe','220','746','220','291','430'],
-                   check=True,timeout=12)
-    time.sleep(.4)
+root=dump()
+for node in nodes(root):
+    title=node.get('content-desc','')
+    for name in worlds:
+        if title.startswith(name+', otključano,'):
+            if not all(piece in title for piece in ('level ','prikupljeno ','rekord ','zvjezdice ',' od 30')):
+                raise SystemExit(f'FAIL: world missing real save metrics: {name}')
+            seen.add(name)
 if len(seen)!=8:
-    raise SystemExit(f'FAIL: not all world cards reachable: {sorted(set(worlds)-seen)}')
-print('PASS: all eight real illustrated world cards expose saved level, collected items and record',flush=True)
+    raise SystemExit(f'FAIL: world cards require scrolling: {sorted(set(worlds)-seen)}')
+print('PASS: all eight world cards visible simultaneously, without swipe',flush=True)
+first=[n for n in nodes(root) if n.get('content-desc','').startswith('Zeleni otoci, otključano,')]
+if len(first)!=1: raise SystemExit('FAIL: first world missing')
+tap(first[0]);time.sleep(.7)
+grid=dump()
+tiles=[n for n in nodes(grid) if re.match(r'^Level \d+,',n.get('content-desc',''))]
+if len(tiles)!=20:
+    raise SystemExit(f'FAIL: expected twenty level tiles on initial no-scroll page, got {len(tiles)}')
+if not all(any(n.get('content-desc','').startswith(f'Level {k},') for n in tiles) for k in range(1,21)):
+    raise SystemExit('FAIL: initial 1..20 level tiles incomplete')
+with open('qa/screenshots/android-levels.png','wb') as target:
+    subprocess.run(['adb','exec-out','screencap','-p'],stdout=target,check=True,timeout=22)
+next_pages=[n for n in nodes(grid) if 'SLJEDEĆIH 20' in n.get('content-desc','')]
+if len(next_pages)!=1: raise SystemExit('FAIL: missing level pagination action')
+tap(next_pages[0]);time.sleep(.6)
+later=dump()
+if not any(n.get('content-desc','').startswith('Level 21,') for n in nodes(later)):
+    raise SystemExit('FAIL: next level page did not open')
+subprocess.run(['adb','shell','input','keyevent','4'],check=True,timeout=12)
+time.sleep(.4)
+if len([n for n in nodes(dump()) if 'Zeleni otoci, otključano,' in n.get('content-desc','')])!=1:
+    raise SystemExit('FAIL: Levels Back did not restore Worlds')
+print('PASS: 20 real levels per page, page navigation, Worlds Back and screenshots',flush=True)
 subprocess.run(['adb','shell','input','keyevent','4'],check=True,timeout=12)
 PY
 }
