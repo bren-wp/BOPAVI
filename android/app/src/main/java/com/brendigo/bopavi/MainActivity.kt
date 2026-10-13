@@ -921,7 +921,7 @@ class MainActivity : Activity() {
         }
         val panel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(24),d(28),d(24),d(26))
+            setPadding(d(18),d(12),d(18),d(18))
         }
         scroll.addView(panel)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
@@ -963,7 +963,7 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
-        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(192)).apply{bottomMargin=d(9)})
+        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(144)).apply{bottomMargin=d(5)})
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
@@ -988,7 +988,7 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER
         }
         panel.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{
-            topMargin=d(10);bottomMargin=d(9)
+            topMargin=d(5);bottomMargin=d(5)
         })
         fun resultCard(heading:String,icon:String,value:String,color:Int):TextView{
             val card=LinearLayout(this).apply{
@@ -1020,7 +1020,7 @@ class MainActivity : Activity() {
                 contentDescription="$heading $value"
             }
             card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
-            summary.addView(card,LinearLayout.LayoutParams(0,d(139),1f).apply{
+            summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
                 setMargins(d(3),d(3),d(3),d(3))
             })
             return stat
@@ -1085,7 +1085,7 @@ class MainActivity : Activity() {
                 contentDescription="$label $value"
             }
             box.addView(count,LinearLayout.LayoutParams(-1,d(28)))
-            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(114),1f).apply{
+            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(99),1f).apply{
                 setMargins(d(2),0,d(2),0)
             })
             return count
