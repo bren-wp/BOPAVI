@@ -2074,8 +2074,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         settingRow("JEZIK",{"HRVATSKI"}){
             [weak self] in self?.alert("Jezik","Trenutačno je dostupan hrvatski jezik.")
         }
-        settingRow("PRIVATNOST",{"OTVORI"}){
-            [weak self] in self?.showSettingsDetails()
+        settingRow("PRIVATNOST",{"PROČITAJ"}){
+            [weak self] in self?.showLegalNotice(privacy:true)
         }
         let advanced=UIButton(type:.system)
         advanced.setTitle("⚙  NAPREDNE POSTAVKE",for:.normal)
@@ -2089,6 +2089,49 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         advanced.accessibilityLabel="NAPREDNE POSTAVKE"
         advanced.addAction(UIAction{[weak self] _ in self?.showSettingsDetails()},for:.touchUpInside)
         stack.addArrangedSubview(advanced)
+
+        // Real on-device legal controls, independent of network and web views.
+        let legal=UIStackView()
+        legal.axis = .horizontal
+        legal.distribution = .fillEqually
+        legal.spacing=7
+        legal.heightAnchor.constraint(equalToConstant:35).isActive=true
+        for (title,privacy) in [("POLITIKA PRIVATNOSTI",true),
+                                ("UVJETI KORIŠTENJA",false)] {
+            let link=UIButton(type:.system)
+            link.setTitle(title,for:.normal)
+            link.titleLabel?.font=UIFont.systemFont(ofSize:10,weight:.bold)
+            link.titleLabel?.adjustsFontSizeToFitWidth=true
+            link.titleLabel?.minimumScaleFactor=0.78
+            link.setTitleColor(.white,for:.normal)
+            link.backgroundColor=UIColor(red:0.025,green:0.16,blue:0.37,alpha:0.97)
+            link.layer.cornerRadius=12
+            link.layer.borderWidth=1
+            link.layer.borderColor=UIColor(red:0.27,green:0.80,blue:1,alpha:1).cgColor
+            link.accessibilityLabel=title
+            link.addAction(UIAction{[weak self] _ in
+                self?.showLegalNotice(privacy:privacy)
+            },for:.touchUpInside)
+            legal.addArrangedSubview(link)
+        }
+        stack.addArrangedSubview(legal)
+        let publisher=UILabel()
+        publisher.text="© BRENDIGO  ·  BOPAVI"
+        publisher.textColor=UIColor(red:0.87,green:0.96,blue:1,alpha:1)
+        publisher.font=UIFont.systemFont(ofSize:10,weight:.bold)
+        publisher.textAlignment = .center
+        publisher.heightAnchor.constraint(equalToConstant:19).isActive=true
+        stack.addArrangedSubview(publisher)
+    }
+
+    private func showLegalNotice(privacy:Bool){
+        let title=privacy ? "POLITIKA PRIVATNOSTI" : "UVJETI KORIŠTENJA"
+        let details=privacy
+            ? "BOPAVI izdaje Brendigo. Igra nema račune, oglase, analitiku ili kupnje stvarnim novcem. Nadimak, rezultati, virtualne kovanice, napredak i postavke ostaju lokalno na uređaju. Dobrovoljni JSON izvoz koristi odabranu lokaciju, uključujući vanjske pružatelje. Podaci se ne šalju poslužiteljima izdavača. Izbriši podatke aplikacije ili je deinstaliraj za lokalno brisanje; izvezene kopije brišu se zasebno. Kontakt: github.com/bren-wp/BOPAVI/issues."
+            : "BOPAVI je igra izdavača Brendigo. Igraj odgovorno. Kovanice, zvjezdice i nagrade imaju vrijednost samo unutar igre; nema plaćanja stvarnim novcem. Napredak ostaje na uređaju uz dobrovoljni izvoz i uvoz. Mlađim igračima preporučuje se roditeljsko vodstvo. Podrška: github.com/bren-wp/BOPAVI/issues. Primjenjuju se obvezna potrošačka prava."
+        let notice=UIAlertController(title:title,message:details,preferredStyle:.alert)
+        notice.addAction(UIAlertAction(title:"ZATVORI",style:.default))
+        present(notice,animated:true)
     }
 
     private func showSettingsDetails(){
