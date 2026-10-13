@@ -44,8 +44,11 @@ fun main() {
     val continuous=GameSimulation(LevelEngine.createStream(0,1_048_576L),endless=true,initialOrdinal=1_048_576L)
     check(continuous.displayLevel==1_048_576L)
     val s=GameSimulation(LevelEngine.create(0,1))
-    check(!s.active);s.flap();check(s.active && s.flaps==1)
-    repeat(70){s.step(1f/60f)}
+    check(!s.active && s.levelProgress==0f)
+    s.flap();check(s.active && s.flaps==1)
+    s.step(.05f)
+    check(s.levelProgress>0f && s.levelProgress<1f) {"Real-distance race gauge did not advance between gates"}
+    repeat(67){s.step(1f/60f)}
     check(s.time>0f);check(s.y.isFinite())
 
     // Regression from a real device video: drawn cap enters the bird hitbox
@@ -112,7 +115,11 @@ fun main() {
         val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
         val oldLast=stream.gateX(base.gates.last())
         val interval=base.gates.last().x-base.gates[base.gates.lastIndex-1].x
-        check(kotlin.math.abs(firstNext-oldLast-interval)<0.01f)
+        val expected=(interval-32f).coerceIn(190f,208f)
+        check(kotlin.math.abs(firstNext-oldLast-expected)<0.01f)
+        // The next cap enters the 550-unit viewport before the last one
+        // reaches x=340; no gap in scenery, gameplay, or world coordinates.
+        check(expected in 190f..208f && expected+340f<=550f)
     }
     // v0.1.20: a new tap triggers a 240 ms cosmetic upstroke.
     run {
