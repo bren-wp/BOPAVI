@@ -33,7 +33,7 @@ BOPAVI is an offline-friendly mobile arcade game for Android and iOS. It require
 Coins, stars, shields, and magnets are virtual gameplay items only. They have no monetary value and cannot be redeemed for money, goods, or services. There are no real-money purchases or ads.
 
 ### Local saves
-Scores and preferences are stored on your device. Import and export of a JSON backup are optional. You are responsible for copies stored with the provider you choose; uninstalling does not delete exported files.
+Your progress, scores and preferences are stored on your device. Import and export of a JSON backup are optional. You are responsible for copies stored with the provider you choose; uninstalling does not delete exported files.
 
 ### Safety and age suitability
 Play responsibly. Parental guidance is recommended for younger players. Do not use the game where it could distract you from safety-sensitive activities.
