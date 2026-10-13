@@ -2059,7 +2059,7 @@ assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
 assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
 assert 'drawBoostHUD(c)' in ios_game.split('c.restoreGState()',1)[1] or 'drawBoostHUD(c)' in ios_game
 assert 'FitViewportColumn(this)' in android_menu
-assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+assert 'scroll.isScrollEnabled=false' in ios_menu
 fit_screen=(root/'android/app/src/main/java/com/brendigo/bopavi/FitViewportColumn.kt').read_text()
 assert 'View.MeasureSpec.UNSPECIFIED' in fit_screen and 'availableH.toFloat()/intrinsicH' in fit_screen
 assert 'body.scaleY=fit' in fit_screen and 'body.scaleX=fit' in fit_screen
