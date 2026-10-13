@@ -47,6 +47,9 @@ class MainActivity : Activity() {
         R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
         R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
         R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
+    private val worldDrawableIds=intArrayOf(
+        R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+        R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -200,8 +203,7 @@ class MainActivity : Activity() {
         // Real world art is a full-bleed layer; all interactive labels remain real
         // views instead of baking fake scores, buttons or progress into a PNG.
         val root=FrameLayout(this).apply{setBackgroundColor(ocean)}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val scenes=worldDrawableIds
         root.addView(ImageView(this).apply{
             setImageResource(scenes[currentWorld.coerceIn(0,7)])
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -212,7 +214,7 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA"){
+        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA" || label=="SVJETOVI" || label=="LEVELI" || label=="POSTAVKE"){
             // Finite menus fit physical safe areas instead of hiding content
             // in a long scroller. Do not apply a double root inset.
             val fitted=FitViewportColumn(this)
@@ -374,8 +376,7 @@ class MainActivity : Activity() {
             background=gradient(0xff0b5ca8.toInt(),0xff071b3f.toInt(),17)
             clipToOutline=true
         }
-        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val art=worldDrawableIds
         artPanel.addView(ImageView(this).apply{
             setImageResource(art[world])
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -712,8 +713,7 @@ class MainActivity : Activity() {
                 else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
             }
         }
-        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val art=worldDrawableIds
         frame.addView(ImageView(this).apply{
             setImageResource(art[world]);scaleType=ImageView.ScaleType.CENTER_CROP
             alpha=if(unlocked)0.95f else 0.36f
@@ -1009,8 +1009,7 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val scenes=worldDrawableIds
         val backdrop=ImageView(this).apply{
             setImageResource(scenes[currentWorld]);scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -1477,8 +1476,7 @@ class MainActivity : Activity() {
         profileHeading(b,"MOJI NAJBOLJI SVJETOVI")
         val ranked=(0..7).sortedWith(compareByDescending<Int>{progress.worldStars(it)}
             .thenByDescending{progress.best(it)}.thenBy{it}).take(3)
-        val worldArt=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
-            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val worldArt=worldDrawableIds
         val gallery=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
         for((rank,world) in ranked.withIndex()){
             val card=LinearLayout(this).apply{
@@ -1978,10 +1976,12 @@ class MainActivity : Activity() {
             .setPositiveButton("ZATVORI",null).show()
     }
 
-    private fun showSettingsDetails(){
+    private fun showSettingsDetails(){showSettingsDetails(0)}
+    private fun showSettingsDetails(page:Int){
+        val sectionPage=page.coerceIn(0,2)
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
-        // The reference's tall royal-blue sheet is a *real* scrolling layout,
-        // not a screenshot or image with fake slider/switch controls.
+        // Keep every genuine control and persistence callback, but divide the
+        // long settings panel into three small no-scroll sections.
         val settingsPanel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(13),d(12),d(13),d(18))
@@ -2132,7 +2132,43 @@ class MainActivity : Activity() {
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
-        back(b){showHome()}
+        // Four pre-existing sections: Audio, Pilot, More Options, Privacy.
+        // Display only the chosen section(s); rebuild on page changes so
+        // volume/difficulty/save values always come from persistent state.
+        val all=(0 until settingsPanel.childCount).map{settingsPanel.getChildAt(it)}
+        var group=-1
+        val groups=mutableListOf<Int>()
+        for(view in all){
+            if(view.contentDescription?.toString() in listOf("IZGLED I ZVUK",
+                    "IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST")) group++
+            groups.add(group)
+        }
+        for((index,view) in all.withIndex()){
+            val visible=when(sectionPage){
+                0 -> groups[index]==0
+                1 -> groups[index]==1
+                else -> groups[index]>=2
+            }
+            if(!visible)settingsPanel.removeView(view)
+        }
+        val pager=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+        if(sectionPage>0){
+            val previous=LinearLayout(this)
+            pager.addView(previous,LinearLayout.LayoutParams(0,-2,1f))
+            action(previous,"‹  PRETHODNA",false){showSettingsDetails(sectionPage-1)}
+        }
+        pager.addView(TextView(this).apply{
+            text="${sectionPage+1} / 3";setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER;textSize=15f;typeface=Typeface.DEFAULT_BOLD
+            contentDescription="Stranica ${sectionPage+1} od 3"
+        },LinearLayout.LayoutParams(0,d(56),1f))
+        if(sectionPage<2){
+            val next=LinearLayout(this)
+            pager.addView(next,LinearLayout.LayoutParams(0,-2,1f))
+            action(next,"SLJEDEĆA ›",false){showSettingsDetails(sectionPage+1)}
+        }
+        b.addView(pager,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(3)})
+        back(b){showSettings()}
     }
     @Deprecated("Document picker compatibility for existing Android installations")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
