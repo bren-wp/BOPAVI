@@ -8,7 +8,7 @@
 
 <img src="docs/assets/hero.svg" alt="Bopi među lebdećim otocima" width="850">
 
-<p><a href="../../releases/latest"><strong>Download BOPAVI</strong></a> · <a href="#osam-svjetova-za-istraživanje">Explore the worlds</a> · <a href="#upoznaj-svoje-letače">Meet the pilots</a></p>
+<p><a href="../../releases/latest"><strong>Download BOPAVI</strong></a> · <a href="#eight-worlds-to-explore">Explore the worlds</a> · <a href="#meet-the-pilots">Meet the pilots</a></p>
 
 </div>
 
@@ -37,7 +37,7 @@ These are **real screenshots of the running Android and iOS applications**, not 
 <tr>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android početni zaslon BOPAVI igre" width="205"><br><b>Home screen</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pilots.png" alt="Stvarni Android odabir lika s ilustriranim karticama" width="205"><br><b>Pilot selection</b></td>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Priprema za let</b></td>
+<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Flight preview (Priprema za let)</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka leta sa zlatnim krunama, svjetlećim prolazima i aktivnim HUD-om" width="205"><br><b>Active flight</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni Android zaslon rezultata igre" width="205"><br><b>Results</b></td>
 </tr>
