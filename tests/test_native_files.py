@@ -1756,17 +1756,23 @@ assert 'Results screenshot duplicates gameplay screenshot:' in workflow
 assert 'results UI screenshot distinct from both idle and active gameplay' in workflow
 print('PASS: real Results screenshot cannot equal active or idle flight release capture')
 
-# v0.1.62 — new bird identities and prior saves resolve to same indices.
-for inventory in catalogs:
+# v0.1.70 — old save aliases remain readable, but no obsolete selection UI.
+# Read the actual stores rather than referencing a deleted gallery-test variable.
+legacy_stores=[
+    (root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text(),
+    (root/'ios/BOPAVI/ProgressStore.swift').read_text(),
+]
+for inventory in legacy_stores:
     for pair in (('portantin','vihor'),('noa','iskra'),('any','orion')):
         assert all('"' + name + '"' in inventory for name in pair)
     assert 'skinIndexForSlug' in inventory
-for fragment in ('(6,\'vihor\')','(7,\'iskra\')','(8,\'orion\')'):
+for fragment in ("(6,'vihor')","(7,'iskra')","(8,'orion')"):
     assert fragment in artgen
 for controller in (android_menu,ios_menu):
-    assert all(name in controller for name in ('Vihor','Iskra','Orion'))
-    assert not any(text in controller for text in ('Portantin:','Noa:','Any:'))
-print('PASS: 3 individual premium birds, stable skin indices and legacy save alias mapping')
+    assert 'Tvoj stalni pilot: Bopi' in controller
+    assert 'characterGallery(' not in controller
+    assert 'ODABERI DRUGOG LIKA' not in controller
+print('PASS: legacy skin save aliases preserved while Bopi remains sole UI pilot')
 
 # v0.1.62 — API36's slow Surface compositor otherwise exposes only the
 # idle frame and later Results. A real debug-only first-flap state remains
