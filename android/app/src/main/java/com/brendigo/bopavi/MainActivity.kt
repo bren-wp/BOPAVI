@@ -483,7 +483,7 @@ class MainActivity : Activity() {
         val layout=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(22),d(12),d(22),d(16))
+            setPadding(d(18),d(8),d(18),d(8))
         }
         scroll.addView(layout)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
@@ -577,7 +577,7 @@ class MainActivity : Activity() {
                 },LinearLayout.LayoutParams(-1,d(29)))
                 addView(TextView(this@MainActivity).apply{
                     text=label;textSize=11f;setTextColor(Color.WHITE)
-                    gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+                    gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                     setSingleLine(true)
                     setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
                         android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -597,16 +597,37 @@ class MainActivity : Activity() {
                 setMargins(d(2),0,d(2),0)
             })
         }
-        layout.addView(navigation,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(15)})
+        layout.addView(navigation,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9)})
         showNativeView(root)
-        if(Build.VERSION.SDK_INT>=35){
-            scroll.setOnApplyWindowInsetsListener{v,insets->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
-                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                insets
+        // The scene extends behind the system bars; only live controls
+        // receive safe-area padding, on both modern and older Android phones.
+        scroll.setOnApplyWindowInsetsListener{v,insets->
+            val left:Int
+            val top:Int
+            val right:Int
+            val bottom:Int
+            if(Build.VERSION.SDK_INT>=30){
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                    or android.view.WindowInsets.Type.displayCutout())
+                left=bars.left;top=bars.top;right=bars.right;bottom=bars.bottom
+            } else {
+                @Suppress("DEPRECATION")
+                val bars=intArrayOf(insets.systemWindowInsetLeft,
+                    insets.systemWindowInsetTop,insets.systemWindowInsetRight,
+                    insets.systemWindowInsetBottom)
+                val cutout=if(Build.VERSION.SDK_INT>=28) insets.displayCutout else null
+                left=maxOf(bars[0],cutout?.safeInsetLeft?:0)
+                top=maxOf(bars[1],cutout?.safeInsetTop?:0)
+                right=maxOf(bars[2],cutout?.safeInsetRight?:0)
+                bottom=maxOf(bars[3],cutout?.safeInsetBottom?:0)
             }
-            scroll.requestApplyInsets()
+            if(v.paddingLeft!=left || v.paddingTop!=top ||
+               v.paddingRight!=right || v.paddingBottom!=bottom){
+                v.setPadding(left,top,right,bottom)
+            }
+            insets
         }
+        scroll.requestApplyInsets()
     }
 
     private fun showWorlds(){
