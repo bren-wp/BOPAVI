@@ -1146,7 +1146,7 @@ for home in (android_home,ios_home):
     assert 'showPerks(' in home and 'showLeaderboard(' in home
 print('PASS: Bopi-only home and store navigation')
 
-assert 'FAIL: obsolete character picker appeared before Bopi flight' in android_qa
+assert 'FAIL: obsolete character picker appeared before Bopi flight' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: direct flight regression guard')
 
 # v0.1.44: Pause quick MUZIKA may not reset the personalized volume.
