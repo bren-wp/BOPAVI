@@ -1,3 +1,12 @@
+## v0.1.80 — Full-height, zero-scroll menus (build 83)
+- Android and iOS Worlds, Levels and detailed Settings are now fitted or paginated within the physical safe-area viewport, without relying on vertical swipes to reveal real actions.
+- All eight World cards appear together; Levels show twenty genuine tappable tiles per page, lock/completion stars, real 20-level forward/back pagination and the existing direct-number input and Resume actions.
+- Detailed Settings now has three clearly numbered native pages: audio/haptics, difficulty/player identity, and additional offline options/privacy. Saved volumes, difficulty, profile name, audio, accessibility, offline backup/restore, Shop and Records keep real persisted callbacks.
+- Reuse one Android world drawable table rather than allocating arrays independently in base screens, Worlds, Levels, Results and Profile.
+- Android emulator QA now fails if any World requires a swipe, verifies all twenty level tiles and the real level pager, captures android-levels.png, and opens the second detailed Settings page before selecting real difficulty cards. iOS fits its native menu content in one safe-area screen.
+- Gameplay physics, obstacles, assets and save schema are unchanged. No fabricated diamonds, accounts, cloud services or payment functions.
+- Pixel-perfect matching remains unverified: the uploaded premium concepts are visual references, not independently layered executable game scenes.
+
 ## v0.1.79 — Records navigation and save-backed achievement gallery (build 82)
 - Replace the lengthy, scroll-first Achievements listing with an accessible 2×4 native gallery on Android and iOS. All eight world tiles display actual recorded star totals, personal world scores and unlocked frontier values, not fabricated player XP or imagery.
 - Show compact offline-only lifetime counters (finished levels, victories and total flights) from the same validated save data as the Profile and Records screens.
