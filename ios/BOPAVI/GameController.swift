@@ -259,7 +259,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
             "rekord \(progress.best(world)), zvjezdice \(progress.worldStars(world)) od 30" +
             (selected ? ", odabrano" : "") +
-            (world % 2 == 1 ? ", upravljanje povlačenjem" : ", upravljanje dodirom")
+            ", upravljanje dodirom"
         tile.heightAnchor.constraint(equalToConstant:144).isActive=true
         tile.accessibilityHint="Otvori levele svijeta"
         if selected {tile.accessibilityTraits.insert(.selected)}
