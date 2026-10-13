@@ -273,6 +273,7 @@ final class GameCanvas: UIView {
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
     private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
+    private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
@@ -338,7 +339,9 @@ final class GameCanvas: UIView {
     private func walletLabel(_ total:Int)->String {
         if total != lastWalletValue {
             lastWalletValue=total
-            if total>=1_000_000 {walletDisplay=String(format:"%.1fM",Double(total)/1_000_000)}
+            if total>=10_000_000 {walletDisplay="\(total/1_000_000)M"}
+            else if total>=1_000_000 {walletDisplay=String(format:"%.1fM",Double(total)/1_000_000)}
+            else if total>=10_000 {walletDisplay="\(total/1_000)K"}
             else if total>=1_000 {walletDisplay=String(format:"%.1fK",Double(total)/1_000)}
             else {walletDisplay=String(total)}
         }
@@ -371,7 +374,8 @@ final class GameCanvas: UIView {
         let balance=max(0,min(100_000_000,coinWallet()+game.coins))
         hudGlass(c,73,22,72,53)
         hudGoldCoin(c)
-        hudText(walletLabel(balance),114,39,hudWalletFont,0xffffff)
+        let coinLabel=walletLabel(balance)
+        hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
         hudPilotPortrait(c)
         hudOrb(c,46,175,"★","\(game.stars)",0xffce43,true)
         hudOrb(c,46,249,"◆","\(game.shield)",0x54e5ff,game.shield>0)
