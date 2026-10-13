@@ -268,8 +268,8 @@ assert 'level.gates[last].x-level.gates[last-1].x' in swift
 # Repeated Float addition loses collision precision at long-running level seams.
 assert 'private var preciseDistance = 0.0' in andr
 assert 'private var preciseDistance:Double = 0' in swift
-assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
-assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)' in swift
+assert 'nextOrigin=levelOrigin+level.gates.last().x.toDouble()+transitionSpacing.toDouble()-upcoming.gates.first().x.toDouble()' in andr
+assert 'nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(transitionSpacing)-Double(next.gates[0].x)' in swift
 assert 'WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)' in andr
 assert 'WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)' in swift
 assert '(gateX.toDouble() + origin - travelled).toFloat()' in andr
@@ -284,7 +284,7 @@ assert 'distance=0;passed=0' not in swift
 # v0.1.25: the generator must not silently replace the real zone interval
 # with a magic constant; actual Kotlin/Swift parity tests exercise the spacing.
 assert 'if(level.gates.size>=2)' in andr
-assert 'let spacing:Float=last>0' in swift
+assert 'let ordinarySpacing:Float=last>0' in swift
 # Keep fixed body raster dimensions; only separated wings may rotate.
 assert 'c.scale(1f,squash)' not in (root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
 assert 'c.scaleBy(x:1,y:1+phase*0.035)' not in (root/'ios/BOPAVI/GameCanvas.swift').read_text()
@@ -2095,3 +2095,20 @@ assert 'let artSize:CGFloat=selectedSkin>=6 ? 188 : 176' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
 print('PASS: proportional pilots, pivot attachment, shared procedural widths')
+
+# v0.1.67 visual and gameplay polish: no long empty transition, no invented
+# metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios_game=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_canvas=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_canvas=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+for game in (android_game,ios_game):
+    assert 'ordinarySpacing' in game and 'transitionSpacing' in game
+    assert '32' in game and '190' in game and '208' in game
+    assert 'levelProgress' in game and 'preciseDistance' in game
+for canvas in (android_canvas,ios_canvas):
+    assert 'game.levelProgress' in canvas
+    assert 'width-aware' in canvas.lower() or 'responsive cap details' in canvas.lower()
+assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
+print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')
