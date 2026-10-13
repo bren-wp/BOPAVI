@@ -5,7 +5,7 @@ import plistlib
 import xml.etree.ElementTree as ET
 root=Path(__file__).resolve().parents[1]
 assert len(list((root/'ios/BOPAVI').glob('*.swift'))) == 6
-assert len(list((root/'android/app/src/main/java/com/brendigo/bopavi').glob('*.kt'))) == 6
+assert len(list((root/'android/app/src/main/java/com/brendigo/bopavi').glob('*.kt'))) == 7
 for path in [root/'ios/BOPAVI/Info.plist',root/'ios/BOPAVI.xcodeproj/project.pbxproj',root/'android/app/src/main/AndroidManifest.xml']:
     assert path.exists(),path
 plistlib.load(open(root/'ios/BOPAVI/Info.plist','rb'))
