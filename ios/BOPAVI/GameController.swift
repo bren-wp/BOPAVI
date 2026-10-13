@@ -250,14 +250,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
-        // Home controls fit on one screen, including the safe area and the
-        // bottom navigation. Keep scrolling for information-dense submenus.
-        scroll.alwaysBounceVertical=title != "BOPAVI"
-        scroll.isScrollEnabled=title != "BOPAVI"
-        if title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" {
-            scroll.isScrollEnabled=false
-            scroll.alwaysBounceVertical=false
-        }
+        // Menus are deliberate single-screen compositions. Even the
+        // detailed Settings controls use discrete, accessible pages.
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -268,7 +264,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA"
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" || title == "SVJETOVI" || title == "LEVELI" || title == "POSTAVKE"
         stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
@@ -321,7 +317,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         backgroundGradient?.frame=view.bounds
         // PROFILE combines a real pilot card, earned awards and best worlds.
         // Fit the native stack (not a screenshot) into each device safe-area.
-        guard (currentMenuName == "PROFIL" || currentMenuName == "POSTIGNUĆA"),
+        guard (currentMenuName == "PROFIL" || currentMenuName == "POSTIGNUĆA" || currentMenuName == "SVJETOVI" || currentMenuName == "LEVELI" || currentMenuName == "POSTAVKE"),
               let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
               let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
               scroll.bounds.height>0,stack.bounds.height>0 else{return}
@@ -2091,10 +2087,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.addArrangedSubview(advanced)
     }
 
-    private func showSettingsDetails(){
+    private func showSettingsDetails(){showSettingsDetails(page:0)}
+    private func showSettingsDetails(page:Int){
+        let sectionPage=max(0,min(2,page))
         let s=menu("POSTAVKE","Prilagodi igru svom stilu")
-        // The live settings are grouped over one deep-blue premium sheet.
-        // The document remains scrollable and every control keeps its handler.
+        // All real preferences remain; each numbered page fits the safe-area.
         let settingsPanel=BopaviSettingsPanel()
         s.addArrangedSubview(settingsPanel)
         sectionHeading("IZGLED I ZVUK",in:settingsPanel)
@@ -2275,7 +2272,36 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        button("‹  POČETNA",in:s,primary:false){self.showHome()}
+        let headings=["IZGLED I ZVUK","IGRAČ I TEŽINA",
+                      "DODATNE OPCIJE","PODACI I PRIVATNOST"]
+        var section = -1
+        for element in settingsPanel.arrangedSubviews {
+            if let title=element as? UILabel,
+               headings.contains(title.text?.trimmingCharacters(in:.whitespacesAndNewlines) ?? "") {
+                section += 1
+            }
+            let keep=sectionPage == 0 ? section == 0 :
+                     sectionPage == 1 ? section == 1 : section >= 2
+            element.isHidden = !keep
+        }
+        let pageNav=UIStackView()
+        pageNav.axis = .horizontal
+        pageNav.distribution = .fillEqually
+        pageNav.spacing=6
+        if sectionPage>0 {
+            button("‹  PRETHODNA",in:pageNav,primary:false){
+                self.showSettingsDetails(page:sectionPage-1)
+            }
+        }
+        let counter=label("\(sectionPage+1) / 3",14,.white,pageNav)
+        counter.accessibilityLabel="Stranica \(sectionPage+1) od 3"
+        if sectionPage<2 {
+            button("SLJEDEĆA ›",in:pageNav,primary:false){
+                self.showSettingsDetails(page:sectionPage+1)
+            }
+        }
+        s.addArrangedSubview(pageNav)
+        button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}
     }
     func documentPicker(_ controller:UIDocumentPickerViewController,didPickDocumentsAt urls:[URL]) {
         guard let url=urls.first else{return}
