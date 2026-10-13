@@ -209,9 +209,9 @@ class MainActivity : Activity() {
         root.addView(View(this).apply{background=premiumBackground()},FrameLayout.LayoutParams(-1,-1))
         val body=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
-            setPadding(d(18),d(18),d(18),d(28))
+            setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        if(label=="TRGOVINA" || label=="MOJI REKORDI"){
+        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL"){
             // Finite menus fit physical safe areas instead of hiding content
             // in a long scroller. Do not apply a double root inset.
             val fitted=FitViewportColumn(this)
@@ -267,10 +267,10 @@ class MainActivity : Activity() {
                 setImageResource(R.drawable.logo)
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            }.also{body.addView(it,LinearLayout.LayoutParams(-1,d(94)))}
+            }.also{body.addView(it,LinearLayout.LayoutParams(-1,d(if(label=="PROFIL")60 else 94)))}
         }
-        if(label!="BOPAVI")title(body,label,31,Color.WHITE)
-        if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,14,0xffc9edff.toInt())
+        if(label!="BOPAVI")title(body,label,if(label=="PROFIL")25 else 31,Color.WHITE)
+        if(subtitle.isNotEmpty() && label!="BOPAVI")title(body,subtitle,if(label=="PROFIL")11 else 14,0xffc9edff.toInt())
         return body
     }
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
@@ -304,6 +304,18 @@ class MainActivity : Activity() {
         })
     }
 
+    /** Single-viewport Profile headings, keeping accessibility and live views. */
+    private fun profileHeading(parent:LinearLayout,heading:String) {
+        parent.addView(TextView(this).apply{
+            text=heading;setTextColor(Color.WHITE);textSize=14f
+            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(13),0,d(12),0)
+            background=gradient(0xf70b3878.toInt(),0xf6061c41.toInt(),15).apply{
+                setStroke(d(1),electric)
+            }
+            contentDescription=heading
+        },LinearLayout.LayoutParams(-1,d(33)).apply{topMargin=d(4);bottomMargin=d(4)})
+    }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
             this.text=text;setTextColor(Color.WHITE)
@@ -1304,7 +1316,7 @@ class MainActivity : Activity() {
 
         val hero=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
-            setPadding(d(8),d(11),d(8),d(11))
+            setPadding(d(7),d(6),d(7),d(6))
             background=gradient(0xf40b4189.toInt(),0xf3051b40.toInt(),24).apply{
                 setStroke(d(2),electric)
             }
@@ -1319,13 +1331,13 @@ class MainActivity : Activity() {
         portraitBox.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(151)))
+        },LinearLayout.LayoutParams(-1,d(111)))
         portraitBox.addView(TextView(this).apply{
             text="LEVEL "+progress.streamFrontier(progress.chosenWorld())
             textSize=11f;setTextColor(gold);gravity=Gravity.CENTER
             typeface=Typeface.DEFAULT_BOLD
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(27)))
+        },LinearLayout.LayoutParams(-1,d(20)))
         // A real saved-world star gauge, not fabricated XP or a distance bar.
         val profileWorld=progress.chosenWorld()
         val profileStars=progress.worldStars(profileWorld).coerceIn(0,30)
@@ -1337,7 +1349,7 @@ class MainActivity : Activity() {
             contentDescription="Zvjezdice svijeta ${LevelEngine.names[profileWorld]}: ${profileStars} od 30"
         }
         portraitBox.addView(profileStarGauge,
-            LinearLayout.LayoutParams(-1,d(12)).apply{
+            LinearLayout.LayoutParams(-1,d(9)).apply{
                 leftMargin=d(9);rightMargin=d(9);topMargin=d(4)
             })
         portraitBox.addView(TextView(this).apply{
@@ -1347,8 +1359,8 @@ class MainActivity : Activity() {
             setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(27)))
-        hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(8)})
+        },LinearLayout.LayoutParams(-1,d(20)))
+        hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(7)})
         val stats=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
         stats.addView(TextView(this).apply{
             text=progress.playerName().uppercase()
@@ -1357,15 +1369,15 @@ class MainActivity : Activity() {
             setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(11,20,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-        },LinearLayout.LayoutParams(-1,d(29)))
+        },LinearLayout.LayoutParams(-1,d(24)))
         stats.addView(TextView(this).apply{
             text=progress.skinNames[skin]+" · pilot"
             textSize=12f;setTextColor(0xffc5e9ff.toInt())
-        },LinearLayout.LayoutParams(-1,d(23)))
+        },LinearLayout.LayoutParams(-1,d(19)))
         stats.addView(TextView(this).apply{
             text="TVOJI REZULTATI";textSize=11f;setTextColor(gold)
             typeface=Typeface.DEFAULT_BOLD
-        },LinearLayout.LayoutParams(-1,d(21)))
+        },LinearLayout.LayoutParams(-1,d(17)))
         val completed=(0..7).sumOf{(progress.frontier(it)-1).toLong()}
         val rows=listOf(
             "★  Najbolji rezultat" to progress.bestPoints().toString(),
@@ -1390,12 +1402,12 @@ class MainActivity : Activity() {
                 text=value;setTextColor(gold);textSize=14f;typeface=Typeface.DEFAULT_BOLD
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-2,-2).apply{leftMargin=d(3)})
-            stats.addView(tile,LinearLayout.LayoutParams(-1,d(35)).apply{bottomMargin=d(3)})
+            stats.addView(tile,LinearLayout.LayoutParams(-1,d(28)).apply{bottomMargin=d(2)})
         }
         hero.addView(stats,LinearLayout.LayoutParams(0,-2,0.58f))
-        b.addView(hero,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(13)})
-        small(b,"Odabrani svijet: "+LevelEngine.names[progress.chosenWorld()])
-        sectionHeading(b,"MOJE NAGRADE")
+        b.addView(hero,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(6)})
+        // World name is visible in the real star-gauge caption.
+        profileHeading(b,"MOJE NAGRADE")
         // Unlock badges from already-persisted achievements; never grant
         // phantom currency, XP, cloud rewards or fabricated milestones.
         val explored=(0..7).count{progress.frontier(it)>1}
@@ -1415,7 +1427,7 @@ class MainActivity : Activity() {
             }
             val tile=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
-                setPadding(d(2),d(6),d(2),d(6))
+                setPadding(d(2),d(3),d(2),d(3))
                 background=gradient(if(earned)0xff1355a5.toInt() else 0xff283852.toInt(),
                     0xff061d44.toInt(),15).apply{
                     setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
@@ -1425,28 +1437,34 @@ class MainActivity : Activity() {
             tile.addView(TextView(this).apply{
                 text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
                 setTextColor(gold);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(39)))
+            },LinearLayout.LayoutParams(-1,d(25)))
             tile.addView(TextView(this).apply{
                 text=name;textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
                 setSingleLine(true);typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(23)))
+            },LinearLayout.LayoutParams(-1,d(19)))
             tile.addView(TextView(this).apply{
                 text=requirement;textSize=9f;gravity=Gravity.CENTER
                 setTextColor(0xffc5e9ff.toInt());setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,9,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(22)))
-            badgeRow.addView(tile,LinearLayout.LayoutParams(0,d(101),1f).apply{
+            },LinearLayout.LayoutParams(-1,d(18)))
+            badgeRow.addView(tile,LinearLayout.LayoutParams(0,d(75),1f).apply{
                 setMargins(d(2),0,d(2),0)
             })
         }
         b.addView(badgeRow,LinearLayout.LayoutParams(-1,-2))
-        action(b,"★  POGLEDAJ SVA POSTIGNUĆA",false){showAchievements(MenuOrigin.PROFILE)}
-        sectionHeading(b,"MOJI NAJBOLJI SVJETOVI")
+        b.addView(TextView(this).apply{
+            text="★  SVE NAGRADE  ›";textSize=13f;gravity=Gravity.CENTER
+            setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+            background=gradient(0xff156ac5.toInt(),0xff062d6d.toInt(),18)
+            isClickable=true;isFocusable=true;contentDescription="Pogledaj sva postignuća"
+            setOnClickListener{showAchievements(MenuOrigin.PROFILE)}
+        },LinearLayout.LayoutParams(-1,d(37)))
+        profileHeading(b,"MOJI NAJBOLJI SVJETOVI")
         val ranked=(0..7).sortedWith(compareByDescending<Int>{progress.worldStars(it)}
             .thenByDescending{progress.best(it)}.thenBy{it}).take(3)
         val worldArt=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
@@ -1477,7 +1495,7 @@ class MainActivity : Activity() {
             },FrameLayout.LayoutParams(d(46),d(28),Gravity.TOP or Gravity.LEFT).apply{
                 leftMargin=d(5);topMargin=d(5)
             })
-            card.addView(artFrame,LinearLayout.LayoutParams(-1,d(81)))
+            card.addView(artFrame,LinearLayout.LayoutParams(-1,d(59)))
             card.addView(TextView(this).apply{
                 text=LevelEngine.names[world].uppercase();setTextColor(Color.WHITE)
                 textSize=11f;gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
@@ -1485,7 +1503,7 @@ class MainActivity : Activity() {
                 setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(26)))
+            },LinearLayout.LayoutParams(-1,d(22)))
             card.addView(TextView(this).apply{
                 text="★ "+progress.worldStars(world)+"/30"
                 textSize=12f;setTextColor(gold);gravity=Gravity.CENTER
@@ -1497,7 +1515,7 @@ class MainActivity : Activity() {
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL",true){showSettings()}
-        small(b,"Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.")
+        // One permanent pilot Bopi already appears in accessible profile hero.
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -1527,7 +1545,7 @@ class MainActivity : Activity() {
                     setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
                         android.util.TypedValue.COMPLEX_UNIT_SP)
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(22)))
+                },LinearLayout.LayoutParams(-1,d(18)))
                 setOnClickListener{
                     sound.effect("click")
                     when(index){
@@ -1538,12 +1556,13 @@ class MainActivity : Activity() {
                     }
                 }
             }
-            footer.addView(tab,LinearLayout.LayoutParams(0,d(59),1f).apply{
+            footer.addView(tab,LinearLayout.LayoutParams(0,d(50),1f).apply{
                 setMargins(d(2),0,d(2),0)
             })
         }
-        b.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
-        back(b){showHome()}
+        b.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(5)})
+        menuBackAction={showHome()}
+        // Hardware and gesture Back leave Profile; no duplicate bottom action.
     }
 
     private fun showLeaderboard(){
