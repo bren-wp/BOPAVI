@@ -27,7 +27,9 @@ private final class BopaviActionButton: UIButton {
         layer.shadowRadius=9
         layer.shadowOffset=CGSize(width:0,height:4)
         setTitleColor(.white,for:.normal)
-        titleLabel?.font=UIFont.systemFont(ofSize:18,weight:.heavy)
+        let face=UIFont.systemFont(ofSize:18,weight:.heavy)
+        titleLabel?.font=UIFont(descriptor:face.fontDescriptor.withDesign(.rounded)
+            ?? face.fontDescriptor,size:18)
         titleLabel?.adjustsFontSizeToFitWidth=true
         titleLabel?.minimumScaleFactor=0.72
         titleLabel?.numberOfLines=1
@@ -522,7 +524,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         // The art already includes the mascot and game title; only live,
         // clickable controls and player-dependent values sit on top.
-        stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor).isActive=true
+        // Home fits exactly within the available iPhone safe area: no scrolling,
+        // clipped footer, or large blank region below the navigation.
+        if let homeViewport=view.subviews.compactMap({$0 as? UIScrollView}).first {
+            stack.heightAnchor.constraint(equalTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
+        }
         // Real home navigation: current pilot, earned results, coins and
         // settings. Each separately accessible element has a working action.
         let walletRow=UIStackView()
@@ -618,6 +624,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tab.accessibilityLabel=title
             tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
             tab.layer.cornerRadius=13
+            tab.layer.borderWidth=1
+            tab.layer.borderColor=UIColor(red:0.38,green:0.83,blue:1,alpha:0.42).cgColor
             tab.heightAnchor.constraint(equalToConstant:62).isActive=true
             let glyph=UIImageView(image:UIImage(named:icon))
             glyph.contentMode = .scaleAspectFit
@@ -625,7 +633,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let caption=UILabel()
             caption.text=title;caption.textAlignment = .center
             caption.textColor = .white
-            caption.font=UIFont.systemFont(ofSize:11,weight:.bold)
+            let captionFace=UIFont.systemFont(ofSize:11,weight:.bold)
+            caption.font=UIFont(descriptor:captionFace.fontDescriptor.withDesign(.rounded)
+                ?? captionFace.fontDescriptor,size:11)
             caption.adjustsFontSizeToFitWidth=true
             caption.minimumScaleFactor=0.77
             let content=UIStackView(arrangedSubviews:[glyph,caption])
