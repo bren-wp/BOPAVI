@@ -563,35 +563,19 @@ assert "for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):" in artgen
 for old_bird in ('portantin','noa','any'):
     assert not (root/'docs/assets'/f'{old_bird}.svg').exists()
 assert "R.drawable.bopi6" in android_render and 'UIImage(named:"Bopi' in ios_render
-android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun startGame(',1)[0]
-ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func startGame(',1)[0]
+# v0.1.70: Bopi-only start; no gallery or intermediate screen.
+android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
+ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
 for view in (android_picker,ios_picker):
-    assert 'POLETI S' in view and 'ODABERI LIKA' in view
-    assert 'Vihor' in view and 'Iskra' in view and 'Orion' in view and 'characterGallery(' in view
-    assert 'startGame(' in view
-android_gallery=android_menu.split('private fun characterGallery(',1)[1].split('private fun showPilotPicker(',1)[0]
-ios_gallery=ios_menu.split('private func characterGallery(',1)[1].split('private func showPilotPicker(',1)[0]
-assert 'displayOrder.indices step 3' in android_gallery
-assert 'stride(from:0,to:displayOrder.count,by:3)' in ios_gallery
-assert 'R.drawable.bopiportrait6' in android_gallery
-assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
-assert 'selectOrBuy(i)' in android_gallery and 'selectOrBuy(i)' in ios_gallery
-assert 'Otključati' in android_gallery and 'Otključati' in ios_gallery
-assert 'Potrošit ćeš' in android_gallery and 'Potrošit ćeš' in ios_gallery
-assert 'contentDescription=' in android_gallery and 'accessibilityLabel=' in ios_gallery
-android_skins=android_menu.split('private fun showSkins()',1)[1].split('private fun showLeaderboard()',1)[0]
-ios_skins=ios_menu.split('private func showSkins()',1)[1].split('private func showLeaderboard()',1)[0]
-assert 'characterGallery(' in android_skins and 'characterGallery(' in ios_skins
-assert 'showPilotPicker(world,number)' in android_picker and 'showPilotPicker(world,number)' in ios_picker
+    assert 'startGame(world,number)' in view
+    assert 'ODABERI LIKA' not in view and 'characterGallery(' not in view
 for source in (android_menu,ios_menu):
-    home=source.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0] if 'private fun showHome()' in source else source.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
-    assert 'showPilotPicker(' in home and 'startGame(' not in home
+    assert 'characterGallery(' not in source and 'showSkins(' not in source
+    assert 'ODABERI DRUGOG LIKA' not in source
 qa=(root/'tools/qa_android_emulator.sh').read_text()
-assert 'tap_selected_pilot' in qa and 'android-pilot-picker' in qa
-for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt','ios/BOPAVI/ProgressStore.swift'):
-    store=(root/path).read_text()
-    assert '"portantin"' in store and '"Vihor"' in store and '"Iskra"' in store and '"Orion"' in store
-    assert 'skin_index' in store
+assert 'FAIL: obsolete character picker appeared before Bopi flight' in qa
+assert 'tap_selected_pilot' not in qa
+print('PASS: Bopi-only direct launch and no hidden skin shop')
 
 # v0.1.23: never show gameplay controls on home or before the first flap.
 # The visible pause is created per-session and revealed only by an actual
@@ -639,9 +623,9 @@ for home in (android_home,ios_home):
     for button_label in ('▶  IGRAJ','🌍  SVJETOVI','⚙  POSTAVKE'):
         assert home.count(button_label)==1
     assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
-    for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
+    for label in ('PROFIL','ZADACI','REKORDI','TRGOVINA'):
         assert label in home
-    for destination in ('showWorlds()','showSettings()','showAchievements(','showSkins(','showPerks('):
+    for destination in ('showWorlds()','showSettings()','showAchievements(','showLeaderboard(','showPerks('):
         assert destination in home
     assert 'showPilotPicker(' in home and 'startGame(' not in home
 assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
@@ -651,7 +635,7 @@ assert 'tab.accessibilityLabel=title' in ios_home
 for home in (android_home,ios_home):
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
 for source in (android_menu,ios_menu):
-    assert 'POLETI S' in source and 'ODABERI LIKA' in source
+    assert 'POLETI S' not in source and 'ODABERI LIKA' not in source
 assert 'setStroke(d(3),0xffffed9e' in android_menu
 assert 'UIColor(red:1.00,green:0.88,blue:0.32' in ios_menu
 logo_markup=(root/'docs/assets/logo.svg').read_text()
@@ -662,9 +646,9 @@ android_settings=android_menu.split("private fun showSettings()",1)[1].split("ov
 ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
     for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
-                  "LIKOVI","TRGOVINA KOVANICAMA","MOJI REKORDI"):
+                  "TRGOVINA KOVANICAMA","MOJI REKORDI"):
         assert title in settings
-    assert 'showSkins()' in settings and 'showPerks()' in settings
+    assert 'showSkins()' not in settings and 'showPerks()' in settings
     assert 'showLeaderboard()' in settings and 'showHome()' in settings
     assert 'SPREMI IME' in settings and 'Vibracije' in settings
     assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
@@ -691,7 +675,7 @@ for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
     assert 'bestPoints()' in home
-    assert 'showPerks(' in home and 'showSkins(' in home
+    assert 'showPerks(' in home and 'showLeaderboard(' in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
@@ -701,13 +685,13 @@ for ui in (android_menu,ios_menu):
     for deprecated in ('Smanji animacije (30 FPS)','(v0.1–v0.5)',
                        'Razvoj: Brendigo','telemetrije'):
         assert deprecated not in ui, deprecated
-    assert 'showPerks()' in ui and 'showSkins()' in ui
-android_shop=android_menu.split('private fun showPerks()',1)[1].split('private fun showSkins()',1)[0]
-ios_shop=ios_menu.split('private func showPerks()',1)[1].split('private func showSkins()',1)[0]
+    assert 'showPerks()' in ui and 'showSkins()' not in ui
+android_shop=android_menu.split('private fun showPerks()',1)[1].split('private fun showProfile()',1)[0]
+ios_shop=ios_menu.split('private func showPerks()',1)[1].split('private func showProfile()',1)[0]
 for shop in (android_shop,ios_shop):
     assert 'Za kovanice osvojene igrom — bez stvarnog novca' in shop
     assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
-    assert 'buyPerk(' in shop and 'showSkins(' in shop
+    assert 'buyPerk(' in shop and 'showSkins(' not in shop
     assert 'progress.coins()' in shop and 'showSettings()' in shop
 # Primary gradient is orange gold and secondary gradient is cyan-to-royal-blue,
 # never the retired neon-green/flat-blue button style.
@@ -742,51 +726,17 @@ qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "tap_settings" in qa and "android-settings" in qa
 assert "settings opens and returns to the three-button home" in qa
 
-# v0.1.26: nine unique premium silhouettes, wing layers and offline inventory.
-from xml.etree import ElementTree as ET
-catalogs=[(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text(),
-          (root/'ios/BOPAVI/ProgressStore.swift').read_text()]
-for inventory in catalogs:
-    for text in ('"Vihor"','"Iskra"','"Orion"','"portantin"','"noa"','"any"',
-                 '220','240','owned_mask','skin_index','skinIndexForSlug'):
-        assert text in inventory,text
-    assert '0..8' in inventory or '0...8' in inventory
-for index,character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
-    document=ET.parse(root/'docs/assets'/f'{character}.svg').getroot()
-    assert document.attrib['viewBox']=='-80 -80 160 160'
-    identifiers=[element.get('id') for element in document.iter()]
-    assert identifiers.count('wing-left')==1 and identifiers.count('wing-right')==1
-    assert f"'{character}'" in artgen
-    for key in (f'R.drawable.bopi{index}',f'R.drawable.bopileft{index}',f'R.drawable.bopiright{index}'):
-        assert key in android_render
-    assert f'R.drawable.bopiportrait{index}' in android_gallery
-assert 'min(8,max(0,skinIndex))' in ios_render
-assert '9 complete glowing portraits, 9 bodies, 18 flapping wings' in artgen
-for index in ('7','8'):
-    assert f'{index} ->' in android_picker and f'case {index}:' in ios_picker
-for gallery in (android_gallery,ios_gallery):
-    assert 'PREMIUM' in gallery and 'Potrošit ćeš' in gallery
+# Legacy ownership is retained in saves; only Bopi is rendered.
+for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt',
+             'ios/BOPAVI/ProgressStore.swift'):
+    inventory=(root/path).read_text()
+    assert 'skin_index' in inventory and 'owned_mask' in inventory
+assert 'private val selectedSkin=0' in android_render
+assert 'let selectedSkin=0' in ios_render
+assert 'birdSize=124f' in android_render
+assert 'let artSize:CGFloat=124' in ios_render
+print('PASS: Bopi 124-point art and legacy inventory stored without exposure')
 
-# v0.1.27: loading the correct three sprite resources is mandatory in gameplay.
-# v0.1.26 generated Noa/Any art but the actual renderer selected Portantin.
-android_loader=android_render.split('private val selectedSkin=',1)[1].split('private val worldBitmaps=',1)[0]
-assert android_loader.startswith('skinIndex.coerceIn(0,8)')
-for source in ('birdSprites','leftWings','rightWings'):
-    assert f'{source}[selectedSkin]' in android_loader,source
-assert 'skinIndex.coerceIn(0,6)' not in android_loader
-swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int',1)[1].split('super.init(frame:',1)[0]
-assert 'let selectedSkin=min(8,max(0,skinIndex))' in swift_loader
-for asset in ('Bopi','BopiLeft','BopiRight'):
-    assert f'{asset}\\(selectedSkin)' in swift_loader,asset
-assert 'min(6,max(0,skinIndex))' not in swift_loader
-print('PASS: nine pilot bodies and both matching animated wings on Android/iOS')
-
-# v0.1.28: selected Noa/Any must resolve inside a full nine-image Android picker.
-android_preview=android_picker.split('val portraits=intArrayOf(',1)[1].split(')',1)[0]
-assert android_preview.count('R.drawable.bopi') == 9, 'Android premium pilot preview missing'
-for index in range(9):
-    assert f'R.drawable.bopiportrait{index}' in android_preview
-assert 'setImageResource(portraits[idx])' in android_picker
 # Boosts are spent only on the first flap, not when viewing the idle game.
 android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
 ios_start=ios_menu.split('private func startGame(',1)[1].split('private func showToast(',1)[0]
@@ -825,35 +775,16 @@ assert 'if (Build.VERSION.SDK_INT >= 33) finish() else super.onBackPressed()' in
 assert 'gamePauseButton=pause' in android_start
 print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause')
 
-# v0.1.29: Android emulator must recover only the exact Pixel Launcher ANR.
-# It must still assert real scrollable pilot cards and fail on BOPAVI/system errors.
 android_qa=(root/'tools/qa_android_emulator.sh').read_text()
-gallery_qa=android_qa.split('def swipe_gallery(root,up=True):',1)[1].split('root=ET.parse(sys.argv[1])',1)[0]
-assert 'for recovery_attempt in range(6):' in gallery_qa
-assert 'Pixel Launcher isn\'t responding' in gallery_qa
-assert "raise SystemExit(f'FAIL: character gallery remained non-scrollable" in gallery_qa
-assert "candidates=[n for n in root.iter('node') if n.get('scrollable')=='true']" in gallery_qa
-assert "required={'Vihor','Iskra','Orion'}" in android_qa
-# A launcher "Wait" tap repeats the same system ANR; force-stop only its
-# verified package and keep actual gallery/flight assertions mandatory.
-assert gallery_qa.count("com.google.android.apps.nexuslauncher")==1
-assert "'am','force-stop'" in gallery_qa
-assert "subprocess.run(['adb','shell','pidof','com.brendigo.bopavi']" in gallery_qa
-assert "missing characters after actual gallery scroll" in android_qa
-assert "all_pilots={'Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'}" in android_qa
-assert 'if all_pilots <= seen: break' in android_qa
-assert 'if len(buttons)==1:' in android_qa
-assert "swipe_gallery(root,up=True)" in android_qa
-assert 'both cannot fit in one phone viewport' in android_qa
-assert "if grep -q 'ODABERI LIKA' qa/screenshots/android-current-ui.xml; then" in android_qa
-assert "if grep -q 'POLETI S' qa/screenshots/android-current-ui.xml; then" not in android_qa
-assert "before==after" in android_qa
-print('PASS: Android launcher-ANR recovery does not bypass actual pilot gallery QA')
+assert 'verify_idle_preview' in android_qa
+assert 'tap_selected_pilot' not in android_qa
+assert 'android-obsolete-picker-diagnostic' in android_qa
+print('PASS: real Android QA requires the idle Bopi GameView')
 
 # Premium reference-followup: illustrated 20-level grid and real dual-channel
 # audio sliders are implemented symmetrically (never screenshot-only controls).
-android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun characterGallery(',1)[0]
-ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func characterGallery(',1)[0]
+android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun showPilotPicker(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func showPilotPicker(',1)[0]
 for level_ui in (android_levels,ios_levels):
     assert 'LEVELI' in level_ui
     assert 'NORMALNI · ⚡ IZAZOVNI' in level_ui
@@ -955,7 +886,7 @@ for name in ("GOOGLE-PLAY-PUBLISHING.md","play/STORE-LISTING-hr-HR.md",
              "play/RELEASE-CHECKLIST.md"):
     assert (root/'docs'/name).is_file(), name
 artwork=(root/'tools/create_play_listing_assets.py').read_text()
-for source in ("android-home.png","android-pilot-picker.png","android-gameplay-ready.png","android-result.png"):
+for source in ("android-home.png","android-settings.png","android-gameplay-ready.png","android-result.png"):
     assert source in artwork and "qa/screenshots" in artwork
 assert "ImageOps.fit" in artwork and "target_width * 16 // 9" in artwork
 print("PASS: Play API36, real screenshots, signing isolation and publishing docs")
@@ -999,26 +930,11 @@ assert 'details.numberOfLines=3' in ios_result
 assert 'details.lineBreakMode = .byWordWrapping' in ios_result
 print('PASS: reward icon contrast and compact responsive real-score details')
 
-# Premium selection-first visual flow: featured characters appear on row one,
-# but all nine identity indices, earned-coin costs and existing save keys stay
-# unchanged. Every image is genuine art behind a separately interactive view.
-for gallery in (android_gallery,ios_gallery):
-    assert '6,7,8,0,1,2,3,4,5' in gallery
-    assert 'displayOrder[position]' in gallery
-    assert 'selectOrBuy(i)' in gallery
-assert 'val preview=FrameLayout(this)' in android_picker
-assert 'setImageResource(worlds[world.coerceIn(0,7)])' in android_picker
-assert 'setImageResource(portraits[idx])' in android_picker
-assert 'val selectedBadge=TextView(this)' in android_picker
-assert 'let preview=UIView()' in ios_picker
-assert 'UIImage(named:"World\\(world)")' in ios_picker
-assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
-assert 'portrait.accessibilityLabel=' in ios_picker
-for picker in (android_picker,ios_picker):
-    assert picker.index('characterGallery(') < picker.index('POLETI S')
-    assert 'ODABRAN' in picker
-assert 'currentLevel=number' in android_picker and 'gameNumber=number' in ios_picker
-print('PASS: 9-skin featured-row parity, layered hero and after-selection flight CTA')
+# Selected world goes straight to a genuine flight, not a gallery.
+assert 'currentWorld=world;currentLevel=number' in android_picker
+assert 'gameWorld=world;gameNumber=number' in ios_picker
+assert 'startGame(world,number)' in android_picker and 'startGame(world,number)' in ios_picker
+print('PASS: direct route preserves exact world and level')
 
 # The real premium gameplay HUD keeps identical hierarchy on both platforms:
 # coin count, star count, current level, cumulative gates and true within-level
@@ -1044,28 +960,11 @@ assert 'if paused {' not in ios_canvas.split('override func draw(',1)[1].split('
 assert 'pause.isHidden=true' in ios_start and 'visibility=View.INVISIBLE' in android_start
 print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or painted pause dialog')
 
-# The character gallery, selection hero and pause must use complete wings-up
-# portraits. The animated flight renderer MUST continue using three
-# independent 512x512 body/wing layers; HUD portrait is independently cached.
-for asset in ('BopiPortrait','bopiportrait','Image.alpha_composite(wings,body)',
-              'ImageFilter.GaussianBlur(11)'):
-    assert asset in artgen,asset
-assert 'for skin in range(9):' in artgen
-assert 'portrait.save(src/name,optimize=True)' in artgen
-assert 'portrait.save(setdir/name,optimize=True)' in artgen
-assert android_gallery.count('R.drawable.bopiportrait') == 9
-assert android_preview.count('R.drawable.bopiportrait') == 9
-assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
-assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
-assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_menu
+# Bopi portrait/wing assets remain separate.
+assert 'private val birdSprites' in android_render
+assert 'private val leftWings' in android_render and 'private val rightWings' in android_render
+assert 'BopiPortrait0' in ios_menu
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
-assert android_pause.count('R.drawable.bopiportrait') == 9
-assert 'portraitSprites[selectedSkin]' in android_loader
-assert 'BopiPortrait\\(selectedSkin)' in swift_loader
-assert 'birdSprites[selectedSkin]' in android_loader
-assert 'BopiLeft\\(selectedSkin)' in swift_loader
-assert 'BopiRight\\(selectedSkin)' in swift_loader
-print('PASS: nine real full-wing portraits in all menus, with preserved detached flight animations')
 
 # v0.1.34: bottom PROFILE is not a misleading alias for Settings.
 assert '0->showProfile()' in android_menu
@@ -1218,22 +1117,10 @@ assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in an
 assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
 print('PASS: Android and iOS pause settings preserve active flight and offline settings')
 
-# v0.1.40 illustrated pilot gallery must use real local card actions,
-# keep canonical indices and never bake names/prices into world images.
-for gallery in (android_gallery,ios_gallery):
-    assert '6,7,8,0,1,2,3,4,5' in gallery
-    assert 'PREMIUM' in gallery and 'Potrošit ćeš' in gallery
-    assert '🔒' in gallery and 'status' in gallery
-    assert 'selectOrBuy(i)' in gallery
-assert 'cardWorlds=intArrayOf(' in android_gallery
-assert 'setImageResource(portraits[i])' in android_gallery
-assert 'card.addView(artwork,LinearLayout.LayoutParams(-1,d(132)))' in android_gallery
-assert 'row.addView(card,LinearLayout.LayoutParams(0,d(174),1f)' in android_gallery
-assert 'UIImage(named:"World\\(i % 8)")' in ios_gallery
-assert 'UIImage(named:"BopiPortrait\\(i)")' in ios_gallery
-assert 'card.heightAnchor.constraint(equalToConstant:174)' in ios_gallery
-assert 'price.text=status' in ios_gallery
-print('PASS: premium illustrated native character gallery with original offline entitlement')
+for view in (android_menu,ios_menu):
+    assert 'characterGallery(' not in view and 'selectOrBuy(i)' not in view
+    assert 'POLETI S' not in view
+print('PASS: removed pilot gallery and legacy purchase controls')
 
 # v0.1.41: actual v0.1.40 emulator captures showed an unwanted Android
 # system status strip above menu artwork. Preserve notch navigation safe zones.
@@ -1250,56 +1137,17 @@ assert 'override var prefersStatusBarHidden:Bool { true }' in ios_menu
 assert 'safeAreaLayoutGuide.topAnchor' in ios_menu
 print('PASS: Android/iOS full-bleed menus with camera cutout and narrow caption support')
 
-# v0.1.42: pre-flight mascot moves in its art layer only. Menu animation
-# respects OS reduced-motion settings and must clean up on leaving the view.
-android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
-ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
-for picker in (android_picker,ios_picker):
-    assert 'pilotHover' in picker
-    assert 'portrait' in picker
-    assert 'characterGallery(' in picker
-    assert 'startGame(' in picker
-assert 'ObjectAnimator.ofFloat(' in android_picker
-assert 'ValueAnimator.areAnimatorsEnabled()' in android_picker
-assert 'addOnAttachStateChangeListener(' in android_picker
-assert 'onViewDetachedFromWindow(v:View)' in android_picker
-assert 'pilotHover.cancel()' in android_picker
-assert 'v.translationY=0f' in android_picker
-assert 'UIAccessibility.isReduceMotionEnabled' in ios_picker
-assert 'CABasicAnimation(keyPath:"transform.translation.y")' in ios_picker
-assert 'portrait.layer.add(pilotHover,forKey:"pilotHover")' in ios_picker
-assert 'pilotHover' not in android_menu.split('private fun startGame(',1)[1]
-assert 'pilotHover' not in ios_menu.split('private func startGame(',1)[1]
-print('PASS: reduced-motion-safe, lifecycle-clean pilot hover without gameplay changes')
+assert 'pilotHover' not in android_menu and 'pilotHover' not in ios_menu
+print('PASS: no idle preview-animation allocation')
 
-# v0.1.43 — Back follows the originating menu, including after purchases.
-assert 'private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP }' in android_menu
-assert 'private enum MenuOrigin { case home, settings, profile, shop }' in ios_menu
 assert 'menuBackAction=onClick' in android_menu
 assert 'menuBackAction?.invoke() ?: showHome()' in android_menu
-for h in (android_home,ios_home):
-    assert 'showSkins(MenuOrigin.HOME)' in h or 'showSkins(.home)' in h
-    assert 'showPerks(MenuOrigin.HOME)' in h or 'showPerks(.home)' in h
-    assert 'showAchievements(MenuOrigin.HOME)' in h or 'showAchievements(.home)' in h
-assert 'showSkins(MenuOrigin.SHOP,origin)' in android_shop
-assert 'self.showSkins(.shop,shopOrigin:origin)' in ios_shop
-assert 'showSkins(origin,shopOrigin)' in android_skins
-assert 'self.showSkins(origin,shopOrigin:shopOrigin)' in ios_skins
-assert 'MenuOrigin.SHOP -> showPerks(shopOrigin)' in android_skins
-assert 'case .shop: self.showPerks(shopOrigin)' in ios_skins
-for ui in (android_menu,ios_menu):
-    assert 'showAchievements(MenuOrigin.PROFILE)' in ui or 'showAchievements(.profile)' in ui
-    assert 'showSkins(MenuOrigin.PROFILE)' in ui or 'showSkins(.profile)' in ui
-print('PASS: context-aware home, settings, profile and store return targets')
+for home in (android_home,ios_home):
+    assert 'showPerks(' in home and 'showLeaderboard(' in home
+print('PASS: Bopi-only home and store navigation')
 
-# v0.1.43 release hotfix — never accept arbitrary picker exit as success.
-android_emulator=(root/'tools/qa_android_emulator.sh').read_text()
-assert 'Pilot confirmation is settling; re-reading hitbox' in android_emulator
-assert 'pilot confirmation navigated away but NOT to the' in android_emulator
-assert 'android-pilot-launch-diagnostic.xml' in android_emulator
-assert 'pilot choice left the picker; outer QA verifies gameplay state' not in android_emulator
-assert 'expected HOME, pilot picker or idle GameView' in android_emulator
-print('PASS: flight-launch emulator QA verifies GameView, not an arbitrary menu exit')
+assert 'FAIL: obsolete character picker appeared before Bopi flight' in android_qa
+print('PASS: direct flight regression guard')
 
 # v0.1.44: Pause quick MUZIKA may not reset the personalized volume.
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
@@ -1794,12 +1642,12 @@ print('PASS: world-star profile gauge, real award goals, ranked thumbnails, acce
 # all gradients/shaders are cached outside onDraw/draw.
 android_bird=android_canvas.split('private fun drawBird(c:Canvas){',1)[1].split('private fun drawLevelProgress(',1)[0]
 ios_bird=ios_render.split('private func bird(_ c:CGContext){',1)[1].split('private extension UIColor',1)[0]
-assert 'private val birdAuraShader=RadialGradient(0f,0f,74f,' in android_canvas
+assert 'private val birdAuraShader=RadialGradient(0f,0f,53f,' in android_canvas
 assert 'intArrayOf(0x62fff3bb,0x3a2da9ff,0x002da9ff)' in android_canvas
 assert 'floatArrayOf(0f,.55f,1f)' in android_canvas
 assert 'private lazy var birdAuraGradient:CGGradient?' in ios_render
 assert 'locations:[0,0.55,1]' in ios_render
-assert 'endRadius:74,options:[]' in ios_bird
+assert 'endRadius:53,options:[]' in ios_bird
 assert 'auraImpulse=if(reducedMotion)0f' in android_bird
 assert 'auraImpulse:CGFloat=reducedMotion ? 0' in ios_bird
 assert '1f+auraImpulse*.13f' in android_bird
@@ -2006,28 +1854,12 @@ for check in ('audit_private_declarations','audit_resource_reachability',
               'audit_audio_pairing','audit_project_integration'):
     assert 'def '+check+'(' in audit,check
 
-# Android 15's real previous failure had a Pixel Launcher foreground, not
-# a BOPAVI GameView. Recovery is allowed ONLY if the app process survived and
-# window focus is actually on the launcher; any genuine crash must still fail.
 qa=(root/'tools/qa_android_emulator.sh').read_text()
-for required in ('recover_confirmed_system_launcher',
-                 "['adb','shell','pidof','com.brendigo.bopavi']",
-                 "Process: com.brendigo.bopavi",
-                 'mCurrentFocus',
-                 'com.google.android.apps.nexuslauncher',
-                 '0x20020000',
-                 'system_recoveries<2',
-                 'android-pilot-launch-logcat.txt',
-                 'android-pilot-launch-activities.txt',
-                 'android-pilot-launch-windows.txt',
-                 'FAIL: BOPAVI process exited during pilot confirmation'):
-    assert required in qa,required
+for required in ('recover_confirmed_system_launcher','verify_idle_preview',
+                 'FAIL: obsolete character picker appeared before Bopi flight'):
+    assert required in qa
 assert 'qa/screenshots/*.txt' in workflow
-assert 'Dodirni za let Bopija' in qa
-assert 'verify_idle_preview' in qa
-assert 'Poleti u novu avanturu.' in ios_menu
-assert 'Odaberi letača i poleti u novu avanturu.' in android_menu
-print("PASS: dead-resource removal, 4-scope audit and real-process-only Android launcher recovery")
+print('PASS: real device launch verification retained')
 
 # v0.1.66 — attached bill, complete wing margins and true shoulder joints.
 hero=(root/'docs/assets/hero.svg').read_text()
@@ -2045,7 +1877,7 @@ for pilot in ('vihor','iskra','orion'):
 for name,source in (('Android',android_render),('iOS',ios_render)):
     for token in ('wingLeftPivot','wingRightPivot') if name=='Android' else ('leftWingPivot','rightWingPivot'):
         assert token in source,(name,token)
-    assert ('188f else 176f' in source) if name=='Android' else ('188 : 176' in source)
+    assert ('birdSize=124f' in source) if name=='Android' else ('let artSize:CGFloat=124' in source)
 assert 'private val birdRect=RectF(-birdSize*.5f' in android_render
 assert 'sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))' in ios_render
 assert 'rotate(flap,wingLeftPivotX,wingLeftPivotY)' in android_render
@@ -2090,8 +1922,8 @@ kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'width = 48f +' in kotlin_level and 'width:48 + Float(' in swift_level
 assert '((i * 5 +' in kotlin_level and '((i*5 +' in swift_level
-assert 'birdSize=if(selectedSkin>=6)188f else 176f' in android_view
-assert 'let artSize:CGFloat=selectedSkin>=6 ? 188 : 176' in ios_view
+assert 'birdSize=124f' in android_view
+assert 'let artSize:CGFloat=124' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
 print('PASS: proportional pilots, pivot attachment, shared procedural widths')
