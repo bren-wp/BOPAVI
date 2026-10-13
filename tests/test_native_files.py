@@ -2010,3 +2010,29 @@ assert 'levelTransition' in (root/'android/app/src/test/java/com/brendigo/bopavi
 assert 'levelTransition' in (root/'tests/KotlinParity.kt').read_text()
 assert 'levelTransition' in (root/'tests/SwiftParity.swift').read_text()
 print('PASS: v0.1.69 truthful separate flight pickups and seamless in-gauge level entry')
+
+# v0.1.71 — the 120 Hz obstacle/HUD path must not allocate color arrays and
+# attributed orb glyphs every frame; preserve the real UI counts and palette.
+android_frame=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_frame=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+android_relief=android_frame.split('private fun drawBiomeGateRelief(',1)[1].split('private fun drawGate(',1)[0]
+ios_relief=ios_frame.split('private func drawBiomeGateRelief(',1)[1].split('private func drawRockFacets(',1)[0]
+assert 'intArrayOf(' not in android_relief
+assert 'let accents:[UInt32]' not in ios_relief and 'let glints:[UInt32]' not in ios_relief
+for label in ('biomeReliefAccents','biomeReliefGlints'):
+    assert 'private val '+label+'=intArrayOf(' in android_frame
+    assert 'private let '+label+':[UInt32]=' in ios_frame
+assert 'val accent=biomeReliefAccents[world]' in android_relief
+assert 'val glint=biomeReliefGlints[world]' in android_relief
+assert 'let accents=biomeReliefAccents' in ios_relief
+assert 'let glints=biomeReliefGlints' in ios_relief
+# Count labels change only on live stars/shield/magnet updates, never by frame.
+ios_orb=ios_frame.split('private func hudOrb(',1)[1].split('private func drawBoostHUD(',1)[0]
+assert 'hudOrbActiveSymbols[slot]' in ios_orb
+assert 'hudOrbInactiveSymbols[slot]' in ios_orb
+assert 'hudOrbCachedValues[slot] != count' in ios_orb
+assert 'hudOrbCachedNumbers[slot]' in ios_orb
+assert 'UIFont.systemFont(' not in ios_orb and 'UIFont.monospacedDigitSystemFont(' not in ios_orb
+for actual in ('game.stars','game.shield','game.magnetTime'):
+    assert actual in ios_frame and actual in android_frame
+print('PASS: cached biome gate palettes and iOS HUD orb layouts without changing real counters')
