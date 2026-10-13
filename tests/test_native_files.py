@@ -1046,7 +1046,7 @@ print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or pai
 
 # The character gallery, selection hero and pause must use complete wings-up
 # portraits. The animated flight renderer MUST continue using three
-# independent 512x512 layers to preserve real flap response and hitbox timing.
+# independent 512x512 body/wing layers; HUD portrait is independently cached.
 for asset in ('BopiPortrait','bopiportrait','Image.alpha_composite(wings,body)',
               'ImageFilter.GaussianBlur(11)'):
     assert asset in artgen,asset
@@ -1060,8 +1060,8 @@ assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
 assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_menu
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
 assert android_pause.count('R.drawable.bopiportrait') == 9
-assert 'R.drawable.bopiportrait' not in android_loader
-assert 'BopiPortrait' not in swift_loader
+assert 'portraitSprites[selectedSkin]' in android_loader
+assert 'BopiPortrait\\(selectedSkin)' in swift_loader
 assert 'birdSprites[selectedSkin]' in android_loader
 assert 'BopiLeft\\(selectedSkin)' in swift_loader
 assert 'BopiRight\\(selectedSkin)' in swift_loader
