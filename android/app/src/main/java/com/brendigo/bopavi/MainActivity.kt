@@ -1476,8 +1476,7 @@ class MainActivity : Activity() {
         profileHeading(b,"MOJI NAJBOLJI SVJETOVI")
         val ranked=(0..7).sortedWith(compareByDescending<Int>{progress.worldStars(it)}
             .thenByDescending{progress.best(it)}.thenBy{it}).take(3)
-        val worldArt=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
-            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val worldArt=worldDrawableIds
         val gallery=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
         for((rank,world) in ranked.withIndex()){
             val card=LinearLayout(this).apply{
