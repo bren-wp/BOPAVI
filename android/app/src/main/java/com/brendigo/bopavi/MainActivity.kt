@@ -39,6 +39,13 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
+    // One shared drawable lookup table for legacy pilot-save art. Bopi is
+    // the only active pilot; avoid allocating the same nine-entry array in
+    // Home, pause, Settings and Profile on every screen transition.
+    private val portraitDrawableIds=intArrayOf(
+        R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+        R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+        R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -247,12 +254,10 @@ class MainActivity : Activity() {
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(0,d(110),1f))
-            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-                R.drawable.bopiportrait8)
+
+
             hero.addView(ImageView(this).apply {
-                setImageResource(portraits[0])
+                setImageResource(portraitDrawableIds[0])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(117),d(117)))
@@ -476,11 +481,9 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER_VERTICAL
         }
         val avatar=ImageView(this).apply{
-            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-                R.drawable.bopiportrait8)
-            setImageResource(portraits[0])
+
+
+            setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
@@ -758,11 +761,10 @@ class MainActivity : Activity() {
                 setStroke(d(3),electric)
             }
         }
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,
-            R.drawable.bopiportrait7,R.drawable.bopiportrait8)
+
+
         content.addView(ImageView(this).apply{
-            setImageResource(portraits[0])
+            setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
@@ -1298,10 +1300,8 @@ class MainActivity : Activity() {
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         val skin=0
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-            R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-            R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-            R.drawable.bopiportrait8)
+
+
         val hero=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
             setPadding(d(8),d(11),d(8),d(11))
@@ -1317,7 +1317,7 @@ class MainActivity : Activity() {
             }
         }
         portraitBox.addView(ImageView(this).apply{
-            setImageResource(portraits[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
+            setImageResource(portraitDrawableIds[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(151)))
         portraitBox.addView(TextView(this).apply{
