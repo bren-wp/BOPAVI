@@ -388,7 +388,7 @@ for name,expected,path in (
         record_actions=[n for n in root.iter("node") if n.get("clickable")=="true"
                         and "MOJA POSTIGNUĆA" in (n.get("text","")+" "+n.get("content-desc",""))]
         if len(record_actions)!=1: raise SystemExit("FAIL: Records achievement action missing")
-        hit=re.fullmatch(r"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]",record_actions[0].get("bounds",""))
+        hit=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",record_actions[0].get("bounds",""))
         if not hit: raise SystemExit("FAIL: invalid Records achievement bounds")
         l,t,r,b=map(int,hit.groups())
         subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],
