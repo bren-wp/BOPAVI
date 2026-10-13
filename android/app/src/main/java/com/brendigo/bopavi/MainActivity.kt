@@ -1311,6 +1311,15 @@ class MainActivity : Activity() {
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
+        val topBack=TextView(this).apply{
+            text="‹  POČETNA";textSize=13f;setTextColor(Color.WHITE)
+            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
+            background=gradient(0xff1368b6.toInt(),0xff072657.toInt(),14)
+            isClickable=true;isFocusable=true
+            contentDescription="Natrag na početnu"
+            setOnClickListener{showHome()}
+        }
+        b.addView(topBack,LinearLayout.LayoutParams(-1,d(33)))
         val skin=0
 
 
