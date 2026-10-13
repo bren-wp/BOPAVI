@@ -1776,8 +1776,9 @@ for inventory in legacy_stores:
     assert 'skinIndexForSlug' in inventory
 for fragment in ("(6,'vihor')","(7,'iskra')","(8,'orion')"):
     assert fragment in artgen
-for controller in (android_menu,ios_menu):
-    assert 'Tvoj stalni pilot: Bopi' in controller
+for controller, pilot in ((android_menu,'val skin=0'), (ios_menu,'let skin=0')):
+    # One pilot is a real model/navigation invariant, not a redundant banner.
+    assert pilot in controller
     assert 'characterGallery(' not in controller
     assert 'ODABERI DRUGOG LIKA' not in controller
 print('PASS: legacy skin save aliases preserved while Bopi remains sole UI pilot')
