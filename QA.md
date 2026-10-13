@@ -1,3 +1,10 @@
+## v0.1.71 — allocation and HUD visual regressions
+1. Launch a real Bopi flight on Android and iOS in all eight worlds; verify cliff-material hues match v0.1.70 and the opening/moving-gate collision windows have not moved.
+2. At 60/90/120 Hz confirm the Android obstacle path reads cached palettes; on iOS ensure the cached symbol assets render ★, ◆ and ∩ with correct enabled/disabled contrast.
+3. Collect stars, consume a shield, activate and expire magnet. The numbers must update on **actual** state changes even after pause/resume, retry and world switch; never freeze a counter due to caching.
+4. Confirm world transitions remain continuous with visible incoming obstacles, transparent playable gap, stable distance bar and no extra loading screen.
+5. Validate both app versions are 0.1.71 / build 74; run source audit, Kotlin and Swift parity, Android lint/JVM, iOS simulator and unsigned-device build, API36 emulator, screenshot uniqueness and release hash verification.
+
 ## v0.1.70 — video-based UI and gameplay review
 1. Using the supplied 84.64-second real-device reference video, verify tapping Play opens Bopi's idle GameView without any nine-character picker or character purchase opportunity; selecting a world or retrying does the same.
 2. Compare actual active-flight screenshots at identical screen aspect ratio: Bopi's rendered art is 124 logical units on both platforms, with unchanged 18-unit physics radius and properly attached left/right wing sprites. Confirm no rendering crop, halo disproportion or unsafe collision.

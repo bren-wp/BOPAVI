@@ -104,6 +104,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val pillars = intArrayOf(0xff20b96c.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
     private val pillarDark = intArrayOf(0xff096c46.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
 
+    // Material palettes are immutable flight-scoped data, not two new arrays
+    // allocated for every obstacle on every animation frame.
+    private val biomeReliefAccents=intArrayOf(0xff87ef82.toInt(),0xffbd74ff.toInt(),
+        0xffff8b39.toInt(),0xffffd782.toInt(),0xff6ff4ec.toInt(),
+        0xffffe7a0.toInt(),0xff6ceab4.toInt(),0xffbb92ff.toInt())
+    private val biomeReliefGlints=intArrayOf(0xffd4ffb0.toInt(),0xff7ef4ff.toInt(),
+        0xffffcf70.toInt(),0xffffefa8.toInt(),0xffffb6e7.toInt(),
+        0xffffffff.toInt(),0xffffa7e7.toInt(),0xff85dfff.toInt())
+
     // Per-world pollen, embers, snow, stardust and sea sparkle. Drawn rather than loaded.
     private val atmosphereHues=intArrayOf(0xffffedab.toInt(),0xffffdea0.toInt(),0xffeaffff.toInt(),
         0xffffbd67.toInt(),0xffd3fff1.toInt(),0xffcab7ff.toInt(),0xff8dfff1.toInt(),0xffc5d1ff.toInt())
@@ -493,12 +502,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * enchanted roots and stardust. Both caps are anchored to the live opening.
      */
     private fun drawBiomeGateRelief(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,world:Int) {
-        val accent=intArrayOf(0xff87ef82.toInt(),0xffbd74ff.toInt(),
-            0xffff8b39.toInt(),0xffffd782.toInt(),0xff6ff4ec.toInt(),
-            0xffffe7a0.toInt(),0xff6ceab4.toInt(),0xffbb92ff.toInt())[world]
-        val glint=intArrayOf(0xffd4ffb0.toInt(),0xff7ef4ff.toInt(),
-            0xffffcf70.toInt(),0xffffefa8.toInt(),0xffffb6e7.toInt(),
-            0xffffffff.toInt(),0xffffa7e7.toInt(),0xff85dfff.toInt())[world]
+        val accent=biomeReliefAccents[world]
+        val glint=biomeReliefGlints[world]
         for(side in 0..1) {
             val edge=if(side==0)top else bottom
             val sign=if(side==0)-1f else 1f

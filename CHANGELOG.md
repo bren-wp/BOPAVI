@@ -1,3 +1,9 @@
+## v0.1.71 — Flight-frame performance and HUD stability (build 74)
+- Android and iOS now cache the eight-world cliff-relief palette outside the per-obstacle drawing loop, removing repeated array construction while preserving all world colors, obstacle collision coordinates and decoration bounds.
+- On iOS the three flight HUD icons, heavy symbol fonts and counter text are cached. The star, shield and magnet badges rebuild their attributed numbers only when their actual game values change. Active/inactive power colors remain readable.
+- Added source regression tests that reject returning to per-frame palette/font allocation; preserved the Bopi-only flight path, truthful wallet, level-transition gauge, collision geometry, difficulty factors and saved-progress compatibility.
+- No new images, new characters, network traffic or changes to monetization. Visual 1:1 reference parity still requires hands-on screenshot review on physical devices.
+
 ## v0.1.70 — Real-video review: smaller Bopi and simplified flight flow (build 73)
 - Reviewed the attached real-device 84.64-second video. The existing menus, flight art and result screen are NOT pixel-identical to the approved high-fidelity concept illustrations. Work in this release addresses specific defects without claiming visual completion.
 - Bopi is the **only playable mascot**. The nine-character selection screen and purchasable skin gallery are removed from Android and iOS navigation; both home Play and level selection open the actual idle flight directly. Old local owned-mask and skin identifiers remain in stored data for compatibility; no real-money skin shop.
