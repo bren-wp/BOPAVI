@@ -277,7 +277,7 @@ assert 'Float(Double(gateX)+origin-travelled)' in swift
 assert 'distance = preciseDistance.toFloat()' in andr
 assert 'distance = Float(preciseDistance)' in swift
 assert 'levelOrigin=nextOrigin' in andr and 'levelOrigin=nextOrigin' in swift
-assert 'levelTransition=0f' in andr and 'levelTransition=0' in swift
+assert 'levelTransition=.85f' in andr and 'levelTransition=0.85' in swift
 assert 'distance = 0f; passed = 0' not in andr
 assert 'distance=0;passed=0' not in swift
 
@@ -542,7 +542,7 @@ for source in (android_progress,ios_progress):
     assert "UIImage(" not in source and "BitmapFactory" not in source
 assert "260f*passed.toFloat()/total" not in android_progress
 assert "260*CGFloat(passed)/CGFloat(total)" not in ios_progress
-# No old-world gate progress resetting bar or level-flash overlay.
+# No screen-covering level overlay; a subtle badge inside the real gauge is permitted.
 assert "if(game.levelTransition>0f)" not in android_render
 assert "if game.levelTransition>0" not in ios_render
 assert "upcomingGates().withIndex()" in android_render
@@ -2127,16 +2127,47 @@ for source in (android_game,ios_game):
     assert '100_000_000' in source
     assert 'coin' in source.lower()
     assert '.1fM' in source and '.1fK' in source
-    assert 'Kovanice' in source and 'balance' in source
+    assert 'Novčanik' in source and 'balance' in source
     assert 'hudGoldCoin(' in source
 assert 'portraitSprites[selectedSkin]' in android_game
 assert 'BopiPortrait\\(selectedSkin)' in ios_game
 assert 'walletCoins={progress.coins()}' in android_menu
 assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
 assert 'private let hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
-assert 'coinWallet()+game.coins' in ios_game
-assert 'walletCoins().toLong()+game.coins' in android_game
+assert 'coinWallet()))' in ios_game
+assert 'walletCoins().coerceIn(0,100_000_000)' in android_game
 # The real pause remains an accessible native button outside the drawn HUD.
 assert 'onFlightStarted=' in android_menu and 'pauseButton?.visibility=View.VISIBLE' in android_menu
 assert 'gameCanvas.onFlightStarted' in ios_menu and 'pause?.isHidden=false' in ios_menu
 print('PASS: in-flight real pilot portrait, offline wallet with exact accessibility, and preserved native pause')
+
+# v0.1.69 — seamless level entry stays inside existing progress bar; display
+# state must not become an obstacle, pause, loading screen, or false score.
+android_sim=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+ios_sim=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_hud=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_hud=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+for game in (android_sim,ios_sim):
+    assert 'levelTransition' in game
+    assert 'prepareNext()' in game and 'levelOrigin=nextOrigin' in game
+    assert 'preciseDistance' in game
+assert 'levelTransition=.85f' in android_sim
+assert 'levelTransition=0.85' in ios_sim
+for view in (android_hud,ios_hud):
+    assert 'val entering=game.levelTransition>0f' in view or 'let entering=game.levelTransition>0' in view
+    assert 'NOVI LET' in view
+    assert 'game.totalPassed' in view
+    assert 'game.coins' in view
+    assert 'LET +' in view
+    assert 'Novčanik' in view
+    assert 'U ovom letu skupljeno' in view
+    assert 'walletLabel(balance)' in view
+assert 'walletCoins().coerceIn(0,100_000_000)' in android_hud
+assert 'coinWallet()))' in ios_hud
+assert 'walletCoins().toLong()+game.coins' not in android_hud
+assert 'coinWallet()+game.coins' not in ios_hud
+assert 'cachedLevelBadge' in ios_hud and 'levelBadgeFont' in ios_hud
+assert 'levelTransition' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+assert 'levelTransition' in (root/'tests/KotlinParity.kt').read_text()
+assert 'levelTransition' in (root/'tests/SwiftParity.swift').read_text()
+print('PASS: v0.1.69 truthful separate flight pickups and seamless in-gauge level entry')

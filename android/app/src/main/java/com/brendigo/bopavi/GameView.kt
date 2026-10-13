@@ -767,8 +767,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(c,184f,38f,184f+189f*ratio,51f,0xff15cfff.toInt(),7f)
             rect(c,185f,39f,185f+187f*ratio,43f,0xaaffffff.toInt(),2f)
         }
-        rect(c,171f,80f,382f,107f,0xe7062859.toInt(),14f)
-        text(c,"LEVEL ${game.displayLevel}  ·  ${game.passed}/$total",277f,99f,15f,Color.WHITE,true)
+        // Announce the next level inside the existing gauge, never as an
+        // opaque transition overlay or a pause of the physics/game loop.
+        val entering=game.levelTransition>0f
+        rect(c,171f,80f,382f,107f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
+        val levelLabel=if(entering)"LEVEL ${game.displayLevel}  ·  NOVI LET"
+            else "LEVEL ${game.displayLevel}  ·  ${game.passed}/$total"
+        text(c,levelLabel,277f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
         text(c,progressTitle,277f,124f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
@@ -841,14 +846,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.
         // No extra rectangular level/star chips covering the flying scene.
-        // Physical wallet includes persisted currency and coins earned during
-        // this run; a failed flight has not yet committed its pickups to disk.
-        val balance=(walletCoins().toLong()+game.coins).coerceIn(0L,100_000_000L).toInt()
+        // The spendable currency comes ONLY from persistent level/milestone
+        // rewards. In-flight pickups contribute to score/collection statistics,
+        // not to the wallet: show them as a separate, truthful run counter.
+        val balance=walletCoins().coerceIn(0,100_000_000)
         hudGlass(c,73f,22f,145f,75f)
         hudGoldCoin(c)
         val coinLabel=walletLabel(balance)
         text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
         hudPilotPortrait(c)
+        rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
+        text(c,"LET +${game.coins}",112f,99f,11f,0xffffd76a.toInt(),true)
 
         // Fixed screen-space slots, grounded in actual earned stars/boosts.
         // Keep them outside the central bird and upcoming collision gates.
@@ -858,8 +866,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
         hudOrb(c,46f,323f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
-        val status="Bopi leti. Kovanice ${balance}. Prolazi ukupno ${game.totalPassed}. " +
-            "Zvjezdice ${game.stars}. ŠTIT ×${game.shield}. MAGNET ${seconds}s"
+        val status="Bopi leti. Novčanik ${balance} kovanica. U ovom letu skupljeno ${game.coins}. " +
+            "Prolazi ukupno ${game.totalPassed}. Zvjezdice ${game.stars}. " +
+            "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */

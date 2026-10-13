@@ -136,7 +136,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         levelOrigin=nextOrigin
                         level=incoming
                         prepareNext()
-                        levelTransition=0f
+                        levelTransition=.85f
                         passed = 0
                         levelStars = 0
                         collectedCoins = BooleanArray(level.gates.size)

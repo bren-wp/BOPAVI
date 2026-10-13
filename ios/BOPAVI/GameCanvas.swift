@@ -6,6 +6,10 @@ final class GameCanvas: UIView {
     let reducedMotion: Bool
     let skinIndex: Int
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
+    private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
+    private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
+    private var lastLevelBadgeText=""
+    private var cachedLevelBadge=NSAttributedString(string:"")
     private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
@@ -293,17 +297,25 @@ final class GameCanvas: UIView {
             rect(c,184,38,189*ratio,13,0x15cfff,7)
             rect(c,185,39,187*ratio,4,0xffffff,2,0.67)
         }
-        rect(c,171,80,211,27,0x062859,14,0.91)
-        let levelText="LEVEL \(game.displayLevel)  ·  \(game.passed)/\(total)"
-        let levelFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
-        let levelString=NSAttributedString(string:levelText,attributes:[
-            .font:levelFont,.foregroundColor:UIColor.white])
-        levelString.draw(at:CGPoint(x:277-levelString.size().width/2,y:85))
+        // The existing race gauge briefly celebrates level entry without
+        // covering obstacles or interrupting the continuous simulation.
+        let entering=game.levelTransition>0
+        rect(c,171,80,211,27,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
+        let levelText=entering ? "LEVEL \(game.displayLevel)  ·  NOVI LET" :
+            "LEVEL \(game.displayLevel)  ·  \(game.passed)/\(total)"
+        if lastLevelBadgeText != levelText {
+            lastLevelBadgeText=levelText
+            cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
+                .font:levelBadgeFont,
+                .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
+        }
+        cachedLevelBadge.draw(at:CGPoint(x:277-cachedLevelBadge.size().width/2,y:85))
         progressLabel.draw(at:CGPoint(x:277-progressLabel.size().width/2,y:110))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        let balance=max(0,min(100_000_000,coinWallet()+game.coins))
-        accessibilityLabel="Bopi leti. Kovanice \(balance). Prolazi ukupno \(passed). " +
-            "Zvjezdice \(game.stars). ŠTIT ×\(game.shield). MAGNET \(seconds)s"
+        let balance=max(0,min(100_000_000,coinWallet()))
+        accessibilityLabel="Bopi leti. Novčanik \(balance) kovanica. U ovom letu skupljeno \(game.coins). " +
+            "Prolazi ukupno \(passed). Zvjezdice \(game.stars). " +
+            "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
@@ -370,12 +382,16 @@ final class GameCanvas: UIView {
     private func drawBoostHUD(_ c:CGContext) {
         // The icon/number hierarchy mirrors Android, leaving the top-right
         // reserved for the real UIKit Pause button.
-        let balance=max(0,min(100_000_000,coinWallet()+game.coins))
+        // Only saved currency is spendable. Flight coins are a real but
+        // separate score/collection counter, not minted wallet currency.
+        let balance=max(0,min(100_000_000,coinWallet()))
         hudGlass(c,73,22,72,53)
         hudGoldCoin(c)
         let coinLabel=walletLabel(balance)
         hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
         hudPilotPortrait(c)
+        rect(c,82,84,61,20,0x052a57,10,0.86)
+        hudText("LET +\(game.coins)",84,87,collectedFont,0xffd76a)
         hudOrb(c,46,175,"★","\(game.stars)",0xffce43,true)
         hudOrb(c,46,249,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
