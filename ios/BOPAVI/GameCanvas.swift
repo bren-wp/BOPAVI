@@ -578,6 +578,15 @@ final class GameCanvas: UIView {
         rect(c,x-7,bottom,w+12,27,cap,7)
         drawRockFacets(c,x,w,2,top-30)
         drawRockFacets(c,x,w,bottom+28,751)
+        // Responsive cap details never stick outside the simulated collision lip.
+        let flecks:[UInt32]=[0xb7ed7a,0x9af7ff,0xffd06e,0xffe29a,
+                             0xf8e5cc,0xffe6a1,0xa7ffdf,0xd9baff]
+        for j in 0...2 {
+            let fx=x+9+(w-22)*CGFloat(j)*0.5
+            let inset:CGFloat=j==1 ? 2 : 0
+            oval(c,fx,top-17+inset,5,5,flecks[g.kind])
+            oval(c,fx,bottom+11+inset,5,5,flecks[g.kind])
+        }
         rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
