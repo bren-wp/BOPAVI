@@ -774,7 +774,7 @@ assert android_loader.startswith('skinIndex.coerceIn(0,8)')
 for source in ('birdSprites','leftWings','rightWings'):
     assert f'{source}[selectedSkin]' in android_loader,source
 assert 'skinIndex.coerceIn(0,6)' not in android_loader
-swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int)',1)[1].split('super.init(frame:',1)[0]
+swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int',1)[1].split('super.init(frame:',1)[0]
 assert 'let selectedSkin=min(8,max(0,skinIndex))' in swift_loader
 for asset in ('Bopi','BopiLeft','BopiRight'):
     assert f'{asset}\\(selectedSkin)' in swift_loader,asset
