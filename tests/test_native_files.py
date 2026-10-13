@@ -1129,8 +1129,12 @@ assert 'View.SYSTEM_UI_FLAG_FULLSCREEN' in android_chrome
 assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
 assert android_menu.count('applyPremiumSystemBars()')==6
 assert 'window.decorView.systemUiVisibility=0' not in android_menu
-# One extra insets guard belongs to the shared no-scroll Shop/Records viewport.
-assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==3
+# Both branches of the shared menu must independently honor OS safe areas,
+# irrespective of line-wrapping or source formatting of the flags.
+base_view=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
+assert 'fitted.setOnApplyWindowInsetsListener' in base_view
+assert 'scroll.setOnApplyWindowInsetsListener' in base_view
+assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=2
 # The splash MUST reserve the bottom inset for its loading bar; only Home
 # must avoid a second root-level inset listener around already-safe controls.
 assert 'root.setOnApplyWindowInsetsListener' not in android_home
