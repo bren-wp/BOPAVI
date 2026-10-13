@@ -368,9 +368,11 @@ class MainActivity : Activity() {
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0x55052251,0x001967ae,0x001967ae,0xbb03112e.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
-        val scroll=ScrollView(this).apply{
-            isFillViewport=true;isVerticalScrollBarEnabled=false
+        // The first screen has no scroll gesture. On compact/notched devices
+        // live controls are fitted as one coherent viewport rather than cropped.
+        val scroll=FitViewportColumn(this).apply {
             clipToPadding=false
+            clipChildren=false
         }
         val layout=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
