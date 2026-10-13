@@ -39,6 +39,10 @@ final class GameCanvas: UIView {
 
     private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private let birdSprite:UIImage?
+    private let hudPortrait:UIImage?
+    private let coinWallet:()->Int
+    private var lastWalletValue = -1
+    private var walletDisplay = "0"
     private let leftWing:UIImage?
     private let rightWing:UIImage?
     // Match 20% smaller Android in-flight art while preserving real wing pivots.
@@ -78,10 +82,12 @@ final class GameCanvas: UIView {
         return CGGradient(colorsSpace:CGColorSpaceCreateDeviceRGB(),colors:pair,locations:[0,1])
     }()
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
-    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int) {
+    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0}) {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex))
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
+        self.coinWallet=coinWallet
+        self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
         let artSize:CGFloat=selectedSkin>=6 ? 188 : 176
         self.birdArtSize=artSize
         let scale=artSize/100
@@ -263,9 +269,10 @@ final class GameCanvas: UIView {
         (value as NSString).draw(at:CGPoint(x:x,y:y),withAttributes:[
             .font:font,.foregroundColor:UIColor(rgb:rgb)])
     }
-    private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
     private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
+    private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
+    private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
@@ -294,8 +301,9 @@ final class GameCanvas: UIView {
         levelString.draw(at:CGPoint(x:277-levelString.size().width/2,y:85))
         progressLabel.draw(at:CGPoint(x:277-progressLabel.size().width/2,y:110))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        accessibilityLabel="Bopi leti. Prolazi ukupno \(passed). Zvjezdice \(game.stars). " +
-            "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
+        let balance=max(0,min(100_000_000,coinWallet()+game.coins))
+        accessibilityLabel="Bopi leti. Kovanice \(balance). Prolazi ukupno \(passed). " +
+            "Zvjezdice \(game.stars). ŠTIT ×\(game.shield). MAGNET \(seconds)s"
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
@@ -310,10 +318,33 @@ final class GameCanvas: UIView {
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
     }
     private func hudGoldCoin(_ c:CGContext) {
-        oval(c,17,25,37,45,0xf9a70e)
-        oval(c,21,29,29,37,0xffdf5f)
-        oval(c,24,32,23,30,0xec9500)
-        hudText("♛",24,31,hudCoinFont,0xfff3a4)
+        oval(c,78,30,32,37,0xf9a70e)
+        oval(c,81,33,26,31,0xffdf5f)
+        oval(c,84,36,20,25,0xec9500)
+        hudText("♛",86,33,hudCoinFont,0xfff3a4)
+    }
+    /// Clip the exact previously selected pilot portrait into the gold avatar ring.
+    private func hudPilotPortrait(_ c:CGContext) {
+        oval(c,5,12,75,75,0x03d9ff,0.56)
+        oval(c,8,15,69,69,0xffc946)
+        oval(c,11,18,63,63,0x062e70)
+        c.saveGState()
+        c.addEllipse(in:CGRect(x:13.5,y:20.5,width:58,height:58))
+        c.clip()
+        hudPortrait?.draw(in:CGRect(x:7,y:13,width:70,height:70))
+        c.restoreGState()
+    }
+    /// A compact visual string is cached until the actual wallet changes.
+    private func walletLabel(_ total:Int)->String {
+        if total != lastWalletValue {
+            lastWalletValue=total
+            if total>=10_000_000 {walletDisplay="\(total/1_000_000)M"}
+            else if total>=1_000_000 {walletDisplay=String(format:"%.1fM",Double(total)/1_000_000)}
+            else if total>=10_000 {walletDisplay="\(total/1_000)K"}
+            else if total>=1_000 {walletDisplay=String(format:"%.1fK",Double(total)/1_000)}
+            else {walletDisplay=String(total)}
+        }
+        return walletDisplay
     }
     /// These source-styled orbs are indicators, not phantom tappable items.
     /// Readouts come only from the live simulation's stars and boosts.
@@ -339,9 +370,12 @@ final class GameCanvas: UIView {
     private func drawBoostHUD(_ c:CGContext) {
         // The icon/number hierarchy mirrors Android, leaving the top-right
         // reserved for the real UIKit Pause button.
-        hudGlass(c,13,21,126,54)
+        let balance=max(0,min(100_000_000,coinWallet()+game.coins))
+        hudGlass(c,73,22,72,53)
         hudGoldCoin(c)
-        hudText("\(game.coins)",66,33,hudCountFont,0xffffff)
+        let coinLabel=walletLabel(balance)
+        hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
+        hudPilotPortrait(c)
         hudOrb(c,46,175,"★","\(game.stars)",0xffce43,true)
         hudOrb(c,46,249,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))

@@ -536,7 +536,7 @@ for source in (android_progress,ios_progress):
     assert "game.totalPassed" in source
     assert "lastProgressPassed" in source
     assert "PROLAZI UKUPNO" in source
-    assert "Bopi leti. Prolazi ukupno" in source
+    assert "Prolazi ukupno" in source
     assert "game.passed" in source
     assert "level.gates" in source
     assert "UIImage(" not in source and "BitmapFactory" not in source
@@ -774,7 +774,7 @@ assert android_loader.startswith('skinIndex.coerceIn(0,8)')
 for source in ('birdSprites','leftWings','rightWings'):
     assert f'{source}[selectedSkin]' in android_loader,source
 assert 'skinIndex.coerceIn(0,6)' not in android_loader
-swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int)',1)[1].split('super.init(frame:',1)[0]
+swift_loader=ios_render.split('init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int',1)[1].split('super.init(frame:',1)[0]
 assert 'let selectedSkin=min(8,max(0,skinIndex))' in swift_loader
 for asset in ('Bopi','BopiLeft','BopiRight'):
     assert f'{asset}\\(selectedSkin)' in swift_loader,asset
@@ -1046,7 +1046,7 @@ print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or pai
 
 # The character gallery, selection hero and pause must use complete wings-up
 # portraits. The animated flight renderer MUST continue using three
-# independent 512x512 layers to preserve real flap response and hitbox timing.
+# independent 512x512 body/wing layers; HUD portrait is independently cached.
 for asset in ('BopiPortrait','bopiportrait','Image.alpha_composite(wings,body)',
               'ImageFilter.GaussianBlur(11)'):
     assert asset in artgen,asset
@@ -1060,8 +1060,8 @@ assert 'UIImage(named:"BopiPortrait\\(selected)")' in ios_picker
 assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_menu
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
 assert android_pause.count('R.drawable.bopiportrait') == 9
-assert 'R.drawable.bopiportrait' not in android_loader
-assert 'BopiPortrait' not in swift_loader
+assert 'portraitSprites[selectedSkin]' in android_loader
+assert 'BopiPortrait\\(selectedSkin)' in swift_loader
 assert 'birdSprites[selectedSkin]' in android_loader
 assert 'BopiLeft\\(selectedSkin)' in swift_loader
 assert 'BopiRight\\(selectedSkin)' in swift_loader
@@ -1535,9 +1535,9 @@ assert 'private fun hudGoldCoin(' in android_game
 assert 'private func hudGlass(' in ios_game
 assert 'private func hudGoldCoin(' in ios_game
 assert 'hudCoinFont=UIFont.systemFont' in ios_game
-assert 'hudText("♛",24,31,hudCoinFont' in ios_game
-assert 'hudGlass(c,13f,21f,139f,75f)' in android_game
-assert 'hudGlass(c,13,21,126,54)' in ios_game
+assert 'hudText("♛",86,33,hudCoinFont' in ios_game
+assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
+assert 'hudGlass(c,73,22,72,53)' in ios_game
 assert 'hudOrb(c,46f,175f,"★"' in android_game
 assert 'hudOrb(c,46,175,"★"' in ios_game
 for source in (android_game,ios_game):
@@ -2112,3 +2112,31 @@ for canvas in (android_canvas,ios_canvas):
 assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
 print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')
+
+# v0.1.68 — pilot portrait + verified persistent offline wallet in both
+# frame-synchronous HUDs. No invented balances or accessibility truncation.
+android_game=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_game=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+android_menu=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+ios_menu=(root/'ios/BOPAVI/GameController.swift').read_text()
+for source in (android_game,ios_game):
+    assert 'hudPilotPortrait(' in source
+    assert 'hudPortrait' in source
+    assert 'walletLabel(' in source
+    assert 'game.coins' in source
+    assert '100_000_000' in source
+    assert 'coin' in source.lower()
+    assert '.1fM' in source and '.1fK' in source
+    assert 'Kovanice' in source and 'balance' in source
+    assert 'hudGoldCoin(' in source
+assert 'portraitSprites[selectedSkin]' in android_game
+assert 'BopiPortrait\\(selectedSkin)' in ios_game
+assert 'walletCoins={progress.coins()}' in android_menu
+assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
+assert 'private let hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
+assert 'coinWallet()+game.coins' in ios_game
+assert 'walletCoins().toLong()+game.coins' in android_game
+# The real pause remains an accessible native button outside the drawn HUD.
+assert 'onFlightStarted=' in android_menu and 'pauseButton?.visibility=View.VISIBLE' in android_menu
+assert 'gameCanvas.onFlightStarted' in ios_menu and 'pause?.isHidden=false' in ios_menu
+print('PASS: in-flight real pilot portrait, offline wallet with exact accessibility, and preserved native pause')

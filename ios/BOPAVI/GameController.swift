@@ -1150,7 +1150,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex())
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
+            coinWallet:{[weak self] in self?.progress.coins() ?? 0})
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
         gameCanvas.translatesAutoresizingMaskIntoConstraints=false

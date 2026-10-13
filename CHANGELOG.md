@@ -1,3 +1,9 @@
+## v0.1.68 — Live pilot portrait and truthful premium wallet HUD (build 71)
+- Added a circular blue/gold pilot portrait in the in-flight top-left HUD on both Android and iOS, using the already-shipped actual selected pilot portrait. The top-left currency glass was rearranged to preserve the crown icon and centre progress gauge without introducing decorative fake controls.
+- The in-flight balance now reads real locally persisted wallet coins **plus the yet-unbanked collectible coins from this current run**; newly earned level-clear rewards are reflected immediately from local storage. This replaces the misleading current-run-only count. Screenshots are never wired to fake counts.
+- Compact K/M visual labels are cached only on value changes. TalkBack/VoiceOver reports the exact number, not the rounded visual label. No per-frame icon decode, texture generation or iOS font allocation.
+- Updated UI contract tests and documented the real screenshot-to-reference comparison still needed before claiming pixel-perfect visual matching. No accounts, ads, network access or new permissions.
+
 ## v0.1.67 — Unified tap flight, proportional pilots and varied procedural gates (build 70)
 - Restored **one touch = one wing flap** for all eight worlds, on Android and iOS. Removed drag steering, MOVE-event altitude control, legacy swipe prompts, mixed-mode UI badges and inconsistent accessibility instructions.
 - Reduced every in-flight character sprite by **20%** (220→176 or 235→188 logical art units) on both platforms and updated the body-only collision radius from **23→18**. Existing wing-rotation shoulder pivots, all nine character IDs, persisted progress and rewards remain intact.

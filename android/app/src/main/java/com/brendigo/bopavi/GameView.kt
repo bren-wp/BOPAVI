@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, private val walletCoins:()->Int = {0}) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -40,6 +40,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
+    // The already-shipped full-wing gallery portrait is decoded once per flight.
+    private val portraitSprites=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+        R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
+        R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+        R.drawable.bopiportrait8)
+    private val hudPortrait=BitmapFactory.decodeResource(resources,portraitSprites[selectedSkin],
+        BitmapFactory.Options().apply{inScaled=false})
+    private val hudPortraitRect=RectF(7f,13f,77f,83f)
+    private var lastWalletValue = -1
+    private var walletDisplay = "0"
     // In-flight art reduced by 20% for all nine pilots, with matching body hitboxes.
     // Both groups retain their own shoulder pivots so their wings stay attached.
     private val birdSize=if(selectedSkin>=6)188f else 176f
@@ -777,10 +787,36 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
     private fun hudGoldCoin(c:Canvas) {
-        oval(c,17f,25f,54f,70f,0xfff9a70e.toInt())
-        oval(c,21f,29f,50f,66f,0xffffdf5f.toInt())
-        oval(c,24f,32f,47f,62f,0xffec9500.toInt())
-        text(c,"♛",35f,55f,22f,0xfffff3a4.toInt(),true)
+        oval(c,78f,30f,110f,67f,0xfff9a70e.toInt())
+        oval(c,81f,33f,107f,64f,0xffffdf5f.toInt())
+        oval(c,84f,36f,104f,61f,0xffec9500.toInt())
+        text(c,"♛",94f,56f,19f,0xfffff3a4.toInt(),true)
+    }
+    /** Avatar is decorative but shows the actual selected pilot, not a default. */
+    private fun hudPilotPortrait(c:Canvas) {
+        oval(c,5f,12f,80f,87f,0x9003d9ff.toInt())
+        oval(c,8f,15f,77f,84f,0xffffc946.toInt())
+        oval(c,11f,18f,74f,81f,0xff062e70.toInt())
+        c.save()
+        path.reset()
+        path.addCircle(42.5f,49.5f,29f,Path.Direction.CW)
+        c.clipPath(path)
+        hudPortrait?.let {c.drawBitmap(it,null,hudPortraitRect,p)}
+        c.restore()
+    }
+    /** Cached compact visual label; TalkBack always reads the exact balance. */
+    private fun walletLabel(total:Int):String {
+        if(total!=lastWalletValue){
+            lastWalletValue=total
+            walletDisplay=when {
+                total>=10_000_000 -> "${total/1_000_000}M"
+                total>=1_000_000 -> String.format(java.util.Locale.US,"%.1fM",total/1_000_000.0)
+                total>=10_000 -> "${total/1_000}K"
+                total>=1_000 -> String.format(java.util.Locale.US,"%.1fK",total/1_000.0)
+                else -> total.toString()
+            }
+        }
+        return walletDisplay
     }
     /** Three illustrated HUD orbs from the reference left rail. These are
      * indicators, NOT faux buttons. Every number comes from the simulation.
@@ -805,9 +841,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.
         // No extra rectangular level/star chips covering the flying scene.
-        hudGlass(c,13f,21f,139f,75f)
+        // Physical wallet includes persisted currency and coins earned during
+        // this run; a failed flight has not yet committed its pickups to disk.
+        val balance=(walletCoins().toLong()+game.coins).coerceIn(0L,100_000_000L).toInt()
+        hudGlass(c,73f,22f,145f,75f)
         hudGoldCoin(c)
-        text(c,"${game.coins}",66f,55f,23f,Color.WHITE)
+        val coinLabel=walletLabel(balance)
+        text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
+        hudPilotPortrait(c)
 
         // Fixed screen-space slots, grounded in actual earned stars/boosts.
         // Keep them outside the central bird and upcoming collision gates.
@@ -817,8 +858,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
         hudOrb(c,46f,323f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
-        val status="Bopi leti. Prolazi ukupno ${game.totalPassed}. Zvjezdice ${game.stars}. " +
-            "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
+        val status="Bopi leti. Kovanice ${balance}. Prolazi ukupno ${game.totalPassed}. " +
+            "Zvjezdice ${game.stars}. ŠTIT ×${game.shield}. MAGNET ${seconds}s"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
