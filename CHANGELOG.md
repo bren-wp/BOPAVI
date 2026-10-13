@@ -1,3 +1,12 @@
+## v0.1.79 — Records navigation and save-backed achievement gallery (build 82)
+- Replace the lengthy, scroll-first Achievements listing with an accessible 2×4 native gallery on Android and iOS. All eight world tiles display actual recorded star totals, personal world scores and unlocked frontier values, not fabricated player XP or imagery.
+- Show compact offline-only lifetime counters (finished levels, victories and total flights) from the same validated save data as the Profile and Records screens.
+- Fix the real navigation defect: Records → My Achievements → Back now returns to Records (and preserves whether Records was opened from Settings or Home), rather than incorrectly jumping to Settings. Preserve all existing local top-ten rankings and two-record page navigation.
+- The Achievements gallery uses the same illustrated world background and rounded navy/cyan/gold UI as Shop and Profile, with a non-scrolling Android FitViewportColumn and safe-area iOS layout.
+- Extend Android emulator QA: visit real Records, tap achievements, verify all eight game-save world cards, capture an authentic screenshot and follow the Android Back round trip. Keep the existing dead-code/unused-symbol audit and Android/iOS gameplay regressions enabled.
+- No gameplay rules, purchase flows, offline save formats, invented currencies, accounts, advertising or backend integrations are changed.
+- Visual limit: reference images are concept art, not production-independent layer files; matching colors/hierarchy is not proof of pixel-perfect 1:1 fidelity. Continue remaining menu-level polish before any gameplay redesign.
+
 ## v0.1.78 — Compact offline Profile and one-screen native navigation (build 81)
 - All Profile data is sourced from the existing local save: current Bopi pilot, user-entered nickname, best points, in-game coins, completed stages and real victories. No fabricated account, diamonds, cloud sync or purchasing.
 - Android: profile now shares the existing FitViewportColumn already used by short Shop/Records pages, uses safe-area insets, reduces oversized portrait/rows/badges and removes duplicate labels. The top native Home action, real Edit Profile control, earned-only awards, three ranked world art cards and bottom navigation stay clickable.
