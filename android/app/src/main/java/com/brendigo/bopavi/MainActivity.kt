@@ -1155,13 +1155,33 @@ class MainActivity : Activity() {
         }
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
+        sectionHeading(b,"OPREMA ZA BOPIJEV LET")
         for(n in 0..1){
-            val explanation=if(n==0)"Čuva Bopija od jednog sudara" else "Privlači kovanice i predmete 8 sekundi"
-            small(b,"${if(n==0) "🛡 ŠTIT" else "🧲 MAGNET"} · $explanation\nU torbi: ${progress.perkCount(n)}")
-            action(b,"KUPI ${if(n==0) "ŠTIT" else "MAGNET"} · ${progress.perkPrices[n]} KOVANICA",false){
+            val name=if(n==0)"ŠTIT" else "MAGNET"
+            val explanation=if(n==0)"Upija jedan stvarni sudar." else "Privlači predmete tijekom 8 sekundi."
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
+                setPadding(d(14),d(12),d(14),d(10))
+                background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),20).apply{
+                    setStroke(d(2),if(n==0)0xffffd56a.toInt() else electric)
+                }
+            }
+            card.addView(TextView(this).apply{
+                text=(if(n==0)"🛡" else "🧲")+"  $name   ·   ${progress.perkPrices[n]} ♛"
+                textSize=19f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(if(n==0)gold else 0xffbcefff.toInt())
+                contentDescription="$name, cijena ${progress.perkPrices[n]} kovanica"
+            })
+            card.addView(TextView(this).apply{
+                text="$explanation  U torbi: ${progress.perkCount(n)}"
+                textSize=14f;setTextColor(Color.WHITE)
+                setPadding(0,d(5),0,d(4))
+            })
+            action(card,"KUPI $name · ${progress.perkPrices[n]} KOVANICA",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
+            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(10)})
         }
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
         small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
