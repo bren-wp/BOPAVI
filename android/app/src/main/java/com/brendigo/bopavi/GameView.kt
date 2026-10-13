@@ -809,7 +809,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(total!=lastWalletValue){
             lastWalletValue=total
             walletDisplay=when {
+                total>=10_000_000 -> "${total/1_000_000}M"
                 total>=1_000_000 -> String.format(java.util.Locale.US,"%.1fM",total/1_000_000.0)
+                total>=10_000 -> "${total/1_000}K"
                 total>=1_000 -> String.format(java.util.Locale.US,"%.1fK",total/1_000.0)
                 else -> total.toString()
             }
@@ -844,7 +846,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val balance=(walletCoins().toLong()+game.coins).coerceIn(0L,100_000_000L).toInt()
         hudGlass(c,73f,22f,145f,75f)
         hudGoldCoin(c)
-        text(c,walletLabel(balance),114f,55f,15f,Color.WHITE)
+        val coinLabel=walletLabel(balance)
+        text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
         hudPilotPortrait(c)
 
         // Fixed screen-space slots, grounded in actual earned stars/boosts.
