@@ -88,11 +88,11 @@ final class GameCanvas: UIView {
     private let dark: [UInt32] = [0x096c46,0xbd7153,0x4282ad,0x912f35,0x9d8d80,0x241b60,0x247b9b,0x373192]
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0}) {
         // The complete pilot illustration must resolve using one validated index.
-        let selectedSkin=min(8,max(0,skinIndex))
+        let selectedSkin=0 // Bopi-only gameplay; legacy saved ownership is retained.
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.coinWallet=coinWallet
         self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
-        let artSize:CGFloat=selectedSkin>=6 ? 188 : 176
+        let artSize:CGFloat=124 // Video review: shrink art, never the real hitbox.
         self.birdArtSize=artSize
         let scale=artSize/100
         let premiumScale=artSize/160
@@ -798,7 +798,7 @@ final class GameCanvas: UIView {
         if game.magnetTime>0 {oval(c,92,CGFloat(game.y)-34,68,68,0x4fdfff,0.27)}
         if game.shield>0 {
             c.setStrokeColor(color(0x9fefff));c.setLineWidth(3)
-            let r:CGFloat=61+CGFloat(sin(game.time*5))*2
+            let r:CGFloat=48+CGFloat(sin(game.time*5))*2
             c.strokeEllipse(in:CGRect(x:126-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
         }
         c.saveGState();c.translateBy(x:126,y:CGFloat(game.y))
@@ -810,7 +810,7 @@ final class GameCanvas: UIView {
             c.saveGState()
             c.scaleBy(x:auraScale,y:auraScale)
             c.drawRadialGradient(aura,startCenter:.zero,startRadius:0,
-                                 endCenter:.zero,endRadius:74,options:[])
+                                 endCenter:.zero,endRadius:53,options:[])
             c.restoreGState()
         }
         let angle=CGFloat(min(48,max(-24,game.velocity*0.06))) * .pi / 180
