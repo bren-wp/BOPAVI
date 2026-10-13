@@ -590,6 +590,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.lineTo(left+4f,end-span*.05f)
         path.close()
         fill(stone);p.alpha=196;c.drawPath(path,p);p.alpha=255
+        // Three offset facets break the long monolithic column read. Their
+        // outlines are wholly inside the original solid collider.
+        for(facet in 0..2) {
+            val yy=start+span*(.16f+facet*.22f)
+            val tip=(yy+span*.12f).coerceAtMost(end-2f)
+            val xx=x+9f+((kotlin.math.abs(seed*7+facet*13)%11)).toFloat()
+            path.reset()
+            path.moveTo(xx,yy)
+            path.lineTo((xx+w*.30f).coerceAtMost(x+w-7f),yy+span*.035f)
+            path.lineTo((xx+w*.15f).coerceAtMost(x+w-9f),tip)
+            path.close()
+            fill(if(facet==1)0x990a203e.toInt() else 0x77edfaff)
+            c.drawPath(path,p)
+        }
     }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
@@ -598,9 +612,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val shade=if(g.kind==0)0xff6e5c63.toInt() else pillarDark[g.kind]
         val cap=if(g.kind==0)0xff55ce6c.toInt() else color
         val top=a.top;val bottom=a.bottom
-        drawCliffShaft(c,x,w,0f,top,shade,color,-(index+1+g.kind*7))
+        val cliffSeed=(g.phase*1024f).toInt()+index*31+g.kind*59+1
+        drawCliffShaft(c,x,w,0f,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
-        drawCliffShaft(c,x,w,bottom,755f,shade,color,index+1+g.kind*7)
+        drawCliffShaft(c,x,w,bottom,755f,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawRockFacets(c,x,w,2f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,751f)

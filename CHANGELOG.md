@@ -1,3 +1,9 @@
+## v0.1.73 — Individually seeded floating-island cliffs (build 76)
+- Gameplay rendering on Android and iOS now varies obstacle silhouettes using each gate's procedural phase as well as its world and position; adjacent pillars no longer repeat the same cliff-seed pattern every level.
+- Added three mineral planes inside each stone shaft, with consistent shading and deterministic layout across Android Canvas and iOS Core Graphics. No new sprite assets, network calls or runtime image decoding.
+- Collision geometry, bird size, difficulty-controlled speed, continuous level streaming, HUD safe-area placement and previously shipped progress remain unchanged.
+- Added targeted source regressions for the phase-seeded parity. The illustrated references remain the visual QA target, not a verified 1:1 match; other menus still require dedicated non-scrolling redesigns.
+
 ## v0.1.72 — Safe-area flight HUD, no-scroll home and biome obstacles (build 75)
 - Video-based visual review: inspected the original 84.64-second IMG_2899.mov clip from the supplied ZIP against the target home/gameplay/results screenshots. The recording showed a low-positioned flight HUD and repetitive flat columns.
 - Android and iOS: move gameplay wallet, race bar and power counters into a **physical top-safe-area overlay**, independent of the letterboxed 480×800 physics camera; shorten the progress bar so the native Pause button does not overlap it.

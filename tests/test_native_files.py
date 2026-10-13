@@ -2042,7 +2042,7 @@ print('PASS: cached biome gate palettes and iOS HUD orb layouts without changing
 for source in (android_game,ios_game):
     assert 'drawCliffShaft(' in source
     assert source.count('drawCliffShaft(')>=3
-    assert 'index+1+g.kind*7' in source
+    assert 'cliffSeed' in source and 'g.phase' in source
     assert '0.72' in source or '.72f' in source
 assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
@@ -2058,3 +2058,11 @@ assert 'body.scaleY=fit' in fit_screen and 'body.scaleX=fit' in fit_screen
 for source in (android_game,ios_game):
     assert 'nearMouth' in source and 'variation' in source or 'nearMouth' in source
 print('PASS: v0.1.72 physically top-anchored responsive compact HUD and varied cliff faces')
+
+# v0.1.73: each obstacle acquires a phase-specific shape instead of reusing
+# identical cliff seed patterns for the same slot in every level.
+for source in (android_render,ios_render):
+    assert 'cliffSeed' in source and 'g.phase' in source
+    assert 'facet' in source and 'nearMouth' in source
+    assert source.count('drawCliffShaft(')>=3
+print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms')
