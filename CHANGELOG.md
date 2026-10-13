@@ -1,7 +1,9 @@
 ## v0.1.67 — Unified tap flight, proportional pilots and varied procedural gates (build 70)
 - Restored **one touch = one wing flap** for all eight worlds, on Android and iOS. Removed drag steering, MOVE-event altitude control, legacy swipe prompts, mixed-mode UI badges and inconsistent accessibility instructions.
 - Reduced every in-flight character sprite by **20%** (220→176 or 235→188 logical art units) on both platforms and updated the body-only collision radius from **23→18**. Existing wing-rotation shoulder pivots, all nine character IDs, persisted progress and rewards remain intact.
-- Replaced the single 64-unit pillar width with nine deterministically generated widths from **48 to 88 logical units**. Preserved the level seed, distinctive first-ten-gate center signature, corridor opening minimum and continuous transition spacing.
+- Replaced the single 64-unit pillar width with nine deterministically generated widths from **48 to 88 logical units**. Preserved the level seed and first-ten-gate center signature, while shortening only the **last-to-first gate seam to 190–208 units** to remove an empty flight stretch.
+- Progress gauge now fills continuously using actual camera travel, independently of the completed-gate count, across Android and iOS. The viewport anticipates incoming level geometry before promotion, without fake metre readings.
+- Polished width-responsive material flecks inside collision-faithful obstacle caps and removed lingering swipe-control accessibility descriptions.
 - Added Kotlin/JVM, Swift, Python source-contract and cross-platform width-parity regressions. No accounts, trackers, advertisements or new device permissions.
 - Full 1:1 visual match still requires a fresh side-by-side evaluation of genuine Android/iOS screenshots against the supplied reference designs.
 
