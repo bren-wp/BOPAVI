@@ -1024,9 +1024,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
         ])
         let stack=UIStackView()
-        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=10
+        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=7
         stack.isLayoutMarginsRelativeArrangement=true
-        stack.layoutMargins=UIEdgeInsets(top:22,left:24,bottom:26,right:24)
+        stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:18,right:18)
         stack.translatesAutoresizingMaskIntoConstraints=false
         scroll.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -1045,7 +1045,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.layer.cornerRadius=22
         header.layer.borderWidth=2
         header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
-        header.heightAnchor.constraint(equalToConstant:192).isActive=true
+        header.heightAnchor.constraint(equalToConstant:144).isActive=true
         header.isAccessibilityElement=true
         header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
         stack.addArrangedSubview(header)
@@ -1077,7 +1077,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             pilot.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:6),
             pilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-6),
             pilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
-            pilot.heightAnchor.constraint(equalToConstant:186)
+            pilot.heightAnchor.constraint(equalToConstant:140)
         ])
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         if newRecord {
@@ -1110,7 +1110,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:0.97)
             card.layer.cornerRadius=19;card.layer.borderWidth=2
             card.layer.borderColor=UIColor(red:0.22,green:0.79,blue:1,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:139).isActive=true
+            card.heightAnchor.constraint(equalToConstant:116).isActive=true
             summary.addArrangedSubview(card)
             let iconView=label(icon,29,gold,card)
             iconView.heightAnchor.constraint(equalToConstant:37).isActive=true
@@ -1159,7 +1159,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.backgroundColor=UIColor(red:0.02,green:0.23,blue:0.46,alpha:1)
             card.layer.cornerRadius=15;card.layer.borderWidth=1
             card.layer.borderColor=UIColor(red:0.28,green:0.64,blue:0.90,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:114).isActive=true
+            card.heightAnchor.constraint(equalToConstant:99).isActive=true
             rewardPanel.addArrangedSubview(card)
             let picture=label(icon,25,gold,card)
             picture.heightAnchor.constraint(equalToConstant:35).isActive=true
