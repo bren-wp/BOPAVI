@@ -1,3 +1,10 @@
+## v0.1.81 — Responsive Home polish and device-evidence gates (build 84)
+- Restore Android Home safe-area padding across API 26–36, including older navigation-bar insets and camera cutouts. The illustrated world background remains edge-to-edge while real score, coin, play, worlds, settings and bottom navigation controls remain protected.
+- Reduce excess Home side padding and footer separation, and apply a consistent rounded bold caption style without changing game economy or navigation.
+- Fit the iOS Home stack to the actual safe-area viewport so the center artwork takes the flexible space and the interactive four-tab footer stays visible without scrolling. Add subtle cyan outlines to iOS footer tabs and rounded action typography.
+- Extend the real Android emulator smoke test: compare every clickable Home control with captured PNG dimensions, reject clipped/overlapping actions and validate minimum 40dp interactive bounds. Preserve existing functional navigation, saved scores, Bopi-only play, game simulation and progression.
+- Require full Android/iOS CI and authentic platform screenshots before merging or publishing. Exact fidelity with the 3D concept artwork remains **unverified** until separately approved visual assets and same-device screenshot comparisons exist. GitHub builds are not store signing or approval.
+
 ## v0.1.80 — Offline legal transparency and launch-ready public presentation (build 83)
 - Add two small independently tappable footer actions to the no-scroll Android/iOS Settings overview: **Politika privatnosti** and **Uvjeti korištenja**, plus a clear © Brendigo publisher line. The existing seven real controls and Advanced Settings remain functional; no account, login, web view, browser dependency or permission is added.
 - Show accurate, offline-native legal notices identifying Brendigo, entirely local game progress, user-initiated JSON exports, third-party document providers, local deletion and actual virtual-coin status. Add bilingual public Markdown and HTML Terms of Use alongside the existing bilingual Privacy Policy.
