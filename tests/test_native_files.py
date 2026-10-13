@@ -1130,7 +1130,10 @@ assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
 assert android_menu.count('applyPremiumSystemBars()')==5
 assert 'window.decorView.systemUiVisibility=0' not in android_menu
 assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==2
-assert 'root.setOnApplyWindowInsetsListener' not in android_menu
+# The splash MUST reserve the bottom inset for its loading bar; only Home
+# must avoid a second root-level inset listener around already-safe controls.
+assert 'root.setOnApplyWindowInsetsListener' not in android_home
+assert 'root.setOnApplyWindowInsetsListener' in android_menu.split('private fun showSplash()',1)[1].split('private fun showNativeView(',1)[0]
 assert 'setAutoSizeTextTypeUniformWithConfiguration(11,16,1' in android_menu
 assert 'setAutoSizeTextTypeUniformWithConfiguration(8,11,1' in android_home
 assert 'override var prefersStatusBarHidden:Bool { true }' in ios_menu
