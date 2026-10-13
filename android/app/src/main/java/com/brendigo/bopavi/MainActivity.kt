@@ -212,7 +212,7 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA"){
+        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA" || label=="SVJETOVI" || label=="LEVELI" || label=="POSTAVKE"){
             // Finite menus fit physical safe areas instead of hiding content
             // in a long scroller. Do not apply a double root inset.
             val fitted=FitViewportColumn(this)
@@ -1916,10 +1916,11 @@ class MainActivity : Activity() {
         showNativeView(root)
     }
 
-    private fun showSettingsDetails(){
+    private fun showSettingsDetails(page:Int=0){
+        val sectionPage=page.coerceIn(0,2)
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
-        // The reference's tall royal-blue sheet is a *real* scrolling layout,
-        // not a screenshot or image with fake slider/switch controls.
+        // Keep every genuine control and persistence callback, but divide the
+        // long settings panel into three small no-scroll sections.
         val settingsPanel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(13),d(12),d(13),d(18))
@@ -2070,7 +2071,43 @@ class MainActivity : Activity() {
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
-        back(b){showHome()}
+        // Four pre-existing sections: Audio, Pilot, More Options, Privacy.
+        // Display only the chosen section(s); rebuild on page changes so
+        // volume/difficulty/save values always come from persistent state.
+        val all=settingsPanel.children.toList()
+        var group=-1
+        val groups=mutableListOf<Int>()
+        for(view in all){
+            if(view.contentDescription?.toString() in listOf("IZGLED I ZVUK",
+                    "IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST")) group++
+            groups.add(group)
+        }
+        for((index,view) in all.withIndex()){
+            val visible=when(sectionPage){
+                0 -> groups[index]==0
+                1 -> groups[index]==1
+                else -> groups[index]>=2
+            }
+            if(!visible)settingsPanel.removeView(view)
+        }
+        val pager=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL}
+        if(sectionPage>0){
+            val previous=LinearLayout(this)
+            pager.addView(previous,LinearLayout.LayoutParams(0,-2,1f))
+            action(previous,"‹  PRETHODNA",false){showSettingsDetails(sectionPage-1)}
+        }
+        pager.addView(TextView(this).apply{
+            text="${sectionPage+1} / 3";setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER;textSize=15f;typeface=Typeface.DEFAULT_BOLD
+            contentDescription="Stranica ${sectionPage+1} od 3"
+        },LinearLayout.LayoutParams(0,d(56),1f))
+        if(sectionPage<2){
+            val next=LinearLayout(this)
+            pager.addView(next,LinearLayout.LayoutParams(0,-2,1f))
+            action(next,"SLJEDEĆA ›",false){showSettingsDetails(sectionPage+1)}
+        }
+        b.addView(pager,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(3)})
+        back(b){showSettings()}
     }
     @Deprecated("Document picker compatibility for existing Android installations")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
