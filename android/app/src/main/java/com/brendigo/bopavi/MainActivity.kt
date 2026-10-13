@@ -1889,7 +1889,7 @@ class MainActivity : Activity() {
         option("JEZIK",{"HRVATSKI"}){
             Toast.makeText(this,"Trenutačno je dostupan hrvatski jezik.",Toast.LENGTH_SHORT).show()
         }
-        option("PRIVATNOST",{"OTVORI"}){showSettingsDetails()}
+        option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}
         val advanced=TextView(this).apply{
             text="⚙  NAPREDNE POSTAVKE";textSize=16f
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
@@ -1904,6 +1904,39 @@ class MainActivity : Activity() {
         column.addView(advanced,LinearLayout.LayoutParams(-1,d(52)).apply{
             topMargin=d(5);bottomMargin=d(4)
         })
+
+        // Non-scrolling, tap-accessible legal footer. Notices are bundled
+        // offline and do not rely on a browser, network or unverified URL.
+        val legal=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER
+        }
+        for((caption,privacy) in listOf("POLITIKA PRIVATNOSTI" to true,
+                                       "UVJETI KORIŠTENJA" to false)){
+            val link=TextView(this).apply{
+                text=caption;textSize=10f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(0xffe5f8ff.toInt());gravity=Gravity.CENTER
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                background=gradient(0xe608397d.toInt(),0xeb031b40.toInt(),12).apply{
+                    setStroke(d(1),0xff48c7ff.toInt())
+                }
+                isClickable=true;isFocusable=true
+                contentDescription=caption
+                setOnClickListener{showLegalNotice(privacy)}
+            }
+            legal.addView(link,LinearLayout.LayoutParams(0,d(35),1f).apply{
+                leftMargin=d(3);rightMargin=d(3)
+            })
+        }
+        column.addView(legal,LinearLayout.LayoutParams(-1,d(35)).apply{
+            topMargin=d(3)
+        })
+        column.addView(TextView(this).apply{
+            text="© BRENDIGO  ·  BOPAVI";textSize=10f
+            setTextColor(0xffebfaff.toInt());gravity=Gravity.CENTER
+            typeface=Typeface.DEFAULT_BOLD
+        },LinearLayout.LayoutParams(-1,d(24)))
         root.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
                 val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -1914,6 +1947,35 @@ class MainActivity : Activity() {
             insets
         }
         showNativeView(root)
+    }
+
+
+    /** Short, accurate offline notices. Full legal documents are maintained
+     * in docs/play for the eventual publicly verified store-policy URL.
+     */
+    private fun showLegalNotice(privacy:Boolean){
+        val title=if(privacy)"POLITIKA PRIVATNOSTI" else "UVJETI KORIŠTENJA"
+        val message=if(privacy)
+            "BOPAVI izdaje Brendigo. Igra ne koristi račune, oglase, analitiku " +
+            "ni kupnje stvarnim novcem. Nadimak, rezultati, kovanice, " +
+            "napredak i postavke čuvaju se na ovom uređaju; ne šalju se " +
+            "na poslužitelje izdavača. Izvoz JSON kopije radi samo po " +
+            "tvojem odabiru lokacije, uključujući vanjske pružatelje. " +
+            "Za brisanje obriši podatke aplikacije ili je deinstaliraj; " +
+            "izvezene kopije brišu se zasebno. " +
+            "Pitanja: github.com/bren-wp/BOPAVI/issues."
+        else
+            "BOPAVI je igra izdavača Brendigo. Igraj odgovorno. " +
+            "Kovanice, zvjezdice i nagrade samo su elementi igre " +
+            "bez novčane vrijednosti; nema stvarnih plaćanja. " +
+            "Napredak ostaje na uređaju i dobrovoljno se može " +
+            "izvesti ili uvesti. Za mlađe igrače preporučuje " +
+            "se roditeljsko vodstvo. Za pitanja i podršku: " +
+            "github.com/bren-wp/BOPAVI/issues. " +
+            "Primjenjuju se obvezna potrošačka prava."
+        android.app.AlertDialog.Builder(this)
+            .setTitle(title).setMessage(message)
+            .setPositiveButton("ZATVORI",null).show()
     }
 
     private fun showSettingsDetails(){

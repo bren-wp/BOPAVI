@@ -1,3 +1,11 @@
+## v0.1.80 — Offline legal transparency and launch-ready public presentation (build 83)
+- Add two small independently tappable footer actions to the no-scroll Android/iOS Settings overview: **Politika privatnosti** and **Uvjeti korištenja**, plus a clear © Brendigo publisher line. The existing seven real controls and Advanced Settings remain functional; no account, login, web view, browser dependency or permission is added.
+- Show accurate, offline-native legal notices identifying Brendigo, entirely local game progress, user-initiated JSON exports, third-party document providers, local deletion and actual virtual-coin status. Add bilingual public Markdown and HTML Terms of Use alongside the existing bilingual Privacy Policy.
+- Extend real Android UI automation: on the running emulator press both legal footer controls, verify visible native notices and publisher, dismiss and return to the same no-scroll Settings overview.
+- Replace development-facing README material with a premium player-first product story and genuine v0.1.79-or-newer Android/iOS release screenshots, verified local-only features, eight worlds, Bopi as the sole playable pilot, navigation icons and clear policy links.
+- Refresh publication gates and the Android/iOS version to **0.1.80, build 83**. Preserve progression, physics, sound, accessibility, offline backup validation, signature-free public CI builds and code/asset privacy audits.
+- Store publication still requires private publisher signing, verifiable public HTTPS policy URL, provider dashboard declarations, genuine device checks and store approval. GitHub Release is not Play or App Store approval. Pixel-for-pixel 1:1 concept alignment on remaining menus remains a separate visual acceptance gate; gameplay has not been redesigned.
+
 ## v0.1.79 — Records navigation and save-backed achievement gallery (build 82)
 - Replace the lengthy, scroll-first Achievements listing with an accessible 2×4 native gallery on Android and iOS. All eight world tiles display actual recorded star totals, personal world scores and unlocked frontier values, not fabricated player XP or imagery.
 - Show compact offline-only lifetime counters (finished levels, victories and total flights) from the same validated save data as the Profile and Records screens.

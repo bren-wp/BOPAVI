@@ -1,120 +1,107 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" alt="BOPAVI — krilati plavo-zlatni logotip s krunom" width="520">
+<img src="docs/assets/logo.svg" alt="BOPAVI — blue-and-gold winged crown" width="520">
 
-<h3>MALI LETOVI • VELIKE PRIČE</h3>
+### MALI LETOVI • VELIKE PRIČE
 
-<p><strong>Soar above the clouds. Explore enchanted worlds. Make every flight an adventure.</strong></p>
+**One little pilot. Eight magical worlds. A sky full of adventures.**
 
-<img src="docs/assets/hero.svg" alt="Bopi među lebdećim otocima" width="850">
+<img src="docs/assets/hero.svg" alt="Bopi, the cheerful blue aviator, soars across magical floating islands" width="850">
 
-<p><a href="../../releases/latest"><strong>Download BOPAVI</strong></a> · <a href="#eight-worlds-to-explore">Explore the worlds</a> · <a href="#meet-the-pilots">Meet the pilots</a></p>
+[**Play BOPAVI**](https://github.com/bren-wp/BOPAVI/releases/latest) · [**Discover the worlds**](#eight-worlds-of-wonder) · [**Your flight journal**](#your-flight-your-story)
+
+**Android & iPhone · Play offline · No ads · No account needed**
 
 </div>
 
 ---
 
-## Every adventure begins with a wingbeat 🪽
+## Meet Bopi. Your adventure takes flight.
 
-Meet **Bopi**, a cheerful blue pilot with golden goggles, a brave heart, and wings that carry him across floating islands, enchanted castles, crystal skies, and waterfalls. All **eight BOPAVI worlds use the same tap-to-flap controls: one tap means one wingbeat**. Avoid obstacles, collect coins and stars, and find your own rhythm.
+Bopi is a fearless little blue bird with golden goggles, an explorer’s heart, and one big dream: to discover what lies beyond the clouds.
 
-**Eight fantasy worlds**, nine individually illustrated pilots, and over one million procedural challenges per world make for an adventure that keeps going. New stages appear without interrupting your flight.
+Guide Bopi across sparkling waterfalls, sky-high castles, glowing crystals, and mysterious floating islands. **Tap to flap**, collect rewards, glide through the gates, and chase your next personal best.
 
-<div align="center">
+Every flight is a new story. Every world has something wonderful to discover.
 
-<img src="docs/assets/icon.svg" width="100" alt="Službena BOPAVI ikona">
-
-<p><strong>Android · iPhone · No online account · No ads · No real-money purchases</strong></p>
-
-</div>
-
-## See the actual game
-
-These are **real screenshots of the running Android and iOS applications**, not concept mockups. The gallery updates with verified GitHub releases. Actual visuals have not yet been verified as a 1:1 match to the reference illustrations.
+## A glimpse of the adventure
 
 <div align="center">
 <table>
 <tr>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android početni zaslon BOPAVI igre" width="205"><br><b>Home screen</b></td>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Flight preview (Priprema za let)</b></td>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka leta sa zlatnim krunama, svjetlećim prolazima i aktivnim HUD-om" width="205"><br><b>Active flight</b></td>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni Android zaslon rezultata igre" width="205"><br><b>Results</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="BOPAVI Android home screen captured from the real game" width="205"><br><b>Your adventure begins</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Priprema za let — real Android pre-flight screen" width="205"><br><b>Priprema za let</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Real Android game flight with Bopi and interactive course" width="205"><br><b>Take to the skies</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Real BOPAVI Android results screen" width="205"><br><b>Celebrate every flight</b></td>
 </tr>
 </table>
 <table>
 <tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Worlds.png" alt="Stvarna Android galerija osam interaktivnih svjetova BOPAVI igre" width="240"><p><em>Eight Android worlds</em></p></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="Stvarni početni zaslon iOS simulatora BOPAVI igre" width="240"><p><em>iOS home screen</em></p></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Profile.png" alt="Stvarna snimka profila s vlastitim rezultatom, značkama i najboljim svjetovima na Android emulatoru" width="240"><p><em>Your flight journal</em></p></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Stvarne postavke igre na Android emulatoru s glasnoćom, odabranom težinom i lokalnim postavkama" width="240"><p><em>Customize your flight</em></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Worlds.png" alt="Eight worlds on a real Android game screen" width="220"><br><b>Choose your world</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Profile.png" alt="Bopi's real save-backed profile screen on Android" width="220"><br><b>Your flight journal</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Real Android game Settings screen" width="220"><br><b>Make it yours</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="BOPAVI home screen captured from the iPhone simulator" width="220"><br><b>Adventure on iPhone</b></td>
 </tr>
 </table>
-
 </div>
 
-## Eight worlds to explore
+<sub>Images above are captured from the running Android game and iOS simulator.</sub>
 
-| World | Adventure |
+## Eight worlds of wonder
+
+| World | Your next discovery |
 |:--|:--|
-| 🌿 **Zeleni otoci** | Verdant floating islands, castles, and waterfalls |
-| 💎 **Kristalno nebo** | Shimmering crystals and towering sky architecture |
-| 🌋 **Lava vrhovi** | Volcanoes, fire, and glowing hazards |
-| 🌙 **Noćni dvorci** | Moonlight, dark towers, and mysterious shadows |
-| 🐚 **Biserno more** | Turquoise depths, coral, and a pearlescent realm |
-| 🏛️ **Nebeske kule** | Ancient towers, high islands, and portals |
-| 🍄 **Čarobna šuma** | Enchanted trees, mushrooms, and fairy lights |
-| 🪐 **Zvjezdani bezdani** | Cosmic rocks, stars, and astral mysteries |
+| 🌿 **Zeleni otoci** | Sunlit gardens, floating castles, and cascading waterfalls |
+| 💎 **Kristalno nebo** | Dazzling crystals and luminous sky islands |
+| 🌋 **Lava vrhovi** | Fiery peaks and an unforgettable volcanic horizon |
+| 🌙 **Noćni dvorci** | Moonlit fortresses in a mysterious starry night |
+| 🐚 **Biserno more** | An underwater dream of turquoise light and hidden treasures |
+| 🏛️ **Nebeske kule** | Golden towers and ancient gateways above the clouds |
+| 🍄 **Čarobna šuma** | Enchanted woodlands alive with magical surprises |
+| 🪐 **Zvjezdani bezdani** | Cosmic wonders at the edge of the known sky |
 
-Unlock levels in order, collect stars, chase personal bests, and continue into fresh procedural stages. Progress is tracked independently for each world.
+Each world brings its own colors, atmosphere, and challenges. Earn stars, discover fresh stages, and keep flying toward the horizon.
 
-## Meet Bopi
+## Every wingbeat matters
 
-**Bopi is the sole playable pilot.** From the main menu or a selected world, begin the flight immediately — there is no character picker, account or premium-pilot sales screen. Previously purchased pilot ownership data is preserved in local saves for compatibility, but the running game always uses Bopi.
+- 🪽 **Fly with a tap.** Simple, responsive controls keep the adventure easy to pick up.
+- 👑 **Collect the magic.** Gather crowns, stars, and coins on your journey.
+- 🛡️ **Choose your moment.** Spend your earned coins on shields and magnets to help your next flight.
+- 🏆 **Chase your best.** Your personal records and world achievements tell the story of every adventure.
+- 🎚️ **Play your way.** Choose your difficulty and tailor sound, vibration, and motion.
+- 🔒 **Keep it yours.** Play without an account, with progress saved on your device and optional backup export.
 
-## Your flight, your rules
-
-**Every gate takes you closer to the finish.** Crown-shaped gold coins and a blue magic portal mark the course. Watch the progress gauge, collect stars and coins, and save shields and magnets for the moments you need them. On-screen progress and rewards come from actual gameplay state, not mock data.
-
-- **Control your flight:** one touch equals one wingbeat in all eight worlds; gravity naturally carries the pilot downward.
-- **Collect rewards:** coins, stars, and useful power-ups.
-- **Set the pace:** choose easy, normal, or hard difficulty.
-- **Pause anytime:** resume, retry, or return to the menu.
-- **Fly further:** continuous procedural levels transition without starting a new run.
-- **Set personal records:** your ten best recorded flights form your private leaderboard.
-
-## Your flight journal
-
-**Every flight counts.** Your profile shows Bopi, earned scores, coins, completed levels, and victories. Achievement badges explain their requirements, while your most-played worlds guide you toward new challenges. Star progress reflects real earned results, not fabricated experience points.
-
-Update your nickname, review earned achievements and inspect your records. **Moji rekordi** (My Records) displays only your own scores; changing a nickname never deletes past flights. There is no public leaderboard or mandatory registration.
-
-## Discover more
+## Your flight, your story
 
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="docs/assets/nav-profile.svg" width="60" alt="Profil"><br><b>Profile</b><br>Your progress</td>
-<td align="center"><img src="docs/assets/nav-tasks.svg" width="60" alt="Zadaci"><br><b>Tasks</b><br>New goals</td>
-<td align="center"><img src="docs/assets/nav-collection.svg" width="60" alt="Rekordi"><br><b>Records</b><br>Personal bests</td>
-<td align="center"><img src="docs/assets/nav-shop.svg" width="60" alt="Trgovina"><br><b>Shop</b><br>Virtual coins</td>
+<td align="center"><img src="docs/assets/nav-profile.svg" alt="Profile icon" width="64"><br><b>Profile</b><br>Follow Bopi's progress</td>
+<td align="center"><img src="docs/assets/nav-tasks.svg" alt="Achievement icon" width="64"><br><b>Achievements</b><br>Discover new goals</td>
+<td align="center"><img src="docs/assets/nav-collection.svg" alt="Records icon" width="64"><br><b>Records</b><br>Celebrate personal bests</td>
+<td align="center"><img src="docs/assets/nav-shop.svg" alt="Shop icon" width="64"><br><b>Shop</b><br>Use the coins you earn</td>
 </tr>
 </table>
 </div>
 
-## Download and play
+BOPAVI is designed around **Bopi as your playable pilot**. Your local flight journal keeps track of the stars, victories, best scores, and unlocked adventures that you have actually earned.
 
-The [latest verified release](../../releases/latest) includes an Android APK and AAB plus iOS simulator and device build archives. **The AAB and iOS device archive are not distribution-signed**; store submission requires publisher signing. The APK is provided for direct installation and testing.
-
-BOPAVI has no online leaderboard, user accounts, advertisements, or real-money purchases. Progress can be exported or imported on demand; it remains stored locally.
-
----
+## Your adventure starts here
 
 <div align="center">
 
-<img src="docs/assets/logo.svg" width="300" alt="BOPAVI">
+<img src="docs/assets/icon.svg" alt="Official BOPAVI app icon" width="110">
 
-<p><strong>MALI LETOVI • VELIKE PRIČE</strong></p>
-<p><em>Discover a new world with every wingbeat.</em></p>
-<p><strong>© Brendigo</strong></p>
+[**Get the latest BOPAVI release**](https://github.com/bren-wp/BOPAVI/releases/latest)
+
+**Offline adventures · Virtual in-game rewards · No real-money purchases**
+
+[Privacy Policy](docs/play/PRIVACY_POLICY.md) · [Terms of Use](docs/play/TERMS_OF_USE.md) · [Support](https://github.com/bren-wp/BOPAVI/issues)
+
+<img src="docs/assets/logo.svg" alt="BOPAVI" width="280">
+
+**MALI LETOVI • VELIKE PRIČE**
+
+**© Brendigo**
 
 </div>
