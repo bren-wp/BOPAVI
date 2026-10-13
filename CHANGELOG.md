@@ -1,3 +1,11 @@
+## v0.1.77 — Compact Shop and paged personal Records (build 80)
+- Android and iOS now present two side-by-side perk cards for Bopi's real Shield and Magnet equipment, each using the saved in-game coin price and owned quantity. Record-milestone bonus coins remain redeemable exactly once; there are no diamonds, ads, real-money purchases, user accounts or network dependencies.
+- Shop and Records avoid long scrolling menus. Android uses FitViewportColumn and safe-area insets; iOS disables scrolling and reduces unused menu spacing/heading size for these two destinations.
+- Local personal Records show the actual best score and rank-preserving pages of two real historical flights per view (up to ten saved flights). Next/Previous buttons do not discard records; an empty save displays an honest message.
+- Fix Back navigation: Records opened from Home return to Home; Records opened from Settings return to Settings. Preserve the source when browsing across pages.
+- Extend emulator QA to tap Shop and Records from Home, verify real equipment actions and offline scoreboard/empty states, capture real screenshots, and return successfully. Native dead-code, unused asset, audio parity, privacy and app-store-ready build audits remain in release gates.
+- Unchanged: physics, gameplay, save formats, simulated rewards, signature keys, account-free privacy, and existing profile. Reference-equivalent artwork is not yet verified as 1:1; the full visual redesign continues screen by screen.
+
 ## v0.1.76 — Non-scrolling Settings overview (build 79)
 - Android and iOS now open seven compact, native Settings controls following the original BOPAVI brandbook: Sound, Music, Vibration, Effects, Reduce Motion, Language and Privacy.
 - Keep the illustrated background, dark-blue panels and cyan outlines; preserve tappable controls, VoiceOver/TalkBack labels and actual persisted settings.

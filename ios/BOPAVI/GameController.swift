@@ -86,6 +86,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
     private var startupPending=false
+    private var currentMenuName="BOPAVI"
     private var gameWorld=0
     private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
@@ -220,6 +221,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     // Gameplay and persistence remain independent of these presentation views.
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
+        currentMenuName=title
         if title != "BOPAVI" {
             let world=gameWorld >= 0 && gameWorld < 8 ? gameWorld : 0
             let backdrop=UIImageView(image:UIImage(named:"World\(world)"))
@@ -251,6 +253,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // bottom navigation. Keep scrolling for information-dense submenus.
         scroll.alwaysBounceVertical=title != "BOPAVI"
         scroll.isScrollEnabled=title != "BOPAVI"
+        if title == "TRGOVINA" || title == "MOJI REKORDI" {
+            scroll.isScrollEnabled=false
+            scroll.alwaysBounceVertical=false
+        }
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -261,10 +267,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        stack.spacing=title == "BOPAVI" ? 7 : 12
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI"
+        stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
             UIEdgeInsets(top:12,left:18,bottom:12,right:18) :
+            compact ? UIEdgeInsets(top:7,left:12,bottom:8,right:12) :
             UIEdgeInsets(top:18,left:18,bottom:28,right:18)
         stack.isLayoutMarginsRelativeArrangement=true
         scroll.addSubview(stack)
@@ -278,7 +286,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let logo=UIImageView(image:UIImage(named:"Logo"))
             logo.contentMode = .scaleAspectFit
             logo.accessibilityElementsHidden=true
-            logo.heightAnchor.constraint(equalToConstant:94).isActive=true
+            logo.heightAnchor.constraint(equalToConstant:compact ? 68 : 94).isActive=true
             if title == "POSTAVKE" {
                 // Same selected-pilot header arrangement as Android, drawn from
                 // shipped standalone portrait art rather than a reference PNG.
@@ -302,7 +310,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             headline.layer.borderWidth=2
             headline.layer.borderColor=UIColor(red:0.28,green:0.83,blue:1,alpha:1).cgColor
             headline.clipsToBounds=true
-            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:58).isActive=true
+            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:compact ? 49 : 58).isActive=true
             if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.79,green:0.93,blue:1,alpha:1),stack)}
         }
         return stack
@@ -1327,42 +1335,56 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showPerks(){showPerks(.settings)}
     private func showPerks(_ origin:MenuOrigin){
-        let s=menu("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
-        label("●  \(progress.coins()) KOVANICA",24,UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
-        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",15,.white,s)
+        let s=menu("TRGOVINA","")
+        label("♛  \(progress.coins()) KOVANICA",24,
+              UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
+        label("Za kovanice osvojene igrom — bez stvarnog novca.",14,.white,s)
         let bonus=progress.bonusCoinsAvailable()
         if bonus>0 {
             button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
-                let earned=self.progress.claimBonusCoins()
-                if earned>0 {self.sound.effect("purchase");self.showPerks(origin)}
+                if self.progress.claimBonusCoins()>0 {
+                    self.sound.effect("purchase");self.showPerks(origin)
+                }
             }
         }
-
-        label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
+        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",13,.white,s)
         sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
+        let cardRow=UIStackView()
+        cardRow.axis = .horizontal
+        cardRow.alignment = .fill
+        cardRow.distribution = .fillEqually
+        cardRow.spacing=7
         for n in 0..<2 {
             let name=n==0 ? "ŠTIT" : "MAGNET"
-            let extra=n==0 ? "Upija jedan stvarni sudar." : "Privlači predmete tijekom 8 sekundi."
+            let extra=n==0 ? "Upija jedan stvarni sudar." :
+                             "Privlači predmete tijekom 8 sekundi."
             let card=UIStackView()
-            card.axis = .vertical;card.alignment = .fill;card.spacing=5
+            card.axis = .vertical;card.alignment = .fill
+            card.spacing=4
             card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:10,right:14)
+            card.layoutMargins=UIEdgeInsets(top:9,left:6,bottom:9,right:6)
             card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
-            card.layer.cornerRadius=20;card.layer.borderWidth=2
+            card.layer.cornerRadius=19;card.layer.borderWidth=2
             card.layer.borderColor=(n==0 ?
                 UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
                 UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
-            label("\(n==0 ? "🛡" : "🧲")  \(name)  ·  \(progress.perkPrices[n]) ♛",
-                  19,UIColor(red:1,green:0.87,blue:0.50,alpha:1),card)
-            label("\(extra)  U torbi: \(progress.perkCount(n))",14,.white,card)
-            button("KUPI \(name) · \(progress.perkPrices[n]) KOVANICA",in:card,primary:false){
-                if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks(origin)}
-                else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
+            label(n==0 ? "🛡" : "🧲",36,.white,card)
+            label(name,19,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
+            label("\(progress.perkPrices[n]) ♛ · U torbi: \(progress.perkCount(n))",
+                  12,.white,card)
+            label(extra,12,UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
+            button("KUPI \(name)",in:card,primary:false){
+                if self.progress.buyPerk(n){
+                    self.sound.effect("purchase");self.showPerks(origin)
+                } else {
+                    self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
+                }
             }
-            s.addArrangedSubview(card)
+            cardRow.addArrangedSubview(card)
         }
-        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
-        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",14,.white,s)
+        s.addArrangedSubview(cardRow)
+        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",13,.white,s)
+        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",13,.white,s)
         button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
             if origin == .home {self.showHome()} else {self.showSettings()}
         }
@@ -1636,35 +1658,43 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
 
     private func showLeaderboard(){
+        showLeaderboardPage(0,fromSettings:currentMenuName=="POSTAVKE")
+    }
+    private func showLeaderboardPage(_ page:Int,fromSettings:Bool){
         let stack=menu("MOJI REKORDI","Tvojih deset najboljih letova")
         let entries=progress.leaderboard()
         if let best=entries.first {
             let banner=UIStackView()
-            banner.axis = .vertical;banner.alignment = .fill;banner.spacing=3
+            banner.axis = .vertical;banner.alignment = .fill;banner.spacing=2
             banner.isLayoutMarginsRelativeArrangement=true
-            banner.layoutMargins=UIEdgeInsets(top:15,left:13,bottom:17,right:13)
+            banner.layoutMargins=UIEdgeInsets(top:9,left:10,bottom:9,right:10)
             banner.backgroundColor=UIColor(red:0.025,green:0.29,blue:0.64,alpha:0.98)
-            banner.layer.cornerRadius=23
-            banner.layer.borderWidth=3
+            banner.layer.cornerRadius=21
+            banner.layer.borderWidth=2
             banner.layer.borderColor=UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
             banner.isAccessibilityElement=true
             banner.accessibilityLabel="Osobni rekord: \(best.score) bodova"
-            label("♛  OSOBNI REKORD",18,UIColor(red:1,green:0.79,blue:0.32,alpha:1),banner)
-            let score=label("\(best.score) BODOVA",29,.white,banner)
-            score.font=UIFont.monospacedDigitSystemFont(ofSize:29,weight:.heavy)
+            label("♛  OSOBNI REKORD",17,
+                  UIColor(red:1,green:0.79,blue:0.32,alpha:1),banner)
+            let score=label("\(best.score) BODOVA",26,.white,banner)
+            score.font=UIFont.monospacedDigitSystemFont(ofSize:26,weight:.heavy)
             stack.addArrangedSubview(banner)
         } else {
             label("Prvi rekord čeka tvoj sljedeći let!",17,.white,stack)
         }
-        for (index,item) in entries.enumerated() {
+        let perPage=2
+        let totalPages=max(1,(entries.count+perPage-1)/perPage)
+        let current=max(0,min(page,totalPages-1))
+        for (index,item) in entries.enumerated().dropFirst(current*perPage).prefix(perPage) {
             let champion=index==0
             let card=UIStackView()
-            card.axis = .horizontal;card.alignment = .center;card.spacing=9
+            card.axis = .horizontal;card.alignment = .center;card.spacing=7
             card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:12,left:12,bottom:12,right:12)
+            card.layoutMargins=UIEdgeInsets(top:8,left:10,bottom:8,right:10)
             card.backgroundColor=UIColor(red:0.025,green:champion ? 0.29 : 0.16,
                                          blue:champion ? 0.55 : 0.37,alpha:1)
-            card.layer.cornerRadius=18;card.layer.borderWidth=champion ? 2 : 1
+            card.layer.cornerRadius=18
+            card.layer.borderWidth=champion ? 2 : 1
             card.layer.borderColor=champion
                 ? UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
                 : UIColor(red:0.10,green:0.78,blue:1,alpha:1).cgColor
@@ -1672,29 +1702,49 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.accessibilityLabel="Let \(index+1), \(item.score) bodova, \(BopaviCore.names[item.world]), \(item.gates) prolaza"
             let medal=UILabel()
             medal.text=champion ? "♛" : String(index+1)
-            medal.textAlignment = .center;medal.font=UIFont.systemFont(ofSize:champion ? 29:22,weight:.heavy)
-            medal.textColor=champion ? UIColor(red:1,green:0.77,blue:0.30,alpha:1) : .white
-            medal.widthAnchor.constraint(equalToConstant:49).isActive=true
-            medal.heightAnchor.constraint(equalToConstant:50).isActive=true
+            medal.font=UIFont.systemFont(ofSize:champion ? 25:21,weight:.heavy)
+            medal.textAlignment = .center
+            medal.textColor=champion ?
+                UIColor(red:1,green:0.77,blue:0.30,alpha:1) : .white
+            medal.widthAnchor.constraint(equalToConstant:40).isActive=true
             card.addArrangedSubview(medal)
-            let detail=UIStackView()
-            detail.axis = .vertical;detail.alignment = .fill;detail.spacing=2
-            let main=label("\(item.score) BODOVA",20,.white,detail)
-            main.font=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
-            main.adjustsFontSizeToFitWidth=true;main.minimumScaleFactor=0.72
-            let location=label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty])",12,
-                               UIColor(red:0.83,green:0.94,blue:1,alpha:1),detail)
+            let info=UIStackView()
+            info.axis = .vertical;info.alignment = .fill;info.spacing=2
+            let score=label("\(item.score) BODOVA",18,.white,info)
+            score.font=UIFont.monospacedDigitSystemFont(ofSize:18,weight:.heavy)
+            score.adjustsFontSizeToFitWidth=true;score.minimumScaleFactor=0.7
+            let location=label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty])",
+                               11,UIColor(red:0.83,green:0.94,blue:1,alpha:1),info)
             location.adjustsFontSizeToFitWidth=true;location.minimumScaleFactor=0.7
-            card.addArrangedSubview(detail)
+            card.addArrangedSubview(info)
             let gates=UILabel()
-            gates.text="⚑ \(item.gates)";gates.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
-            gates.font=UIFont.monospacedDigitSystemFont(ofSize:13,weight:.heavy)
+            gates.text="⚑ \(item.gates)"
+            gates.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
+            gates.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
             gates.setContentCompressionResistancePriority(.required,for:.horizontal)
             card.addArrangedSubview(gates)
             stack.addArrangedSubview(card)
         }
+        if totalPages>1 {
+            let nav=UIStackView()
+            nav.axis = .horizontal;nav.distribution = .fillEqually
+            nav.spacing=5
+            button("‹ PRETHODNI",in:nav,primary:false){
+                if current>0 {self.showLeaderboardPage(current-1,fromSettings:fromSettings)}
+            }
+            let indicator=label("\(current+1)/\(totalPages)",13,.white,nav)
+            indicator.backgroundColor=UIColor(red:0.02,green:0.16,blue:0.35,alpha:1)
+            indicator.layer.cornerRadius=16
+            indicator.clipsToBounds=true
+            button("SLJEDEĆI ›",in:nav,primary:false){
+                if current<totalPages-1 {self.showLeaderboardPage(current+1,fromSettings:fromSettings)}
+            }
+            stack.addArrangedSubview(nav)
+        }
         button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements()}
-        button("‹  POSTAVKE",in:stack,primary:false){self.showSettings()}
+        button(fromSettings ? "‹  POSTAVKE" : "‹  POČETNA",in:stack,primary:false){
+            if fromSettings {self.showSettings()} else {self.showHome()}
+        }
     }
     private func showAchievements(){showAchievements(.settings)}
     private func showAchievements(_ origin:MenuOrigin){
@@ -1755,6 +1805,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// Advanced Settings retains all original preferences and backup actions.
     private func showSettings(){
         clear()
+        currentMenuName="POSTAVKE"
         let art=UIImageView(image:UIImage(named:"World0"))
         art.contentMode = .scaleAspectFill
         art.clipsToBounds=true

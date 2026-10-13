@@ -1,3 +1,11 @@
+## v0.1.77 — Shop, Records and native performance acceptance
+1. From Home open Shop. Two side-by-side Shield/Magnet cards must fit without scroll on a compact and notched Android/iPhone display; display actual perkPrices and perkCount, local wallet, and fail closed on insufficient coins or full inventory.
+2. Verify score-to-coin claim button only appears when a new 1,000-point personal best threshold has actually been reached. Never credit a second claim for the same milestone.
+3. From Home open Records: genuine saved top-ten leaderboard, best score, absolute ranks and honest empty state. Navigate all two-record pages, confirm first/last-page bounds, and ensure data is unchanged.
+4. Android predictive/legacy Back and iOS Back must lead to Home for a Home-originating visit and Settings for a Settings-originating visit; no pop into gameplay or reset.
+5. Read captured qa/screenshots/android-shop.png and android-records.png and compare their UI bounds against approved reference style. Do not claim pixel-identical 1:1 until verified on Android and iOS screen sizes.
+6. Require static dead-code/resource/audio integrity audit, source tests, Android lint/JVM/APK/AAB, Android 35/36 navigation/emulator QA, iOS simulator launch/physics/save tests, unsigned iOS device build and release SHA-256 asset manifest. Signing is a subsequent user-controlled publisher step.
+
 ## v0.1.76 — Seven-row Settings acceptance
 1. Open Settings from Home on small and tall Android devices, API36 and notched iPhones: seven rows must fit without scrolling and without clipping. Verify the back arrow returns to Home.
 2. Toggle Sound, Vibration and Reduce Motion; close and reopen the app and verify values persist. Music and Effects must show actual volumes and access real sliders, not false ON/OFF labels.

@@ -1129,7 +1129,12 @@ assert 'View.SYSTEM_UI_FLAG_FULLSCREEN' in android_chrome
 assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
 assert android_menu.count('applyPremiumSystemBars()')==6
 assert 'window.decorView.systemUiVisibility=0' not in android_menu
-assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==2
+# Both branches of the shared menu must independently honor OS safe areas,
+# irrespective of line-wrapping or source formatting of the flags.
+base_view=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
+assert 'fitted.setOnApplyWindowInsetsListener' in base_view
+assert 'scroll.setOnApplyWindowInsetsListener' in base_view
+assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=2
 # The splash MUST reserve the bottom inset for its loading bar; only Home
 # must avoid a second root-level inset listener around already-safe controls.
 assert 'root.setOnApplyWindowInsetsListener' not in android_home
@@ -1243,7 +1248,7 @@ for home in (android_home,ios_home):
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
 assert 'val avatar=ImageView(this)' in android_home
-assert 'R.drawable.bopiportrait0' in android_home
+assert 'portraitDrawableIds[0]' in android_home
 assert 'showProfile()' in android_home
 assert 'showAchievements(MenuOrigin.HOME)' in android_home
 assert 'showPerks(MenuOrigin.HOME)' in android_home
@@ -1687,7 +1692,7 @@ assert 'BopaviSettingsPanel: UIStackView' in ios_menu
 assert 'let settingsPanel=BopaviSettingsPanel()' in settings_ios
 assert 'layer.borderWidth=2' in ios_menu
 assert 'if(label=="POSTAVKE")' in base_android
-assert 'portraits[0]' in base_android
+assert 'portraitDrawableIds[0]' in base_android
 assert 'if title == "POSTAVKE"' in menu_ios
 assert 'UIImage(named:"BopiPortrait0")' in menu_ios
 for label in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST"):
@@ -2143,3 +2148,46 @@ assert 'private func showSettingsDetails(){' in ios_menu
 assert 'progress.setDifficulty(mode)' in android_settings
 assert 'self.progress.difficulty=mode' in ios_settings
 print('PASS: v0.1.76 seven-row no-scroll settings, saved preferences and advanced controls')
+
+# v0.1.77: real two-column shop with device-sized safe-area fitting; never
+# show a static shop screenshot or fabricated diamond/real-money checkout.
+for code in (android_shop,ios_shop):
+    assert 'cardRow' in code and 'KUPI ' in code
+    assert 'buyPerk(n)' in code and 'perkCount(n)' in code
+    assert 'perkPrices[n]' in code
+    assert 'bonusCoinsAvailable()' in code and 'claimBonusCoins()' in code
+    assert 'StoreKit' not in code and 'BillingClient' not in code
+assert 'LinearLayout.LayoutParams(0,-2,1f)' in android_shop
+assert 'cardRow.distribution = .fillEqually' in ios_shop
+assert 'label=="TRGOVINA" || label=="MOJI REKORDI"' in android_menu
+assert 'val fitted=FitViewportColumn(this)' in android_menu
+assert 'scroll.isScrollEnabled=false' in ios_menu
+assert 'title == "TRGOVINA" || title == "MOJI REKORDI"' in ios_menu
+
+# Pages must retain all ten historical records and absolute ranks, without
+# stuffing ten tall cards into a tiny non-scrolling phone viewport.
+for menu_source in (android_menu,ios_menu):
+    assert 'private ' in menu_source and 'showLeaderboardPage' in menu_source
+    assert 'perPage=2' in menu_source
+    assert 'current*perPage' in menu_source
+    assert 'MOJI REKORDI' in menu_source and 'OSOBNI REKORD' in menu_source
+    assert 'PRETHODNI' in menu_source and 'SLJEDEĆI' in menu_source
+    assert 'fromSettings' in menu_source
+    assert 'showHome()' in menu_source and 'showSettings()' in menu_source
+assert 'showLeaderboardPage(next,fromSettings)' in android_menu
+assert 'showLeaderboardPage(current+1,fromSettings:fromSettings)' in ios_menu
+emulator=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'verify_shop_records_tabs' in emulator
+assert 'android-shop.png' in emulator and 'android-records.png' in emulator
+assert 'KUPI MAGNET' in emulator and 'KUPI ŠTIT' in emulator
+assert 'Back did not restore Home' in emulator
+print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
+
+# v0.1.77: one reusable Android pilot sprite table, not four identical
+# allocations on every navigation transition. Legacy art names stay linked.
+assert android_menu.count('val portraits=intArrayOf(')==0
+assert android_menu.count('private val portraitDrawableIds=intArrayOf(')==1
+assert android_menu.count('portraitDrawableIds[')>=4
+for i in range(9):
+    assert 'R.drawable.bopiportrait'+str(i) in android_menu
+print('PASS: reused Android portrait catalog with no redundant allocation')

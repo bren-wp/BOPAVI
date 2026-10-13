@@ -39,6 +39,13 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
+    // One shared drawable lookup table for legacy pilot-save art. Bopi is
+    // the only active pilot; avoid allocating the same nine-entry array in
+    // Home, pause, Settings and Profile on every screen transition.
+    private val portraitDrawableIds=intArrayOf(
+        R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
+        R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+        R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -204,17 +211,34 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(18),d(18),d(18),d(28))
         }
-        val scroll=ScrollView(this).apply{
-            isFillViewport=true;isVerticalScrollBarEnabled=false
-            clipToPadding=false
-            addView(body)
-        }
-        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
-        if(Build.VERSION.SDK_INT>=35){
-            scroll.setOnApplyWindowInsetsListener{v,insets->
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
-                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+        if(label=="TRGOVINA" || label=="MOJI REKORDI"){
+            // Finite menus fit physical safe areas instead of hiding content
+            // in a long scroller. Do not apply a double root inset.
+            val fitted=FitViewportColumn(this)
+            fitted.addView(body)
+            root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
+            fitted.setOnApplyWindowInsetsListener{v,insets->
+                if(Build.VERSION.SDK_INT>=30){
+                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                }
                 insets
+            }
+        } else {
+            val scroll=ScrollView(this).apply{
+                isFillViewport=true;isVerticalScrollBarEnabled=false
+                clipToPadding=false
+                addView(body)
+            }
+            root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+            if(Build.VERSION.SDK_INT>=35){
+                scroll.setOnApplyWindowInsetsListener{v,insets->
+                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+                    insets
+                }
             }
         }
         showNativeView(root)
@@ -230,12 +254,10 @@ class MainActivity : Activity() {
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(0,d(110),1f))
-            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-                R.drawable.bopiportrait8)
+
+
             hero.addView(ImageView(this).apply {
-                setImageResource(portraits[0])
+                setImageResource(portraitDrawableIds[0])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(117),d(117)))
@@ -459,11 +481,9 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER_VERTICAL
         }
         val avatar=ImageView(this).apply{
-            val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-                R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-                R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-                R.drawable.bopiportrait8)
-            setImageResource(portraits[0])
+
+
+            setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
@@ -741,11 +761,10 @@ class MainActivity : Activity() {
                 setStroke(d(3),electric)
             }
         }
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,
-            R.drawable.bopiportrait7,R.drawable.bopiportrait8)
+
+
         content.addView(ImageView(this).apply{
-            setImageResource(portraits[0])
+            setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
@@ -1218,8 +1237,9 @@ class MainActivity : Activity() {
     }
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
     private fun showPerks(origin:MenuOrigin){
-        val b=base("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
-        title(b,"●  ${progress.coins()} KOVANICA",24,gold)
+        val b=base("TRGOVINA","")
+        title(b,"♛  ${progress.coins()} KOVANICA",24,gold)
+        small(b,"Za kovanice osvojene igrom — bez stvarnog novca.")
         small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
@@ -1229,45 +1249,59 @@ class MainActivity : Activity() {
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         sectionHeading(b,"OPREMA ZA BOPIJEV LET")
+        // Two compact, symmetrical native cards on one screen.
+        val cardRow=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+        }
         for(n in 0..1){
             val name=if(n==0)"ŠTIT" else "MAGNET"
             val explanation=if(n==0)"Upija jedan stvarni sudar." else "Privlači predmete tijekom 8 sekundi."
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL
-                setPadding(d(14),d(12),d(14),d(10))
+                gravity=Gravity.CENTER_HORIZONTAL
+                setPadding(d(8),d(10),d(8),d(9))
                 background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),20).apply{
                     setStroke(d(2),if(n==0)0xffffd56a.toInt() else electric)
                 }
             }
             card.addView(TextView(this).apply{
-                text=(if(n==0)"🛡" else "🧲")+"  $name   ·   ${progress.perkPrices[n]} ♛"
+                text=if(n==0)"🛡" else "🧲"
+                gravity=Gravity.CENTER;textSize=34f
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(57)))
+            card.addView(TextView(this).apply{
+                text=name;gravity=Gravity.CENTER
                 textSize=19f;typeface=Typeface.DEFAULT_BOLD
                 setTextColor(if(n==0)gold else 0xffbcefff.toInt())
                 contentDescription="$name, cijena ${progress.perkPrices[n]} kovanica"
-            })
+            },LinearLayout.LayoutParams(-1,d(31)))
             card.addView(TextView(this).apply{
-                text="$explanation  U torbi: ${progress.perkCount(n)}"
-                textSize=14f;setTextColor(Color.WHITE)
-                setPadding(0,d(5),0,d(4))
+                text="$explanation\nU torbi: ${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
+                textSize=12f;setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER;maxLines=3
+                setPadding(0,d(4),0,d(4))
             })
-            action(card,"KUPI $name · ${progress.perkPrices[n]} KOVANICA",false){
+            action(card,"KUPI $name",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
-            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(10)})
+            cardRow.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
+                setMargins(d(3),d(3),d(3),d(3))
+            })
         }
+        b.addView(cardRow,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(6)})
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
         small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
+        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         val skin=0
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-            R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-            R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-            R.drawable.bopiportrait8)
+
+
         val hero=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
             setPadding(d(8),d(11),d(8),d(11))
@@ -1283,7 +1317,7 @@ class MainActivity : Activity() {
             }
         }
         portraitBox.addView(ImageView(this).apply{
-            setImageResource(portraits[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
+            setImageResource(portraitDrawableIds[skin]);scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(151)))
         portraitBox.addView(TextView(this).apply{
@@ -1513,6 +1547,9 @@ class MainActivity : Activity() {
     }
 
     private fun showLeaderboard(){
+        showLeaderboardPage(0,selectedScreen=="POSTAVKE" || selectedScreen=="settings")
+    }
+    private fun showLeaderboardPage(page:Int,fromSettings:Boolean){
         val b=base("MOJI REKORDI","Tvojih deset najboljih letova")
         val entries=progress.leaderboard()
         val best=entries.firstOrNull()
@@ -1531,7 +1568,10 @@ class MainActivity : Activity() {
                 topMargin=d(12);bottomMargin=d(9)
             })
         } else small(b,"Prvi rekord čeka tvoj sljedeći let!")
-        for((index,item) in entries.withIndex()) {
+        val perPage=2
+        val pageCount=maxOf(1,(entries.size+perPage-1)/perPage)
+        val current=page.coerceIn(0,pageCount-1)
+        for((index,item) in entries.withIndex().drop(current*perPage).take(perPage)) {
             val highlighted=index==0
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
@@ -1570,10 +1610,31 @@ class MainActivity : Activity() {
                 textSize=13f;setTextColor(gold);typeface=Typeface.DEFAULT_BOLD
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-2,-2).apply{leftMargin=d(8)})
-            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(8)})
+            b.addView(card,LinearLayout.LayoutParams(-1,d(75)).apply{bottomMargin=d(7)})
         }
+        if(pageCount>1){
+            val nav=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            fun pageButton(label:String,enabled:Boolean,next:Int){
+                val item=Button(this).apply{
+                    text=label;isAllCaps=false;textSize=12f
+                    setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+                    background=gradient(if(enabled)0xff117bcf.toInt() else 0xff29456b.toInt(),
+                        0xff05264e.toInt(),16).apply{setStroke(d(1),electric)}
+                    isEnabled=enabled
+                    setOnClickListener{showLeaderboardPage(next,fromSettings)}
+                }
+                nav.addView(item,LinearLayout.LayoutParams(0,d(49),1f).apply{
+                    leftMargin=d(2);rightMargin=d(2)
+                })
+            }
+            pageButton("‹ PRETHODNI",current>0,current-1)
+            pageButton((current+1).toString()+"/"+pageCount.toString(),false,current)
+            pageButton("SLJEDEĆI ›",current<pageCount-1,current+1)
+            b.addView(nav,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(5)})
+        }
+        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(b,"★  MOJA POSTIGNUĆA",false){showAchievements()}
-        back(b){showSettings()}
+        back(b){if(fromSettings)showSettings() else showHome()}
     }
     private fun showAchievements(){showAchievements(MenuOrigin.SETTINGS)}
     private fun showAchievements(origin:MenuOrigin){
