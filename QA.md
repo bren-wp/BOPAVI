@@ -1,3 +1,12 @@
+## v0.1.70 — video-based UI and gameplay review
+1. Using the supplied 84.64-second real-device reference video, verify tapping Play opens Bopi's idle GameView without any nine-character picker or character purchase opportunity; selecting a world or retrying does the same.
+2. Compare actual active-flight screenshots at identical screen aspect ratio: Bopi's rendered art is 124 logical units on both platforms, with unchanged 18-unit physics radius and properly attached left/right wing sprites. Confirm no rendering crop, halo disproportion or unsafe collision.
+3. Flight speed must be visibly different for Easy / Normal / Hard (0.80 / 1.00 / 1.24 speed factors) without level gaps, negative progress or loss of saved stars. Test a real run at each setting.
+4. Check biome cliff cap treatments in all eight worlds, during moving gates and endless world seam promotion. Decorative facets must remain inside true cap collision geometry; no ghost hits from highlighted crystals or grass.
+5. Verify both equipment cards display saved wallet, accurate 80-coin shield and 65-coin magnet pricing, legitimate inventory stock and immediate purchase feedback. Existing bonus claims cannot mint currency twice.
+6. Verify the result page fits score cards and reward row without overflowing tiny displays; Retry, Home, Leaderboard, Share and Worlds must remain accessible and functional. Profile, Settings and all footer buttons must remain functional despite removing the skin collection.
+7. Run Android JVM/lint, Kotlin and Swift parity, simulator/device builds, Android 15/16 emulator navigation/screenshot smoke and release artifact checksum verification. A manually verified 1:1 pixel-perfect result is not yet claimed.
+
 ## v0.1.69 — seamless in-gauge level feedback and currency clarity
 1. On Android and iOS start every world and cross several contiguous levels. The new-level title briefly appears inside the **existing** progress badge, without suspending movement, covering the pilot or leaving a blank corridor. Check the next gates are already visible before promotion and that the collision opening retains the same world position.
 2. Confirm the 0.85 s indicator decays during normal flight, does not flash during the initial idle preview, respects pause (no simulation time advance while paused), does not remain stuck after resuming, and never appears over the native pause control.
