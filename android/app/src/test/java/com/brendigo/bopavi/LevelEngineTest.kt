@@ -37,6 +37,25 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun seamlessLevelJunctionNeverCreatesAnEmptyVisibleCourse() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            for (number in listOf(1,2,62,122,182,242,302,360,1048576)) {
+                val level=LevelEngine.create(world,number)
+                val game=GameSimulation(level,endless=true)
+                val last=level.gates.last()
+                val interval=last.x-level.gates[level.gates.lastIndex-1].x
+                val seam=(interval-32f).coerceIn(190f,208f)
+                val firstNext=game.upcomingGateX(game.upcomingGates().first())
+                assertEquals(seam,firstNext-game.gateX(last),.01f)
+                assertTrue(seam+340f<=550f) // Incoming visible before outgoing leaves.
+                assertEquals(0f,game.levelProgress,0f)
+                game.flap()
+                game.step(.05f)
+                assertTrue("world $world level $number",game.levelProgress in 0.0001f..0.9999f)
+            }
+        }
+    }
+
     @Test fun eachTapRetriggersCosmeticWingbeatWithoutChangingPhysics() {
         val flight=GameSimulation(LevelEngine.create(0,2))
         assertEquals(0f,flight.flapPulse,0f)
