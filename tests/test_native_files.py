@@ -2133,7 +2133,7 @@ assert 'portraitSprites[selectedSkin]' in android_game
 assert 'BopiPortrait\\(selectedSkin)' in ios_game
 assert 'walletCoins={progress.coins()}' in android_menu
 assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
-assert 'private val hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
+assert 'private let hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
 assert 'coinWallet()+game.coins' in ios_game
 assert 'walletCoins().toLong()+game.coins' in android_game
 # The real pause remains an accessible native button outside the drawn HUD.
