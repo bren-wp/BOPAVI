@@ -642,8 +642,8 @@ logo_markup=(root/'docs/assets/logo.svg').read_text()
 assert 'MALI LETOVI' in logo_markup and 'VELIKE PRIČE' in logo_markup
 assert 'id="wings"' in logo_markup and 'id="letters"' in logo_markup
 print('PASS: branded blue/gold parity, illustrated menus and functioning home navigation')
-android_settings=android_menu.split("private fun showSettings()",1)[1].split("override fun onActivityResult",1)[0]
-ios_settings=ios_menu.split("private func showSettings()",1)[1].split("func documentPicker(",1)[0]
+android_settings=android_menu.split("private fun showSettingsDetails()",1)[1].split("override fun onActivityResult",1)[0]
+ios_settings=ios_menu.split("private func showSettingsDetails()",1)[1].split("func documentPicker(",1)[0]
 for settings in (android_settings,ios_settings):
     for title in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST",
                   "TRGOVINA KOVANICAMA","MOJI REKORDI"):
@@ -982,8 +982,8 @@ for controller,signature,expected in ((android_menu,'private fun showProfile()',
         assert content in profile,(signature,content)
     assert expected in profile
 # UI visual hierarchy: reference places real vibration control after volumes.
-for source,signature in ((android_menu,'private fun showSettings()'),
-                         (ios_menu,'private func showSettings()')):
+for source,signature in ((android_menu,'private fun showSettingsDetails()'),
+                         (ios_menu,'private func showSettingsDetails()')):
     settings=source.split(signature,1)[1]
     assert settings.index('Vibracije')<settings.index('IGRAČ I TEŽINA')
     assert settings.index('Nježnije animacije')>settings.index('DODATNE OPCIJE')
@@ -1677,8 +1677,8 @@ print('PASS: original release assets and authentic Settings capture have SHA-256
 
 # v0.1.60: the reference's settings screen is one scrolling glass sheet,
 # featuring real chosen-pilot art, not a composited screenshot of controls.
-settings_android=android_menu.split('private fun showSettings(){',1)[1].split('@Deprecated("Activity result',1)[0]
-settings_ios=ios_menu.split('private func showSettings(){',1)[1].split('func documentPicker(',1)[0]
+settings_android=android_menu.split('private fun showSettingsDetails(){',1)[1].split('@Deprecated("Activity result',1)[0]
+settings_ios=ios_menu.split('private func showSettingsDetails(){',1)[1].split('func documentPicker(',1)[0]
 base_android=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 menu_ios=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
 assert 'val settingsPanel=LinearLayout(this).apply' in settings_android
@@ -2117,3 +2117,28 @@ assert 'startupPending=false' in ios_menu and 'override func viewDidAppear(' in 
 assert 'DispatchQueue.main.async' in ios_menu
 assert 'postDelayed' not in android_splash
 print('PASS: v0.1.75 reference-order full-bleed startup, no fake percentage, safe lifecycle')
+
+
+# v0.1.76: screenshot-shaped seven-row native Settings OVERVIEW, no
+# phantom option controls and no scrolling. Full advanced actions stay intact.
+android_overview=android_menu.split('private fun showSettings(){',1)[1].split('private fun showSettingsDetails(){',1)[0]
+ios_overview=ios_menu.split('private func showSettings(){',1)[1].split('private func showSettingsDetails(){',1)[0]
+for source in (android_overview,ios_overview):
+    for option in ('POSTAVKE','ZVUK','GLAZBA','VIBRACIJA','EFEKTI',
+                   'MANJE ANIMACIJA','JEZIK','PRIVATNOST','NAPREDNE POSTAVKE'):
+        assert option in source, option
+    assert 'showSettingsDetails()' in source
+    assert 'showHome()' in source
+    assert 'UIScrollView(' not in source and 'ScrollView(' not in source
+    assert 'soundEnabled' in source and 'hapticEnabled' in source
+    assert 'lessMotion' in source
+assert 'FitViewportColumn(this)' in android_overview
+assert 'Type.displayCutout()' in android_overview
+assert 'setOnApplyWindowInsetsListener' in android_overview
+assert 'rows.distribution = .fillEqually' in ios_overview
+assert 'view.safeAreaLayoutGuide.bottomAnchor' in ios_overview
+assert 'private fun showSettingsDetails(){' in android_menu
+assert 'private func showSettingsDetails(){' in ios_menu
+assert 'progress.setDifficulty(mode)' in android_settings
+assert 'self.progress.difficulty=mode' in ios_settings
+print('PASS: v0.1.76 seven-row no-scroll settings, saved preferences and advanced controls')
