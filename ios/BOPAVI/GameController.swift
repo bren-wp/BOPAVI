@@ -1750,7 +1750,174 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         panel.addArrangedSubview(slider)
         stack.addArrangedSubview(panel)
     }
+
+    /// Seven concise, safe-area-fitted controls from the BOPAVI reference.
+    /// Advanced Settings retains all original preferences and backup actions.
     private func showSettings(){
+        clear()
+        let art=UIImageView(image:UIImage(named:"World0"))
+        art.contentMode = .scaleAspectFill
+        art.clipsToBounds=true
+        art.isAccessibilityElement=false
+        art.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(art)
+        NSLayoutConstraint.activate([
+            art.topAnchor.constraint(equalTo:view.topAnchor),
+            art.bottomAnchor.constraint(equalTo:view.bottomAnchor),
+            art.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            art.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+        ])
+        let shade=UIView()
+        shade.backgroundColor=UIColor(red:0.015,green:0.14,blue:0.35,alpha:0.63)
+        shade.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(shade)
+        NSLayoutConstraint.activate([
+            shade.topAnchor.constraint(equalTo:view.topAnchor),
+            shade.bottomAnchor.constraint(equalTo:view.bottomAnchor),
+            shade.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            shade.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+        ])
+        let stack=UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.spacing=8
+        stack.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:8),
+            stack.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-8),
+            stack.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:16),
+            stack.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-16)
+        ])
+        let header=UIView()
+        header.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.34,alpha:0.96)
+        header.layer.cornerRadius=22
+        header.layer.borderWidth=2
+        header.layer.borderColor=UIColor(red:0.26,green:0.86,blue:1,alpha:1).cgColor
+        header.heightAnchor.constraint(equalToConstant:60).isActive=true
+        stack.addArrangedSubview(header)
+        let back=UIButton(type:.system)
+        back.setTitle("‹",for:.normal)
+        back.setTitleColor(.white,for:.normal)
+        back.titleLabel?.font=UIFont.systemFont(ofSize:31,weight:.heavy)
+        back.backgroundColor=UIColor(red:0.04,green:0.51,blue:0.92,alpha:1)
+        back.layer.cornerRadius=22
+        back.layer.borderWidth=2
+        back.layer.borderColor=UIColor.white.cgColor
+        back.accessibilityLabel="Natrag na početnu"
+        back.translatesAutoresizingMaskIntoConstraints=false
+        back.addAction(UIAction{[weak self] _ in self?.showHome()},for:.touchUpInside)
+        header.addSubview(back)
+        let heading=UILabel()
+        heading.text="POSTAVKE"
+        heading.font=UIFont.systemFont(ofSize:23,weight:.black)
+        heading.textColor = .white
+        heading.textAlignment = .center
+        heading.translatesAutoresizingMaskIntoConstraints=false
+        header.addSubview(heading)
+        NSLayoutConstraint.activate([
+            back.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:8),
+            back.centerYAnchor.constraint(equalTo:header.centerYAnchor),
+            back.widthAnchor.constraint(equalToConstant:44),
+            back.heightAnchor.constraint(equalToConstant:44),
+            heading.leadingAnchor.constraint(equalTo:back.trailingAnchor,constant:7),
+            heading.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-52),
+            heading.centerYAnchor.constraint(equalTo:header.centerYAnchor)
+        ])
+        let rows=UIStackView()
+        rows.axis = .vertical
+        rows.alignment = .fill
+        rows.distribution = .fillEqually
+        rows.spacing=6
+        stack.addArrangedSubview(rows)
+        func settingRow(_ name:String,_ statusText:@escaping()->String,
+                        _ press:@escaping()->Void){
+            let row=UIButton(type:.custom)
+            row.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.31,alpha:0.97)
+            row.layer.cornerRadius=18
+            row.layer.borderWidth=1
+            row.layer.borderColor=UIColor(red:0.26,green:0.83,blue:1,alpha:0.9).cgColor
+            row.accessibilityLabel="\(name), \(statusText())"
+            let label=UILabel()
+            label.text=name
+            label.font=UIFont.systemFont(ofSize:14,weight:.heavy)
+            label.textColor = .white
+            label.adjustsFontSizeToFitWidth=true
+            label.minimumScaleFactor=0.75
+            label.translatesAutoresizingMaskIntoConstraints=false
+            label.isUserInteractionEnabled=false
+            row.addSubview(label)
+            let status=UILabel()
+            status.text=statusText()
+            status.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.bold)
+            status.textColor = .white
+            status.backgroundColor=UIColor(red:0.04,green:0.43,blue:0.80,alpha:1)
+            status.layer.cornerRadius=12
+            status.clipsToBounds=true
+            status.textAlignment = .center
+            status.translatesAutoresizingMaskIntoConstraints=false
+            status.isUserInteractionEnabled=false
+            row.addSubview(status)
+            NSLayoutConstraint.activate([
+                label.leadingAnchor.constraint(equalTo:row.leadingAnchor,constant:12),
+                label.centerYAnchor.constraint(equalTo:row.centerYAnchor),
+                label.trailingAnchor.constraint(lessThanOrEqualTo:status.leadingAnchor,constant:-6),
+                status.trailingAnchor.constraint(equalTo:row.trailingAnchor,constant:-8),
+                status.centerYAnchor.constraint(equalTo:row.centerYAnchor),
+                status.widthAnchor.constraint(equalToConstant:99),
+                status.heightAnchor.constraint(equalToConstant:31)
+            ])
+            row.addAction(UIAction{[weak row, weak status] _ in
+                press()
+                status?.text=statusText()
+                row?.accessibilityLabel="\(name), \(statusText())"
+            },for:.touchUpInside)
+            rows.addArrangedSubview(row)
+        }
+        settingRow("ZVUK",{[weak self] in self?.progress.soundEnabled == true ? "UKLJ." : "ISKL."}){
+            [weak self] in
+            guard let self=self else{return}
+            let value = !self.progress.soundEnabled
+            self.progress.soundEnabled=value
+            self.sound.enabled=value
+        }
+        settingRow("GLAZBA",{[weak self] in String(self?.progress.musicVolume ?? 0)+"%"}){
+            [weak self] in self?.showSettingsDetails()
+        }
+        settingRow("VIBRACIJA",{[weak self] in self?.progress.hapticEnabled == true ? "UKLJ." : "ISKL."}){
+            [weak self] in
+            guard let self=self else{return}
+            self.progress.hapticEnabled = !self.progress.hapticEnabled
+        }
+        settingRow("EFEKTI",{[weak self] in String(self?.progress.effectsVolume ?? 0)+"%"}){
+            [weak self] in self?.showSettingsDetails()
+        }
+        settingRow("MANJE ANIMACIJA",{[weak self] in self?.progress.lessMotion == true ? "UKLJ." : "ISKL."}){
+            [weak self] in
+            guard let self=self else{return}
+            self.progress.lessMotion = !self.progress.lessMotion
+        }
+        settingRow("JEZIK",{"HRVATSKI"}){
+            [weak self] in self?.alert("Jezik","Trenutačno je dostupan hrvatski jezik.")
+        }
+        settingRow("PRIVATNOST",{"OTVORI"}){
+            [weak self] in self?.showSettingsDetails()
+        }
+        let advanced=UIButton(type:.system)
+        advanced.setTitle("⚙  NAPREDNE POSTAVKE",for:.normal)
+        advanced.setTitleColor(.white,for:.normal)
+        advanced.titleLabel?.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+        advanced.backgroundColor=UIColor(red:0.025,green:0.38,blue:0.78,alpha:1)
+        advanced.layer.cornerRadius=20
+        advanced.layer.borderWidth=2
+        advanced.layer.borderColor=UIColor(red:0.23,green:0.85,blue:1,alpha:1).cgColor
+        advanced.heightAnchor.constraint(equalToConstant:49).isActive=true
+        advanced.accessibilityLabel="NAPREDNE POSTAVKE"
+        advanced.addAction(UIAction{[weak self] _ in self?.showSettingsDetails()},for:.touchUpInside)
+        stack.addArrangedSubview(advanced)
+    }
+
+    private func showSettingsDetails(){
         let s=menu("POSTAVKE","Prilagodi igru svom stilu")
         // The live settings are grouped over one deep-blue premium sheet.
         // The document remains scrollable and every control keeps its handler.
