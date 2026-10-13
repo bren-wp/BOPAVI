@@ -48,9 +48,11 @@ struct SwiftParity {
         let continuous=GameSimulation(BopaviCore.createStream(0,1_048_576),endless:true,initialOrdinal:1_048_576)
         precondition(continuous.displayLevel==1_048_576)
         let s=GameSimulation(BopaviCore.create(0,1))
-        precondition(!s.active)
+        precondition(!s.active && s.levelProgress==0)
         s.flap();precondition(s.active && s.flaps==1)
-        for _ in 0..<70 {s.step(1/60)}
+        s.step(0.05)
+        precondition(s.levelProgress>0 && s.levelProgress<1)
+        for _ in 0..<67 {s.step(1/60)}
         precondition(s.time>0 && s.y.isFinite)
 
         // Identical visible-cap collision regression for UIKit simulation.
@@ -133,7 +135,9 @@ struct SwiftParity {
                 let firstNext=stream.upcomingGateX(stream.upcomingGates[0])
                 let oldLast=stream.gateX(base.gates[base.gates.count-1])
                 let interval=base.gates[base.gates.count-1].x-base.gates[base.gates.count-2].x
-                precondition(abs(firstNext-oldLast-interval)<0.01)
+                let expected=min(208,max(190,interval-32))
+                precondition(abs(firstNext-oldLast-expected)<0.01)
+                precondition(expected>=190 && expected<=208 && expected+340<=550)
             }
         }
         // v0.1.20: same bounded, retriggerable cosmetic wingbeat as Kotlin.
