@@ -733,6 +733,21 @@ final class GameCanvas: UIView {
         c.addLine(to:CGPoint(x:left+4,y:end-span*0.05))
         c.closePath()
         c.setFillColor(color(stone,196.0/255));c.fillPath()
+        // Three deterministic, fully internal mineral faces. No gap intrusion
+        // or per-frame image decoding, keeping physics parity with Android.
+        for facet in 0...2 {
+            let yy=start+span*(0.16+CGFloat(facet)*0.22)
+            let tip=min(end-2,yy+span*0.12)
+            let xx=x+9+CGFloat(abs(seed*7+facet*13)%11)
+            c.beginPath()
+            c.move(to:CGPoint(x:xx,y:yy))
+            c.addLine(to:CGPoint(x:min(xx+w*0.30,x+w-7),y:yy+span*0.035))
+            c.addLine(to:CGPoint(x:min(xx+w*0.15,x+w-9),y:tip))
+            c.closePath()
+            c.setFillColor(color(facet==1 ? 0x0a203e : 0xedfaff,
+                                 facet==1 ? 153.0/255 : 119.0/255))
+            c.fillPath()
+        }
     }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
@@ -740,9 +755,10 @@ final class GameCanvas: UIView {
         let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
         let shade:UInt32 = g.kind==0 ? 0x6e5c63 : dark[g.kind]
         let cap:UInt32 = g.kind==0 ? 0x55ce6c : hue
-        drawCliffShaft(c,x,w,0,top,shade,hue,-(index+1+g.kind*7))
+        let cliffSeed=Int(g.phase*1024)+index*31+g.kind*59+1
+        drawCliffShaft(c,x,w,0,top,shade,hue,-cliffSeed)
         rect(c,x-7,top-28,w+12,28,cap,7)
-        drawCliffShaft(c,x,w,bottom,755,shade,hue,index+1+g.kind*7)
+        drawCliffShaft(c,x,w,bottom,755,shade,hue,cliffSeed)
         rect(c,x-7,bottom,w+12,27,cap,7)
         drawRockFacets(c,x,w,2,top-30)
         drawRockFacets(c,x,w,bottom+28,751)
