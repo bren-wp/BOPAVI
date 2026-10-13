@@ -491,6 +491,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawRockFacets(c,x,w,2f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,751f)
+        // Width-aware material flecks make both narrow and wide pillars look
+        // finished; every speck stays strictly inside the collision cap.
+        val fleck=when(g.kind){
+            0->0xffb7ed7a.toInt();1->0xff9af7ff.toInt()
+            2->0xffffd06e.toInt();3->0xffffe29a.toInt()
+            4->0xfff8e5cc.toInt();5->0xffffe6a1.toInt()
+            6->0xffa7ffdf.toInt();else->0xffd9baff.toInt()
+        }
+        for(j in 0..2) {
+            val fx=x+9f+(w-22f)*j*.5f
+            val inset=if(j==1)2f else 0f
+            oval(c,fx,top-17f+inset,fx+5f,top-12f+inset,fleck)
+            oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
+        }
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
         rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
         rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
