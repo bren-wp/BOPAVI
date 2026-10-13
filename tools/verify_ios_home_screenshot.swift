@@ -9,7 +9,7 @@ guard CommandLine.arguments.count == 2,
       let bitmap = NSBitmapImageRep(data: data),
       bitmap.pixelsWide > 250,
       bitmap.pixelsHigh > 450 else {
-    fputs("FAIL: missing or invalid iPhone Home PNG\\n", stderr)
+    fputs("FAIL: missing or invalid iPhone Home PNG\n", stderr)
     exit(1)
 }
 let width = bitmap.pixelsWide
@@ -50,7 +50,7 @@ for y in stride(from: Int(Double(height)*0.85),
     })
 }
 guard orangeRow >= 0.43 && footerRow >= 0.46 else {
-    fputs("FAIL: iOS capture shows launch/illustration, not verified Home controls (play=\\(orangeRow), footer=\\(footerRow))\\n",stderr)
+    fputs("FAIL: iOS capture shows launch/illustration, not verified Home controls (play=\(orangeRow), footer=\(footerRow))\n",stderr)
     exit(1)
 }
-print("PASS: real iOS Home CTA and bottom navigation visible (\\(width)x\\(height), play=\\(orangeRow), footer=\\(footerRow))")
+print("PASS: real iOS Home CTA and bottom navigation visible (\(width)x\(height), play=\(orangeRow), footer=\(footerRow))")
