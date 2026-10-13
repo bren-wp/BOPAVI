@@ -1,3 +1,12 @@
+## v0.1.81 — Full-height, zero-scroll menus (build 84)
+- Android and iOS Worlds, Levels and detailed Settings are now fitted or paginated within the physical safe-area viewport, without relying on vertical swipes to reveal real actions.
+- All eight World cards appear together; Levels show twenty genuine tappable tiles per page, lock/completion stars, real 20-level forward/back pagination and the existing direct-number input and Resume actions.
+- Detailed Settings now has three clearly numbered native pages: audio/haptics, difficulty/player identity, and additional offline options/privacy. Saved volumes, difficulty, profile name, audio, accessibility, offline backup/restore, Shop and Records keep real persisted callbacks.
+- Reuse one Android world drawable table rather than allocating arrays independently in base screens, Worlds, Levels, Results and Profile.
+- Android emulator QA now fails if any World requires a swipe, verifies all twenty level tiles and the real level pager, captures android-levels.png, and opens the second detailed Settings page before selecting real difficulty cards. iOS fits its native menu content in one safe-area screen.
+- Gameplay physics, obstacles, assets and save schema are unchanged. No fabricated diamonds, accounts, cloud services or payment functions.
+- Pixel-perfect matching remains unverified: the uploaded premium concepts are visual references, not independently layered executable game scenes.
+
 ## v0.1.80 — Offline legal transparency and launch-ready public presentation (build 83)
 - Add two small independently tappable footer actions to the no-scroll Android/iOS Settings overview: **Politika privatnosti** and **Uvjeti korištenja**, plus a clear © Brendigo publisher line. The existing seven real controls and Advanced Settings remain functional; no account, login, web view, browser dependency or permission is added.
 - Show accurate, offline-native legal notices identifying Brendigo, entirely local game progress, user-initiated JSON exports, third-party document providers, local deletion and actual virtual-coin status. Add bilingual public Markdown and HTML Terms of Use alongside the existing bilingual Privacy Policy.
