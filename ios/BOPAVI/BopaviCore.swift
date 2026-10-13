@@ -162,16 +162,24 @@ final class GameSimulation {
     private var nextLevel:BopaviCore.Level?
     private var nextOrigin:Double = 0
     func gateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:levelOrigin,travelled:preciseDistance)}
+    /// Display-only progress through the real generated course.
+    var levelProgress:Float {
+        guard let last=level.gates.last else{return 0}
+        let finish=Double(last.x)+Double(last.width)+Double(radius-birdX)
+        if finish<=0{return 1}
+        return min(1,max(0,Float((preciseDistance-levelOrigin)/finish)))
+    }
     var upcomingGates:[BopaviCore.Gate] {nextLevel?.gates ?? []}
     func upcomingGateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:nextOrigin,travelled:preciseDistance)}
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
-        // The latest gate interval varies by challenge zone; keep that exact
-        // spacing through the level boundary instead of inserting 242px.
+        // Reduce the seam by 32 logical units while preserving the real
+        // last-to-first world-space position and a safe 190–208-unit interval.
         let last=level.gates.count-1
-        let spacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
-        nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(spacing)-Double(next.gates[0].x)
+        let ordinarySpacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
+        let transitionSpacing=min(208,max(190,ordinarySpacing-32))
+        nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(transitionSpacing)-Double(next.gates[0].x)
         nextLevel=next
     }
     private(set) var levelTransition: Float = 0
