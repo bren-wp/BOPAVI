@@ -424,7 +424,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         avatar.layer.borderWidth=2
         avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
         avatar.clipsToBounds=true
-        avatar.accessibilityLabel="PROFIL · \(progress.skinNames[progress.skinIndex()])"
+        avatar.accessibilityLabel="PROFIL · Bopi"
         avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
         avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
         avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
@@ -920,7 +920,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
             coinWallet:{[weak self] in self?.progress.coins() ?? 0})
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
@@ -1039,7 +1039,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=progress.skinIndex()
+        let pilotIndex=0
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22
@@ -1265,7 +1265,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
         let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        let skin=progress.skinIndex()
+        let skin=0
         let hero=UIStackView()
         hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
         hero.layoutMargins=UIEdgeInsets(top:11,left:8,bottom:11,right:8)
@@ -1485,7 +1485,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         s.addArrangedSubview(worldRow)
         button("✎  UREDI PROFIL",in:s){self.showSettings()}
-        button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins(.profile)}
+        label("Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.",14,.white,s)
         let footer=UIStackView()
         footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
         footer.isLayoutMarginsRelativeArrangement=true
