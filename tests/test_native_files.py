@@ -1243,7 +1243,7 @@ for home in (android_home,ios_home):
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
 assert 'val avatar=ImageView(this)' in android_home
-assert 'R.drawable.bopiportrait0' in android_home
+assert 'portraitDrawableIds[0]' in android_home
 assert 'showProfile()' in android_home
 assert 'showAchievements(MenuOrigin.HOME)' in android_home
 assert 'showPerks(MenuOrigin.HOME)' in android_home
@@ -1687,7 +1687,7 @@ assert 'BopaviSettingsPanel: UIStackView' in ios_menu
 assert 'let settingsPanel=BopaviSettingsPanel()' in settings_ios
 assert 'layer.borderWidth=2' in ios_menu
 assert 'if(label=="POSTAVKE")' in base_android
-assert 'portraits[0]' in base_android
+assert 'portraitDrawableIds[0]' in base_android
 assert 'if title == "POSTAVKE"' in menu_ios
 assert 'UIImage(named:"BopiPortrait0")' in menu_ios
 for label in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST"):
@@ -2177,3 +2177,12 @@ assert 'android-shop.png' in emulator and 'android-records.png' in emulator
 assert 'KUPI MAGNET' in emulator and 'KUPI ŠTIT' in emulator
 assert 'Back did not restore Home' in emulator
 print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
+
+# v0.1.77: one reusable Android pilot sprite table, not four identical
+# allocations on every navigation transition. Legacy art names stay linked.
+assert android_menu.count('val portraits=intArrayOf(')==0
+assert android_menu.count('private val portraitDrawableIds=intArrayOf(')==1
+assert android_menu.count('portraitDrawableIds[')>=4
+for i in range(9):
+    assert 'R.drawable.bopiportrait'+str(i) in android_menu
+print('PASS: reused Android portrait catalog with no redundant allocation')
