@@ -1,3 +1,10 @@
+## v0.1.69 — Continuous level handoff and accurate HUD currency (build 72)
+- The procedural flight stays playable across every level boundary. On real level completion, the **existing** race gauge briefly highlights the next level for 0.85 seconds, then returns to ordinary per-gate progress; no fullscreen transition, blank frames, reset distance or fake finish.
+- Corrected the v0.1.68 in-flight wallet accounting: collectible crowns earned in a run increase the run score and collection statistic, but **do not become spendable wallet currency**. The top-left wallet now shows actual saved currency only; the compact **LET +N** badge separately shows genuine run pickups, and TalkBack/VoiceOver announces both exact counts.
+- Cached the active-level title and fonts in the iOS renderer instead of allocating a new UIFont and attributed level title every frame. Preserved the original pilot portraits, menu balance, all eight biomes, moving cap collision, TAP-TAP controls and offline save format.
+- Added Android JVM, Kotlin/Swift parity and source-contract coverage for short acknowledgments and truthful wallet presentation. No new images, accounts, tracking, ads or network permissions.
+- 1:1 visual fidelity with supplied art still requires an external side-by-side review of real Android/iOS captures.
+
 ## v0.1.68 — Live pilot portrait and truthful premium wallet HUD (build 71)
 - Added a circular blue/gold pilot portrait in the in-flight top-left HUD on both Android and iOS, using the already-shipped actual selected pilot portrait. The top-left currency glass was rearranged to preserve the crown icon and centre progress gauge without introducing decorative fake controls.
 - The in-flight balance now reads real locally persisted wallet coins **plus the yet-unbanked collectible coins from this current run**; newly earned level-clear rewards are reflected immediately from local storage. This replaces the misleading current-run-only count. Screenshots are never wired to fake counts.
