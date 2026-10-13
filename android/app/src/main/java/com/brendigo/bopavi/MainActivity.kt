@@ -1546,7 +1546,8 @@ class MainActivity : Activity() {
         back(b){showHome()}
     }
 
-    private fun showLeaderboard(){
+    private fun showLeaderboard(){showLeaderboardPage(0)}
+    private fun showLeaderboardPage(page:Int){
         val b=base("MOJI REKORDI","Tvojih deset najboljih letova")
         val entries=progress.leaderboard()
         val best=entries.firstOrNull()
@@ -1565,7 +1566,10 @@ class MainActivity : Activity() {
                 topMargin=d(12);bottomMargin=d(9)
             })
         } else small(b,"Prvi rekord čeka tvoj sljedeći let!")
-        for((index,item) in entries.withIndex()) {
+        val perPage=3
+        val pageCount=maxOf(1,(entries.size+perPage-1)/perPage)
+        val current=page.coerceIn(0,pageCount-1)
+        for((index,item) in entries.withIndex().drop(current*perPage).take(perPage)) {
             val highlighted=index==0
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
@@ -1604,8 +1608,29 @@ class MainActivity : Activity() {
                 textSize=13f;setTextColor(gold);typeface=Typeface.DEFAULT_BOLD
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-2,-2).apply{leftMargin=d(8)})
-            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(8)})
+            b.addView(card,LinearLayout.LayoutParams(-1,d(75)).apply{bottomMargin=d(7)})
         }
+        if(pageCount>1){
+            val nav=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            fun pageButton(label:String,enabled:Boolean,next:Int){
+                val item=Button(this).apply{
+                    text=label;isAllCaps=false;textSize=12f
+                    setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+                    background=gradient(if(enabled)0xff117bcf.toInt() else 0xff29456b.toInt(),
+                        0xff05264e.toInt(),16).apply{setStroke(d(1),electric)}
+                    isEnabled=enabled
+                    setOnClickListener{showLeaderboardPage(next)}
+                }
+                nav.addView(item,LinearLayout.LayoutParams(0,d(49),1f).apply{
+                    leftMargin=d(2);rightMargin=d(2)
+                })
+            }
+            pageButton("‹ PRETHODNI",current>0,current-1)
+            pageButton((current+1).toString()+"/"+pageCount.toString(),false,current)
+            pageButton("SLJEDEĆI ›",current<pageCount-1,current+1)
+            b.addView(nav,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(5)})
+        }
+        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(b,"★  MOJA POSTIGNUĆA",false){showAchievements()}
         back(b){showSettings()}
     }
