@@ -193,8 +193,8 @@ class LevelEngineTest {
     }
 
     @Test fun streamingKeepsRealGateRhythmAcrossEveryChallengeZone() {
-        // The per-level gate interval is smaller in tougher zones. Incoming
-        // obstacles must inherit that interval instead of a fixed 242px gap.
+        // The next-level interval is compressed 32 units for an uninterrupted flight. Incoming
+        // obstacles retain a safe 190–208-unit gap instead of a fixed 242px stretch.
         for(world in 0 until LevelEngine.WORLD_COUNT) {
             for(number in listOf(2,62,122,182,242,302,360)) {
                 val level=LevelEngine.create(world,number)
@@ -202,7 +202,7 @@ class LevelEngineTest {
                 val oldLast=stream.gateX(level.gates.last())
                 val lastSpacing=level.gates.last().x-level.gates[level.gates.lastIndex-1].x
                 val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
-                assertEquals("world=$world level=$number",lastSpacing,firstNext-oldLast,0.001f)
+                assertEquals("world=$world level=$number",(lastSpacing-32f).coerceIn(190f,208f),firstNext-oldLast,0.001f)
                 assertEquals(0f,stream.distance,0f)
                 assertFalse(stream.active)
             }
@@ -220,7 +220,7 @@ class LevelEngineTest {
         val current=sim.level.gates.first()
         val upcoming=sim.upcomingGates().first()
         val spacing=sim.level.gates.last().x-sim.level.gates[sim.level.gates.lastIndex-1].x
-        assertEquals(spacing,sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
+        assertEquals((spacing-32f).coerceIn(190f,208f),sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
         assertEquals(current.x,sim.gateX(current),.0001f)
     }
 
