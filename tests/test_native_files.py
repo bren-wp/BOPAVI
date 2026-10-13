@@ -5,7 +5,7 @@ import plistlib
 import xml.etree.ElementTree as ET
 root=Path(__file__).resolve().parents[1]
 assert len(list((root/'ios/BOPAVI').glob('*.swift'))) == 6
-assert len(list((root/'android/app/src/main/java/com/brendigo/bopavi').glob('*.kt'))) == 6
+assert len(list((root/'android/app/src/main/java/com/brendigo/bopavi').glob('*.kt'))) == 7
 for path in [root/'ios/BOPAVI/Info.plist',root/'ios/BOPAVI.xcodeproj/project.pbxproj',root/'android/app/src/main/AndroidManifest.xml']:
     assert path.exists(),path
 plistlib.load(open(root/'ios/BOPAVI/Info.plist','rb'))
@@ -1463,8 +1463,8 @@ for source in (android_game,ios_game):
         assert forbidden not in source
     assert '⚑' in source
     assert 'game.flap()' in source
-assert 'hudGlass(c,146f,18f,406f,77f)' in android_game
-assert 'hudGlass(c,146,18,260,59)' in ios_game
+assert 'hudGlass(c,146f,18f,381f,77f)' in android_game
+assert 'hudGlass(c,146,18,235,59)' in ios_game
 assert 'hudOrb(c,46f,249f,"◆"' in android_game
 assert 'hudOrb(c,46,249,"◆"' in ios_game
 assert 'hudOrb(c,46f,323f,"∩"' in android_game
@@ -2036,3 +2036,25 @@ assert 'UIFont.systemFont(' not in ios_orb and 'UIFont.monospacedDigitSystemFont
 for actual in ('game.stars','game.shield','game.magnetTime'):
     assert actual in ios_frame and actual in android_frame
 print('PASS: cached biome gate palettes and iOS HUD orb layouts without changing real counters')
+
+# v0.1.72: iPhone/Android tall viewports must pin HUD to physical
+# top-safe-area space, never to the letterboxed 480x800 camera.
+for source in (android_game,ios_game):
+    assert 'drawCliffShaft(' in source
+    assert source.count('drawCliffShaft(')>=3
+    assert 'index+1+g.kind*7' in source
+    assert '0.72' in source or '.72f' in source
+assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())' in android_game
+assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
+assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
+assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
+assert 'drawBoostHUD(c)' in ios_game.split('c.restoreGState()',1)[1] or 'drawBoostHUD(c)' in ios_game
+assert 'FitViewportColumn(this)' in android_menu
+assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+fit_screen=(root/'android/app/src/main/java/com/brendigo/bopavi/FitViewportColumn.kt').read_text()
+assert 'View.MeasureSpec.UNSPECIFIED' in fit_screen and 'availableH.toFloat()/intrinsicH' in fit_screen
+assert 'body.scaleY=fit' in fit_screen and 'body.scaleX=fit' in fit_screen
+# Every cliff face stays inside the existing mouth (all variation in solid).
+for source in (android_game,ios_game):
+    assert 'nearMouth' in source and 'variation' in source or 'nearMouth' in source
+print('PASS: v0.1.72 physically top-anchored responsive compact HUD and varied cliff faces')

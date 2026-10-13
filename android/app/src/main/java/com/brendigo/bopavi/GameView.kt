@@ -229,18 +229,26 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
-        // Keep the intro composition clean: scores and gate progress appear
-        // with the first real flap, not on the idle "Dodirni za let" screen.
-        if(game.active && !game.finished) {
-            drawHud(canvas)
-            drawLevelProgress(canvas)
-        }
+        // The gameplay camera and HUD are different coordinate spaces. On tall
+        // phones the 480x800 flight camera is letterboxed vertically; keep the
+        // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
             text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
+        if(game.active && !game.finished) {
+            val hudScale=(width/480f).coerceAtMost(height/640f)
+            val topInset=if(android.os.Build.VERSION.SDK_INT>=30)
+                rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())?.top ?: 0 else 0
+            canvas.save()
+            canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
+            canvas.scale(hudScale,hudScale)
+            drawHud(canvas)
+            drawLevelProgress(canvas)
+            canvas.restore()
+        }
         // The illustrated world already owns its entire 480x800 canvas.
         // A former opaque ground stripe hid the lower floating-island scenery,
         // including on narrow and notched phones. Letterboxing is filled above.
@@ -546,6 +554,43 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
     }
+    /** Seeded fractured island silhouettes instead of identical screen-height
+     * rectangular columns. The solid mouth remains aligned with the existing
+     * collision cap, while the distant sides taper and fracture into the biome.
+     * All points stay inside the established shaft collider; no new hitboxes.
+     */
+    private fun drawCliffShaft(c:Canvas,x:Float,w:Float,start:Float,end:Float,
+                               shadow:Int,stone:Int,seed:Int) {
+        if(end-start<6f)return
+        val span=end-start
+        val steps=6
+        path.reset()
+        for(i in 0..steps) {
+            val y=start+span*i/steps
+            val nearMouth=if(seed<0)i==steps else i==0
+            val inset=if(nearMouth)1f else 7f+(((seed*11+i*7)%9+9)%9)
+            val lx=x+inset
+            if(i==0)path.moveTo(lx,y) else path.lineTo(lx,y)
+        }
+        for(i in steps downTo 0) {
+            val y=start+span*i/steps
+            val nearMouth=if(seed<0)i==steps else i==0
+            val inset=if(nearMouth)1f else 5f+(((seed*3+i*13)%11+11)%11)
+            path.lineTo(x+w-inset,y)
+        }
+        path.close()
+        fill(shadow)
+        c.drawPath(path,p)
+        // Large angled mineral face gives each cliff a unique lit silhouette.
+        path.reset()
+        val left=x+12f+(kotlin.math.abs(seed)%3)*3f
+        path.moveTo(left,start+span*.09f)
+        path.lineTo(x+w*.53f,start+span*.20f)
+        path.lineTo(x+w*.67f,end-span*.11f)
+        path.lineTo(left+4f,end-span*.05f)
+        path.close()
+        fill(stone);p.alpha=196;c.drawPath(path,p);p.alpha=255
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -553,11 +598,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val shade=if(g.kind==0)0xff6e5c63.toInt() else pillarDark[g.kind]
         val cap=if(g.kind==0)0xff55ce6c.toInt() else color
         val top=a.top;val bottom=a.bottom
-        rect(c,x+7f,0f,x+w-5f,top,shade,7f)
-        rect(c,x,0f,x+w-13f,top,color,8f)
+        drawCliffShaft(c,x,w,0f,top,shade,color,-(index+1+g.kind*7))
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
-        rect(c,x+7f,bottom,x+w-5f,755f,shade,7f)
-        rect(c,x,bottom,x+w-13f,755f,color,7f)
+        drawCliffShaft(c,x,w,bottom,755f,shade,color,index+1+g.kind*7)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawRockFacets(c,x,w,2f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,751f)
@@ -819,23 +862,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // The reference metre label cannot be shown: no metre scale exists.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
-        hudGlass(c,146f,18f,406f,77f)
+        hudGlass(c,146f,18f,381f,77f)
         text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
-        text(c,"⚑",389f,57f,26f,Color.WHITE,true)
-        rect(c,181f,34f,376f,55f,0xff05234e.toInt(),10f)
-        rect(c,184f,38f,373f,51f,0xff0b66bf.toInt(),7f)
+        text(c,"⚑",363f,57f,26f,Color.WHITE,true)
+        rect(c,181f,34f,354f,55f,0xff05234e.toInt(),10f)
+        rect(c,184f,38f,351f,51f,0xff0b66bf.toInt(),7f)
         if(ratio>0f){
-            rect(c,184f,38f,184f+189f*ratio,51f,0xff15cfff.toInt(),7f)
-            rect(c,185f,39f,185f+187f*ratio,43f,0xaaffffff.toInt(),2f)
+            rect(c,184f,38f,184f+167f*ratio,51f,0xff15cfff.toInt(),7f)
+            rect(c,185f,39f,185f+165f*ratio,43f,0xaaffffff.toInt(),2f)
         }
         // Announce the next level inside the existing gauge, never as an
         // opaque transition overlay or a pause of the physics/game loop.
         val entering=game.levelTransition>0f
-        rect(c,171f,80f,382f,107f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
+        rect(c,171f,80f,364f,107f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
         val levelLabel=if(entering)"LEVEL ${game.displayLevel}  ·  NOVI LET"
             else "LEVEL ${game.displayLevel}  ·  ${game.passed}/$total"
-        text(c,levelLabel,277f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,277f,124f,12f,0xffddf4ff.toInt(),true)
+        text(c,levelLabel,267f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
+        text(c,progressTitle,267f,124f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
@@ -890,6 +933,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      */
     private fun hudOrb(c:Canvas,cx:Float,cy:Float,icon:String,count:String,
                        accent:Int,enabled:Boolean) {
+        // Reduce obstructive rail ornaments, not their underlying earned values.
+        // A transform keeps the three cached orb positions and iOS parity.
+        c.save()
+        c.translate(cx,cy)
+        c.scale(.72f,.72f)
+        c.translate(-cx,-cy)
         val rim=if(enabled)accent else 0xff5d83ac.toInt()
         oval(c,cx-33f,cy-33f,cx+33f,cy+33f,0xbb031630.toInt())
         oval(c,cx-30f,cy-30f,cx+30f,cy+30f,rim)
@@ -903,6 +952,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,bubbleX-14f,bubbleY-12f,bubbleX+14f,bubbleY+12f,
             if(enabled)0xff125aab.toInt() else 0xff27405f.toInt())
         text(c,count,bubbleX,bubbleY+5f,15f,Color.WHITE,true)
+        c.restore()
     }
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.

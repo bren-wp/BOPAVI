@@ -162,7 +162,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
-        scroll.alwaysBounceVertical=true
+        // Home controls fit on one screen, including the safe area and the
+        // bottom navigation. Keep scrolling for information-dense submenus.
+        scroll.alwaysBounceVertical=title != "BOPAVI"
+        scroll.isScrollEnabled=title != "BOPAVI"
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -172,9 +175,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
-        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=12
+        stack.axis = .vertical;stack.alignment = .fill
+        stack.spacing=title == "BOPAVI" ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
-        stack.layoutMargins=UIEdgeInsets(top:18,left:18,bottom:28,right:18)
+        stack.layoutMargins=title == "BOPAVI" ?
+            UIEdgeInsets(top:12,left:18,bottom:12,right:18) :
+            UIEdgeInsets(top:18,left:18,bottom:28,right:18)
         stack.isLayoutMarginsRelativeArrangement=true
         scroll.addSubview(stack)
         NSLayoutConstraint.activate([
