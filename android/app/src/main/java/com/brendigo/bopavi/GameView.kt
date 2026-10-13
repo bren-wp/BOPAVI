@@ -36,7 +36,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
-    private val selectedSkin=skinIndex.coerceIn(0,8)
+    private val selectedSkin=0 // Bopi is the sole playable pilot; preserve legacy stored skins offline.
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
@@ -50,9 +50,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val hudPortraitRect=RectF(7f,13f,77f,83f)
     private var lastWalletValue = -1
     private var walletDisplay = "0"
-    // In-flight art reduced by 20% for all nine pilots, with matching body hitboxes.
-    // Both groups retain their own shoulder pivots so their wings stay attached.
-    private val birdSize=if(selectedSkin>=6)188f else 176f
+    // Video review: the 176px art dominated the passage. Render Bopi at 124px
+    // while keeping its existing, already tested 18px body collider unchanged.
+    // Never scale collision geometry together with decorative wings.
+    private val birdSize=124f
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
     // True SVG shoulder joints; the alternate pilots have narrower bodies.
     // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
@@ -92,7 +93,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
 
     // One cached cyan/gold radial halo gives the animated pilot more depth.
     // The shader stays in logical bird coordinates and never changes hitboxes.
-    private val birdAuraShader=RadialGradient(0f,0f,74f,
+    private val birdAuraShader=RadialGradient(0f,0f,53f,
         intArrayOf(0x62fff3bb,0x3a2da9ff,0x002da9ff),
         floatArrayOf(0f,.55f,1f),Shader.TileMode.CLAMP)
 
@@ -685,7 +686,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,61f+sin(game.time*5f)*2f,p)
+            c.drawCircle(126f,game.y,48f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
         c.save();c.translate(126f,game.y)
@@ -697,7 +698,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.scale(auraScale,auraScale)
         fill(Color.WHITE)
         p.shader=birdAuraShader
-        c.drawCircle(0f,0f,74f,p)
+        c.drawCircle(0f,0f,53f,p)
         p.shader=null
         c.restore()
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
