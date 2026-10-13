@@ -84,6 +84,7 @@ struct SwiftParity {
             let previewX=game.upcomingGateX(game.upcomingGates[0])
             game.flap();game.step(1/60)
             precondition(game.completionCount==1 && game.displayLevel==3)
+            precondition(abs(game.levelTransition-0.85)<0.001,"Real level entry must trigger transient gauge highlight")
             precondition(game.passed==0,"Seamless next level should reset only the gate counter")
             precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01)
             precondition(game.active && !game.finished)
