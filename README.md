@@ -36,7 +36,6 @@ These are **real screenshots of the running Android and iOS applications**, not 
 <table>
 <tr>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android početni zaslon BOPAVI igre" width="205"><br><b>Home screen</b></td>
-<td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pilots.png" alt="Stvarni Android odabir lika s ilustriranim karticama" width="205"><br><b>Pilot selection</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni Android zaslon leta prije prvog zamaha" width="205"><br><b>Flight preview (Priprema za let)</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka leta sa zlatnim krunama, svjetlećim prolazima i aktivnim HUD-om" width="205"><br><b>Active flight</b></td>
 <td align="center" width="25%"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni Android zaslon rezultata igre" width="205"><br><b>Results</b></td>
@@ -68,23 +67,9 @@ These are **real screenshots of the running Android and iOS applications**, not 
 
 Unlock levels in order, collect stars, chase personal bests, and continue into fresh procedural stages. Progress is tracked independently for each world.
 
-## Meet the pilots
+## Meet Bopi
 
-Bopi is only the beginning. Choose the pilot who fits your adventure. Each of the nine pilots has a distinct illustrated identity; additional pilots are unlocked using coins earned in the game, never real money.
-
-<div align="center">
-<table>
-<tr>
-<td align="center"><img src="docs/assets/vihor.svg" alt="Vihor, izvorna tirkizna ptica s pilotskim naočalama" width="185"><br><b>Vihor</b></td>
-<td align="center"><img src="docs/assets/iskra.svg" alt="Iskra, izvorna ružičasta kolibrica sa zlatnim naočalama" width="185"><br><b>Iskra</b></td>
-<td align="center"><img src="docs/assets/orion.svg" alt="Orion, izvorni ljubičasti sova-pilot s kozmičkim krilima" width="185"><br><b>Orion</b></td>
-</tr>
-</table>
-</div>
-
-**Bopi · Sunny · Berry · Luna · Mint · Shadow · Vihor · Iskra · Orion**
-
-Pick a character, check their availability, and confirm your choice. Your unlocked pilots and existing progress are retained across upgrades.
+**Bopi is the sole playable pilot.** From the main menu or a selected world, begin the flight immediately — there is no character picker, account or premium-pilot sales screen. Previously purchased pilot ownership data is preserved in local saves for compatibility, but the running game always uses Bopi.
 
 ## Your flight, your rules
 
@@ -99,9 +84,9 @@ Pick a character, check their availability, and confirm your choice. Your unlock
 
 ## Your flight journal
 
-**Every flight counts.** Your profile shows the selected pilot, earned scores, coins, completed levels, and victories. Achievement badges explain their requirements, while your most-played worlds guide you toward new challenges. Star progress reflects real earned results, not fabricated experience points.
+**Every flight counts.** Your profile shows Bopi, earned scores, coins, completed levels, and victories. Achievement badges explain their requirements, while your most-played worlds guide you toward new challenges. Star progress reflects real earned results, not fabricated experience points.
 
-Change pilots, update your nickname, or explore your collection. **Moji rekordi** (My Records) displays only your own scores; changing a nickname never deletes past flights. There is no public leaderboard or mandatory registration.
+Update your nickname, review earned achievements and inspect your records. **Moji rekordi** (My Records) displays only your own scores; changing a nickname never deletes past flights. There is no public leaderboard or mandatory registration.
 
 ## Discover more
 
@@ -110,7 +95,7 @@ Change pilots, update your nickname, or explore your collection. **Moji rekordi*
 <tr>
 <td align="center"><img src="docs/assets/nav-profile.svg" width="60" alt="Profil"><br><b>Profile</b><br>Your progress</td>
 <td align="center"><img src="docs/assets/nav-tasks.svg" width="60" alt="Zadaci"><br><b>Tasks</b><br>New goals</td>
-<td align="center"><img src="docs/assets/nav-collection.svg" width="60" alt="Kolekcija"><br><b>Collection</b><br>Your pilots</td>
+<td align="center"><img src="docs/assets/nav-collection.svg" width="60" alt="Rekordi"><br><b>Records</b><br>Personal bests</td>
 <td align="center"><img src="docs/assets/nav-shop.svg" width="60" alt="Trgovina"><br><b>Shop</b><br>Virtual coins</td>
 </tr>
 </table>

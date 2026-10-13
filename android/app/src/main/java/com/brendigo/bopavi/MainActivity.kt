@@ -166,7 +166,7 @@ class MainActivity : Activity() {
                 R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
                 R.drawable.bopiportrait8)
             hero.addView(ImageView(this).apply {
-                setImageResource(portraits[progress.skin().coerceIn(0,8)])
+                setImageResource(portraits[0])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(117),d(117)))
@@ -390,7 +390,7 @@ class MainActivity : Activity() {
                 R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
                 R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
                 R.drawable.bopiportrait8)
-            setImageResource(portraits[progress.skin().coerceIn(0,8)])
+            setImageResource(portraits[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
@@ -400,7 +400,7 @@ class MainActivity : Activity() {
             clipToOutline=true
             setPadding(d(3),d(3),d(3),d(3))
             isClickable=true;isFocusable=true
-            contentDescription="PROFIL · ${progress.skinNames[progress.skin().coerceIn(0,8)]}"
+            contentDescription="PROFIL · Bopi"
             setOnClickListener{sound.effect("click");showProfile()}
         }
         wallets.addView(avatar,LinearLayout.LayoutParams(d(50),d(50)).apply{
@@ -452,7 +452,7 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
         }
-        val entries=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
+        val entries=listOf("PROFIL","ZADACI","REKORDI","TRGOVINA")
         val footerIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
             R.drawable.nav_collection,R.drawable.nav_shop)
         for((index,label) in entries.withIndex()){
@@ -482,7 +482,7 @@ class MainActivity : Activity() {
                     when(index){
                         0->showProfile()
                         1->showAchievements(MenuOrigin.HOME)
-                        2->showSkins(MenuOrigin.HOME)
+                        2->showLeaderboard()
                         else->showPerks(MenuOrigin.HOME)
                     }
                 }
@@ -648,194 +648,10 @@ class MainActivity : Activity() {
             setMargins(d(3),d(4),d(3),d(4))
         })
     }
-    private fun characterGallery(parent:LinearLayout,refresh:()->Unit) {
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
-        // Featured pilots show three actual winged birds, not old human illustrations
-        // reference. Indices remain original so offline saves and prices stay stable.
-        val displayOrder=intArrayOf(6,7,8,0,1,2,3,4,5)
-        val cardWorlds=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
-            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,
-            R.drawable.world7,R.drawable.world0)
-        for(start in displayOrder.indices step 3) {
-            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-            parent.addView(row,LinearLayout.LayoutParams(-1,-2))
-            for(position in start until minOf(start+3,displayOrder.size)) {
-                val i=displayOrder[position]
-                val selected=progress.skin()==i
-                val owned=progress.owned(i)
-                val cost=progress.costs[i]
-                val status=if(selected)"✓ ODABRAN" else if(owned)"DOSTUPAN" else if(i>=7)"PREMIUM · $cost KOVANICA" else "$cost KOVANICA"
-                val card=LinearLayout(this).apply {
-                    orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-                    isClickable=true;isFocusable=true;isSelected=selected
-                    val face=gradient(
-                        if(selected)0xffffa51c.toInt() else if(!owned && i>=7)0xff693daf.toInt() else 0xff0b5db9.toInt(),
-                        if(selected)0xffb55c00.toInt() else if(!owned && i>=7)0xff190f47.toInt() else 0xff071e46.toInt(),17)
-                    face.setStroke(d(if(selected)3 else 1),
-                        if(selected)gold else 0xff5680b4.toInt())
-                    background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
-                    contentDescription="${progress.skinNames[i]}, $status"
-                    setPadding(d(3),d(5),d(3),d(5))
-                    setOnClickListener {
-                        sound.effect("click")
-                        if(owned) {
-                            progress.selectOrBuy(i);refresh()
-                        } else if(progress.coins()<cost) {
-                            Toast.makeText(this@MainActivity,"Nedovoljno kovanica za ${progress.skinNames[i]}.",
-                                Toast.LENGTH_SHORT).show()
-                        } else {
-                            android.app.AlertDialog.Builder(this@MainActivity)
-                                .setTitle("Otključati ${progress.skinNames[i]}?")
-                                .setMessage("Potrošit ćeš $cost osvojenih kovanica. Potvrdi otključavanje.")
-                                .setNegativeButton("ODUSTANI",null)
-                                .setPositiveButton("OTKLJUČAJ"){_,_ ->
-                                    if(progress.selectOrBuy(i))refresh()
-                                }.show()
-                        }
-                    }
-                }
-                // Real native layered card, never a baked-in screenshot.
-                val artwork=FrameLayout(this).apply{
-                    background=gradient(0xff1370c6.toInt(),0xff041933.toInt(),14)
-                    clipToOutline=true
-                }
-                artwork.addView(ImageView(this).apply{
-                    setImageResource(cardWorlds[i]);scaleType=ImageView.ScaleType.CENTER_CROP
-                    alpha=if(owned)0.87f else 0.67f
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },FrameLayout.LayoutParams(-1,-1))
-                artwork.addView(View(this).apply{
-                    background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                        intArrayOf(0x14051940,0x18051940,0xd901152e.toInt()))
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },FrameLayout.LayoutParams(-1,-1))
-                artwork.addView(ImageView(this).apply{
-                    setImageResource(portraits[i]);scaleType=ImageView.ScaleType.FIT_CENTER
-                    alpha=if(owned)1f else .88f
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },FrameLayout.LayoutParams(-1,d(115),Gravity.TOP))
-                artwork.addView(TextView(this).apply{
-                    text=if(selected)"♛" else if(!owned)"🔒" else "✦"
-                    textSize=16f;gravity=Gravity.CENTER
-                    setTextColor(if(selected)gold else Color.WHITE)
-                    background=gradient(0xff194b83.toInt(),0xff061933.toInt(),17).apply{
-                        setStroke(d(1),if(selected)gold else electric)
-                    }
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },FrameLayout.LayoutParams(d(30),d(30),Gravity.TOP or Gravity.RIGHT).apply{
-                    rightMargin=d(4);topMargin=d(4)
-                })
-                artwork.addView(TextView(this).apply{
-                    text=progress.skinNames[i].uppercase()
-                    textSize=13f;typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-                    gravity=Gravity.CENTER
-                    setTextColor(Color.WHITE)
-                    setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),Color.BLACK)
-                    setSingleLine(true)
-                    setAutoSizeTextTypeUniformWithConfiguration(9,13,1,
-                        android.util.TypedValue.COMPLEX_UNIT_SP)
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM).apply{
-                    leftMargin=d(3);rightMargin=d(3);bottomMargin=d(2)
-                })
-                card.addView(artwork,LinearLayout.LayoutParams(-1,d(132)))
-                card.addView(TextView(this).apply {
-                    text=status;textSize=10f;gravity=Gravity.CENTER
-                    typeface=Typeface.DEFAULT_BOLD
-                    setSingleLine(true)
-                    setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
-                        android.util.TypedValue.COMPLEX_UNIT_SP)
-                    setTextColor(if(selected)gold else if(owned)0xff75ffca.toInt() else 0xffc7d8ff.toInt())
-                    background=gradient(
-                        if(selected)0xff6a4309.toInt() else if(owned)0xff07645d.toInt() else 0xff222263.toInt(),
-                        0xff041735.toInt(),12)
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(29)).apply{topMargin=d(3)})
-                row.addView(card,LinearLayout.LayoutParams(0,d(174),1f).apply{
-                    setMargins(d(2),d(5),d(2),d(5))
-                })
-            }
-            // Nine characters occupy three real, keyboard-accessible columns.
-        }
-    }
-    /** Mandatory pre-flight character choice; boosts are consumed only on the first flap. */
+    /** Enter the selected world immediately. No mandatory character gallery. */
     private fun showPilotPicker(world:Int,number:Long) {
         currentWorld=world;currentLevel=number
-        val b=base("ODABERI LIKA","Svaki let započinje tvojim izborom letača")
-        val idx=progress.skin()
-        val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
-        // The actual selected character and world remain separate image layers:
-        // no baked-in buttons, labels, counters or fake screenshot interactions.
-        val preview=FrameLayout(this).apply{
-            background=gradient(0xff147ddb.toInt(),0xff031b40.toInt(),24)
-            clipToOutline=true
-        }
-        val worlds=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,
-            R.drawable.world3,R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
-        preview.addView(ImageView(this).apply{
-            setImageResource(worlds[world.coerceIn(0,7)])
-            scaleType=ImageView.ScaleType.CENTER_CROP
-            alpha=0.80f
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,-1))
-        preview.addView(View(this).apply{
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x55001741,0x001758aa,0xdd031432.toInt()))
-        },FrameLayout.LayoutParams(-1,-1))
-        val portrait=ImageView(this).apply {
-            setImageResource(portraits[idx])
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            contentDescription="Pregled lika ${progress.skinNames[idx]}"
-            setPadding(d(14),d(2),d(14),d(12))
-        }
-        preview.addView(portrait,FrameLayout.LayoutParams(-1,-1))
-        // Only the decorative pre-flight portrait floats; physics, hitboxes
-        // and the gameplay canvas never inherit menu animations.
-        // Respect Android reduced motion / disabled system animators.
-        val pilotHover=android.animation.ObjectAnimator.ofFloat(
-            portrait,View.TRANSLATION_Y,0f,-d(8).toFloat(),0f).apply{
-            duration=2800L
-            repeatCount=android.animation.ValueAnimator.INFINITE
-            interpolator=android.view.animation.AccelerateDecelerateInterpolator()
-        }
-        portrait.addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
-            override fun onViewAttachedToWindow(v:View){
-                if(android.animation.ValueAnimator.areAnimatorsEnabled())pilotHover.start()
-            }
-            override fun onViewDetachedFromWindow(v:View){
-                pilotHover.cancel()
-                v.translationY=0f
-            }
-        })
-        val selectedBadge=TextView(this).apply{
-            text="♛  ODABRAN"
-            setTextColor(Color.WHITE)
-            textSize=12f;typeface=Typeface.DEFAULT_BOLD
-            gravity=Gravity.CENTER
-            background=gradient(0xffffbf36.toInt(),0xffb76b04.toInt(),17).apply{
-                setStroke(d(2),0xffffe79c.toInt())
-            }
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        preview.addView(selectedBadge,FrameLayout.LayoutParams(d(122),d(35),
-            Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(10),d(10),0)})
-        b.addView(preview,LinearLayout.LayoutParams(-1,d(216)).apply{bottomMargin=d(7)})
-        title(b,progress.skinNames[idx],25,gold)
-        small(b,when(idx) {
-            6 -> "Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima."
-            7 -> "Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem."
-            8 -> "Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima."
-            else -> "Odaberi letača i poleti u novu avanturu."
-        })
-        small(b,"Dostupno: ${progress.coins()} kovanica · ${LevelEngine.names[world]} · Level $number")
-        sectionHeading(b,"ODABERI SVOG LETAČA")
-        characterGallery(b){showPilotPicker(world,number)}
-        // The primary flight action comes after all nine choices, matching
-        // selection-first UX. The whole grid remains scrollable and accessible.
-        action(b,"▶  POLETI S ${progress.skinNames[idx].uppercase()}"){startGame(world,number)}
-        back(b){showLevels(world,number.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())}
+        startGame(world,number)
     }
     /**
      * Custom native premium pause UI, not an image overlay. The simulation
@@ -856,7 +672,7 @@ class MainActivity : Activity() {
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,R.drawable.bopiportrait6,
             R.drawable.bopiportrait7,R.drawable.bopiportrait8)
         content.addView(ImageView(this).apply{
-            setImageResource(portraits[progress.skin().coerceIn(0,8)])
+            setImageResource(portraits[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
@@ -1024,7 +840,7 @@ class MainActivity : Activity() {
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
                 progress.recordLevelStars(world,completed,simulation.completedLevelStars)
@@ -1105,7 +921,7 @@ class MainActivity : Activity() {
         }
         val panel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(24),d(28),d(24),d(26))
+            setPadding(d(18),d(12),d(18),d(18))
         }
         scroll.addView(panel)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
@@ -1120,7 +936,7 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=progress.skin()
+        val pilotIndex=0
         val pilotPortraits=intArrayOf(
             R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
@@ -1147,7 +963,7 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
-        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(192)).apply{bottomMargin=d(9)})
+        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(144)).apply{bottomMargin=d(5)})
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
@@ -1172,7 +988,7 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER
         }
         panel.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{
-            topMargin=d(10);bottomMargin=d(9)
+            topMargin=d(5);bottomMargin=d(5)
         })
         fun resultCard(heading:String,icon:String,value:String,color:Int):TextView{
             val card=LinearLayout(this).apply{
@@ -1204,7 +1020,7 @@ class MainActivity : Activity() {
                 contentDescription="$heading $value"
             }
             card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
-            summary.addView(card,LinearLayout.LayoutParams(0,d(139),1f).apply{
+            summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
                 setMargins(d(3),d(3),d(3),d(3))
             })
             return stat
@@ -1269,7 +1085,7 @@ class MainActivity : Activity() {
                 contentDescription="$label $value"
             }
             box.addView(count,LinearLayout.LayoutParams(-1,d(28)))
-            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(114),1f).apply{
+            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(99),1f).apply{
                 setMargins(d(2),0,d(2),0)
             })
             return count
@@ -1339,37 +1155,42 @@ class MainActivity : Activity() {
         }
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
+        sectionHeading(b,"OPREMA ZA BOPIJEV LET")
         for(n in 0..1){
-            val explanation=if(n==0)"Čuva Bopija od jednog sudara" else "Privlači kovanice i predmete 8 sekundi"
-            small(b,"${if(n==0) "🛡 ŠTIT" else "🧲 MAGNET"} · $explanation\nU torbi: ${progress.perkCount(n)}")
-            action(b,"KUPI ${if(n==0) "ŠTIT" else "MAGNET"} · ${progress.perkPrices[n]} KOVANICA",false){
+            val name=if(n==0)"ŠTIT" else "MAGNET"
+            val explanation=if(n==0)"Upija jedan stvarni sudar." else "Privlači predmete tijekom 8 sekundi."
+            val card=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
+                setPadding(d(14),d(12),d(14),d(10))
+                background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),20).apply{
+                    setStroke(d(2),if(n==0)0xffffd56a.toInt() else electric)
+                }
+            }
+            card.addView(TextView(this).apply{
+                text=(if(n==0)"🛡" else "🧲")+"  $name   ·   ${progress.perkPrices[n]} ♛"
+                textSize=19f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(if(n==0)gold else 0xffbcefff.toInt())
+                contentDescription="$name, cijena ${progress.perkPrices[n]} kovanica"
+            })
+            card.addView(TextView(this).apply{
+                text="$explanation  U torbi: ${progress.perkCount(n)}"
+                textSize=14f;setTextColor(Color.WHITE)
+                setPadding(0,d(5),0,d(4))
+            })
+            action(card,"KUPI $name · ${progress.perkPrices[n]} KOVANICA",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
+            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(10)})
         }
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
-        action(b,"🎨  LIKOVI",false){showSkins(MenuOrigin.SHOP,origin)}
+        small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
         back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
-    private fun showSkins(){showSkins(MenuOrigin.SETTINGS)}
-    private fun showSkins(origin:MenuOrigin,shopOrigin:MenuOrigin=MenuOrigin.SETTINGS){
-        val b=base("LIKOVI","Devet krilatih pilota: Vihor, Iskra i Orion")
-        small(b,"Stanje: ${progress.coins()} kovanica")
-        characterGallery(b){showSkins(origin,shopOrigin)}
-        back(b){
-            when(origin){
-                MenuOrigin.HOME -> showHome()
-                MenuOrigin.SETTINGS -> showSettings()
-                MenuOrigin.PROFILE -> showProfile()
-                MenuOrigin.SHOP -> showPerks(shopOrigin)
-            }
-        }
-    }
-
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        val skin=progress.skin()
+        val skin=0
         val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
             R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
             R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
@@ -1569,7 +1390,7 @@ class MainActivity : Activity() {
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL",true){showSettings()}
-        action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
+        small(b,"Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.")
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -1578,7 +1399,7 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
         }
-        val navNames=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
+        val navNames=listOf("PROFIL","ZADACI","REKORDI","TRGOVINA")
         val navIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
             R.drawable.nav_collection,R.drawable.nav_shop)
         for(index in 0..3){
@@ -1605,7 +1426,7 @@ class MainActivity : Activity() {
                     when(index){
                         0->showProfile()
                         1->showAchievements(MenuOrigin.PROFILE)
-                        2->showSkins(MenuOrigin.PROFILE)
+                        2->showLeaderboard()
                         else->showPerks(MenuOrigin.PROFILE)
                     }
                 }
@@ -1873,7 +1694,7 @@ class MainActivity : Activity() {
         audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
         settingsPanel.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
 
-        action(settingsPanel,"🐤  LIKOVI",false){showSkins()}
+        small(settingsPanel,"Pilot: Bopi · sva oprema vrijedi za isti lik.")
         action(settingsPanel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(settingsPanel,"🏆  MOJI REKORDI",false){showLeaderboard()}
         sectionHeading(settingsPanel,"PODACI I PRIVATNOST")

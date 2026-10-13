@@ -50,7 +50,7 @@ feature.convert("RGB").save(out / "feature-graphic-1024x500.png", optimize=True)
 # which Play disallows. Do not paint or fabricate any app contents.
 sources = [
     ("android-home.png", "01-home.png"),
-    ("android-pilot-picker.png", "02-pilot-selection.png"),
+    ("android-settings.png", "02-settings.png"),
     ("android-gameplay-ready.png", "03-flight-preview.png"),
     ("android-result.png", "04-result.png"),
 ]

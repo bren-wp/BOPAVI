@@ -1,3 +1,13 @@
+## v0.1.70 — Real-video review: smaller Bopi and simplified flight flow (build 73)
+- Reviewed the attached real-device 84.64-second video. The existing menus, flight art and result screen are NOT pixel-identical to the approved high-fidelity concept illustrations. Work in this release addresses specific defects without claiming visual completion.
+- Bopi is the **only playable mascot**. The nine-character selection screen and purchasable skin gallery are removed from Android and iOS navigation; both home Play and level selection open the actual idle flight directly. Old local owned-mask and skin identifiers remain in stored data for compatibility; no real-money skin shop.
+- Reduced Bopi's in-game artwork from 176 to 124 logical units in both renderers, retained independent wing pivots, reduced the aura/shield effects and **kept the same tested 18-unit body collision radius**.
+- Easy, Normal and Hard change forward flight speed to 80%, 100% and 124%. Kept gravity effects, tap controls, continuous streaming and collectible rules consistent across Android and iOS.
+- Added eight biome-specific procedural cap relief treatments, inside the existing visible cap hitbox. Crystal, lava, moss, coral, stone, marble and astral material distinctions add visual depth but cannot create invisible damage regions.
+- Redesigned the offline coin store as two illustrated shield/magnet equipment cards with real prices and stock; removed pilot purchase entry points. Rebalanced result screen layout so real score/reward cards and retry actions are reached sooner on narrow phones.
+- Replaced outdated pilot-picker emulator flow assertions and store listing screenshot with a real Settings capture. Release screenshot gallery and English README no longer advertise removed character selection.
+- Kept offline play, private saved progress, pause, earned rewards and all eight worlds. Exact 1:1 concept fidelity still needs a dedicated asset-layer review and physical-device comparison.
+
 ## v0.1.69 — Continuous level handoff and accurate HUD currency (build 72)
 - The procedural flight stays playable across every level boundary. On real level completion, the **existing** race gauge briefly highlights the next level for 0.85 seconds, then returns to ordinary per-gate progress; no fullscreen transition, blank frames, reset distance or fake finish.
 - Corrected the v0.1.68 in-flight wallet accounting: collectible crowns earned in a run increase the run score and collection statistic, but **do not become spendable wallet currency**. The top-left wallet now shows actual saved currency only; the compact **LET +N** badge separately shows genuine run pickups, and TalkBack/VoiceOver announces both exact counts.

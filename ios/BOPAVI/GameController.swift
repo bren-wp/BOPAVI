@@ -191,7 +191,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             if title == "POSTAVKE" {
                 // Same selected-pilot header arrangement as Android, drawn from
                 // shipped standalone portrait art rather than a reference PNG.
-                let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
                 pilot.contentMode = .scaleAspectFit
                 pilot.isAccessibilityElement=false
                 pilot.widthAnchor.constraint(equalToConstant:117).isActive=true
@@ -415,7 +415,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         walletRow.distribution = .fill
         walletRow.spacing=5
         let avatar=UIButton(type:.custom)
-        avatar.setImage(UIImage(named:"BopiPortrait\(progress.skinIndex())"),for:.normal)
+        avatar.setImage(UIImage(named:"BopiPortrait0"),for:.normal)
         avatar.imageView?.contentMode = .scaleAspectFit
         avatar.contentVerticalAlignment = .fill
         avatar.contentHorizontalAlignment = .fill
@@ -424,7 +424,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         avatar.layer.borderWidth=2
         avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
         avatar.clipsToBounds=true
-        avatar.accessibilityLabel="PROFIL · \(progress.skinNames[progress.skinIndex()])"
+        avatar.accessibilityLabel="PROFIL · Bopi"
         avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
         avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
         avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
@@ -493,7 +493,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let tabs:[(String,String,()->Void)]=[
             ("NavProfile","PROFIL",{self.showProfile()}),
             ("NavTasks","ZADACI",{self.showAchievements(.home)}),
-            ("NavCollection","KOLEKCIJA",{self.showSkins(.home)}),
+            ("NavCollection","REKORDI",{self.showLeaderboard()}),
             ("NavShop","TRGOVINA",{self.showPerks(.home)})
         ]
         for (icon,title,handler) in tabs {
@@ -712,240 +712,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     /// Shared image gallery: every player sees the actual unlocked/locked cast.
     /// A new virtual-coin purchase always requires a second explicit approval.
-    private func characterGallery(in stack:UIStackView,refresh:@escaping()->Void) {
-        // Keep canonical skin indices (and existing saves) unchanged. The
-        // Three new bird pilots retain original skin slot IDs 6–8.
-        let displayOrder=[6,7,8,0,1,2,3,4,5]
-        for start in stride(from:0,to:displayOrder.count,by:3) {
-            let row=UIStackView()
-            row.axis = .horizontal;row.alignment = .fill
-            row.distribution = .fillEqually;row.spacing=5
-            stack.addArrangedSubview(row)
-            for position in start..<min(start+3,displayOrder.count) {
-                let i=displayOrder[position]
-                let selected=progress.skinIndex()==i
-                let owned=progress.owned(i)
-                let cost=progress.costs[i]
-                let status=selected ? "✓ ODABRAN" : owned ? "DOSTUPAN" : i >= 7 ? "PREMIUM · \(cost) KOVANICA" : "\(cost) KOVANICA"
-                let card=BopaviActionButton(primary:selected)
-                card.setTitle("",for:.normal)
-                card.layer.borderWidth=selected ? 3 : 1
-                card.layer.borderColor=(selected
-                    ? UIColor(red:1,green:0.84,blue:0.34,alpha:1)
-                    : UIColor(red:0.43,green:0.72,blue:0.94,alpha:0.7)).cgColor
-                card.accessibilityLabel="\(progress.skinNames[i]), \(status)"
-                card.heightAnchor.constraint(equalToConstant:174).isActive=true
-                card.isSelected=selected
-                // Interactive card with layered scene/portrait and a true
-                // local ownership/currency caption, not an image of a UI.
-                let scene=UIView()
-                scene.translatesAutoresizingMaskIntoConstraints=false
-                scene.layer.cornerRadius=14
-                scene.clipsToBounds=true
-                card.addSubview(scene)
-                let scenery=UIImageView(image:UIImage(named:"World\(i % 8)"))
-                scenery.translatesAutoresizingMaskIntoConstraints=false
-                scenery.contentMode = .scaleAspectFill
-                scenery.clipsToBounds=true
-                scenery.alpha=owned ? 0.86 : 0.66
-                scenery.accessibilityElementsHidden=true
-                scene.addSubview(scenery)
-                let tint=UIView()
-                tint.translatesAutoresizingMaskIntoConstraints=false
-                tint.backgroundColor=UIColor(red:0.01,green:0.08,blue:0.21,alpha:0.32)
-                tint.accessibilityElementsHidden=true
-                scene.addSubview(tint)
-                let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(i)"))
-                portrait.translatesAutoresizingMaskIntoConstraints=false
-                portrait.contentMode = .scaleAspectFit
-                portrait.alpha=owned ? 1 : 0.88
-                portrait.accessibilityElementsHidden=true
-                scene.addSubview(portrait)
-                let badge=UILabel()
-                badge.translatesAutoresizingMaskIntoConstraints=false
-                badge.text=selected ? "♛" : (!owned ? "🔒" : "✦")
-                badge.font=UIFont.systemFont(ofSize:16,weight:.heavy)
-                badge.textColor=selected ? UIColor(red:1,green:0.85,blue:0.3,alpha:1) : .white
-                badge.backgroundColor=UIColor(red:0.02,green:0.17,blue:0.40,alpha:0.95)
-                badge.textAlignment = .center
-                badge.layer.cornerRadius=15
-                badge.layer.borderWidth=1
-                badge.layer.borderColor=UIColor(red:0.31,green:0.78,blue:1,alpha:1).cgColor
-                badge.clipsToBounds=true
-                badge.accessibilityElementsHidden=true
-                scene.addSubview(badge)
-                let name=UILabel()
-                name.translatesAutoresizingMaskIntoConstraints=false
-                name.text=progress.skinNames[i].uppercased()
-                name.font=UIFont.systemFont(ofSize:13,weight:.black)
-                name.textColor = .white
-                name.textAlignment = .center
-                name.adjustsFontSizeToFitWidth=true
-                name.minimumScaleFactor=0.68
-                name.shadowColor=UIColor.black.withAlphaComponent(0.8)
-                name.shadowOffset=CGSize(width:0,height:2)
-                name.accessibilityElementsHidden=true
-                scene.addSubview(name)
-                let price=UILabel()
-                price.translatesAutoresizingMaskIntoConstraints=false
-                price.text=status
-                price.font=UIFont.systemFont(ofSize:10,weight:.heavy)
-                price.textColor=selected ? UIColor(red:1,green:0.88,blue:0.48,alpha:1)
-                    : owned ? UIColor(red:0.5,green:1,blue:0.78,alpha:1)
-                    : UIColor(red:0.83,green:0.9,blue:1,alpha:1)
-                price.textAlignment = .center
-                price.adjustsFontSizeToFitWidth=true
-                price.minimumScaleFactor=0.68
-                price.backgroundColor=UIColor(red:0.02,green:0.1,blue:0.25,alpha:0.96)
-                price.layer.cornerRadius=11
-                price.clipsToBounds=true
-                price.accessibilityElementsHidden=true
-                card.addSubview(price)
-                NSLayoutConstraint.activate([
-                    scene.topAnchor.constraint(equalTo:card.topAnchor,constant:4),
-                    scene.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:3),
-                    scene.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-3),
-                    scene.heightAnchor.constraint(equalToConstant:132),
-                    scenery.leadingAnchor.constraint(equalTo:scene.leadingAnchor),
-                    scenery.trailingAnchor.constraint(equalTo:scene.trailingAnchor),
-                    scenery.topAnchor.constraint(equalTo:scene.topAnchor),
-                    scenery.bottomAnchor.constraint(equalTo:scene.bottomAnchor),
-                    tint.leadingAnchor.constraint(equalTo:scene.leadingAnchor),
-                    tint.trailingAnchor.constraint(equalTo:scene.trailingAnchor),
-                    tint.topAnchor.constraint(equalTo:scene.topAnchor),
-                    tint.bottomAnchor.constraint(equalTo:scene.bottomAnchor),
-                    portrait.leadingAnchor.constraint(equalTo:scene.leadingAnchor,constant:2),
-                    portrait.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-2),
-                    portrait.topAnchor.constraint(equalTo:scene.topAnchor,constant:2),
-                    portrait.heightAnchor.constraint(equalToConstant:112),
-                    badge.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-4),
-                    badge.topAnchor.constraint(equalTo:scene.topAnchor,constant:4),
-                    badge.heightAnchor.constraint(equalToConstant:30),
-                    badge.widthAnchor.constraint(equalToConstant:30),
-                    name.leadingAnchor.constraint(equalTo:scene.leadingAnchor,constant:4),
-                    name.trailingAnchor.constraint(equalTo:scene.trailingAnchor,constant:-4),
-                    name.bottomAnchor.constraint(equalTo:scene.bottomAnchor,constant:-3),
-                    name.heightAnchor.constraint(equalToConstant:30),
-                    price.topAnchor.constraint(equalTo:scene.bottomAnchor,constant:4),
-                    price.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:4),
-                    price.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
-                    price.heightAnchor.constraint(equalToConstant:28)
-                ])
-                card.addAction(UIAction{ [weak self] _ in
-                    guard let self=self else{return}
-                    self.sound.effect("click")
-                    if owned {
-                        _=self.progress.selectOrBuy(i)
-                        refresh()
-                    } else if self.progress.coins()<cost {
-                        self.alert("Nedovoljno kovanica","Prikupi još kovanica za \(self.progress.skinNames[i]).")
-                    } else {
-                        let confirmation=UIAlertController(
-                            title:"Otključati \(self.progress.skinNames[i])?",
-                            message:"Potrošit ćeš \(cost) osvojenih kovanica. Potvrdi otključavanje.",
-                            preferredStyle:.alert)
-                        confirmation.addAction(UIAlertAction(title:"Odustani",style:.cancel))
-                        confirmation.addAction(UIAlertAction(title:"Otključaj",style:.default){_ in
-                            if self.progress.selectOrBuy(i) {refresh()}
-                        })
-                        self.present(confirmation,animated:true)
-                    }
-                },for:.touchUpInside)
-                row.addArrangedSubview(card)
-            }
-            // Exactly nine characters, three columns on all supported iPhones.
-        }
-    }
-    /// Character choice is a deliberate step before gameplay or boost consumption.
+    /// A single mascot: start the chosen world without an intermediate picker.
     private func showPilotPicker(_ world:Int,_ number:Int) {
         gameWorld=world;gameNumber=number
-        let s=menu("ODABERI LIKA","Izaberi letača prije početka svakog leta")
-        let selected=progress.skinIndex()
-        // World backdrop, dimming gradient and selected pilot are actual
-        // native image layers. UI text/buttons are never part of a bitmap.
-        let preview=UIView()
-        preview.translatesAutoresizingMaskIntoConstraints=false
-        preview.backgroundColor=UIColor(red:0.03,green:0.18,blue:0.43,alpha:1)
-        preview.layer.cornerRadius=24
-        preview.clipsToBounds=true
-        preview.heightAnchor.constraint(equalToConstant:216).isActive=true
-        s.addArrangedSubview(preview)
-        let worldBackdrop=UIImageView(image:UIImage(named:"World\(world)"))
-        worldBackdrop.contentMode = .scaleAspectFill
-        worldBackdrop.alpha=0.80
-        worldBackdrop.isAccessibilityElement=false
-        worldBackdrop.translatesAutoresizingMaskIntoConstraints=false
-        preview.addSubview(worldBackdrop)
-        let shade=UIView()
-        shade.translatesAutoresizingMaskIntoConstraints=false
-        shade.backgroundColor=UIColor(red:0.01,green:0.10,blue:0.27,alpha:0.42)
-        shade.isAccessibilityElement=false
-        preview.addSubview(shade)
-        let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
-        portrait.translatesAutoresizingMaskIntoConstraints=false
-        portrait.contentMode = .scaleAspectFit
-        portrait.isAccessibilityElement=true
-        portrait.accessibilityLabel="Pregled lika \(progress.skinNames[selected])"
-        preview.addSubview(portrait)
-        // Animating the preview CALayer cannot affect the live flight model.
-        // Reduced Motion shows the same fully readable static preview.
-        if !UIAccessibility.isReduceMotionEnabled {
-            let pilotHover=CABasicAnimation(keyPath:"transform.translation.y")
-            pilotHover.fromValue=0
-            pilotHover.toValue = -8
-            pilotHover.duration=1.4
-            pilotHover.autoreverses=true
-            pilotHover.repeatCount = .infinity
-            pilotHover.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
-            portrait.layer.add(pilotHover,forKey:"pilotHover")
-        }
-        let badge=UILabel()
-        badge.text="♛  ODABRAN"
-        badge.textAlignment = .center
-        badge.font=UIFont.systemFont(ofSize:12,weight:.heavy)
-        badge.textColor = .white
-        badge.backgroundColor=UIColor(red:0.80,green:0.45,blue:0.02,alpha:0.96)
-        badge.layer.cornerRadius=17
-        badge.layer.borderWidth=2
-        badge.layer.borderColor=UIColor(red:1,green:0.90,blue:0.50,alpha:1).cgColor
-        badge.clipsToBounds=true
-        badge.isAccessibilityElement=false
-        badge.translatesAutoresizingMaskIntoConstraints=false
-        preview.addSubview(badge)
-        NSLayoutConstraint.activate([
-            worldBackdrop.leadingAnchor.constraint(equalTo:preview.leadingAnchor),
-            worldBackdrop.trailingAnchor.constraint(equalTo:preview.trailingAnchor),
-            worldBackdrop.topAnchor.constraint(equalTo:preview.topAnchor),
-            worldBackdrop.bottomAnchor.constraint(equalTo:preview.bottomAnchor),
-            shade.leadingAnchor.constraint(equalTo:preview.leadingAnchor),
-            shade.trailingAnchor.constraint(equalTo:preview.trailingAnchor),
-            shade.topAnchor.constraint(equalTo:preview.topAnchor),
-            shade.bottomAnchor.constraint(equalTo:preview.bottomAnchor),
-            portrait.leadingAnchor.constraint(equalTo:preview.leadingAnchor,constant:14),
-            portrait.trailingAnchor.constraint(equalTo:preview.trailingAnchor,constant:-14),
-            portrait.topAnchor.constraint(equalTo:preview.topAnchor),
-            portrait.bottomAnchor.constraint(equalTo:preview.bottomAnchor,constant:-10),
-            badge.trailingAnchor.constraint(equalTo:preview.trailingAnchor,constant:-10),
-            badge.topAnchor.constraint(equalTo:preview.topAnchor,constant:10),
-            badge.widthAnchor.constraint(equalToConstant:122),
-            badge.heightAnchor.constraint(equalToConstant:35)
-        ])
-        label(progress.skinNames[selected],26,UIColor(red:1,green:0.86,blue:0.49,alpha:1),s)
-        switch selected {
-        case 6: label("Vihor: tirkizni nebeski pilot sa zlatnim naočalama i munjevitim krilima.",15,.white,s)
-        case 7: label("Iskra: ružičasta kolibrica sa zlatnim naočalama, cvijetom i koraljnim perjem.",15,.white,s)
-        case 8: label("Orion: ljubičasti noćni sova-pilot sa zvjezdanim krilima i zlatnim očima.",15,.white,s)
-        default: label("Izaberi svog letača. Poleti u novu avanturu.",15,.white,s)
-        }
-        label("\(BopaviCore.names[world]) · Level \(number) · \(progress.coins()) kovanica",15,.white,s)
-        sectionHeading("ODABERI SVOG LETAČA",in:s)
-        characterGallery(in:s){self.showPilotPicker(world,number)}
-        // Match Android's selection-first workflow; never launch before
-        // explicit confirmation after the complete nine-pilot gallery.
-        button("▶  POLETI S \(progress.skinNames[selected].uppercased())",in:s) {
-            self.startGame(world,number)
-        }
-        button("‹  LEVELI",in:s,primary:false){self.showLevels(world,page:min(number,BopaviCore.levelsPerWorld))}
+        startGame(world,number)
     }
 
     /// All elements are real UIKit views and actions. A full-screen dimmer
@@ -991,7 +761,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
             panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
         ])
-        let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        let mascot=UIImageView(image:UIImage(named:"BopiPortrait0"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
@@ -1150,7 +920,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
             coinWallet:{[weak self] in self?.progress.coins() ?? 0})
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
@@ -1254,9 +1024,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
         ])
         let stack=UIStackView()
-        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=10
+        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=7
         stack.isLayoutMarginsRelativeArrangement=true
-        stack.layoutMargins=UIEdgeInsets(top:22,left:24,bottom:26,right:24)
+        stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:18,right:18)
         stack.translatesAutoresizingMaskIntoConstraints=false
         scroll.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -1269,13 +1039,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=progress.skinIndex()
+        let pilotIndex=0
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22
         header.layer.borderWidth=2
         header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
-        header.heightAnchor.constraint(equalToConstant:192).isActive=true
+        header.heightAnchor.constraint(equalToConstant:144).isActive=true
         header.isAccessibilityElement=true
         header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
         stack.addArrangedSubview(header)
@@ -1307,7 +1077,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             pilot.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:6),
             pilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-6),
             pilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
-            pilot.heightAnchor.constraint(equalToConstant:186)
+            pilot.heightAnchor.constraint(equalToConstant:140)
         ])
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         if newRecord {
@@ -1340,7 +1110,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:0.97)
             card.layer.cornerRadius=19;card.layer.borderWidth=2
             card.layer.borderColor=UIColor(red:0.22,green:0.79,blue:1,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:139).isActive=true
+            card.heightAnchor.constraint(equalToConstant:116).isActive=true
             summary.addArrangedSubview(card)
             let iconView=label(icon,29,gold,card)
             iconView.heightAnchor.constraint(equalToConstant:37).isActive=true
@@ -1389,7 +1159,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.backgroundColor=UIColor(red:0.02,green:0.23,blue:0.46,alpha:1)
             card.layer.cornerRadius=15;card.layer.borderWidth=1
             card.layer.borderColor=UIColor(red:0.28,green:0.64,blue:0.90,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:114).isActive=true
+            card.heightAnchor.constraint(equalToConstant:99).isActive=true
             rewardPanel.addArrangedSubview(card)
             let picture=label(icon,25,gold,card)
             picture.heightAnchor.constraint(equalToConstant:35).isActive=true
@@ -1478,41 +1248,38 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
 
         label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
+        sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
         for n in 0..<2 {
-            let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
-            label("\(n==0 ? "🛡 ŠTIT" : "🧲 MAGNET") · \(extra) · U torbi: \(progress.perkCount(n))",16,.white,s)
-            button("KUPI \(n==0 ? "ŠTIT" : "MAGNET") · \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
+            let name=n==0 ? "ŠTIT" : "MAGNET"
+            let extra=n==0 ? "Upija jedan stvarni sudar." : "Privlači predmete tijekom 8 sekundi."
+            let card=UIStackView()
+            card.axis = .vertical;card.alignment = .fill;card.spacing=5
+            card.isLayoutMarginsRelativeArrangement=true
+            card.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:10,right:14)
+            card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
+            card.layer.cornerRadius=20;card.layer.borderWidth=2
+            card.layer.borderColor=(n==0 ?
+                UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
+                UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
+            label("\(n==0 ? "🛡" : "🧲")  \(name)  ·  \(progress.perkPrices[n]) ♛",
+                  19,UIColor(red:1,green:0.87,blue:0.50,alpha:1),card)
+            label("\(extra)  U torbi: \(progress.perkCount(n))",14,.white,card)
+            button("KUPI \(name) · \(progress.perkPrices[n]) KOVANICA",in:card,primary:false){
                 if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks(origin)}
                 else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
             }
+            s.addArrangedSubview(card)
         }
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
-        button("🎨  LIKOVI",in:s,primary:false){self.showSkins(.shop,shopOrigin:origin)}
+        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",14,.white,s)
         button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
             if origin == .home {self.showHome()} else {self.showSettings()}
         }
     }
-    private func showSkins(){showSkins(.settings)}
-    private func showSkins(_ origin:MenuOrigin,shopOrigin:MenuOrigin = .settings){
-        let s=menu("LIKOVI","Devet krilatih pilota: Vihor, Iskra i Orion")
-        label("Stanje: \(progress.coins()) kovanica",20,.white,s)
-        characterGallery(in:s){self.showSkins(origin,shopOrigin:shopOrigin)}
-        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL"
-            : origin == .shop ? "TRGOVINA" : "POSTAVKE"
-        button("‹  "+backTitle,in:s,primary:false){
-            switch origin {
-            case .home: self.showHome()
-            case .settings: self.showSettings()
-            case .profile: self.showProfile()
-            case .shop: self.showPerks(shopOrigin)
-            }
-        }
-    }
-
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
         let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        let skin=progress.skinIndex()
+        let skin=0
         let hero=UIStackView()
         hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
         hero.layoutMargins=UIEdgeInsets(top:11,left:8,bottom:11,right:8)
@@ -1732,7 +1499,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         s.addArrangedSubview(worldRow)
         button("✎  UREDI PROFIL",in:s){self.showSettings()}
-        button("✦  ODABERI DRUGOG LIKA",in:s,primary:false){self.showSkins(.profile)}
+        label("Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.",14,.white,s)
         let footer=UIStackView()
         footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
         footer.isLayoutMarginsRelativeArrangement=true
@@ -1743,7 +1510,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let tabs:[(String,String,()->Void)]=[
             ("NavProfile","PROFIL",{self.showProfile()}),
             ("NavTasks","ZADACI",{self.showAchievements(.profile)}),
-            ("NavCollection","KOLEKCIJA",{self.showSkins(.profile)}),
+            ("NavCollection","REKORDI",{self.showLeaderboard()}),
             ("NavShop","TRGOVINA",{self.showPerks(.profile)})
         ]
         for (index,item) in tabs.enumerated(){
@@ -2052,7 +1819,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);settingsPanel.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
 
-        button("🐤  LIKOVI",in:settingsPanel,primary:false){self.showSkins()}
+        label("Pilot: Bopi · sva oprema vrijedi za isti lik.",14,.white,settingsPanel)
         button("🛍  TRGOVINA KOVANICAMA",in:settingsPanel,primary:false){self.showPerks()}
         button("🏆  MOJI REKORDI",in:settingsPanel,primary:false){self.showLeaderboard()}
         sectionHeading("PODACI I PRIVATNOST",in:settingsPanel)

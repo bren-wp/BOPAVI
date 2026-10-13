@@ -36,7 +36,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
-    private val selectedSkin=skinIndex.coerceIn(0,8)
+    private val selectedSkin=0 // Bopi is the sole playable pilot; preserve legacy stored skins offline.
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
@@ -50,9 +50,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val hudPortraitRect=RectF(7f,13f,77f,83f)
     private var lastWalletValue = -1
     private var walletDisplay = "0"
-    // In-flight art reduced by 20% for all nine pilots, with matching body hitboxes.
-    // Both groups retain their own shoulder pivots so their wings stay attached.
-    private val birdSize=if(selectedSkin>=6)188f else 176f
+    // Video review: the 176px art dominated the passage. Render Bopi at 124px
+    // while keeping its existing, already tested 18px body collider unchanged.
+    // Never scale collision geometry together with decorative wings.
+    private val birdSize=124f
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
     // True SVG shoulder joints; the alternate pilots have narrower bodies.
     // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
@@ -92,7 +93,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
 
     // One cached cyan/gold radial halo gives the animated pilot more depth.
     // The shader stays in logical bird coordinates and never changes hitboxes.
-    private val birdAuraShader=RadialGradient(0f,0f,74f,
+    private val birdAuraShader=RadialGradient(0f,0f,53f,
         intArrayOf(0x62fff3bb,0x3a2da9ff,0x002da9ff),
         floatArrayOf(0f,.55f,1f),Shader.TileMode.CLAMP)
 
@@ -486,6 +487,60 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0x64ffffff);p.style=Paint.Style.STROKE;p.strokeWidth=2f
         c.drawPath(path,p);p.style=Paint.Style.FILL
     }
+    /** Layered theme relief confined to the same solid pillar collision regions.
+     * No art intrudes into the playable gap and no per-frame bitmap allocations.
+     * Distinct materials: moss, crystal, lava, moonlit stone, coral, marble,
+     * enchanted roots and stardust. Both caps are anchored to the live opening.
+     */
+    private fun drawBiomeGateRelief(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,world:Int) {
+        val accent=intArrayOf(0xff87ef82.toInt(),0xffbd74ff.toInt(),
+            0xffff8b39.toInt(),0xffffd782.toInt(),0xff6ff4ec.toInt(),
+            0xffffe7a0.toInt(),0xff6ceab4.toInt(),0xffbb92ff.toInt())[world]
+        val glint=intArrayOf(0xffd4ffb0.toInt(),0xff7ef4ff.toInt(),
+            0xffffcf70.toInt(),0xffffefa8.toInt(),0xffffb6e7.toInt(),
+            0xffffffff.toInt(),0xffffa7e7.toInt(),0xff85dfff.toInt())[world]
+        for(side in 0..1) {
+            val edge=if(side==0)top else bottom
+            val sign=if(side==0)-1f else 1f
+            // Three offset crystalline/stone faces read as real volume rather
+            // than straight, flat, repeated green/white rectangles.
+            for(i in 0..2) {
+                val left=x+8f+i*(w-27f)/3f
+                val right=(left+(w-20f)/3f+6f).coerceAtMost(x+w-7f)
+                val depth=10f+(i%2)*6f
+                path.reset()
+                path.moveTo(left,edge+sign*5f)
+                path.lineTo((left+right)*.5f,edge+sign*(depth+6f))
+                path.lineTo(right,edge+sign*5f)
+                path.lineTo((left+right)*.5f,edge+sign*2f)
+                path.close()
+                fill(if(i==1)glint else accent)
+                p.alpha=if(i==1)210 else 145
+                c.drawPath(path,p);p.alpha=255
+            }
+            // Biome identity inside the obstacle, not in the unobstructed gap.
+            val inner=edge+sign*35f
+            if(inner in 20f..730f){
+                if(world==2 || world==1 || world==7) {
+                    for(i in 0..1){
+                        path.reset()
+                        val cx=x+17f+i*(w-32f)
+                        path.moveTo(cx-7f,inner)
+                        path.lineTo(cx+1f,inner+sign*23f)
+                        path.lineTo(cx+8f,inner+sign*3f)
+                        path.close()
+                        fill(if(i==0)glint else accent);p.alpha=210
+                        c.drawPath(path,p);p.alpha=255
+                    }
+                } else {
+                    for(i in 0..2) {
+                        val cx=x+13f+i*(w-28f)/2f
+                        oval(c,cx-5f,inner-4f,cx+5f,inner+4f,if(i==1)glint else accent)
+                    }
+                }
+            }
+        }
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -547,6 +602,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
         drawMovingGateRimCues(c,g,x,top,bottom)
+        drawBiomeGateRelief(c,x,w,top,bottom,g.kind)
         // Stone courses, mineral seams and edge lighting add biome-specific
         // depth without textures decoded or allocated inside the frame loop.
         val seam=when(g.kind){
@@ -685,7 +741,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,61f+sin(game.time*5f)*2f,p)
+            c.drawCircle(126f,game.y,48f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
         c.save();c.translate(126f,game.y)
@@ -697,7 +753,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.scale(auraScale,auraScale)
         fill(Color.WHITE)
         p.shader=birdAuraShader
-        c.drawCircle(0f,0f,74f,p)
+        c.drawCircle(0f,0f,53f,p)
         p.shader=null
         c.restore()
         c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
