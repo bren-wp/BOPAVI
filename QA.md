@@ -1,3 +1,13 @@
+## v0.1.80 — Legal Settings and public release acceptance
+1. On Android small and tall portrait devices and on notched iPhones, Settings must show 7 real preference rows, Advanced Settings, two independent compact legal footer actions and the Brendigo publisher label **without scrolling**. Safe-area bounds and tap targets must be valid.
+2. Tap **POLITIKA PRIVATNOSTI**; the native offline notice must disclose local progress, voluntary JSON export, no advertising/analytics/accounts/real-money payment, Brendigo contact and deletion procedures. Dismiss; verify same Settings overview.
+3. Tap **UVJETI KORIŠTENJA**; check virtual items have no monetary value, player-safety guidance, Brendigo identity and support contact. Dismiss and return with real preference state unchanged. Check Android hardware Back and iOS VoiceOver.
+4. Open Advanced Settings: sliders, difficulty, nickname and protected backup/restore must still work and preserve saved data. No new INTERNET/analytics/auth permissions.
+5. Confirm README embeds only authentic GitHub release emulator/simulator screenshot links and existing repo icons, includes all eight worlds, accurately names Bopi as the sole playable pilot, and links legal texts. HTML/Markdown legal pages must stay aligned with actual code.
+6. Require exhaustive native dead-code/source audit, Java/Kotlin lint/JVM test, Android APK/AAB, API35/36 UI smoke/screenshots, Swift simulator and save tests, unsigned device build, release SHA-256 manifest and 14 assets before publishing the GitHub release.
+7. **External publisher gates:** sign Android AAB with the verified established upload key, sign and archive iOS build privately, verify public HTTPS Privacy Policy URL in an anonymous browser, complete Play/App Store declarations, rating, family/age policy, privacy manifests if applicable, and store review. A successful GitHub build is not platform approval.
+8. **Unfinished visual work:** complete 1:1 asset-layer and on-device screenshot comparisons for Splash, Settings (including advanced), Shop, Records, Profile, Worlds and Levels, then remaining menus. Gameplay remains last.
+
 ## v0.1.79 — Records and Achievements acceptance
 1. Home → Records: verify an honest first-run empty state or the exact locally saved best ten runs, two entries per page, real score/world/gate counts and functioning Next/Previous.
 2. Records → My Achievements: show eight selectable 2×4 world achievements without scrolling, preserving world ordering and real worldStars, streamFrontier, best and completed-level counts. Never show fabricated online ranking or unlock data.
