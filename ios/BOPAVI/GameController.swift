@@ -162,7 +162,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
-        scroll.alwaysBounceVertical=true
+        // Home controls fit on one screen, including the safe area and the
+        // bottom navigation. Keep scrolling for information-dense submenus.
+        scroll.alwaysBounceVertical=title != "BOPAVI"
+        scroll.isScrollEnabled=title != "BOPAVI"
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
