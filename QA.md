@@ -1,3 +1,12 @@
+## v0.1.75 — Splash-first visual and navigation acceptance
+1. Compare the exact approved **Splash / Loading** concept against Android API 35/36 and notched iPhone simulator cold starts. The logo must appear ABOVE Bopi, centered without cropping, with islands/waterfalls and unobstructed lower text.
+2. Cold start, foreground app launch, and reopen after termination: never show a black frame, a legacy below-Bopi logo, a double in-app splash, or a screen frozen on loading. Android 12+ may show the mandatory system splash icon before the illustrated stage.
+3. Android HomeArt is decoded during real startup work and reused; its failure falls back to regular Android resource decoding. Confirm backgrounding while the loader runs cannot access uninitialized audio and that a destroyed Activity is not reopened by late callbacks.
+4. iOS LaunchArt and in-app UIImageView share the same scene; the first-appearance completion is event driven, no fixed-delay transition and no fake progress number. Test VoiceOver and Reduce Motion.
+5. On a 320 dp compact Android phone and small iPhone verify the gold loading feedback remains above the system navigation/home-indicator area; splash must never scroll or intercept controls on Home.
+6. Gate release through source audit, Android lint/JVM/APK/AAB, Android API35/36 smoke and authentic screenshots, iOS simulator/saved-progress tests/device compile, asset byte-identity and SHA-256 release manifest.
+7. **Unfinished:** screenshot-diff against original concept and subsequent no-scroll 1:1 redesigns for Settings → Shop → Records → Profile → Tasks/Collection → Worlds/Levels. Gameplay remains unchanged this release.
+
 ## v0.1.74 — Compact safe-top gameplay HUD acceptance
 1. On a small Android phone, tall API36 device and notched iPhone, start a **real** flight and confirm star, shield and magnet chips form one horizontal row immediately below the real course gauge, inside the physical top-safe-area projection.
 2. Compare active-flight screenshots side by side across Android/iOS: no oversized passive badge may cover the left flight corridor; the real Pause control remains visible, unobstructed and tappable.

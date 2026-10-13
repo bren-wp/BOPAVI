@@ -1130,7 +1130,10 @@ assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
 assert android_menu.count('applyPremiumSystemBars()')==5
 assert 'window.decorView.systemUiVisibility=0' not in android_menu
 assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==2
-assert 'root.setOnApplyWindowInsetsListener' not in android_menu
+# The splash MUST reserve the bottom inset for its loading bar; only Home
+# must avoid a second root-level inset listener around already-safe controls.
+assert 'root.setOnApplyWindowInsetsListener' not in android_home
+assert 'root.setOnApplyWindowInsetsListener' in android_menu.split('private fun showSplash()',1)[1].split('private fun showNativeView(',1)[0]
 assert 'setAutoSizeTextTypeUniformWithConfiguration(11,16,1' in android_menu
 assert 'setAutoSizeTextTypeUniformWithConfiguration(8,11,1' in android_home
 assert 'override var prefersStatusBarHidden:Bool { true }' in ios_menu
@@ -1414,7 +1417,7 @@ print('PASS: compact Android/iOS world gallery with interactive 2x4 image cards 
 # exact same Android/iOS assets; progress bar is never faked in a still image.
 image_source=(root/'tools/generate_images.py').read_text()
 assert "home_art.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)" in image_source
-assert "launch_art.paste(logoCrop,((900-logoCrop.width)//2,865),logoCrop)" in image_source
+assert "launch_art.alpha_composite(logoCrop,((900-logoCrop.width)//2,215))" in image_source
 assert "home_art.save(a/'drawable-nodpi/homeback.png'" in image_source
 assert "home_art.save(b/'HomeArt.imageset/home.png'" in image_source
 assert "launch_art.save(a/'drawable-nodpi/splash.png'" in image_source
@@ -2092,3 +2095,25 @@ for render in (android_game,ios_game):
 assert 'distanceTitle=' in android_game
 assert 'distanceLabel=NSAttributedString' in ios_game
 print('PASS: actual score + game-distance visible on both top HUDs with throttled text updates')
+
+# v0.1.75: launch composition follows the approved Splash/Loading order;
+# platform implementations use the SAME artwork and truthful loading stages.
+assert 'launch_halo' in image_source
+assert 'launch_art=launch.copy().convert(\'RGBA\')' in image_source
+android_splash=android_menu.split('private fun showSplash()',1)[1].split('private fun showNativeView(',1)[0]
+ios_splash=ios_menu.split('private func showSplash()',1)[1].split('private func menu(',1)[0]
+assert 'setImageResource(R.drawable.splash)' in android_splash
+assert 'UIImage(named:"LaunchArt")' in ios_splash
+assert 'ProgressBar(' in android_splash and 'isIndeterminate=true' in android_splash
+assert 'sweep.add(movement,forKey:"startup-progress")' in ios_splash
+assert 'UIAccessibility.isReduceMotionEnabled' in ios_splash
+for splash in (android_splash,ios_splash):
+    assert 'UČITAVANJE...' in splash
+    assert 'ScrollView' not in splash and 'UIScrollView' not in splash
+assert 'warmedHomeArt=loaded' in android_menu
+assert 'if(::sound.isInitialized) sound.pause()' in android_menu
+assert 'if(isFinishing || isDestroyed)' in android_menu
+assert 'startupPending=false' in ios_menu and 'override func viewDidAppear(' in ios_menu
+assert 'DispatchQueue.main.async' in ios_menu
+assert 'postDelayed' not in android_splash
+print('PASS: v0.1.75 reference-order full-bleed startup, no fake percentage, safe lifecycle')

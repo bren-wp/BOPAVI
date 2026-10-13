@@ -108,11 +108,18 @@ home_art=launch.copy()
 home_art.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)
 home_art.save(a/'drawable-nodpi/homeback.png',optimize=True)
 home_art.save(b/'HomeArt.imageset/home.png',optimize=True)
-# The OS launch screen puts Bopi first and the same winged wordmark BELOW.
-# No fabricated progress percentage: platform splash is only visible while
-# the real app starts. Never bake interactive menu controls into this raster.
-launch_art=launch.copy()
-launch_art.paste(logoCrop,((900-logoCrop.width)//2,865),logoCrop)
+# The approved SPLASH / LOADING reference stacks the original winged logo
+# ABOVE Bopi, who is already centered in the shared illustrated landscape.
+# The lower foreground stays unprinted for an honest NATIVE loading indicator.
+# Neither the OS launch image nor HomeArt contains any fake progress percentage.
+from PIL import ImageFilter
+launch_art=launch.copy().convert('RGBA')
+launch_halo=Image.new('RGBA',logoCrop.size,(36,170,255,0))
+launch_halo.putalpha(logoCrop.getchannel('A').filter(
+    ImageFilter.GaussianBlur(20)).point(lambda alpha: min(110,alpha//2)))
+launch_art.alpha_composite(launch_halo,((900-logoCrop.width)//2,205))
+launch_art.alpha_composite(logoCrop,((900-logoCrop.width)//2,215))
+launch_art=launch_art.convert('RGB')
 launch_art.save(a/'drawable-nodpi/splash.png',optimize=True)
 launch_art.save(b/'LaunchArt.imageset/launch.png',optimize=True)
 (b/'Contents.json').write_text(json.dumps({'info':{'author':'xcode','version':1}}))
