@@ -236,7 +236,9 @@ class LevelEngineTest {
         assertEquals("Global completed gates must never reset between levels",1,game.totalPassed)
         assertTrue("Global distance must remain monotonic",game.distance>0f)
         assertEquals("Upcoming obstacle must never jump at the boundary",previewX-game.distance,game.gateX(game.level.gates[0]),0.01f)
-        assertEquals(0f,game.levelTransition,0f)
+        assertEquals(.85f,game.levelTransition,.001f)
+        game.step(.05f)
+        assertTrue("The brief level badge fades while flight remains live",game.levelTransition in 0f..<.85f)
         assertTrue(game.active)
         assertFalse(game.finished)
     }
