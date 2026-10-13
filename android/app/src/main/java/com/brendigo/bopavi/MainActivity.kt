@@ -1916,7 +1916,8 @@ class MainActivity : Activity() {
         showNativeView(root)
     }
 
-    private fun showSettingsDetails(page:Int=0){
+    private fun showSettingsDetails(){showSettingsDetails(0)}
+    private fun showSettingsDetails(page:Int){
         val sectionPage=page.coerceIn(0,2)
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
         // Keep every genuine control and persistence callback, but divide the
