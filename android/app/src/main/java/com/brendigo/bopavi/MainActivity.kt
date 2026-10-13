@@ -1235,8 +1235,9 @@ class MainActivity : Activity() {
     }
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
     private fun showPerks(origin:MenuOrigin){
-        val b=base("TRGOVINA","Za kovanice osvojene igrom — bez stvarnog novca")
-        title(b,"●  ${progress.coins()} KOVANICA",24,gold)
+        val b=base("TRGOVINA","")
+        title(b,"♛  ${progress.coins()} KOVANICA",24,gold)
+        small(b,"Za kovanice osvojene igrom — bez stvarnog novca.")
         small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
@@ -1246,35 +1247,51 @@ class MainActivity : Activity() {
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         sectionHeading(b,"OPREMA ZA BOPIJEV LET")
+        // Two compact, symmetrical native cards on one screen.
+        val cardRow=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+        }
         for(n in 0..1){
             val name=if(n==0)"ŠTIT" else "MAGNET"
             val explanation=if(n==0)"Upija jedan stvarni sudar." else "Privlači predmete tijekom 8 sekundi."
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL
-                setPadding(d(14),d(12),d(14),d(10))
+                gravity=Gravity.CENTER_HORIZONTAL
+                setPadding(d(8),d(10),d(8),d(9))
                 background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),20).apply{
                     setStroke(d(2),if(n==0)0xffffd56a.toInt() else electric)
                 }
             }
             card.addView(TextView(this).apply{
-                text=(if(n==0)"🛡" else "🧲")+"  $name   ·   ${progress.perkPrices[n]} ♛"
+                text=if(n==0)"🛡" else "🧲"
+                gravity=Gravity.CENTER;textSize=34f
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(57)))
+            card.addView(TextView(this).apply{
+                text=name;gravity=Gravity.CENTER
                 textSize=19f;typeface=Typeface.DEFAULT_BOLD
                 setTextColor(if(n==0)gold else 0xffbcefff.toInt())
                 contentDescription="$name, cijena ${progress.perkPrices[n]} kovanica"
-            })
+            },LinearLayout.LayoutParams(-1,d(31)))
             card.addView(TextView(this).apply{
-                text="$explanation  U torbi: ${progress.perkCount(n)}"
-                textSize=14f;setTextColor(Color.WHITE)
-                setPadding(0,d(5),0,d(4))
+                text="$explanation\nU torbi: ${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
+                textSize=12f;setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER;maxLines=3
+                setPadding(0,d(4),0,d(4))
             })
-            action(card,"KUPI $name · ${progress.perkPrices[n]} KOVANICA",false){
+            action(card,"KUPI $name",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
-            b.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(10)})
+            cardRow.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
+                setMargins(d(3),d(3),d(3),d(3))
+            })
         }
+        b.addView(cardRow,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(6)})
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
         small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
+        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
     /** The offline PROFILE is built from actual saved pilot data and game art. */
