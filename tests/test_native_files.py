@@ -2317,3 +2317,13 @@ for guard in ('android-home.png', 'min_touch=round(40', 'overlap_x>3',
               'width,height=struct.unpack', 'Home control outside screenshot'):
     assert guard in qa_script, guard
 print('PASS: v0.1.81 no-scroll Android/iOS Home viewport and real PNG touch geometry')
+
+# v0.1.81: never publish a simulator launch-art-only screenshot as HOME.
+ios_home_validator=(root/'tools/verify_ios_home_screenshot.swift').read_text()
+assert 'NSBitmapImageRep(data: data)' in ios_home_validator
+assert 'orangeRow >= 0.43 && footerRow >= 0.46' in ios_home_validator
+assert 'FAIL: iOS capture shows launch/illustration' in ios_home_validator
+assert 'swiftc -O tools/verify_ios_home_screenshot.swift' in workflow
+assert 'home_ready=0' in workflow and 'if [ "$home_ready" -ne 1 ]; then' in workflow
+assert 'iOS screenshot is not the interactive Home' in workflow
+print('PASS: v0.1.81 iOS screenshot must contain interactive Home artwork and live controls')
