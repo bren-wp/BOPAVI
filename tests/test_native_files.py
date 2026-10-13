@@ -1862,7 +1862,7 @@ for check in ('audit_private_declarations','audit_resource_reachability',
     assert 'def '+check+'(' in audit,check
 
 qa=(root/'tools/qa_android_emulator.sh').read_text()
-for required in ('recover_confirmed_system_launcher','verify_idle_preview',
+for required in ('recover_launcher_anr','verify_idle_preview',
                  'FAIL: obsolete character picker appeared before Bopi flight'):
     assert required in qa
 assert 'qa/screenshots/*.txt' in workflow
