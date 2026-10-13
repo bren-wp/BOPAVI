@@ -1680,7 +1680,7 @@ assert 'dist/SHA256SUMS.txt' in workflow
 assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
 print('PASS: original release assets and authentic Settings capture have SHA-256 manifest')
 
-# v0.1.60: the reference's settings screen is one scrolling glass sheet,
+# v0.1.81: the reference settings content is divided into fitted pages,
 # featuring real chosen-pilot art, not a composited screenshot of controls.
 settings_android=android_menu.split('private fun showSettingsDetails(){',1)[1].split('@Deprecated("Activity result',1)[0]
 settings_ios=ios_menu.split('private func showSettingsDetails(){',1)[1].split('func documentPicker(',1)[0]
@@ -1705,8 +1705,8 @@ for source in (settings_android,settings_ios):
         if saved not in ("export","import"):
             assert saved in source,(saved,"settings persistence")
     assert "cloudSave" not in source and "signOut" not in source
-assert 'back(b){showHome()}' in settings_android
-assert 'button("‹  POČETNA",in:s,primary:false){self.showHome()}' in settings_ios
+assert 'back(b){showSettings()}' in settings_android
+assert 'button("‹  POSTAVKE",in:s,primary:false){self.showSettings()}' in settings_ios
 for text in ("SPREMI IME","SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE"):
     assert 'action(settingsPanel,"'+text+'"' in settings_android,text
     assert 'button("'+text+'",in:settingsPanel' in settings_ios,text
