@@ -309,6 +309,18 @@ if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
 if any("IZGLED I ZVUK" in text for text in texts):
     raise SystemExit("FAIL: PROFIL incorrectly opened settings")
+# A no-scroll profile must expose Edit and the four bottom actions without
+# swipe. Bounds of the real tap surfaces must be inside the display.
+nodes=list(root.iter("node"))
+for label in ("Natrag na početnu","Uredi profil","ZADACI","TRGOVINA"):
+    targets=[n for n in nodes if n.get("clickable")=="true" and
+             label in (n.get("content-desc","")+" "+n.get("text",""))]
+    if not targets:
+        raise SystemExit("FAIL: profile compact action unreachable: "+label)
+    if not any(n.get("bounds") and re.fullmatch(r"\[\d+,\d+\]\[\d+,\d+\]",n.get("bounds",""))
+               for n in targets):
+        raise SystemExit("FAIL: profile action bounds malformed: "+label)
+
 # Only an actual emulator frame of the visited, validated profile qualifies
 # as visual evidence. Never substitute the uploaded concept artwork.
 from pathlib import Path
