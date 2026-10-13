@@ -1589,8 +1589,8 @@ for profile in (android_profile,ios_profile):
                  'progress.frontier(','progress.worldStars(','progress.best(',
                  'progress.collectibles(','MOJE NAGRADE',
                  'PRVI LET','ISTRAŽIVAČ','SAKUPLJAČ','VETERAN',
-                 'MOJI NAJBOLJI SVJETOVI','POGLEDAJ SVA POSTIGNUĆA',
-                 'Tvoj stalni pilot: Bopi'):
+                 'MOJI NAJBOLJI SVJETOVI','SVE NAGRADE',
+                 'Letački profil, '):
         assert text in profile,('Missing real profile feature',text)
     assert 'worldStars(' in profile and 'sorted' in profile
     assert 'if(earned)' in profile or 'earned ?' in profile
@@ -2191,3 +2191,31 @@ assert android_menu.count('portraitDrawableIds[')>=4
 for i in range(9):
     assert 'R.drawable.bopiportrait'+str(i) in android_menu
 print('PASS: reused Android portrait catalog with no redundant allocation')
+
+# v0.1.78: live native Profile is one safe-area-fitted viewport.
+# Scores, medals, character and best worlds are REAL user save values,
+# not text baked into the reference screenshot.
+android_prof=android_menu.split('private fun showProfile(){',1)[1].split('private fun showLeaderboard(){',1)[0]
+ios_prof=ios_menu.split('private func showProfile(){',1)[1].split('private func showLeaderboard(){',1)[0]
+android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
+ios_menu_base=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
+for menu in (android_prof,ios_prof):
+    for actual in ('profileStars','profileWorld','MOJE NAGRADE','MOJI NAJBOLJI SVJETOVI','SVE NAGRADE',
+                   'progress.coins()','progress.bestPoints()','showLevels('):
+        assert actual in menu,('profile',actual)
+    assert 'showAchievements(' in menu and 'showSettings()' in menu
+    assert 'cloudSave' not in menu and 'playerXP' not in menu
+assert 'label=="PROFIL"' in android_base
+assert 'FitViewportColumn(this)' in android_base
+assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
+assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
+assert 'menuBackAction={showHome()}' in android_prof
+assert 'contentDescription="Natrag na početnu"' in android_prof
+assert 'title == "PROFIL"' in ios_menu_base
+assert 'scroll.isScrollEnabled=false' in ios_menu_base
+assert 'currentMenuName == "PROFIL"' in ios_menu
+assert 'scroll.bounds.height/naturalHeight' in ios_menu
+assert 'stack.transform=CGAffineTransform' in ios_menu
+assert 'back.accessibilityLabel="Natrag na početnu"' in ios_prof
+assert 'showHome()' in ios_prof
+print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
