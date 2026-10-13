@@ -2216,7 +2216,8 @@ assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'currentMenuName == "PROFIL"' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
-assert 'stack.transform=CGAffineTransform' in ios_menu
+assert 'let desired=CGAffineTransform' in ios_menu
+assert 'if stack.transform != desired' in ios_menu
 assert 'back.accessibilityLabel="Natrag na početnu"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
