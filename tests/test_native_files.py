@@ -1240,13 +1240,13 @@ for home in (android_home,ios_home):
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
 assert 'val avatar=ImageView(this)' in android_home
-assert 'R.drawable.bopiportrait8' in android_home
+assert 'R.drawable.bopiportrait0' in android_home
 assert 'showProfile()' in android_home
 assert 'showAchievements(MenuOrigin.HOME)' in android_home
 assert 'showPerks(MenuOrigin.HOME)' in android_home
 assert 'showSettings()' in android_home
 assert 'LinearLayout.LayoutParams(0,d(48),1f)' in android_home
-assert 'avatar.setImage(UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_home
+assert 'avatar.setImage(UIImage(named:"BopiPortrait0")' in ios_home
 assert 'self.showProfile()' in ios_home
 assert 'self.showAchievements(.home)' in ios_home
 assert 'self.showPerks(.home)' in ios_home
@@ -1348,7 +1348,7 @@ assert 'drawColor(skyA[game.level.world])' in android_canvas
 ci=(root/'.github/workflows/native-ci.yml').read_text()
 readme=(root/'README.md').read_text()
 for image in (
-    'BOPAVI-Android-Home.png','BOPAVI-Android-Pilots.png',
+    'BOPAVI-Android-Home.png',
     'BOPAVI-Android-Flight-Preview.png','BOPAVI-Android-Results.png',
     'BOPAVI-iOS-Home.png'
 ):
@@ -1683,9 +1683,9 @@ assert 'BopaviSettingsPanel: UIStackView' in ios_menu
 assert 'let settingsPanel=BopaviSettingsPanel()' in settings_ios
 assert 'layer.borderWidth=2' in ios_menu
 assert 'if(label=="POSTAVKE")' in base_android
-assert 'portraits[progress.skin().coerceIn(0,8)]' in base_android
+assert 'portraits[0]' in base_android
 assert 'if title == "POSTAVKE"' in menu_ios
-assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in menu_ios
+assert 'UIImage(named:"BopiPortrait0")' in menu_ios
 for label in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST"):
     assert 'sectionHeading(settingsPanel,"'+label+'")' in settings_android,label
     assert 'sectionHeading("'+label+'",in:settingsPanel)' in settings_ios,label
