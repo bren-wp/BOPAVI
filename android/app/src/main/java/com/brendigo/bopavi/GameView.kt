@@ -730,11 +730,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastProgressPassed=passed
             contentDescription="Bopi leti. Prolazi ukupno $passed"
         }
-        // The concept is a single centre-top race gauge (crown -> flag).
-        // Actual procedural levels have gates, not mapped metres: never
-        // present invented 1,280m/2,000m figures from reference art.
+        // Physically travelled course distance animates smoothly between gates.
+        // The reference metre label cannot be shown: no metre scale exists.
         val total=game.level.gates.size.coerceAtLeast(1)
-        val ratio=(game.passed.toFloat()/total.toFloat()).coerceIn(0f,1f)
+        val ratio=game.levelProgress
         hudGlass(c,146f,18f,406f,77f)
         text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
         text(c,"⚑",389f,57f,26f,Color.WHITE,true)
