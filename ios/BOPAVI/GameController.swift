@@ -327,8 +327,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let naturalHeight=stack.bounds.height
         let fit=min(CGFloat(1),scroll.bounds.height/naturalHeight)
         let topShift = -(naturalHeight * (1 - fit) / 2)
-        stack.transform=CGAffineTransform(scaleX:fit,y:fit)
+        let desired=CGAffineTransform(scaleX:fit,y:fit)
             .translatedBy(x:0,y:fit>0 ? topShift/fit : 0)
+        // Avoid scheduling another UIKit layout pass for an unchanged fit.
+        if stack.transform != desired {stack.transform=desired}
     }
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
