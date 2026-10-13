@@ -1127,7 +1127,7 @@ print('PASS: removed pilot gallery and legacy purchase controls')
 android_chrome=android_menu.split('private fun applyPremiumSystemBars()',1)[1].split('override fun onCreate(',1)[0]
 assert 'View.SYSTEM_UI_FLAG_FULLSCREEN' in android_chrome
 assert 'View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN' in android_chrome
-assert android_menu.count('applyPremiumSystemBars()')==5
+assert android_menu.count('applyPremiumSystemBars()')==6
 assert 'window.decorView.systemUiVisibility=0' not in android_menu
 assert android_menu.count('Type.systemBars() or android.view.WindowInsets.Type.displayCutout()')==2
 # The splash MUST reserve the bottom inset for its loading bar; only Home
