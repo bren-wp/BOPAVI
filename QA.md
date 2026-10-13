@@ -1,3 +1,11 @@
+## v0.1.80 — Zero-scroll menu acceptance
+1. On Android (API 35 and API 36) and iOS cutout/compact and tall phones, verify Splash and Home, 7-row Settings, all three detailed Settings pages, Profile, Shop, Records, Achievements, Worlds and twenty-level grid need no vertical swipes.
+2. World selection: all eight real world cards must be simultaneously available; opening Zeleni otoci leads to twenty clickable Level tiles (1–20) with genuine lock/star save data. Next opens 21–40; Back returns to Worlds and then Home without changing gameplay.
+3. Settings Details: Page 1 plays actual Music/Effects audio and persists haptics. Page 2 preserves real Easy/Normal/Hard difficulty, nickname. Page 3 exposes motion, audio, Shop/Records and local backup/restore with actual handlers. Verify tapping Next/Previous without scrolling.
+4. Never make a control smaller than usable touch area on compact devices; verify UI accessibility labels, keyboard entry and safe-area cutouts on actual screenshots.
+5. Execute native privacy/dead-code audit, Python file and graphics tests, Android lint/JVM and APK/AAB, Android API 35/36 emulator navigation and screenshots, iOS simulator smoke, unsigned device build, Swift save/physics tests, release manifest and SHA-256 artifact validation.
+6. No claim of exact visual 1:1 until the real screenshot geometry, artwork, fonts, colors and action bounds are compared side-by-side to the supplied reference.
+
 ## v0.1.79 — Records and Achievements acceptance
 1. Home → Records: verify an honest first-run empty state or the exact locally saved best ten runs, two entries per page, real score/world/gate counts and functioning Next/Previous.
 2. Records → My Achievements: show eight selectable 2×4 world achievements without scrolling, preserving world ordering and real worldStars, streamFrontier, best and completed-level counts. Never show fabricated online ranking or unlock data.
