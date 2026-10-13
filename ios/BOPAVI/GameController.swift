@@ -86,6 +86,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
     private var startupPending=false
+    private var currentMenuName="BOPAVI"
     private var gameWorld=0
     private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
@@ -220,6 +221,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     // Gameplay and persistence remain independent of these presentation views.
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
+        currentMenuName=title
         if title != "BOPAVI" {
             let world=gameWorld >= 0 && gameWorld < 8 ? gameWorld : 0
             let backdrop=UIImageView(image:UIImage(named:"World\(world)"))
@@ -1655,8 +1657,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
 
-    private func showLeaderboard(){showLeaderboardPage(0)}
-    private func showLeaderboardPage(_ page:Int){
+    private func showLeaderboard(){
+        showLeaderboardPage(0,fromSettings:currentMenuName=="POSTAVKE")
+    }
+    private func showLeaderboardPage(_ page:Int,fromSettings:Bool){
         let stack=menu("MOJI REKORDI","Tvojih deset najboljih letova")
         let entries=progress.leaderboard()
         if let best=entries.first {
@@ -1726,19 +1730,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             nav.axis = .horizontal;nav.distribution = .fillEqually
             nav.spacing=5
             button("‹ PRETHODNI",in:nav,primary:false){
-                if current>0 {self.showLeaderboardPage(current-1)}
+                if current>0 {self.showLeaderboardPage(current-1,fromSettings:fromSettings)}
             }
             let indicator=label("\(current+1)/\(totalPages)",13,.white,nav)
             indicator.backgroundColor=UIColor(red:0.02,green:0.16,blue:0.35,alpha:1)
             indicator.layer.cornerRadius=16
             indicator.clipsToBounds=true
             button("SLJEDEĆI ›",in:nav,primary:false){
-                if current<totalPages-1 {self.showLeaderboardPage(current+1)}
+                if current<totalPages-1 {self.showLeaderboardPage(current+1,fromSettings:fromSettings)}
             }
             stack.addArrangedSubview(nav)
         }
         button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements()}
-        button("‹  POSTAVKE",in:stack,primary:false){self.showSettings()}
+        button(fromSettings ? "‹  POSTAVKE" : "‹  POČETNA",in:stack,primary:false){
+            if fromSettings {self.showSettings()} else {self.showHome()}
+        }
     }
     private func showAchievements(){showAchievements(.settings)}
     private func showAchievements(_ origin:MenuOrigin){
@@ -1799,6 +1805,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     /// Advanced Settings retains all original preferences and backup actions.
     private func showSettings(){
         clear()
+        currentMenuName="POSTAVKE"
         let art=UIImageView(image:UIImage(named:"World0"))
         art.contentMode = .scaleAspectFill
         art.clipsToBounds=true
