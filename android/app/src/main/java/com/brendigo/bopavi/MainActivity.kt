@@ -47,6 +47,9 @@ class MainActivity : Activity() {
         R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
         R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
         R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
+    private val worldDrawableIds=intArrayOf(
+        R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+        R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
     private val worldAccents = intArrayOf(0xff3bd48f.toInt(),0xff7feafe.toInt(),0xffff8163.toInt(),0xffb39afa.toInt(),0xff65e8e1.toInt(),0xffffd891.toInt(),0xffb4ed73.toInt(),0xffbcb1ff.toInt())
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -200,8 +203,7 @@ class MainActivity : Activity() {
         // Real world art is a full-bleed layer; all interactive labels remain real
         // views instead of baking fake scores, buttons or progress into a PNG.
         val root=FrameLayout(this).apply{setBackgroundColor(ocean)}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val scenes=worldDrawableIds
         root.addView(ImageView(this).apply{
             setImageResource(scenes[currentWorld.coerceIn(0,7)])
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -374,8 +376,7 @@ class MainActivity : Activity() {
             background=gradient(0xff0b5ca8.toInt(),0xff071b3f.toInt(),17)
             clipToOutline=true
         }
-        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val art=worldDrawableIds
         artPanel.addView(ImageView(this).apply{
             setImageResource(art[world])
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -712,8 +713,7 @@ class MainActivity : Activity() {
                 else Toast.makeText(this@MainActivity,"Prvo dovrši prethodni level.",Toast.LENGTH_SHORT).show()
             }
         }
-        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val art=worldDrawableIds
         frame.addView(ImageView(this).apply{
             setImageResource(art[world]);scaleType=ImageView.ScaleType.CENTER_CROP
             alpha=if(unlocked)0.95f else 0.36f
@@ -1009,8 +1009,7 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        val scenes=worldDrawableIds
         val backdrop=ImageView(this).apply{
             setImageResource(scenes[currentWorld]);scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
