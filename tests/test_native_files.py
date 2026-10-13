@@ -2293,3 +2293,27 @@ for dev_copy in ("The AAB and iOS device archive are not distribution-signed",
                  "legacy skin save aliases"):
     assert dev_copy not in readme
 print('PASS: v0.1.80 Brendigo privacy/terms accessible in non-scroll native Settings and truthful live-screenshot README')
+
+
+# v0.1.81: Home must stay on a single safe-area viewport, without
+# regressions in real score/coin values or synthetic concept controls.
+android_home = android_menu.split('private fun showHome()', 1)[1].split('private fun showWorlds()', 1)[0]
+ios_home = ios_menu.split('private func showHome()', 1)[1].split('private func showWorlds()', 1)[0]
+assert 'FitViewportColumn(this)' in android_home
+assert 'ScrollView(this)' not in android_home
+assert 'scroll.setOnApplyWindowInsetsListener{v,insets->' in android_home
+assert 'scroll.requestApplyInsets()' in android_home
+assert 'insets.systemWindowInsetBottom' in android_home
+assert 'insets.displayCutout' in android_home
+assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+assert 'homeViewport.frameLayoutGuide.heightAnchor' in ios_home
+assert 'stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor)' not in ios_home
+for home in (android_home, ios_home):
+    assert 'progress.coins()' in home and 'progress.bestPoints()' in home
+    assert 'showWorlds()' in home and 'showSettings()' in home
+    assert 'showProfile()' in home and 'showLeaderboard()' in home
+qa_script=(root/'tools/qa_android_emulator.sh').read_text()
+for guard in ('android-home.png', 'min_touch=round(40', 'overlap_x>3',
+              'width,height=struct.unpack', 'Home control outside screenshot'):
+    assert guard in qa_script, guard
+print('PASS: v0.1.81 no-scroll Android/iOS Home viewport and real PNG touch geometry')
