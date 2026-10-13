@@ -32,8 +32,9 @@ class MainActivity : Activity() {
     private var warmedHomeArt: android.graphics.Bitmap? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
-    private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP }
+    private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP, RECORDS }
     private var menuBackAction:(()->Unit)?=null
+    private var recordsReturnToSettings=false
     private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
@@ -211,7 +212,7 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL"){
+        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA"){
             // Finite menus fit physical safe areas instead of hiding content
             // in a long scroller. Do not apply a double root inset.
             val fitted=FitViewportColumn(this)
@@ -1578,6 +1579,7 @@ class MainActivity : Activity() {
         showLeaderboardPage(0,selectedScreen=="POSTAVKE" || selectedScreen=="settings")
     }
     private fun showLeaderboardPage(page:Int,fromSettings:Boolean){
+        recordsReturnToSettings=fromSettings
         val b=base("MOJI REKORDI","Tvojih deset najboljih letova")
         val entries=progress.leaderboard()
         val best=entries.firstOrNull()
@@ -1661,21 +1663,87 @@ class MainActivity : Activity() {
             b.addView(nav,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(5)})
         }
         b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        action(b,"★  MOJA POSTIGNUĆA",false){showAchievements()}
+        action(b,"★  MOJA POSTIGNUĆA",false){showAchievements(MenuOrigin.RECORDS)}
         back(b){if(fromSettings)showSettings() else showHome()}
     }
     private fun showAchievements(){showAchievements(MenuOrigin.SETTINGS)}
+
     private fun showAchievements(origin:MenuOrigin){
-        val b=base("POSTIGNUĆA","Nagrade koje si osvojio tijekom igre")
-        small(b,"Dovršeni leveli: ${((0..7).sumOf { (progress.frontier(it)-1).toLong() })}")
-        small(b,"Pobjede: ${progress.wins()}  ·  Pokušaji bez pobjede: ${progress.deaths()}")
-        val furthest=(0..7).maxByOrNull { progress.streamFrontier(it) } ?: 0
-        small(b,"Svijet u kojem si najdalje napredovao: ${LevelEngine.names[furthest]}")
-        for(w in 0..7)small(b,"${LevelEngine.names[w]} · najbolji rezultat ${progress.best(w)}")
+        val b=base("POSTIGNUĆA","Tvoj napredak kroz svih osam svjetova")
+        val completed=(0..7).sumOf { (progress.frontier(it)-1).coerceAtLeast(0).toLong() }
+        val summary=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER
+            setPadding(d(8),d(6),d(8),d(6))
+            background=gradient(0xff0a4e9d.toInt(),0xff051b43.toInt(),18).apply{
+                setStroke(d(2),gold)
+            }
+            contentDescription="Dovršeni leveli: $completed, Pobjede: ${progress.wins()}, " +
+                "Pokušaji bez pobjede: ${progress.deaths()}"
+        }
+        for((name,value) in listOf(
+            "LEVELI" to "$completed",
+            "POBJEDE" to "${progress.wins()}",
+            "LETOVI" to "${progress.wins()+progress.deaths()}"
+        )){
+            summary.addView(TextView(this).apply{
+                text="$name\n$value";textSize=15f
+                typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
+                setTextColor(Color.WHITE)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,d(50),1f))
+        }
+        b.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(6);bottomMargin=d(7)})
+        profileHeading(b,"NAPREDAK PO SVJETOVIMA")
+        for(row in 0..3){
+            val rowLayout=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            }
+            for(col in 0..1){
+                val w=row*2+col
+                val stars=progress.worldStars(w)
+                val level=progress.streamFrontier(w)
+                val record=progress.best(w)
+                val card=LinearLayout(this).apply{
+                    orientation=LinearLayout.VERTICAL
+                    gravity=Gravity.CENTER_VERTICAL
+                    setPadding(d(9),d(7),d(8),d(6))
+                    background=gradient(
+                        if(w==progress.chosenWorld())0xff175ea1.toInt() else 0xff0b3976.toInt(),
+                        0xff03172e.toInt(),17).apply{
+                        setStroke(d(2),if(w==progress.chosenWorld())gold else worldAccents[w])
+                    }
+                    isClickable=true;isFocusable=true
+                    contentDescription="${LevelEngine.names[w]}, " +
+                        "zvjezdice $stars od 30, level $level, rekord $record. Otvori levele"
+                    setOnClickListener{sound.effect("click");showLevels(w,1)}
+                }
+                card.addView(TextView(this).apply{
+                    text=LevelEngine.names[w].uppercase()
+                    textSize=12f;typeface=Typeface.DEFAULT_BOLD
+                    setTextColor(Color.WHITE);setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(22)))
+                card.addView(TextView(this).apply{
+                    text="★ $stars/30  ·  ♛ $record"
+                    setTextColor(gold);textSize=12f
+                    typeface=Typeface.DEFAULT_BOLD
+                    setSingleLine(true)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(-1,d(23)))
+                rowLayout.addView(card,LinearLayout.LayoutParams(0,d(67),1f).apply{
+                    leftMargin=d(3);rightMargin=d(3)
+                })
+            }
+            b.addView(rowLayout,LinearLayout.LayoutParams(-1,d(72)))
+        }
+        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         back(b){
             when(origin){
                 MenuOrigin.HOME -> showHome()
                 MenuOrigin.PROFILE -> showProfile()
+                MenuOrigin.RECORDS -> showLeaderboardPage(0,recordsReturnToSettings)
                 else -> showSettings()
             }
         }
