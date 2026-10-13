@@ -1582,7 +1582,7 @@ for profile in (android_profile,ios_profile):
                  'progress.collectibles(','MOJE NAGRADE',
                  'PRVI LET','ISTRAŽIVAČ','SAKUPLJAČ','VETERAN',
                  'MOJI NAJBOLJI SVJETOVI','POGLEDAJ SVA POSTIGNUĆA',
-                 'ODABERI DRUGOG LIKA'):
+                 'Tvoj stalni pilot: Bopi'):
         assert text in profile,('Missing real profile feature',text)
     assert 'worldStars(' in profile and 'sorted' in profile
     assert 'if(earned)' in profile or 'earned ?' in profile
