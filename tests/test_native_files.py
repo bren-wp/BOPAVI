@@ -2252,3 +2252,44 @@ assert 'currentMenuName == "POSTIGNUĆA"' in ios_menu
 assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
 assert 'FAIL: Achievements Back did not restore Records' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: v0.1.79 eight real achievement cards and correct Records navigation')
+
+
+# v0.1.80: Both native launchers keep their Settings main screen non-scrolling,
+# offer immediate in-app legal disclosure, and identify the correct publisher.
+for content in (android_overview, ios_overview):
+    for title in ("POLITIKA PRIVATNOSTI","UVJETI KORIŠTENJA","BRENDIGO"):
+        assert title in content,title
+    assert 'showLegalNotice(' in content
+    assert 'ScrollView(' not in content and 'UIScrollView(' not in content
+    assert 'NAPREDNE POSTAVKE' in content
+android_notice=android_menu.split('private fun showLegalNotice(privacy:Boolean){',1)[1].split('private fun showSettingsDetails()',1)[0]
+ios_notice=ios_menu.split('private func showLegalNotice(privacy:Bool){',1)[1].split('private func showSettingsDetails()',1)[0]
+assert 'option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}' in android_overview
+assert 'settingRow("PRIVATNOST",{"PROČITAJ"})' in ios_overview
+assert 'UIAlertController(title:title,message:details' in ios_notice
+assert 'android.app.AlertDialog.Builder(this)' in android_notice
+for native in (android_notice, ios_notice):
+    for token in ('Brendigo','JSON','github.com/bren-wp/BOPAVI/issues',
+                  'UVJETI KORIŠTENJA','POLITIKA PRIVATNOSTI'):
+        assert token in native,token
+    assert 'INTERNET' not in native
+    assert 'webView' not in native and 'WKWebView' not in native
+for file in ('docs/play/TERMS_OF_USE.md','docs/play/terms-of-use.html',
+             'docs/play/PRIVACY_POLICY.md','docs/play/privacy-policy.html'):
+    assert (root/file).exists(),file
+terms=(root/'docs/play/TERMS_OF_USE.md').read_text()
+html=(root/'docs/play/terms-of-use.html').read_text()
+readme=(root/'README.md').read_text()
+for token in ('Brendigo','virtual','data','https://github.com/bren-wp/BOPAVI/issues'):
+    assert token.casefold() in terms.casefold(),token
+assert '<section lang="hr">' in html and '<section lang="en">' in html
+for value in ("[Privacy Policy](docs/play/PRIVACY_POLICY.md)",
+              "[Terms of Use](docs/play/TERMS_OF_USE.md)",
+              "BOPAVI-Android-Flight-Active.png","BOPAVI-Android-Profile.png",
+              "MALI LETOVI • VELIKE PRIČE"):
+    assert value in readme,value
+for dev_copy in ("The AAB and iOS device archive are not distribution-signed",
+                 "Release assets have not yet", "Nine playable pilots",
+                 "legacy skin save aliases"):
+    assert dev_copy not in readme
+print('PASS: v0.1.80 Brendigo privacy/terms accessible in non-scroll native Settings and truthful live-screenshot README')
