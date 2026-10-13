@@ -588,6 +588,53 @@ final class GameCanvas: UIView {
     }
     /// Subtle suspended-cliff facets, confined to the existing gate shafts.
     /// Only drawn geometry changes: the BopaviCore opening and collision remain.
+    /// Distinctive material facets, always inside the existing collision caps.
+    /// Cosmetic geometry is identical to Android; never narrows the flight gap.
+    private func drawBiomeGateRelief(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                     _ top:CGFloat,_ bottom:CGFloat,_ world:Int) {
+        let accents:[UInt32]=[0x87ef82,0xbd74ff,0xff8b39,0xffd782,
+                              0x6ff4ec,0xffe7a0,0x6ceab4,0xbb92ff]
+        let glints:[UInt32]=[0xd4ffb0,0x7ef4ff,0xffcf70,0xffefa8,
+                             0xffb6e7,0xffffff,0xffa7e7,0x85dfff]
+        for side in 0...1 {
+            let edge=side==0 ? top : bottom
+            let sign:CGFloat=side==0 ? -1 : 1
+            for i in 0...2 {
+                let left=x+8+CGFloat(i)*(w-27)/3
+                let right=min(x+w-7,left+(w-20)/3+6)
+                let depth:CGFloat=10+CGFloat(i%2)*6
+                c.beginPath()
+                c.move(to:CGPoint(x:left,y:edge+sign*5))
+                c.addLine(to:CGPoint(x:(left+right)*0.5,y:edge+sign*(depth+6)))
+                c.addLine(to:CGPoint(x:right,y:edge+sign*5))
+                c.addLine(to:CGPoint(x:(left+right)*0.5,y:edge+sign*2))
+                c.closePath()
+                c.setFillColor(color(i==1 ? glints[world] : accents[world],
+                                     i==1 ? 210.0/255 : 145.0/255))
+                c.fillPath()
+            }
+            let inner=edge+sign*35
+            if inner>=20 && inner<=730 {
+                if world==2 || world==1 || world==7 {
+                    for i in 0...1 {
+                        let cx=x+17+CGFloat(i)*(w-32)
+                        c.beginPath()
+                        c.move(to:CGPoint(x:cx-7,y:inner))
+                        c.addLine(to:CGPoint(x:cx+1,y:inner+sign*23))
+                        c.addLine(to:CGPoint(x:cx+8,y:inner+sign*3))
+                        c.closePath()
+                        c.setFillColor(color(i==0 ? glints[world] : accents[world],210.0/255))
+                        c.fillPath()
+                    }
+                } else {
+                    for i in 0...2 {
+                        let cx=x+13+CGFloat(i)*(w-28)/2
+                        oval(c,cx-5,inner-4,10,8,i==1 ? glints[world] : accents[world])
+                    }
+                }
+            }
+        }
+    }
     private func drawRockFacets(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
                                 _ start:CGFloat,_ end:CGFloat){
         let span=end-start
@@ -664,6 +711,7 @@ final class GameCanvas: UIView {
         default:break
         }
         drawMovingGateRimCues(c,g,x,top,bottom)
+        drawBiomeGateRelief(c,x,w,top,bottom,g.kind)
         // Same rock strata and biome-specific highlights as Android.
         let seam:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
                            0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]
