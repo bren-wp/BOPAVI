@@ -314,7 +314,7 @@ if any("IZGLED I ZVUK" in text for text in texts):
 nodes=list(root.iter("node"))
 for label in ("Natrag na početnu","Uredi profil","ZADACI","TRGOVINA"):
     targets=[n for n in nodes if n.get("clickable")=="true" and
-             label in (n.get("content-desc","")+" "+n.get("text",""))]
+             label.casefold() in (n.get("content-desc","")+" "+n.get("text","")).casefold()]
     if not targets:
         raise SystemExit("FAIL: profile compact action unreachable: "+label)
     if not any(n.get("bounds") and re.fullmatch(r"\[\d+,\d+\]\[\d+,\d+\]",n.get("bounds",""))
