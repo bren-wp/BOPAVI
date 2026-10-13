@@ -1,3 +1,11 @@
+## v0.1.78 — Profile / native one-screen audit and visual acceptance
+1. From the Home avatar or bottom navigation, open Profile on compact Android, tall Android 16 and small/notched iPhones. Bopi, user record stats, earned-only four awards, three ranked-world previews, Edit Profile, and all four bottom tabs must fit without swiping and allow genuine taps.
+2. Confirm Profile's world-star progress shows actual saved stars (0–30) and world/level, never invented XP or metres; ranked worlds have real saved counts. Test empty and progressed profiles.
+3. Tap each mini world preview and verify the matching world's real levels. Open the awards action and return to Profile. Use Edit Profile to change the local nickname through Settings, then verify saved data and records are intact. Verify hardware/predictive Back and visible Home action.
+4. Compare QA-Android-visual-flow real android-profile.png and iOS simulator visual evidence against the user's uploaded reference. Adjust typography, spacing and Bopi artwork based on evidence; full 1:1 visual matching is not asserted by source tests.
+5. Run native static dead-code checker on all 12 Kotlin/Swift units, dynamic Android resource parity, paired audio digests, project linkage, Android lint/JVM APK/AAB, API35/36 emulator screens/navigation, iOS simulator launch + physics/save regression + unsigned device build and SHA-256 GitHub release checks. Do not treat static heuristics as proof of leak-free code.
+6. Keep all existing gameplay and save logic unchanged. Google Play/Apple signing and actual store approval remain external publishing steps.
+
 ## v0.1.77 — Shop, Records and native performance acceptance
 1. From Home open Shop. Two side-by-side Shield/Magnet cards must fit without scroll on a compact and notched Android/iPhone display; display actual perkPrices and perkCount, local wallet, and fail closed on insufficient coins or full inventory.
 2. Verify score-to-coin claim button only appears when a new 1,000-point personal best threshold has actually been reached. Never credit a second claim for the same milestone.

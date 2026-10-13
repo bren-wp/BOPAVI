@@ -1,3 +1,11 @@
+## v0.1.78 — Compact offline Profile and one-screen native navigation (build 81)
+- All Profile data is sourced from the existing local save: current Bopi pilot, user-entered nickname, best points, in-game coins, completed stages and real victories. No fabricated account, diamonds, cloud sync or purchasing.
+- Android: profile now shares the existing FitViewportColumn already used by short Shop/Records pages, uses safe-area insets, reduces oversized portrait/rows/badges and removes duplicate labels. The top native Home action, real Edit Profile control, earned-only awards, three ranked world art cards and bottom navigation stay clickable.
+- iOS: profile uses the same no-scroll menu behavior as Shop/Records, a more compact portrait/stats/gallery/footer, and proportional safe-area fitting for narrow and tall device layouts. Native UIButton actions and VoiceOver descriptions remain active.
+- Preserve locally earned badge thresholds, player profile and world save formats, ranked destinations and achievements. No gameplay, collision, monetization, save migration or network behavior changed.
+- Extend source and real Android emulator checks for accessible edit/award/footer actions without swiping. Include cross-platform dead-code, asset/audio parity and privacy audits, native build/lint/physics regression, real emulator/simulator launch and release checks.
+- This is functional/structural fidelity toward the supplied richer profile illustration, not a declaration of pixel-perfect 1:1 photorealistic art. Worlds, levels, tasks, collections and remaining menus will follow; gameplay remains last.
+
 ## v0.1.77 — Compact Shop and paged personal Records (build 80)
 - Android and iOS now present two side-by-side perk cards for Bopi's real Shield and Magnet equipment, each using the saved in-game coin price and owned quantity. Record-milestone bonus coins remain redeemable exactly once; there are no diamonds, ads, real-money purchases, user accounts or network dependencies.
 - Shop and Records avoid long scrolling menus. Android uses FitViewportColumn and safe-area insets; iOS disables scrolling and reduces unused menu spacing/heading size for these two destinations.
