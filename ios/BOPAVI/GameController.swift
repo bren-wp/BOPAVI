@@ -1248,13 +1248,27 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
 
         label("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za sljedeći let.",15,.white,s)
+        sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
         for n in 0..<2 {
-            let extra=n==0 ? "Čuva Bopija od jednog sudara" : "Privlači kovanice i predmete 8 sekundi"
-            label("\(n==0 ? "🛡 ŠTIT" : "🧲 MAGNET") · \(extra) · U torbi: \(progress.perkCount(n))",16,.white,s)
-            button("KUPI \(n==0 ? "ŠTIT" : "MAGNET") · \(progress.perkPrices[n]) KOVANICA",in:s,primary:false){
+            let name=n==0 ? "ŠTIT" : "MAGNET"
+            let extra=n==0 ? "Upija jedan stvarni sudar." : "Privlači predmete tijekom 8 sekundi."
+            let card=UIStackView()
+            card.axis = .vertical;card.alignment = .fill;card.spacing=5
+            card.isLayoutMarginsRelativeArrangement=true
+            card.layoutMargins=UIEdgeInsets(top:12,left:14,bottom:10,right:14)
+            card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
+            card.layer.cornerRadius=20;card.layer.borderWidth=2
+            card.layer.borderColor=(n==0 ?
+                UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
+                UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
+            label("\(n==0 ? "🛡" : "🧲")  \(name)  ·  \(progress.perkPrices[n]) ♛",
+                  19,UIColor(red:1,green:0.87,blue:0.50,alpha:1),card)
+            label("\(extra)  U torbi: \(progress.perkCount(n))",14,.white,card)
+            button("KUPI \(name) · \(progress.perkPrices[n]) KOVANICA",in:card,primary:false){
                 if self.progress.buyPerk(n){self.sound.effect("purchase");self.showPerks(origin)}
                 else {self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")}
             }
+            s.addArrangedSubview(card)
         }
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",14,.white,s)
         label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",14,.white,s)
