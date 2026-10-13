@@ -615,11 +615,15 @@ class MainActivity : Activity() {
                 val bars=intArrayOf(insets.systemWindowInsetLeft,
                     insets.systemWindowInsetTop,insets.systemWindowInsetRight,
                     insets.systemWindowInsetBottom)
-                val cutout=if(Build.VERSION.SDK_INT>=28) insets.displayCutout else null
-                left=maxOf(bars[0],cutout?.safeInsetLeft?:0)
-                top=maxOf(bars[1],cutout?.safeInsetTop?:0)
-                right=maxOf(bars[2],cutout?.safeInsetRight?:0)
-                bottom=maxOf(bars[3],cutout?.safeInsetBottom?:0)
+                if(Build.VERSION.SDK_INT>=28){
+                    val cutout=insets.displayCutout
+                    left=maxOf(bars[0],cutout?.safeInsetLeft?:0)
+                    top=maxOf(bars[1],cutout?.safeInsetTop?:0)
+                    right=maxOf(bars[2],cutout?.safeInsetRight?:0)
+                    bottom=maxOf(bars[3],cutout?.safeInsetBottom?:0)
+                } else {
+                    left=bars[0];top=bars[1];right=bars[2];bottom=bars[3]
+                }
             }
             if(v.paddingLeft!=left || v.paddingTop!=top ||
                v.paddingRight!=right || v.paddingBottom!=bottom){
