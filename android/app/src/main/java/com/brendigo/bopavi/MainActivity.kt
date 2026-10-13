@@ -978,9 +978,8 @@ class MainActivity : Activity() {
         quick("✦","KONTROLE"){
             android.app.AlertDialog.Builder(this)
                 .setTitle("Kontrole leta")
-                .setMessage(if(currentWorld % 2 == 1)
-                    "Povuci prst gore ili dolje za visinu leta. Kretanje je postupno; izbjegavaj prepreke. Pauza se pojavljuje nakon početka leta."
-                    else "Dodirni zaslon za zamah krilima. Pauza se pojavljuje nakon prvog leta.")
+                .setMessage("Dodirni zaslon za svaki zamah krilima u svih osam svjetova. " +
+                    "Pauza je dostupna nakon početka leta; izbjegavaj prepreke i skupljaj nagrade.")
                 .setPositiveButton("U REDU",null).show()
         }
         quick("⚙","POSTAVKE"){
