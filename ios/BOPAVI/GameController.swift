@@ -1655,36 +1655,42 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("‹  POČETNA",in:s,primary:false){self.showHome()}
     }
 
-    private func showLeaderboard(){
+    private func showLeaderboard(){showLeaderboardPage(0)}
+    private func showLeaderboardPage(_ page:Int){
         let stack=menu("MOJI REKORDI","Tvojih deset najboljih letova")
         let entries=progress.leaderboard()
         if let best=entries.first {
             let banner=UIStackView()
-            banner.axis = .vertical;banner.alignment = .fill;banner.spacing=3
+            banner.axis = .vertical;banner.alignment = .fill;banner.spacing=2
             banner.isLayoutMarginsRelativeArrangement=true
-            banner.layoutMargins=UIEdgeInsets(top:15,left:13,bottom:17,right:13)
+            banner.layoutMargins=UIEdgeInsets(top:9,left:10,bottom:9,right:10)
             banner.backgroundColor=UIColor(red:0.025,green:0.29,blue:0.64,alpha:0.98)
-            banner.layer.cornerRadius=23
-            banner.layer.borderWidth=3
+            banner.layer.cornerRadius=21
+            banner.layer.borderWidth=2
             banner.layer.borderColor=UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
             banner.isAccessibilityElement=true
             banner.accessibilityLabel="Osobni rekord: \(best.score) bodova"
-            label("♛  OSOBNI REKORD",18,UIColor(red:1,green:0.79,blue:0.32,alpha:1),banner)
-            let score=label("\(best.score) BODOVA",29,.white,banner)
-            score.font=UIFont.monospacedDigitSystemFont(ofSize:29,weight:.heavy)
+            label("♛  OSOBNI REKORD",17,
+                  UIColor(red:1,green:0.79,blue:0.32,alpha:1),banner)
+            let score=label("\(best.score) BODOVA",26,.white,banner)
+            score.font=UIFont.monospacedDigitSystemFont(ofSize:26,weight:.heavy)
             stack.addArrangedSubview(banner)
         } else {
             label("Prvi rekord čeka tvoj sljedeći let!",17,.white,stack)
         }
-        for (index,item) in entries.enumerated() {
+        let perPage=2
+        let totalPages=max(1,(entries.count+perPage-1)/perPage)
+        let current=max(0,min(page,totalPages-1))
+        for (index,item) in entries.enumerated().dropFirst(current*perPage).prefix(perPage) {
             let champion=index==0
             let card=UIStackView()
-            card.axis = .horizontal;card.alignment = .center;card.spacing=9
+            card.axis = .horizontal;card.alignment = .center;card.spacing=7
             card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:12,left:12,bottom:12,right:12)
+            card.layoutMargins=UIEdgeInsets(top:8,left:10,bottom:8,right:10)
             card.backgroundColor=UIColor(red:0.025,green:champion ? 0.29 : 0.16,
                                          blue:champion ? 0.55 : 0.37,alpha:1)
-            card.layer.cornerRadius=18;card.layer.borderWidth=champion ? 2 : 1
+            card.layer.cornerRadius=18
+            card.layer.borderWidth=champion ? 2 : 1
             card.layer.borderColor=champion
                 ? UIColor(red:1,green:0.78,blue:0.29,alpha:1).cgColor
                 : UIColor(red:0.10,green:0.78,blue:1,alpha:1).cgColor
@@ -1692,26 +1698,44 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.accessibilityLabel="Let \(index+1), \(item.score) bodova, \(BopaviCore.names[item.world]), \(item.gates) prolaza"
             let medal=UILabel()
             medal.text=champion ? "♛" : String(index+1)
-            medal.textAlignment = .center;medal.font=UIFont.systemFont(ofSize:champion ? 29:22,weight:.heavy)
-            medal.textColor=champion ? UIColor(red:1,green:0.77,blue:0.30,alpha:1) : .white
-            medal.widthAnchor.constraint(equalToConstant:49).isActive=true
-            medal.heightAnchor.constraint(equalToConstant:50).isActive=true
+            medal.font=UIFont.systemFont(ofSize:champion ? 25:21,weight:.heavy)
+            medal.textAlignment = .center
+            medal.textColor=champion ?
+                UIColor(red:1,green:0.77,blue:0.30,alpha:1) : .white
+            medal.widthAnchor.constraint(equalToConstant:40).isActive=true
             card.addArrangedSubview(medal)
-            let detail=UIStackView()
-            detail.axis = .vertical;detail.alignment = .fill;detail.spacing=2
-            let main=label("\(item.score) BODOVA",20,.white,detail)
-            main.font=UIFont.monospacedDigitSystemFont(ofSize:20,weight:.heavy)
-            main.adjustsFontSizeToFitWidth=true;main.minimumScaleFactor=0.72
-            let location=label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty])",12,
-                               UIColor(red:0.83,green:0.94,blue:1,alpha:1),detail)
+            let info=UIStackView()
+            info.axis = .vertical;info.alignment = .fill;info.spacing=2
+            let score=label("\(item.score) BODOVA",18,.white,info)
+            score.font=UIFont.monospacedDigitSystemFont(ofSize:18,weight:.heavy)
+            score.adjustsFontSizeToFitWidth=true;score.minimumScaleFactor=0.7
+            let location=label("\(BopaviCore.names[item.world]) · \(progress.difficultyNames[item.difficulty])",
+                               11,UIColor(red:0.83,green:0.94,blue:1,alpha:1),info)
             location.adjustsFontSizeToFitWidth=true;location.minimumScaleFactor=0.7
-            card.addArrangedSubview(detail)
+            card.addArrangedSubview(info)
             let gates=UILabel()
-            gates.text="⚑ \(item.gates)";gates.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
-            gates.font=UIFont.monospacedDigitSystemFont(ofSize:13,weight:.heavy)
+            gates.text="⚑ \(item.gates)"
+            gates.textColor=UIColor(red:1,green:0.77,blue:0.30,alpha:1)
+            gates.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
             gates.setContentCompressionResistancePriority(.required,for:.horizontal)
             card.addArrangedSubview(gates)
             stack.addArrangedSubview(card)
+        }
+        if totalPages>1 {
+            let nav=UIStackView()
+            nav.axis = .horizontal;nav.distribution = .fillEqually
+            nav.spacing=5
+            button("‹ PRETHODNI",in:nav,primary:false){
+                if current>0 {self.showLeaderboardPage(current-1)}
+            }
+            let indicator=label("\(current+1)/\(totalPages)",13,.white,nav)
+            indicator.backgroundColor=UIColor(red:0.02,green:0.16,blue:0.35,alpha:1)
+            indicator.layer.cornerRadius=16
+            indicator.clipsToBounds=true
+            button("SLJEDEĆI ›",in:nav,primary:false){
+                if current<totalPages-1 {self.showLeaderboardPage(current+1)}
+            }
+            stack.addArrangedSubview(nav)
         }
         button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements()}
         button("‹  POSTAVKE",in:stack,primary:false){self.showSettings()}
