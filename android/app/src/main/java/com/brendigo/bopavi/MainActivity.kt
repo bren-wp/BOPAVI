@@ -840,7 +840,7 @@ class MainActivity : Activity() {
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
                 progress.recordLevelStars(world,completed,simulation.completedLevelStars)
@@ -936,7 +936,7 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=progress.skin()
+        val pilotIndex=0
         val pilotPortraits=intArrayOf(
             R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
@@ -1170,7 +1170,7 @@ class MainActivity : Activity() {
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        val skin=progress.skin()
+        val skin=0
         val portraits=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
             R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
             R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
@@ -1370,7 +1370,7 @@ class MainActivity : Activity() {
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL",true){showSettings()}
-        action(b,"✦  ODABERI DRUGOG LIKA",false){showSkins(MenuOrigin.PROFILE)}
+        small(b,"Tvoj stalni pilot: Bopi · svi rezultati pripadaju istom profilu.")
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
