@@ -29,6 +29,7 @@ class MainActivity : Activity() {
     private var currentLevel = 1L
     private var gameView: GameView? = null
     private var gamePauseButton: Button? = null
+    private var warmedHomeArt: android.graphics.Bitmap? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
     private enum class MenuOrigin { HOME, SETTINGS, PROFILE, SHOP }
@@ -54,18 +55,86 @@ class MainActivity : Activity() {
         window.statusBarColor=0xff09264a.toInt()
         window.navigationBarColor=0xff09264a.toInt()
         applyPremiumSystemBars()
-        progress=ProgressStore(this);sound=Soundscape(this)
-        sound.enabled=progress.soundEnabled()
-        sound.musicVolume=progress.musicVolume()/100f
-        sound.effectsVolume=progress.effectsVolume()/100f
-        // Android 16 no longer routes predictive Back through onBackPressed().
-        if (Build.VERSION.SDK_INT >= 33) {
-            val callback = android.window.OnBackInvokedCallback { navigateBack() }
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
-            platformBackCallback = callback
+        showSplash()
+        // Prepare the REAL HomeArt bitmap off the UI thread. The illustrated
+        // splash remains visible only while startup resources are being loaded,
+        // never for an arbitrary delay or a fabricated percentage.
+        Thread({
+            val loaded=runCatching {
+                android.graphics.BitmapFactory.decodeResource(
+                    resources,R.drawable.homeback,
+                    android.graphics.BitmapFactory.Options().apply{inScaled=false})
+            }.getOrNull()
+            runOnUiThread {
+                if(isFinishing || isDestroyed) {
+                    loaded?.recycle()
+                    return@runOnUiThread
+                }
+                warmedHomeArt=loaded
+                progress=ProgressStore(this)
+                sound=Soundscape(this)
+                sound.enabled=progress.soundEnabled()
+                sound.musicVolume=progress.musicVolume()/100f
+                sound.effectsVolume=progress.effectsVolume()/100f
+                // Android 16 predictive Back requires an explicit callback.
+                if (Build.VERSION.SDK_INT >= 33) {
+                    val callback = android.window.OnBackInvokedCallback { navigateBack() }
+                    onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                        android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+                    platformBackCallback = callback
+                }
+                showHome()
+            }
+        },"BOPAVI-startup-assets").start()
+    }
+    /** Non-scrolling startup stage: live indeterminate loading, never a fake bar. */
+    private fun showSplash() {
+        selectedScreen="splash"
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff146bb7.toInt())}
+        root.addView(ImageView(this).apply{
+            setImageResource(R.drawable.splash)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        val footer=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER
+            setPadding(d(18),d(11),d(18),d(13))
+            background=gradient(0xe5082c63.toInt(),0xef031937.toInt(),20).apply{
+                setStroke(d(2),electric)
+            }
         }
-        showHome()
+        footer.addView(TextView(this).apply{
+            text="UČITAVANJE..."
+            textSize=13f
+            typeface=Typeface.DEFAULT_BOLD
+            letterSpacing=.09f
+            gravity=Gravity.CENTER
+            setTextColor(Color.WHITE)
+            contentDescription="BOPAVI, učitavanje igre"
+        },LinearLayout.LayoutParams(-1,d(29)))
+        footer.addView(android.widget.ProgressBar(
+            this,null,android.R.attr.progressBarStyleHorizontal).apply{
+            isIndeterminate=true
+            indeterminateTintList=ColorStateList.valueOf(gold)
+            progressBackgroundTintList=ColorStateList.valueOf(0xff153d73.toInt())
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(-1,d(9)).apply{topMargin=d(3)})
+        val position=FrameLayout.LayoutParams(d(252),-2,Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply{
+            bottomMargin=d(45)
+        }
+        root.addView(footer,position)
+        root.setOnApplyWindowInsetsListener{_,insets->
+            if(Build.VERSION.SDK_INT>=30){
+                val bars=insets.getInsets(android.view.WindowInsets.Type.navigationBars()
+                    or android.view.WindowInsets.Type.displayCutout())
+                val params=footer.layoutParams as FrameLayout.LayoutParams
+                val bottom=bars.bottom+d(30)
+                if(params.bottomMargin!=bottom){params.bottomMargin=bottom;footer.layoutParams=params}
+            }
+            insets
+        }
+        showNativeView(root)
     }
     private fun showNativeView(root: View) {
         // Keep the scene artwork edge-to-edge. Individual ScrollViews (home,
@@ -77,12 +146,12 @@ class MainActivity : Activity() {
     override fun onPause() {
         // An idle preview has no visible pause button; only pause active flights.
         if(gameView?.game?.active == true) gameView?.paused = true
-        sound.pause()
+        if(::sound.isInitialized) sound.pause()
         super.onPause()
     }
     override fun onResume() {
         super.onResume()
-        if(gameView?.game?.active == false && gameView?.paused == false) sound.resume()
+        if(::sound.isInitialized && gameView?.game?.active == false && gameView?.paused == false) sound.resume()
     }
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= 33) {
@@ -360,7 +429,9 @@ class MainActivity : Activity() {
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply {
-            setImageResource(R.drawable.homeback)
+            val art=warmedHomeArt
+            if(art!=null && !art.isRecycled) setImageBitmap(art)
+            else setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))

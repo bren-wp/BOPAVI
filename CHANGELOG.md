@@ -1,3 +1,10 @@
+## v0.1.75 — Reference-ordered illustrated splash and honest startup (build 78)
+- Recompose the existing shared Android/iOS launch scene to match the supplied splash reference hierarchy: original blue-and-gold winged wordmark above Bopi, floating-island artwork, soft branded glow, and clean bottom space for real loading feedback.
+- Android: show the full-bleed branded splash while predecoding actual home scenery off the UI thread, reuse that bitmap on Home, and complete progress/audio initialization before exposing any navigation. Keep the loading bar indeterminate and inset-safe, without made-up progress percentages or arbitrary startup delays.
+- iOS: present the identical LaunchArt asset in a first-appearance splash stage, with a small navy/cyan loading panel and an indeterminate gold animation. Honor Reduce Motion; show Home after UIKit attaches its initial scene, without a timer.
+- Preserve the Android 12+ platform splash, iOS UILaunchScreen, offline saves, game physics, monetization and platform-specific back handling; no extra images or runtime CDN. Add cross-platform source regressions.
+- The original rendered target uses distinct artwork not yet exported as independent production layers: this release improves layout/source parity, but exact visual 1:1 remains unverified pending side-by-side device screenshots. Next screen acceptance focus: Settings, Shop, Records and Profile before gameplay.
+
 ## v0.1.74 — Compact top-flight power indicators (build 77)
 - Android and iOS: replace the large left-edge vertical star/shield/magnet orb rail with three narrow, consistently spaced top-row status chips below the distance/progress gauge, leaving the full middle and lower flight viewport unobstructed.
 - Display actual earned stars, remaining shield charges, and remaining magnet seconds. Add a native top readout for actual scored points and travelled game-world distance without making up metres; cache distance labels at 10 Hz to avoid per-frame string allocation. Preserve notch-safe positioning, cached iOS counters, accessibility and the real platform Pause action.
