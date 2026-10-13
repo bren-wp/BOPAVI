@@ -25,16 +25,25 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
     fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
+    /** Continuous distance-based HUD ratio, not a staircase of completed gates. */
+    val levelProgress:Float get() {
+        val last = level.gates.lastOrNull() ?: return 0f
+        val finish = last.x.toDouble() + last.width.toDouble() + radius - birdX
+        if (finish <= 0.0) return 1f
+        return ((preciseDistance - levelOrigin) / finish).toFloat().coerceIn(0f,1f)
+    }
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
     fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
-        // Match the *current* level's actual gate spacing, which varies
-        // by zone. A constant 242px creates a subtle rhythm jump in later zones.
-        val spacing=if(level.gates.size>=2)
+        // Compress only the junction by 32 logical units, keeping 190–208 units
+        // between the last/first caps. Next scenery and obstacles enter before
+        // the old level ends: no blank camera stretch or hidden teleport.
+        val ordinarySpacing=if(level.gates.size>=2)
             level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 242f
-        nextOrigin=levelOrigin+level.gates.last().x.toDouble()+spacing.toDouble()-upcoming.gates.first().x.toDouble()
+        val transitionSpacing=(ordinarySpacing-32f).coerceIn(190f,208f)
+        nextOrigin=levelOrigin+level.gates.last().x.toDouble()+transitionSpacing.toDouble()-upcoming.gates.first().x.toDouble()
         nextLevel=upcoming
     }
     var levelTransition = 0f; private set
