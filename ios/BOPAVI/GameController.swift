@@ -326,7 +326,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
               scroll.bounds.height>0,stack.bounds.height>0 else{return}
         let naturalHeight=stack.bounds.height
         let fit=min(CGFloat(1),scroll.bounds.height/naturalHeight)
-        let topShift=-(naturalHeight*(1-fit)/2)
+        let topShift = -(naturalHeight * (1 - fit) / 2)
         stack.transform=CGAffineTransform(scaleX:fit,y:fit)
             .translatedBy(x:0,y:fit>0 ? topShift/fit : 0)
     }
