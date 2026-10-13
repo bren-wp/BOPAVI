@@ -1,3 +1,13 @@
+## v0.1.72 — screen-by-screen device acceptance
+1. **Splash → home:** inspect notched/tall and small Android phones and iPhones. Home world illustration must fill the window, buttons/profile/currency/footer should be accessible with **no swipe**; verify native insets and that the footer never clips.
+2. **Home navigation:** physically tap all home actions, including top wallet, achievements, settings, world map and footer; check that none is only a painted control.
+3. **Gameplay:** start a real flight, move from level 1 to 2 without any empty camera gap; validate top HUD remains immediately below the physical notch/status safe area (not letterboxed in the vertical center).
+4. **HUD:** confirm Pause never overlaps the end of the crown/flag gauge. The three left readouts should occupy only 72% of their former footprint; star/shield/magnet values remain live and speakable.
+5. **Obstacles:** compare varied fracture patterns on sequential gates in all eight biomes; no colored polygon enters the open gate corridor. Bird collision/shield behavior and physical hit radius must match v0.1.71.
+6. **Difficulty:** compare easy, normal and hard speed/gravity from saved preferences, including pause/retry, and verify no false screen-labelled distance values.
+7. **Release gates:** Python native source regressions, Android lint/JVM/APK/AAB, iOS simulator/unsigned device build, Android API36 smoke and screenshot QA, asset provenance and SHA-256 checks must all pass before merging.
+8. **Remaining visual parity:** conduct real-device screenshot comparisons for results, settings, profile, shop and all world backgrounds in following screen-specific passes; no claim of 1:1 until independently verified.
+
 ## v0.1.71 — allocation and HUD visual regressions
 1. Launch a real Bopi flight on Android and iOS in all eight worlds; verify cliff-material hues match v0.1.70 and the opening/moving-gate collision windows have not moved.
 2. At 60/90/120 Hz confirm the Android obstacle path reads cached palettes; on iOS ensure the cached symbol assets render ★, ◆ and ∩ with correct enabled/disabled contrast.
