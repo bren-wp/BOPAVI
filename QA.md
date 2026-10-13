@@ -1,3 +1,10 @@
+## v0.1.76 — Seven-row Settings acceptance
+1. Open Settings from Home on small and tall Android devices, API36 and notched iPhones: seven rows must fit without scrolling and without clipping. Verify the back arrow returns to Home.
+2. Toggle Sound, Vibration and Reduce Motion; close and reopen the app and verify values persist. Music and Effects must show actual volumes and access real sliders, not false ON/OFF labels.
+3. Confirm Language honestly describes the installed Croatian locale. Privacy opens real local progress export/restore, without account, cloud sync or ads.
+4. From Advanced Settings, test the persisted Easy/Normal/Hard cards, nickname, audio volume sliders, local backup/restore and links to offline Records/Shop.
+5. Verify Android/iOS build, source and storage parity, Android emulator screenshots and Android16 smoke, iOS simulator and unsigned device targets, release SHA-256 manifest and required artifacts. Do not assert 1:1 until side-by-side screenshots prove it.
+
 ## v0.1.75 — Splash-first visual and navigation acceptance
 1. Compare the exact approved **Splash / Loading** concept against Android API 35/36 and notched iPhone simulator cold starts. The logo must appear ABOVE Bopi, centered without cropping, with islands/waterfalls and unobstructed lower text.
 2. Cold start, foreground app launch, and reopen after termination: never show a black frame, a legacy below-Bopi logo, a double in-app splash, or a screen frozen on loading. Android 12+ may show the mandatory system splash icon before the illustrated stage.

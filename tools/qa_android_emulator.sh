@@ -126,6 +126,21 @@ PY
 # Verify actual touch selection and persisted difficulty without disturbing
 # the user's normal default before the gameplay/collision QA starts.
 verify_difficulty_cards(){
+  # Reference Settings is a non-scrolling overview. Navigate through the
+  # real Advanced Settings action before testing the original difficulty cards.
+  dump_ui
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+items=[n for n in root.iter('node') if n.get('clickable')=='true'
+       and 'NAPREDNE POSTAVKE' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(items)!=1:
+    raise SystemExit(f'FAIL: expected one advanced settings button, got {len(items)}')
+bounds=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',items[0].get('bounds',''))
+if not bounds: raise SystemExit('FAIL: invalid advanced settings bounds')
+l,t,r,b=map(int,bounds.groups())
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+PY
   python3 - <<'PY'
 import re,subprocess,time,xml.etree.ElementTree as ET
 def dump():

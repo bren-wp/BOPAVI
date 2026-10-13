@@ -1627,7 +1627,139 @@ class MainActivity : Activity() {
         panel.addView(slider,LinearLayout.LayoutParams(-1,d(43)))
         parent.addView(panel,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
     }
+
+    /** The compact seven-row Settings page uses real controls, never a mockup. */
     private fun showSettings(){
+        @Suppress("DEPRECATION")
+        applyPremiumSystemBars()
+        menuBackAction={showHome()}
+        gameView?.paused=true;gameView=null;gamePauseButton=null
+        sound.stop();selectedScreen="settings"
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff188acb.toInt())}
+        root.addView(ImageView(this).apply{
+            setImageResource(R.drawable.world0)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        root.addView(View(this).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x66092b65,0x66083770,0xbb04152e.toInt()))
+        },FrameLayout.LayoutParams(-1,-1))
+        val viewport=FitViewportColumn(this)
+        val column=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(16),d(8),d(16),d(12))
+        }
+        viewport.addView(column)
+        root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
+        val header=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(8),d(5),d(9),d(5))
+            background=gradient(0xf40a3268.toInt(),0xf8051737.toInt(),21)
+        }
+        val backButton=TextView(this).apply{
+            text="‹";textSize=32f;gravity=Gravity.CENTER
+            setTextColor(Color.WHITE)
+            background=gradient(0xff22b8fc.toInt(),0xff0759ca.toInt(),22).apply{
+                setStroke(d(2),Color.WHITE)
+            }
+            contentDescription="Natrag na početnu"
+            isClickable=true;isFocusable=true
+            setOnClickListener{showHome()}
+        }
+        header.addView(backButton,LinearLayout.LayoutParams(d(46),d(46)))
+        header.addView(TextView(this).apply{
+            text="POSTAVKE";textSize=23f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE);gravity=Gravity.CENTER
+        },LinearLayout.LayoutParams(0,d(46),1f))
+        column.addView(header,LinearLayout.LayoutParams(-1,d(61)))
+        column.addView(TextView(this).apply{
+            text="IZGLED I ZVUK";textSize=12f
+            setTextColor(0xffe4f9ff.toInt())
+            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
+        },LinearLayout.LayoutParams(-1,d(29)))
+        fun option(label:String,read:()->String,activate:()->Unit){
+            val row=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(13),d(5),d(9),d(5))
+                background=gradient(0xf3072e68.toInt(),0xf6031638.toInt(),18).apply{
+                    setStroke(d(1),electric)
+                }
+                isClickable=true;isFocusable=true
+            }
+            row.addView(TextView(this).apply{
+                text=label;textSize=14f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(Color.WHITE);setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },LinearLayout.LayoutParams(0,-2,1f))
+            val status=TextView(this).apply{
+                text=read();textSize=12f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                background=gradient(0xff0ba9ed.toInt(),0xff045ba8.toInt(),13).apply{
+                    setStroke(d(1),0xffb0f3ff.toInt())
+                }
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            row.addView(status,LinearLayout.LayoutParams(d(99),d(32)))
+            row.contentDescription=label+", "+read()
+            row.setOnClickListener{
+                activate();status.text=read()
+                row.contentDescription=label+", "+read()
+            }
+            column.addView(row,LinearLayout.LayoutParams(-1,d(53)).apply{
+                bottomMargin=d(6)
+            })
+            // During exact-height measurement FitViewportColumn distributes
+            // spare height between REAL controls. Compact phones keep the
+            // intrinsic dimensions instead of clipping or forcing scrolling.
+            column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        }
+        option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
+            val enabled=!progress.soundEnabled()
+            progress.setSoundEnabled(enabled);sound.enabled=enabled
+        }
+        option("GLAZBA",{progress.musicVolume().toString()+"%"}){showSettingsDetails()}
+        option("VIBRACIJA",{if(progress.hapticEnabled())"UKLJ." else "ISKL."}){
+            progress.setHapticEnabled(!progress.hapticEnabled())
+        }
+        option("EFEKTI",{progress.effectsVolume().toString()+"%"}){showSettingsDetails()}
+        option("MANJE ANIMACIJA",{if(progress.lessMotion())"UKLJ." else "ISKL."}){
+            progress.setLessMotion(!progress.lessMotion())
+        }
+        option("JEZIK",{"HRVATSKI"}){
+            Toast.makeText(this,"Trenutačno je dostupan hrvatski jezik.",Toast.LENGTH_SHORT).show()
+        }
+        option("PRIVATNOST",{"OTVORI"}){showSettingsDetails()}
+        val advanced=TextView(this).apply{
+            text="⚙  NAPREDNE POSTAVKE";textSize=16f
+            setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER
+            background=gradient(0xff24a6ed.toInt(),0xff0754b8.toInt(),21).apply{
+                setStroke(d(2),electric)
+            }
+            contentDescription="NAPREDNE POSTAVKE"
+            isClickable=true;isFocusable=true
+            setOnClickListener{showSettingsDetails()}
+        }
+        column.addView(advanced,LinearLayout.LayoutParams(-1,d(52)).apply{
+            topMargin=d(5);bottomMargin=d(4)
+        })
+        root.setOnApplyWindowInsetsListener{_,insets->
+            if(Build.VERSION.SDK_INT>=30){
+                val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                    or android.view.WindowInsets.Type.displayCutout())
+                viewport.setPadding(safe.left+d(8),safe.top+d(8),
+                    safe.right+d(8),safe.bottom+d(8))
+            }
+            insets
+        }
+        showNativeView(root)
+    }
+
+    private fun showSettingsDetails(){
         val b=base("POSTAVKE","Prilagodi igru svom stilu")
         // The reference's tall royal-blue sheet is a *real* scrolling layout,
         // not a screenshot or image with fake slider/switch controls.

@@ -1,3 +1,11 @@
+## v0.1.76 — Non-scrolling Settings overview (build 79)
+- Android and iOS now open seven compact, native Settings controls following the original BOPAVI brandbook: Sound, Music, Vibration, Effects, Reduce Motion, Language and Privacy.
+- Keep the illustrated background, dark-blue panels and cyan outlines; preserve tappable controls, VoiceOver/TalkBack labels and actual persisted settings.
+- Sound, vibration and reduce motion toggle actual offline preferences. Music/effects show real 0–100 values and lead to their original interactive sliders. Language explicitly reports that Croatian is currently supported; Privacy leads to real offline backup/restore controls.
+- The Advanced Settings link preserves difficulty cards, nickname editing, record/shop shortcuts, audio sliders and progress import/export without replacing saved preferences or game physics.
+- Android FitViewportColumn and iOS safe-area UIStackView keep the seven-row landing screen non-scrolling. Emulator QA navigates to Advanced Settings before performing difficulty-card touch tests.
+- Pixel-perfect visual matching to the supplied reference still requires screenshot comparison; Shop and Records are next, gameplay stays last.
+
 ## v0.1.75 — Reference-ordered illustrated splash and honest startup (build 78)
 - Recompose the existing shared Android/iOS launch scene to match the supplied splash reference hierarchy: original blue-and-gold winged wordmark above Bopi, floating-island artwork, soft branded glow, and clean bottom space for real loading feedback.
 - Android: show the full-bleed branded splash while predecoding actual home scenery off the UI thread, reuse that bitmap on Home, and complete progress/audio initialization before exposing any navigation. Keep the loading bar indeterminate and inset-safe, without made-up progress percentages or arbitrary startup delays.
