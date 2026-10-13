@@ -1,3 +1,10 @@
+## v0.1.68 — Real pilot header and offline currency QA
+1. With each of the **nine pilot selections**, start actual gameplay; the top-left circular avatar must show that pilot's saved portrait, not a fixed mascot. Verify phone cutout margins and that avatar, gold wallet, progress gauge and real Pause do not overlap at 60/90/120 Hz.
+2. Change the locally saved currency by earning coins, then begin a run. The flight HUD should show saved currency plus collected-but-uncommitted pickups; after dying, returning to menus and relaunching, there must be no double crediting. Level-clear rewards must update the same balance without restarting the viewport.
+3. Check wallet readouts with 0, 9, 320, 999, 1,000, 12,450, 999,999, 1,000,000 and 100,000,000. K/M labels may be compact, but accessibility must speak the exact integer. Ensure there is no truncation into the central race gauge.
+4. Confirm that crown/stars/shield/magnet and per-level progress still come from simulation, and that the visible pause button is a native tappable control shown only after the first real flap. No simulated meters or fictitious boost purchase affordances.
+5. Perform side-by-side captures against the supplied BOPAVI mockups on Android 15 and 16 and an iOS simulator. A green compiler alone is not a claim of pixel-perfect 1:1 matching; archive actual screenshots as release artifacts.
+
 ## v0.1.67 — final reference UI/UX and seamless procedural flight pass
 - Android/iOS **world-transition seam** is now 190–208 logical units; the next gate should appear while the previous obstacle remains onscreen, without a blank field, a camera snap, or a new game session. Verify at several zone tiers and after thousands of completed levels.
 - Progress bar must advance smoothly with actual course travel between pillars, while the displayed level and total passed counters come from the simulation. Do not label procedural distances as fictitious metres.
