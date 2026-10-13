@@ -2074,7 +2074,7 @@ class MainActivity : Activity() {
         // Four pre-existing sections: Audio, Pilot, More Options, Privacy.
         // Display only the chosen section(s); rebuild on page changes so
         // volume/difficulty/save values always come from persistent state.
-        val all=settingsPanel.children.toList()
+        val all=(0 until settingsPanel.childCount).map{settingsPanel.getChildAt(it)}
         var group=-1
         val groups=mutableListOf<Int>()
         for(view in all){
