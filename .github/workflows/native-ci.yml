@@ -408,7 +408,6 @@ jobs:
               'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png',
               'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png',
               'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png',
-              'dist/real-screenshots/android/android-pilot-picker.png':'BOPAVI-Android-Pilots.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
