@@ -131,8 +131,8 @@ assert 'names[world].uppercased()' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'collection.accessibilityElementsHidden=true' in ios_tile
 assert 'verify_world_cards' in (root/'tools/qa_android_emulator.sh').read_text()
-assert 'not all world cards reachable' in (root/'tools/qa_android_emulator.sh').read_text()
-assert 'all eight real illustrated world cards expose saved' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'FAIL: world cards require scrolling' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'all eight world cards visible simultaneously' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: responsive native world cards and real 8-world save-metric QA')
 for card in (android_tile,ios_tile):
     assert 'chosenWorld()' in card
