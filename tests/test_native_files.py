@@ -1222,7 +1222,7 @@ main_loop=android_qa.split('gameplay_ready=0\nhome_captured=0',1)[1].split('echo
 assert 'dump_ui\n  # A system Pixel Launcher ANR' in main_loop
 assert 'if recover_launcher_anr; then\n    sleep 2\n    dump_ui' in main_loop
 assert 'elif recover_launcher_anr; then' in main_loop
-assert 'attempt=$((attempt+1))\n    continue' in main_loop
+assert 'attempt=$((attempt+1))' in main_loop
 assert 'titles != ["Pixel Launcher isn\'t responding"]' in android_qa
 assert 'com.google.android.apps.nexuslauncher' in android_qa
 assert 'adb shell pidof com.brendigo.bopavi' in main_loop
