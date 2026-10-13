@@ -1,3 +1,12 @@
+## v0.1.72 — Safe-area flight HUD, no-scroll home and biome obstacles (build 75)
+- Video-based visual review: inspected the original 84.64-second IMG_2899.mov clip from the supplied ZIP against the target home/gameplay/results screenshots. The recording showed a low-positioned flight HUD and repetitive flat columns.
+- Android and iOS: move gameplay wallet, race bar and power counters into a **physical top-safe-area overlay**, independent of the letterboxed 480×800 physics camera; shorten the progress bar so the native Pause button does not overlap it.
+- Reduce the physical screen-space area occupied by the left star/shield/magnet indicator rail by **28%**, preserving actual simulation-derived values and TalkBack/VoiceOver data.
+- Android and iOS: draw variation-seeded, fractured/tapered floating-rock shafts within existing collision bodies; retain the original mouth caps and collision geometry. No obstacle randomly intrudes into the playable gap.
+- Android home: the new FitViewportColumn fills normal displays and proportionally fits the existing live controls without scrolling on shorter displays. iOS home: disable bounce and scrolling, tighten only its home margins.
+- Preserve difficulty-controlled speed, Bopi-only pilot, continuous world transitions, no-account operation and offline privacy. No in-chat images generated.
+- The reference images are **visual targets**; these changes improve parity but are not yet a verified pixel-for-pixel recreation of the illustrated world backgrounds and every submenu.
+
 ## v0.1.71 — Flight-frame performance and HUD stability (build 74)
 - Android and iOS now cache the eight-world cliff-relief palette outside the per-obstacle drawing loop, removing repeated array construction while preserving all world colors, obstacle collision coordinates and decoration bounds.
 - On iOS the three flight HUD icons, heavy symbol fonts and counter text are cached. The star, shield and magnet badges rebuild their attributed numbers only when their actual game values change. Active/inactive power colors remain readable.
