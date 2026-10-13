@@ -2246,7 +2246,7 @@ assert 'MenuOrigin.RECORDS -> showLeaderboardPage(0,recordsReturnToSettings)' in
 assert 'case .records: self.showLeaderboardPage(0,fromSettings:self.recordsReturnToSettings)' in ios_achievements
 assert 'for(row in 0..3)' in android_achievements and 'for(col in 0..1)' in android_achievements
 assert 'for row in 0..<4' in ios_achievements and 'for col in 0..<2' in ios_achievements
-assert 'if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA")' in android_menu
+assert 'if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA" || label=="SVJETOVI" || label=="LEVELI" || label=="POSTAVKE")' in android_menu
 assert 'title == "POSTIGNUĆA"' in ios_menu
 assert 'currentMenuName == "POSTIGNUĆA"' in ios_menu
 assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
