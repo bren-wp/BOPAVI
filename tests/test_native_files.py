@@ -1667,7 +1667,7 @@ print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchan
 assert 'Generate SHA-256 checksums for every release artifact' in workflow
 assert 'sha256sum \\' in workflow
 assert 'BOPAVI-iOS-Home.png > SHA256SUMS.txt' in workflow
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
 assert 'dist/SHA256SUMS.txt' in workflow
 assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
 print('PASS: original release assets and authentic Settings capture have SHA-256 manifest')
@@ -1706,7 +1706,7 @@ workflow=(root/'.github/workflows/native-ci.yml').read_text()
 assert "'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png'" in workflow
 assert 'dist/BOPAVI-Android-Settings.png' in workflow
 assert 'BOPAVI-Android-Settings.png' in (root/'README.md').read_text()
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
 print("PASS: responsive settings glass panels, saved pilot, functional audio/privacy, screenshot proof")
 
 # v0.1.61 — world + mascot artwork is regenerated from the same source
