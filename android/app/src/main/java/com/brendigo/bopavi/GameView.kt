@@ -487,6 +487,60 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0x64ffffff);p.style=Paint.Style.STROKE;p.strokeWidth=2f
         c.drawPath(path,p);p.style=Paint.Style.FILL
     }
+    /** Layered theme relief confined to the same solid pillar collision regions.
+     * No art intrudes into the playable gap and no per-frame bitmap allocations.
+     * Distinct materials: moss, crystal, lava, moonlit stone, coral, marble,
+     * enchanted roots and stardust. Both caps are anchored to the live opening.
+     */
+    private fun drawBiomeGateRelief(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,world:Int) {
+        val accent=intArrayOf(0xff87ef82.toInt(),0xffbd74ff.toInt(),
+            0xffff8b39.toInt(),0xffffd782.toInt(),0xff6ff4ec.toInt(),
+            0xffffe7a0.toInt(),0xff6ceab4.toInt(),0xffbb92ff.toInt())[world]
+        val glint=intArrayOf(0xffd4ffb0.toInt(),0xff7ef4ff.toInt(),
+            0xffffcf70.toInt(),0xffffefa8.toInt(),0xffffb6e7.toInt(),
+            0xffffffff.toInt(),0xffffa7e7.toInt(),0xff85dfff.toInt())[world]
+        for(side in 0..1) {
+            val edge=if(side==0)top else bottom
+            val sign=if(side==0)-1f else 1f
+            // Three offset crystalline/stone faces read as real volume rather
+            // than straight, flat, repeated green/white rectangles.
+            for(i in 0..2) {
+                val left=x+8f+i*(w-27f)/3f
+                val right=(left+(w-20f)/3f+6f).coerceAtMost(x+w-7f)
+                val depth=10f+(i%2)*6f
+                path.reset()
+                path.moveTo(left,edge+sign*5f)
+                path.lineTo((left+right)*.5f,edge+sign*(depth+6f))
+                path.lineTo(right,edge+sign*5f)
+                path.lineTo((left+right)*.5f,edge+sign*2f)
+                path.close()
+                fill(if(i==1)glint else accent)
+                p.alpha=if(i==1)210 else 145
+                c.drawPath(path,p);p.alpha=255
+            }
+            // Biome identity inside the obstacle, not in the unobstructed gap.
+            val inner=edge+sign*35f
+            if(inner in 20f..730f){
+                if(world==2 || world==1 || world==7) {
+                    for(i in 0..1){
+                        path.reset()
+                        val cx=x+17f+i*(w-32f)
+                        path.moveTo(cx-7f,inner)
+                        path.lineTo(cx+1f,inner+sign*23f)
+                        path.lineTo(cx+8f,inner+sign*3f)
+                        path.close()
+                        fill(if(i==0)glint else accent);p.alpha=210
+                        c.drawPath(path,p);p.alpha=255
+                    }
+                } else {
+                    for(i in 0..2) {
+                        val cx=x+13f+i*(w-28f)/2f
+                        oval(c,cx-5f,inner-4f,cx+5f,inner+4f,if(i==1)glint else accent)
+                    }
+                }
+            }
+        }
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time)
         val w=g.width
@@ -548,6 +602,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
         drawMovingGateRimCues(c,g,x,top,bottom)
+        drawBiomeGateRelief(c,x,w,top,bottom,g.kind)
         // Stone courses, mineral seams and edge lighting add biome-specific
         // depth without textures decoded or allocated inside the frame loop.
         val seam=when(g.kind){
