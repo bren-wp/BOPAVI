@@ -269,7 +269,6 @@ final class GameCanvas: UIView {
         (value as NSString).draw(at:CGPoint(x:x,y:y),withAttributes:[
             .font:font,.foregroundColor:UIColor(rgb:rgb)])
     }
-    private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:23,weight:.heavy)
     private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
     private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
