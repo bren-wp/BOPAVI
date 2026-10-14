@@ -1003,7 +1003,7 @@ class MainActivity : Activity() {
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")},
             qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
-            walletCoins={progress.coins()})
+            walletCoins={progress.coins()},languageCode=progress.languageCode())
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
