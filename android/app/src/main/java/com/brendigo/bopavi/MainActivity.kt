@@ -1490,7 +1490,7 @@ class MainActivity : Activity() {
             max=30;progress=profileStars
             progressTintList=ColorStateList.valueOf(gold)
             progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
-            contentDescription=(if(progress.languageCode()=="hr")"Zvjezdice svijeta " else "Stars in world ")+
+            contentDescription=(if(this@MainActivity.progress.languageCode()=="hr")"Zvjezdice svijeta " else "Stars in world ")+
                 ui(LevelEngine.names[profileWorld])+": ${profileStars}/30"
         }
         portraitBox.addView(profileStarGauge,
