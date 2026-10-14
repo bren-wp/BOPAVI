@@ -2265,7 +2265,7 @@ android_notice=android_menu.split('private fun showLegalNotice(privacy:Boolean){
 ios_notice=ios_menu.split('private func showLegalNotice(privacy:Bool){',1)[1].split('private func showSettingsDetails()',1)[0]
 assert 'option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}' in android_overview
 assert 'settingRow("PRIVATNOST",{"PROČITAJ"})' in ios_overview
-assert 'UIAlertController(title:title,message:details' in ios_notice
+assert 'UIAlertController(title:ui(title),message:details' in ios_notice
 assert 'android.app.AlertDialog.Builder(this)' in android_notice
 for native in (android_notice, ios_notice):
     for token in ('Brendigo','JSON','github.com/bren-wp/BOPAVI/issues',
