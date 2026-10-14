@@ -1523,7 +1523,7 @@ print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-
 qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
 for required in ('screencap -p /sdcard/bopavi-flight-1.png','sleep 1','dump_ui',
                  'rm -f qa/screenshots/android-gameplay-active.png',
-                 "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
+                 "if grep -q 'Bopi is flying'", "if grep -q 'RETRY'"):
     assert required in qa_flight_loop,required
 assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
 assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('sleep 1')
