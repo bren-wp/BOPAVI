@@ -167,7 +167,7 @@ def dump():
     blob=subprocess.run(["adb","exec-out","cat","/sdcard/bopavi-legal.xml"],
                         check=True,capture_output=True,timeout=15).stdout
     return ET.fromstring(blob)
-for button in ("POLITIKA PRIVATNOSTI","UVJETI KORIŠTENJA"):
+for button in ("PRIVACY POLICY","TERMS OF USE"):
     home=dump()
     candidates=[n for n in home.iter("node") if n.get("clickable")=="true"
                 and n.get("content-desc")==button]
@@ -437,7 +437,7 @@ def tap_tab(name):
                     str((left+right)//2),str((top+bottom)//2)],check=True,timeout=15)
     time.sleep(.8)
 for name,expected,path in (
-    ("SHOP","OPREMA ZA BOPIJEV LET","android-shop.png"),
+    ("SHOP","EQUIPMENT FOR BOPI FLIGHT","android-shop.png"),
     ("RECORDS","MY RECORDS","android-records.png"),
 ):
     tap_tab(name)
@@ -445,9 +445,9 @@ for name,expected,path in (
     labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
     if not any(expected in v for v in labels):
         raise SystemExit(f"FAIL: {name} destination not open")
-    if name=="SHOP" and not all(any(text in v for v in labels) for text in ("KUPI ŠTIT","KUPI MAGNET")):
+    if name=="SHOP" and not all(any(text in v for v in labels) for text in ("BUY SHIELD","BUY MAGNET")):
         raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
-    if name=="RECORDS" and not any("Prvi rekord čeka" in v or "OSOBNI REKORD" in v for v in labels):
+    if name=="RECORDS" and not any("Your first record awaits" in v or "PERSONAL BEST" in v for v in labels):
         raise SystemExit("FAIL: offline records neither show real results nor honest empty state")
     png=subprocess.run(["adb","exec-out","screencap","-p"],
                        check=True,capture_output=True,timeout=20).stdout
