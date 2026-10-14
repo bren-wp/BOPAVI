@@ -629,7 +629,7 @@ for home in (android_home,ios_home):
     assert 'showPilotPicker(' in home and 'startGame(' not in home
 assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
 assert 'UIStackView(arrangedSubviews:[glyph,caption])' in ios_home
-assert 'tab.accessibilityLabel=title' in ios_home
+assert 'tab.accessibilityLabel=ui(title)' in ios_home
 # No fake online gems, cloud sign-out or microtransactions.
 for home in (android_home,ios_home):
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
