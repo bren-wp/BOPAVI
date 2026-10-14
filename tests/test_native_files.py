@@ -2179,7 +2179,7 @@ assert 'showLeaderboardPage(current+1,fromSettings:fromSettings)' in ios_menu
 emulator=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_shop_records_tabs' in emulator
 assert 'android-shop.png' in emulator and 'android-records.png' in emulator
-assert 'KUPI MAGNET' in emulator and 'KUPI ŠTIT' in emulator
+assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
 print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
 
