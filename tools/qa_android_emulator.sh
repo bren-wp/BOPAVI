@@ -130,7 +130,7 @@ print(f'PASS: {len(regions)} Home actions fit {width}x{height}; minimum {min_tou
 # A pause control or gameplay status on the first screen is always a regression.
 for n in root.iter('node'):
     label=(n.get('text','')+' '+n.get('content-desc',''))
-    if 'Izbornik tijekom igre' in label or 'Bopi leti' in label:
+    if 'Izbornik tijekom igre' in label or 'Bopi is flying' in label:
         raise SystemExit('FAIL: gameplay control/status leaked onto initial home')
 print('PASS: 3 accessible home buttons and no gameplay pause/HUD',flush=True)
 PY
@@ -688,7 +688,7 @@ PY
   adb shell input tap "$center" "$((height*50/100))"
   sleep 1
   dump_ui
-  if grep -q 'Bopi leti' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'Bopi is flying' qa/screenshots/android-current-ui.xml; then
     if ! grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
       echo "FAIL: pause did not appear after actual first flight flap" >&2
       exit 1
