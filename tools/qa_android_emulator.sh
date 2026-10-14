@@ -417,8 +417,12 @@ def tiles(root):
         match=re.match(r'^Level (\d+),',node.get('content-desc',''))
         if match: found[int(match.group(1))]=node
     return found
+# Exact comma-delimited state: "unlocked" contains the substring "locked".
+# The old substring check tapped a genuine unlocked tile and produced a false
+# failure when it correctly opened the pilot picker.
 locked=[n for n in tiles(level_root).values()
-        if any(word in n.get('content-desc','').lower() for word in ('locked','zaključan'))]
+        if any(state in n.get('content-desc','').lower()
+               for state in (', locked,', ', zaključan,'))]
 if locked:
     tap(locked[0]);time.sleep(.28)
     level_root=dump()
