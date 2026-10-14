@@ -2210,14 +2210,14 @@ assert 'FitViewportColumn(this)' in android_base
 assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
 assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
 assert 'menuBackAction={showHome()}' in android_prof
-assert 'contentDescription="Natrag na početnu"' in android_prof
+assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'currentMenuName == "PROFIL"' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if stack.transform != desired' in ios_menu
-assert 'back.accessibilityLabel="Natrag na početnu"' in ios_prof
+assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
 
