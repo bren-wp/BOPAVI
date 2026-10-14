@@ -2002,12 +2002,12 @@ assert 'levelTransition=.85f' in android_sim
 assert 'levelTransition=0.85' in ios_sim
 for view in (android_hud,ios_hud):
     assert 'val entering=game.levelTransition>0f' in view or 'let entering=game.levelTransition>0' in view
-    assert 'NOVI LET' in view
+    assert 'word("NEW STAGE","NOVA RAZINA")' in view
     assert 'game.totalPassed' in view
     assert 'game.coins' in view
-    assert 'LET +' in view
-    assert 'Novčanik' in view
-    assert 'U ovom letu skupljeno' in view
+    assert 'word("FLIGHT","LET")' in view
+    assert 'Wallet ' in view
+    assert 'Flight pickups ' in view
     assert 'walletLabel(balance)' in view
 assert 'walletCoins().coerceIn(0,100_000_000)' in android_hud
 assert 'coinWallet()))' in ios_hud
