@@ -898,3 +898,8 @@ Released after the accumulated Android/iOS improvements since v0.1.31.
 - Zajednički generator i testiranje jednakosti fizike.
 - Ispravljen tip brojila zamaha u Android spremanju te uključena iOS audio implementacija u build.
 - Novi marketing README s logotipom, ilustracijom i opisima svjetova.
+
+### PR #116 continued — rooted rock depth pass
+- Android and iOS paint multiple deterministic mineral fissure bands *inside* the existing 76-unit rocky shafts. They inherit each of the eight world palettes and the seeded obstacle phase. Both top and bottom halves terminate beyond the camera bounds, but fissures stay outside the traversable opening and cannot introduce false collision edges.
+- The new layers use a reused Android Paint/Path. Swift resolves each banded cliff's shade and glow CGColors once, outside the per-stratum loop. No new sprite, asset, remote service, purchased content or gameplay parameter.
+- Source regressions check parity of top/bottom placement, material selection, the exact 76-unit collision thickness and absence of per-band Swift CGColor allocations. Pixel-for-pixel parity with the supplied 3D concept-art backgrounds **remains unapproved**; subsequent artwork implementation needs side-by-side visual sign-off.
