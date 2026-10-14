@@ -16,7 +16,6 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
@@ -145,7 +144,7 @@ class MainActivity : Activity() {
         showNativeView(root)
     }
     private fun showNativeView(root: View) {
-        // Keep the scene artwork edge-to-edge. Individual ScrollViews (home,
+        // Keep the scene artwork edge-to-edge. Safe-area-fitted menus (home,
         // every submenu and results) handle cutout/nav insets for controls.
         // Padding the root FrameLayout as well creates duplicate insets and
         // unwanted solid bands around the background artwork on API 35/36.
