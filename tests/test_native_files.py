@@ -1755,7 +1755,7 @@ assert 'result_capture_attempt" -le 8' in emulator
 assert 'cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png' in emulator
 assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png' in emulator
 assert 'Results PNG duplicates active or idle gameplay after bounded retries' in emulator
-assert 'grep -q \'PONOVO\'' in emulator
+assert 'grep -q \'RETRY\'' in emulator
 assert 'capture android-result-diagnostic' in emulator
 workflow=(root/'.github/workflows/native-ci.yml').read_text()
 assert "results=Path('dist/BOPAVI-Android-Results.png')" in workflow
