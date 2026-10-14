@@ -9,7 +9,8 @@ final class GameCanvas: UIView {
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
     private let language:String
-    private func word(_ en:String,_ hr:String)->String{language=="hr" ? hr : en}
+    private let hudVocabulary:[String:String]
+    private func word(_ en:String,_ hr:String)->String{hudVocabulary[en] ?? (language=="hr" ? hr : en)}
     private var lastLevelBadgeText=""
     private var cachedLevelBadge=NSAttributedString(string:"")
     private lazy var idlePrompt=NSAttributedString(string:word("TAP TO FLY","DODIRNI ZA LET"),attributes:[
@@ -104,6 +105,7 @@ final class GameCanvas: UIView {
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.coinWallet=coinWallet
         self.language=GameLanguages.normalized(languageCode)
+        self.hudVocabulary=GameLanguages.hudPack(languageCode)
         self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
         let artSize:CGFloat=124 // Video review: shrink art, never the real hitbox.
         self.birdArtSize=artSize
