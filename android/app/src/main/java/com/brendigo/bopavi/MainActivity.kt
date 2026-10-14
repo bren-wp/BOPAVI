@@ -530,7 +530,7 @@ class MainActivity : Activity() {
             setTextColor(Color.WHITE)
             setPadding(d(4),d(9),d(4),d(9))
             isClickable=true;isFocusable=true
-            contentDescription="ZADACI I POSTIGNUĆA · najbolji rezultat ${progress.bestPoints()}"
+            contentDescription=ui("ZADACI I POSTIGNUĆA") + " · best score ${progress.bestPoints()}"
             setOnClickListener{sound.effect("click");showAchievements(MenuOrigin.HOME)}
         }
         wallets.addView(best,LinearLayout.LayoutParams(0,d(48),1f).apply{
@@ -540,7 +540,7 @@ class MainActivity : Activity() {
             setTextColor(gold)
             setPadding(d(4),d(9),d(4),d(9))
             isClickable=true;isFocusable=true
-            contentDescription="TRGOVINA · ${progress.coins()} osvojenih kovanica"
+            contentDescription=ui("TRGOVINA") + " · ${progress.coins()} coins earned"
             setOnClickListener{sound.effect("click");showPerks(MenuOrigin.HOME)}
         }
         wallets.addView(coins,LinearLayout.LayoutParams(0,d(48),1f).apply{
