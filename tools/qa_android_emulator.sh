@@ -94,6 +94,39 @@ settings=[n.get('bounds') for n in nodes if 'POSTAVKE' in
           (n.get('text','')+' '+n.get('content-desc',''))]
 if len(set(settings))!=2:
     raise SystemExit('FAIL: top settings gear overlaps central settings CTA')
+# Check the actual captured pixels against accessible hit rectangles.
+# Passing a label-only UI smoke is not sufficient if an action is clipped,
+# overlaps another action, or is too small to tap on a compact phone.
+import re, struct, subprocess
+from pathlib import Path
+image=Path('qa/screenshots/android-home.png').read_bytes()
+if image[:8] != bytes.fromhex('89504e470d0a1a0a'):
+    raise SystemExit('FAIL: Home QA requires a real PNG screenshot')
+width,height=struct.unpack('>II',image[16:24])
+density_output=subprocess.check_output(['adb','shell','wm','density'],text=True)
+densities=re.findall(r'(?:Physical|Override) density:\s*(\d+)',density_output)
+if not densities:
+    raise SystemExit('FAIL: cannot determine screen density for touch target QA')
+min_touch=round(40*int(densities[-1])/160)
+regions=[]
+for entry in nodes:
+    rect=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',entry.get('bounds',''))
+    if rect is None:
+        raise SystemExit('FAIL: malformed Home clickable bounds')
+    left,top,right,bottom=map(int,rect.groups())
+    name=(entry.get('text','')+' '+entry.get('content-desc','')).strip()
+    if not (0<=left<right<=width and 0<=top<bottom<=height):
+        raise SystemExit(f'FAIL: Home control outside screenshot: {name} {rect.group(0)}')
+    if right-left<min_touch or bottom-top<min_touch:
+        raise SystemExit(f'FAIL: Home control too small for a finger: {name} {rect.group(0)}')
+    regions.append((name,(left,top,right,bottom)))
+for i,(name,a) in enumerate(regions):
+    for other,b in regions[i+1:]:
+        overlap_x=min(a[2],b[2])-max(a[0],b[0])
+        overlap_y=min(a[3],b[3])-max(a[1],b[1])
+        if overlap_x>3 and overlap_y>3:
+            raise SystemExit(f'FAIL: overlapping Home tap targets: {name} / {other}')
+print(f'PASS: {len(regions)} Home actions fit {width}x{height}; minimum {min_touch}px touch targets',flush=True)
 # A pause control or gameplay status on the first screen is always a regression.
 for n in root.iter('node'):
     label=(n.get('text','')+' '+n.get('content-desc',''))

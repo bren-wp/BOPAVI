@@ -2293,3 +2293,37 @@ for dev_copy in ("The AAB and iOS device archive are not distribution-signed",
                  "legacy skin save aliases"):
     assert dev_copy not in readme
 print('PASS: v0.1.80 Brendigo privacy/terms accessible in non-scroll native Settings and truthful live-screenshot README')
+
+
+# v0.1.81: Home must stay on a single safe-area viewport, without
+# regressions in real score/coin values or synthetic concept controls.
+android_home = android_menu.split('private fun showHome()', 1)[1].split('private fun showWorlds()', 1)[0]
+ios_home = ios_menu.split('private func showHome()', 1)[1].split('private func showWorlds()', 1)[0]
+assert 'FitViewportColumn(this)' in android_home
+assert 'ScrollView(this)' not in android_home
+assert 'scroll.setOnApplyWindowInsetsListener{v,insets->' in android_home
+assert 'scroll.requestApplyInsets()' in android_home
+assert 'insets.systemWindowInsetBottom' in android_home
+assert 'insets.displayCutout' in android_home
+assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+assert 'homeViewport.frameLayoutGuide.heightAnchor' in ios_home
+assert 'stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor)' not in ios_home
+for home in (android_home, ios_home):
+    assert 'progress.coins()' in home and 'progress.bestPoints()' in home
+    assert 'showWorlds()' in home and 'showSettings()' in home
+    assert 'showProfile()' in home and 'showLeaderboard()' in home
+qa_script=(root/'tools/qa_android_emulator.sh').read_text()
+for guard in ('android-home.png', 'min_touch=round(40', 'overlap_x>3',
+              'width,height=struct.unpack', 'Home control outside screenshot'):
+    assert guard in qa_script, guard
+print('PASS: v0.1.81 no-scroll Android/iOS Home viewport and real PNG touch geometry')
+
+# v0.1.81: never publish a simulator launch-art-only screenshot as HOME.
+ios_home_validator=(root/'tools/verify_ios_home_screenshot.swift').read_text()
+assert 'NSBitmapImageRep(data: data)' in ios_home_validator
+assert 'orangeRow >= 0.43 && footerRow >= 0.46' in ios_home_validator
+assert 'FAIL: iOS capture shows launch/illustration' in ios_home_validator
+assert 'swiftc -O tools/verify_ios_home_screenshot.swift' in workflow
+assert 'home_ready=0' in workflow and 'if [ "$home_ready" -ne 1 ]; then' in workflow
+assert 'iOS screenshot is not the interactive Home' in workflow
+print('PASS: v0.1.81 iOS screenshot must contain interactive Home artwork and live controls')

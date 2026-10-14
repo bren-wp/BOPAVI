@@ -305,3 +305,20 @@ Date: 2026-10-10. Target: ten supplied BOPAVI premium mockups. Verified real dev
 - Do not stage mockup-only diamonds, cloud backup, logout, rewarded videos or purchases as inactive buttons.
 - Keep real Android API35/36 and iOS simulator + device compile gates; avoid GitHub signing.
 - Open separate implementation tasks for high-fidelity asset exports and safe-area/pixel-diff QA rather than replacing gameplay with flattened mockup screenshots.
+
+
+## v0.1.81 — Home safe-area and reference comparison (pending run evidence)
+
+The supplied 2026-10-14 reference gallery is a **design target**, not an application screenshot. This PR intentionally touches Home only; Splash, Settings, Store, Records, Profile, Worlds, Levels and active gameplay are not visually redesigned.
+
+- Android: preserve full-bleed artwork while applying navigation-bar and cutout insets on API 26–36 to real controls.
+- iOS: bind the Home stack to the safe-area viewport and retain genuine actions, local score/currency and the four navigational destinations.
+- The emulator's **real** Home PNG is checked for clickable targets entirely inside physical screenshot bounds, 40dp minimum bounds and no overlapping hit rectangles; keep API35/API36 tests and iOS simulator capture.
+- **Acceptance not yet claimed:** pixel-for-pixel Bopi/wordmark/environment fidelity; cross-platform side-by-side screenshot approval; additional device sizes. Separate clean artwork layers are needed rather than an entire screenshot with baked-in fictitious counters.
+- CI and screenshot review must pass before merge. v0.1.81 must not be published manually from this documentation.
+
+
+### v0.1.80 baseline evidence inspected for this PR
+- Android workflow artifact 11858433751: actual 1080×2400 HOME shows Bopi, winged wordmark, the three CTAs and four active footer tabs. Illustration depth, lighting and mascot anatomy remain far from the new concept images.
+- iOS workflow artifact 11858883855: actual 1206×2622 PNG **does not show any Home CTA or bottom tab**. It shows only oversized background artwork beneath the system status/dynamic-island region. The old screenshot smoke accepted this because it checked only that the PNG file was non-empty.
+- v0.1.81 adds a bounded simulator retry plus an AppKit PNG verifier that requires both the gold IGRAJ band and navy footer navigation. This is a necessary evidence gate, not proof of pixel-level fidelity.

@@ -345,9 +345,24 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app"
           xcrun simctl launch "$UDID" com.brendigo.bopavi
-          sleep 4
-          xcrun simctl io "$UDID" screenshot BOPAVI-iOS-home.png
-          test -s BOPAVI-iOS-home.png
+          # v0.1.80 captured a system launch image without any clickable Home
+          # controls. Retry boundedly and verify ACTUAL play/nav pixels instead
+          # of accepting any non-empty PNG after a hardcoded 4-second sleep.
+          swiftc -O tools/verify_ios_home_screenshot.swift -o "$RUNNER_TEMP/bopavi-ios-home-check"
+          home_ready=0
+          for attempt in $(seq 1 12); do
+            sleep 3
+            xcrun simctl io "$UDID" screenshot BOPAVI-iOS-home.png
+            if "$RUNNER_TEMP/bopavi-ios-home-check" BOPAVI-iOS-home.png; then
+              home_ready=1
+              break
+            fi
+            echo "iOS Home controls not visible on capture $attempt; retrying"
+          done
+          if [ "$home_ready" -ne 1 ]; then
+            echo "::error::iOS screenshot is not the interactive Home; refusing to publish a misleading capture"
+            exit 1
+          fi
           xcrun simctl shutdown "$UDID"
       - uses: actions/upload-artifact@v4
         with:
