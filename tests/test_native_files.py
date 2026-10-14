@@ -562,19 +562,20 @@ assert "for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):" in artgen
 for old_bird in ('portantin','noa','any'):
     assert not (root/'docs/assets'/f'{old_bird}.svg').exists()
 assert "R.drawable.bopi6" in android_render and 'UIImage(named:"Bopi' in ios_render
-# v0.1.70: Bopi-only start; no gallery or intermediate screen.
+# v0.1.86: real nine-pilot gallery, with explicit local-coin unlocks.
 android_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
 ios_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
-for view in (android_picker,ios_picker):
-    assert 'startGame(world,number)' in view
-    assert 'ODABERI LIKA' not in view and 'characterGallery(' not in view
-for source in (android_menu,ios_menu):
-    assert 'characterGallery(' not in source and 'showSkins(' not in source
-    assert 'ODABERI DRUGOG LIKA' not in source
+for picker in (android_picker,ios_picker):
+    for contract in ('startGame(world,number)','selectOrBuy(index)','owned(index)',
+                     'skinNames[index]','costs[index]','CHOOSE YOUR PILOT','UNLOCK','CANCEL'):
+        assert contract in picker,contract
+assert 'for(row in 0..2)' in android_picker and 'for(column in 0..2)' in android_picker
+assert 'for rowIndex in 0..<3' in ios_picker and 'for column in 0..<3' in ios_picker
+assert 'portraitDrawableIds[index]' in android_picker
+assert r'BopiPortrait\(index)' in ios_picker
 qa=(root/'tools/qa_android_emulator.sh').read_text()
-assert 'FAIL: obsolete character picker appeared before Bopi flight' in qa
-assert 'tap_selected_pilot' not in qa
-print('PASS: Bopi-only direct launch and no hidden skin shop')
+assert 'verify_pilot_gallery' in qa and 'android-pilot-gallery' in qa
+print('PASS: nine real saved pilots, on-screen picker and earned-coin confirmation')
 
 # v0.1.23: never show gameplay controls on home or before the first flap.
 # The visible pause is created per-session and revealed only by an actual
@@ -633,8 +634,8 @@ assert 'tab.accessibilityLabel=ui(title)' in ios_home
 # No fake online gems, cloud sign-out or microtransactions.
 for home in (android_home,ios_home):
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
-for source in (android_menu,ios_menu):
-    assert 'POLETI S' not in source and 'ODABERI LIKA' not in source
+for picker in (android_picker,ios_picker):
+    assert 'POLETI S' in picker and 'ODABERI LIKA' in picker
 assert 'setStroke(d(3),0xffffed9e' in android_menu
 assert 'UIColor(red:1.00,green:0.88,blue:0.32' in ios_menu
 logo_markup=(root/'docs/assets/logo.svg').read_text()
@@ -730,11 +731,11 @@ for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt',
              'ios/BOPAVI/ProgressStore.swift'):
     inventory=(root/path).read_text()
     assert 'skin_index' in inventory and 'owned_mask' in inventory
-assert 'private val selectedSkin=0' in android_render
-assert 'let selectedSkin=0' in ios_render
+assert 'private val selectedSkin=skinIndex.coerceIn(0,8)' in android_render
+assert 'let selectedSkin=min(8,max(0,skinIndex))' in ios_render
 assert 'birdSize=124f' in android_render
 assert 'let artSize:CGFloat=124' in ios_render
-print('PASS: Bopi 124-point art and legacy inventory stored without exposure')
+print('PASS: nine saved pilots preserve 124-point art and stable legacy ownership')
 
 # Boosts are spent only on the first flap, not when viewing the idle game.
 android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
@@ -777,7 +778,7 @@ print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause'
 android_qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_idle_preview' in android_qa
 assert 'tap_selected_pilot' not in android_qa
-assert 'android-obsolete-picker-diagnostic' in android_qa
+assert 'android-pilot-gallery' in android_qa
 print('PASS: real Android QA requires the idle Bopi GameView')
 
 # Premium reference-followup: illustrated 20-level grid and real dual-channel
@@ -893,7 +894,7 @@ print("PASS: Play API36, real screenshots, signing isolation and publishing docs
 # Edge-to-edge release candidate: game controls and result actions avoid cutouts/system bars.
 assert "WindowInsets.Type.displayCutout()" in android
 assert "val top = maxOf(d(24),cutout.top+d(8))" in android
-assert "scroll.setOnApplyWindowInsetsListener" in android
+assert "fitted.setOnApplyWindowInsetsListener" in android
 print("PASS: Android16 game controls and result safe-area handling")
 
 # Premium results follow the supplied 3-stat / 4-reward reference layout,
@@ -1116,10 +1117,9 @@ assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in an
 assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
 print('PASS: Android and iOS pause settings preserve active flight and offline settings')
 
-for view in (android_menu,ios_menu):
-    assert 'characterGallery(' not in view and 'selectOrBuy(i)' not in view
-    assert 'POLETI S' not in view
-print('PASS: removed pilot gallery and legacy purchase controls')
+for view in (android_picker,ios_picker):
+    assert 'POLETI S' in view and 'startGame(world,number)' in view
+print('PASS: confirmed virtual-coin pilot selection within native gallery')
 
 # v0.1.41: actual v0.1.40 emulator captures showed an unwanted Android
 # system status strip above menu artwork. Preserve notch navigation safe zones.
@@ -1151,9 +1151,9 @@ assert 'menuBackAction=onClick' in android_menu
 assert 'menuBackAction?.invoke() ?: showHome()' in android_menu
 for home in (android_home,ios_home):
     assert 'showPerks(' in home and 'showLeaderboard(' in home
-print('PASS: Bopi-only home and store navigation')
+print('PASS: nine-pilot home and store navigation')
 
-assert 'FAIL: obsolete character picker appeared before Bopi flight' in (root/'tools/qa_android_emulator.sh').read_text()
+assert 'verify_pilot_gallery' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: direct flight regression guard')
 
 # v0.1.44: Pause quick MUZIKA may not reset the personalized volume.
@@ -1871,7 +1871,7 @@ for check in ('audit_private_declarations','audit_resource_reachability',
 
 qa=(root/'tools/qa_android_emulator.sh').read_text()
 for required in ('recover_launcher_anr','verify_idle_preview',
-                 'FAIL: obsolete character picker appeared before Bopi flight'):
+                 'verify_pilot_gallery'):
     assert required in qa
 assert 'qa/screenshots/*.txt' in workflow
 print('PASS: real device launch verification retained')
@@ -2213,10 +2213,10 @@ assert 'menuBackAction={showHome()}' in android_prof
 assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
-assert 'if stack.transform != desired' in ios_menu
+assert 'if panel.transform != desired' in ios_menu
 assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
@@ -2247,7 +2247,7 @@ assert 'for(row in 0..3)' in android_achievements and 'for(col in 0..1)' in andr
 assert 'for row in 0..<4' in ios_achievements and 'for col in 0..<2' in ios_achievements
 assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'title == "POSTIGNUĆA"' in ios_menu
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
 assert 'FAIL: Achievements Back did not restore Records' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: v0.1.79 eight real achievement cards and correct Records navigation')
@@ -2437,7 +2437,7 @@ assert 'val fitted=FitViewportColumn(this)' in android_base
 assert 'ScrollView(this)' not in android_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK"' in android_menu
 audio_generator=(root/'tools/generate_audio.py').read_text()
 audio_contract=(root/'tools/verify_audio.py').read_text()
@@ -2450,3 +2450,28 @@ assert 'python tools/generate_audio.py' in workflow
 assert 'x = 420f + i * (228f - zone * 2)' in kotlin_level
 assert 'x:420 + Float(i*(228-zone*2))' in swift_level
 print('PASS: 76-point constant rock widths, exact-cadence level transitions, no-scroll primary menus and native 48-second soundtrack')
+
+# v0.1.86: show saved native pilot on every action screen, not Bopi only.
+assert 'progress.skin(),progress.hapticEnabled()' in android_menu
+assert 'skinIndex:progress.skinIndex()' in ios_menu
+assert 'val pilotIndex=progress.skin()' in android_menu
+assert 'let pilotIndex=progress.skinIndex()' in ios_menu
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+android_result=android_menu.split('private fun showResult(',1)[1].split('private fun showPerks()',1)[0]
+ios_result=ios_menu.split('private func showResult(',1)[1].split('private func showPerks()',1)[0]
+assert 'dialog.setView(fitted)' in android_pause and 'ScrollView(this)' not in android_pause
+assert 'fitted.addView(panel)' in android_result and 'ScrollView(this)' not in android_result
+assert 'pauseFitViewport=scroll' in ios_pause and 'scroll.isScrollEnabled=false' in ios_pause
+assert 'resultFitViewport=scroll' in ios_result and 'scroll.isScrollEnabled=false' in ios_result
+assert 'pauseFitPanel=panel' in ios_pause and 'resultFitPanel=stack' in ios_result
+assert 'if let scroll=pauseFitViewport' in ios_menu
+assert 'if let scroll=resultFitViewport' in ios_menu
+assert 'setContentOffset' not in ios_pause
+assert 'BopiPortrait\\(progress.skinIndex())' in ios_pause
+assert 'portraitDrawableIds[progress.skin()]' in android_pause
+print('PASS: nine playable saved pilots and no-scroll live pause/result on both platforms')
+
+# Real nine-character selection must not leak onto the Home page:
+for home in (android_home,ios_home):
+    assert 'CHOOSE YOUR PILOT' not in home and 'POLETI S' not in home

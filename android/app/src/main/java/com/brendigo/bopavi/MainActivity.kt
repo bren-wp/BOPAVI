@@ -776,10 +776,116 @@ class MainActivity : Activity() {
             setMargins(d(3),d(4),d(3),d(4))
         })
     }
-    /** Enter the selected world immediately. No mandatory character gallery. */
+    /** Nine genuine local pilot sprites, selectable without scrolling.
+     *  Currency is earned inside the game; unlocks require confirmation and
+     *  never redirect the user to a paid service or fabricated diamond shop.
+     */
     private fun showPilotPicker(world:Int,number:Long) {
         currentWorld=world;currentLevel=number
-        startGame(world,number)
+        val croatian=progress.languageCode()=="hr"
+        val panel=base(if(croatian)"ODABERI LIKA" else "CHOOSE YOUR PILOT",
+            if(croatian)"Svaki pilot ima svoj izgled" else "Nine unique flyers · choose before takeoff")
+        val chosen=progress.skin()
+        val heading=LinearLayout(this).apply {
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+            background=gradient(0xee063d86.toInt(),0xf205183b.toInt(),22).apply{
+                setStroke(d(2),electric)
+            }
+            setPadding(d(11),d(5),d(11),d(5))
+        }
+        heading.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[chosen])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(104),d(104)))
+        heading.addView(TextView(this).apply{
+            text=progress.skinNames[chosen]+"\n"+if(croatian)"ODABRANI PILOT" else "SELECTED PILOT"
+            textSize=21f
+            setTextColor(Color.WHITE)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            gravity=Gravity.CENTER
+            contentDescription=text
+        },LinearLayout.LayoutParams(0,-1,1f))
+        panel.addView(heading,LinearLayout.LayoutParams(-1,d(112)).apply{bottomMargin=d(8)})
+        for(row in 0..2){
+            val galleryRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            panel.addView(galleryRow,LinearLayout.LayoutParams(-1,-2))
+            for(column in 0..2){
+                val index=row*3+column
+                val owned=progress.owned(index)
+                val selected=index==chosen
+                val tile=FrameLayout(this).apply{
+                    background=gradient(
+                        if(selected)0xff156acc.toInt() else 0xff0a457d.toInt(),
+                        0xff031b40.toInt(),18).apply{
+                        setStroke(d(if(selected)3 else 2),
+                            if(selected)gold else 0xff3faef2.toInt())
+                    }
+                    elevation=d(if(selected)6 else 3).toFloat()
+                    isClickable=true;isFocusable=true
+                    foreground=RippleDrawable(ColorStateList.valueOf(0x44ffffff),null,null)
+                    contentDescription=progress.skinNames[index]+", "+if(selected){
+                        if(croatian)"odabran" else "selected"
+                    }else if(owned){
+                        if(croatian)"dostupan" else "available"
+                    }else{
+                        (if(croatian)"otključaj za " else "unlock for ")+
+                            progress.costs[index]+" "+(if(croatian)"kovanica" else "coins")
+                    }
+                    setOnClickListener{
+                        sound.effect("click")
+                        if(progress.owned(index)){
+                            progress.selectOrBuy(index)
+                            showPilotPicker(world,number)
+                        }else{
+                            val price=progress.costs[index]
+                            android.app.AlertDialog.Builder(this@MainActivity)
+                                .setTitle(progress.skinNames[index])
+                                .setMessage(if(croatian)
+                                    "Otključati za $price kovanica? Stanje: ${progress.coins()}."
+                                    else "Unlock for $price earned coins? Wallet: ${progress.coins()}.")
+                                .setNegativeButton(if(croatian)"ODUSTANI" else "CANCEL",null)
+                                .setPositiveButton(if(croatian)"OTKLJUČAJ" else "UNLOCK"){_,_->
+                                    if(progress.selectOrBuy(index)){
+                                        sound.effect("purchase")
+                                        showPilotPicker(world,number)
+                                    }else{
+                                        Toast.makeText(this@MainActivity,
+                                            if(croatian)"Nema dovoljno kovanica." else "Not enough earned coins.",
+                                            Toast.LENGTH_SHORT).show()
+                                    }
+                                }.show()
+                        }
+                    }
+                }
+                tile.addView(ImageView(this).apply{
+                    setImageResource(portraitDrawableIds[index])
+                    scaleType=ImageView.ScaleType.FIT_CENTER
+                    alpha=if(owned)1f else .80f
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,d(80),Gravity.TOP))
+                tile.addView(TextView(this).apply{
+                    text=progress.skinNames[index]+"\n"+if(selected)"✓" else if(owned)
+                        (if(croatian)"DOSTUPAN" else "READY") else "● "+progress.costs[index]
+                    gravity=Gravity.CENTER
+                    textSize=11f
+                    typeface=Typeface.DEFAULT_BOLD
+                    setTextColor(if(selected)gold else Color.WHITE)
+                    setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,d(38),Gravity.BOTTOM))
+                galleryRow.addView(tile,LinearLayout.LayoutParams(0,d(118),1f).apply{
+                    setMargins(d(3),d(4),d(3),d(4))
+                })
+            }
+        }
+        action(panel,if(croatian)"▶  POLETI S ${progress.skinNames[chosen].uppercase()}"
+            else "▶  FLY WITH ${progress.skinNames[chosen].uppercase()}"){
+            startGame(world,number)
+        }
+        back(panel){showLevels(world,number.coerceIn(1L,LevelEngine.LEVELS_PER_WORLD.toLong()).toInt())}
     }
     /**
      * Custom native premium pause UI, not an image overlay. The simulation
@@ -799,7 +905,7 @@ class MainActivity : Activity() {
 
 
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[0])
+            setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
@@ -940,16 +1046,15 @@ class MainActivity : Activity() {
         content.addView(pauseSettings,LinearLayout.LayoutParams(-1,-2).apply{
             topMargin=d(8)
         })
-        val scroll=ScrollView(this).apply{
-            isVerticalScrollBarEnabled=false
-            addView(content)
-        }
-        dialog.setView(scroll)
+        val fitted=FitViewportColumn(this).apply{addView(content)}
+        dialog.setView(fitted)
         dialog.setOnCancelListener{game.paused=false;sound.resume()}
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        // Measured live buttons, no scroll even when inline pause options open.
         dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)), -2)
+            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
+            (resources.displayMetrics.heightPixels-d(70)).coerceAtLeast(d(360)))
     }
     private fun startGame(world:Int,number:Long){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
@@ -967,7 +1072,7 @@ class MainActivity : Activity() {
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
                 progress.recordLevelStars(world,completed,simulation.completedLevelStars)
@@ -1042,20 +1147,17 @@ class MainActivity : Activity() {
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0x9903183a.toInt(),0x660a3464,0xcc061c42.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
-        val scroll=ScrollView(this).apply{
-            isFillViewport=true;isVerticalScrollBarEnabled=false
-            clipToPadding=false
-        }
+        val fitted=FitViewportColumn(this)
         val panel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
             setPadding(d(18),d(12),d(18),d(18))
         }
-        scroll.addView(panel)
-        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        fitted.addView(panel)
+        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
         // Android 16 enforces edge-to-edge: keep result actions out of the
         // gesture-navigation/status-bar regions, while art remains full bleed.
         if (Build.VERSION.SDK_INT >= 35) {
-            scroll.setOnApplyWindowInsetsListener { view, insets ->
+            fitted.setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
                 view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
                 insets
@@ -1063,7 +1165,7 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=0
+        val pilotIndex=progress.skin()
         val pilotPortraits=intArrayOf(
             R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,

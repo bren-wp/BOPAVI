@@ -90,6 +90,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private var recordsReturnToSettings=false
     private var startupPending=false
     private var currentMenuName="BOPAVI"
+    private weak var pauseFitViewport:UIScrollView?
+    private weak var pauseFitPanel:UIStackView?
+    private weak var resultFitViewport:UIScrollView?
+    private weak var resultFitPanel:UIStackView?
     private var gameWorld=0
     private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
@@ -340,20 +344,28 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
         backgroundGradient?.frame=view.bounds
-        // Uniform safe-area scaling for every native menu, with no scroll.
-        // Only the actual UI is transformed; illustrations stay full-bleed.
-        guard currentMenuName != "",
-              let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
-              !scroll.isScrollEnabled,
-              let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
-              scroll.bounds.height>0,stack.bounds.height>0 else{return}
-        let naturalHeight=stack.bounds.height
-        let fit=min(CGFloat(1),scroll.bounds.height/naturalHeight)
-        let topShift = -(naturalHeight * (1 - fit) / 2)
-        let desired=CGAffineTransform(scaleX:fit,y:fit)
-            .translatedBy(x:0,y:fit>0 ? topShift/fit : 0)
-        // Avoid scheduling another UIKit layout pass for an unchanged fit.
-        if stack.transform != desired {stack.transform=desired}
+        // Apply the same non-scrolling safe-area fit to menus, pause and result.
+        // Each remains a real UIKit interface with functioning native buttons.
+        func fit(_ scroll:UIScrollView,_ panel:UIStackView) {
+            guard !scroll.isScrollEnabled, scroll.bounds.height>0,
+                  panel.bounds.height>0 else{return}
+            let naturalHeight=panel.bounds.height
+            let factor=min(CGFloat(1),scroll.bounds.height/naturalHeight)
+            let shift = -(naturalHeight * (1-factor) / 2)
+            let desired=CGAffineTransform(scaleX:factor,y:factor)
+                .translatedBy(x:0,y:factor>0 ? shift/factor : 0)
+            if panel.transform != desired {panel.transform=desired}
+        }
+        if let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
+           let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first {
+            fit(scroll,stack)
+        }
+        if let scroll=pauseFitViewport,let panel=pauseFitPanel {
+            fit(scroll,panel)
+        }
+        if let scroll=resultFitViewport,let panel=resultFitPanel {
+            fit(scroll,panel)
+        }
     }
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
@@ -856,12 +868,142 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         },for:.touchUpInside)
         row.addArrangedSubview(cell)
     }
-    /// Shared image gallery: every player sees the actual unlocked/locked cast.
-    /// A new virtual-coin purchase always requires a second explicit approval.
-    /// A single mascot: start the chosen world without an intermediate picker.
+    /// A genuine 3×3 UIKit gallery using the nine shipped pilot sprites.
+    /// All purchases use earned offline coins and an explicit confirmation;
+    /// no cloud account, store billing, placeholder diamonds or fake pilots.
     private func showPilotPicker(_ world:Int,_ number:Int) {
         gameWorld=world;gameNumber=number
-        startGame(world,number)
+        let croatian=progress.languageCode=="hr"
+        let selected=progress.skinIndex()
+        let stack=menu(croatian ? "ODABERI LIKA" : "CHOOSE YOUR PILOT",
+                       croatian ? "Izaberi svog pilota za let" : "Nine unique flyers · choose before takeoff")
+        let head=UIStackView()
+        head.axis = .horizontal
+        head.alignment = .center
+        head.spacing=8
+        head.isLayoutMarginsRelativeArrangement=true
+        head.layoutMargins=UIEdgeInsets(top:5,left:12,bottom:5,right:12)
+        head.backgroundColor=UIColor(red:0.025,green:0.19,blue:0.42,alpha:0.97)
+        head.layer.cornerRadius=20
+        head.layer.borderWidth=2
+        head.layer.borderColor=UIColor(red:0.25,green:0.85,blue:1,alpha:1).cgColor
+        head.heightAnchor.constraint(equalToConstant:108).isActive=true
+        stack.addArrangedSubview(head)
+        let chosenPicture=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
+        chosenPicture.contentMode = .scaleAspectFit
+        chosenPicture.isAccessibilityElement=false
+        chosenPicture.widthAnchor.constraint(equalToConstant:104).isActive=true
+        chosenPicture.heightAnchor.constraint(equalToConstant:96).isActive=true
+        head.addArrangedSubview(chosenPicture)
+        let currentName=UILabel()
+        currentName.text="\(progress.skinNames[selected])\n" +
+            (croatian ? "ODABRANI PILOT" : "SELECTED PILOT")
+        currentName.numberOfLines=2
+        currentName.font=UIFont.systemFont(ofSize:21,weight:.black)
+        currentName.textColor = .white
+        currentName.textAlignment = .center
+        head.addArrangedSubview(currentName)
+        for rowIndex in 0..<3 {
+            let galleryRow=UIStackView()
+            galleryRow.axis = .horizontal
+            galleryRow.spacing=6
+            galleryRow.distribution = .fillEqually
+            stack.addArrangedSubview(galleryRow)
+            for column in 0..<3 {
+                let index=rowIndex*3+column
+                let owned=progress.owned(index)
+                let active=index==selected
+                let card=UIButton(type:.custom)
+                card.layer.cornerRadius=18
+                card.layer.borderWidth=active ? 3 : 2
+                card.layer.borderColor=(active
+                    ? UIColor(red:1,green:0.77,blue:0.23,alpha:1)
+                    : UIColor(red:0.25,green:0.68,blue:0.97,alpha:1)).cgColor
+                card.backgroundColor=UIColor(red:0.025,green:active ? 0.29 : 0.19,
+                                            blue:active ? 0.63 : 0.42,alpha:0.98)
+                card.clipsToBounds=true
+                card.heightAnchor.constraint(equalToConstant:118).isActive=true
+                let pilotState:String
+                if active {
+                    pilotState=croatian ? "odabran" : "selected"
+                } else if owned {
+                    pilotState=croatian ? "dostupan" : "available"
+                } else {
+                    pilotState="\(croatian ? "otključaj za" : "unlock for") \(progress.costs[index]) \(croatian ? "kovanica" : "coins")"
+                }
+                card.accessibilityLabel="\(progress.skinNames[index]), \(pilotState)"
+                if active {card.accessibilityTraits.insert(.selected)}
+                let image=UIImageView(image:UIImage(named:"BopiPortrait\(index)"))
+                image.translatesAutoresizingMaskIntoConstraints=false
+                image.contentMode = .scaleAspectFit
+                image.alpha=owned ? 1 : 0.80
+                image.isUserInteractionEnabled=false
+                image.accessibilityElementsHidden=true
+                card.addSubview(image)
+                let caption=UILabel()
+                caption.translatesAutoresizingMaskIntoConstraints=false
+                let pilotCaption=active ? "✓" : (owned
+                    ? (croatian ? "DOSTUPAN" : "READY")
+                    : "● \(progress.costs[index])")
+                caption.text="\(progress.skinNames[index])\n\(pilotCaption)"
+                caption.numberOfLines=2
+                caption.textAlignment = .center
+                caption.textColor=active ? UIColor(red:1,green:0.84,blue:0.33,alpha:1) : .white
+                caption.font=UIFont.systemFont(ofSize:11,weight:.heavy)
+                caption.adjustsFontSizeToFitWidth=true
+                caption.minimumScaleFactor=0.78
+                caption.isUserInteractionEnabled=false
+                card.addSubview(caption)
+                NSLayoutConstraint.activate([
+                    image.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:3),
+                    image.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-3),
+                    image.topAnchor.constraint(equalTo:card.topAnchor,constant:2),
+                    image.heightAnchor.constraint(equalToConstant:80),
+                    caption.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:3),
+                    caption.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-3),
+                    caption.bottomAnchor.constraint(equalTo:card.bottomAnchor,constant:-3),
+                    caption.heightAnchor.constraint(equalToConstant:38)
+                ])
+                card.addAction(UIAction{[weak self] _ in
+                    guard let self=self else{return}
+                    self.sound.effect("click")
+                    if self.progress.owned(index) {
+                        _=self.progress.selectOrBuy(index)
+                        self.showPilotPicker(world,number)
+                    } else {
+                        let price=self.progress.costs[index]
+                        let prompt=UIAlertController(
+                            title:self.progress.skinNames[index],
+                            message:croatian
+                                ? "Otključati za \(price) kovanica? Stanje: \(self.progress.coins())."
+                                : "Unlock for \(price) earned coins? Wallet: \(self.progress.coins()).",
+                            preferredStyle:.alert)
+                        prompt.addAction(UIAlertAction(title:croatian ? "ODUSTANI" : "CANCEL",
+                                                       style:.cancel))
+                        prompt.addAction(UIAlertAction(title:croatian ? "OTKLJUČAJ" : "UNLOCK",
+                                                       style:.default){_ in
+                            if self.progress.selectOrBuy(index) {
+                                self.sound.effect("purchase")
+                                self.showPilotPicker(world,number)
+                            } else {
+                                self.alert(croatian ? "Nedovoljno kovanica" : "Not enough coins",
+                                           croatian ? "Skupljaj kovanice tijekom leta." :
+                                                      "Collect more coins while flying.")
+                            }
+                        })
+                        self.present(prompt,animated:true)
+                    }
+                },for:.touchUpInside)
+                galleryRow.addArrangedSubview(card)
+            }
+        }
+        let flightTitle="\(croatian ? "▶  POLETI S" : "▶  FLY WITH") \(progress.skinNames[selected].uppercased())"
+        button(flightTitle,in:stack) {
+            self.startGame(world,number)
+        }
+        button(croatian ? "←  NATRAG" : "←  BACK",in:stack,primary:false) {
+            self.showLevels(world,page:number)
+        }
     }
 
     /// All elements are real UIKit views and actions. A full-screen dimmer
@@ -880,7 +1022,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.showsVerticalScrollIndicator=false
-        scroll.alwaysBounceVertical=true
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
+        pauseFitViewport=scroll
         overlay.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:overlay.safeAreaLayoutGuide.topAnchor,constant:5),
@@ -895,6 +1039,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         panel.translatesAutoresizingMaskIntoConstraints=false
         panel.isLayoutMarginsRelativeArrangement=true
         panel.layoutMargins=UIEdgeInsets(top:15,left:17,bottom:20,right:17)
+        pauseFitPanel=panel
         panel.backgroundColor=UIColor(red:0.015,green:0.16,blue:0.37,alpha:0.98)
         panel.layer.cornerRadius=27
         panel.layer.borderWidth=3
@@ -907,7 +1052,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
             panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
         ])
-        let mascot=UIImageView(image:UIImage(named:"BopiPortrait0"))
+        let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
@@ -1048,10 +1193,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         quick("⚙\nPOSTAVKE",label:"Postavke"){
             pauseSettings.isHidden.toggle()
             self.sound.pause()
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
             if !pauseSettings.isHidden {
-                scroll.layoutIfNeeded()
-                let bottom=max(0,scroll.contentSize.height-scroll.bounds.height)
-                scroll.setContentOffset(CGPoint(x:0,y:bottom),animated:true)
                 UIAccessibility.post(notification:.layoutChanged,argument:pauseSettings)
             } else {
                 UIAccessibility.post(notification:.layoutChanged,argument:footer)
@@ -1066,7 +1210,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
             coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
@@ -1161,7 +1305,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.showsVerticalScrollIndicator=false
-        scroll.alwaysBounceVertical=true
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
+        resultFitViewport=scroll
         view.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
@@ -1170,6 +1316,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
         ])
         let stack=UIStackView()
+        resultFitPanel=stack
         stack.axis = .vertical;stack.alignment = .fill;stack.spacing=7
         stack.isLayoutMarginsRelativeArrangement=true
         stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:18,right:18)
@@ -1185,7 +1332,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=0
+        let pilotIndex=progress.skinIndex()
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22

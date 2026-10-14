@@ -350,3 +350,9 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - All main menus use safe-area-adaptive live views without vertical scrolling. Accessibility/tap targets must be verified at short/long aspect ratios: a visually smaller page is not sufficient if controls become unusable.
 - Android/iOS soundtrack must actually contain the *regenerated* 48-second world_n.wav assets. GitHub Actions calls the original Python generator before source audit and both builds, then verifies WAV durations, quiet RMS, safe loop endpoints, per-platform SHA-equivalence and short effects. Existing repository WAV assets are legacy placeholders for source checkout; release APK and iOS bundle must carry the generated long loops.
 - Review live screenshots against provided references. No claim of 1:1 art fidelity until visual differences have been resolved and documented.
+
+## v0.1.86 — native nine-pilot gallery and non-scrolling overlays
+- Capture genuine Android pilot picker screenshot with nine interactive cards, saved selected state, confirm-before-virtual-coin-unlock and real accessible touch rectangles. Ensure iOS uses the same nine bundled native images and independent sprites, not a composited reference image.
+- Android must no longer wrap Pause/Results in ScrollView. iOS must set scrolling and vertical bounce off on both, and avoid setContentOffset when pause settings expand. Verify actual controls on physical/simulator screenshots before 1:1 approval.
+- Selected pilot's portrait, wing and sprite must match between gallery, flight, pause and result; keep original sprite art size 124 and hit radius 18.
+- Original 3D reference concepts have not been converted into complete layered game assets. Appearance, all 26 translations and short-device touch geometry remain open signoff items.
