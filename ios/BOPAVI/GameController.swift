@@ -792,9 +792,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let selected=n==frontier
         let cell=BopaviActionButton(primary:false)
         cell.setTitle("",for:.normal)
-        cell.accessibilityLabel="Level \(n), \(LevelKind.name(kind)), \(!unlocked ? "zaključan" : (completed ? "dovršen" : "otključan")), " +
-            "zvjezdice \(progress.bestLevelStars(world,n)) od 3"
-        cell.accessibilityHint=unlocked ? "Pokreni level" : "Prvo dovrši prethodni level"
+        cell.accessibilityLabel=ui("Level \(n), \(LevelKind.name(kind)), \(!unlocked ? "zaključan" : (completed ? "dovršen" : "otključan")), " +
+            "zvjezdice \(progress.bestLevelStars(world,n)) od 3")
+        cell.accessibilityHint=ui(unlocked ? "Pokreni level" : "Prvo dovrši prethodni level")
         cell.layer.cornerRadius=16
         cell.layer.borderWidth=selected ? 3 : 1
         cell.layer.borderColor=(selected
