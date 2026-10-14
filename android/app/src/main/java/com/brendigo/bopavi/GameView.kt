@@ -237,14 +237,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
-            text(canvas,"DODIRNI ZA LET",240f,613f,30f,Color.WHITE,true)
+            text(canvas,"TAP TO FLY",240f,613f,30f,Color.WHITE,true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
         if(game.active && !game.finished) {
             val hudScale=(width/480f).coerceAtMost(height/640f)
             val topInset=if(android.os.Build.VERSION.SDK_INT>=30)
-                rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())?.top ?: 0 else 0
+                rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or
+                    android.view.WindowInsets.Type.displayCutout())?.top ?: 0 else 0
             canvas.save()
             canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
             canvas.scale(hudScale,hudScale)
@@ -873,24 +874,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
             lastProgressPassed=passed
-            contentDescription="Bopi leti. Prolazi ukupno $passed"
+            contentDescription="Bopi is flying. Gates passed: $passed"
         }
         // Real points and game-world travel units, never fictional metres.
         // "PROLAZI UKUPNO" remains spoken and level gates remain in the bar.
         val score=game.score()
         if(score!=lastProgressScore) {
             lastProgressScore=score
-            progressTitle="BODOVI $score"
+            progressTitle="SCORE $score"
         }
         val distanceTick=(game.time*10f).toInt()
         if(distanceTick!=lastDistanceTick) {
             lastDistanceTick=distanceTick
-            distanceTitle="PUT ${game.distance.toInt()}"
+            distanceTitle="DIST ${game.distance.toInt()}"
         }
         // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
-        hudGlass(c,146f,18f,381f,77f)
+        hudGlass(c,146f,18f,381f,99f)
         text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
         text(c,"⚑",363f,57f,26f,Color.WHITE,true)
         rect(c,181f,34f,354f,55f,0xff05234e.toInt(),10f)
@@ -902,12 +903,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Announce the next level inside the existing gauge, never as an
         // opaque transition overlay or a pause of the physics/game loop.
         val entering=game.levelTransition>0f
-        rect(c,171f,80f,364f,107f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
-        val levelLabel=if(entering)"LEVEL ${game.displayLevel}  ·  NOVI LET"
-            else "LEVEL ${game.displayLevel}  ·  ${game.passed}/$total"
-        text(c,levelLabel,267f,99f,15f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,204f,124f,12f,0xffddf4ff.toInt(),true)
-        text(c,distanceTitle,330f,124f,12f,0xffddf4ff.toInt(),true)
+        rect(c,171f,63f,364f,93f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
+        val levelLabel=if(entering)"LEVEL ${game.displayLevel} · NEW STAGE"
+            else "LEVEL ${game.displayLevel} · ${game.passed}/$total GATES"
+        text(c,levelLabel,267f,83f,13f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
+        text(c,progressTitle,204f,117f,12f,0xffddf4ff.toInt(),true)
+        text(c,distanceTitle,330f,117f,12f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
@@ -982,19 +983,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
         hudPilotPortrait(c)
         rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
-        text(c,"LET +${game.coins}",112f,99f,11f,0xffffd76a.toInt(),true)
+        text(c,"FLIGHT +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
 
         // The three narrow chips remain under the safe-top race gauge, entirely
         // above Bopi and the moving gate corridor.
-        hudOrb(c,170f,154f,"★","${game.stars}",0xffffce43.toInt(),true)
-        hudOrb(c,267f,154f,"◆","${game.shield}",
+        hudOrb(c,170f,141f,"★","${game.stars}",0xffffce43.toInt(),true)
+        hudOrb(c,267f,141f,"◆","${game.shield}",
             0xff54e5ff.toInt(),game.shield>0)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,364f,154f,"∩","$seconds",
+        hudOrb(c,364f,141f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
-        val status="Bopi leti. Novčanik ${balance} kovanica. U ovom letu skupljeno ${game.coins}. " +
-            "Prolazi ukupno ${game.totalPassed}. Zvjezdice ${game.stars}. " +
-            "ŠTIT ×${game.shield}. MAGNET ${seconds}s"
+        val status="Bopi is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
+            "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
+            "Shield ${game.shield}. Magnet ${seconds} seconds."
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
@@ -1019,7 +1020,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            contentDescription="Bopi leti"
+            contentDescription="Bopi is flying"
             onFlap()
             invalidate()
         }
