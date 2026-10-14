@@ -35,8 +35,8 @@ struct SwiftParity {
                 precondition(seen.insert(sig).inserted)
                 precondition((11...15).contains(l.gates.count))
                 precondition((140...212).contains(l.speed))
-                precondition(l.gates.allSatisfy{$0.gap>=164 && $0.width >= 48 && $0.width <= 88})
-                precondition(Set(l.gates.map{$0.width}).count>=3)
+                precondition(l.gates.allSatisfy{$0.gap>=164 && $0.width == 76})
+                precondition(Set(l.gates.map{$0.gap}).count>=3)
                 let gaps=l.gates.map{$0.gap}
                 precondition((gaps.max() ?? 0)-(gaps.min() ?? 0) >= 1,
                              "Seeded gate heights must vary within each level")
@@ -187,7 +187,7 @@ struct SwiftParity {
             let off=ParallaxScenery.offset(999999,layer:layer,reducedMotion:false)
             precondition(off>=0 && off<696)
         }
-        // v0.1.25: identical zone-specific gate rhythm through an endless boundary.
+        // v0.1.85: exact same in-level and cross-level gate rhythm.
         for world in 0..<8 {
             for number in [2,62,122,182,242,302,360] {
                 let base=BopaviCore.create(world,number)
@@ -195,9 +195,9 @@ struct SwiftParity {
                 let firstNext=stream.upcomingGateX(stream.upcomingGates[0])
                 let oldLast=stream.gateX(base.gates[base.gates.count-1])
                 let interval=base.gates[base.gates.count-1].x-base.gates[base.gates.count-2].x
-                let expected=min(208,max(190,interval-32))
+                let expected=interval
                 precondition(abs(firstNext-oldLast-expected)<0.01)
-                precondition(expected>=190 && expected<=208 && expected+340<=550)
+                precondition(expected>=218 && expected<=228)
             }
         }
         // v0.1.20: same bounded, retriggerable cosmetic wingbeat as Kotlin.
