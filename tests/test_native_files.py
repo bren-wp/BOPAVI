@@ -1087,7 +1087,7 @@ assert 'RippleDrawable(ColorStateList.valueOf(0x33ffffff)' in android_tile
 assert 'artPanel,LinearLayout.LayoutParams(-1,d(132))' in android_tile
 assert 'footerShade.isUserInteractionEnabled=false' in ios_tile
 assert 'tile.accessibilityTraits.insert(.selected)' in ios_tile
-assert 'tile.accessibilityHint="Otvori levele svijeta"' in ios_tile
+assert 'tile.accessibilityHint=ui("Otvori levele svijeta")' in ios_tile
 assert 'tile.heightAnchor.constraint(equalToConstant:144)' in ios_tile
 assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12)' in ios_tile
 for forbidden in ('text="★  ${progress.worldStars(world)}/30"', 'earned.text="★  \\(progress.worldStars(world))/30"'):
