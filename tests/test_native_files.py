@@ -1080,7 +1080,7 @@ for source in (android_tile,ios_tile):
     assert 'streamFrontier(world)' in source
     assert 'collectibles(world)' in source
     assert 'best(world)' in source
-    assert 'name.uppercase()' in source or 'names[world].uppercased()' in source
+    assert 'name.uppercase()' in source or 'ui(BopaviCore.names[world]).uppercased()' in source
 assert 'FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM)' in android_tile
 assert 'FrameLayout.LayoutParams(-1,d(70),Gravity.BOTTOM)' in android_tile
 assert 'RippleDrawable(ColorStateList.valueOf(0x33ffffff)' in android_tile
