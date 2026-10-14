@@ -5,6 +5,7 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
+    private let hudRimColor=UIColor(rgb:0x43d8ff).withAlphaComponent(196.0/255).cgColor
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
@@ -377,10 +378,27 @@ final class GameCanvas: UIView {
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
     private func hudGlass(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat) {
         rect(c,x,y,w,h,0x062755,24,0.929)
-        c.setStrokeColor(color(0x43d8ff,196.0/255))
+        c.setStrokeColor(hudRimColor)
         c.setLineWidth(2.2)
-        c.addPath(CGPath(roundedRect:CGRect(x:x+1.5,y:y+1.5,width:w-3,height:h-3),
-                         cornerWidth:22,cornerHeight:22,transform:nil))
+        // Draw the same 22pt rounded rim with reusable CGContext path commands:
+        // CGPath(roundedRect:) created up to five objects every 60/120Hz frame.
+        let left=x+1.5,top=y+1.5,right=x+w-1.5,bottom=y+h-1.5
+        let r=min(22,(right-left)*0.5,(bottom-top)*0.5)
+        c.beginPath()
+        c.move(to:CGPoint(x:left+r,y:top))
+        c.addLine(to:CGPoint(x:right-r,y:top))
+        c.addArc(center:CGPoint(x:right-r,y:top+r),radius:r,
+                 startAngle:-.pi/2,endAngle:0,clockwise:false)
+        c.addLine(to:CGPoint(x:right,y:bottom-r))
+        c.addArc(center:CGPoint(x:right-r,y:bottom-r),radius:r,
+                 startAngle:0,endAngle:.pi/2,clockwise:false)
+        c.addLine(to:CGPoint(x:left+r,y:bottom))
+        c.addArc(center:CGPoint(x:left+r,y:bottom-r),radius:r,
+                 startAngle:.pi/2,endAngle:.pi,clockwise:false)
+        c.addLine(to:CGPoint(x:left,y:top+r))
+        c.addArc(center:CGPoint(x:left+r,y:top+r),radius:r,
+                 startAngle:.pi,endAngle:3 * .pi/2,clockwise:false)
+        c.closePath()
         c.strokePath()
         rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
