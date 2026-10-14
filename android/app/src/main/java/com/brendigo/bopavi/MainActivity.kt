@@ -1490,7 +1490,8 @@ class MainActivity : Activity() {
             max=30;progress=profileStars
             progressTintList=ColorStateList.valueOf(gold)
             progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
-            contentDescription=ui("Stars in world ")+ui(LevelEngine.names[profileWorld])+": ${profileStars}/30"
+            contentDescription=(if(progress.languageCode()=="hr")"Zvjezdice svijeta " else "Stars in world ")+
+                ui(LevelEngine.names[profileWorld])+": ${profileStars}/30"
         }
         portraitBox.addView(profileStarGauge,
             LinearLayout.LayoutParams(-1,d(9)).apply{
@@ -1515,7 +1516,7 @@ class MainActivity : Activity() {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
         },LinearLayout.LayoutParams(-1,d(24)))
         stats.addView(TextView(this).apply{
-            text=progress.skinNames[skin]+" · "+if(progress.languageCode()=="hr")"pilot" else "pilot"
+            text=progress.skinNames[skin]+" · pilot"
             textSize=12f;setTextColor(0xffc5e9ff.toInt())
         },LinearLayout.LayoutParams(-1,d(19)))
         stats.addView(TextView(this).apply{
@@ -1576,23 +1577,23 @@ class MainActivity : Activity() {
                     0xff061d44.toInt(),15).apply{
                     setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
                 }
-                contentDescription=ui(name)+", "+if(progress.languageCode()=="hr")
-                    "cilj " else "goal " +ui(requirement)+", "+
-                    if(earned)ui("osvojeno") else ui("zaključano")
+                contentDescription=ui(name)+", "+
+                    (if(progress.languageCode()=="hr")"cilj " else "goal ")+
+                    ui(requirement)+", "+ui(if(earned)"osvojeno" else "zaključano")
             }
             tile.addView(TextView(this).apply{
                 text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
                 setTextColor(gold);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(25)))
             tile.addView(TextView(this).apply{
-                text=name;textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                text=ui(name);textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
                 setSingleLine(true);typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(19)))
             tile.addView(TextView(this).apply{
-                text=requirement;textSize=9f;gravity=Gravity.CENTER
+                text=ui(requirement);textSize=9f;gravity=Gravity.CENTER
                 setTextColor(0xffc5e9ff.toInt());setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,9,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
