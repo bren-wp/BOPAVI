@@ -316,7 +316,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             if title == "POSTAVKE" {
                 // Same selected-pilot header arrangement as Android, drawn from
                 // shipped standalone portrait art rather than a reference PNG.
-                let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
+                let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
                 pilot.contentMode = .scaleAspectFit
                 pilot.isAccessibilityElement=false
                 pilot.widthAnchor.constraint(equalToConstant:117).isActive=true
@@ -1585,7 +1585,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         s.addArrangedSubview(cardRow)
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",13,.white,s)
-        label("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.",13,.white,s)
+        label(progress.languageCode=="hr" ?
+            "Odaberi jednog od devet pilota prije leta. Kovanice otključavaju pilote i opremu." :
+            "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.",13,.white,s)
         button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
             if origin == .home {self.showHome()} else {self.showSettings()}
         }
