@@ -28,6 +28,9 @@ class LevelEngineTest {
             assertEquals(level.gates,LevelEngine.create(world,number).gates)
             assertTrue(level.gates.map { it.width }.toSet().size >= 3)
             assertTrue(level.gates.all { it.width in 48f..88f })
+            val gaps=level.gates.map { it.gap }
+            assertTrue("Each level needs recognizable tall/short pillars",gaps.max()-gaps.min() >= 9f)
+            assertTrue(gaps.all { it >= 164f })
             assertTrue(level.gates.all { LevelEngine.opening(it,0f).let { opening ->
                 opening.bottom - opening.top >= 2*18f+100f
             } })
@@ -35,6 +38,41 @@ class LevelEngineTest {
                 kotlin.math.abs(one.center - two.center) <= 108f
             })
         }
+    }
+
+    @Test fun threeDifficultiesChangeRealRenderableAndCollidableOpenings() {
+        for(world in 0 until LevelEngine.WORLD_COUNT) {
+            for(number in listOf(1, 60, 121, 240, 360, 1048576)) {
+                for(gate in LevelEngine.create(world,number).gates) {
+                    for(t in listOf(0f,1.25f,7f,15f)) {
+                        val easy=LevelEngine.opening(gate,t,0)
+                        val normal=LevelEngine.opening(gate,t,1)
+                        val hard=LevelEngine.opening(gate,t,2)
+                        val easyGap=easy.bottom-easy.top
+                        val normalGap=normal.bottom-normal.top
+                        val hardGap=hard.bottom-hard.top
+                        assertTrue("Easy < Normal world=$world level=$number",easyGap >= normalGap)
+                        assertTrue("Normal < Hard world=$world level=$number",normalGap >= hardGap)
+                        assertTrue("Hard opening must stay fair",hardGap >= 144.9f)
+                        assertTrue(hard.top>0f && easy.bottom<755f)
+                        assertEquals(normal.top, LevelEngine.opening(gate,t).top,0f)
+                    }
+                }
+            }
+        }
+        // Existing 18px body radius must not be shrunk or enlarged for this change.
+        val prototype=LevelEngine.create(0,1)
+        val g=prototype.gates[0].copy(x=148f,center=290f,gap=164f,
+            movement=0f,coin=false,star=false,power=0)
+        val single=prototype.copy(gates=listOf(g),speed=140f,wind=0f)
+        val easyFlight=GameSimulation(single,difficulty=0)
+        val hardFlight=GameSimulation(single,difficulty=2)
+        easyFlight.flap();hardFlight.flap()
+        easyFlight.step(1f/60f);hardFlight.step(1f/60f)
+        assertFalse("Easy flight fits the actual mouth",easyFlight.finished)
+        assertTrue("Hard flight hits the visibly narrower bottom lip",hardFlight.finished)
+        assertEquals(18f, easyFlight.radius,0f)
+        assertEquals(18f, hardFlight.radius,0f)
     }
 
     @Test fun seamlessLevelJunctionNeverCreatesAnEmptyVisibleCourse() {
