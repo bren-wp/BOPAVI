@@ -2497,3 +2497,19 @@ assert 'button("MAPA SVJETOVA",in:destinationRow' in ios_menu
 assert 'button("🛍  TRGOVINA KOVANICAMA",in:destinationRow' in ios_menu
 assert 'englishWorldsResultsAndCtaDoNotCorruptPartialKeys' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
 print('PASS: English-first world/result translation, preserved Croatian and no-scroll destination actions')
+
+# v0.1.87: a fitted dialog must never rely on an invisible ScrollView or
+# extend beyond the device's actual safe viewport. English is the default,
+# but saved Croatian continues to control the displayed pause action.
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+assert 'smoothScrollTo' not in android_pause
+assert 'pauseSettings.requestLayout()' in android_pause
+assert 'resources.displayMetrics.heightPixels-d(48)' in android_pause
+assert 'this.text=ui(text);isAllCaps=false' in android_pause
+assert 'contentDescription=ui(text)' in android_pause
+assert '"▶  CONTINUE"' in android_pause and '"PAUSE SETTINGS"' in android_pause
+assert '"▶  CONTINUE"' in ios_pause and '"PAUSE SETTINGS"' in ios_pause
+assert '"↻  RETRY"' in ios_pause and '"↪  EXIT"' in ios_pause
+assert 'pauseHaptic.accessibilityLabel=ui("VIBRACIJA")' in ios_pause
+print('PASS: English/Croatian non-scrolling pause dialog stays inside viewport and buttons remain accessible')
