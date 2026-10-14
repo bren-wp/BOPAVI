@@ -927,7 +927,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
             lastProgressPassed=passed
-            contentDescription="Bopi is flying. Gates passed: $passed"
+            contentDescription="${word("Bopi is flying","Bopi leti")}. ${word("GATES","PROLAZI")}: $passed"
         }
         // Real points and game-world travel units, never fictional metres.
         // The live gate total is spoken through the flight accessibility label.
