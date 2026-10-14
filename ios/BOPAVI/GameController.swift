@@ -1057,8 +1057,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
         panel.addArrangedSubview(mascot)
-        label("♛  PAUZA",33,UIColor.white,panel)
-        label("Pauza · Level \(canvas.game.displayLevel)",14,
+        label(progress.languageCode=="hr" ? "♛  PAUZA" : "♛  PAUSE",33,UIColor.white,panel)
+        label((progress.languageCode=="hr" ? "Pauza · Level " : "Paused · Level ") + String(canvas.game.displayLevel),14,
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
@@ -1086,11 +1086,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             panel.addArrangedSubview(control)
         }
-        command("▶  NASTAVI",style:0){close(true)}
-        command("↻  PONOVO",style:1){
+        command(progress.languageCode=="hr" ? "▶  NASTAVI" : "▶  CONTINUE",style:0){close(true)}
+        command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY",style:1){
             close(false);self.startGame(self.gameWorld,self.gameNumber)
         }
-        command("↪  IZLAZ",style:2){close(false);self.showHome()}
+        command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT",style:2){close(false);self.showHome()}
         // Paused in-place settings: navigating to the standalone Settings screen
         // destroys the live canvas. Keep the original simulation and overlay.
         let pauseSettings=UIStackView()
@@ -1104,7 +1104,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pauseSettings.layer.borderWidth=2
         pauseSettings.layer.borderColor=UIColor(red:0.24,green:0.80,blue:1,alpha:1).cgColor
         pauseSettings.isHidden=true
-        label("POSTAVKE U PAUZI",17,.white,pauseSettings)
+        label(progress.languageCode=="hr" ? "POSTAVKE U PAUZI" : "PAUSE SETTINGS",17,.white,pauseSettings)
         volumeSlider("♫  Glazba",value:progress.musicVolume,in:pauseSettings){value in
             self.progress.musicVolume=value
             self.sound.musicVolume=Float(value)/100
@@ -1118,7 +1118,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let pauseHaptic=UISwitch()
         pauseHaptic.isOn=progress.hapticEnabled
         pauseHaptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
-        pauseHaptic.accessibilityLabel="Vibracije"
+        pauseHaptic.accessibilityLabel=ui("VIBRACIJA")
         pauseHaptic.addAction(UIAction{_ in self.progress.hapticEnabled=pauseHaptic.isOn},
                               for:.valueChanged)
         let hapticRow=UIStackView()
@@ -1130,7 +1130,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:1)
         hapticRow.layer.cornerRadius=15
         let hapticLabel=UILabel()
-        hapticLabel.text="Vibracije"
+        hapticLabel.text=ui("VIBRACIJA")
         hapticLabel.textColor = .white
         hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
         hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
@@ -1160,7 +1160,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.titleLabel?.adjustsFontSizeToFitWidth=true
             control.titleLabel?.minimumScaleFactor=0.67
             control.setTitleColor(.white,for:.normal)
-            control.accessibilityLabel=label
+            control.accessibilityLabel=self.ui(label)
             control.backgroundColor=UIColor(red:0.03,green:0.35,blue:0.68,alpha:1)
             control.layer.cornerRadius=13
             control.layer.borderWidth=1
@@ -1172,7 +1172,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if label=="Zvuk" || label=="Muzika" {
                     let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
                     control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
-                    control.accessibilityLabel=label+(active ? " uključeno":" isključeno")
+                    control.accessibilityLabel=self.ui(label)+(active ? " enabled":" disabled")
                 }
             },for:.touchUpInside)
             footer.addArrangedSubview(control)
