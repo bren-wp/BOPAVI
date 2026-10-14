@@ -322,3 +322,10 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - Android workflow artifact 11858433751: actual 1080×2400 HOME shows Bopi, winged wordmark, the three CTAs and four active footer tabs. Illustration depth, lighting and mascot anatomy remain far from the new concept images.
 - iOS workflow artifact 11858883855: actual 1206×2622 PNG **does not show any Home CTA or bottom tab**. It shows only oversized background artwork beneath the system status/dynamic-island region. The old screenshot smoke accepted this because it checked only that the PNG file was non-empty.
 - v0.1.81 adds a bounded simulator retry plus an AppKit PNG verifier that requires both the gold IGRAJ band and navy footer navigation. This is a necessary evidence gate, not proof of pixel-level fidelity.
+
+
+## v0.1.82 — Active gameplay reference gate (pending post-build screenshot approval)
+- **Focus:** physically shorter/taller upper/lower obstacle shafts, seeded variable mouth height per gate and visible biome-specific cliff silhouettes. Existing game mode remains tap-to-flap, left bird / right incoming obstacles, portrait Android+iOS.
+- Rendering and collision must call the same dynamic opening for Easy / Normal / Hard; real body radius remains 18 logical pixels. No fake collectible counters, enlarged mascot or screenshot-baked HUD.
+- Compare actual Android API35, API36 and iOS simulator active-flight shots against the supplied Crystal, Forest, Ocean, Sky, Moon, Lava and Cosmic references. Confirm top-safe-area HUD stays physically top-aligned, Bopi remains small, all eight world backgrounds are different and obstacle cap lips line up with collisions.
+- **Not 1:1 approved:** game sprites and backdrop layers remain code-generated 2D artwork; the supplied concept screenshot cannot safely be used directly as a gameplay texture. Finished state requires reference-specific licensed Bopi/biome exports and image-by-image review.
