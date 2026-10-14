@@ -609,6 +609,55 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             c.drawPath(path,p)
         }
     }
+    /**
+     * Continuous rock shoulders visibly attach each procedural obstacle to
+     * the TOP or BOTTOM of the flight camera. Unlike floating decorative
+     * sprites, every point stays inside the existing x-7..x+width+5 cap
+     * collider and >36px away from the traversable opening.
+     * No bitmap allocations or per-frame state.
+     */
+    private fun drawRootedCliffBases(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,
+                                     seed:Int,shadow:Int,stone:Int){
+        val left=x-6f; val right=x+w+4f
+        val upperEnd=(top-38f).coerceAtMost(88f).coerceAtLeast(0f)
+        if(upperEnd>8f){
+            path.reset()
+            path.moveTo(left,-12f)
+            path.lineTo(right,-12f)
+            path.lineTo(right,upperEnd*.63f)
+            path.lineTo(x+w-4f,upperEnd)
+            path.lineTo(x+9f,upperEnd*.86f)
+            path.lineTo(left,upperEnd*.42f)
+            path.close()
+            fill(shadow);c.drawPath(path,p)
+            path.reset()
+            path.moveTo(x+3f,0f)
+            path.lineTo(x+w*.72f,0f)
+            path.lineTo(x+w*.55f,upperEnd*.64f)
+            path.lineTo(x+10f,upperEnd*.38f)
+            path.close()
+            fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
+        }
+        val lowerStart=(bottom+38f).coerceAtLeast(664f).coerceAtMost(755f)
+        if(lowerStart<746f){
+            path.reset()
+            path.moveTo(left,lowerStart+(seed%4)*2f)
+            path.lineTo(x+8f,lowerStart)
+            path.lineTo(x+w-4f,lowerStart+9f)
+            path.lineTo(right,lowerStart)
+            path.lineTo(right,778f)
+            path.lineTo(left,778f)
+            path.close()
+            fill(shadow);c.drawPath(path,p)
+            path.reset()
+            path.moveTo(x+8f,lowerStart+10f)
+            path.lineTo(x+w*.63f,lowerStart+24f)
+            path.lineTo(x+w*.77f,778f)
+            path.lineTo(x+5f,778f)
+            path.close()
+            fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
+        }
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -617,6 +666,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val cap=if(g.kind==0)0xff55ce6c.toInt() else color
         val top=a.top;val bottom=a.bottom
         val cliffSeed=(g.phase*1024f).toInt()+index*31+g.kind*59+1
+        drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
         drawCliffShaft(c,x,w,0f,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
         drawCliffShaft(c,x,w,bottom,755f,shade,color,cliffSeed)
