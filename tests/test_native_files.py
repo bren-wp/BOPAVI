@@ -1780,7 +1780,9 @@ for controller, pilot in ((android_menu,'val skin=progress.skin()'),
                           (ios_menu,'let skin=progress.skinIndex()')):
     # Nine genuine selectable pilots exist. Every user-facing profile must
     # follow the saved selected pilot, never a hard-coded first illustration.
-    profile=controller.split('showProfile()',1)[1].split('showLeaderboard()',1)[0]
+    opener='private fun showProfile(){' if controller is android_menu else 'private func showProfile(){'
+    closer='private fun showLeaderboard(){' if controller is android_menu else 'private func showLeaderboard(){'
+    profile=controller.split(opener,1)[1].split(closer,1)[0]
     assert pilot in profile
     assert 'val skin=0' not in profile and 'let skin=0' not in profile
     assert 'skinNames[skin]' in profile
