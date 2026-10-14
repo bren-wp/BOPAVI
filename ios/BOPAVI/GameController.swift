@@ -541,23 +541,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         number.isUserInteractionEnabled=false
         number.accessibilityElementsHidden=true
         tile.addSubview(number)
-        // Same control mode as the real simulation, not a decorative button.
-        let mode=UILabel()
-        mode.text="● TAP"
-        mode.font=UIFont.systemFont(ofSize:10,weight:.heavy)
-        mode.textAlignment = .center;mode.textColor = .white
-        mode.backgroundColor=UIColor(red:0.04,green:0.39,blue:0.70,alpha:0.97)
-        mode.layer.cornerRadius=14;mode.clipsToBounds=true
-        mode.layer.borderWidth=1
-        mode.layer.borderColor=UIColor(red:0.35,green:0.85,blue:1,alpha:1).cgColor
-        mode.isUserInteractionEnabled=false;mode.accessibilityElementsHidden=true
-        mode.translatesAutoresizingMaskIntoConstraints=false;tile.addSubview(mode)
-        NSLayoutConstraint.activate([
-            mode.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:12),
-            mode.topAnchor.constraint(equalTo:tile.topAnchor,constant:54),
-            mode.widthAnchor.constraint(equalToConstant:85),
-            mode.heightAnchor.constraint(equalToConstant:29)
-        ])
+        // The full illustrated tile is the accessible tap target. Do not
+        // obscure world art with a redundant decorative TAP badge.
         let arrow=UILabel()
         arrow.text="›";arrow.font=UIFont.systemFont(ofSize:30,weight:.heavy)
         arrow.textColor = .white;arrow.textAlignment = .center
@@ -628,6 +613,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             backdrop.clipsToBounds=true
             backdrop.isUserInteractionEnabled=false
             backdrop.accessibilityElementsHidden=true
+            // Gentle GPU-composited camera breathing on the original art;
+            // genuine UIKit buttons, counters and hit targets stay fixed.
+            // The attached layer automatically releases the animation when
+            // Home is dismissed. Honour Reduce Motion.
+            if !UIAccessibility.isReduceMotionEnabled {
+                let drift=CABasicAnimation(keyPath:"transform.scale")
+                drift.fromValue=1.015
+                drift.toValue=1.045
+                drift.duration=12.5
+                drift.autoreverses=true
+                drift.repeatCount = .infinity
+                drift.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
+                backdrop.layer.add(drift,forKey:"home-scenery-drift")
+            }
             view.insertSubview(backdrop,at:0)
             NSLayoutConstraint.activate([
                 backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
@@ -651,7 +650,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         walletRow.distribution = .fill
         walletRow.spacing=5
         let avatar=UIButton(type:.custom)
-        avatar.setImage(UIImage(named:"BopiPortrait0"),for:.normal)
+        avatar.setImage(UIImage(named:"BopiPortrait\(progress.skinIndex())"),for:.normal)
         avatar.imageView?.contentMode = .scaleAspectFit
         avatar.contentVerticalAlignment = .fill
         avatar.contentHorizontalAlignment = .fill
@@ -825,45 +824,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         if !pager.arrangedSubviews.isEmpty{s.addArrangedSubview(pager)}
-        sectionHeading(start<=maxNumber ? "NASTAVI ILI ODABERI LEVEL"
-            : "PREGLED ZAKLJUČANIH LEVELA",in:s)
-        label("Otključano do levela \(maxNumber)",16,.white,s)
-        // Locked preview pages have no flight CTA, only honest navigation.
-        if start<=maxNumber {
-        button("▶  NASTAVI LET",in:s){
-            self.showPilotPicker(world,self.progress.streamFrontier(world))
-        }
-        // An optional native alert keeps the illustrated 20-card gallery
-        // larger and never opens the keyboard until the player requests it.
-        button("▶  POKRENI ODABRANI LEVEL",in:s,primary:false){
-            let dialog=UIAlertController(title:self.ui("POKRENI ODABRANI LEVEL"),
-                message:self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber)",
-                preferredStyle:.alert)
-            dialog.addTextField {field in
-                field.keyboardType = .numberPad
-                field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
-                field.placeholder=self.ui("Broj otključanog levela")
-                field.accessibilityLabel=self.ui("Broj otključanog levela")
-            }
-            dialog.addAction(UIAlertAction(title:self.ui("ODUSTANI"),style:.cancel))
-            dialog.addAction(UIAlertAction(title:self.ui("POKRENI"),style:.default){[weak self,weak dialog] _ in
-                guard let self else{return}
-                let field=dialog?.textFields?.first
-                guard let n=Int(field?.text ?? ""), (1...maxNumber).contains(n) else {
-                    self.alert(self.ui("Nedostupan level"),
-                               self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber).")
-                    return
-                }
-                self.showPilotPicker(world,n)
-            })
-            self.present(dialog,animated:true)
-        }
-        } else {
-            label("Ovi leveli su zaključani. Dovrši prethodne za otključavanje.",14,.white,s)
-            button("↶ VRATI NA OTKLJUČANE LEVELE",in:s,primary:false){
-                self.showLevels(world,page:maxNumber)
-            }
-        }
+        // All 20 illustrated tiles are genuine UIKit controls, with the
+        // existing level unlocks, accessible labels and saved star ratings.
+        // Avoid duplicating the level picker, Continue and long instructions
+        // below the paged gallery: they reduce its size on compact iPhones.
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
     }
     /// Every image is a reusable, real world illustration. Completion is read

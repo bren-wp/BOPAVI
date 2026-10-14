@@ -791,7 +791,9 @@ for level_ui in (android_levels,ios_levels):
     assert 'PRETHODNIH 20' in level_ui and 'SLJEDEĆIH 20' in level_ui
     assert 'kind' in level_ui and 'frontier' in level_ui
     assert 'LevelKind.icon(kind)' in level_ui and 'LevelKind.name(kind)' in level_ui
-    assert 'PRETHODNIH 20' in level_ui and 'POKRENI ODABRANI LEVEL' in level_ui
+    # Twenty real clickable cells replace the former redundant typed-level dialog.
+    assert 'POKRENI ODABRANI LEVEL' not in level_ui
+    assert 'PRETHODNIH 20' in level_ui and 'SLJEDEĆIH 20' in level_ui
 assert 'private fun levelTile(' in android_levels
 assert 'private func levelTile(' in ios_levels
 assert 'R.drawable.world0' in android_levels and 'UIImage(named:"World\\(world)")' in ios_levels
@@ -963,7 +965,7 @@ print('PASS: authentic premium gameplay HUD, no duplicate iOS status chip or pai
 # Bopi portrait/wing assets remain separate.
 assert 'private val birdSprites' in android_render
 assert 'private val leftWings' in android_render and 'private val rightWings' in android_render
-assert 'BopiPortrait0' in ios_menu
+assert 'BopiPortrait\\(progress.skinIndex())' in ios_menu
 android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
 
 # v0.1.34: bottom PROFILE is not a misleading alias for Settings.
@@ -1178,54 +1180,37 @@ assert 'self.progress.musicVolume==0 ? 80 : 0' not in ios_pause
 assert '[weak control]' in ios_pause
 print('PASS: pause footer audio state and previous custom volume persisted on both platforms')
 
-# v0.1.45: browse locked future level pages, but never start a locked level.
+# v0.1.94: no modal numeric picker or misleading Continue CTA. The reference
+# gallery has 20 actual illustrated buttons on each page; every locked tile
+# enforces the stored saved frontier, independently of the page navigator.
 android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
 ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
+android_level_tile=android_menu.split('private fun levelTile(',1)[1].split('private fun showPilotPicker(',1)[0]
+ios_level_tile=ios_menu.split('private func levelTile(',1)[1].split('private func showPilotPicker(',1)[0]
 assert 'if(start+20<=LevelEngine.LEVELS_PER_WORLD)' in android_levels
 assert 'if start+20<=BopaviCore.levelsPerWorld {' in ios_levels
 for levels in (android_levels,ios_levels):
     assert 'SLJEDEĆIH 20' in levels and 'PRETHODNIH 20' in levels
-    assert 'VRATI NA OTKLJUČANE LEVELE' in levels
-    assert 'Ovi leveli su zaključani' in levels
-    assert 'POKRENI ODABRANI LEVEL' in levels
-assert 'if(start<=maxNumber)' in android_levels
-assert 'if start<=maxNumber {' in ios_levels
-assert 'showLevels(world,maxNumber)' in android_levels
-assert 'showLevels(world,page:maxNumber)' in ios_levels
-assert 'if(n==null||n !in 1..maxNumber)' in android_levels
-assert '(1...maxNumber).contains(n)' in ios_levels
+    assert 'ZAKLJUČANI LEVELI' in levels
+    assert 'worldStars(world)' in levels
+    assert 'levelTile(' in levels
+    assert 'POKRENI ODABRANI LEVEL' not in levels
+    assert 'NASTAVI LET' not in levels
+assert 'if(unlocked){sound.effect("click");showPilotPicker(world,n.toLong())}' in android_level_tile
+assert 'if unlocked {self.showPilotPicker(world,n)}' in ios_level_tile
+assert 'if(n<=frontier)' not in ios_levels
+assert 'if(n<=frontier)' not in android_levels
+assert 'val unlocked=n<=frontier' in android_level_tile
+assert 'let unlocked=n<=frontier' in ios_level_tile
+assert '(LevelEngine.LEVELS_PER_WORLD-1)/20+1' in android_levels
+assert '(BopaviCore.levelsPerWorld-1)/20+1' in ios_levels
 limit=1_048_576
 for frontier in (1,11,20,21,40,limit):
     for selected_page in (1,21,41,limit):
         first=((max(1,min(selected_page,limit))-1)//20)*20+1
         assert (first+20<=limit)==(first<=limit-20)
         assert (first<=frontier)==(not first>frontier)
-print('PASS: locked level preview and last-page bounds preserve saved unlocks')
-
-# v0.1.46: preview of a future locked page must NEVER display a
-# continue-flight action that silently launches the previous unlocked page.
-# Both screen trees still allow a saved-frontier return.
-android_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
-ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
-for levels in (android_levels,ios_levels):
-    assert 'STRANICA' in levels
-    assert 'PREGLED ZAKLJUČANIH LEVELA' in levels
-    assert 'ZAKLJUČANI LEVELI' in levels
-    assert 'worldStars(world)' in levels
-    assert 'NASTAVI LET' in levels
-    assert 'VRATI NA OTKLJUČANE LEVELE' in levels
-assert android_levels.index('if(start<=maxNumber){') < android_levels.index('action(b,"▶  NASTAVI LET")')
-assert ios_levels.index('if start<=maxNumber {') < ios_levels.index('button("▶  NASTAVI LET"')
-assert android_levels.count('action(b,"▶  NASTAVI LET")') == 1
-assert ios_levels.count('button("▶  NASTAVI LET"') == 1
-assert '(LevelEngine.LEVELS_PER_WORLD-1)/20+1' in android_levels
-assert '(BopaviCore.levelsPerWorld-1)/20+1' in ios_levels
-for max_num in (1,20,21,40,41,1_048_576):
-    for selected_page in (1,21,41,1001,1_048_561):
-        start=((selected_page-1)//20)*20+1
-        show_continue=(start <= max_num)
-        assert show_continue == ((start-1)//20 <= (max_num-1)//20)
-print('PASS: future locked preview hides misleading launch and shows real page progress')
+print('PASS: 20-tile paged native gallery, locked state and direct-launch checks')
 
 # v0.1.46 CI reliability: explicitly recover the exact system launcher ANR
 # even on the first foreground check, but never mask a BOPAVI ANR.
@@ -1255,13 +1240,13 @@ for home in (android_home,ios_home):
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
 assert 'val avatar=ImageView(this)' in android_home
-assert 'portraitDrawableIds[0]' in android_home
+assert 'portraitDrawableIds[progress.skin()]' in android_home
 assert 'showProfile()' in android_home
 assert 'showAchievements(MenuOrigin.HOME)' in android_home
 assert 'showPerks(MenuOrigin.HOME)' in android_home
 assert 'showSettings()' in android_home
 assert 'LinearLayout.LayoutParams(0,d(48),1f)' in android_home
-assert 'avatar.setImage(UIImage(named:"BopiPortrait0")' in ios_home
+assert 'avatar.setImage(UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in ios_home
 assert 'self.showProfile()' in ios_home
 assert 'self.showAchievements(.home)' in ios_home
 assert 'self.showPerks(.home)' in ios_home
@@ -1834,7 +1819,7 @@ assert 'steerTouch' not in android_view and 'steerTouch' not in ios_view
 assert 'override func touchesMoved(' not in ios_view
 assert 'if !touches.isEmpty {triggerFlap()}' in ios_view
 for ui in (android_ui,ios_ui):
-    assert '"● TAP"' in ui and '"TAP ZA ZAMAH"' in ui and 'POVUCI' not in ui
+    assert '"● TAP"' not in ui and '"TAP ZA ZAMAH"' in ui and 'POVUCI' not in ui
 assert 'POVUCI' not in android_view and 'POVUCI' not in ios_view
 print('PASS: Android and iOS tap-only controls, game physics and accessibility')
 
@@ -2633,8 +2618,8 @@ assert 'let spokenLabel=' in ios_pause and 'control.accessibilityLabel=spokenLab
 assert 'developmentRegion = en;' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
 print('PASS: native offline English-first PAUSE labels, sound feedback, VoiceOver and English iOS launch metadata')
 
-# v0.1.91: Actual 20-level grid is larger and must not reserve 52dp for a
-# permanent keyboard field. Optional numerical selection stays fully working.
+# v0.1.94: reference gallery prioritizes all 20 real buttons; the native
+# input dialog / Continue duplication is removed and visual space reclaimed.
 and_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
 ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
 assert 'for(r in 0 until 5)' in and_levels and 'for(col in 0 until 4)' in and_levels
@@ -2643,27 +2628,17 @@ assert 'LinearLayout.LayoutParams(0,d(96),1f)' in android_menu
 assert 'cell.heightAnchor.constraint(equalToConstant:96)' in ios_menu
 assert 'b.addView(input,LinearLayout.LayoutParams(-1,d(52)))' not in and_levels
 assert 's.addArrangedSubview(field)' not in ios_levels
-assert 'android.app.AlertDialog.Builder(this)' in and_levels
-assert '.setView(input)' in and_levels
-assert 'UIAlertController(title:self.ui("POKRENI ODABRANI LEVEL")' in ios_levels
-assert 'dialog.addTextField' in ios_levels
-assert 'if(n==null||n !in 1..maxNumber)' in and_levels
-assert '(1...maxNumber).contains(n)' in ios_levels
-assert 'contentDescription=ui("Broj otključanog levela")' in and_levels
-assert 'field.accessibilityLabel=self.ui("Broj otključanog levela")' in ios_levels
+assert 'android.app.AlertDialog.Builder(this)' not in and_levels
+assert 'dialog.addTextField' not in ios_levels
 assert 'cell.accessibilityLabel=ui(' in ios_menu
 assert 'cell.accessibilityHint=ui(' in ios_menu
 assert 'scroll.isScrollEnabled=false' in ios_menu
 for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
              'ios/BOPAVI/BopaviCore.swift'):
     src=(root/path).read_text()
-    for translated in ('START SELECTED LEVEL','CONTINUE OR CHOOSE A LEVEL',
-                       'Choose an unlocked level within the allowed range.',
-                       'LOCKED LEVELS PREVIEW','PAGE','ZONE',
-                       'Unlocked level number','RETURN TO UNLOCKED LEVELS'):
+    for translated in ('LOCKED LEVELS PREVIEW','PAGE','ZONE'):
         assert translated in src,(path,translated)
-print('PASS: enlarged 20-card no-scroll level view, on-demand numeric picker, English-first accessibility parity')
-
+print('PASS: enlarged no-scroll 20-card gallery and live native accessibility')
 
 # v0.1.92: the first ten rock shafts must rise and descend visibly, even on
 # Level 1 (formerly all the same height). Preserve the ten-digit 2-bit

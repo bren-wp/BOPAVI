@@ -458,16 +458,8 @@ class MainActivity : Activity() {
         artPanel.addView(badge,FrameLayout.LayoutParams(d(64),d(36),Gravity.TOP or Gravity.LEFT).apply{
             setMargins(d(8),d(8),0,0)
         })
-        // Mode badge mirrors the real touch handler; card remains one tap target.
-        artPanel.addView(TextView(this).apply{
-            text="● TAP"
-            textSize=10f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
-            gravity=Gravity.CENTER
-            background=gradient(0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(d(85),d(25),Gravity.TOP or Gravity.LEFT).apply{
-            setMargins(d(8),d(47),0,0)
-        })
+        // The world tile itself is a single accessible touch target. The
+        // reference composition leaves its landscape unobscured by TAP badges.
         artPanel.addView(TextView(this).apply{
             text="›";textSize=31f;setTextColor(Color.WHITE)
             gravity=Gravity.CENTER
@@ -513,13 +505,33 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
-        root.addView(ImageView(this).apply {
+        val animatedBackdrop=ImageView(this).apply {
             val art=warmedHomeArt
             if(art!=null && !art.isRecycled) setImageBitmap(art)
             else setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,-1))
+            // Subtle, entirely decorative parallax-inspired breathing.
+            // No baked-in HUD or button hit areas. The animation is cancelled
+            // on detach, so navigating between screens cannot leak an Activity.
+            if(android.animation.ValueAnimator.areAnimatorsEnabled()){
+                val drift=android.animation.ObjectAnimator.ofPropertyValuesHolder(
+                    this,
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,1.015f,1.045f),
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y,1.015f,1.045f)
+                ).apply {
+                    duration=12500L
+                    repeatMode=android.animation.ValueAnimator.REVERSE
+                    repeatCount=android.animation.ValueAnimator.INFINITE
+                    interpolator=android.view.animation.AccelerateDecelerateInterpolator()
+                }
+                addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
+                    override fun onViewAttachedToWindow(v:View){drift.start()}
+                    override fun onViewDetachedFromWindow(v:View){drift.cancel()}
+                })
+            }
+        }
+        root.addView(animatedBackdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0x55052251,0x001967ae,0x001967ae,0xbb03112e.toInt()))
@@ -546,7 +558,7 @@ class MainActivity : Activity() {
         val avatar=ImageView(this).apply{
 
 
-            setImageResource(portraitDrawableIds[0])
+            setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
@@ -734,45 +746,11 @@ class MainActivity : Activity() {
             pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
             action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
         }
-        sectionHeading(b,if(start<=maxNumber)"NASTAVI ILI ODABERI LEVEL"
-            else "PREGLED ZAKLJUČANIH LEVELA")
-        small(b,"Otključano do levela $maxNumber")
-        // The continue CTA is available only on pages containing at least one
-        // unlocked tile. A preview-only page cannot expose a launch action.
-        if(start<=maxNumber){
-        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        // Keep the full 5×4 illustrated gallery on one screen. Editing a
-        // level number is an optional native dialog, not a permanent keyboard
-        // field that squeezes the visible cards and Back control.
-        action(b,"▶  POKRENI ODABRANI LEVEL",false){
-            val input=EditText(this).apply{
-                inputType=android.text.InputType.TYPE_CLASS_NUMBER
-                setSingleLine(true);hint=ui("Broj otključanog levela")
-                setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
-                setText(maxNumber.coerceIn(start,(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)).toString())
-                gravity=Gravity.CENTER
-                background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
-                contentDescription=ui("Broj otključanog levela")
-            }
-            android.app.AlertDialog.Builder(this)
-                .setTitle(ui("POKRENI ODABRANI LEVEL"))
-                .setMessage(ui("Odaberi otključan level iz raspona") + " 1–$maxNumber")
-                .setView(input)
-                .setNegativeButton(ui("ODUSTANI"),null)
-                .setPositiveButton(ui("POKRENI")){_,_->
-                    val n=input.text.toString().toIntOrNull()
-                    if(n==null||n !in 1..maxNumber)Toast.makeText(this,
-                        ui("Level mora biti otključan i unutar raspona."),
-                        Toast.LENGTH_LONG).show()
-                    else showPilotPicker(world,n.toLong())
-                }.show()
-        }
-        }else{
-            small(b,"Ovi leveli su zaključani. Dovrši prethodne za otključavanje.")
-            action(b,"↶ VRATI NA OTKLJUČANE LEVELE",false){
-                showLevels(world,maxNumber)
-            }
-        }
+        // Reference layout: the 20 native, tappable tiles ARE the level
+        // chooser. Additional text fields / duplicated flight CTAs crowded
+        // the small-screen gallery and made the tiles too small to use.
+        // A locked tile continues to explain its state via its own handler.
+        // Keep one Back action, and never add an invisible screenshot hotspot.
         back(b){showWorlds()}
     }
     /**

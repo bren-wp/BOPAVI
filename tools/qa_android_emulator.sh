@@ -409,26 +409,62 @@ for n in clickable(level_root):
         l,t,r,b=bounds(n)
         if r-l<72 or b-t<72:
             raise SystemExit(f'FAIL: Level {match.group(1)} card is too small to tap: {r-l}×{b-t}')
-# A jump field previously occupied permanent screen space and opened an
-# onscreen keypad. It is now optional, within a native cancelable dialog.
-jump=[n for n in clickable(level_root) if 'START SELECTED LEVEL' in
-      (n.get('text','')+' '+n.get('content-desc',''))]
-if len(jump)!=1:raise SystemExit('FAIL: single optional level-jump control missing')
-tap(jump[0]);time.sleep(.45)
-dialog=dump()
-fields=[n for n in dialog.iter('node')
-        if 'Unlocked level number' in (n.get('content-desc','')+' '+n.get('text',''))]
-if len(fields)!=1:
-    raise SystemExit('FAIL: optional level-jump dialog lacks accessible numeric input')
-cancel=[n for n in clickable(dialog) if 'CANCEL' in
-        (n.get('text','')+' '+n.get('content-desc',''))]
-if len(cancel)!=1:raise SystemExit('FAIL: level picker lacks accessible Cancel')
-tap(cancel[0]);time.sleep(.35)
+# Reference-style screen deliberately has no duplicate Continue/numeric
+# picker: the real 20 level tiles are the only level-launch controls.
+def tiles(root):
+    found={}
+    for node in clickable(root):
+        match=re.match(r'^Level (\d+),',node.get('content-desc',''))
+        if match: found[int(match.group(1))]=node
+    return found
+# Exact comma-delimited state: "unlocked" contains the substring "locked".
+# The old substring check tapped a genuine unlocked tile and produced a false
+# failure when it correctly opened the pilot picker.
+locked=[n for n in tiles(level_root).values()
+        if any(state in n.get('content-desc','').lower()
+               for state in (', locked,', ', zaključan,'))]
+if locked:
+    tap(locked[0]);time.sleep(.28)
+    level_root=dump()
+    if set(tiles(level_root))!=set(range(1,21)):
+        raise SystemExit('FAIL: tapping a locked level navigated away from the level gallery')
+else:
+    print('INFO: no locked level in saved progress; skip locked tap',flush=True)
+# Check the real 20-per-page pagination instead of asserting a removed dialog.
+pager=[n for n in clickable(level_root)
+       if 'NEXT 20' in (n.get('text','')+' '+n.get('content-desc','')).upper()
+       or 'SLJEDEĆIH 20' in (n.get('text','')+' '+n.get('content-desc','')).upper()]
+if len(pager)!=1: raise SystemExit('FAIL: next 20 level page control missing')
+tap(pager[0]);time.sleep(.45)
+future=dump()
+if any(n.get('scrollable')=='true' for n in future.iter('node')):
+    raise SystemExit('FAIL: future level page requires scrolling')
+if set(tiles(future))!=set(range(21,41)):
+    raise SystemExit('FAIL: next page does not show levels 21 through 40')
+prev=[n for n in clickable(future)
+      if 'PREVIOUS 20' in (n.get('text','')+' '+n.get('content-desc','')).upper()
+      or 'PRETHODNIH 20' in (n.get('text','')+' '+n.get('content-desc','')).upper()]
+if len(prev)!=1: raise SystemExit('FAIL: previous 20 level page control missing')
+tap(prev[0]);time.sleep(.45)
 level_root=dump()
-if sum(bool(re.match(r'^Level (\d+),',n.get('content-desc','')))
-       for n in clickable(level_root))!=20:
-    raise SystemExit('FAIL: dialog Cancel did not restore complete 20-card no-scroll gallery')
-print('PASS: 20 larger reachable level cards and working cancelable numeric jump, no vertical scrolling',flush=True)
+if set(tiles(level_root))!=set(range(1,21)):
+    raise SystemExit('FAIL: previous page did not restore first 20 levels')
+# The real Level 1 card must open the interactive 3×3 pilot gallery.
+tap(tiles(level_root)[1]);time.sleep(.5)
+pilots=dump()
+pilot_text=' '.join(n.get('text','')+' '+n.get('content-desc','')
+                    for n in pilots.iter('node'))
+if 'FLY WITH' not in pilot_text and 'POLETI S' not in pilot_text:
+    raise SystemExit('FAIL: selecting an unlocked level did not open pilot selection')
+pilot_back=[n for n in clickable(pilots) if 'BACK' in
+           (n.get('text','')+' '+n.get('content-desc','')).upper()]
+if len(pilot_back)!=1:
+    raise SystemExit('FAIL: selected pilot screen has no working Back action')
+tap(pilot_back[0]);time.sleep(.4)
+level_root=dump()
+if set(tiles(level_root))!=set(range(1,21)):
+    raise SystemExit('FAIL: pilot Back did not restore all 20 level cards')
+print('PASS: 20 real level hit targets, locked selection, page navigation, playable level and pilot Back without scrolling',flush=True)
 level_back=[n for n in clickable(level_root) if 'BACK' in
             (n.get('text','')+' '+n.get('content-desc',''))]
 if len(level_back)!=1:raise SystemExit('FAIL: levels Back missing')
