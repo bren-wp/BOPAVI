@@ -799,7 +799,7 @@ class MainActivity : Activity() {
 
 
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[0])
+            setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
@@ -967,7 +967,7 @@ class MainActivity : Activity() {
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onLevelCompleted={completed ->
                 progress.recordLevelStars(world,completed,simulation.completedLevelStars)
@@ -1063,7 +1063,7 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=0
+        val pilotIndex=progress.skin()
         val pilotPortraits=intArrayOf(
             R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
