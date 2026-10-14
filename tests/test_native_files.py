@@ -2163,7 +2163,7 @@ assert 'private fun showSettingsDetails(){' in android_menu
 assert 'private func showSettingsDetails(){' in ios_menu
 assert 'progress.setDifficulty(mode)' in android_settings
 assert 'self.progress.difficulty=mode' in ios_settings
-print('PASS: v0.1.76 seven-row no-scroll settings, saved preferences and advanced controls')
+print('PASS: no-scroll native settings with real saved difficulty on first page and Advanced settings')
 
 # v0.1.77: real two-column shop with device-sized safe-area fitting; never
 # show a static shop screenshot or fabricated diamond/real-money checkout.
@@ -2279,8 +2279,8 @@ for content in (android_overview, ios_overview):
     assert 'NAPREDNE POSTAVKE' in content
 android_notice=android_menu.split('private fun showLegalNotice(privacy:Boolean){',1)[1].split('private fun showSettingsDetails()',1)[0]
 ios_notice=ios_menu.split('private func showLegalNotice(privacy:Bool){',1)[1].split('private func showSettingsDetails()',1)[0]
-assert 'option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}' in android_overview
-assert 'settingRow("PRIVATNOST",{"PROČITAJ"})' in ios_overview
+assert 'val difficultyRow=LinearLayout(this).apply{' in android_overview
+assert 'let difficultyRow=UIStackView()' in ios_overview
 assert 'UIAlertController(title:ui(title),message:details' in ios_notice
 assert 'android.app.AlertDialog.Builder(this)' in android_notice
 for native in (android_notice, ios_notice):
@@ -2385,8 +2385,8 @@ for source in (android_languages,ios_languages):
 assert 'languageCode()' in and_store and 'setLanguageCode' in and_store
 assert 'var languageCode:String' in swift_store
 assert 'showLanguagePicker()' in android_menu and 'showLanguagePicker()' in ios_menu
-assert 'setSingleChoiceItems(GameLanguages.names' in android_menu
-assert 'preferredStyle:.actionSheet' in ios_menu
+assert 'private fun showLanguagePicker(page:Int=0)' in android_menu
+assert 'private func showLanguagePicker(page:Int=0)' in ios_menu
 for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'top-38' in render and 'bottom+38' in render
@@ -2708,3 +2708,30 @@ assert 'c.setStrokeColor(glowColor)' in swift_rock
 assert swift_rock.count('color(')==2, 'No color reconstruction inside the per-row draw loop'
 assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
 print('PASS: layered seeded rock volume on both native canvases without widened collision or per-row CGColor churn')
+
+
+# v0.1.93: Native 26-language picker and settings difficulty MUST NEVER scroll.
+android_picker=android_menu.split('private fun showLanguagePicker(page:Int=0){',1)[1].split('private fun chip(label:',1)[0]
+ios_picker=ios_menu.split('private func showLanguagePicker(page:Int=0){',1)[1].split('private func menu(_ title:',1)[0]
+assert 'val perPage=8' in android_picker and 'for(rowIndex in 0 until 4)' in android_picker
+assert 'setSingleChoiceItems(' not in android_picker
+assert 'picker.show()' in android_picker and 'setNeutralButton(' in android_picker
+assert 'contentDescription=GameLanguages.names[index]' in android_picker
+assert 'val pageSize=8' in ios_picker and 'for line in 0..<4' in ios_picker
+assert 'preferredStyle:.actionSheet' not in ios_picker
+assert 'sheet.modalPresentationStyle = .overFullScreen' in ios_picker
+assert 'control.accessibilityTraits.insert(.selected)' in ios_picker
+assert 'present(sheet,animated:true)' in ios_picker
+assert 'val difficultyChoices=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")' in android_overview
+assert 'progress.setDifficulty(i)' in android_overview
+assert 'let modeTitles=["LAGANO","NORMALNO","ZAHTJEVNO"]' in ios_overview
+assert 'self.progress.difficulty=mode' in ios_overview
+assert 'R.drawable.world0' in android_overview and 'ImageView(this)' in android_overview
+assert 'portraitDrawableIds[progress.skin()]' in android_overview
+assert 'BopiPortrait\\(progress.skinIndex())' in ios_overview
+assert 'setSingleChoiceItems' not in android_picker
+assert 'UIScrollView(' not in ios_picker and 'ScrollView(' not in android_picker
+qa=(root/'tools/qa_android_emulator.sh').read_text()
+assert 'verify_paged_languages(){' in qa and 'verify_difficulty_cards(){' in qa
+assert 'all 26 language choices' in qa and 'on-screen EASY/NORMAL/HARD' in qa
+print('PASS: real native 2x4 locale pages, selected difficulty on primary Settings, no-scrolling, Bopi portrait')
