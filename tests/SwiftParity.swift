@@ -26,6 +26,16 @@ struct SwiftParity {
         precondition(GameLanguages.hudPack("ja")["SCORE"]=="スコア")
         precondition(GameLanguages.hudPack("ko")["SCORE"]=="점수")
         precondition(GameLanguages.hudPack("invalid")==GameLanguages.hudPack("en"))
+        let englishWorlds=["Green Islands","Crystal Sky","Lava Peaks",
+                           "Night Castles","Pearl Sea","Sky Towers","Enchanted Forest","Star Abyss"]
+        precondition(BopaviCore.names.map{GameLanguages.text($0,"en")} == englishWorlds)
+        precondition(GameLanguages.text(BopaviCore.names[0],"hr")=="Zeleni otoci")
+        precondition(GameLanguages.text("LET ZAVRŠEN!","en")=="FLIGHT OVER!")
+        precondition(GameLanguages.text("LEVEL DOVRŠEN!","en")=="LEVEL COMPLETE!")
+        precondition(GameLanguages.text("PRIKUPLJENE\nKOVANICE","en")=="COLLECTED\nCOINS")
+        precondition(GameLanguages.text("UKUPNO\nPROLAZA","en")=="TOTAL\nGATES")
+        precondition(GameLanguages.text("MOJI REKORDI","en")=="MY RECORDS")
+        precondition(GameLanguages.text("TVOJI REZULTATI","en")=="YOUR RESULTS")
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
         var checked=0
         for w in 0..<8 {

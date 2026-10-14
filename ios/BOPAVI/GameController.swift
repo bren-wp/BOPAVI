@@ -405,13 +405,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         tile.layer.borderWidth=selected ? 3 : 1
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(selected ? 1 : 0.65).cgColor
         // Exactly the same genuine values as Android's saved world cards.
-        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano, " +
+        tile.accessibilityLabel=ui("\(BopaviCore.names[world]), otključano, " +
             "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
             "rekord \(progress.best(world)), zvjezdice \(progress.worldStars(world)) od 30" +
             (selected ? ", odabrano" : "") +
-            ", upravljanje dodirom"
+            ", upravljanje dodirom")
         tile.heightAnchor.constraint(equalToConstant:144).isActive=true
-        tile.accessibilityHint="Otvori levele svijeta"
+        tile.accessibilityHint=ui("Otvori levele svijeta")
         if selected {tile.accessibilityTraits.insert(.selected)}
         if let illustration=UIImage(named:"World\(world)") {
             let preview=UIImageView(image:illustration)
@@ -499,7 +499,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         let headline=UILabel()
         headline.translatesAutoresizingMaskIntoConstraints=false
-        headline.text=BopaviCore.names[world].uppercased()
+        headline.text=ui(BopaviCore.names[world]).uppercased()
         headline.textColor = .white
         headline.font=UIFont.systemFont(ofSize:15,weight:.black)
         headline.adjustsFontSizeToFitWidth=true
@@ -1057,8 +1057,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
         panel.addArrangedSubview(mascot)
-        label("♛  PAUZA",33,UIColor.white,panel)
-        label("Pauza · Level \(canvas.game.displayLevel)",14,
+        label(progress.languageCode=="hr" ? "♛  PAUZA" : "♛  PAUSE",33,UIColor.white,panel)
+        label((progress.languageCode=="hr" ? "Pauza · Level " : "Paused · Level ") + String(canvas.game.displayLevel),14,
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
@@ -1076,21 +1076,21 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             } else {
                 control=BopaviActionButton(primary:style==0)
             }
-            control.setTitle(caption,for:.normal)
+            control.setTitle(self.ui(caption),for:.normal)
             control.setTitleColor(.white,for:.normal)
             control.titleLabel?.font=UIFont.systemFont(ofSize:18,weight:.heavy)
             control.titleLabel?.adjustsFontSizeToFitWidth=true
             control.titleLabel?.minimumScaleFactor=0.7
-            control.accessibilityLabel=caption
+            control.accessibilityLabel=self.ui(caption)
             control.heightAnchor.constraint(equalToConstant:59).isActive=true
             control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             panel.addArrangedSubview(control)
         }
-        command("▶  NASTAVI",style:0){close(true)}
-        command("↻  PONOVO",style:1){
+        command(progress.languageCode=="hr" ? "▶  NASTAVI" : "▶  CONTINUE",style:0){close(true)}
+        command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY",style:1){
             close(false);self.startGame(self.gameWorld,self.gameNumber)
         }
-        command("↪  IZLAZ",style:2){close(false);self.showHome()}
+        command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT",style:2){close(false);self.showHome()}
         // Paused in-place settings: navigating to the standalone Settings screen
         // destroys the live canvas. Keep the original simulation and overlay.
         let pauseSettings=UIStackView()
@@ -1104,7 +1104,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pauseSettings.layer.borderWidth=2
         pauseSettings.layer.borderColor=UIColor(red:0.24,green:0.80,blue:1,alpha:1).cgColor
         pauseSettings.isHidden=true
-        label("POSTAVKE U PAUZI",17,.white,pauseSettings)
+        label(progress.languageCode=="hr" ? "POSTAVKE U PAUZI" : "PAUSE SETTINGS",17,.white,pauseSettings)
         volumeSlider("♫  Glazba",value:progress.musicVolume,in:pauseSettings){value in
             self.progress.musicVolume=value
             self.sound.musicVolume=Float(value)/100
@@ -1118,7 +1118,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let pauseHaptic=UISwitch()
         pauseHaptic.isOn=progress.hapticEnabled
         pauseHaptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
-        pauseHaptic.accessibilityLabel="Vibracije"
+        pauseHaptic.accessibilityLabel=ui("VIBRACIJA")
         pauseHaptic.addAction(UIAction{_ in self.progress.hapticEnabled=pauseHaptic.isOn},
                               for:.valueChanged)
         let hapticRow=UIStackView()
@@ -1130,7 +1130,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:1)
         hapticRow.layer.cornerRadius=15
         let hapticLabel=UILabel()
-        hapticLabel.text="Vibracije"
+        hapticLabel.text=ui("VIBRACIJA")
         hapticLabel.textColor = .white
         hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
         hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
@@ -1160,7 +1160,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.titleLabel?.adjustsFontSizeToFitWidth=true
             control.titleLabel?.minimumScaleFactor=0.67
             control.setTitleColor(.white,for:.normal)
-            control.accessibilityLabel=label
+            control.accessibilityLabel=self.ui(label)
             control.backgroundColor=UIColor(red:0.03,green:0.35,blue:0.68,alpha:1)
             control.layer.cornerRadius=13
             control.layer.borderWidth=1
@@ -1172,7 +1172,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if label=="Zvuk" || label=="Muzika" {
                     let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
                     control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
-                    control.accessibilityLabel=label+(active ? " uključeno":" isključeno")
+                    control.accessibilityLabel=self.ui(label)+(active ? " enabled":" disabled")
                 }
             },for:.touchUpInside)
             footer.addArrangedSubview(control)
@@ -1375,7 +1375,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         if newRecord {
             let banner=UILabel()
-            banner.text="♛  NOVI REKORD!"
+            banner.text=ui("♛  NOVI REKORD!")
             banner.textColor=UIColor(red:1,green:0.93,blue:0.67,alpha:1)
             banner.textAlignment = .center
             banner.font=UIFont.systemFont(ofSize:19,weight:.heavy)
@@ -1385,7 +1385,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             banner.layer.borderColor=UIColor(red:1,green:0.79,blue:0.26,alpha:1).cgColor
             banner.clipsToBounds=true
             banner.heightAnchor.constraint(equalToConstant:46).isActive=true
-            banner.accessibilityLabel="Novi osobni rekord: \(g.score()) bodova"
+            banner.accessibilityLabel=ui("Novi osobni rekord: \(g.score()) bodova")
             stack.addArrangedSubview(banner)
         }
         let sky=UIColor(red:0.67,green:0.92,blue:1,alpha:1)
@@ -1416,7 +1416,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let amount=label(value,23,highlight,card)
             amount.adjustsFontSizeToFitWidth=true
             amount.minimumScaleFactor=0.67
-            amount.accessibilityLabel="\(caption) \(value)"
+            amount.accessibilityLabel=ui("\(caption) \(value)")
             amount.heightAnchor.constraint(equalToConstant:32).isActive=true
             return amount
         }
@@ -1465,7 +1465,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let amount=label(value,17,sky,card)
             amount.heightAnchor.constraint(equalToConstant:28).isActive=true
             amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.70
-            amount.accessibilityLabel="\(name) \(value)"
+            amount.accessibilityLabel=ui("\(name) \(value)")
             return amount
         }
         _=reward("KOVANICE",icon:"●",value:"×\(g.coins)")
@@ -1475,8 +1475,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         _=reward("REKORD",icon:"🏆",value:String(progress.bestPoints()))
         if bonus>0 {
             let claim=BopaviActionButton(primary:false)
-            claim.setTitle("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD",for:.normal)
-            claim.accessibilityLabel="Preuzmi bonus kovanica za rekord"
+            claim.setTitle(ui("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD"),for:.normal)
+            claim.accessibilityLabel=ui("Preuzmi bonus kovanica za rekord")
             claim.heightAnchor.constraint(equalToConstant:56).isActive=true
             claim.addAction(UIAction{[weak self,weak claim] _ in
                 guard let self=self else{return}
@@ -1484,8 +1484,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if awarded>0 {
                     self.sound.effect("purchase")
                     bonusCounter.text="+0"
-                    bonusCounter.accessibilityLabel="BONUS BODOVA 0"
-                    balance.text="Stanje novčanika: \(self.progress.coins()) kovanica"
+                    bonusCounter.accessibilityLabel=self.ui("BONUS BODOVA 0")
+                    balance.text=self.ui("Stanje novčanika: \(self.progress.coins()) kovanica")
                     claim?.isHidden=true
                 }
             },for:.touchUpInside)
@@ -1497,7 +1497,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footer.spacing=6;stack.addArrangedSubview(footer)
         func footerAction(_ caption:String,handler:@escaping()->Void){
             let control=UIButton(type:.system)
-            control.setTitle(caption,for:.normal)
+            control.setTitle(self.ui(caption),for:.normal)
             control.setTitleColor(.white,for:.normal)
             control.titleLabel?.numberOfLines=2
             control.titleLabel?.textAlignment = .center
@@ -1508,7 +1508,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.layer.borderWidth=2
             control.layer.borderColor=UIColor(red:0.57,green:0.84,blue:1,alpha:1).cgColor
             control.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.65,alpha:1)
-            control.accessibilityLabel=caption
+            control.accessibilityLabel=self.ui(caption)
             control.heightAnchor.constraint(equalToConstant:57).isActive=true
             control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             footer.addArrangedSubview(control)
@@ -1516,15 +1516,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footerAction("▥\nLJESTVICA"){self.showLeaderboard()}
         footerAction("⌂\nPOVRATAK"){self.showHome()}
         footerAction("↗\nPODIJELI"){
-            let message="BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)"
+            let message=self.ui("BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)")
             let share=UIActivityViewController(activityItems:[message],applicationActivities:nil)
             share.popoverPresentationController?.sourceView=self.view
             share.popoverPresentationController?.sourceRect=CGRect(
                 x:self.view.bounds.midX,y:self.view.bounds.midY,width:1,height:1)
             self.present(share,animated:true)
         }
-        button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
-        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks(.home)}
+        // Two real links on one row: prevent compact iPhone results from
+        // shrinking to unreadable labels while preserving both destinations.
+        let destinationRow=UIStackView()
+        destinationRow.axis = .horizontal
+        destinationRow.distribution = .fillEqually
+        destinationRow.spacing=8
+        stack.addArrangedSubview(destinationRow)
+        button("MAPA SVJETOVA",in:destinationRow,primary:false){self.showWorlds()}
+        button("🛍  TRGOVINA KOVANICAMA",in:destinationRow,primary:false){self.showPerks(.home)}
 
     }
     private func showPerks(){showPerks(.settings)}

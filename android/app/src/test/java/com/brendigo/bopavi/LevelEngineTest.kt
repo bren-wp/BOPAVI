@@ -22,6 +22,20 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun englishWorldsResultsAndCtaDoNotCorruptPartialKeys() {
+        val expectedWorlds=listOf("Green Islands","Crystal Sky","Lava Peaks",
+            "Night Castles","Pearl Sea","Sky Towers","Enchanted Forest","Star Abyss")
+        assertEquals(expectedWorlds,LevelEngine.names.map { GameLanguages.text(it,"en") })
+        assertEquals("Zeleni otoci",GameLanguages.text(LevelEngine.names[0],"hr"))
+        assertEquals("FLIGHT OVER!",GameLanguages.text("LET ZAVRŠEN!","en"))
+        assertEquals("LEVEL COMPLETE!",GameLanguages.text("LEVEL DOVRŠEN!","en"))
+        assertEquals("COLLECTED\nCOINS",GameLanguages.text("PRIKUPLJENE\nKOVANICE","en"))
+        assertEquals("TOTAL\nGATES",GameLanguages.text("UKUPNO\nPROLAZA","en"))
+        assertEquals("MY RECORDS",GameLanguages.text("MOJI REKORDI","en"))
+        assertEquals("YOUR RESULTS",GameLanguages.text("TVOJI REZULTATI","en"))
+        assertEquals("MOJI REKORDI",GameLanguages.text("MOJI REKORDI","hr"))
+    }
+
     @Test fun everyPickerLanguageProvidesCompleteNonemptyGameplayVocabulary() {
         val labels=listOf("SCORE","DIST","LEVEL","NEW STAGE","GATES",
             "FLIGHT","TAP TO FLY","Bopi is flying")

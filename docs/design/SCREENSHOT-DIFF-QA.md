@@ -356,3 +356,9 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - Android must no longer wrap Pause/Results in ScrollView. iOS must set scrolling and vertical bounce off on both, and avoid setContentOffset when pause settings expand. Verify actual controls on physical/simulator screenshots before 1:1 approval.
 - Selected pilot's portrait, wing and sprite must match between gallery, flight, pause and result; keep original sprite art size 124 and hit radius 18.
 - Original 3D reference concepts have not been converted into complete layered game assets. Appearance, all 26 translations and short-device touch geometry remain open signoff items.
+
+## v0.1.87 — native English-first result, worlds, and non-scrolling destination layout
+- On fresh English installs confirm all eight real world gallery cards display English names and their actual progress; Croatian Settings > Language must preserve original naming.
+- Force a gameplay Result and verify "FLIGHT OVER!"/"LEVEL COMPLETE!" and actual score, world, coins and gate totals. Both World Map and Coin Shop remain tappable at once with no vertical scroll. Inspect at Android API35/API36 and iOS simulator sizes.
+- VoiceOver/TalkBack: result reward headings, world card and navigation labels should be expressed in the chosen language, with real dynamic figures.
+- Keep the current no-claims boundary for premium 3D artwork parity and full-language coverage; no screenshot baked into game assets.

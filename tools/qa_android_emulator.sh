@@ -255,54 +255,102 @@ PY
 # a static illustration or invented screenshot stars. Keep world indices intact.
 verify_world_cards(){
   python3 - <<'PY'
-import re,subprocess,time,xml.etree.ElementTree as ET
-worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci',
-        'Biserno more','Nebeske kule','Čarobna šuma','Zvjezdani bezdani')
+import re,struct,subprocess,time,xml.etree.ElementTree as ET
+worlds=('Green Islands','Crystal Sky','Lava Peaks','Night Castles',
+        'Pearl Sea','Sky Towers','Enchanted Forest','Star Abyss')
 def dump():
     subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
                    check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
-    xml=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
-                       capture_output=True,text=True,check=True,timeout=15).stdout
-    return ET.fromstring(xml)
-def tap(button):
-    match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',button.get('bounds',''))
-    if match is None: raise SystemExit('FAIL: invalid worlds button bounds')
-    l,t,r,b=map(int,match.groups())
-    if r<=l or b<=t: raise SystemExit('FAIL: zero-size worlds button')
+    data=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
+                        capture_output=True,text=True,check=True,timeout=15).stdout
+    return ET.fromstring(data)
+def clickable(root):
+    return [n for n in root.iter('node') if n.get('clickable')=='true']
+def bounds(node):
+    m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',node.get('bounds',''))
+    if m is None: raise SystemExit('FAIL: malformed accessible worlds control bounds')
+    l,t,r,b=map(int,m.groups())
+    if r<=l or b<=t: raise SystemExit('FAIL: zero-size worlds control')
+    return l,t,r,b
+def tap(node):
+    l,t,r,b=bounds(node)
     subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],
                    check=True,timeout=12)
-def nodes(root):
-    return [n for n in root.iter('node') if n.get('clickable')=='true']
 root=dump()
-entry=[n for n in nodes(root) if 'WORLDS' in (n.get('text','')+' '+n.get('content-desc',''))]
-if len(entry)!=1: raise SystemExit(f'FAIL: expected one home WORLDS action, got {len(entry)}')
+entry=[n for n in clickable(root) if 'WORLDS' in
+       (n.get('text','')+' '+n.get('content-desc',''))]
+if len(entry)!=1:
+    raise SystemExit(f'FAIL: expected one home WORLDS action, got {len(entry)}')
 tap(entry[0]);time.sleep(1.1)
-# Authentic portrait screenshot used for visual comparison and README.
-# The 2x4 gallery remains independently tappable; this is not a mockup.
-with open('qa/screenshots/android-worlds.png','wb') as target:
-    subprocess.run(['adb','exec-out','screencap','-p'],stdout=target,
+with open('qa/screenshots/android-worlds.png','wb') as screenshot:
+    subprocess.run(['adb','exec-out','screencap','-p'],stdout=screenshot,
                    check=True,timeout=22)
-with open('qa/screenshots/android-worlds.png','rb') as captured:
-    if captured.read(8)!=bytes.fromhex('89504e470d0a1a0a'):
-        raise SystemExit('FAIL: Android worlds screenshot is not a valid PNG')
+with open('qa/screenshots/android-worlds.png','rb') as screenshot:
+    header=screenshot.read(24)
+if header[:8]!=bytes.fromhex('89504e470d0a1a0a'):
+    raise SystemExit('FAIL: Android worlds screenshot is not a valid PNG')
+width,height=struct.unpack('>II',header[16:24])
+# There is NO swipe fallback. The complete eight-world gallery must be visible
+# and directly clickable in one physical display on API35 and API36.
+root=dump()
 seen=set()
-for attempt in range(13):
-    root=dump()
-    for node in nodes(root):
-        title=node.get('content-desc','')
-        for name in worlds:
-            if title.startswith(name+', otključano,'):
-                if not all(piece in title for piece in ('level ','prikupljeno ','rekord ','zvjezdice ',' od 30')):
-                    raise SystemExit(f'FAIL: world missing real save metrics: {name}')
-                seen.add(name)
-    if len(seen)==8:break
-    subprocess.run(['adb','shell','input','swipe','220','746','220','291','430'],
-                   check=True,timeout=12)
-    time.sleep(.4)
+for node in clickable(root):
+    title=node.get('content-desc','')
+    for name in worlds:
+        if title.startswith(name+', unlocked,'):
+            if not all(piece in title for piece in ('level ','collected ','record ','stars ','out of 30')):
+                raise SystemExit(f'FAIL: world missing real save metrics: {name}')
+            l,t,r,b=bounds(node)
+            if l<0 or t<0 or r>width or b>height:
+                raise SystemExit(f'FAIL: world card clipped outside display: {name}')
+            if r-l<60 or b-t<60:
+                raise SystemExit(f'FAIL: world card has too-small tap surface: {name}')
+            seen.add(name)
 if len(seen)!=8:
-    raise SystemExit(f'FAIL: not all world cards reachable: {sorted(set(worlds)-seen)}')
-print('PASS: all eight real illustrated world cards expose saved level, collected items and record',flush=True)
-subprocess.run(['adb','shell','input','keyevent','4'],check=True,timeout=12)
+    raise SystemExit(f'FAIL: not all world cards reachable without scrolling: {sorted(set(worlds)-seen)}')
+print('PASS: all eight real illustrated world cards expose saved progress and are clickable without scrolling',flush=True)
+# Visit the actual first world. Its 20 level cards must ALL be reachable in the
+# same physical viewport without swiping, even when 19 cards are save-locked.
+first=[n for n in clickable(root) if n.get('content-desc','').startswith('Green Islands, unlocked,')]
+if len(first)!=1: raise SystemExit('FAIL: first world card cannot open levels')
+tap(first[0]);time.sleep(.8)
+with open('qa/screenshots/android-levels.png','wb') as screenshot:
+    subprocess.run(['adb','exec-out','screencap','-p'],stdout=screenshot,
+                   check=True,timeout=22)
+level_root=dump()
+if any(n.get('scrollable')=='true' for n in level_root.iter('node')):
+    raise SystemExit('FAIL: levels screen still requires scrolling')
+visible=set()
+for n in clickable(level_root):
+    label=n.get('content-desc','')
+    match=re.match(r'^Level (\d+),',label)
+    if match:
+        number=int(match.group(1))
+        l,t,r,b=bounds(n)
+        if not (0<=l<r<=width and 0<=t<b<=height):
+            raise SystemExit(f'FAIL: Level {number} control clipped off-screen')
+        visible.add(number)
+if visible!=set(range(1,21)):
+    raise SystemExit(f'FAIL: 20 visible non-scrolling levels required, found: {sorted(visible)}')
+print('PASS: all 20 actual level cards visible in one frame without vertical scrolling',flush=True)
+level_back=[n for n in clickable(level_root) if 'BACK' in
+            (n.get('text','')+' '+n.get('content-desc',''))]
+if len(level_back)!=1:raise SystemExit('FAIL: levels Back missing')
+tap(level_back[0]);time.sleep(.6)
+root=dump()
+if not any(n.get('content-desc','').startswith('Green Islands, unlocked,') for n in clickable(root)):
+    raise SystemExit('FAIL: levels Back failed to restore world gallery')
+back=[n for n in clickable(root) if 'BACK' in (n.get('content-desc','')+' '+n.get('text',''))]
+if len(back)!=1: raise SystemExit(f'FAIL: missing single worlds BACK action ({len(back)})')
+l,t,r,b=bounds(back[0])
+if l<0 or t<0 or r>width or b>height:
+    raise SystemExit('FAIL: Back control clipped on world selection')
+tap(back[0]);time.sleep(.6)
+home=dump()
+if not any('PLAY' in (n.get('text','')+' '+n.get('content-desc',''))
+           for n in clickable(home)):
+    raise SystemExit('FAIL: world Back did not restore Home')
+print('PASS: visible one-screen world BACK returns to Play',flush=True)
 PY
 }
 tap_play(){

@@ -127,7 +127,7 @@ for world_tile in (android_tile,ios_tile):
     assert 'prikupljeno ' in world_tile
     assert 'POKRENI' not in world_tile  # whole accessible card remains the action
 assert 'name.uppercase()' in android_tile
-assert 'names[world].uppercased()' in ios_tile
+assert 'ui(BopaviCore.names[world]).uppercased()' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'collection.accessibilityElementsHidden=true' in ios_tile
 assert 'verify_world_cards' in (root/'tools/qa_android_emulator.sh').read_text()
@@ -1070,7 +1070,7 @@ assert 'if world==6:' in worlds
 assert 'source_index=WORLD_SCENE_SOURCE[world]' in worlds
 for n in ref_names:
     assert n in (root/'README.md').read_text()
-assert "worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci'" in (root/'tools/qa_android_emulator.sh').read_text()
+assert "worlds=('Green Islands','Crystal Sky','Lava Peaks','Night Castles'" in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: reference-named 8-world gallery with stable save IDs and unique forest biome')
 
 # v0.1.38: premium illustrated card composition is made of live
@@ -1080,14 +1080,14 @@ for source in (android_tile,ios_tile):
     assert 'streamFrontier(world)' in source
     assert 'collectibles(world)' in source
     assert 'best(world)' in source
-    assert 'name.uppercase()' in source or 'names[world].uppercased()' in source
+    assert 'name.uppercase()' in source or 'ui(BopaviCore.names[world]).uppercased()' in source
 assert 'FrameLayout.LayoutParams(-1,d(31),Gravity.BOTTOM)' in android_tile
 assert 'FrameLayout.LayoutParams(-1,d(70),Gravity.BOTTOM)' in android_tile
 assert 'RippleDrawable(ColorStateList.valueOf(0x33ffffff)' in android_tile
 assert 'artPanel,LinearLayout.LayoutParams(-1,d(132))' in android_tile
 assert 'footerShade.isUserInteractionEnabled=false' in ios_tile
 assert 'tile.accessibilityTraits.insert(.selected)' in ios_tile
-assert 'tile.accessibilityHint="Otvori levele svijeta"' in ios_tile
+assert 'tile.accessibilityHint=ui("Otvori levele svijeta")' in ios_tile
 assert 'tile.heightAnchor.constraint(equalToConstant:144)' in ios_tile
 assert 'headline.trailingAnchor.constraint(equalTo:tile.trailingAnchor,constant:-12)' in ios_tile
 for forbidden in ('text="★  ${progress.worldStars(world)}/30"', 'earned.text="★  \\(progress.worldStars(world))/30"'):
@@ -1114,7 +1114,8 @@ assert 'panel.addArrangedSubview(pauseSettings)' in ios_pause
 assert 'close(false);self.showSettings()' not in ios_pause
 # Retry/Exit are still explicitly destructive, but audio settings aren't.
 assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in android_pause
-assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
+assert 'command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY"' in ios_pause
+assert 'command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT"' in ios_pause
 print('PASS: Android and iOS pause settings preserve active flight and offline settings')
 
 for view in (android_picker,ios_picker):
@@ -2475,3 +2476,40 @@ print('PASS: nine playable saved pilots and no-scroll live pause/result on both 
 # Real nine-character selection must not leak onto the Home page:
 for home in (android_home,ios_home):
     assert 'CHOOSE YOUR PILOT' not in home and 'POLETI S' not in home
+
+# v0.1.87: world/result native English-first screens without dead navigation.
+for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
+             'ios/BOPAVI/BopaviCore.swift'):
+    source=(root/path).read_text()
+    assert 'sortedEnglish' in source
+    for native_label in ('Green Islands','Crystal Sky','Lava Peaks',
+                         'Night Castles','Pearl Sea','Sky Towers',
+                         'Enchanted Forest','Star Abyss',
+                         'FLIGHT OVER!','LEVEL COMPLETE!',
+                         'COLLECTED\\nCOINS','TOTAL\\nGATES'):
+        assert native_label in source, (path,native_label)
+assert 'val name=ui(LevelEngine.names[world])' in android_menu
+assert 'headline.text=ui(BopaviCore.names[world]).uppercased()' in ios_menu
+assert 'destinationRow.addView(mapColumn' in android_menu
+assert 'destinationRow.addView(shopColumn' in android_menu
+assert 'stack.addArrangedSubview(destinationRow)' in ios_menu
+assert 'button("MAPA SVJETOVA",in:destinationRow' in ios_menu
+assert 'button("🛍  TRGOVINA KOVANICAMA",in:destinationRow' in ios_menu
+assert 'englishWorldsResultsAndCtaDoNotCorruptPartialKeys' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+print('PASS: English-first world/result translation, preserved Croatian and no-scroll destination actions')
+
+# v0.1.87: a fitted dialog must never rely on an invisible ScrollView or
+# extend beyond the device's actual safe viewport. English is the default,
+# but saved Croatian continues to control the displayed pause action.
+android_pause=android_menu.split('private fun showPremiumPause(',1)[1].split('private fun startGame(',1)[0]
+ios_pause=ios_menu.split('private func showPremiumPause(',1)[1].split('private func startGame(',1)[0]
+assert 'smoothScrollTo' not in android_pause
+assert 'pauseSettings.requestLayout()' in android_pause
+assert 'resources.displayMetrics.heightPixels-d(48)' in android_pause
+assert 'this.text=ui(text);isAllCaps=false' in android_pause
+assert 'contentDescription=ui(text)' in android_pause
+assert '"▶  CONTINUE"' in android_pause and '"PAUSE SETTINGS"' in android_pause
+assert '"▶  CONTINUE"' in ios_pause and '"PAUSE SETTINGS"' in ios_pause
+assert '"↻  RETRY"' in ios_pause and '"↪  EXIT"' in ios_pause
+assert 'pauseHaptic.accessibilityLabel=ui("VIBRACIJA")' in ios_pause
+print('PASS: English/Croatian non-scrolling pause dialog stays inside viewport and buttons remain accessible')
