@@ -2717,7 +2717,7 @@ assert 'val perPage=8' in android_picker and 'for(rowIndex in 0 until 4)' in and
 assert 'setSingleChoiceItems(' not in android_picker
 assert 'picker.show()' in android_picker and 'setNeutralButton(' in android_picker
 assert 'contentDescription=GameLanguages.names[index]' in android_picker
-assert 'val pageSize=8' in ios_picker and 'for line in 0..<4' in ios_picker
+assert 'let pageSize=8' in ios_picker and 'for line in 0..<4' in ios_picker
 assert 'preferredStyle:.actionSheet' not in ios_picker
 assert 'sheet.modalPresentationStyle = .overFullScreen' in ios_picker
 assert 'control.accessibilityTraits.insert(.selected)' in ios_picker
