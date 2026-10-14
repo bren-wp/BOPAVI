@@ -541,23 +541,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         number.isUserInteractionEnabled=false
         number.accessibilityElementsHidden=true
         tile.addSubview(number)
-        // Same control mode as the real simulation, not a decorative button.
-        let mode=UILabel()
-        mode.text="● TAP"
-        mode.font=UIFont.systemFont(ofSize:10,weight:.heavy)
-        mode.textAlignment = .center;mode.textColor = .white
-        mode.backgroundColor=UIColor(red:0.04,green:0.39,blue:0.70,alpha:0.97)
-        mode.layer.cornerRadius=14;mode.clipsToBounds=true
-        mode.layer.borderWidth=1
-        mode.layer.borderColor=UIColor(red:0.35,green:0.85,blue:1,alpha:1).cgColor
-        mode.isUserInteractionEnabled=false;mode.accessibilityElementsHidden=true
-        mode.translatesAutoresizingMaskIntoConstraints=false;tile.addSubview(mode)
-        NSLayoutConstraint.activate([
-            mode.leadingAnchor.constraint(equalTo:tile.leadingAnchor,constant:12),
-            mode.topAnchor.constraint(equalTo:tile.topAnchor,constant:54),
-            mode.widthAnchor.constraint(equalToConstant:85),
-            mode.heightAnchor.constraint(equalToConstant:29)
-        ])
+        // The full illustrated tile is the accessible tap target. Do not
+        // obscure world art with a redundant decorative TAP badge.
         let arrow=UILabel()
         arrow.text="›";arrow.font=UIFont.systemFont(ofSize:30,weight:.heavy)
         arrow.textColor = .white;arrow.textAlignment = .center
