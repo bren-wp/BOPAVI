@@ -224,6 +224,23 @@ object GameLanguages {
     // Legacy UI text keys are retained while English becomes the default
     // presentation language. Replacement is longest-first to avoid overlap.
     private val english=listOf(
+        "SVE NAGRADE" to "ALL AWARDS",
+        "Najbolji rezultat" to "Best score",
+        "Osvojene kovanice" to "Coins earned",
+        "Dovršeni leveli" to "Levels completed",
+        "Pobjede" to "Wins",
+        "PRVI LET" to "FIRST FLIGHT",
+        "ISTRAŽIVAČ" to "EXPLORER",
+        "SAKUPLJAČ" to "COLLECTOR",
+        "1 pobjeda" to "1 victory",
+        "5 svjetova" to "5 worlds",
+        "500 predmeta" to "500 collectibles",
+        "10 pobjeda" to "10 victories",
+        "osvojeno" to "earned",
+        "zaključano" to "locked",
+        "PRIVATNOST" to "PRIVACY",
+        "IGRAČ" to "PLAYER",
+        "★  SVE NAGRADE" to "★  ALL AWARDS",
         "Zeleni otoci" to "Green Islands",
         "Kristalno nebo" to "Crystal Sky",
         "Lava vrhovi" to "Lava Peaks",
