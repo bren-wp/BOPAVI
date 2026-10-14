@@ -1647,7 +1647,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         starGauge.transform=CGAffineTransform(scaleX:1,y:3)
         starGauge.heightAnchor.constraint(equalToConstant:8).isActive=true
         starGauge.isAccessibilityElement=true
-        starGauge.accessibilityLabel=ui("Stars in world ")+ui(BopaviCore.names[profileWorld])
+        starGauge.accessibilityLabel=(progress.languageCode=="hr" ? "Zvjezdice svijeta " : "Stars in world ")+
+            ui(BopaviCore.names[profileWorld])
         starGauge.accessibilityValue="\(profileStars)/30"
         portraitBox.addArrangedSubview(starGauge)
         let starCaption=label("★  \(profileStars)/30 · "+ui(BopaviCore.names[profileWorld]),10,.white,portraitBox)
@@ -1741,12 +1742,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let glyph=label(earned ? icon:"🔒",24,
                 UIColor(red:1,green:0.77,blue:0.30,alpha:1),tile)
             glyph.heightAnchor.constraint(equalToConstant:26).isActive=true
-            let caption=label(name,10,.white,tile)
+            let caption=label(ui(name),10,.white,tile)
             caption.numberOfLines=1
             caption.adjustsFontSizeToFitWidth=true
             caption.minimumScaleFactor=0.72
             caption.heightAnchor.constraint(equalToConstant:18).isActive=true
-            let goal=label(requirement,9,UIColor(red:0.77,green:0.91,blue:1,alpha:1),tile)
+            let goal=label(ui(requirement),9,UIColor(red:0.77,green:0.91,blue:1,alpha:1),tile)
             goal.numberOfLines=1;goal.adjustsFontSizeToFitWidth=true
             goal.minimumScaleFactor=0.75
             goal.heightAnchor.constraint(equalToConstant:17).isActive=true
