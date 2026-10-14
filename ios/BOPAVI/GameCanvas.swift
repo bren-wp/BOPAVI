@@ -758,16 +758,16 @@ final class GameCanvas: UIView {
         for i in 0...6 {
             let y=start+span*CGFloat(i)/6
             let nearMouth=seed<0 ? i==6 : i==0
-            let variation=((seed*11+i*7)%9+9)%9
-            let inset:CGFloat=nearMouth ? 1 : 7+CGFloat(variation)
+            let variation=((seed*11+i*7)%6+6)%6
+            let inset:CGFloat=nearMouth ? 1 : 3+CGFloat(variation)
             if i==0 {c.move(to:CGPoint(x:x+inset,y:y))}
             else {c.addLine(to:CGPoint(x:x+inset,y:y))}
         }
         for i in stride(from:6,through:0,by:-1) {
             let y=start+span*CGFloat(i)/6
             let nearMouth=seed<0 ? i==6 : i==0
-            let variation=((seed*3+i*13)%11+11)%11
-            let inset:CGFloat=nearMouth ? 1 : 5+CGFloat(variation)
+            let variation=((seed*3+i*13)%6+6)%6
+            let inset:CGFloat=nearMouth ? 1 : 3+CGFloat(variation)
             c.addLine(to:CGPoint(x:x+w-inset,y:y))
         }
         c.closePath()
