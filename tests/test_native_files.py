@@ -1607,7 +1607,7 @@ for key in ('NavProfile','NavTasks','NavCollection','NavShop'):
     assert key in ios_profile,key
 assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
 assert 'hero.axis = .horizontal' in ios_profile
-assert 'contentDescription=navNames[index]' in android_profile
+assert 'contentDescription=ui(navNames[index])' in android_profile
 assert 'tab.accessibilityLabel=item.1' in ios_profile
 profile_qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'qa/screenshots/android-profile.png' in profile_qa
