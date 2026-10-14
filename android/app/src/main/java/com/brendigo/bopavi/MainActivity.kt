@@ -1582,13 +1582,13 @@ class MainActivity : Activity() {
                 isClickable=true;isFocusable=true
                 background=gradient(if(index==0)0xff9b6311.toInt() else 0xff12549c.toInt(),
                     0xff081e49.toInt(),14)
-                contentDescription=navNames[index]+if(index==0)", odabrano" else ""
+                contentDescription=ui(navNames[index])+if(index==0)", odabrano" else ""
                 addView(ImageView(this@MainActivity).apply{
                     setImageResource(navIcons[index]);scaleType=ImageView.ScaleType.FIT_CENTER
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 },LinearLayout.LayoutParams(-1,d(28)))
                 addView(TextView(this@MainActivity).apply{
-                    text=navNames[index];textSize=11f
+                    text=ui(navNames[index]);textSize=11f
                     gravity=Gravity.CENTER;setTextColor(Color.WHITE)
                     typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
                     setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
