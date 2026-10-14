@@ -8,7 +8,9 @@ adb install -r qa/apk/app-debug.apk
 # screencap calls. GameSimulation resumes with a second genuine flap, and the
 # production (non-debuggable) build ignores this Intent extra entirely.
 adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
-sleep 3
+# Android 16 needs extra time after the cold boot before System UI and
+# Accessibility Manager can reliably serve window hierarchy dumps.
+sleep 12
 adb shell pidof com.brendigo.bopavi
 
 capture(){
@@ -37,9 +39,33 @@ PY
 
 # Find the real accessible PLAY view instead of guessing a screen percentage.
 dump_ui(){
-  adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1
-  adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml
-  test -s qa/screenshots/android-current-ui.xml
+  # API36 may return a text error in place of hierarchy XML immediately
+  # after boot or during an unrelated System UI ANR. Never treat that
+  # diagnostic as a screen, nor let stale XML count as a passing test.
+  attempt=1
+  while [ "$attempt" -le 5 ]; do
+    adb shell rm -f /sdcard/bopavi-window.xml >/dev/null 2>&1 || true
+    adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1 || true
+    adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml 2>/dev/null || true
+    if python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+try:
+    root=ET.parse(sys.argv[1]).getroot()
+    assert root.tag=="hierarchy" and list(root.iter("node"))
+except (ET.ParseError,AssertionError,OSError):
+    sys.exit(1)
+PY
+    then
+      return 0
+    fi
+    echo "Waiting for valid Android hierarchy, attempt $attempt/5" >&2
+    attempt=$((attempt+1))
+    sleep 4
+  done
+  echo "FAIL: Android System UI did not provide a valid interactive hierarchy" >&2
+  adb shell pidof com.brendigo.bopavi || true
+  adb logcat -d -t 200 | tail -n 75 >&2 || true
+  return 1
 }
 # The hosted Pixel emulator can show a *system launcher* ANR over a healthy
 # BOPAVI Activity. Recover only that exact dialog; never dismiss a BOPAVI ANR.
@@ -53,17 +79,26 @@ titles=[n.get("text","") for n in root.iter("node")
         if n.get("resource-id")=="android:id/alertTitle"]
 waits=[n for n in root.iter("node") if n.get("resource-id")=="android:id/aerr_wait"
        and n.get("text")=="Wait" and n.get("clickable")=="true"]
-if titles != ["Pixel Launcher isn't responding"] or len(waits)!=1:
+if len(waits)!=1 or titles not in (
+    ["Pixel Launcher isn't responding"],["System UI isn't responding"]):
     sys.exit(1)
 m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
 if not m:
     raise SystemExit("FAIL: invalid system launcher Wait button bounds")
 left,top,right,bottom=map(int,m.groups())
-# Pressing Wait leaves the hung launcher alive, so its ANR repeatedly
-# covers the game and consumes gallery gestures. Terminate only this
-# verified SYSTEM launcher process; never terminate or hide BOPAVI.
-print("Stopping confirmed unresponsive Pixel Launcher (not BOPAVI)",flush=True)
-subprocess.run(["adb","shell","am","force-stop","com.google.android.apps.nexuslauncher"],check=True)
+# Pixel Launcher and System UI are distinct system processes. Recovery
+# is allowed ONLY for these verified dialog titles, never for a BOPAVI ANR.
+if titles == ["Pixel Launcher isn't responding"]:
+    print("Stopping confirmed unresponsive Pixel Launcher (not BOPAVI)",flush=True)
+    subprocess.run(["adb","shell","am","force-stop",
+                    "com.google.android.apps.nexuslauncher"],check=True)
+else:
+    # Never force-stop System UI (which owns status/navigation surfaces).
+    # Press the exact native Wait action to let it recover, then require the
+    # real BOPAVI page to appear before any smoke-test PASS.
+    print("Waiting for confirmed hung System UI to recover (not BOPAVI)",flush=True)
+    subprocess.run(["adb","shell","input","tap",
+                    str((left+right)//2),str((top+bottom)//2)],check=True)
 subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,
                stdout=subprocess.DEVNULL)
 PY
@@ -426,8 +461,19 @@ texts=[n.get("text","") for n in root.iter("node")]
 desc=[n.get("content-desc","") for n in root.iter("node")]
 if not any("Your flight journal" in text for text in texts):
     raise SystemExit("FAIL: PROFILE did not navigate to its dedicated screen")
-if not any("Letački profil" in label for label in desc):
-    raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
+if not any("Flight profile" in label and "pilot Bopi" in label for label in desc):
+    raise SystemExit("FAIL: actual selected default Bopi pilot or English profile description missing")
+# Default English must be respected in visible native profile cards, not just
+# Settings. Do not silently publish a half-Croatian English screenshot.
+croatian_leftovers=("‹  POČETNA","←  POČETNA","MOJE NAGRADE","MOJI NAJBOLJI SVJETOVI",
+                    "PRVI LET","ISTRAŽIVAČ","SAKUPLJAČ","SVE NAGRADE",
+                    "UREDI PROFIL","Osvojene kovanice","Dovršeni leveli")
+for literal in croatian_leftovers:
+    if any(literal in text for text in texts):
+        raise SystemExit("FAIL: untranslated Croatian Profile label in English default: "+literal)
+for required in ("FIRST FLIGHT","EXPLORER","COLLECTOR","ALL AWARDS","EDIT PROFILE"):
+    if not any(required in value for value in texts+desc):
+        raise SystemExit("FAIL: missing translated profile action: "+required)
 if any("APPEARANCE & SOUND" in text for text in texts):
     raise SystemExit("FAIL: PROFILE incorrectly opened settings")
 # A no-scroll profile must expose Edit and the four bottom actions without

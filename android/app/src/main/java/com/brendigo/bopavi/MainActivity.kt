@@ -254,7 +254,7 @@ class MainActivity : Activity() {
 
 
             hero.addView(ImageView(this).apply {
-                setImageResource(portraitDrawableIds[0])
+                setImageResource(portraitDrawableIds[progress.skin()])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(117),d(117)))
@@ -1436,7 +1436,9 @@ class MainActivity : Activity() {
         }
         b.addView(cardRow,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(6)})
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
-        small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
+        small(b,if(progress.languageCode()=="hr")
+            "Odaberi jednog od devet pilota prije leta. Kovanice služe za otključavanje pilota i opreme."
+            else "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.")
         b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
@@ -1444,7 +1446,7 @@ class MainActivity : Activity() {
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         val topBack=TextView(this).apply{
-            text="‹  POČETNA";textSize=13f;setTextColor(Color.WHITE)
+            text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME";textSize=13f;setTextColor(Color.WHITE)
             typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
             background=gradient(0xff1368b6.toInt(),0xff072657.toInt(),14)
             isClickable=true;isFocusable=true
@@ -1452,8 +1454,8 @@ class MainActivity : Activity() {
             setOnClickListener{showHome()}
         }
         b.addView(topBack,LinearLayout.LayoutParams(-1,d(33)))
-        val skin=0
-
+        // Profile reflects the current saved playable pilot, not fixed Bopi.
+        val skin=progress.skin()
 
         val hero=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
@@ -1461,7 +1463,8 @@ class MainActivity : Activity() {
             background=gradient(0xf40b4189.toInt(),0xf3051b40.toInt(),24).apply{
                 setStroke(d(2),electric)
             }
-            contentDescription="Letački profil, "+progress.playerName()+", lik "+progress.skinNames[skin]
+            contentDescription=ui("Letački profil, ")+progress.playerName()+", "+
+                (if(progress.languageCode()=="hr")"lik " else "pilot ")+progress.skinNames[skin]
         }
         val portraitBox=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
@@ -1487,14 +1490,15 @@ class MainActivity : Activity() {
             max=30;progress=profileStars
             progressTintList=ColorStateList.valueOf(gold)
             progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
-            contentDescription="Zvjezdice svijeta ${LevelEngine.names[profileWorld]}: ${profileStars} od 30"
+            contentDescription=(if(this@MainActivity.progress.languageCode()=="hr")"Zvjezdice svijeta " else "Stars in world ")+
+                ui(LevelEngine.names[profileWorld])+": ${profileStars}/30"
         }
         portraitBox.addView(profileStarGauge,
             LinearLayout.LayoutParams(-1,d(9)).apply{
                 leftMargin=d(9);rightMargin=d(9);topMargin=d(4)
             })
         portraitBox.addView(TextView(this).apply{
-            text="★  ${profileStars}/30 · ${LevelEngine.names[profileWorld]}"
+            text="★  ${profileStars}/30 · ${ui(LevelEngine.names[profileWorld])}"
             gravity=Gravity.CENTER;textSize=10f;setTextColor(Color.WHITE)
             setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
@@ -1504,7 +1508,7 @@ class MainActivity : Activity() {
         hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(7)})
         val stats=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
         stats.addView(TextView(this).apply{
-            text=progress.playerName().uppercase()
+            text=ui(progress.playerName().uppercase())
             textSize=20f;setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setSingleLine(true)
@@ -1516,7 +1520,7 @@ class MainActivity : Activity() {
             textSize=12f;setTextColor(0xffc5e9ff.toInt())
         },LinearLayout.LayoutParams(-1,d(19)))
         stats.addView(TextView(this).apply{
-            text="TVOJI REZULTATI";textSize=11f;setTextColor(gold)
+            text=ui("TVOJI REZULTATI");textSize=11f;setTextColor(gold)
             typeface=Typeface.DEFAULT_BOLD
         },LinearLayout.LayoutParams(-1,d(17)))
         val completed=(0..7).sumOf{(progress.frontier(it)-1).toLong()}
@@ -1533,7 +1537,7 @@ class MainActivity : Activity() {
                 contentDescription=ui(caption)+": "+value
             }
             tile.addView(TextView(this).apply{
-                text=caption;setTextColor(Color.WHITE);textSize=11f
+                text=ui(caption);setTextColor(Color.WHITE);textSize=11f
                 setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1573,21 +1577,23 @@ class MainActivity : Activity() {
                     0xff061d44.toInt(),15).apply{
                     setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
                 }
-                contentDescription=name+", cilj "+requirement+", "+if(earned)"osvojeno" else "zaključano"
+                contentDescription=ui(name)+", "+
+                    (if(progress.languageCode()=="hr")"cilj " else "goal ")+
+                    ui(requirement)+", "+ui(if(earned)"osvojeno" else "zaključano")
             }
             tile.addView(TextView(this).apply{
                 text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
                 setTextColor(gold);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(25)))
             tile.addView(TextView(this).apply{
-                text=name;textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                text=ui(name);textSize=10f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
                 setSingleLine(true);typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(19)))
             tile.addView(TextView(this).apply{
-                text=requirement;textSize=9f;gravity=Gravity.CENTER
+                text=ui(requirement);textSize=9f;gravity=Gravity.CENTER
                 setTextColor(0xffc5e9ff.toInt());setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,9,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1599,10 +1605,10 @@ class MainActivity : Activity() {
         }
         b.addView(badgeRow,LinearLayout.LayoutParams(-1,-2))
         b.addView(TextView(this).apply{
-            text="★  SVE NAGRADE  ›";textSize=13f;gravity=Gravity.CENTER
+            text=ui("★  SVE NAGRADE  ›");textSize=13f;gravity=Gravity.CENTER
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
             background=gradient(0xff156ac5.toInt(),0xff062d6d.toInt(),18)
-            isClickable=true;isFocusable=true;contentDescription="Pogledaj sva postignuća"
+            isClickable=true;isFocusable=true;contentDescription=ui("Pogledaj sva postignuća")
             setOnClickListener{showAchievements(MenuOrigin.PROFILE)}
         },LinearLayout.LayoutParams(-1,d(37)))
         profileHeading(b,"MOJI NAJBOLJI SVJETOVI")
@@ -1617,8 +1623,9 @@ class MainActivity : Activity() {
                 background=gradient(0xff0d5aa4.toInt(),0xff061d40.toInt(),15).apply{
                     setStroke(d(2),electric)
                 }
-                contentDescription=LevelEngine.names[world]+", "+
-                    progress.worldStars(world)+" od 30 zvjezdica; otvori levele"
+                contentDescription=ui(LevelEngine.names[world])+", "+progress.worldStars(world)+
+                    (if(progress.languageCode()=="hr")" od 30 zvjezdica; otvori levele" else
+                        " of 30 stars; open levels")
                 setOnClickListener{sound.effect("click");showLevels(world,1)}
             }
             val artFrame=FrameLayout(this)
@@ -1638,7 +1645,7 @@ class MainActivity : Activity() {
             })
             card.addView(artFrame,LinearLayout.LayoutParams(-1,d(59)))
             card.addView(TextView(this).apply{
-                text=LevelEngine.names[world].uppercase();setTextColor(Color.WHITE)
+                text=ui(LevelEngine.names[world]).uppercase();setTextColor(Color.WHITE)
                 textSize=11f;gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
                 setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
@@ -1656,7 +1663,7 @@ class MainActivity : Activity() {
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL",true){showSettings()}
-        // One permanent pilot Bopi already appears in accessible profile hero.
+        // The actual saved selected pilot is shown in this accessible profile hero.
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -1674,7 +1681,8 @@ class MainActivity : Activity() {
                 isClickable=true;isFocusable=true
                 background=gradient(if(index==0)0xff9b6311.toInt() else 0xff12549c.toInt(),
                     0xff081e49.toInt(),14)
-                contentDescription=ui(navNames[index])+if(index==0)", odabrano" else ""
+                contentDescription=ui(navNames[index])+
+                    if(index==0)(if(progress.languageCode()=="hr")", odabrano" else ", selected") else ""
                 addView(ImageView(this@MainActivity).apply{
                     setImageResource(navIcons[index]);scaleType=ImageView.ScaleType.FIT_CENTER
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
