@@ -2342,8 +2342,8 @@ assert 'LevelEngine.opening(gate, time, difficulty)' in android_sim_source
 assert 'BopaviCore.opening(gate, time,difficulty:difficulty)' in swift_engine
 assert 'LevelEngine.opening(g,game.time,game.difficulty)' in android_render
 assert 'BopaviCore.opening(g,game.time,difficulty:game.difficulty)' in ios_render
-assert 'val radius = 18f' in android_game and 'let radius: Float = 18' in ios_game
-assert 'velocity = -255f' in android_game and 'velocity = -255' in ios_game
+assert 'val radius = 18f' in android_sim_source and 'let radius: Float = 18' in swift_engine
+assert 'velocity = -255f' in android_sim_source and 'velocity = -255' in swift_engine
 assert 'drawCliffShaft(c,x,w,0f,top' in android_render
 assert 'drawCliffShaft(c,x,w,0,top' in ios_render
 assert 'threeDifficultiesChangeRealRenderableAndCollidableOpenings' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
