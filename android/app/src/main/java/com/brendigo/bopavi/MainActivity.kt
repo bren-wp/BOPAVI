@@ -180,18 +180,72 @@ class MainActivity : Activity() {
             0x66031837,0x99061b3e.toInt(),0xdd04132e.toInt()))
 
     private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
-    /** Language change is offline, immediately applied, and does not reset saves. */
-    private fun showLanguagePicker(){
-        android.app.AlertDialog.Builder(this)
-            .setTitle(ui("JEZIK"))
-            .setSingleChoiceItems(GameLanguages.names.toTypedArray(),
-                GameLanguages.codes.indexOf(progress.languageCode())){dialog,which->
-                progress.setLanguageCode(GameLanguages.codes[which])
-                dialog.dismiss()
-                showSettings()
+    /**
+     * Four short 2×4 pages rather than Android's 26-row scrolling list.
+     * Native clickable, minimum-48dp targets and a persistent selected state.
+     * Everything fits inside even a compact phone without scroll gestures.
+     */
+    private fun showLanguagePicker(page:Int=0){
+        val perPage=8
+        val total=(GameLanguages.codes.size+perPage-1)/perPage
+        val current=page.coerceIn(0,total-1)
+        val start=current*perPage
+        val croatian=progress.languageCode()=="hr"
+        val group=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(10),d(8),d(10),d(8))
+        }
+        lateinit var picker:android.app.AlertDialog
+        for(rowIndex in 0 until 4){
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            for(colIndex in 0..1){
+                val index=start+rowIndex*2+colIndex
+                if(index>=GameLanguages.codes.size){
+                    row.addView(View(this),LinearLayout.LayoutParams(0,d(48),1f))
+                    continue
+                }
+                val code=GameLanguages.codes[index]
+                val selected=code==progress.languageCode()
+                val button=TextView(this).apply{
+                    text=(if(selected)"✓ " else "")+GameLanguages.names[index]
+                    textSize=13f;gravity=Gravity.CENTER
+                    setTextColor(Color.WHITE)
+                    typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    background=gradient(
+                        if(selected)0xffc47c0a.toInt() else 0xff0874cc.toInt(),
+                        if(selected)0xff673c08.toInt() else 0xff062653.toInt(),16
+                    ).apply{setStroke(d(2),if(selected)gold else electric)}
+                    isClickable=true;isFocusable=true;isSelected=selected
+                    contentDescription=GameLanguages.names[index]+", "+
+                        if(selected)(if(croatian)"odabrano" else "selected")
+                        else (if(croatian)"odaberi jezik" else "choose language")
+                    setOnClickListener{
+                        progress.setLanguageCode(code)
+                        picker.dismiss()
+                        showSettings()
+                    }
+                }
+                row.addView(button,LinearLayout.LayoutParams(0,d(48),1f).apply{
+                    setMargins(d(3),d(3),d(3),d(3))
+                })
             }
-            .setNegativeButton("CANCEL",null)
-            .show()
+            group.addView(row,LinearLayout.LayoutParams(-1,-2))
+        }
+        val builder=android.app.AlertDialog.Builder(this)
+            .setTitle(ui("JEZIK")+"   ${current+1}/$total")
+            .setView(group)
+            .setNegativeButton(if(croatian)"ODUSTANI" else "CANCEL",null)
+        if(current>0)builder.setNeutralButton(if(croatian)"PRETHODNO" else "PREVIOUS"){_,_->
+            showLanguagePicker(current-1)
+        }
+        if(current<total-1)builder.setPositiveButton(if(croatian)"SLJEDEĆE" else "NEXT"){_,_->
+            showLanguagePicker(current+1)
+        }
+        picker=builder.create()
+        picker.show()
     }
     private fun chip(label:String):TextView = TextView(this).apply {
         text=label
@@ -1968,7 +2022,7 @@ class MainActivity : Activity() {
             background=gradient(0xf40a3268.toInt(),0xf8051737.toInt(),21)
         }
         val backButton=TextView(this).apply{
-            text="‹";textSize=32f;gravity=Gravity.CENTER
+            text="←";textSize=27f;gravity=Gravity.CENTER
             setTextColor(Color.WHITE)
             background=gradient(0xff22b8fc.toInt(),0xff0759ca.toInt(),22).apply{
                 setStroke(d(2),Color.WHITE)
@@ -1983,6 +2037,12 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(Color.WHITE);gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(0,d(46),1f))
+        // Mirror the working selected pilot from Profile without adding a row.
+        header.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(46),d(46)))
         column.addView(header,LinearLayout.LayoutParams(-1,d(61)))
         column.addView(TextView(this).apply{
             text=ui("IZGLED I ZVUK");textSize=12f
@@ -2039,7 +2099,56 @@ class MainActivity : Activity() {
             progress.setLessMotion(!progress.lessMotion())
         }
         option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
-        option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}
+        // Primary difficulty is now always visible. Replace the redundant
+        // Privacy row (both legal controls remain in the footer) with three
+        // genuine selected difficulty buttons, not an advanced-only option.
+        val difficultyChoices=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")
+        val difficultyButtons=ArrayList<TextView>(3)
+        val difficultyRow=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+        }
+        fun refreshDifficulty(){
+            for(i in 0..2){
+                val selected=progress.difficulty()==i
+                val item=difficultyButtons[i]
+                item.background=gradient(
+                    if(selected)0xffb86d05.toInt() else 0xff0b67b4.toInt(),
+                    if(selected)0xff543213.toInt() else 0xff061d42.toInt(),18
+                ).apply{setStroke(d(2),if(selected)gold else electric)}
+                item.isSelected=selected
+                item.contentDescription=(if(progress.languageCode()=="hr")"Težina igre" else "Game difficulty")+
+                    ", "+ui(difficultyChoices[i])+", "+
+                    if(selected)(if(progress.languageCode()=="hr")"odabrano" else "selected")
+                    else (if(progress.languageCode()=="hr")"dodirni za odabir" else "tap to select")
+            }
+        }
+        for(i in 0..2){
+            val item=TextView(this).apply{
+                text=(if(i==1)"♛  " else "✦  ")+ui(difficultyChoices[i])
+                textSize=12f;gravity=Gravity.CENTER
+                setTextColor(Color.WHITE)
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                isClickable=true;isFocusable=true
+                setOnClickListener{
+                    progress.setDifficulty(i)
+                    sound.effect("click")
+                    refreshDifficulty()
+                }
+            }
+            difficultyButtons.add(item)
+            difficultyRow.addView(item,LinearLayout.LayoutParams(0,d(62),1f).apply{
+                setMargins(d(2),d(3),d(2),d(3))
+            })
+        }
+        refreshDifficulty()
+        column.addView(difficultyRow,LinearLayout.LayoutParams(-1,d(68)).apply{
+            bottomMargin=d(5)
+        })
+        column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         val advanced=TextView(this).apply{
             text=ui("⚙  NAPREDNE POSTAVKE");textSize=16f
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD

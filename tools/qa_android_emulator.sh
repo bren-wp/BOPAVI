@@ -233,57 +233,91 @@ PY
 }
 # Verify actual touch selection and persisted difficulty without disturbing
 # the user's normal default before the gameplay/collision QA starts.
-verify_difficulty_cards(){
-  # Reference Settings is a non-scrolling overview. Navigate through the
-  # real Advanced Settings action before testing the original difficulty cards.
-  dump_ui
-  python3 - qa/screenshots/android-current-ui.xml <<'PY'
-import re,subprocess,sys,xml.etree.ElementTree as ET
-root=ET.parse(sys.argv[1]).getroot()
-items=[n for n in root.iter('node') if n.get('clickable')=='true'
-       and 'ADVANCED SETTINGS' in (n.get('text','')+' '+n.get('content-desc',''))]
-if len(items)!=1:
-    raise SystemExit(f'FAIL: expected one advanced settings button, got {len(items)}')
-bounds=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',items[0].get('bounds',''))
-if not bounds: raise SystemExit('FAIL: invalid advanced settings bounds')
-l,t,r,b=map(int,bounds.groups())
-subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
-PY
+# Real device verification: no scroll anywhere in the 26-language picker.
+# Eight choices per page, explicit Next/Cancel, and the saved English locale
+# must not change unless the player chooses another language.
+verify_paged_languages(){
   python3 - <<'PY'
 import re,subprocess,time,xml.etree.ElementTree as ET
 def dump():
-    subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
+    subprocess.run(['adb','shell','uiautomator','dump','/sdcard/bopavi-languages.xml'],
                    check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
-    xml=subprocess.run(['adb','shell','cat','/sdcard/window.xml'],
-                       check=True,capture_output=True,text=True,timeout=15).stdout
+    xml=subprocess.run(['adb','exec-out','cat','/sdcard/bopavi-languages.xml'],
+                       check=True,capture_output=True,timeout=15).stdout
     return ET.fromstring(xml)
-def target(name):
+def tap(item):
+    match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',item.get('bounds',''))
+    if not match: raise SystemExit('FAIL: invalid language picker target')
+    l,t,r,b=map(int,match.groups())
+    if r-l<90 or b-t<90: raise SystemExit('FAIL: language button too small')
+    subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],
+                   check=True,timeout=12)
+def find(root,value):
+    hits=[n for n in root.iter('node') if n.get('clickable')=='true'
+          and value in (n.get('content-desc','')+' '+n.get('text',''))]
+    if len(hits)!=1: raise SystemExit(f'FAIL: expected one {value}, found {len(hits)}')
+    return hits[0]
+tap(find(dump(),'LANGUAGE, English'))
+time.sleep(.4)
+seen=set()
+for page in range(4):
     root=dump()
-    matches=[n for n in root.iter('node') if n.get('clickable')=='true'
-             and ('Težina igre '+name+',') in n.get('content-desc','')]
-    if len(matches)>1: raise SystemExit(f'FAIL: duplicate difficulty card {name}')
-    return matches[0] if matches else None
-def locate(name):
-    for _ in range(9):
-        found=target(name)
-        if found is not None:
-            match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',found.get('bounds',''))
-            if match:
-                l,t,r,b=map(int,match.groups())
-                if r>l and b>t:
-                    return found,(l+r)//2,(t+b)//2
-        subprocess.run(['adb','shell','input','swipe','190','740','190','335','440'],
-                       check=True,timeout=12)
-        time.sleep(.32)
-    raise SystemExit(f'FAIL: accessible {name} card not reachable by real swipe')
-for name,expected in [('LAGANO','LAGANO'),('NORMALNO','NORMALNO')]:
-    card,x,y=locate(name)
+    if any(n.get('scrollable')=='true' for n in root.iter('node')):
+        raise SystemExit('FAIL: language picker scrollable')
+    text=' '.join(n.get('text','') for n in root.iter('node'))
+    if f'{page+1}/4' not in text:
+        raise SystemExit(f'FAIL: language picker page {page+1}/4 missing')
+    choices=[n for n in root.iter('node') if n.get('clickable')=='true'
+             and (n.get('content-desc','').endswith(', choose language') or
+                  n.get('content-desc','').endswith(', selected'))]
+    if len(choices)!=(8 if page<3 else 2):
+        raise SystemExit(f'FAIL: language page {page+1} should have 8/2 choices, got {len(choices)}')
+    seen.update(n.get('content-desc','').split(', ')[0] for n in choices)
+    if page<3:
+        tap(find(root,'NEXT')); time.sleep(.32)
+if len(seen)!=26 or 'English' not in seen or 'Hrvatski' not in seen or '日本語' not in seen:
+    raise SystemExit(f'FAIL: incomplete 26-language paged coverage {len(seen)}')
+tap(find(dump(),'CANCEL')); time.sleep(.32)
+if not any('LANGUAGE, English' in n.get('content-desc','') for n in dump().iter('node')):
+    raise SystemExit('FAIL: language Cancel changed saved English locale')
+print('PASS: all 26 language choices, four no-scroll pages, touch sizes and persisted locale',flush=True)
+PY
+}
+# Real three-way selection is visible without opening Advanced Settings,
+# scrolling down, or changing the existing user's saved progress.
+verify_difficulty_cards(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+def dump():
+    subprocess.run(['adb','shell','uiautomator','dump','/sdcard/bopavi-difficulty.xml'],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
+    data=subprocess.run(['adb','exec-out','cat','/sdcard/bopavi-difficulty.xml'],
+                        check=True,capture_output=True,timeout=15).stdout
+    return ET.fromstring(data)
+def choice(root,mode):
+    found=[n for n in root.iter('node') if n.get('clickable')=='true'
+           and n.get('content-desc','').startswith('Game difficulty, '+mode+',')]
+    if len(found)!=1: raise SystemExit('FAIL: missing accessible direct difficulty '+mode)
+    bounds=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',found[0].get('bounds',''))
+    if not bounds: raise SystemExit('FAIL: invalid difficulty hit rectangle')
+    l,t,r,b=map(int,bounds.groups())
+    if r-l<90 or b-t<90: raise SystemExit('FAIL: tiny direct difficulty touch target')
+    return found[0],(l+r)//2,(t+b)//2
+def tap(x,y):
     subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True,timeout=12)
-    time.sleep(.5)
-    selected=target(expected)
-    if selected is None or 'odabrano' not in selected.get('content-desc',''):
-        raise SystemExit(f'FAIL: difficulty {name} did not persist its touch selection')
-    print(f'PASS: selected real premium difficulty card {name}',flush=True)
+first=dump()
+if any(n.get('scrollable')=='true' for n in first.iter('node')):
+    raise SystemExit('FAIL: primary settings require vertical scrolling')
+for mode in ('EASY','NORMAL','HARD'): choice(first,mode)
+initial=next(mode for mode in ('EASY','NORMAL','HARD')
+             if 'selected' in choice(first,mode)[0].get('content-desc',''))
+for mode in ('EASY','HARD','NORMAL',initial):
+    card,x,y=choice(dump(),mode)
+    tap(x,y);time.sleep(.3)
+    selected=choice(dump(),mode)[0]
+    if 'selected' not in selected.get('content-desc',''):
+        raise SystemExit('FAIL: difficulty change not persisted: '+mode)
+print('PASS: accessible on-screen EASY/NORMAL/HARD with real saved state and no scroll',flush=True)
 PY
 }
 # Verify every world is a genuine clickable card with saved progress, not
@@ -714,6 +748,7 @@ while [ "$attempt" -le 6 ]; do
     fi
     capture android-settings
     verify_settings_legal
+    verify_paged_languages
     verify_difficulty_cards
     adb shell input keyevent 4
     sleep 1
