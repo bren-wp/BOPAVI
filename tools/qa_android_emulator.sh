@@ -702,7 +702,7 @@ PY
     flight_started=1
     break
   fi
-  if grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'RETRY' qa/screenshots/android-current-ui.xml; then
     if grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
       echo "FAIL: pause leaked into completed result screen" >&2
       exit 1
@@ -741,17 +741,17 @@ while [ "$attempt" -le 15 ]; do
     adb logcat -d -t 250 | tail -n 100 || true
     exit 1
   fi
-  if dump_ui && grep -q 'PONOVO' qa/screenshots/android-current-ui.xml; then
+  if dump_ui && grep -q 'RETRY' qa/screenshots/android-current-ui.xml; then
     result_ready=1
     break
   fi
-  echo "Waiting for Android result and PONOVO button ($attempt/15)"
+  echo "Waiting for Android result and RETRY button ($attempt/15)"
   attempt=$((attempt+1))
   sleep 2
 done
 if [ "$result_ready" -ne 1 ]; then
   capture android-result-diagnostic || true
-  echo "FAIL: gameplay did not expose the PONOVO action within 30 seconds" >&2
+  echo "FAIL: gameplay did not expose the RETRY action within 30 seconds" >&2
   head -c 5000 qa/screenshots/android-current-ui.xml || true
   adb logcat -d -t 250 | tail -n 100 || true
   exit 1
@@ -764,7 +764,7 @@ result_capture_unique=0
 result_capture_attempt=1
 while [ "$result_capture_attempt" -le 8 ]; do
   dump_ui
-  if ! grep -q 'PONOVO' qa/screenshots/android-current-ui.xml ||
+  if ! grep -q 'RETRY' qa/screenshots/android-current-ui.xml ||
      grep -q 'Izbornik tijekom igre' qa/screenshots/android-current-ui.xml; then
     echo "FAIL: actual result UI disappeared before screenshot" >&2
     exit 1
@@ -810,7 +810,7 @@ pilots=[value for value in descriptions if value.startswith("Odabrani letač: ")
 if len(pilots)!=1 or "svijet" not in pilots[0]:
     raise SystemExit("FAIL: real result must expose one selected pilot and world illustration")
 titles=[n.get("text","") for n in root.iter("node")]
-if sum("NOVI REKORD!" in title for title in titles)>1:
+if sum("NEW RECORD!" in title for title in titles)>1:
     raise SystemExit("FAIL: duplicate new-record banner in result")
 print("PASS: result renders real selected pilot/world and accessible record state",flush=True)
 PY
