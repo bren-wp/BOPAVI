@@ -1597,7 +1597,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         // All metrics, badges and world ranks are derived from offline saves.
         let back=UIButton(type:.system)
-        back.setTitle("‹  POČETNA",for:.normal)
+        back.setTitle(progress.languageCode=="hr" ? "←  POČETNA" : "←  HOME",for:.normal)
         back.setTitleColor(.white,for:.normal)
         back.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
         back.backgroundColor=UIColor(red:0.04,green:0.29,blue:0.62,alpha:0.96)
@@ -1606,7 +1606,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         back.heightAnchor.constraint(equalToConstant:34).isActive=true
         back.addAction(UIAction{_ in self.showHome()},for:.touchUpInside)
         s.addArrangedSubview(back)
-        let skin=0
+        // Profile is the saved actual pilot, not an immutable Bopi banner.
+        let skin=progress.skinIndex()
         let hero=UIStackView()
         hero.axis = .horizontal;hero.alignment = .center;hero.spacing=8
         hero.layoutMargins=UIEdgeInsets(top:6,left:7,bottom:6,right:7)
@@ -1624,7 +1625,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         portraitBox.layer.borderWidth=2
         portraitBox.layer.borderColor=UIColor(red:1,green:0.76,blue:0.30,alpha:1).cgColor
         portraitBox.isAccessibilityElement=true
-        portraitBox.accessibilityLabel="Letački profil, "+progress.playerName+", lik "+progress.skinNames[skin]
+        portraitBox.accessibilityLabel=ui("Letački profil, ")+progress.playerName+
+            (progress.languageCode=="hr" ? ", lik " : ", pilot ")+progress.skinNames[skin]
         portraitBox.widthAnchor.constraint(equalToConstant:124).isActive=true
         let portrait=UIImageView(image:UIImage(named:"BopiPortrait"+String(skin)))
         portrait.contentMode = .scaleAspectFit
@@ -1645,10 +1647,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         starGauge.transform=CGAffineTransform(scaleX:1,y:3)
         starGauge.heightAnchor.constraint(equalToConstant:8).isActive=true
         starGauge.isAccessibilityElement=true
-        starGauge.accessibilityLabel="Zvjezdice svijeta "+BopaviCore.names[profileWorld]
-        starGauge.accessibilityValue="\(profileStars) od 30"
+        starGauge.accessibilityLabel=ui("Stars in world ")+ui(BopaviCore.names[profileWorld])
+        starGauge.accessibilityValue="\(profileStars)/30"
         portraitBox.addArrangedSubview(starGauge)
-        let starCaption=label("★  \(profileStars)/30 · "+BopaviCore.names[profileWorld],10,.white,portraitBox)
+        let starCaption=label("★  \(profileStars)/30 · "+ui(BopaviCore.names[profileWorld]),10,.white,portraitBox)
         starCaption.numberOfLines=1
         starCaption.adjustsFontSizeToFitWidth=true;starCaption.minimumScaleFactor=0.8
         starCaption.heightAnchor.constraint(equalToConstant:18).isActive=true
@@ -1682,9 +1684,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.backgroundColor=UIColor(red:0.035,green:0.17,blue:0.38,alpha:1)
             tile.layer.cornerRadius=12
             tile.isAccessibilityElement=true
-            tile.accessibilityLabel=caption+": "+value
+            tile.accessibilityLabel=ui(caption)+": "+value
             let textLabel=UILabel()
-            textLabel.text=caption;textLabel.textColor = .white
+            textLabel.text=ui(caption);textLabel.textColor = .white
             textLabel.font=UIFont.systemFont(ofSize:10,weight:.semibold)
             textLabel.minimumScaleFactor=0.65
             textLabel.adjustsFontSizeToFitWidth=true
@@ -1734,7 +1736,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 ? UIColor(red:1,green:0.78,blue:0.30,alpha:1)
                 : UIColor(red:0.45,green:0.52,blue:0.65,alpha:1)).cgColor
             tile.isAccessibilityElement=true
-            tile.accessibilityLabel=name+", cilj "+requirement+", "+(earned ? "osvojeno":"zaključano")
+            tile.accessibilityLabel=ui(name)+(progress.languageCode=="hr" ? ", cilj " : ", goal ")+
+                ui(requirement)+", "+ui(earned ? "osvojeno" : "zaključano")
             let glyph=label(earned ? icon:"🔒",24,
                 UIColor(red:1,green:0.77,blue:0.30,alpha:1),tile)
             glyph.heightAnchor.constraint(equalToConstant:26).isActive=true
@@ -1752,13 +1755,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         s.addArrangedSubview(badgeRow)
         let allAwards=UIButton(type:.system)
-        allAwards.setTitle("★  SVE NAGRADE  ›",for:.normal)
+        allAwards.setTitle(ui("★  SVE NAGRADE  ›"),for:.normal)
         allAwards.setTitleColor(.white,for:.normal)
         allAwards.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
         allAwards.backgroundColor=UIColor(red:0.05,green:0.32,blue:0.66,alpha:1)
         allAwards.layer.cornerRadius=16
         allAwards.heightAnchor.constraint(equalToConstant:37).isActive=true
-        allAwards.accessibilityLabel="Pogledaj sva postignuća"
+        allAwards.accessibilityLabel=ui("Pogledaj sva postignuća")
         allAwards.addAction(UIAction{_ in self.showAchievements(.profile)},for:.touchUpInside)
         s.addArrangedSubview(allAwards)
         sectionHeading("MOJI NAJBOLJI SVJETOVI",in:s)
