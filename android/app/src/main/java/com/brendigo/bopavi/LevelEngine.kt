@@ -307,8 +307,6 @@ object GameLanguages {
         "Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let." to "Earn coins by completing reward levels and prepare equipment for your next flight.",
         "Privlači predmete tijekom 8 sekundi." to "Attract collectibles for eight seconds.",
         "Kupljena oprema automatski se koristi na početku sljedećeg leta." to "Purchased equipment activates automatically at the start of your next flight.",
-        "Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri." to "Bopi is your pilot. Coins purchase functional in-game equipment only.",
-        "Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova." to "Bopi is the only playable pilot. Coins buy equipment, not characters.",
         "Tvoj letački dnevnik i osobni rezultati" to "Your flight journal and personal records",
         "Prvi rekord čeka tvoj sljedeći let!" to "Your first record awaits your next flight!",
         "TEŽINA IGRE — utječe na brzinu i gravitaciju" to "GAME DIFFICULTY — affects speed and gravity",
