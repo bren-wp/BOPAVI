@@ -8,9 +8,11 @@ final class GameCanvas: UIView {
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
+    private let language:String
+    private func word(_ en:String,_ hr:String)->String{language=="hr" ? hr : en}
     private var lastLevelBadgeText=""
     private var cachedLevelBadge=NSAttributedString(string:"")
-    private let idlePrompt=NSAttributedString(string:"DODIRNI ZA LET",attributes:[
+    private lazy var idlePrompt=NSAttributedString(string:word("TAP TO FLY","DODIRNI ZA LET"),attributes:[
         .font:UIFont.systemFont(ofSize:30,weight:.heavy),.foregroundColor:UIColor.white])
     private var progressLabel=NSAttributedString(string:"")
     private var distanceLabel=NSAttributedString(string:"")
@@ -96,11 +98,12 @@ final class GameCanvas: UIView {
     private let biomeReliefGlints:[UInt32]=[0xd4ffb0,0x7ef4ff,0xffcf70,0xffefa8,
                                            0xffb6e7,0xffffff,0xffa7e7,0x85dfff]
 
-    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0}) {
+    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0},languageCode:String = "en") {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=0 // Bopi-only gameplay; legacy saved ownership is retained.
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.coinWallet=coinWallet
+        self.language=GameLanguages.normalized(languageCode)
         self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
         let artSize:CGFloat=124 // Video review: shrink art, never the real hitbox.
         self.birdArtSize=artSize
@@ -120,7 +123,7 @@ final class GameCanvas: UIView {
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
         isAccessibilityElement=true
         accessibilityTraits.insert(.button)
-        accessibilityLabel="Dodirni za let Bopija"
+        accessibilityLabel=word("Tap to fly with Bopi","Dodirni za let Bopija")
         backgroundColor=UIColor(rgb:skyA[game.level.world])
     }
     required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
@@ -319,7 +322,7 @@ final class GameCanvas: UIView {
         let score=game.score()
         if score != lastProgressScore {
             lastProgressScore=score
-            progressLabel=NSAttributedString(string:"SCORE \(score)",
+            progressLabel=NSAttributedString(string:"\(word("SCORE","BODOVI")) \(score)",
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
         }
         // Sample real world-distance units at 10 Hz, avoiding per-frame
@@ -327,7 +330,7 @@ final class GameCanvas: UIView {
         let distanceTick=Int(game.time*10)
         if distanceTick != lastDistanceTick {
             lastDistanceTick=distanceTick
-            distanceLabel=NSAttributedString(string:"DIST \(Int(game.distance))",
+            distanceLabel=NSAttributedString(string:"\(word("DIST","PUT")) \(Int(game.distance))",
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
         }
         // Continuous actual course fraction, matching the Android gauge.
@@ -346,8 +349,8 @@ final class GameCanvas: UIView {
         // covering obstacles or interrupting the continuous simulation.
         let entering=game.levelTransition>0
         rect(c,171,63,193,30,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
-        let levelText=entering ? "LEVEL \(game.displayLevel) · NEW STAGE" :
-            "LEVEL \(game.displayLevel) · \(game.passed)/\(total) GATES"
+        let levelText=entering ? "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(word("NEW STAGE","NOVA RAZINA"))" :
+            "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(game.passed)/\(total) \(word("GATES","PROLAZI"))"
         if lastLevelBadgeText != levelText {
             lastLevelBadgeText=levelText
             cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
@@ -437,7 +440,7 @@ final class GameCanvas: UIView {
         hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
-        hudText("FLIGHT +\(game.coins)",84,87,collectedFont,0xffd76a)
+        hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
         hudOrb(c,170,141,"★","\(game.stars)",0xffce43,true)
         hudOrb(c,267,141,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
