@@ -1974,12 +1974,12 @@ for source in (android_game,ios_game):
     assert '100_000_000' in source
     assert 'coin' in source.lower()
     assert '.1fM' in source and '.1fK' in source
-    assert 'Novčanik' in source and 'balance' in source
+    assert 'Wallet ' in source and 'balance' in source
     assert 'hudGoldCoin(' in source
 assert 'portraitSprites[selectedSkin]' in android_game
 assert 'BopiPortrait\\(selectedSkin)' in ios_game
-assert 'walletCoins={progress.coins()}' in android_menu
-assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
+assert 'walletCoins={progress.coins()},languageCode=progress.languageCode()' in android_menu
+assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode' in ios_menu
 assert 'private let hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
 assert 'coinWallet()))' in ios_game
 assert 'walletCoins().coerceIn(0,100_000_000)' in android_game
