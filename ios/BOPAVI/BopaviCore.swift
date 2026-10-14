@@ -376,6 +376,23 @@ enum GameLanguages {
     static func normalized(_ code:String)->String{codes.contains(code) ? code : "en"}
     static func name(_ code:String)->String{names[codes.firstIndex(of:normalized(code)) ?? 0]}
     private static let english:[(String,String)]=[
+        ("SVE NAGRADE","ALL AWARDS"),
+        ("Najbolji rezultat","Best score"),
+        ("Osvojene kovanice","Coins earned"),
+        ("Dovršeni leveli","Levels completed"),
+        ("Pobjede","Wins"),
+        ("PRVI LET","FIRST FLIGHT"),
+        ("ISTRAŽIVAČ","EXPLORER"),
+        ("SAKUPLJAČ","COLLECTOR"),
+        ("1 pobjeda","1 victory"),
+        ("5 svjetova","5 worlds"),
+        ("500 predmeta","500 collectibles"),
+        ("10 pobjeda","10 victories"),
+        ("osvojeno","earned"),
+        ("zaključano","locked"),
+        ("PRIVATNOST","PRIVACY"),
+        ("IGRAČ","PLAYER"),
+        ("★  SVE NAGRADE","★  ALL AWARDS"),
         ("Zeleni otoci","Green Islands"),
         ("Kristalno nebo","Crystal Sky"),
         ("Lava vrhovi","Lava Peaks"),
