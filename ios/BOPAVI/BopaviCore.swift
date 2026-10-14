@@ -300,3 +300,127 @@ final class GameSimulation {
     }
     func score() -> Int { Int(min(100_000_000, max(0,Int64(totalPassed)*100 + Int64(coins)*10 + Int64(stars)*25))) }
 }
+
+/// Offline UI locale catalog. English is the default and safe fallback for
+/// longer notices while localizations are completed and reviewed.
+enum GameLanguages {
+    private static let keys=["PLAY","WORLDS","SETTINGS","PROFILE","TASKS","COLLECTION","SHOP","LANGUAGE","SOUND","PAUSE"]
+    private static let rows:[String]=[
+        "en|English|Play|Worlds|Settings|Profile|Tasks|Collection|Shop|Language|Sound|Pause",
+        "hr|Hrvatski|Igraj|Svjetovi|Postavke|Profil|Zadaci|Kolekcija|Trgovina|Jezik|Zvuk|Pauza",
+        "de|Deutsch|Spielen|Welten|Einstellungen|Profil|Aufgaben|Sammlung|Shop|Sprache|Ton|Pause",
+        "fr|Français|Jouer|Mondes|Paramètres|Profil|Missions|Collection|Boutique|Langue|Son|Pause",
+        "es|Español|Jugar|Mundos|Ajustes|Perfil|Tareas|Colección|Tienda|Idioma|Sonido|Pausa",
+        "it|Italiano|Gioca|Mondi|Impostazioni|Profilo|Compiti|Collezione|Negozio|Lingua|Audio|Pausa",
+        "pt|Português|Jogar|Mundos|Definições|Perfil|Tarefas|Coleção|Loja|Idioma|Som|Pausa",
+        "nl|Nederlands|Spelen|Werelden|Instellingen|Profiel|Taken|Verzameling|Winkel|Taal|Geluid|Pauze",
+        "pl|Polski|Graj|Światy|Ustawienia|Profil|Zadania|Kolekcja|Sklep|Język|Dźwięk|Pauza",
+        "cs|Čeština|Hrát|Světy|Nastavení|Profil|Úkoly|Sbírka|Obchod|Jazyk|Zvuk|Pauza",
+        "sk|Slovenčina|Hrať|Svety|Nastavenia|Profil|Úlohy|Zbierka|Obchod|Jazyk|Zvuk|Pauza",
+        "sl|Slovenščina|Igraj|Svetovi|Nastavitve|Profil|Naloge|Zbirka|Trgovina|Jezik|Zvok|Premor",
+        "hu|Magyar|Játék|Világok|Beállítások|Profil|Feladatok|Gyűjtemény|Bolt|Nyelv|Hang|Szünet",
+        "ro|Română|Joacă|Lumi|Setări|Profil|Sarcini|Colecție|Magazin|Limbă|Sunet|Pauză",
+        "bg|Български|Играй|Светове|Настройки|Профил|Задачи|Колекция|Магазин|Език|Звук|Пауза",
+        "el|Ελληνικά|Παίξε|Κόσμοι|Ρυθμίσεις|Προφίλ|Αποστολές|Συλλογή|Κατάστημα|Γλώσσα|Ήχος|Παύση",
+        "tr|Türkçe|Oyna|Dünyalar|Ayarlar|Profil|Görevler|Koleksiyon|Mağaza|Dil|Ses|Duraklat",
+        "uk|Українська|Грати|Світи|Налаштування|Профіль|Завдання|Колекція|Магазин|Мова|Звук|Пауза",
+        "sr|Српски|Играј|Светови|Подешавања|Профил|Задаци|Колекција|Продавница|Језик|Звук|Пауза",
+        "bs|Bosanski|Igraj|Svjetovi|Postavke|Profil|Zadaci|Kolekcija|Trgovina|Jezik|Zvuk|Pauza",
+        "sv|Svenska|Spela|Världar|Inställningar|Profil|Uppdrag|Samling|Butik|Språk|Ljud|Paus",
+        "nb|Norsk|Spill|Verdener|Innstillinger|Profil|Oppgaver|Samling|Butikk|Språk|Lyd|Pause",
+        "da|Dansk|Spil|Verdener|Indstillinger|Profil|Opgaver|Samling|Butik|Sprog|Lyd|Pause",
+        "fi|Suomi|Pelaa|Maailmat|Asetukset|Profiili|Tehtävät|Kokoelma|Kauppa|Kieli|Ääni|Tauko",
+        "ja|日本語|プレイ|ワールド|設定|プロフィール|タスク|コレクション|ショップ|言語|サウンド|一時停止",
+        "ko|한국어|플레이|월드|설정|프로필|과제|컬렉션|상점|언어|사운드|일시정지"
+    ]
+    private static let catalog=rows.map{$0.components(separatedBy:"|")}
+    static let codes=catalog.map{$0[0]}
+    static let names=catalog.map{$0[1]}
+    static func normalized(_ code:String)->String{codes.contains(code) ? code : "en"}
+    static func name(_ code:String)->String{names[codes.firstIndex(of:normalized(code)) ?? 0]}
+    private static let english:[(String,String)]=[
+        ("ZADACI I POSTIGNUĆA","TASKS & ACHIEVEMENTS"),
+        ("TRGOVINA KOVANICAMA","COIN SHOP"),
+        ("NAPREDNE POSTAVKE","ADVANCED SETTINGS"),
+        ("MANJE ANIMACIJA","REDUCED MOTION"),
+        ("POLITIKA PRIVATNOSTI","PRIVACY POLICY"),
+        ("UVJETI KORIŠTENJA","TERMS OF USE"),
+        ("POČETNA","HOME"),
+        ("POVRATAK","RETURN"),
+        ("SPREMI KOPIJU NAPRETKA","EXPORT PROGRESS"),
+        ("VRATI NAPREDAK IZ KOPIJE","IMPORT PROGRESS"),
+        ("SPREMI IME","SAVE NAME"),
+        ("UREDI PROFIL","EDIT PROFILE"),
+        ("MOJE NAGRADE","MY AWARDS"),
+        ("MOJI NAJBOLJI SVJETOVI","MY TOP WORLDS"),
+        ("MOJI REKORDI","MY RECORDS"),
+        ("MOJA POSTIGNUĆA","MY ACHIEVEMENTS"),
+        ("IGRAČ I TEŽINA","PLAYER & DIFFICULTY"),
+        ("PODACI I PRIVATNOST","DATA & PRIVACY"),
+        ("IZGLED I ZVUK","APPEARANCE & SOUND"),
+        ("DODATNE OPCIJE","EXTRA OPTIONS"),
+        ("ODABERI LIKA","CHOOSE A PILOT"),
+        ("ODABERI SVJET","CHOOSE A WORLD"),
+        ("RAZINE","LEVELS"),
+        ("LEVELI","LEVELS"),
+        ("RAZINA","LEVEL"),
+        ("OSTVARENI REZULTAT","YOUR SCORE"),
+        ("OSOBNI REKORD","PERSONAL BEST"),
+        ("NOVI REKORD","NEW RECORD"),
+        ("DOVRŠENO","COMPLETED"),
+        ("POREDAK","RANKING"),
+        ("PRETHODNIH","PREVIOUS"),
+        ("SLJEDEĆIH","NEXT"),
+        ("SLJEDEĆI","NEXT"),
+        ("PRETHODNI","PREVIOUS"),
+        ("NASTAVI LET","CONTINUE FLIGHT"),
+        ("POLETI","FLY"),
+        ("POČETNI ŠTIT","STARTING SHIELD"),
+        ("POČETNI MAGNET","STARTING MAGNET"),
+        ("PONOVO","RETRY"),
+        ("IZLAZ","EXIT"),
+        ("NATRAG","BACK"),
+        ("KONTROLE","CONTROLS"),
+        ("MUZIKA","MUSIC"),
+        ("GLAZBA","MUSIC"),
+        ("VIBRACIJA","VIBRATION"),
+        ("VIBRACIJE","VIBRATION"),
+        ("EFEKTI","EFFECTS"),
+        ("UKLJ.","ON"),
+        ("ISKL.","OFF"),
+        ("PROČITAJ","READ"),
+        ("POSTIGNUĆA","ACHIEVEMENTS"),
+        ("REKORDI","RECORDS"),
+        ("KOLEKCIJA","COLLECTION"),
+        ("ZADACI","TASKS"),
+        ("PROFIL","PROFILE"),
+        ("TRGOVINA","SHOP"),
+        ("SVJETOVI","WORLDS"),
+        ("POSTAVKE","SETTINGS"),
+        ("IGRAJ","PLAY"),
+        ("JEZIK","LANGUAGE"),
+        ("ZVUK","SOUND"),
+        ("PAUZA","PAUSE"),
+        ("KOVANICE","COINS"),
+        ("KOVANICA","COINS"),
+        ("BODOVA","POINTS"),
+        ("NAGRADE","REWARDS"),
+        ("OSVOJENO","EARNED"),
+        ("ZAKLJUČANO","LOCKED"),
+        ("DOSTUPNO","AVAILABLE"),
+        ("LAGANO","EASY"),
+        ("NORMALNO","NORMAL"),
+        ("ZAHTJEVNO","HARD"),
+        ("DODIRNI ZA LET","TAP TO FLY")
+    ]
+    static func text(_ original:String,_ code:String)->String {
+        let locale=normalized(code)
+        var result=original
+        for (source,value) in english {result=result.replacingOccurrences(of:source,with:value)}
+        if locale=="en" {return result}
+        if locale=="hr" {return original}
+        let row=catalog[codes.firstIndex(of:locale) ?? 0]
+        for i in keys.indices {result=result.replacingOccurrences(of:keys[i],with:row[i+2])}
+        return result
+    }
+}
