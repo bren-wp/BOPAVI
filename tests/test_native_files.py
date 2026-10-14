@@ -831,8 +831,8 @@ assert 'self.progress.difficulty=mode' in ios_settings
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES' in android_settings
 assert 'card.accessibilityIdentifier="difficulty-card-' in ios_settings
 assert 'verify_difficulty_cards' in qa_script
-assert "('LAGANO','LAGANO'),('NORMALNO','NORMALNO')" in qa_script
-assert "selected real premium difficulty card" in qa_script
+assert "for mode in ('EASY','NORMAL','HARD'): choice(first,mode)" in qa_script
+assert "on-screen EASY/NORMAL/HARD with real saved state and no scroll" in qa_script
 print('PASS: accessible touch-tested three-card premium difficulty controls and Android/iOS offline choice parity')
 
 
