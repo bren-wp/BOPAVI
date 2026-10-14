@@ -1,3 +1,11 @@
+## v0.1.86 — nine real native pilots and scroll-free pause/results (build 89)
+- Re-enable the nine shipped BOPAVI characters (Bopi, Sunny, Berry, Luna, Mint, Shadow, Vihor, Iskra, Orion) in a real 3×3 single-screen gallery on Android and iOS. The same native sprite and wing art already exists in both apps. Players can select their previously unlocked pilot or explicitly confirm an unlock using earned virtual coins only. No real-money billing, ad promises or invented diamond balances.
+- Wire saved selection into the 124-unit bird art/18-unit collision body, pause portrait and results illustration. Keep legacy skin save IDs, earned coins and owner bitmask unchanged.
+- Make Android Pause and Results truly non-scrolling, safe-area-fitted native panels; iOS Pause and Results no longer bounce/scroll and fit the real UIKit controls to each viewport. In-pause sound sliders still adjust audio without losing the paused flight.
+- Android emulator QA must capture and verify all nine accessible pilot card touch targets and the selected flight CTA before entering the actual gameplay. Add static regression coverage for the nine saved sprites and no scroll overlays.
+- Keep continuous inter-level gate cadence, large uniform pillar widths, calm 48s ambient soundtrack from v0.1.85.
+- Not yet proven: exact 1:1 art fidelity to the supplied cinematic 3D references, comprehensive 26-language screen coverage, safe 44pt hit targets at extreme small-device heights. All must be verified with real screenshots, not assumed.
+
 ## v0.1.85 — Unbroken flight pacing, broad uniform rock columns, calm long-form music (build 88)
 - The first obstacle now begins at x=420 (inside the 480-unit camera) rather than x=560 outside the view. The first live gameplay screenshot therefore shows a genuine full-height pillar without requiring empty waiting time. It remains a safely distant obstacle from the unchanged Bopi collider.
 - The eight worlds' rock pillars share a stable **76-logical-unit shaft width**. Obstacle challenge now comes from procedurally varying heights, centers, opening gaps, movement and difficulty, not awkward pencil-thin or differently wide columns. The upper/lower shafts still extend beyond the top/bottom of the 480×800 game camera, with matching visible caps and collision mouths on Android and iOS. Bopi remains the exact same physical size and hit radius.
