@@ -2214,9 +2214,9 @@ assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu"
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
-assert 'scroll.bounds.height/naturalHeight' in ios_menu or 'scroll.bounds.height/naturalHeight' in ios_menu
+assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
-assert 'if stack.transform != desired' in ios_menu
+assert 'if panel.transform != desired' in ios_menu
 assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
