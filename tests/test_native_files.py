@@ -1776,12 +1776,16 @@ for inventory in legacy_stores:
     assert 'skinIndexForSlug' in inventory
 for fragment in ("(6,'vihor')","(7,'iskra')","(8,'orion')"):
     assert fragment in artgen
-for controller, pilot in ((android_menu,'val skin=0'), (ios_menu,'let skin=0')):
-    # One pilot is a real model/navigation invariant, not a redundant banner.
-    assert pilot in controller
+for controller, pilot in ((android_menu,'val skin=progress.skin()'),
+                          (ios_menu,'let skin=progress.skinIndex()')):
+    # Nine genuine selectable pilots exist. Every user-facing profile must
+    # follow the saved selected pilot, never a hard-coded first illustration.
+    profile=controller.split('showProfile()',1)[1].split('showLeaderboard()',1)[0]
+    assert pilot in profile
+    assert 'val skin=0' not in profile and 'let skin=0' not in profile
+    assert 'skinNames[skin]' in profile
     assert 'characterGallery(' not in controller
-    assert 'ODABERI DRUGOG LIKA' not in controller
-print('PASS: legacy skin save aliases preserved while Bopi remains sole UI pilot')
+print('PASS: nine saved native pilots with profile portrait selection and legacy save aliases')
 
 # v0.1.62 — API36's slow Surface compositor otherwise exposes only the
 # idle frame and later Results. A real debug-only first-flap state remains
@@ -2572,3 +2576,29 @@ assert 'Choose from nine pilots before takeoff.' in ios_menu
 assert 'Bopi je jedini pilot.' not in android_menu
 assert 'Bopi je jedini pilot.' not in ios_menu
 print('PASS: true selected pilot in Settings and truthful earned-coin 9-pilot shop')
+
+
+# v0.1.89 native Profile + language QA: saved pilot, never initial-only art.
+android_profile=android_menu.split('private fun showProfile(){',1)[1].split('private fun showLeaderboard(){',1)[0]
+ios_profile=ios_menu.split('private func showProfile(){',1)[1].split('private func showLeaderboard(){',1)[0]
+assert 'val skin=progress.skin()' in android_profile
+assert 'let skin=progress.skinIndex()' in ios_profile
+assert 'portraitDrawableIds[skin]' in android_profile
+assert 'UIImage(named:"BopiPortrait"+String(skin))' in ios_profile
+assert 'text=ui("TVOJI REZULTATI")' in android_profile
+assert 'text=ui(name)' in android_profile
+assert 'text=ui(requirement)' in android_profile
+assert 'text=ui("★  SVE NAGRADE  ›")' in android_profile
+assert 'back.setTitle(progress.languageCode=="hr" ? "←  POČETNA" : "←  HOME"' in ios_profile
+assert 'text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME"' in android_profile
+assert 'textLabel.text=ui(caption)' in ios_profile
+assert 'editProfile.setTitle(ui("✎  UREDI PROFIL")' in ios_profile
+assert 'tab.accessibilityLabel=ui(item.1)' in ios_profile
+for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
+             'ios/BOPAVI/BopaviCore.swift'):
+    source=(root/path).read_text()
+    for original in ('PRVI LET','ISTRAŽIVAČ','SAKUPLJAČ','SVE NAGRADE',
+                     'Najbolji rezultat','Osvojene kovanice','Dovršeni leveli',
+                     'Pobjede','5 svjetova','500 predmeta'):
+        assert original in source, ('Missing EN default profile label',path,original)
+print('PASS: saved pilot on Profile and core English-first achievements on iOS and Android')
