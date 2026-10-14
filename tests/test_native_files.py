@@ -850,7 +850,7 @@ assert 'dialog.setOnCancelListener{game.paused=false;sound.resume()}' in android
 assert 'startGame(currentWorld,currentLevel)' in android_pause
 assert 'close(true)' in ios_pause and 'close(false)' in ios_pause
 assert 'canvas?.paused=false' in ios_pause and 'overlay?.removeFromSuperview()' in ios_pause
-assert 'preferredStyle:.actionSheet' not in ios_menu
+assert 'preferredStyle:.actionSheet' not in ios_pause
 assert 'View.INVISIBLE' in android_menu and 'pause.isHidden=true' in ios_menu
 print('PASS: native premium pause overlay and real continue/retry/exit, audio and controls parity')
 
