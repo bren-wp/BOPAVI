@@ -402,7 +402,7 @@ assert "if(hapticEnabled)performHapticFeedback" in android_canvas
 assert "if self?.progress.hapticEnabled == true" in ios_menu
 assert "drawBoostHUD(c)" in ios_canvas
 for surface in (android_canvas,ios_canvas):
-    assert "ŠTIT ×" in surface and "MAGNET " in surface
+    assert "Shield " in surface and "Magnet " in surface
 workflow=(root/".github/workflows/native-ci.yml").read_text()
 assert "tests/SwiftSaves.swift" in workflow
 assert "Verify legacy save migration and haptics round-trip" in workflow
