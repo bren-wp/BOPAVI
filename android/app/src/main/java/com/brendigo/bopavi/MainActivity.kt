@@ -1508,7 +1508,7 @@ class MainActivity : Activity() {
         hero.addView(portraitBox,LinearLayout.LayoutParams(0,-2,0.42f).apply{rightMargin=d(7)})
         val stats=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
         stats.addView(TextView(this).apply{
-            text=progress.playerName().uppercase()
+            text=ui(progress.playerName().uppercase())
             textSize=20f;setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setSingleLine(true)
@@ -1605,10 +1605,10 @@ class MainActivity : Activity() {
         }
         b.addView(badgeRow,LinearLayout.LayoutParams(-1,-2))
         b.addView(TextView(this).apply{
-            text="★  SVE NAGRADE  ›";textSize=13f;gravity=Gravity.CENTER
+            text=ui("★  SVE NAGRADE  ›");textSize=13f;gravity=Gravity.CENTER
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
             background=gradient(0xff156ac5.toInt(),0xff062d6d.toInt(),18)
-            isClickable=true;isFocusable=true;contentDescription="Pogledaj sva postignuća"
+            isClickable=true;isFocusable=true;contentDescription=ui("Pogledaj sva postignuća")
             setOnClickListener{showAchievements(MenuOrigin.PROFILE)}
         },LinearLayout.LayoutParams(-1,d(37)))
         profileHeading(b,"MOJI NAJBOLJI SVJETOVI")
@@ -1623,8 +1623,9 @@ class MainActivity : Activity() {
                 background=gradient(0xff0d5aa4.toInt(),0xff061d40.toInt(),15).apply{
                     setStroke(d(2),electric)
                 }
-                contentDescription=LevelEngine.names[world]+", "+
-                    progress.worldStars(world)+" od 30 zvjezdica; otvori levele"
+                contentDescription=ui(LevelEngine.names[world])+", "+progress.worldStars(world)+
+                    (if(progress.languageCode()=="hr")" od 30 zvjezdica; otvori levele" else
+                        " of 30 stars; open levels")
                 setOnClickListener{sound.effect("click");showLevels(world,1)}
             }
             val artFrame=FrameLayout(this)
@@ -1644,7 +1645,7 @@ class MainActivity : Activity() {
             })
             card.addView(artFrame,LinearLayout.LayoutParams(-1,d(59)))
             card.addView(TextView(this).apply{
-                text=LevelEngine.names[world].uppercase();setTextColor(Color.WHITE)
+                text=ui(LevelEngine.names[world]).uppercase();setTextColor(Color.WHITE)
                 textSize=11f;gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
                 setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
@@ -1662,7 +1663,7 @@ class MainActivity : Activity() {
         }
         b.addView(gallery,LinearLayout.LayoutParams(-1,-2))
         action(b,"✎  UREDI PROFIL",true){showSettings()}
-        // One permanent pilot Bopi already appears in accessible profile hero.
+        // The actual saved selected pilot is shown in this accessible profile hero.
         // The same four native navigation actions as on the home screen.
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -1680,7 +1681,8 @@ class MainActivity : Activity() {
                 isClickable=true;isFocusable=true
                 background=gradient(if(index==0)0xff9b6311.toInt() else 0xff12549c.toInt(),
                     0xff081e49.toInt(),14)
-                contentDescription=ui(navNames[index])+if(index==0)", odabrano" else ""
+                contentDescription=ui(navNames[index])+
+                    if(index==0)(if(progress.languageCode()=="hr")", odabrano" else ", selected") else ""
                 addView(ImageView(this@MainActivity).apply{
                     setImageResource(navIcons[index]);scaleType=ImageView.ScaleType.FIT_CENTER
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
