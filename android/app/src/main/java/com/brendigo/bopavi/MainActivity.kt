@@ -458,16 +458,8 @@ class MainActivity : Activity() {
         artPanel.addView(badge,FrameLayout.LayoutParams(d(64),d(36),Gravity.TOP or Gravity.LEFT).apply{
             setMargins(d(8),d(8),0,0)
         })
-        // Mode badge mirrors the real touch handler; card remains one tap target.
-        artPanel.addView(TextView(this).apply{
-            text="● TAP"
-            textSize=10f;typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
-            gravity=Gravity.CENTER
-            background=gradient(0xff1763a7.toInt(),0xff092450.toInt(),14).apply{setStroke(d(1),electric)}
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(d(85),d(25),Gravity.TOP or Gravity.LEFT).apply{
-            setMargins(d(8),d(47),0,0)
-        })
+        // The world tile itself is a single accessible touch target. The
+        // reference composition leaves its landscape unobscured by TAP badges.
         artPanel.addView(TextView(this).apply{
             text="›";textSize=31f;setTextColor(Color.WHITE)
             gravity=Gravity.CENTER
