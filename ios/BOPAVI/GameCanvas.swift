@@ -757,6 +757,50 @@ final class GameCanvas: UIView {
             c.fillPath()
         }
     }
+    /// Shared with Android: every cliff shaft is visibly rooted in the
+    /// camera's upper/lower stone mass. These shoulders remain within the
+    /// existing cap collision x-range and never enter the real flight gap.
+    private func drawRootedCliffBases(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                      _ top:CGFloat,_ bottom:CGFloat,_ seed:Int,
+                                      _ shadow:UInt32,_ stone:UInt32) {
+        let left=x-6, right=x+w+4
+        let upperEnd=max(0,min(88,top-38))
+        if upperEnd>8 {
+            c.beginPath()
+            c.move(to:CGPoint(x:left,y:-12))
+            c.addLine(to:CGPoint(x:right,y:-12))
+            c.addLine(to:CGPoint(x:right,y:upperEnd*0.63))
+            c.addLine(to:CGPoint(x:x+w-4,y:upperEnd))
+            c.addLine(to:CGPoint(x:x+9,y:upperEnd*0.86))
+            c.addLine(to:CGPoint(x:left,y:upperEnd*0.42))
+            c.closePath();c.setFillColor(color(shadow));c.fillPath()
+            c.beginPath()
+            c.move(to:CGPoint(x:x+3,y:0))
+            c.addLine(to:CGPoint(x:x+w*0.72,y:0))
+            c.addLine(to:CGPoint(x:x+w*0.55,y:upperEnd*0.64))
+            c.addLine(to:CGPoint(x:x+10,y:upperEnd*0.38))
+            c.closePath()
+            c.setFillColor(color(stone,205.0/255));c.fillPath()
+        }
+        let lowerStart=min(755,max(664,bottom+38))
+        if lowerStart<746 {
+            c.beginPath()
+            c.move(to:CGPoint(x:left,y:lowerStart+CGFloat(seed%4)*2))
+            c.addLine(to:CGPoint(x:x+8,y:lowerStart))
+            c.addLine(to:CGPoint(x:x+w-4,y:lowerStart+9))
+            c.addLine(to:CGPoint(x:right,y:lowerStart))
+            c.addLine(to:CGPoint(x:right,y:778))
+            c.addLine(to:CGPoint(x:left,y:778))
+            c.closePath();c.setFillColor(color(shadow));c.fillPath()
+            c.beginPath()
+            c.move(to:CGPoint(x:x+8,y:lowerStart+10))
+            c.addLine(to:CGPoint(x:x+w*0.63,y:lowerStart+24))
+            c.addLine(to:CGPoint(x:x+w*0.77,y:778))
+            c.addLine(to:CGPoint(x:x+5,y:778))
+            c.closePath()
+            c.setFillColor(color(stone,205.0/255));c.fillPath()
+        }
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time,difficulty:game.difficulty);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -764,6 +808,7 @@ final class GameCanvas: UIView {
         let shade:UInt32 = g.kind==0 ? 0x6e5c63 : dark[g.kind]
         let cap:UInt32 = g.kind==0 ? 0x55ce6c : hue
         let cliffSeed=Int(g.phase*1024)+index*31+g.kind*59+1
+        drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,hue)
         drawCliffShaft(c,x,w,0,top,shade,hue,-cliffSeed)
         rect(c,x-7,top-28,w+12,28,cap,7)
         drawCliffShaft(c,x,w,bottom,755,shade,hue,cliffSeed)
