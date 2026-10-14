@@ -382,34 +382,6 @@ if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
 if any("APPEARANCE & SOUND" in text for text in texts):
     raise SystemExit("FAIL: PROFILE incorrectly opened settings")
-# The mandatory pilot gallery must really contain all nine accessible native
-# portraits, preserve safe tap bounds and launch the chosen sprite on selection.
-verify_pilot_gallery(){
-  python3 - qa/screenshots/android-current-ui.xml <<'PY'
-import re,subprocess,sys,xml.etree.ElementTree as ET
-root=ET.parse(sys.argv[1]).getroot()
-nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
-for pilot in ('Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'):
-    cards=[n for n in nodes if n.get('content-desc','').startswith(pilot+', ')]
-    if len(cards)!=1:
-        raise SystemExit(f'FAIL: pilot gallery missing interactive {pilot}: {len(cards)}')
-    box=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cards[0].get('bounds',''))
-    if not box:raise SystemExit(f'FAIL: malformed pilot card bounds for {pilot}')
-    l,t,r,b=map(int,box.groups())
-    if r-l<45 or b-t<45:
-        raise SystemExit(f'FAIL: pilot card too small on device: {pilot}')
-cta=[n for n in nodes if 'FLY WITH ' in (n.get('text','')+' '+n.get('content-desc','')) or
-     'POLETI S ' in (n.get('text','')+' '+n.get('content-desc',''))]
-if len(cta)!=1:raise SystemExit(f'FAIL: pilot flight action unavailable: {len(cta)}')
-m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cta[0].get('bounds',''))
-if not m:raise SystemExit('FAIL: malformed selected pilot play button')
-l,t,r,b=map(int,m.groups())
-if r-l<100 or b-t<45:
-    raise SystemExit('FAIL: selected pilot play control has unusable bounds')
-print('PASS: nine native pilot portraits and a reachable one-screen flight CTA',flush=True)
-subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
-PY
-}
 # A no-scroll profile must expose Edit and the four bottom actions without
 # swipe. Bounds of the real tap surfaces must be inside the display.
 nodes=list(root.iter("node"))
@@ -441,6 +413,34 @@ print("PASS: profile Android Back returns to playable home",flush=True)
 PY
 }
 
+# The mandatory pilot gallery must really contain all nine accessible native
+# portraits, preserve safe tap bounds and launch the chosen sprite on selection.
+verify_pilot_gallery(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
+for pilot in ('Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'):
+    cards=[n for n in nodes if n.get('content-desc','').startswith(pilot+', ')]
+    if len(cards)!=1:
+        raise SystemExit(f'FAIL: pilot gallery missing interactive {pilot}: {len(cards)}')
+    box=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cards[0].get('bounds',''))
+    if not box:raise SystemExit(f'FAIL: malformed pilot card bounds for {pilot}')
+    l,t,r,b=map(int,box.groups())
+    if r-l<45 or b-t<45:
+        raise SystemExit(f'FAIL: pilot card too small on device: {pilot}')
+cta=[n for n in nodes if 'FLY WITH ' in (n.get('text','')+' '+n.get('content-desc','')) or
+     'POLETI S ' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(cta)!=1:raise SystemExit(f'FAIL: pilot flight action unavailable: {len(cta)}')
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cta[0].get('bounds',''))
+if not m:raise SystemExit('FAIL: malformed selected pilot play button')
+l,t,r,b=map(int,m.groups())
+if r-l<100 or b-t<45:
+    raise SystemExit('FAIL: selected pilot play control has unusable bounds')
+print('PASS: nine native pilot portraits and a reachable one-screen flight CTA',flush=True)
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+PY
+}
 # Verify Shop and Records from the real Home footer, then ensure Back
 # returns to Home. Capture *authentic* emulator frames for visual review.
 verify_shop_records_tabs(){
