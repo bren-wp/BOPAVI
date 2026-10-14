@@ -2213,7 +2213,7 @@ assert 'menuBackAction={showHome()}' in android_prof
 assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu or 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if stack.transform != desired' in ios_menu
