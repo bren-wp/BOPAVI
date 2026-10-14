@@ -254,7 +254,7 @@ class MainActivity : Activity() {
 
 
             hero.addView(ImageView(this).apply {
-                setImageResource(portraitDrawableIds[0])
+                setImageResource(portraitDrawableIds[progress.skin()])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(117),d(117)))
@@ -1436,7 +1436,9 @@ class MainActivity : Activity() {
         }
         b.addView(cardRow,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(6)})
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
-        small(b,"Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.")
+        small(b,if(progress.languageCode()=="hr")
+            "Odaberi jednog od devet pilota prije leta. Kovanice služe za otključavanje pilota i opreme."
+            else "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.")
         b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
     }
