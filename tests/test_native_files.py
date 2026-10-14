@@ -1307,7 +1307,7 @@ for key in ('profile','tasks','collection','shop'):
     assert f'Nav{key.capitalize()}' in ios_home
 assert 'setImageResource(footerIcons[index])' in android_home
 assert 'UIImageView(image:UIImage(named:icon))' in ios_home
-assert 'tab.accessibilityLabel=title' in ios_home
+assert 'tab.accessibilityLabel=ui(title)' in ios_home
 assert 'Nav*.imageset/' in (root/'.github/workflows/native-ci.yml').read_text()
 print('PASS: unobscured logo placement and 4 shared accessible native footer icons')
 
@@ -2052,7 +2052,7 @@ for source in (android_game,ios_game):
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
     assert 'hudGlass(c,cx-45' in source
-assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())' in android_game
+assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
 assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
