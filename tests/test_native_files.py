@@ -1242,7 +1242,7 @@ ios_home=ios_menu.split('private func showHome()',1)[1].split('private func show
 for home in (android_home,ios_home):
     assert 'PROFIL ·' in home
     assert 'ZADACI I POSTIGNUĆA' in home
-    assert 'TRGOVINA ·' in home
+    assert 'ui("TRGOVINA")' in home
     assert 'POSTAVKE' in home
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
