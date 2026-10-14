@@ -1114,7 +1114,8 @@ assert 'panel.addArrangedSubview(pauseSettings)' in ios_pause
 assert 'close(false);self.showSettings()' not in ios_pause
 # Retry/Exit are still explicitly destructive, but audio settings aren't.
 assert 'command("↻  PONOVO"' in android_pause and 'command("↪  IZLAZ"' in android_pause
-assert 'command("↻  PONOVO"' in ios_pause and 'command("↪  IZLAZ"' in ios_pause
+assert 'command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY"' in ios_pause
+assert 'command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT"' in ios_pause
 print('PASS: Android and iOS pause settings preserve active flight and offline settings')
 
 for view in (android_picker,ios_picker):
