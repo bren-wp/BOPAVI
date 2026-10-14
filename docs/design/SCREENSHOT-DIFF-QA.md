@@ -384,3 +384,9 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - Tap the *Start Selected Level* action: numeric field must appear only inside a native cancelable dialog, prefilled from the actual unlocked range, with accessible label. Cancel must restore all 20 cards and Back. Out-of-range input must never launch a locked level.
 - iOS: 96-point native UIKit tiles, safe-area fitted screen and localized accessibility hints. Both platforms preserve the same level unlock/selection semantics.
 - English-first dictionary now covers the level gallery. Croatian remains available; remaining languages are partial until screen-by-screen linguistic signoff. 1:1 3D screenshot matching is still an open art-direction issue.
+
+## v0.1.92 — distinct starting columns and a legible one-screen level picker
+- In Level 1 of every world verify the first 10 openings visibly rise and fall, with the seeded contour 292,312,332,352,372,352,332,312,292,312. All must remain physically traversable at one-tap flight velocity and retain exactly 76-unit collision width.
+- Shafts at off-screen top/bottom edges must show broad jagged faces (3–8-unit internal cuts), never pencil-thin caps or floating detached stems. Do not draw material inside the dynamic flyable opening.
+- Level picker: keep all twenty real image-backed level buttons in a 5×4 non-scroll grid, one combined zone/page caption, genuine locked/unlocked badges and active Back/Continue. Check touch-target legibility on short aspect-ratio phones, not just screenshot generation.
+- Screenshots and device smoke tests must be genuine CI artifacts. The screenshot refs have far richer layered environment art than the existing simplified runtime: **not yet signed off as 1:1**.
