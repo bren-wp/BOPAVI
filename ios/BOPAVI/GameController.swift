@@ -1516,7 +1516,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footerAction("▥\nLJESTVICA"){self.showLeaderboard()}
         footerAction("⌂\nPOVRATAK"){self.showHome()}
         footerAction("↗\nPODIJELI"){
-            let message=ui("BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)")
+            let message=self.ui("BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)")
             let share=UIActivityViewController(activityItems:[message],applicationActivities:nil)
             share.popoverPresentationController?.sourceView=self.view
             share.popoverPresentationController?.sourceRect=CGRect(
