@@ -102,7 +102,7 @@ final class GameCanvas: UIView {
 
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0},languageCode:String = "en") {
         // The complete pilot illustration must resolve using one validated index.
-        let selectedSkin=0 // Bopi-only gameplay; legacy saved ownership is retained.
+        let selectedSkin=min(8,max(0,skinIndex)) // Render the saved pilot with unchanged sprite scale and hitbox.
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.coinWallet=coinWallet
         self.language=GameLanguages.normalized(languageCode)
