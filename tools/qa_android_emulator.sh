@@ -35,7 +35,7 @@ PY
   return 1
 }
 
-# Find the real accessible IGRAJ view instead of guessing a screen percentage.
+# Find the real accessible PLAY view instead of guessing a screen percentage.
 dump_ui(){
   adb shell uiautomator dump /sdcard/bopavi-window.xml >/dev/null 2>&1
   adb exec-out cat /sdcard/bopavi-window.xml > qa/screenshots/android-current-ui.xml
@@ -74,7 +74,7 @@ import sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 # The reference shows the header gear *and* the central SETTINGS CTA.
 # Both must be independently clickable, instead of rejecting valid UX.
-expected={"IGRAJ":1,"SVJETOVI":1,"POSTAVKE":2}
+expected={"PLAY":1,"WORLDS":1,"SETTINGS":2}
 nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
 for name,count in expected.items():
     matches=[n for n in nodes if name in (n.get('text','')+' '+n.get('content-desc',''))]
@@ -85,12 +85,12 @@ for name,count in expected.items():
         if not bounds or bounds.startswith('[0,0][0,0]'):
             raise SystemExit(f'FAIL: {name} has invalid button bounds')
 # Confirm other new header actions are individually accessible.
-for label in ('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·'):
+for label in ('PROFILE ·','TASKS & ACHIEVEMENTS','SHOP ·'):
     found=[n for n in nodes if label in n.get('content-desc','')]
     if len(found)!=1:
         raise SystemExit(f'FAIL: missing actual tappable home header {label}: {len(found)}')
 # Settings gear and middle settings CTA must have separate screen rectangles.
-settings=[n.get('bounds') for n in nodes if 'POSTAVKE' in
+settings=[n.get('bounds') for n in nodes if 'SETTINGS' in
           (n.get('text','')+' '+n.get('content-desc',''))]
 if len(set(settings))!=2:
     raise SystemExit('FAIL: top settings gear overlaps central settings CTA')
@@ -141,9 +141,9 @@ tap_settings(){
 import re, subprocess, sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and
-         'POSTAVKE' in (n.get('text','')+' '+n.get('content-desc',''))]
+         'SETTINGS' in (n.get('text','')+' '+n.get('content-desc',''))]
 if len(buttons)!=2:
-    raise SystemExit(f'FAIL: expected header gear and central POSTAVKE CTA, found {len(buttons)}')
+    raise SystemExit(f'FAIL: expected header gear and central SETTINGS CTA, found {len(buttons)}')
 regions=[]
 for button in buttons:
     match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',button.get('bounds',''))
@@ -190,7 +190,7 @@ for button in ("POLITIKA PRIVATNOSTI","UVJETI KORIŠTENJA"):
     subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
     time.sleep(.3)
     again=dump()
-    if not any(n.get("content-desc")=="NAPREDNE POSTAVKE" for n in again.iter("node")):
+    if not any(n.get("content-desc")=="ADVANCED SETTINGS" for n in again.iter("node")):
         raise SystemExit("FAIL: legal notice Back did not restore compact Settings")
 print("PASS: privacy/terms native footer, truthful Brendigo notices and no-scroll return",
       flush=True)
@@ -206,7 +206,7 @@ verify_difficulty_cards(){
 import re,subprocess,sys,xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 items=[n for n in root.iter('node') if n.get('clickable')=='true'
-       and 'NAPREDNE POSTAVKE' in (n.get('text','')+' '+n.get('content-desc',''))]
+       and 'ADVANCED SETTINGS' in (n.get('text','')+' '+n.get('content-desc',''))]
 if len(items)!=1:
     raise SystemExit(f'FAIL: expected one advanced settings button, got {len(items)}')
 bounds=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',items[0].get('bounds',''))
@@ -274,8 +274,8 @@ def tap(button):
 def nodes(root):
     return [n for n in root.iter('node') if n.get('clickable')=='true']
 root=dump()
-entry=[n for n in nodes(root) if 'SVJETOVI' in (n.get('text','')+' '+n.get('content-desc',''))]
-if len(entry)!=1: raise SystemExit(f'FAIL: expected one home SVJETOVI action, got {len(entry)}')
+entry=[n for n in nodes(root) if 'WORLDS' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(entry)!=1: raise SystemExit(f'FAIL: expected one home WORLDS action, got {len(entry)}')
 tap(entry[0]);time.sleep(1.1)
 # Authentic portrait screenshot used for visual comparison and README.
 # The 2x4 gallery remains independently tappable; this is not a mockup.
@@ -309,7 +309,7 @@ tap_play(){
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import re, subprocess, sys, xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
-buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and 'IGRAJ' in (n.get('text','')+' '+n.get('content-desc',''))]
+buttons=[n for n in root.iter('node') if n.get('clickable')=='true' and 'PLAY' in (n.get('text','')+' '+n.get('content-desc',''))]
 if len(buttons)!=1:
     # Hosted API 35 emulator occasionally boots with a SYSTEM launcher ANR
     # over the app. Dismiss only the exact Pixel Launcher dialog; never an
@@ -327,15 +327,15 @@ if len(buttons)!=1:
         subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,
                        stdout=subprocess.DEVNULL)
         sys.exit(0)
-    raise SystemExit(f'FAIL: expected one clickable IGRAJ button, got {len(buttons)}; dialog={titles}')
+    raise SystemExit(f'FAIL: expected one clickable PLAY button, got {len(buttons)}; dialog={titles}')
 match=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get('bounds',''))
 if not match:
-    raise SystemExit('FAIL: invalid accessible IGRAJ bounds')
+    raise SystemExit('FAIL: invalid accessible PLAY bounds')
 l,t,r,b=map(int,match.groups())
 if r<=l or b<=t:
-    raise SystemExit('FAIL: empty accessible IGRAJ bounds')
+    raise SystemExit('FAIL: empty accessible PLAY bounds')
 x,y=(l+r)//2,(t+b)//2
-print(f'Tap IGRAJ at {x},{y}',flush=True)
+print(f'Tap PLAY at {x},{y}',flush=True)
 subprocess.run(['adb','shell','input','tap',str(x),str(y)],check=True)
 PY
 }
@@ -347,14 +347,14 @@ import sys,xml.etree.ElementTree as ET
 root=ET.parse(sys.argv[1]).getroot()
 nodes=list(root.iter('node'))
 labels=[n.get('text','')+' '+n.get('content-desc','') for n in nodes]
-if not any('Dodirni za let Bopija' in x for x in labels):
+if not any('Tap to fly with Bopi' in x for x in labels):
     raise SystemExit('FAIL: expected idle Bopi game view before any flap')
 if any('Izbornik tijekom igre' in x for x in labels):
     raise SystemExit('FAIL: pause button visible before first flap')
 print('PASS: idle flight preview shows no pause button',flush=True)
 PY
 }
-# Verify PROFIL opens a real offline profile, not Postavke, then returns home.
+# Verify PROFILE opens a real offline profile, not Postavke, then returns home.
 verify_profile_tab(){
   python3 - <<'PY'
 import re,subprocess,sys,time,xml.etree.ElementTree as ET
@@ -366,7 +366,7 @@ def dump():
     return ET.fromstring(xml)
 root=dump()
 matches=[n for n in root.iter("node") if n.get("clickable")=="true"
-         and n.get("content-desc")=="PROFIL"]
+         and n.get("content-desc")=="PROFILE"]
 if len(matches)!=1: raise SystemExit("FAIL: expected exactly one clickable profile tab")
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",matches[0].get("bounds",""))
 if not m: raise SystemExit("FAIL: invalid profile tab hit bounds")
@@ -377,15 +377,15 @@ root=dump()
 texts=[n.get("text","") for n in root.iter("node")]
 desc=[n.get("content-desc","") for n in root.iter("node")]
 if not any("Tvoj letački dnevnik" in text for text in texts):
-    raise SystemExit("FAIL: PROFIL did not navigate to its dedicated screen")
+    raise SystemExit("FAIL: PROFILE did not navigate to its dedicated screen")
 if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
-if any("IZGLED I ZVUK" in text for text in texts):
-    raise SystemExit("FAIL: PROFIL incorrectly opened settings")
+if any("APPEARANCE & SOUND" in text for text in texts):
+    raise SystemExit("FAIL: PROFILE incorrectly opened settings")
 # A no-scroll profile must expose Edit and the four bottom actions without
 # swipe. Bounds of the real tap surfaces must be inside the display.
 nodes=list(root.iter("node"))
-for label in ("Natrag na početnu","Uredi profil","ZADACI","TRGOVINA"):
+for label in ("Back to Home","Uredi profil","TASKS","SHOP"):
     targets=[n for n in nodes if n.get("clickable")=="true" and
              label.casefold() in (n.get("content-desc","")+" "+n.get("text","")).casefold()]
     if not targets:
@@ -401,12 +401,12 @@ capture=subprocess.run(["adb","exec-out","screencap","-p"],check=True,capture_ou
 if not capture.stdout.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(capture.stdout)<2000:
     raise SystemExit("FAIL: genuine profile screenshot missing or invalid")
 Path("qa/screenshots/android-profile.png").write_bytes(capture.stdout)
-print("PASS: dedicated PROFILE screen shows saved pilot data and real screenshot",flush=True)
+print("PASS: dedicated PROFILEE screen shows saved pilot data and real screenshot",flush=True)
 subprocess.run(["adb","shell","input","keyevent","4"],check=True)
 time.sleep(1)
 root=dump()
 labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
-for title in ("IGRAJ","SVJETOVI","POSTAVKE"):
+for title in ("PLAY","WORLDS","SETTINGS"):
     if not any(title in label for label in labels):
         raise SystemExit("FAIL: profile Back did not restore home: "+title)
 print("PASS: profile Android Back returns to playable home",flush=True)
@@ -437,29 +437,29 @@ def tap_tab(name):
                     str((left+right)//2),str((top+bottom)//2)],check=True,timeout=15)
     time.sleep(.8)
 for name,expected,path in (
-    ("TRGOVINA","OPREMA ZA BOPIJEV LET","android-shop.png"),
-    ("REKORDI","MOJI REKORDI","android-records.png"),
+    ("SHOP","OPREMA ZA BOPIJEV LET","android-shop.png"),
+    ("RECORDS","MY RECORDS","android-records.png"),
 ):
     tap_tab(name)
     root=dump()
     labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
     if not any(expected in v for v in labels):
         raise SystemExit(f"FAIL: {name} destination not open")
-    if name=="TRGOVINA" and not all(any(text in v for v in labels) for text in ("KUPI ŠTIT","KUPI MAGNET")):
+    if name=="SHOP" and not all(any(text in v for v in labels) for text in ("KUPI ŠTIT","KUPI MAGNET")):
         raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
-    if name=="REKORDI" and not any("Prvi rekord čeka" in v or "OSOBNI REKORD" in v for v in labels):
+    if name=="RECORDS" and not any("Prvi rekord čeka" in v or "OSOBNI REKORD" in v for v in labels):
         raise SystemExit("FAIL: offline records neither show real results nor honest empty state")
     png=subprocess.run(["adb","exec-out","screencap","-p"],
                        check=True,capture_output=True,timeout=20).stdout
     if not png.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(png)<2000:
         raise SystemExit(f"FAIL: invalid {name} screenshot")
     Path("qa/screenshots",path).write_bytes(png)
-    if name=="REKORDI":
+    if name=="RECORDS":
         # Test the actual Records -> Achievements -> Records round-trip.
         # Every one of the eight save-backed world cards must fit without
         # scrolling or send Back to the Settings screen by mistake.
         record_actions=[n for n in root.iter("node") if n.get("clickable")=="true"
-                        and "MOJA POSTIGNUĆA" in (n.get("text","")+" "+n.get("content-desc",""))]
+                        and "MY ACHIEVEMENTS" in (n.get("text","")+" "+n.get("content-desc",""))]
         if len(record_actions)!=1: raise SystemExit("FAIL: Records achievement action missing")
         hit=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",record_actions[0].get("bounds",""))
         if not hit: raise SystemExit("FAIL: invalid Records achievement bounds")
@@ -486,14 +486,14 @@ for name,expected,path in (
         time.sleep(.7)
         after=dump()
         returned=[n.get("text","")+" "+n.get("content-desc","") for n in after.iter("node")]
-        if not any("MOJI REKORDI" in v for v in returned):
+        if not any("MY RECORDS" in v for v in returned):
             raise SystemExit("FAIL: Achievements Back did not restore Records")
         print("PASS: eight save-backed achievement cards and Records round-trip",flush=True)
     subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
     time.sleep(.7)
     home=dump()
     text=[n.get("text","")+" "+n.get("content-desc","") for n in home.iter("node")]
-    if not all(any(token in value for value in text) for token in ("IGRAJ","SVJETOVI","POSTAVKE")):
+    if not all(any(token in value for value in text) for token in ("PLAY","WORLDS","SETTINGS")):
         raise SystemExit(f"FAIL: {name} Back did not restore Home")
     print(f"PASS: {name} functional tab and actual screenshot",flush=True)
 PY
@@ -506,13 +506,13 @@ while [ "$attempt" -le 6 ]; do
   adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI exited" >&2;exit 1; }
   dump_ui
   # A system Pixel Launcher ANR can cover the healthy app immediately after
-  # emulator boot, before the first IGRAJ/home branch. Recover only the exact
+  # emulator boot, before the first PLAY/home branch. Recover only the exact
   # verified system dialog, then recheck the actual foreground UI.
   if recover_launcher_anr; then
     sleep 2
     dump_ui
   fi
-  if grep -q 'Dodirni za let Bopija' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'Tap to fly with Bopi' qa/screenshots/android-current-ui.xml; then
     verify_idle_preview
     gameplay_ready=1
     break
@@ -524,7 +524,7 @@ while [ "$attempt" -le 6 ]; do
     echo "FAIL: obsolete character picker appeared before Bopi flight" >&2
     exit 1
   fi
-  if [ "$home_captured" -eq 0 ] && grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+  if [ "$home_captured" -eq 0 ] && grep -q 'PLAY' qa/screenshots/android-current-ui.xml; then
     capture android-home
     verify_three_home_actions
     # Confirm settings can open and Android Back returns to the same 3 actions.
@@ -537,18 +537,18 @@ while [ "$attempt" -le 6 ]; do
         echo "FAIL: BOPAVI exited during settings navigation" >&2; exit 1;
       }
       dump_ui
-      if grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+      if grep -q 'APPEARANCE & SOUND' qa/screenshots/android-current-ui.xml; then
         settings_ready=1
         break
       fi
       if recover_launcher_anr; then
         sleep 2
-      elif grep -q 'POSTAVKE' qa/screenshots/android-current-ui.xml &&
-           grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+      elif grep -q 'SETTINGS' qa/screenshots/android-current-ui.xml &&
+           grep -q 'PLAY' qa/screenshots/android-current-ui.xml; then
         tap_settings
         sleep 2
       else
-        echo "Unexpected foreground window while opening POSTAVKE" >&2
+        echo "Unexpected foreground window while opening SETTINGS" >&2
         break
       fi
       settings_attempt=$((settings_attempt+1))
@@ -557,7 +557,7 @@ while [ "$attempt" -le 6 ]; do
       capture android-settings-diagnostic || true
       head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
       adb logcat -d -t 100 | tail -n 80 || true
-      echo "FAIL: POSTAVKE did not open after verified, bounded retries" >&2
+      echo "FAIL: SETTINGS did not open after verified, bounded retries" >&2
       exit 1
     fi
     capture android-settings
@@ -575,8 +575,8 @@ while [ "$attempt" -le 6 ]; do
         echo "FAIL: BOPAVI exited while returning from settings" >&2; exit 1;
       }
       dump_ui
-      if grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml &&
-         grep -q 'POSTAVKE' qa/screenshots/android-current-ui.xml; then
+      if grep -q 'PLAY' qa/screenshots/android-current-ui.xml &&
+         grep -q 'SETTINGS' qa/screenshots/android-current-ui.xml; then
         verify_three_home_actions
         home_ready=1
         break
@@ -584,7 +584,7 @@ while [ "$attempt" -le 6 ]; do
       if recover_launcher_anr; then
         # Android Back might have been consumed by the system ANR dialog.
         sleep 2
-      elif grep -q 'IZGLED I ZVUK' qa/screenshots/android-current-ui.xml; then
+      elif grep -q 'APPEARANCE & SOUND' qa/screenshots/android-current-ui.xml; then
         adb shell input keyevent 4
         sleep 1
       else
@@ -597,7 +597,7 @@ while [ "$attempt" -le 6 ]; do
       capture android-home-return-diagnostic || true
       head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
       adb logcat -d -t 100 | tail -n 80 || true
-      echo "FAIL: three-button home did not reappear after POSTAVKE" >&2
+      echo "FAIL: three-button home did not reappear after SETTINGS" >&2
       exit 1
     fi
     echo "PASS: settings opens and returns to the three-button home"
@@ -609,7 +609,7 @@ while [ "$attempt" -le 6 ]; do
     verify_three_home_actions
     home_captured=1
   fi
-  if grep -q 'IGRAJ' qa/screenshots/android-current-ui.xml; then
+  if grep -q 'PLAY' qa/screenshots/android-current-ui.xml; then
     tap_play
   elif recover_launcher_anr; then
     # System-only recovery does not count as evidence of a passed UI test.
@@ -624,18 +624,18 @@ while [ "$attempt" -le 6 ]; do
   attempt=$((attempt+1))
 done
 dump_ui
-if grep -q 'Dodirni za let Bopija' qa/screenshots/android-current-ui.xml; then
+if grep -q 'Tap to fly with Bopi' qa/screenshots/android-current-ui.xml; then
   verify_idle_preview
   gameplay_ready=1
 fi
 if [ "$gameplay_ready" -ne 1 ]; then
   capture android-navigation-diagnostic || true
-  echo "FAIL: IGRAJ tap did not open the game" >&2
+  echo "FAIL: PLAY tap did not open the game" >&2
   head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
   adb logcat -d -t 200 | tail -n 100 || true
   exit 1
 fi
-echo "PASS: IGRAJ opens idle flight without a premature pause button"
+echo "PASS: PLAY opens idle flight without a premature pause button"
 # Coordinates derived from the emulator resolution, not a hard-coded device size.
 size=$(adb shell wm size | tail -n 1 | sed 's/.*: //' | tr -d '\r')
 width=${size%x*}
