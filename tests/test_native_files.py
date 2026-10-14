@@ -1640,7 +1640,7 @@ for profile in (android_profile,ios_profile):
     assert 'progress.frontier(' in profile and 'progress.collectibles(' in profile
     assert '1000 / 2000' not in profile and 'playerXP' not in profile
 assert 'profileStarGauge.contentDescription=' not in android_profile  # property assigned within apply
-assert 'contentDescription="Zvjezdice svijeta' in android_profile
+assert 'contentDescription=(if(progress.languageCode()=="hr")"Zvjezdice svijeta " else "Stars in world ")' in android_profile
 assert 'UIProgressView(progressViewStyle:.default)' in ios_profile
 assert 'starGauge.accessibilityValue=' in ios_profile
 assert 'artFrame.addView' in android_profile and 'artFrame.addSubview' in ios_profile
