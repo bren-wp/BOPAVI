@@ -1992,7 +1992,10 @@ class MainActivity : Activity() {
      */
     private fun showLegalNotice(privacy:Boolean){
         val title=if(privacy)"POLITIKA PRIVATNOSTI" else "UVJETI KORIŠTENJA"
-        val message=if(privacy)
+        val message=if(progress.languageCode()!="hr") {
+            if(privacy) "BOPAVI is published by Brendigo. The game uses no accounts, ads, analytics or real-money purchases. Nickname, scores, virtual coins, progress and settings remain on this device and are not sent to the publisher. Exporting a JSON backup is optional and uses the location you select, which may include another provider. Clear the app data or uninstall to erase local data; delete exported backups separately. Support: github.com/bren-wp/BOPAVI/issues."
+            else "BOPAVI is a game published by Brendigo. Play responsibly. Coins, stars and rewards have no cash value; there are no real-money purchases. Progress stays on your device with optional backup export and import. Parental guidance is recommended for younger players. Mandatory consumer rights remain applicable. Support: github.com/bren-wp/BOPAVI/issues."
+        } else if(privacy)
             "BOPAVI izdaje Brendigo. Igra ne koristi račune, oglase, analitiku " +
             "ni kupnje stvarnim novcem. Nadimak, rezultati, kovanice, " +
             "napredak i postavke čuvaju se na ovom uređaju; ne šalju se " +
@@ -2011,8 +2014,8 @@ class MainActivity : Activity() {
             "github.com/bren-wp/BOPAVI/issues. " +
             "Primjenjuju se obvezna potrošačka prava."
         android.app.AlertDialog.Builder(this)
-            .setTitle(title).setMessage(message)
-            .setPositiveButton("ZATVORI",null).show()
+            .setTitle(ui(title)).setMessage(message)
+            .setPositiveButton(if(progress.languageCode()=="hr")"ZATVORI" else "CLOSE",null).show()
     }
 
     private fun showSettingsDetails(){
