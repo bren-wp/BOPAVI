@@ -825,45 +825,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         if !pager.arrangedSubviews.isEmpty{s.addArrangedSubview(pager)}
-        sectionHeading(start<=maxNumber ? "NASTAVI ILI ODABERI LEVEL"
-            : "PREGLED ZAKLJUČANIH LEVELA",in:s)
-        label("Otključano do levela \(maxNumber)",16,.white,s)
-        // Locked preview pages have no flight CTA, only honest navigation.
-        if start<=maxNumber {
-        button("▶  NASTAVI LET",in:s){
-            self.showPilotPicker(world,self.progress.streamFrontier(world))
-        }
-        // An optional native alert keeps the illustrated 20-card gallery
-        // larger and never opens the keyboard until the player requests it.
-        button("▶  POKRENI ODABRANI LEVEL",in:s,primary:false){
-            let dialog=UIAlertController(title:self.ui("POKRENI ODABRANI LEVEL"),
-                message:self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber)",
-                preferredStyle:.alert)
-            dialog.addTextField {field in
-                field.keyboardType = .numberPad
-                field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
-                field.placeholder=self.ui("Broj otključanog levela")
-                field.accessibilityLabel=self.ui("Broj otključanog levela")
-            }
-            dialog.addAction(UIAlertAction(title:self.ui("ODUSTANI"),style:.cancel))
-            dialog.addAction(UIAlertAction(title:self.ui("POKRENI"),style:.default){[weak self,weak dialog] _ in
-                guard let self else{return}
-                let field=dialog?.textFields?.first
-                guard let n=Int(field?.text ?? ""), (1...maxNumber).contains(n) else {
-                    self.alert(self.ui("Nedostupan level"),
-                               self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber).")
-                    return
-                }
-                self.showPilotPicker(world,n)
-            })
-            self.present(dialog,animated:true)
-        }
-        } else {
-            label("Ovi leveli su zaključani. Dovrši prethodne za otključavanje.",14,.white,s)
-            button("↶ VRATI NA OTKLJUČANE LEVELE",in:s,primary:false){
-                self.showLevels(world,page:maxNumber)
-            }
-        }
+        // All 20 illustrated tiles are genuine UIKit controls, with the
+        // existing level unlocks, accessible labels and saved star ratings.
+        // Avoid duplicating the level picker, Continue and long instructions
+        // below the paged gallery: they reduce its size on compact iPhones.
         button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
     }
     /// Every image is a reusable, real world illustration. Completion is read
