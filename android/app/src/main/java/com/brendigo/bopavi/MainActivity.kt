@@ -335,7 +335,7 @@ class MainActivity : Activity() {
                 }
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
             elevation=d(7).toFloat()
-            contentDescription=text
+            contentDescription=ui(text)
             setOnClickListener{sound.effect("click");onClick()}
         }
         parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)68 else 58)).apply{
@@ -347,7 +347,7 @@ class MainActivity : Activity() {
         action(parent,if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK",false,onClick)
     }
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
-        val name=LevelEngine.names[world]
+        val name=ui(LevelEngine.names[world])
         val row=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             background=gradient(0xff114987.toInt(),0xff031b3a.toInt(),20).apply {
@@ -360,11 +360,11 @@ class MainActivity : Activity() {
             isSelected=world==progress.chosenWorld()
             foreground=RippleDrawable(ColorStateList.valueOf(0x33ffffff),null,null)
             // Each world is playable. All values come from the existing save.
-            contentDescription="$name, otključano, level ${progress.streamFrontier(world)}, " +
+            contentDescription=ui("$name, otključano, level ${progress.streamFrontier(world)}, " +
                 "prikupljeno ${progress.collectibles(world)}, rekord ${progress.best(world)}, " +
                 "zvjezdice ${progress.worldStars(world)} od 30" +
                 ", upravljanje dodirom" +
-                (if(world==progress.chosenWorld()) ", odabrano" else "")
+                (if(world==progress.chosenWorld()) ", odabrano" else ""))
             setOnClickListener{sound.effect("click");onClick()}
         }
         val artPanel=FrameLayout(this).apply{
@@ -725,8 +725,8 @@ class MainActivity : Activity() {
             }
             clipToOutline=true
             elevation=d(if(current)6 else 2).toFloat()
-            contentDescription="Level $n, ${LevelKind.name(kind)}, ${if(!unlocked)"zaključan" else if(completed)"dovršen" else "otključan"}, " +
-                "zvjezdice ${progress.bestLevelStars(world,n.toLong())} od 3"
+            contentDescription=ui("Level $n, ${LevelKind.name(kind)}, ${if(!unlocked)"zaključan" else if(completed)"dovršen" else "otključan"}, " +
+                "zvjezdice ${progress.bestLevelStars(world,n.toLong())} od 3")
             foreground=RippleDrawable(ColorStateList.valueOf(0x55ffffff),null,
                 GradientDrawable().apply{cornerRadius=d(16).toFloat();setColor(Color.WHITE)})
             setOnClickListener{
@@ -1196,7 +1196,7 @@ class MainActivity : Activity() {
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
-                text="♛  NOVI REKORD!"
+                text=ui("♛  NOVI REKORD!")
                 textSize=19f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 setTextColor(0xffffecaa.toInt())
@@ -1205,7 +1205,7 @@ class MainActivity : Activity() {
                 background=gradient(0xffb55b09.toInt(),0xff542c06.toInt(),20).apply{
                     setStroke(d(2),0xffffca46.toInt())
                 }
-                contentDescription="Novi osobni rekord: ${g.score()} bodova"
+                contentDescription=ui("Novi osobni rekord: ${g.score()} bodova")
             }
             panel.addView(recordBanner,LinearLayout.LayoutParams(-1,d(46)).apply{
                 topMargin=d(3);bottomMargin=d(5)
@@ -1234,7 +1234,7 @@ class MainActivity : Activity() {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(37)))
             card.addView(TextView(this).apply{
-                text=heading;textSize=11f;gravity=Gravity.CENTER
+                text=ui(heading);textSize=11f;gravity=Gravity.CENTER
                 typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1246,7 +1246,7 @@ class MainActivity : Activity() {
                 setTextColor(color)
                 setAutoSizeTextTypeUniformWithConfiguration(16,23,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                contentDescription="$heading $value"
+                contentDescription=ui("$heading $value")
             }
             card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
             summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
@@ -1260,16 +1260,16 @@ class MainActivity : Activity() {
         // Compact accessible details, rather than three large padded cards
         // pushing Retry and result navigation below the viewport.
         panel.addView(TextView(this).apply{
-            text="Najbolji rezultat: ${progress.bestPoints()}\n" +
+            text=ui("Najbolji rezultat: ${progress.bestPoints()}\n" +
                 "Level $currentLevel · Ukupno prolaza: ${g.totalPassed}\n" +
-                "Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}"
+                "Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
             textSize=14f;setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
             gravity=Gravity.CENTER;setLineSpacing(d(3).toFloat(),1f)
             setPadding(d(3),d(6),d(3),d(5))
         },LinearLayout.LayoutParams(-1,-2))
         val balance=TextView(this).apply{
-            text="Stanje novčanika: ${progress.coins()} kovanica"
+            text=ui("Stanje novčanika: ${progress.coins()} kovanica")
             textSize=15f;gravity=Gravity.CENTER;setTextColor(0xffc6eeff.toInt())
             contentDescription=text
         }
@@ -1299,7 +1299,7 @@ class MainActivity : Activity() {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(35)))
             box.addView(TextView(this).apply{
-                text=label;textSize=10f;gravity=Gravity.CENTER
+                text=ui(label);textSize=10f;gravity=Gravity.CENTER
                 typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(9,11,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1311,7 +1311,7 @@ class MainActivity : Activity() {
                 typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(12,17,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                contentDescription="$label $value"
+                contentDescription=ui("$label $value")
             }
             box.addView(count,LinearLayout.LayoutParams(-1,d(28)))
             rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(99),1f).apply{
@@ -1330,10 +1330,10 @@ class MainActivity : Activity() {
                 if(awarded>0){
                     sound.effect("purchase")
                     bonusCounter.text="+0"
-                    bonusCounter.contentDescription="BONUS BODOVA 0"
-                    balance.text="Stanje novčanika: ${progress.coins()} kovanica"
+                    bonusCounter.contentDescription=ui("BONUS BODOVA 0")
+                    balance.text=ui("Stanje novčanika: ${progress.coins()} kovanica")
                     balance.contentDescription=balance.text
-                    Toast.makeText(this,"Preuzeto $awarded kovanica.",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,ui("Preuzeto $awarded kovanica."),Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -1343,7 +1343,7 @@ class MainActivity : Activity() {
         panel.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(6)})
         fun footerAction(caption:String,callback:()->Unit){
             val button=Button(this).apply{
-                text=caption;isAllCaps=false;textSize=13f
+                text=ui(caption);isAllCaps=false;textSize=13f
                 typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1361,7 +1361,7 @@ class MainActivity : Activity() {
         footerAction("▥\nLJESTVICA"){showLeaderboard()}
         footerAction("⌂\nPOVRATAK"){showHome()}
         footerAction("↗\nPODIJELI"){
-            val message="BOPAVI · Rezultat ${g.score()} · Ukupno prolaza: ${g.totalPassed}"
+            val message=ui("BOPAVI · Rezultat ${g.score()} · Ukupno prolaza: ${g.totalPassed}")
             val share=android.content.Intent(android.content.Intent.ACTION_SEND).apply{
                 type="text/plain"
                 putExtra(android.content.Intent.EXTRA_TEXT,message)
