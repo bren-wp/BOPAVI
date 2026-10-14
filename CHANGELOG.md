@@ -1,3 +1,9 @@
+## v0.1.89 — Consistent selected pilot in Settings and shop (build 92)
+- Settings headers on Android and iOS now show the genuine **currently selected pilot**, rather than always reverting to Bopi. No new or fictitious pilot art is generated.
+- Replace obsolete assertions that Bopi is the only playable character in the in-game shop: all nine existing unlockable pilots remain functional and coin-earning/unlocking is displayed truthfully in English and Croatian.
+- Extend native source QA to reject stale single-pilot copy and verify persisted selection in both Settings screens. Existing one-viewport non-scrolling menus, pause/results, uniformly wide grounded columns, seamless stage transitions and synthesized long-form soundtrack remain unchanged.
+- Exact 1:1 fidelity to provided painterly 3D concept images, legible 26-language translation of every long-form page, and exhaustive small-device visual approval remain unverified; do not claim these are complete.
+
 ## v0.1.88 — top HUD legibility and localized score clearance (build 91)
 
 - Fix a real defect visible in the v0.1.87 Android gameplay screenshot: the score and distance captions sat against the lower neon glass rim, while the level badge consumed their visual breathing room. Reposition the badge (y=58–81 instead of 60–86) and both metric baselines (Android y=98, iOS top y=88) into visually separate regions with predictable padding.
