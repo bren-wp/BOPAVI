@@ -2247,7 +2247,7 @@ assert 'for(row in 0..3)' in android_achievements and 'for(col in 0..1)' in andr
 assert 'for row in 0..<4' in ios_achievements and 'for col in 0..<2' in ios_achievements
 assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'title == "POSTIGNUĆA"' in ios_menu
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
 assert 'FAIL: Achievements Back did not restore Records' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: v0.1.79 eight real achievement cards and correct Records navigation')
@@ -2437,7 +2437,7 @@ assert 'val fitted=FitViewportColumn(this)' in android_base
 assert 'ScrollView(this)' not in android_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
-assert 'guard currentMenuName != ""' in ios_menu
+assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK"' in android_menu
 audio_generator=(root/'tools/generate_audio.py').read_text()
 audio_contract=(root/'tools/verify_audio.py').read_text()
