@@ -414,7 +414,7 @@ for n in clickable(level_root):
 def tiles(root):
     found={}
     for node in clickable(root):
-        match=re.match(r'^Level (\\d+),',node.get('content-desc',''))
+        match=re.match(r'^Level (\d+),',node.get('content-desc',''))
         if match: found[int(match.group(1))]=node
     return found
 locked=[n for n in tiles(level_root).values()
