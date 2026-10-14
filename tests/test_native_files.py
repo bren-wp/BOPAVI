@@ -1692,9 +1692,9 @@ assert 'BopaviSettingsPanel: UIStackView' in ios_menu
 assert 'let settingsPanel=BopaviSettingsPanel()' in settings_ios
 assert 'layer.borderWidth=2' in ios_menu
 assert 'if(label=="POSTAVKE")' in base_android
-assert 'portraitDrawableIds[0]' in base_android
+assert 'portraitDrawableIds[progress.skin()]' in base_android
 assert 'if title == "POSTAVKE"' in menu_ios
-assert 'UIImage(named:"BopiPortrait0")' in menu_ios
+assert 'UIImage(named:"BopiPortrait\\(progress.skinIndex())")' in menu_ios
 for label in ("IZGLED I ZVUK","IGRAČ I TEŽINA","DODATNE OPCIJE","PODACI I PRIVATNOST"):
     assert 'sectionHeading(settingsPanel,"'+label+'")' in settings_android,label
     assert 'sectionHeading("'+label+'",in:settingsPanel)' in settings_ios,label
@@ -2563,3 +2563,12 @@ for render in (and_view,ios_view):
 assert 'birdSize=124f' in and_view
 assert 'let artSize:CGFloat=124' in ios_view
 print('PASS: Android/iOS HUD stage/footer separation, locale-width fits and unchanged Bopi')
+
+# v0.1.89: Settings and shop must reflect the actual nine playable pilots.
+assert 'portraitDrawableIds[progress.skin()]' in base_android
+assert 'BopiPortrait\\(progress.skinIndex())' in menu_ios
+assert 'Choose from nine pilots before takeoff.' in android_menu
+assert 'Choose from nine pilots before takeoff.' in ios_menu
+assert 'Bopi je jedini pilot.' not in android_menu
+assert 'Bopi je jedini pilot.' not in ios_menu
+print('PASS: true selected pilot in Settings and truthful earned-coin 9-pilot shop')
