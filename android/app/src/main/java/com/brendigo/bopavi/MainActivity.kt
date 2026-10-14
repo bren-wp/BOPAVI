@@ -180,6 +180,20 @@ class MainActivity : Activity() {
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(
             0x66031837,0x99061b3e.toInt(),0xdd04132e.toInt()))
 
+    private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
+    /** Language change is offline, immediately applied, and does not reset saves. */
+    private fun showLanguagePicker(){
+        android.app.AlertDialog.Builder(this)
+            .setTitle(ui("JEZIK"))
+            .setSingleChoiceItems(GameLanguages.names.toTypedArray(),
+                GameLanguages.codes.indexOf(progress.languageCode())){dialog,which->
+                progress.setLanguageCode(GameLanguages.codes[which])
+                dialog.dismiss()
+                showSettings()
+            }
+            .setNegativeButton("CANCEL",null)
+            .show()
+    }
     private fun chip(label:String):TextView = TextView(this).apply {
         text=label
         setTextColor(gold)
@@ -276,7 +290,7 @@ class MainActivity : Activity() {
     }
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
-            text=s
+            text=ui(s)
             textSize=size.toFloat()
             setTextColor(color)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
@@ -292,13 +306,13 @@ class MainActivity : Activity() {
     private fun small(parent:LinearLayout,s:String){title(parent,s,16,0xffbce6ff.toInt())}
     private fun sectionHeading(parent:LinearLayout,heading:String){
         val label=TextView(this).apply{
-            text=heading;setTextColor(Color.WHITE);textSize=15f
+            text=ui(heading);setTextColor(Color.WHITE);textSize=15f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             letterSpacing=.06f
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setPadding(d(18),d(11),d(16),d(11))
             background=gradient(0xff224e89.toInt(),0xff153760.toInt(),23)
-            contentDescription=heading
+            contentDescription=ui(heading)
         }
         parent.addView(label,LinearLayout.LayoutParams(-1,-2).apply{
             topMargin=d(17);bottomMargin=d(7)
@@ -308,18 +322,18 @@ class MainActivity : Activity() {
     /** Single-viewport Profile headings, keeping accessibility and live views. */
     private fun profileHeading(parent:LinearLayout,heading:String) {
         parent.addView(TextView(this).apply{
-            text=heading;setTextColor(Color.WHITE);textSize=14f
+            text=ui(heading);setTextColor(Color.WHITE);textSize=14f
             typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER_VERTICAL
             setPadding(d(13),0,d(12),0)
             background=gradient(0xf70b3878.toInt(),0xf6061c41.toInt(),15).apply{
                 setStroke(d(1),electric)
             }
-            contentDescription=heading
+            contentDescription=ui(heading)
         },LinearLayout.LayoutParams(-1,d(33)).apply{topMargin=d(4);bottomMargin=d(4)})
     }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(Color.WHITE)
+            this.text=ui(text);setTextColor(Color.WHITE)
             textSize=18f;isAllCaps=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.03f
@@ -506,7 +520,7 @@ class MainActivity : Activity() {
             clipToOutline=true
             setPadding(d(3),d(3),d(3),d(3))
             isClickable=true;isFocusable=true
-            contentDescription="PROFIL · Bopi"
+            contentDescription=ui("PROFIL · Bopi")
             setOnClickListener{sound.effect("click");showProfile()}
         }
         wallets.addView(avatar,LinearLayout.LayoutParams(d(50),d(50)).apply{
@@ -539,7 +553,7 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
             isClickable=true;isFocusable=true
-            contentDescription="POSTAVKE"
+            contentDescription=ui("POSTAVKE")
             setOnClickListener{sound.effect("click");showSettings()}
         }
         wallets.addView(gear,LinearLayout.LayoutParams(d(48),d(48)))
@@ -566,7 +580,7 @@ class MainActivity : Activity() {
                 orientation=LinearLayout.VERTICAL
                 gravity=Gravity.CENTER
                 isClickable=true;isFocusable=true
-                contentDescription=label
+                contentDescription=ui(label)
                 background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),
                     gradient(0xff1358a5.toInt(),0xff071e46.toInt(),14),null)
                 addView(ImageView(this@MainActivity).apply{
@@ -576,7 +590,7 @@ class MainActivity : Activity() {
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 },LinearLayout.LayoutParams(-1,d(29)))
                 addView(TextView(this@MainActivity).apply{
-                    text=label;textSize=11f;setTextColor(Color.WHITE)
+                    text=ui(label);textSize=11f;setTextColor(Color.WHITE)
                     gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                     setSingleLine(true)
                     setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
@@ -1252,7 +1266,7 @@ class MainActivity : Activity() {
                     gradient(0xff367fd0.toInt(),0xff112e64.toInt(),17).apply{
                         setStroke(d(2),0xff92d8ff.toInt())
                     },null)
-                contentDescription=caption
+                contentDescription=ui(caption)
                 setOnClickListener{sound.effect("click");callback()}
             }
             footer.addView(button,LinearLayout.LayoutParams(0,d(57),1f).apply{
@@ -1342,7 +1356,7 @@ class MainActivity : Activity() {
             typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
             background=gradient(0xff1368b6.toInt(),0xff072657.toInt(),14)
             isClickable=true;isFocusable=true
-            contentDescription="Natrag na početnu"
+            contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"
             setOnClickListener{showHome()}
         }
         b.addView(topBack,LinearLayout.LayoutParams(-1,d(33)))
@@ -1424,7 +1438,7 @@ class MainActivity : Activity() {
                 orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
                 setPadding(d(5),d(5),d(5),d(5))
                 background=gradient(0xff12549a.toInt(),0xff071e45.toInt(),13)
-                contentDescription=caption+": "+value
+                contentDescription=ui(caption)+": "+value
             }
             tile.addView(TextView(this).apply{
                 text=caption;setTextColor(Color.WHITE);textSize=11f
@@ -1846,19 +1860,19 @@ class MainActivity : Activity() {
             background=gradient(0xff22b8fc.toInt(),0xff0759ca.toInt(),22).apply{
                 setStroke(d(2),Color.WHITE)
             }
-            contentDescription="Natrag na početnu"
+            contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"
             isClickable=true;isFocusable=true
             setOnClickListener{showHome()}
         }
         header.addView(backButton,LinearLayout.LayoutParams(d(46),d(46)))
         header.addView(TextView(this).apply{
-            text="POSTAVKE";textSize=23f
+            text=ui("POSTAVKE");textSize=23f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(Color.WHITE);gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(0,d(46),1f))
         column.addView(header,LinearLayout.LayoutParams(-1,d(61)))
         column.addView(TextView(this).apply{
-            text="IZGLED I ZVUK";textSize=12f
+            text=ui("IZGLED I ZVUK");textSize=12f
             setTextColor(0xffe4f9ff.toInt())
             typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(-1,d(29)))
@@ -1872,13 +1886,13 @@ class MainActivity : Activity() {
                 isClickable=true;isFocusable=true
             }
             row.addView(TextView(this).apply{
-                text=label;textSize=14f;typeface=Typeface.DEFAULT_BOLD
+                text=ui(label);textSize=14f;typeface=Typeface.DEFAULT_BOLD
                 setTextColor(Color.WHITE);setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
             },LinearLayout.LayoutParams(0,-2,1f))
             val status=TextView(this).apply{
-                text=read();textSize=12f;typeface=Typeface.DEFAULT_BOLD
+                text=ui(read());textSize=12f;typeface=Typeface.DEFAULT_BOLD
                 setTextColor(Color.WHITE);gravity=Gravity.CENTER
                 background=gradient(0xff0ba9ed.toInt(),0xff045ba8.toInt(),13).apply{
                     setStroke(d(1),0xffb0f3ff.toInt())
@@ -1886,10 +1900,10 @@ class MainActivity : Activity() {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }
             row.addView(status,LinearLayout.LayoutParams(d(99),d(32)))
-            row.contentDescription=label+", "+read()
+            row.contentDescription=ui(label)+", "+ui(read())
             row.setOnClickListener{
-                activate();status.text=read()
-                row.contentDescription=label+", "+read()
+                activate();status.text=ui(read())
+                row.contentDescription=ui(label)+", "+ui(read())
             }
             column.addView(row,LinearLayout.LayoutParams(-1,d(53)).apply{
                 bottomMargin=d(6)
@@ -1911,18 +1925,16 @@ class MainActivity : Activity() {
         option("MANJE ANIMACIJA",{if(progress.lessMotion())"UKLJ." else "ISKL."}){
             progress.setLessMotion(!progress.lessMotion())
         }
-        option("JEZIK",{"HRVATSKI"}){
-            Toast.makeText(this,"Trenutačno je dostupan hrvatski jezik.",Toast.LENGTH_SHORT).show()
-        }
+        option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
         option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}
         val advanced=TextView(this).apply{
-            text="⚙  NAPREDNE POSTAVKE";textSize=16f
+            text=ui("⚙  NAPREDNE POSTAVKE");textSize=16f
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
             gravity=Gravity.CENTER
             background=gradient(0xff24a6ed.toInt(),0xff0754b8.toInt(),21).apply{
                 setStroke(d(2),electric)
             }
-            contentDescription="NAPREDNE POSTAVKE"
+            contentDescription=ui("NAPREDNE POSTAVKE")
             isClickable=true;isFocusable=true
             setOnClickListener{showSettingsDetails()}
         }
@@ -1938,7 +1950,7 @@ class MainActivity : Activity() {
         for((caption,privacy) in listOf("POLITIKA PRIVATNOSTI" to true,
                                        "UVJETI KORIŠTENJA" to false)){
             val link=TextView(this).apply{
-                text=caption;textSize=10f;typeface=Typeface.DEFAULT_BOLD
+                text=ui(caption);textSize=10f;typeface=Typeface.DEFAULT_BOLD
                 setTextColor(0xffe5f8ff.toInt());gravity=Gravity.CENTER
                 setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
@@ -1947,7 +1959,7 @@ class MainActivity : Activity() {
                     setStroke(d(1),0xff48c7ff.toInt())
                 }
                 isClickable=true;isFocusable=true
-                contentDescription=caption
+                contentDescription=ui(caption)
                 setOnClickListener{showLegalNotice(privacy)}
             }
             legal.addView(link,LinearLayout.LayoutParams(0,d(35),1f).apply{
