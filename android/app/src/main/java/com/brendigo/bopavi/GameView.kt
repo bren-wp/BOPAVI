@@ -20,13 +20,15 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, private val walletCoins:()->Int = {0}) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, private val walletCoins:()->Int = {0}, languageCode:String = "en") : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
     private val qaCaptureEnabled = qaCaptureFirstFlap &&
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
     private var qaWaitingForCapture = false
+    private val language=GameLanguages.normalized(languageCode)
+    private fun word(en:String,hr:String):String=if(language=="hr")hr else en
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Update point totals on change and the real distance readout at 10 Hz,
@@ -146,7 +148,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = "Dodirni za let Bopija"
+        contentDescription = word("Tap to fly with Bopi","Dodirni za let Bopija")
         p.isFilterBitmap = true
     }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
@@ -237,7 +239,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
             rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
-            text(canvas,"TAP TO FLY",240f,613f,30f,Color.WHITE,true)
+            text(canvas,word("TAP TO FLY","DODIRNI ZA LET"),240f,613f,30f,Color.WHITE,true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
@@ -931,12 +933,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val score=game.score()
         if(score!=lastProgressScore) {
             lastProgressScore=score
-            progressTitle="SCORE $score"
+            progressTitle="${word("SCORE","BODOVI")} $score"
         }
         val distanceTick=(game.time*10f).toInt()
         if(distanceTick!=lastDistanceTick) {
             lastDistanceTick=distanceTick
-            distanceTitle="DIST ${game.distance.toInt()}"
+            distanceTitle="${word("DIST","PUT")} ${game.distance.toInt()}"
         }
         // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
@@ -954,8 +956,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // opaque transition overlay or a pause of the physics/game loop.
         val entering=game.levelTransition>0f
         rect(c,171f,63f,364f,93f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
-        val levelLabel=if(entering)"LEVEL ${game.displayLevel} · NEW STAGE"
-            else "LEVEL ${game.displayLevel} · ${game.passed}/$total GATES"
+        val levelLabel=if(entering)"${word("LEVEL","RAZINA")} ${game.displayLevel} · ${word("NEW STAGE","NOVA RAZINA")}"
+            else "${word("LEVEL","RAZINA")} ${game.displayLevel} · ${game.passed}/$total ${word("GATES","PROLAZI")}"
         text(c,levelLabel,267f,83f,13f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
         text(c,progressTitle,204f,117f,12f,0xffddf4ff.toInt(),true)
         text(c,distanceTitle,330f,117f,12f,0xffddf4ff.toInt(),true)
@@ -1033,7 +1035,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
         hudPilotPortrait(c)
         rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
-        text(c,"FLIGHT +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
+        text(c,"${word("FLIGHT","LET")} +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
 
         // The three narrow chips remain under the safe-top race gauge, entirely
         // above Bopi and the moving gate corridor.
@@ -1070,7 +1072,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            contentDescription="Bopi is flying"
+            contentDescription=word("Bopi is flying","Bopi leti")
             onFlap()
             invalidate()
         }
