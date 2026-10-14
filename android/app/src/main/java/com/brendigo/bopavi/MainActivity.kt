@@ -924,21 +924,21 @@ class MainActivity : Activity() {
                 }
             }
             val b=Button(this).apply {
-                this.text=text;isAllCaps=false;textSize=18f
+                this.text=ui(text);isAllCaps=false;textSize=18f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
                 elevation=d(5).toFloat()
-                contentDescription=text
+                contentDescription=ui(text)
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
             content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
                 setMargins(d(8),d(4),d(8),d(4))
             })
         }
-        command("▶  NASTAVI",0){game.paused=false;sound.resume()}
+        command(if(progress.languageCode()=="hr")"▶  NASTAVI" else "▶  CONTINUE",0){game.paused=false;sound.resume()}
         command("↻  PONOVO",1){startGame(currentWorld,currentLevel)}
         command("↪  IZLAZ",2){showHome()}
         // Editing audio/haptics in a paused flight MUST NOT navigate to
@@ -952,9 +952,9 @@ class MainActivity : Activity() {
             }
             visibility=View.GONE
             isFocusable=true
-            contentDescription="Postavke u pauzi"
+            contentDescription=if(progress.languageCode()=="hr")"Postavke u pauzi" else "Pause settings"
         }
-        sectionHeading(pauseSettings,"POSTAVKE U PAUZI")
+        sectionHeading(pauseSettings,if(progress.languageCode()=="hr")"POSTAVKE U PAUZI" else "PAUSE SETTINGS")
         volumeSlider(pauseSettings,"♫  Glazba",progress.musicVolume()){
             progress.setMusicVolume(it)
             sound.musicVolume=it/100f
@@ -966,7 +966,7 @@ class MainActivity : Activity() {
             sound.pause()
         }
         val pauseHaptic=Switch(this).apply{
-            text="Vibracije"
+            text=ui("VIBRACIJA")
             textSize=16f
             setTextColor(Color.WHITE)
             isChecked=progress.hapticEnabled()
@@ -990,19 +990,19 @@ class MainActivity : Activity() {
                     "MUZIKA" -> if(progress.musicVolume()>0)"✓" else "✕"
                     else -> ""
                 }
-                text="$icon\n$label $iconState".trimEnd();isAllCaps=false;textSize=10f
+                text="$icon\n${ui(label)} $iconState".trimEnd();isAllCaps=false;textSize=10f
                 setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
                 setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
                     gradient(0xff1269b9.toInt(),0xff08234b.toInt(),13),null)
-                contentDescription=label
+                contentDescription=ui(label)
                 setOnClickListener{
                     sound.effect("click");onClick()
                     if(label=="ZVUK"||label=="MUZIKA"){
                         val active=if(label=="ZVUK")progress.soundEnabled() else progress.musicVolume()>0
-                        text="$icon\n$label " + if(active)"✓" else "✕"
-                        contentDescription=label + if(active)" uključeno" else " isključeno"
+                        text="$icon\n${ui(label)} " + if(active)"✓" else "✕"
+                        contentDescription=ui(label) + if(active) " enabled" else " disabled"
                     }
                 }
             }
@@ -1035,9 +1035,9 @@ class MainActivity : Activity() {
             pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)View.GONE else View.VISIBLE
             if(pauseSettings.visibility==View.VISIBLE){
                 pauseSettings.requestFocus()
-                pauseSettings.post{
-                    (content.parent as? ScrollView)?.smoothScrollTo(0,pauseSettings.bottom)
-                }
+                // FitViewportColumn will remeasure on visibility changes.
+                // The former ScrollView cast was unreachable and did nothing.
+                pauseSettings.requestLayout()
             }
             // Never dismiss the pause dialog or restart simulation here.
             sound.pause()
@@ -1054,7 +1054,7 @@ class MainActivity : Activity() {
         // Measured live buttons, no scroll even when inline pause options open.
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
-            (resources.displayMetrics.heightPixels-d(70)).coerceAtLeast(d(360)))
+            (resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1))
     }
     private fun startGame(world:Int,number:Long){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
