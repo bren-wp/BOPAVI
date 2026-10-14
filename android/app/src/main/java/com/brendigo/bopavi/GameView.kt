@@ -28,7 +28,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
     private var qaWaitingForCapture = false
     private val language=GameLanguages.normalized(languageCode)
-    private fun word(en:String,hr:String):String=if(language=="hr")hr else en
+    private val hudVocabulary=GameLanguages.hudPack(language)
+    private fun word(en:String,hr:String):String=hudVocabulary[en] ?: if(language=="hr")hr else en
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Update point totals on change and the real distance readout at 10 Hz,
