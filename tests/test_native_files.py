@@ -1935,13 +1935,13 @@ print('PASS: Android/iOS full-bleed background only; letterboxed physical gamepl
 # v0.1.67 cross-platform seeded pillar diversity and proportional art.
 kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'width = 48f +' in kotlin_level and 'width:48 + Float(' in swift_level
-assert '((i * 5 +' in kotlin_level and '((i*5 +' in swift_level
+assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'i * (228f - zone * 2)' in kotlin_level and 'i*(228-zone*2)' in swift_level
 assert 'birdSize=124f' in android_view
 assert 'let artSize:CGFloat=124' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
-print('PASS: proportional pilots, pivot attachment, shared procedural widths')
+print('PASS: proportional pilots, pivot attachment, uniform substantial 76-unit pillars')
 
 # v0.1.67 visual and gameplay polish: no long empty transition, no invented
 # metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
@@ -1951,14 +1951,14 @@ android_canvas=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt'
 ios_canvas=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
 for game in (android_game,ios_game):
     assert 'ordinarySpacing' in game and 'transitionSpacing' in game
-    assert '32' in game and '190' in game and '208' in game
+    assert 'transitionSpacing=ordinarySpacing' in game
     assert 'levelProgress' in game and 'preciseDistance' in game
 for canvas in (android_canvas,ios_canvas):
     assert 'game.levelProgress' in canvas
     assert 'width-aware' in canvas.lower() or 'responsive cap details' in canvas.lower()
 assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
-print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')
+print('PASS: exact-cadence level junction, continuous HUD and collision-faithful themed caps')
 
 # v0.1.68 — pilot portrait + verified persistent offline wallet in both
 # frame-synchronous HUDs. No invented balances or accessibility truncation.
