@@ -609,7 +609,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
     }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
-        val a=LevelEngine.opening(g,game.time)
+        val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
         val color=if(g.kind==0)0xffad8c71.toInt() else pillars[g.kind]
         val shade=if(g.kind==0)0xff6e5c63.toInt() else pillarDark[g.kind]
