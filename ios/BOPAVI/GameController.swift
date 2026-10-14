@@ -907,7 +907,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
             panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
         ])
-        let mascot=UIImageView(image:UIImage(named:"BopiPortrait0"))
+        let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
@@ -1066,7 +1066,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let boosts=progress.previewPerks()
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
             coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
@@ -1185,7 +1185,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=0
+        let pilotIndex=progress.skinIndex()
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22
