@@ -1070,7 +1070,7 @@ assert 'if world==6:' in worlds
 assert 'source_index=WORLD_SCENE_SOURCE[world]' in worlds
 for n in ref_names:
     assert n in (root/'README.md').read_text()
-assert "worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci'" in (root/'tools/qa_android_emulator.sh').read_text()
+assert "worlds=('Green Islands','Crystal Sky','Lava Peaks','Night Castles'" in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: reference-named 8-world gallery with stable save IDs and unique forest biome')
 
 # v0.1.38: premium illustrated card composition is made of live
