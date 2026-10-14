@@ -1523,8 +1523,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 x:self.view.bounds.midX,y:self.view.bounds.midY,width:1,height:1)
             self.present(share,animated:true)
         }
-        button("MAPA SVJETOVA",in:stack,primary:false){self.showWorlds()}
-        button("🛍  TRGOVINA KOVANICAMA",in:stack,primary:false){self.showPerks(.home)}
+        // Two real links on one row: prevent compact iPhone results from
+        // shrinking to unreadable labels while preserving both destinations.
+        let destinationRow=UIStackView()
+        destinationRow.axis = .horizontal
+        destinationRow.distribution = .fillEqually
+        destinationRow.spacing=8
+        stack.addArrangedSubview(destinationRow)
+        button("MAPA SVJETOVA",in:destinationRow,primary:false){self.showWorlds()}
+        button("🛍  TRGOVINA KOVANICAMA",in:destinationRow,primary:false){self.showPerks(.home)}
 
     }
     private func showPerks(){showPerks(.settings)}
