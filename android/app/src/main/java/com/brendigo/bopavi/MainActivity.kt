@@ -1001,7 +1001,7 @@ class MainActivity : Activity() {
                     if(label=="ZVUK"||label=="MUZIKA"){
                         val active=if(label=="ZVUK")progress.soundEnabled() else progress.musicVolume()>0
                         text="$icon\n${ui(label)} " + if(active)"✓" else "✕"
-                        contentDescription=ui(label) + if(active) " enabled" else " disabled"
+                        contentDescription=ui(label) + if(progress.languageCode()=="hr")(if(active)" uključeno" else " isključeno") else (if(active)" enabled" else " disabled")
                     }
                 }
             }
