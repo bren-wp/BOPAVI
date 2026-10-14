@@ -2686,3 +2686,25 @@ for source,section_name in ((android_menu,'private fun showLevels('),(ios_menu,'
     assert 'NORMALNI · ⚡ IZAZOVNI' in section
     assert 'showWorlds()' in section
 print('PASS: varied-but-reachable starting gate centers, broad solid rocky shafts and concise non-scroll level pager')
+
+# Continued PR #116: extra fracture bands use real biome pigments, not
+# decorative "floating" disconnected spikes. Both halves are clipped to
+# solid shafts by construction; the physics opening and pilot hitbox stay
+# strictly unchanged.
+for source in (android_render,ios_render):
+    assert 'drawRockStrata(' in source
+    assert source.count('drawRockStrata(')==3
+    assert 'biomeReliefGlints[g.kind]' in source
+    assert 'cliffSeed' in source and '-cliffSeed' in source
+    assert 'bottom+28' in source and 'top-29' in source
+    assert 'height<70' in source or 'height>=70' in source
+    assert 'count' in source
+assert 'path.reset()' in android_render.split('private fun drawRockStrata(',1)[1].split('private fun drawGate(',1)[0]
+swift_rock=ios_render.split('private func drawRockStrata(',1)[1].split('private func gate(',1)[0]
+assert 'let shadowColor=color(shade,142.0/255)' in swift_rock
+assert 'let glowColor=color(glint,135.0/255)' in swift_rock
+assert 'c.setFillColor(shadowColor)' in swift_rock
+assert 'c.setStrokeColor(glowColor)' in swift_rock
+assert swift_rock.count('color(')==2, 'No color reconstruction inside the per-row draw loop'
+assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+print('PASS: layered seeded rock volume on both native canvases without widened collision or per-row CGColor churn')
