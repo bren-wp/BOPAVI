@@ -22,6 +22,25 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun everyPickerLanguageProvidesCompleteNonemptyGameplayVocabulary() {
+        val labels=listOf("SCORE","DIST","LEVEL","NEW STAGE","GATES",
+            "FLIGHT","TAP TO FLY","Bopi is flying")
+        assertEquals(26,GameLanguages.codes.size)
+        for(code in GameLanguages.codes) {
+            val hud=GameLanguages.hudPack(code)
+            assertEquals("Missing HUD keys: $code",labels.toSet(),hud.keys)
+            for(key in labels) {
+                assertFalse("Blank HUD key $code/$key",hud[key].isNullOrBlank())
+                assertFalse("Leftover machine token $code/$key",hud[key]!!.contains("|"))
+            }
+        }
+        assertEquals("SCORE",GameLanguages.hudPack("en")["SCORE"])
+        assertEquals("BODOVI",GameLanguages.hudPack("hr")["SCORE"])
+        assertEquals("スコア",GameLanguages.hudPack("ja")["SCORE"])
+        assertEquals("점수",GameLanguages.hudPack("ko")["SCORE"])
+        assertEquals(GameLanguages.hudPack("en"),GameLanguages.hudPack("invalid"))
+    }
+
     @Test fun everyWorldUsesTapImpulseWithoutDragSteering() {
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val game=GameSimulation(LevelEngine.create(world,1))

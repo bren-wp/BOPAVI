@@ -179,6 +179,43 @@ object GameLanguages {
         "ko|한국어|플레이|월드|설정|프로필|과제|컬렉션|상점|언어|사운드|일시정지"
     )
     private val catalog=rows.map { it.split("|") }
+
+    /** Eight actually localized gameplay labels for every advertised picker locale.
+     * Precompute once per GameView so no dictionaries are built inside 60 Hz draw.
+     */
+    private val flightKeys=listOf("SCORE","DIST","LEVEL","NEW STAGE","GATES","FLIGHT","TAP TO FLY","Bopi is flying")
+    private val flightRows=listOf(
+        "en|SCORE|DIST|LEVEL|NEW STAGE|GATES|FLIGHT|TAP TO FLY|Bopi is flying",
+        "hr|BODOVI|PUT|RAZINA|NOVA RAZINA|PROLAZI|LET|DODIRNI ZA LET|Bopi leti",
+        "de|PUNKTE|STRECKE|LEVEL|NEUE STUFE|TORE|FLUG|ZUM FLIEGEN TIPPEN|Bopi fliegt",
+        "fr|SCORE|DIST.|NIVEAU|NOUVEAU NIVEAU|PORTES|VOL|TOUCHE POUR VOLER|Bopi vole",
+        "es|PUNTOS|DIST.|NIVEL|NIVEL NUEVO|PUERTAS|VUELO|TOCA PARA VOLAR|Bopi vuela",
+        "it|PUNTI|DIST.|LIVELLO|NUOVO LIVELLO|VARCHI|VOLO|TOCCA PER VOLARE|Bopi vola",
+        "pt|PONTOS|DIST.|NÍVEL|NOVO NÍVEL|PASSAGENS|VOO|TOQUE PARA VOAR|Bopi voa",
+        "nl|SCORE|AFST.|LEVEL|NIEUW LEVEL|POORTEN|VLUCHT|TIK OM TE VLIEGEN|Bopi vliegt",
+        "pl|PUNKTY|DYST.|POZIOM|NOWY POZIOM|BRAMY|LOT|DOTKNIJ, ABY LECIEĆ|Bopi leci",
+        "cs|BODY|VZDÁL.|ÚROVEŇ|NOVÁ ÚROVEŇ|BRÁNY|LET|KLEPNI PRO LET|Bopi letí",
+        "sk|BODY|VZD.|ÚROVEŇ|NOVÁ ÚROVEŇ|BRÁNY|LET|ŤUKNI PRE LET|Bopi letí",
+        "sl|TOČKE|RAZD.|STOPNJA|NOVA STOPNJA|PREHODI|LET|DOTAKNI SE ZA LET|Bopi leti",
+        "hu|PONT|TÁV.|SZINT|ÚJ SZINT|KAPUK|REPÜLÉS|ÉRINTSD MEG|Bopi repül",
+        "ro|SCOR|DIST.|NIVEL|NIVEL NOU|PORȚI|ZBOR|ATINGE PENTRU ZBOR|Bopi zboară",
+        "bg|ТОЧКИ|РАЗСТ.|НИВО|НОВО НИВО|ПОРТИ|ПОЛЕТ|ДОКОСНИ ЗА ПОЛЕТ|Бопи лети",
+        "el|ΣΚΟΡ|ΑΠΟΣΤ.|ΕΠΙΠΕΔΟ|ΝΕΟ ΕΠΙΠΕΔΟ|ΠΥΛΕΣ|ΠΤΗΣΗ|ΠΑΤΑ ΓΙΑ ΠΤΗΣΗ|Ο Μπόπι πετά",
+        "tr|PUAN|MES.|SEVİYE|YENİ SEVİYE|KAPILAR|UÇUŞ|UÇMAK İÇİN DOKUN|Bopi uçuyor",
+        "uk|БАЛИ|ВІДСТ.|РІВЕНЬ|НОВИЙ РІВЕНЬ|ВОРОТА|ПОЛІТ|ТОРКНИСЬ ДЛЯ ПОЛЬОТУ|Бопі летить",
+        "sr|ПОЕНИ|УДАЉ.|НИВО|НОВИ НИВО|ПРОЛАЗИ|ЛЕТ|ДОДИРНИ ЗА ЛЕТ|Бопи лети",
+        "bs|BODOVI|PUT|NIVO|NOVI NIVO|PROLAZI|LET|DODIRNI ZA LET|Bopi leti",
+        "sv|POÄNG|DIST.|NIVÅ|NY NIVÅ|PORTAR|FLYG|TRYCK FÖR ATT FLYGA|Bopi flyger",
+        "nb|POENG|DIST.|NIVÅ|NYTT NIVÅ|PORTER|FLYG|TRYKK FOR Å FLY|Bopi flyr",
+        "da|POINT|DIST.|NIVEAU|NYT NIVEAU|PORTE|FLYV|TRYK FOR AT FLYVE|Bopi flyver",
+        "fi|PISTEET|MATKA|TASO|UUSI TASO|PORTIT|LENTO|NAPAUTA LENTÄÄKSESI|Bopi lentää",
+        "ja|スコア|距離|レベル|新しいレベル|ゲート|飛行|タップして飛ぶ|ボピが飛行中",
+        "ko|점수|거리|레벨|새로운 단계|통로|비행|탭하여 비행|보피가 날고 있어요"
+    ).map { it.split("|") }
+    fun hudPack(code:String):Map<String,String> {
+        val row=flightRows[codes.indexOf(normalized(code))]
+        return flightKeys.mapIndexed { i,key -> key to row[i+1] }.toMap()
+    }
     val codes:List<String> = catalog.map { it[0] }
     val names:List<String> = catalog.map { it[1] }
     fun normalized(code:String):String=if(code in codes)code else "en"

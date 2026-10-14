@@ -1393,8 +1393,8 @@ assert 'hudCoinFont=UIFont.systemFont' in ios_game
 assert 'hudText("♛",86,33,hudCoinFont' in ios_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
-assert 'hudOrb(c,170f,141f,"★"' in android_game
-assert 'hudOrb(c,170,141,"★"' in ios_game
+assert 'hudOrb(c,174f,124f,"★"' in android_game
+assert 'hudOrb(c,174,124,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1470,12 +1470,12 @@ for source in (android_game,ios_game):
         assert forbidden not in source
     assert '⚑' in source
     assert 'game.flap()' in source
-assert 'hudGlass(c,146f,18f,381f,99f)' in android_game
-assert 'hudGlass(c,146,18,235,81)' in ios_game
-assert 'hudOrb(c,267f,141f,"◆"' in android_game
-assert 'hudOrb(c,267,141,"◆"' in ios_game
-assert 'hudOrb(c,364f,141f,"∩"' in android_game
-assert 'hudOrb(c,364,141,"∩"' in ios_game
+assert 'hudGlass(c,146f,18f,381f,108f)' in android_game
+assert 'hudGlass(c,146,18,235,90)' in ios_game
+assert 'hudOrb(c,267f,124f,"◆"' in android_game
+assert 'hudOrb(c,267,124,"◆"' in ios_game
+assert 'hudOrb(c,360f,124f,"∩"' in android_game
+assert 'hudOrb(c,360,124,"∩"' in ios_game
 assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
@@ -1909,10 +1909,10 @@ print('PASS: attached beak, uncropped wings, smaller pilot art and paired body h
 # top/bottom shaft bounds; no physics or save changes.
 assert 'private fun drawRockFacets(' in android_render
 assert 'private func drawRockFacets(' in ios_render
-assert 'drawRockFacets(c,x,w,2f,top-30f)' in android_render
-assert 'drawRockFacets(c,x,w,bottom+28f,751f)' in android_render
-assert 'drawRockFacets(c,x,w,2,top-30)' in ios_render
-assert 'drawRockFacets(c,x,w,bottom+28,751)' in ios_render
+assert 'drawRockFacets(c,x,w,-18f,top-30f' in android_render
+assert 'drawRockFacets(c,x,w,bottom+28f,811f' in android_render
+assert 'drawRockFacets(c,x,w,-18,top-30' in ios_render
+assert 'drawRockFacets(c,x,w,bottom+28,811' in ios_render
 print('PASS: both native gameplay paths draw faceted, textured island cliffs')
 
 # v0.1.66 gameplay image composition: aspect-fill only the FAR world art on
@@ -2051,7 +2051,7 @@ for source in (android_game,ios_game):
     assert 'drawCliffShaft(' in source
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
-    assert 'hudGlass(c,cx-45' in source
+    assert 'hudGlass(c,cx-33' in source
 assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
@@ -2079,12 +2079,12 @@ print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms'
 # native canvases, not repeatedly drawn down the left edge of the playfield.
 for render,orb_prefix in ((android_game,'hudOrb(c,'),(ios_game,'hudOrb(c,')):
     hud=render.split('private fun drawHud(',1)[1] if 'private fun drawHud(' in render else render.split('private func drawBoostHUD(',1)[1]
-    for suffix in ('170','267','364'):
+    for suffix in ('174','267','360'):
         assert orb_prefix+suffix in hud, suffix
     for retired in ('hudOrb(c,46f,175f','hudOrb(c,46f,249f','hudOrb(c,46f,323f',
                     'hudOrb(c,46,175','hudOrb(c,46,249','hudOrb(c,46,323'):
         assert retired not in render, retired
-    assert 'hudGlass(c,cx-45' in render
+    assert 'hudGlass(c,cx-33' in render
 assert 'safeAreaInsets.top+4*hudScale' in ios_game
 assert 'topInset+4f*hudScale' in android_game
 print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both platforms')
@@ -2343,8 +2343,8 @@ assert 'LevelEngine.opening(g,game.time,game.difficulty)' in android_render
 assert 'BopaviCore.opening(g,game.time,difficulty:game.difficulty)' in ios_render
 assert 'val radius = 18f' in android_sim_source and 'let radius: Float = 18' in swift_engine
 assert 'velocity = -255f' in android_sim_source and 'velocity = -255' in swift_engine
-assert 'drawCliffShaft(c,x,w,0f,top' in android_render
-assert 'drawCliffShaft(c,x,w,0,top' in ios_render
+assert 'drawCliffShaft(c,x,w,-25f,top' in android_render
+assert 'drawCliffShaft(c,x,w,-25,top' in ios_render
 assert 'threeDifficultiesChangeRealRenderableAndCollidableOpenings' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
 assert 'Difficulty must alter actual lip collision' in (root/'tests/SwiftParity.swift').read_text()
 print('PASS: eight-world deterministic tall/short gates, difficulty collision/render parity and fixed bird size')
@@ -2362,7 +2362,8 @@ for source in (android_languages,ios_languages):
                 '日本語','한국어','Українська','Türkçe','Suomi'):
         assert tag in source,tag
     import re
-    catalog=re.findall(r'        "(?:en|hr|de|fr|es|it|pt|nl|pl|cs|sk|sl|hu|ro|bg|el|tr|uk|sr|bs|sv|nb|da|fi|ja|ko)\|[^"\n]+"',source)
+    navigation_catalog=source.split('private val flightKeys',1)[0].split('private static let flightKeys',1)[0]
+    catalog=re.findall(r'        "(?:en|hr|de|fr|es|it|pt|nl|pl|cs|sk|sl|hu|ro|bg|el|tr|uk|sr|bs|sv|nb|da|fi|ja|ko)\|[^"\n]+"',navigation_catalog)
     assert len(catalog)==26,len(catalog)
     assert 'if(locale=="en")return result' in source or 'if locale=="en" {return result}' in source
 assert 'languageCode()' in and_store and 'setLanguageCode' in and_store
@@ -2381,3 +2382,43 @@ assert 'birdSize=124f' in android_render and 'let artSize:CGFloat=124' in ios_re
 assert 'val radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'let radius: Float = 18' in ios_languages
 print('PASS: compact English-first HUD, grounded collider-safe cliffs and 26 offline locale choices')
+
+
+# v0.1.84: true complete-camera pillar anchoring & a compact non-blocking HUD.
+for render in (android_render,ios_render):
+    assert 'drawRootedCliffBases(' in render
+    assert 'top-38' in render and 'bottom+38' in render
+    assert '826' in render  # root shoulder is past the physical 800-unit floor
+    assert '825' in render  # solid lower shaft also continues below screen
+    assert '-25' in render  # solid upper shaft enters ABOVE the screen edge
+    assert '172' in render and '624' in render
+    assert 'hudOrb(c,' in render
+    assert 'GameLanguages.hudPack' in render
+assert 'hudGlass(c,146f,18f,381f,108f)' in android_render
+assert 'hudGlass(c,146,18,235,90)' in ios_render
+assert 'hudOrb(c,174f,124f' in android_render and 'hudOrb(c,174,124' in ios_render
+assert 'hudGlass(c,cx-33f,cy-14f,cx+33f,cy+14f)' in android_render
+assert 'hudGlass(c,cx-33,cy-14,66,28)' in ios_render
+assert 'word("Bopi is flying","Bopi leti")' in android_render
+assert 'word("Bopi is flying","Bopi leti")' in ios_render
+for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
+             'ios/BOPAVI/BopaviCore.swift'):
+    source=(root/path).read_text()
+    assert 'hudPack(' in source and 'flightKeys' in source
+    for code in ('en','hr','de','fr','es','it','pt','nl','pl','cs','sk','sl','hu',
+                 'ro','bg','el','tr','uk','sr','bs','sv','nb','da','fi','ja','ko'):
+        import re
+        assert re.search(r'["\\s]'+code+r'\\|',source),code
+assert 'everyPickerLanguageProvidesCompleteNonemptyGameplayVocabulary' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+assert 'Missing live HUD vocabulary' in (root/'tests/SwiftParity.swift').read_text()
+print('PASS: fully rooted 8-world obstacle silhouettes, compact top HUD, 26 translated live-flight vocabularies')
+
+assert 'p.measureText(levelLabel)' in android_render
+assert 'fittedLevelFontSize' in android_render
+assert 'fittedSize=max(8,min(15' in ios_render
+assert 'hudRimColor' in ios_render
+ios_glass=ios_render.split('private func hudGlass(',1)[1].split('private func hudGoldCoin(',1)[0]
+assert 'CGPath(roundedRect:' not in ios_glass
+assert ios_glass.count('c.addArc(')==4
+assert 'c.strokePath()' in ios_glass
+print('PASS: fixed-width stage badges at any level, cached rim color and no per-frame CGPath')

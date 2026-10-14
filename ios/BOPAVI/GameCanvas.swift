@@ -5,11 +5,13 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
+    private let hudRimColor=UIColor(rgb:0x43d8ff).withAlphaComponent(196.0/255).cgColor
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
     private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
     private let language:String
-    private func word(_ en:String,_ hr:String)->String{language=="hr" ? hr : en}
+    private let hudVocabulary:[String:String]
+    private func word(_ en:String,_ hr:String)->String{hudVocabulary[en] ?? (language=="hr" ? hr : en)}
     private var lastLevelBadgeText=""
     private var cachedLevelBadge=NSAttributedString(string:"")
     private lazy var idlePrompt=NSAttributedString(string:word("TAP TO FLY","DODIRNI ZA LET"),attributes:[
@@ -104,6 +106,7 @@ final class GameCanvas: UIView {
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.coinWallet=coinWallet
         self.language=GameLanguages.normalized(languageCode)
+        self.hudVocabulary=GameLanguages.hudPack(languageCode)
         self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
         let artSize:CGFloat=124 // Video review: shrink art, never the real hitbox.
         self.birdArtSize=artSize
@@ -168,7 +171,7 @@ final class GameCanvas: UIView {
         let firstFlap = !game.active
         game.flap()
         if firstFlap && game.active {onFlightStarted?()}
-        accessibilityLabel="Bopi leti"
+        accessibilityLabel=word("Bopi is flying","Bopi leti")
         onFlap?()
         start()
         setNeedsDisplay()
@@ -336,7 +339,7 @@ final class GameCanvas: UIView {
         // Continuous actual course fraction, matching the Android gauge.
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
-        hudGlass(c,146,18,235,81)
+        hudGlass(c,146,18,235,90)
         hudText("♛",154,28,hudIconFont,0xffd45b)
         hudText("⚑",350,29,hudIconFont,0xffffff)
         rect(c,181,34,173,21,0x05234e,10)
@@ -348,18 +351,23 @@ final class GameCanvas: UIView {
         // The existing race gauge briefly celebrates level entry without
         // covering obstacles or interrupting the continuous simulation.
         let entering=game.levelTransition>0
-        rect(c,171,63,193,30,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
+        rect(c,171,60,193,26,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
         let levelText=entering ? "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(word("NEW STAGE","NOVA RAZINA"))" :
             "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(game.passed)/\(total) \(word("GATES","PROLAZI"))"
         if lastLevelBadgeText != levelText {
             lastLevelBadgeText=levelText
+            // The badge is rebuilt only at level changes. Fit long translated
+            // stage names and seven-digit level IDs inside the 193pt gauge.
+            let textWidth=(levelText as NSString).size(withAttributes:[.font:levelBadgeFont]).width
+            let fittedSize=max(8,min(15,15*184/max(1,textWidth)))
+            let fittedFont=UIFont.monospacedDigitSystemFont(ofSize:fittedSize,weight:.heavy)
             cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
-                .font:levelBadgeFont,
+                .font:fittedFont,
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
-        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:69))
-        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:103))
-        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:103))
+        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:64))
+        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:91))
+        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:91))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
         accessibilityLabel="Bopi is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
@@ -370,10 +378,27 @@ final class GameCanvas: UIView {
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
     private func hudGlass(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat) {
         rect(c,x,y,w,h,0x062755,24,0.929)
-        c.setStrokeColor(color(0x43d8ff,196.0/255))
+        c.setStrokeColor(hudRimColor)
         c.setLineWidth(2.2)
-        c.addPath(CGPath(roundedRect:CGRect(x:x+1.5,y:y+1.5,width:w-3,height:h-3),
-                         cornerWidth:22,cornerHeight:22,transform:nil))
+        // Draw the same 22pt rounded rim with reusable CGContext path commands:
+        // Formerly each badge constructed a heap-backed rounded path at 60/120Hz.
+        let left=x+1.5,top=y+1.5,right=x+w-1.5,bottom=y+h-1.5
+        let r=min(22,(right-left)*0.5,(bottom-top)*0.5)
+        c.beginPath()
+        c.move(to:CGPoint(x:left+r,y:top))
+        c.addLine(to:CGPoint(x:right-r,y:top))
+        c.addArc(center:CGPoint(x:right-r,y:top+r),radius:r,
+                 startAngle:-.pi/2,endAngle:0,clockwise:false)
+        c.addLine(to:CGPoint(x:right,y:bottom-r))
+        c.addArc(center:CGPoint(x:right-r,y:bottom-r),radius:r,
+                 startAngle:0,endAngle:.pi/2,clockwise:false)
+        c.addLine(to:CGPoint(x:left+r,y:bottom))
+        c.addArc(center:CGPoint(x:left+r,y:bottom-r),radius:r,
+                 startAngle:.pi/2,endAngle:.pi,clockwise:false)
+        c.addLine(to:CGPoint(x:left,y:top+r))
+        c.addArc(center:CGPoint(x:left+r,y:top+r),radius:r,
+                 startAngle:.pi,endAngle:3 * .pi/2,clockwise:false)
+        c.closePath()
         c.strokePath()
         rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
@@ -412,12 +437,12 @@ final class GameCanvas: UIView {
                         _ count:String,_ accent:UInt32,_ enabled:Bool) {
         // Match Android's compact top HUD. No vertical orb rail covers flight.
         let rim:UInt32=enabled ? accent : 0x5d83ac
-        hudGlass(c,cx-45,cy-19,90,38)
-        oval(c,cx-37,cy-13,24,26,rim)
-        oval(c,cx-34,cy-10,18,20,0x052855)
+        hudGlass(c,cx-33,cy-14,66,28)
+        oval(c,cx-29,cy-11,20,22,rim)
+        oval(c,cx-26,cy-8,14,16,0x052855)
         let slot=icon=="★" ? 0 : (icon=="◆" ? 1 : 2)
         let symbol=enabled ? hudOrbActiveSymbols[slot] : hudOrbInactiveSymbols[slot]
-        symbol.draw(at:CGPoint(x:cx-25-symbol.size().width/2,
+        symbol.draw(at:CGPoint(x:cx-19-symbol.size().width/2,
                                y:cy-symbol.size().height/2))
         if hudOrbCachedValues[slot] != count {
             hudOrbCachedValues[slot]=count
@@ -425,7 +450,7 @@ final class GameCanvas: UIView {
                 .font:hudOrbCounterFont,.foregroundColor:UIColor.white])
         }
         let number=hudOrbCachedNumbers[slot]
-        number.draw(at:CGPoint(x:cx+15-number.size().width/2,
+        number.draw(at:CGPoint(x:cx+13-number.size().width/2,
                                y:cy-number.size().height/2))
     }
     private func drawBoostHUD(_ c:CGContext) {
@@ -441,10 +466,10 @@ final class GameCanvas: UIView {
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
         hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,170,141,"★","\(game.stars)",0xffce43,true)
-        hudOrb(c,267,141,"◆","\(game.shield)",0x54e5ff,game.shield>0)
+        hudOrb(c,174,124,"★","\(game.stars)",0xffce43,true)
+        hudOrb(c,267,124,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,364,141,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
+        hudOrb(c,360,124,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
@@ -767,7 +792,7 @@ final class GameCanvas: UIView {
                                       _ top:CGFloat,_ bottom:CGFloat,_ seed:Int,
                                       _ shadow:UInt32,_ stone:UInt32) {
         let left=x-6, right=x+w+4
-        let upperEnd=max(0,min(88,top-38))
+        let upperEnd=max(0,min(172,top-38))
         if upperEnd>8 {
             c.beginPath()
             c.move(to:CGPoint(x:left,y:-12))
@@ -785,21 +810,21 @@ final class GameCanvas: UIView {
             c.closePath()
             c.setFillColor(color(stone,205.0/255));c.fillPath()
         }
-        let lowerStart=min(755,max(664,bottom+38))
-        if lowerStart<746 {
+        let lowerStart=min(785,max(624,bottom+38))
+        if lowerStart<780 {
             c.beginPath()
             c.move(to:CGPoint(x:left,y:lowerStart+CGFloat(seed%4)*2))
             c.addLine(to:CGPoint(x:x+8,y:lowerStart))
             c.addLine(to:CGPoint(x:x+w-4,y:lowerStart+9))
             c.addLine(to:CGPoint(x:right,y:lowerStart))
-            c.addLine(to:CGPoint(x:right,y:778))
-            c.addLine(to:CGPoint(x:left,y:778))
+            c.addLine(to:CGPoint(x:right,y:826))
+            c.addLine(to:CGPoint(x:left,y:826))
             c.closePath();c.setFillColor(color(shadow));c.fillPath()
             c.beginPath()
             c.move(to:CGPoint(x:x+8,y:lowerStart+10))
             c.addLine(to:CGPoint(x:x+w*0.63,y:lowerStart+24))
-            c.addLine(to:CGPoint(x:x+w*0.77,y:778))
-            c.addLine(to:CGPoint(x:x+5,y:778))
+            c.addLine(to:CGPoint(x:x+w*0.77,y:826))
+            c.addLine(to:CGPoint(x:x+5,y:826))
             c.closePath()
             c.setFillColor(color(stone,205.0/255));c.fillPath()
         }
@@ -812,12 +837,12 @@ final class GameCanvas: UIView {
         let cap:UInt32 = g.kind==0 ? 0x55ce6c : hue
         let cliffSeed=Int(g.phase*1024)+index*31+g.kind*59+1
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,hue)
-        drawCliffShaft(c,x,w,0,top,shade,hue,-cliffSeed)
+        drawCliffShaft(c,x,w,-25,top,shade,hue,-cliffSeed)
         rect(c,x-7,top-28,w+12,28,cap,7)
-        drawCliffShaft(c,x,w,bottom,755,shade,hue,cliffSeed)
+        drawCliffShaft(c,x,w,bottom,825,shade,hue,cliffSeed)
         rect(c,x-7,bottom,w+12,27,cap,7)
-        drawRockFacets(c,x,w,2,top-30)
-        drawRockFacets(c,x,w,bottom+28,751)
+        drawRockFacets(c,x,w,-18,top-30)
+        drawRockFacets(c,x,w,bottom+28,811)
         // Responsive cap details never stick outside the simulated collision lip.
         let flecks:[UInt32]=[0xb7ed7a,0x9af7ff,0xffd06e,0xffe29a,
                              0xf8e5cc,0xffe6a1,0xa7ffdf,0xd9baff]
@@ -827,8 +852,8 @@ final class GameCanvas: UIView {
             oval(c,fx,top-17+inset,5,5,flecks[g.kind])
             oval(c,fx,bottom+11+inset,5,5,flecks[g.kind])
         }
-        rect(c,x+6,0,7,top-30,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
-        rect(c,x+6,bottom+28,7,725-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
+        rect(c,x+6,-12,7,top-18,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
+        rect(c,x+6,bottom+28,7,781-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         switch g.kind {
         case 0:
             for j in 0...2 {
@@ -877,7 +902,7 @@ final class GameCanvas: UIView {
                 y += 57;n += 1
             }
         }
-        courses(32,top-34);courses(bottom+34,744)
+        courses(16,top-34);courses(bottom+34,809)
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
         let center=(top+bottom)*0.5,mid=x+w*0.5

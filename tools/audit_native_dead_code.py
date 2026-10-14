@@ -157,11 +157,52 @@ def audit_project_integration():
     print("PASS: six iOS source units linked to project, offline Android permission/backup contract")
 
 
+
+def audit_gameplay_locale_parity():
+    """Audit all eight runtime vocabulary keys for all 26 language choices."""
+    def rows(path, start, end):
+        content=path.read_text(encoding="utf-8")
+        if start not in content or end not in content.split(start, 1)[1]:
+            raise ValueError(f"Missing live-HUD locale table in {path.name}")
+        section=content.split(start, 1)[1].split(end, 1)[0]
+        matches=re.findall(r'(?m)^\s*"([^"\r\n]+)"\s*,?\s*$', section)
+        return [value.split("|") for value in matches]
+    issues=[]
+    try:
+        android=rows(ANDROID/"LevelEngine.kt","private val flightRows=listOf(",
+                     '    ).map { it.split("|") }')
+        ios=rows(IOS/"BopaviCore.swift","private static let flightRows:[String]=[",
+                 "    ]")
+    except ValueError as exc:
+        fail([str(exc)])
+    for platform,table in (("Android",android),("iOS",ios)):
+        if len(table)!=26 or len(set(row[0] for row in table))!=26:
+            issues.append(f"{platform}: missing or duplicate gameplay language code")
+        for row in table:
+            if len(row)!=9 or any(not cell.strip() for cell in row):
+                issues.append(f"{platform}: incomplete HUD translation for {row[0]}")
+    if android != ios:
+        issues.append("Android/iOS HUD translations diverge or have dead entries")
+    ios_source=(IOS/"GameCanvas.swift").read_text(encoding="utf-8")
+    glass=ios_source.split("private func hudGlass(",1)[-1].split(
+        "private func hudGoldCoin(",1)[0]
+    if "CGPath(roundedRect:" in glass:
+        issues.append("Per-frame heap allocation of the HUD rim CGPath")
+    for path in (ANDROID/"GameView.kt",IOS/"GameCanvas.swift"):
+        source=path.read_text(encoding="utf-8")
+        if "GameLanguages.hudPack" not in source or "drawRootedCliffBases(" not in source:
+            issues.append(f"{path.name}: inaccessible translations or missing cliff roots")
+    fail(issues)
+    print("PASS: 26 paired native gameplay languages, no dead labels or CGPath churn")
+
+
+
 def audit():
     audit_private_declarations()
     audit_resource_reachability()
     audit_audio_pairing()
     audit_project_integration()
+    audit_gameplay_locale_parity()
     print("PASS: comprehensive static native dead-code / dead-asset / package audit")
 
 
