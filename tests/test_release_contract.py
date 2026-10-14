@@ -19,6 +19,25 @@ class ReleaseContractTests(unittest.TestCase):
         self.assertRegex(version, r"^\d+\.\d+\.\d+$")
         self.assertGreater(build, 0)
 
+    def test_current_version_has_publishable_changelog(self):
+        """Catch release-notes failures before emulator builds and publish."""
+        version, build = release_metadata()
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        first_heading = next(
+            (line for line in changelog.splitlines() if line.startswith("## v")),
+            None,
+        )
+        self.assertIsNotNone(first_heading, "CHANGELOG has no version entries")
+        self.assertTrue(
+            first_heading.startswith(f"## v{version} — "),
+            f"CHANGELOG first entry must match release version v{version}: {first_heading}",
+        )
+        self.assertIn(f"(build {build})", first_heading)
+        notes = release_notes()
+        self.assertTrue(notes.startswith(first_heading))
+        self.assertIn(f"Build {build} distribution", notes)
+        self.assertIn("unsigned", notes)
+
     def test_rejects_version_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
