@@ -621,7 +621,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawRootedCliffBases(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,
                                      seed:Int,shadow:Int,stone:Int){
         val left=x-6f; val right=x+w+4f
-        val upperEnd=(top-38f).coerceAtMost(88f).coerceAtLeast(0f)
+        val upperEnd=(top-38f).coerceAtMost(172f).coerceAtLeast(0f)
         if(upperEnd>8f){
             path.reset()
             path.moveTo(left,-12f)
@@ -640,22 +640,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             path.close()
             fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
         }
-        val lowerStart=(bottom+38f).coerceAtLeast(664f).coerceAtMost(755f)
-        if(lowerStart<746f){
+        val lowerStart=(bottom+38f).coerceAtLeast(624f).coerceAtMost(785f)
+        if(lowerStart<780f){
             path.reset()
             path.moveTo(left,lowerStart+(seed%4)*2f)
             path.lineTo(x+8f,lowerStart)
             path.lineTo(x+w-4f,lowerStart+9f)
             path.lineTo(right,lowerStart)
-            path.lineTo(right,778f)
-            path.lineTo(left,778f)
+            path.lineTo(right,826f)
+            path.lineTo(left,826f)
             path.close()
             fill(shadow);c.drawPath(path,p)
             path.reset()
             path.moveTo(x+8f,lowerStart+10f)
             path.lineTo(x+w*.63f,lowerStart+24f)
-            path.lineTo(x+w*.77f,778f)
-            path.lineTo(x+5f,778f)
+            path.lineTo(x+w*.77f,826f)
+            path.lineTo(x+5f,826f)
             path.close()
             fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
         }
@@ -669,12 +669,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val top=a.top;val bottom=a.bottom
         val cliffSeed=(g.phase*1024f).toInt()+index*31+g.kind*59+1
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
-        drawCliffShaft(c,x,w,0f,top,shade,color,-cliffSeed)
+        drawCliffShaft(c,x,w,-25f,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
-        drawCliffShaft(c,x,w,bottom,755f,shade,color,cliffSeed)
+        drawCliffShaft(c,x,w,bottom,825f,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
-        drawRockFacets(c,x,w,2f,top-30f)
-        drawRockFacets(c,x,w,bottom+28f,751f)
+        drawRockFacets(c,x,w,-18f,top-30f)
+        drawRockFacets(c,x,w,bottom+28f,811f)
         // Width-aware material flecks make both narrow and wide pillars look
         // finished; every speck stays strictly inside the collision cap.
         val fleck=when(g.kind){
@@ -690,8 +690,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
         }
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
-        rect(c,x+6f,0f,x+13f,top-30f,highlight,3f)
-        rect(c,x+6f,bottom+28f,x+13f,751f,highlight,3f)
+        rect(c,x+6f,-12f,x+13f,top-30f,highlight,3f)
+        rect(c,x+6f,bottom+28f,x+13f,809f,highlight,3f)
         when(g.kind){
             0->{
                 // Layered rock with grassy ledges. Textures stay within the shaft/cap collider.
@@ -747,7 +747,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 row+=57f;n++
             }
         }
-        courses(32f,top-34f);courses(bottom+34f,744f)
+        courses(16f,top-34f);courses(bottom+34f,809f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
         val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
@@ -943,7 +943,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
-        hudGlass(c,146f,18f,381f,99f)
+        hudGlass(c,146f,18f,381f,108f)
         text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
         text(c,"⚑",363f,57f,26f,Color.WHITE,true)
         rect(c,181f,34f,354f,55f,0xff05234e.toInt(),10f)
@@ -955,12 +955,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Announce the next level inside the existing gauge, never as an
         // opaque transition overlay or a pause of the physics/game loop.
         val entering=game.levelTransition>0f
-        rect(c,171f,63f,364f,93f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
+        rect(c,171f,60f,364f,86f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
         val levelLabel=if(entering)"${word("LEVEL","RAZINA")} ${game.displayLevel} · ${word("NEW STAGE","NOVA RAZINA")}"
             else "${word("LEVEL","RAZINA")} ${game.displayLevel} · ${game.passed}/$total ${word("GATES","PROLAZI")}"
-        text(c,levelLabel,267f,83f,13f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,204f,117f,12f,0xffddf4ff.toInt(),true)
-        text(c,distanceTitle,330f,117f,12f,0xffddf4ff.toInt(),true)
+        text(c,levelLabel,267f,79f,13f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
+        text(c,progressTitle,204f,102f,11f,0xffddf4ff.toInt(),true)
+        text(c,distanceTitle,330f,102f,11f,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
@@ -1015,12 +1015,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // All passive power readouts share a narrow TOP HUD row. No large
         // floating side badges intercept the player's view of an obstacle.
         val rim=if(enabled)accent else 0xff5d83ac.toInt()
-        hudGlass(c,cx-45f,cy-19f,cx+45f,cy+19f)
-        oval(c,cx-37f,cy-13f,cx-13f,cy+13f,rim)
-        oval(c,cx-34f,cy-10f,cx-16f,cy+10f,0xff052855.toInt())
-        text(c,icon,cx-25f,cy+7f,18f,
+        hudGlass(c,cx-33f,cy-14f,cx+33f,cy+14f)
+        oval(c,cx-29f,cy-11f,cx-9f,cy+11f,rim)
+        oval(c,cx-26f,cy-8f,cx-12f,cy+8f,0xff052855.toInt())
+        text(c,icon,cx-19f,cy+6f,15f,
             if(enabled)Color.WHITE else 0xffa4bdd6.toInt(),true)
-        text(c,count,cx+15f,cy+7f,17f,Color.WHITE,true)
+        text(c,count,cx+13f,cy+6f,13f,Color.WHITE,true)
     }
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.
@@ -1039,11 +1039,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
 
         // The three narrow chips remain under the safe-top race gauge, entirely
         // above Bopi and the moving gate corridor.
-        hudOrb(c,170f,141f,"★","${game.stars}",0xffffce43.toInt(),true)
-        hudOrb(c,267f,141f,"◆","${game.shield}",
+        hudOrb(c,174f,124f,"★","${game.stars}",0xffffce43.toInt(),true)
+        hudOrb(c,267f,124f,"◆","${game.shield}",
             0xff54e5ff.toInt(),game.shield>0)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,364f,141f,"∩","$seconds",
+        hudOrb(c,360f,124f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
         val status="Bopi is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
             "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
