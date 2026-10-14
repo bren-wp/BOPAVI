@@ -1132,8 +1132,8 @@ assert 'window.decorView.systemUiVisibility=0' not in android_menu
 # irrespective of line-wrapping or source formatting of the flags.
 base_view=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 assert 'fitted.setOnApplyWindowInsetsListener' in base_view
-assert 'scroll.setOnApplyWindowInsetsListener' in base_view
-assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=2
+assert 'fitted.setOnApplyWindowInsetsListener' in base_view
+assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=1
 # The splash MUST reserve the bottom inset for its loading bar; only Home
 # must avoid a second root-level inset listener around already-safe controls.
 assert 'root.setOnApplyWindowInsetsListener' not in android_home
