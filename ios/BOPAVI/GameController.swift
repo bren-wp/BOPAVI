@@ -665,7 +665,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         walletRow.distribution = .fill
         walletRow.spacing=5
         let avatar=UIButton(type:.custom)
-        avatar.setImage(UIImage(named:"BopiPortrait0"),for:.normal)
+        avatar.setImage(UIImage(named:"BopiPortrait\(progress.skinIndex())"),for:.normal)
         avatar.imageView?.contentMode = .scaleAspectFit
         avatar.contentVerticalAlignment = .fill
         avatar.contentHorizontalAlignment = .fill
