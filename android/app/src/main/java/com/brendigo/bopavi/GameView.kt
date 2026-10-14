@@ -575,19 +575,21 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                                shadow:Int,stone:Int,seed:Int) {
         if(end-start<6f)return
         val span=end-start
+        // Consistently broad 76-unit shafts: edge fractures never narrow
+        // the visible rock to less than 60 units. Preserve the cap collision.
         val steps=6
         path.reset()
         for(i in 0..steps) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 7f+(((seed*11+i*7)%9+9)%9)
+            val inset=if(nearMouth)1f else 3f+(((seed*11+i*7)%6+6)%6)
             val lx=x+inset
             if(i==0)path.moveTo(lx,y) else path.lineTo(lx,y)
         }
         for(i in steps downTo 0) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 5f+(((seed*3+i*13)%11+11)%11)
+            val inset=if(nearMouth)1f else 3f+(((seed*3+i*13)%6+6)%6)
             path.lineTo(x+w-inset,y)
         }
         path.close()
