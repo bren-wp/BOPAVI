@@ -923,11 +923,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                                             blue:active ? 0.63 : 0.42,alpha:0.98)
                 card.clipsToBounds=true
                 card.heightAnchor.constraint(equalToConstant:118).isActive=true
-                card.accessibilityLabel="\(progress.skinNames[index]), " +
-                    (active ? (croatian ? "odabran" : "selected") :
-                     owned ? (croatian ? "dostupan" : "available") :
-                     (croatian ? "otključaj za " : "unlock for ")+
-                         "\(progress.costs[index]) "+(croatian ? "kovanica" : "coins"))
+                let pilotState:String
+                if active {
+                    pilotState=croatian ? "odabran" : "selected"
+                } else if owned {
+                    pilotState=croatian ? "dostupan" : "available"
+                } else {
+                    pilotState="\(croatian ? "otključaj za" : "unlock for") \(progress.costs[index]) \(croatian ? "kovanica" : "coins")"
+                }
+                card.accessibilityLabel="\(progress.skinNames[index]), \(pilotState)"
                 if active {card.accessibilityTraits.insert(.selected)}
                 let image=UIImageView(image:UIImage(named:"BopiPortrait\(index)"))
                 image.translatesAutoresizingMaskIntoConstraints=false
@@ -938,9 +942,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 card.addSubview(image)
                 let caption=UILabel()
                 caption.translatesAutoresizingMaskIntoConstraints=false
-                caption.text=progress.skinNames[index]+"\n"+
-                    (active ? "✓" : (owned ? (croatian ? "DOSTUPAN" : "READY") :
-                        "● \(progress.costs[index])"))
+                let pilotCaption=active ? "✓" : (owned
+                    ? (croatian ? "DOSTUPAN" : "READY")
+                    : "● \(progress.costs[index])")
+                caption.text="\(progress.skinNames[index])\n\(pilotCaption)"
                 caption.numberOfLines=2
                 caption.textAlignment = .center
                 caption.textColor=active ? UIColor(red:1,green:0.84,blue:0.33,alpha:1) : .white
@@ -992,8 +997,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 galleryRow.addArrangedSubview(card)
             }
         }
-        button((croatian ? "▶  POLETI S " : "▶  FLY WITH ")+
-               progress.skinNames[selected].uppercased(),in:stack) {
+        let flightTitle="\(croatian ? "▶  POLETI S" : "▶  FLY WITH") \(progress.skinNames[selected].uppercased())"
+        button(flightTitle,in:stack) {
             self.startGame(world,number)
         }
         button(croatian ? "←  NATRAG" : "←  BACK",in:stack,primary:false) {
