@@ -157,6 +157,51 @@ def audit_project_integration():
     print("PASS: six iOS source units linked to project, offline Android permission/backup contract")
 
 
+
+def audit_gameplay_locale_parity():
+    """Audit that every advertised locale can render all eight live HUD keys."""
+    def read(path, start, end):
+        contents=path.read_text(encoding="utf-8")
+        assert start in contents and end in contents, path
+        block=contents.split(start,1)[1].split(end,1)[0]
+        return [match.split("|") for match in re.findall(
+            r'(?m)^\s*"([^"\r\n]+)"\s*,?\s*
+    audit_private_declarations()
+    audit_resource_reachability()
+    audit_audio_pairing()
+    audit_project_integration()
+    audit_gameplay_locale_parity()
+    print("PASS: comprehensive static native dead-code / dead-asset / package audit")
+
+
+if __name__ == "__main__":
+    audit()
+,block)]
+    android=read(ANDROID/"LevelEngine.kt","private val flightRows=listOf(",
+                 '    ).map { it.split("|") }')
+    ios=read(IOS/"BopaviCore.swift","private static let flightRows:[String]=[",
+             "    ]")
+    issues=[]
+    for platform,rows in (("Android",android),("iOS",ios)):
+        if len(rows)!=26 or len(set(row[0] for row in rows))!=26:
+            issues.append(f"{platform}: missing/duplicate game locale IDs")
+        for row in rows:
+            if len(row)!=9 or any(not item.strip() for item in row):
+                issues.append(f"{platform}: incomplete HUD translation row {row[0]}")
+    if android!=ios: issues.append("Dead or diverged HUD language data across platforms")
+    ios_canvas=(IOS/"GameCanvas.swift").read_text(encoding="utf-8")
+    glass=ios_canvas.split("private func hudGlass(",1)[-1].split(
+        "private func hudGoldCoin(",1)[0]
+    if "CGPath(roundedRect:" in glass: issues.append("Per-frame CGPath HUD allocation")
+    for path in (ANDROID/"GameView.kt",IOS/"GameCanvas.swift"):
+        data=path.read_text(encoding="utf-8")
+        if "GameLanguages.hudPack" not in data or "drawRootedCliffBases(" not in data:
+            issues.append(f"{path.name}: unused locale data or absent cliff roots")
+    fail(issues)
+    print("PASS: 26 paired live HUD locale packs and allocation-safe obstacle rendering")
+
+
+
 def audit():
     audit_private_declarations()
     audit_resource_reachability()
