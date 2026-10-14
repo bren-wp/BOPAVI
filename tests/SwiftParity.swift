@@ -58,7 +58,10 @@ struct SwiftParity {
                 let l=BopaviCore.create(w,n)
                 print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))|\(l.gates.prefix(5).map{String(Int($0.width))}.joined(separator:","))")
                 var reconstructed=0
-                for (i,g) in l.gates.prefix(10).enumerated(){reconstructed |= Int((g.center-332)/26) << (i*2)}
+                let contour:[Float]=[-40,-20,0,20,40,20,0,-20,-40,-20]
+                for (i,g) in l.gates.prefix(10).enumerated(){
+                    reconstructed |= Int((g.center-332-contour[i])/26) << (i*2)
+                }
                 precondition(reconstructed == n-1)
             }
         }
