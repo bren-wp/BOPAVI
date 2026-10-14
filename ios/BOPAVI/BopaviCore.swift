@@ -459,8 +459,6 @@ enum GameLanguages {
         ("Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.","Earn coins by completing reward levels and prepare equipment for your next flight."),
         ("Privlači predmete tijekom 8 sekundi.","Attract collectibles for eight seconds."),
         ("Kupljena oprema automatski se koristi na početku sljedećeg leta.","Purchased equipment activates automatically at the start of your next flight."),
-        ("Bopi je jedini pilot. Kovanice služe isključivo za stvarnu opremu u igri.","Bopi is your pilot. Coins purchase functional in-game equipment only."),
-        ("Bopi je jedini pilot. Kovanice služe za opremu, ne za odabir likova.","Bopi is the only playable pilot. Coins buy equipment, not characters."),
         ("Tvoj letački dnevnik i osobni rezultati","Your flight journal and personal records"),
         ("Prvi rekord čeka tvoj sljedeći let!","Your first record awaits your next flight!"),
         ("TEŽINA IGRE — utječe na brzinu i gravitaciju","GAME DIFFICULTY — affects speed and gravity"),
