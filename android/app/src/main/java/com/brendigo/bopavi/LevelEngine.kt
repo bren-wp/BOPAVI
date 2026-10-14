@@ -186,6 +186,9 @@ object GameLanguages {
     // Legacy UI text keys are retained while English becomes the default
     // presentation language. Replacement is longest-first to avoid overlap.
     private val english=listOf(
+        "OPREMA ZA BOPIJEV LET" to "EQUIPMENT FOR BOPI FLIGHT",
+        "KUPI ŠTIT" to "BUY SHIELD",
+        "KUPI MAGNET" to "BUY MAGNET",
         "UČITAVANJE..." to "LOADING...",
         "Osam različitih avantura" to "Eight distinct adventures",
         "PREGLED ZAKLJUČANIH LEVELA" to "LOCKED LEVEL PREVIEW",
