@@ -42,7 +42,7 @@ struct SwiftParity {
             precondition(Array(first.gates.prefix(10).map{$0.center})==firstContours,
                          "Level 1 rock shafts require visible natural height variance")
             precondition(zip(first.gates,first.gates.dropFirst()).allSatisfy{
-                abs($0.center-$1.center)<=108
+                abs($0.0.center-$0.1.center)<=108
             })
         }
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
