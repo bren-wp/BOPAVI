@@ -2428,7 +2428,7 @@ print('PASS: fixed-width stage badges at any level, cached rim color and no per-
 for source in (kotlin_level,swift_level):
     assert '228' in source and '76' in source
     assert '242' not in source.split('fun create(',1)[-1].split('fun opening(',1)[0] or '228' in source
-for simulation in (android_game,ios_game):
+for simulation in (android_sim,ios_sim):
     assert 'transitionSpacing=ordinarySpacing' in simulation
 assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
 android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
