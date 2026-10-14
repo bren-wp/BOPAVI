@@ -36,6 +36,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // rather than allocating formatted text on every animation frame.
     private var lastProgressPassed = -1
     private var lastProgressScore = -1
+    private var scoreCaptionSize = 11f
+    private var distanceCaptionSize = 11f
     private var lastDistanceTick = -1
     private var lastLevelHudLabel = ""
     private var fittedLevelFontSize = 13f
@@ -938,11 +940,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(score!=lastProgressScore) {
             lastProgressScore=score
             progressTitle="${word("SCORE","BODOVI")} $score"
+            // Fit each value into its own half of the gauge, never across a border.
+            p.typeface=headerTypeface;p.textSize=11f
+            scoreCaptionSize=(11f*94f/p.measureText(progressTitle).coerceAtLeast(1f))
+                .coerceIn(7.5f,11f)
         }
         val distanceTick=(game.time*10f).toInt()
         if(distanceTick!=lastDistanceTick) {
             lastDistanceTick=distanceTick
             distanceTitle="${word("DIST","PUT")} ${game.distance.toInt()}"
+            p.typeface=headerTypeface;p.textSize=11f
+            distanceCaptionSize=(11f*94f/p.measureText(distanceTitle).coerceAtLeast(1f))
+                .coerceIn(7.5f,11f)
         }
         // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
@@ -959,7 +968,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Announce the next level inside the existing gauge, never as an
         // opaque transition overlay or a pause of the physics/game loop.
         val entering=game.levelTransition>0f
-        rect(c,171f,60f,364f,86f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
+        rect(c,171f,58f,364f,81f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
         val levelLabel=if(entering)"${word("LEVEL","RAZINA")} ${game.displayLevel} · ${word("NEW STAGE","NOVA RAZINA")}"
             else "${word("LEVEL","RAZINA")} ${game.displayLevel} · ${game.passed}/$total ${word("GATES","PROLAZI")}"
         // High level ordinals and long localizations must never overflow the
@@ -972,10 +981,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fittedLevelFontSize=(13f*184f/p.measureText(levelLabel).coerceAtLeast(1f))
                 .coerceIn(8f,13f)
         }
-        text(c,levelLabel,267f,79f,fittedLevelFontSize,
+        text(c,levelLabel,267f,75f,fittedLevelFontSize,
             if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,204f,102f,11f,0xffddf4ff.toInt(),true)
-        text(c,distanceTitle,330f,102f,11f,0xffddf4ff.toInt(),true)
+        text(c,progressTitle,204f,98f,scoreCaptionSize,0xffddf4ff.toInt(),true)
+        text(c,distanceTitle,330f,98f,distanceCaptionSize,0xffddf4ff.toInt(),true)
     }
     /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
      *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
