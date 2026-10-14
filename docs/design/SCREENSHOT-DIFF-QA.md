@@ -362,3 +362,8 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - Force a gameplay Result and verify "FLIGHT OVER!"/"LEVEL COMPLETE!" and actual score, world, coins and gate totals. Both World Map and Coin Shop remain tappable at once with no vertical scroll. Inspect at Android API35/API36 and iOS simulator sizes.
 - VoiceOver/TalkBack: result reward headings, world card and navigation labels should be expressed in the chosen language, with real dynamic figures.
 - Keep the current no-claims boundary for premium 3D artwork parity and full-language coverage; no screenshot baked into game assets.
+
+## v0.1.88 — verified native gameplay HUD caption boundaries
+- Evidence from the actual 1080×2400 Android v0.1.87 gameplay frame: score and distance sat too close to the bottom of the central race HUD. Expected after correction: 235×90 gameplay HUD from x146..381, y18..108 in virtual 480×800 space; stage badge y58..81; Android footer baselines y98; iOS footer top y88; 8–10 logical unit bottom clearance. Score/distance each have 94-unit max glyph width and do not overlap each other.
+- Verify the real screenshot after the Android API35/36 smoke tests; iOS retains the same physical coordinates but still needs its own actual gameplay simulator screenshot to approve full 1:1. Do not confuse Swift source parity with visual sign-off.
+- Existing 76-unit rooted rock pillars, varied heights, continuous stage seam, 48-second calmer soundtrack, Bopi sprite size/hitbox and offline storage must not change.
