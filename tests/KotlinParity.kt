@@ -11,8 +11,8 @@ fun main() {
             check(seen.add(sig)) { "duplicate $w:$n" }
             check(l.gates.size in 11..15)
             check(l.speed in 140f..212f)
-            check(l.gates.all {it.gap>=165f && it.width in 48f..88f})
-            check(l.gates.map {it.width}.toSet().size>=3)
+            check(l.gates.all {it.gap>=165f && it.width == 76f})
+            check(l.gates.map {it.gap}.toSet().size>=3)
             check(l.gates.all {LevelEngine.opening(it,100f).let {o->o.bottom-o.top>=145f} })
             checked++
         }
@@ -109,18 +109,18 @@ fun main() {
         val off=ParallaxScenery.offset(999999f,layer,false)
         check(off>=0f && off<696f)
     }
-    // v0.1.25: preserve the actual inter-gate spacing in all six zone tiers.
+    // v0.1.85: level seams retain the exact ordinary cadence in all challenge tiers.
     for (world in 0 until 8) for (number in listOf(2,62,122,182,242,302,360)) {
         val base=LevelEngine.create(world,number)
         val stream=GameSimulation(base,endless=true)
         val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
         val oldLast=stream.gateX(base.gates.last())
         val interval=base.gates.last().x-base.gates[base.gates.lastIndex-1].x
-        val expected=(interval-32f).coerceIn(190f,208f)
+        val expected=interval
         check(kotlin.math.abs(firstNext-oldLast-expected)<0.01f)
         // The next cap enters the 550-unit viewport before the last one
         // reaches x=340; no gap in scenery, gameplay, or world coordinates.
-        check(expected in 190f..208f && expected+340f<=550f)
+        check(expected in 218f..228f)
     }
     // v0.1.20: a new tap triggers a 240 ms cosmetic upstroke.
     run {
