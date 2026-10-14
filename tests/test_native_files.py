@@ -2632,3 +2632,34 @@ assert '"◖\\nSOUND"' in ios_pause and '"♫\\nMUSIC"' in ios_pause
 assert 'let spokenLabel=' in ios_pause and 'control.accessibilityLabel=spokenLabel' in ios_pause
 assert 'developmentRegion = en;' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
 print('PASS: native offline English-first PAUSE labels, sound feedback, VoiceOver and English iOS launch metadata')
+
+# v0.1.91: Actual 20-level grid is larger and must not reserve 52dp for a
+# permanent keyboard field. Optional numerical selection stays fully working.
+and_levels=android_menu.split('private fun showLevels(',1)[1].split('private fun levelTile(',1)[0]
+ios_levels=ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0]
+assert 'for(r in 0 until 5)' in and_levels and 'for(col in 0 until 4)' in and_levels
+assert 'for rowNumber in 0..<5' in ios_levels and 'for column in 0..<4' in ios_levels
+assert 'LinearLayout.LayoutParams(0,d(96),1f)' in android_menu
+assert 'cell.heightAnchor.constraint(equalToConstant:96)' in ios_menu
+assert 'b.addView(input,LinearLayout.LayoutParams(-1,d(52)))' not in and_levels
+assert 's.addArrangedSubview(field)' not in ios_levels
+assert 'android.app.AlertDialog.Builder(this)' in and_levels
+assert '.setView(input)' in and_levels
+assert 'UIAlertController(title:self.ui("POKRENI ODABRANI LEVEL")' in ios_levels
+assert 'dialog.addTextField' in ios_levels
+assert 'if(n==null||n !in 1..maxNumber)' in and_levels
+assert '(1...maxNumber).contains(n)' in ios_levels
+assert 'contentDescription=ui("Broj otključanog levela")' in and_levels
+assert 'field.accessibilityLabel=self.ui("Broj otključanog levela")' in ios_levels
+assert 'cell.accessibilityLabel=ui(' in ios_menu
+assert 'cell.accessibilityHint=ui(' in ios_menu
+assert 'scroll.isScrollEnabled=false' in ios_menu
+for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
+             'ios/BOPAVI/BopaviCore.swift'):
+    src=(root/path).read_text()
+    for translated in ('START SELECTED LEVEL','CONTINUE OR CHOOSE A LEVEL',
+                       'Choose an unlocked level within the allowed range.',
+                       'LOCKED LEVELS PREVIEW','PAGE','ZONE',
+                       'Unlocked level number','RETURN TO UNLOCKED LEVELS'):
+        assert translated in src,(path,translated)
+print('PASS: enlarged 20-card no-scroll level view, on-demand numeric picker, English-first accessibility parity')
