@@ -2074,7 +2074,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 status.widthAnchor.constraint(equalToConstant:99),
                 status.heightAnchor.constraint(equalToConstant:31)
             ])
-            row.addAction(UIAction{[weak row, weak status] _ in
+            row.addAction(UIAction{[weak self, weak row, weak status] _ in
+                guard let self=self else{return}
                 press()
                 status?.text=self.ui(statusText())
                 row?.accessibilityLabel="\(self.ui(name)), \(self.ui(statusText()))"
