@@ -316,7 +316,7 @@ final class GameCanvas: UIView {
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
-            // "PROLAZI UKUPNO" remains available in the live accessibility label.
+            // The live total remains available through voice accessibility.
             lastProgressPassed=passed
         }
         let score=game.score()
