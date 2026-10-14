@@ -90,6 +90,23 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun firstTenGatesVaryHeightWithoutUnreachableJumps() {
+        val expected=listOf(292f,312f,332f,352f,372f,352f,332f,312f,292f,312f)
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            val level=LevelEngine.create(world,1)
+            val centers=level.gates.take(10).map { it.center }
+            assertEquals("First level must not look like ten identical columns",expected,centers)
+            assertEquals(5,centers.toSet().size)
+            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 98f })
+            for (number in listOf(2,3,4,30,361,4096,524289,1048576)) {
+                val other=LevelEngine.create(world,number)
+                assertTrue("All generated gates must be reachable",other.gates.zipWithNext().all{
+                    (a,b) -> kotlin.math.abs(a.center-b.center)<=108f
+                })
+            }
+        }
+    }
+
     @Test fun threeDifficultiesChangeRealRenderableAndCollidableOpenings() {
         for(world in 0 until LevelEngine.WORLD_COUNT) {
             for(number in listOf(1, 60, 121, 240, 360, 1048576)) {

@@ -654,8 +654,8 @@ class MainActivity : Activity() {
         val zone=LevelEngine.create(world,start).zone
         val pageNumber=(start-1)/20+1
         val pageCount=(LevelEngine.LEVELS_PER_WORLD-1)/20+1
-        small(b,"ZONA $zone · LEVELI $start–${(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)}")
-        small(b,"STRANICA $pageNumber / $pageCount" +
+        // A single short line leaves space for all 20 real clickable levels.
+        small(b,"ZONA $zone · STRANICA $pageNumber / $pageCount" +
             if(start>maxNumber)" · ZAKLJUČANI LEVELI" else " · ★ ${progress.worldStars(world)}/30")
         small(b,"● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI")
         for(r in 0 until 5){

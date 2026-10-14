@@ -36,6 +36,15 @@ struct SwiftParity {
         precondition(GameLanguages.text("UKUPNO\nPROLAZA","en")=="TOTAL\nGATES")
         precondition(GameLanguages.text("MOJI REKORDI","en")=="MY RECORDS")
         precondition(GameLanguages.text("TVOJI REZULTATI","en")=="YOUR RESULTS")
+        let firstContours:[Float]=[292,312,332,352,372,352,332,312,292,312]
+        for world in 0..<8 {
+            let first=BopaviCore.create(world,1)
+            precondition(Array(first.gates.prefix(10).map{$0.center})==firstContours,
+                         "Level 1 rock shafts require visible natural height variance")
+            precondition(zip(first.gates,first.gates.dropFirst()).allSatisfy{
+                abs($0.0.center-$0.1.center)<=108
+            })
+        }
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
         var checked=0
         for w in 0..<8 {
@@ -58,7 +67,10 @@ struct SwiftParity {
                 let l=BopaviCore.create(w,n)
                 print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))|\(l.gates.prefix(5).map{String(Int($0.width))}.joined(separator:","))")
                 var reconstructed=0
-                for (i,g) in l.gates.prefix(10).enumerated(){reconstructed |= Int((g.center-332)/26) << (i*2)}
+                let contour:[Float]=[-40,-20,0,20,40,20,0,-20,-40,-20]
+                for (i,g) in l.gates.prefix(10).enumerated(){
+                    reconstructed |= Int((g.center-332-contour[i])/26) << (i*2)
+                }
                 precondition(reconstructed == n-1)
             }
         }

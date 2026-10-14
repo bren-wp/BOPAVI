@@ -712,8 +712,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let zone=BopaviCore.create(world,start).zone
         let pageNumber=(start-1)/20+1
         let pageCount=(BopaviCore.levelsPerWorld-1)/20+1
-        label("ZONA \(zone) · LEVELI \(start)–\(min(start+19,BopaviCore.levelsPerWorld))",16,.white,s)
-        let pageCaption="STRANICA \(pageNumber) / \(pageCount)" +
+        // The 5x4 illustrated grid and Back button remain on screen.
+        let pageCaption="ZONA \(zone) · STRANICA \(pageNumber) / \(pageCount)" +
             (start>maxNumber ? " · ZAKLJUČANI LEVELI" : " · ★ \(progress.worldStars(world))/30")
         label(pageCaption,14,UIColor(red:0.87,green:0.93,blue:1,alpha:1),s)
         label("● NORMALNI · ⚡ IZAZOVNI · ✦ BONUS · ♛ ELITNI",13,.white,s)

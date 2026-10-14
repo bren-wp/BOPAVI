@@ -16,6 +16,12 @@ object LevelEngine {
     data class Gate(val x: Float, val center: Float, val gap: Float, val width: Float, val movement: Float, val phase: Float, val kind: Int, val coin: Boolean, val star: Boolean, val power: Int)
     data class Level(val world: Int, val number: Int, val zone: Int, val speed: Float, val wind: Float, val gates: List<Gate>, val type: Int)
     data class Opening(val top: Float, val bottom: Float)
+    // A rolling 10-gate ridge profile. The indexed 2-bit level fingerprint
+    // remains injective, but Level 1 no longer has ten identical openings.
+    // Neighbouring base heights differ by at most 20 units; encoded 2-bit
+    // changes add at most 78, so adjacent gates never jump over 98 units.
+    private val centerContour=intArrayOf(-40,-20,0,20,40,20,0,-20,-40,-20)
+
     private class Random32(seed: UInt) {
         var state = if (seed == 0u) 0x6d2b79f5u else seed
         fun next(): Float {
@@ -40,7 +46,7 @@ object LevelEngine {
         for (i in 0 until count) {
             // Ten 2-bit digits give an injective signature for all 2^20 level numbers.
             // No random position is added to these ten centers.
-            val center = if (i < 10) 332f + (((number - 1) ushr (i * 2)) and 3) * 26f
+            val center = if (i < 10) 332f + centerContour[i].toFloat() + (((number - 1) ushr (i * 2)) and 3) * 26f
                 else (last + (r.next() - 0.5f) * 90f).coerceIn(235f, 465f)
             last = center
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)

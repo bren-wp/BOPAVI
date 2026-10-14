@@ -575,19 +575,21 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                                shadow:Int,stone:Int,seed:Int) {
         if(end-start<6f)return
         val span=end-start
+        // Consistently broad 76-unit shafts: edge fractures never narrow
+        // the visible rock to less than 60 units. Preserve the cap collision.
         val steps=6
         path.reset()
         for(i in 0..steps) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 7f+(((seed*11+i*7)%9+9)%9)
+            val inset=if(nearMouth)1f else 3f+(((seed*11+i*7)%6+6)%6)
             val lx=x+inset
             if(i==0)path.moveTo(lx,y) else path.lineTo(lx,y)
         }
         for(i in steps downTo 0) {
             val y=start+span*i/steps
             val nearMouth=if(seed<0)i==steps else i==0
-            val inset=if(nearMouth)1f else 5f+(((seed*3+i*13)%11+11)%11)
+            val inset=if(nearMouth)1f else 3f+(((seed*3+i*13)%6+6)%6)
             path.lineTo(x+w-inset,y)
         }
         path.close()
@@ -666,6 +668,40 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
         }
     }
+    /** Biome-colored fissure planes keep all 76-unit pillars visually massive.
+     * Seeded from each gate's phase: no randomness or bitmap work per frame.
+     * This overlay remains inside the solid 76-unit collision shaft; the
+     * opening, bird collider and cap faces are strictly unchanged.
+     */
+    private fun drawRockStrata(c:Canvas,x:Float,w:Float,start:Float,end:Float,
+                               seed:Int,shadow:Int,glow:Int) {
+        val height=end-start
+        if(height<70f)return
+        val count=(height/94f).toInt().coerceIn(1,7)
+        for(i in 0 until count) {
+            val jitter=((seed.toLong()*17L+i*23L).and(0x7L)).toFloat()
+            val y=start+18f+i*(height-35f)/count
+            val left=x+12f+jitter*.5f
+            val mid=x+w*.44f
+            val right=x+w-13f-jitter*.4f
+            path.reset()
+            path.moveTo(left,y)
+            path.lineTo(mid,y+12f)
+            path.lineTo(right,y+6f)
+            path.lineTo(mid+4f,y+28f)
+            path.close()
+            fill(shadow);p.alpha=142
+            c.drawPath(path,p);p.alpha=255
+            path.reset()
+            path.moveTo(left+2f,y+1f)
+            path.lineTo(mid,y+11f)
+            path.lineTo(right-3f,y+5f)
+            fill(glow)
+            p.style=Paint.Style.STROKE;p.strokeWidth=1.5f;p.alpha=135
+            c.drawPath(path,p)
+            p.style=Paint.Style.FILL;p.alpha=255
+        }
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -681,6 +717,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawRockFacets(c,x,w,-18f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,811f)
+        // Rock strata follow each world's material, not a generic flat
+        // white column. They never project into the traversable gap.
+        val stratumGlint=biomeReliefGlints[g.kind]
+        drawRockStrata(c,x,w,-14f,top-29f,cliffSeed,shade,stratumGlint)
+        drawRockStrata(c,x,w,bottom+28f,813f,-cliffSeed,shade,stratumGlint)
         // Width-aware material flecks make both narrow and wide pillars look
         // finished; every speck stays strictly inside the collision cap.
         val fleck=when(g.kind){

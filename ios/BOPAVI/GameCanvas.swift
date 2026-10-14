@@ -758,16 +758,16 @@ final class GameCanvas: UIView {
         for i in 0...6 {
             let y=start+span*CGFloat(i)/6
             let nearMouth=seed<0 ? i==6 : i==0
-            let variation=((seed*11+i*7)%9+9)%9
-            let inset:CGFloat=nearMouth ? 1 : 7+CGFloat(variation)
+            let variation=((seed*11+i*7)%6+6)%6
+            let inset:CGFloat=nearMouth ? 1 : 3+CGFloat(variation)
             if i==0 {c.move(to:CGPoint(x:x+inset,y:y))}
             else {c.addLine(to:CGPoint(x:x+inset,y:y))}
         }
         for i in stride(from:6,through:0,by:-1) {
             let y=start+span*CGFloat(i)/6
             let nearMouth=seed<0 ? i==6 : i==0
-            let variation=((seed*3+i*13)%11+11)%11
-            let inset:CGFloat=nearMouth ? 1 : 5+CGFloat(variation)
+            let variation=((seed*3+i*13)%6+6)%6
+            let inset:CGFloat=nearMouth ? 1 : 3+CGFloat(variation)
             c.addLine(to:CGPoint(x:x+w-inset,y:y))
         }
         c.closePath()
@@ -840,6 +840,40 @@ final class GameCanvas: UIView {
             c.setFillColor(color(stone,205.0/255));c.fillPath()
         }
     }
+    /// Biome-specific fissure planes keep all pillars visually broad.
+    /// Every facet stays within the non-flyable shaft; no collider changes.
+    /// Integer-seeded, no object/image allocations inside the 60 Hz flight.
+    private func drawRockStrata(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
+                                _ start:CGFloat,_ end:CGFloat,_ seed:Int,
+                                _ shade:UInt32,_ glint:UInt32) {
+        let height=end-start
+        guard height>=70 else{return}
+        let count=max(1,min(7,Int(height/94)))
+        // Resolve just two CGColors for an entire shaft; never per stone row.
+        let shadowColor=color(shade,142.0/255)
+        let glowColor=color(glint,135.0/255)
+        for i in 0..<count {
+            let jitter=CGFloat((seed*17+i*23)&7)
+            let y=start+18+CGFloat(i)*(height-35)/CGFloat(count)
+            let left=x+12+jitter*0.5
+            let mid=x+w*0.44
+            let right=x+w-13-jitter*0.4
+            c.beginPath()
+            c.move(to:CGPoint(x:left,y:y))
+            c.addLine(to:CGPoint(x:mid,y:y+12))
+            c.addLine(to:CGPoint(x:right,y:y+6))
+            c.addLine(to:CGPoint(x:mid+4,y:y+28))
+            c.closePath()
+            c.setFillColor(shadowColor);c.fillPath()
+            c.beginPath()
+            c.move(to:CGPoint(x:left+2,y:y+1))
+            c.addLine(to:CGPoint(x:mid,y:y+11))
+            c.addLine(to:CGPoint(x:right-3,y:y+5))
+            c.setStrokeColor(glowColor)
+            c.setLineWidth(1.5)
+            c.strokePath()
+        }
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time,difficulty:game.difficulty);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -854,6 +888,9 @@ final class GameCanvas: UIView {
         rect(c,x-7,bottom,w+12,27,cap,7)
         drawRockFacets(c,x,w,-18,top-30)
         drawRockFacets(c,x,w,bottom+28,811)
+        let stratumGlint=biomeReliefGlints[g.kind]
+        drawRockStrata(c,x,w,-14,top-29,cliffSeed,shade,stratumGlint)
+        drawRockStrata(c,x,w,bottom+28,813,-cliffSeed,shade,stratumGlint)
         // Responsive cap details never stick outside the simulated collision lip.
         let flecks:[UInt32]=[0xb7ed7a,0x9af7ff,0xffd06e,0xffe29a,
                              0xf8e5cc,0xffe6a1,0xa7ffdf,0xd9baff]

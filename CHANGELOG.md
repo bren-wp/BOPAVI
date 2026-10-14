@@ -1,3 +1,11 @@
+## v0.1.92 — distinct first-flight rock heights and clearer non-scrolling level picker (build 95)
+- All eight worlds now start with ten deterministically varied rock-column opening heights rather than ten almost-identical centers on Level 1. A smooth per-gate base contour (−40, −20, 0, +20, +40, +20, 0, −20, −40, −20) is added to the existing injective 2-bit level signature. The maximum deterministic adjacent gate-center step remains at most 98 logical units, so the new visual variance never requires an impossible abrupt rise/fall.
+- Keep the same substantial 76-unit column width, fixed body hitbox, genuine Easy/Normal/Hard opening collision geometry, seamless 218–228-unit inter-gate cadence and camera-anchored upper/lower roots. Narrower random side cuts are now bounded at 3–8 units instead of 5–15; foreground pillars read as broad, substantial fantasy rock rather than detached thin stems. Android and iOS material outlines use the same seeded geometry.
+- Simplify the native five-row/four-column level picker to a single concise zone/page/progress caption, recovering vertical space for authentic illustrated cards and always-visible Back/Continue without permitting a vertical scroll view. No screenshots baked into interactive UI.
+- Extend Kotlin/JVM + Swift gameplay parity with exact first-stage 10-gate contour, level decoding and adjacent-reachability regression; expand source tests for collision-preserving anchored silhouettes and English-first no-scroll page composition.
+- Bird size, sound, actual wallet and reward values, nine playable pilots, eight world identities, long-form ambient music and save formats remain unchanged. **1:1 premium 3D concept art and full 26-language coverage of long-form menus are not yet independently validated**; no claim otherwise.
+- Require green Android Lint/JVM/APK/AAB/API35+36 emulator screenshot/interaction QA, iOS simulator/device builds and native Swift parity, privacy/static/dead-code tests and release artifact hashes before publishing.
+
 ## v0.1.91 — Larger no-scroll level gallery and accessible native level selection (build 94)
 - Polish the real illustrated 20-level grid on both native platforms. Each of five rows of four cards uses a larger 96-unit tap surface (previously 86), while maintaining genuine world art, completed stars, saved unlock states, selected-level highlight and the existing difficulty/reward categories.
 - Move the optional numeric level selection from a permanently visible text field into a native, cancelable dialog. This returns space to the level gallery and avoids opening or obscuring the menu with a software keyboard until the player explicitly chooses to jump. All previous selection safeguards are preserved: no locked-level starts, no out-of-range values, no fabricated progress, no reset of saved data.
@@ -890,3 +898,8 @@ Released after the accumulated Android/iOS improvements since v0.1.31.
 - Zajednički generator i testiranje jednakosti fizike.
 - Ispravljen tip brojila zamaha u Android spremanju te uključena iOS audio implementacija u build.
 - Novi marketing README s logotipom, ilustracijom i opisima svjetova.
+
+### PR #116 continued — rooted rock depth pass
+- Android and iOS paint multiple deterministic mineral fissure bands *inside* the existing 76-unit rocky shafts. They inherit each of the eight world palettes and the seeded obstacle phase. Both top and bottom halves terminate beyond the camera bounds, but fissures stay outside the traversable opening and cannot introduce false collision edges.
+- The new layers use a reused Android Paint/Path. Swift resolves each banded cliff's shade and glow CGColors once, outside the per-stratum loop. No new sprite, asset, remote service, purchased content or gameplay parameter.
+- Source regressions check parity of top/bottom placement, material selection, the exact 76-unit collision thickness and absence of per-band Swift CGColor allocations. Pixel-for-pixel parity with the supplied 3D concept-art backgrounds **remains unapproved**; subsequent artwork implementation needs side-by-side visual sign-off.
