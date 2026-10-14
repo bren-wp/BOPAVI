@@ -141,6 +141,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --quiet pillow
+      - name: Generate and validate original 48-second offline soundtrack
+        run: |
+          python tools/generate_audio.py
+          python tools/verify_audio.py
       - run: python tests/test_native_files.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
@@ -191,6 +195,10 @@ jobs:
           test -x "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
           "$SDKM" --install 'platforms;android-36' 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Rebuild original relaxing offline soundtrack into Android resources
+        run: |
+          python3 tools/generate_audio.py
+          python3 tools/verify_audio.py
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
         run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
@@ -338,6 +346,10 @@ jobs:
         with:
           name: rendered-graphics
           path: .
+      - name: Generate and validate identical calm soundtrack for iOS bundle
+        run: |
+          python3 tools/generate_audio.py
+          python3 tools/verify_audio.py
       - name: Build simulator release
         run: |
           xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-sim" CODE_SIGNING_ALLOWED=NO build

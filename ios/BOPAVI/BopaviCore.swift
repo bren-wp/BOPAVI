@@ -49,10 +49,10 @@ enum BopaviCore {
             else { center = min(465, max(235, last + (rng.next() - 0.5)*90)) }
             last = center
             let active = (zone >= 2 && i >= 5 && (i+number+world)%3 == 0) || (type == 2 && i >= 4 && i%3 == 0) || (world == 4 && i >= 4 && i%4 == 0)
-            gates.append(Gate(x:560 + Float(i*(242-zone*2)), center:center,
+            gates.append(Gate(x:420 + Float(i*(228-zone*2)), center:center,
                               // Same per-obstacle gap rhythm and RNG call order as Kotlin.
                               gap:max(164,gap+(rng.next()-0.5)*(i < 2 ? 12 : 30+Float(zone)*2)+(i%5 == 0 ? 8 : 0)),
-                              width:48 + Float(((i*5 + Int(rng.next()*9)) % 9)*5),
+                              width:76,
                               movement:active ? 7+rng.next()*9 : 0, phase:rng.next()*6.283185,
                               kind:world, coin:i%3 != 2 || type == 1, star:i%4 == 2 || type == 1,
                               power:i >= 2 && (number+i+world)%11 == 0 ? 1 : i >= 2 && (number+i+world)%13 == 0 ? 2 : 0))
@@ -177,11 +177,11 @@ final class GameSimulation {
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
         let next=BopaviCore.createStream(level.world,displayLevel+1)
-        // Reduce the seam by 32 logical units while preserving the real
-        // last-to-first world-space position and a safe 190–208-unit interval.
+        // Keep the identical 218..228 px obstacle cadence across levels:
+        // no longer or shorter transition beat, camera jump or visible void.
         let last=level.gates.count-1
-        let ordinarySpacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 242
-        let transitionSpacing=min(208,max(190,ordinarySpacing-32))
+        let ordinarySpacing:Float=last>0 ? level.gates[last].x-level.gates[last-1].x : 228
+        let transitionSpacing=ordinarySpacing
         nextOrigin=levelOrigin+Double(level.gates[last].x)+Double(transitionSpacing)-Double(next.gates[0].x)
         nextLevel=next
     }

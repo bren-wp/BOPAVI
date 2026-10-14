@@ -57,12 +57,13 @@ class LevelEngineTest {
         }
     }
 
-    @Test fun proceduralGatesHaveVariedWidthsAndReachableOpenings() {
+    @Test fun proceduralGatesKeepWideUniformPillarsAndVariedHeights() {
         for (world in 0 until LevelEngine.WORLD_COUNT) for (number in listOf(1,30,61,360,1001)) {
             val level=LevelEngine.create(world,number)
             assertEquals(level.gates,LevelEngine.create(world,number).gates)
-            assertTrue(level.gates.map { it.width }.toSet().size >= 3)
-            assertTrue(level.gates.all { it.width in 48f..88f })
+            assertEquals("First obstacle already visible at world=$world level=$number",420f,level.gates.first().x,0f)
+            assertEquals(setOf(76f),level.gates.map { it.width }.toSet())
+            assertTrue(level.gates.all { it.width==76f })
             val gaps=level.gates.map { it.gap }
             assertTrue("Each level needs recognizable tall/short pillars",gaps.max()-gaps.min() >= 9f)
             assertTrue(gaps.all { it >= 164f })
@@ -117,10 +118,10 @@ class LevelEngineTest {
                 val game=GameSimulation(level,endless=true)
                 val last=level.gates.last()
                 val interval=last.x-level.gates[level.gates.lastIndex-1].x
-                val seam=(interval-32f).coerceIn(190f,208f)
+                val seam=interval
                 val firstNext=game.upcomingGateX(game.upcomingGates().first())
                 assertEquals(seam,firstNext-game.gateX(last),.01f)
-                assertTrue(seam+340f<=550f) // Incoming visible before outgoing leaves.
+                assertTrue(seam in 218f..228f) // Identical in-level / cross-level rhythm.
                 assertEquals(0f,game.levelProgress,0f)
                 game.flap()
                 game.step(.05f)
@@ -266,8 +267,7 @@ class LevelEngineTest {
     }
 
     @Test fun streamingKeepsRealGateRhythmAcrossEveryChallengeZone() {
-        // The next-level interval is compressed 32 units for an uninterrupted flight. Incoming
-        // obstacles retain a safe 190–208-unit gap instead of a fixed 242px stretch.
+        // The next level begins at exactly the normal inter-gate cadence.
         for(world in 0 until LevelEngine.WORLD_COUNT) {
             for(number in listOf(2,62,122,182,242,302,360)) {
                 val level=LevelEngine.create(world,number)
@@ -275,7 +275,7 @@ class LevelEngineTest {
                 val oldLast=stream.gateX(level.gates.last())
                 val lastSpacing=level.gates.last().x-level.gates[level.gates.lastIndex-1].x
                 val firstNext=stream.upcomingGateX(stream.upcomingGates().first())
-                assertEquals("world=$world level=$number",(lastSpacing-32f).coerceIn(190f,208f),firstNext-oldLast,0.001f)
+                assertEquals("world=$world level=$number",lastSpacing,firstNext-oldLast,0.001f)
                 assertEquals(0f,stream.distance,0f)
                 assertFalse(stream.active)
             }
@@ -293,7 +293,7 @@ class LevelEngineTest {
         val current=sim.level.gates.first()
         val upcoming=sim.upcomingGates().first()
         val spacing=sim.level.gates.last().x-sim.level.gates[sim.level.gates.lastIndex-1].x
-        assertEquals((spacing-32f).coerceIn(190f,208f),sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
+        assertEquals(spacing,sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
         assertEquals(current.x,sim.gateX(current),.0001f)
     }
 

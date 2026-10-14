@@ -37,12 +37,12 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
-        // Compress only the junction by 32 logical units, keeping 190–208 units
-        // between the last/first caps. Next scenery and obstacles enter before
-        // the old level ends: no blank camera stretch or hidden teleport.
+        // A level boundary is not a gap or a special shortened/lengthened beat.
+        // Match the current level's exact 218..228 px gate cadence so the next
+        // visible obstacle is positioned in the same uninterrupted world stream.
         val ordinarySpacing=if(level.gates.size>=2)
-            level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 242f
-        val transitionSpacing=(ordinarySpacing-32f).coerceIn(190f,208f)
+            level.gates.last().x-level.gates[level.gates.lastIndex-1].x else 228f
+        val transitionSpacing=ordinarySpacing
         nextOrigin=levelOrigin+level.gates.last().x.toDouble()+transitionSpacing.toDouble()-upcoming.gates.first().x.toDouble()
         nextLevel=upcoming
     }

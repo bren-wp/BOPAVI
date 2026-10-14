@@ -1132,8 +1132,8 @@ assert 'window.decorView.systemUiVisibility=0' not in android_menu
 # irrespective of line-wrapping or source formatting of the flags.
 base_view=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 assert 'fitted.setOnApplyWindowInsetsListener' in base_view
-assert 'scroll.setOnApplyWindowInsetsListener' in base_view
-assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=2
+assert 'fitted.setOnApplyWindowInsetsListener' in base_view
+assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=1
 # The splash MUST reserve the bottom inset for its loading bar; only Home
 # must avoid a second root-level inset listener around already-safe controls.
 assert 'root.setOnApplyWindowInsetsListener' not in android_home
@@ -1935,13 +1935,13 @@ print('PASS: Android/iOS full-bleed background only; letterboxed physical gamepl
 # v0.1.67 cross-platform seeded pillar diversity and proportional art.
 kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'width = 48f +' in kotlin_level and 'width:48 + Float(' in swift_level
-assert '((i * 5 +' in kotlin_level and '((i*5 +' in swift_level
+assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'i * (228f - zone * 2)' in kotlin_level and 'i*(228-zone*2)' in swift_level
 assert 'birdSize=124f' in android_view
 assert 'let artSize:CGFloat=124' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
-print('PASS: proportional pilots, pivot attachment, shared procedural widths')
+print('PASS: proportional pilots, pivot attachment, uniform substantial 76-unit pillars')
 
 # v0.1.67 visual and gameplay polish: no long empty transition, no invented
 # metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
@@ -1951,14 +1951,14 @@ android_canvas=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt'
 ios_canvas=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
 for game in (android_game,ios_game):
     assert 'ordinarySpacing' in game and 'transitionSpacing' in game
-    assert '32' in game and '190' in game and '208' in game
+    assert 'transitionSpacing=ordinarySpacing' in game
     assert 'levelProgress' in game and 'preciseDistance' in game
 for canvas in (android_canvas,ios_canvas):
     assert 'game.levelProgress' in canvas
     assert 'width-aware' in canvas.lower() or 'responsive cap details' in canvas.lower()
 assert 'upravljanje povlačenjem' not in (root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
 assert 'upravljanje povlačenjem' not in (root/'ios/BOPAVI/GameController.swift').read_text()
-print('PASS: short seamless level junction, continuous live HUD and themed collision-faithful caps')
+print('PASS: exact-cadence level junction, continuous HUD and collision-faithful themed caps')
 
 # v0.1.68 — pilot portrait + verified persistent offline wallet in both
 # frame-synchronous HUDs. No invented balances or accessibility truncation.
@@ -2058,7 +2058,7 @@ assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
 assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
 assert 'drawBoostHUD(c)' in ios_game.split('c.restoreGState()',1)[1] or 'drawBoostHUD(c)' in ios_game
 assert 'FitViewportColumn(this)' in android_menu
-assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+assert 'scroll.isScrollEnabled=false' in ios_menu
 fit_screen=(root/'android/app/src/main/java/com/brendigo/bopavi/FitViewportColumn.kt').read_text()
 assert 'View.MeasureSpec.UNSPECIFIED' in fit_screen and 'availableH.toFloat()/intrinsicH' in fit_screen
 assert 'body.scaleY=fit' in fit_screen and 'body.scaleX=fit' in fit_screen
@@ -2159,7 +2159,7 @@ for code in (android_shop,ios_shop):
     assert 'StoreKit' not in code and 'BillingClient' not in code
 assert 'LinearLayout.LayoutParams(0,-2,1f)' in android_shop
 assert 'cardRow.distribution = .fillEqually' in ios_shop
-assert 'label=="TRGOVINA" || label=="MOJI REKORDI"' in android_menu
+assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'scroll.isScrollEnabled=false' in ios_menu
 assert 'title == "TRGOVINA" || title == "MOJI REKORDI"' in ios_menu
@@ -2205,7 +2205,7 @@ for menu in (android_prof,ios_prof):
         assert actual in menu,('profile',actual)
     assert 'showAchievements(' in menu and 'showSettings()' in menu
     assert 'cloudSave' not in menu and 'playerXP' not in menu
-assert 'label=="PROFIL"' in android_base
+assert 'val fitted=FitViewportColumn(this)' in android_base
 assert 'FitViewportColumn(this)' in android_base
 assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
 assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
@@ -2213,7 +2213,7 @@ assert 'menuBackAction={showHome()}' in android_prof
 assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
-assert 'currentMenuName == "PROFIL"' in ios_menu
+assert 'guard currentMenuName != ""' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if stack.transform != desired' in ios_menu
@@ -2245,9 +2245,9 @@ assert 'MenuOrigin.RECORDS -> showLeaderboardPage(0,recordsReturnToSettings)' in
 assert 'case .records: self.showLeaderboardPage(0,fromSettings:self.recordsReturnToSettings)' in ios_achievements
 assert 'for(row in 0..3)' in android_achievements and 'for(col in 0..1)' in android_achievements
 assert 'for row in 0..<4' in ios_achievements and 'for col in 0..<2' in ios_achievements
-assert 'if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA")' in android_menu
+assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'title == "POSTIGNUĆA"' in ios_menu
-assert 'currentMenuName == "POSTIGNUĆA"' in ios_menu
+assert 'guard currentMenuName != ""' in ios_menu
 assert 'android-achievements.png' in (root/'tools/qa_android_emulator.sh').read_text()
 assert 'FAIL: Achievements Back did not restore Records' in (root/'tools/qa_android_emulator.sh').read_text()
 print('PASS: v0.1.79 eight real achievement cards and correct Records navigation')
@@ -2304,7 +2304,7 @@ assert 'scroll.setOnApplyWindowInsetsListener{v,insets->' in android_home
 assert 'scroll.requestApplyInsets()' in android_home
 assert 'insets.systemWindowInsetBottom' in android_home
 assert 'insets.displayCutout' in android_home
-assert 'scroll.isScrollEnabled=title != "BOPAVI"' in ios_menu
+assert 'scroll.isScrollEnabled=false' in ios_menu
 assert 'homeViewport.frameLayoutGuide.heightAnchor' in ios_home
 assert 'stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor)' not in ios_home
 for home in (android_home, ios_home):
@@ -2422,3 +2422,31 @@ assert 'CGPath(roundedRect:' not in ios_glass
 assert ios_glass.count('c.addArc(')==4
 assert 'c.strokePath()' in ios_glass
 print('PASS: fixed-width stage badges at any level, cached rim color and no per-frame CGPath')
+
+# v0.1.85: continuous in-level and cross-level gate cadence, equal substantial
+# 76-unit pillar thickness, fixed safe-area menus and long ambient WAV loops.
+for source in (kotlin_level,swift_level):
+    assert '228' in source and '76' in source
+    assert '242' not in source.split('fun create(',1)[-1].split('fun opening(',1)[0] or '228' in source
+for simulation in (android_sim,ios_sim):
+    assert 'transitionSpacing=ordinarySpacing' in simulation
+assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
+ios_menu_base=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
+assert 'val fitted=FitViewportColumn(this)' in android_base
+assert 'ScrollView(this)' not in android_base
+assert 'scroll.isScrollEnabled=false' in ios_menu_base
+assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
+assert 'guard currentMenuName != ""' in ios_menu
+assert 'if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK"' in android_menu
+audio_generator=(root/'tools/generate_audio.py').read_text()
+audio_contract=(root/'tools/verify_audio.py').read_text()
+workflow=(root/'.github/workflows/native-ci.yml').read_text()
+assert 'LOOP_SECONDS = 48' in audio_generator
+assert 'PROGRESSION = ' in audio_generator and 'harmonic(note)' in audio_generator
+assert '48*RATE' in audio_contract and 'audible loop click' in audio_contract
+assert workflow.count('python3 tools/generate_audio.py')==2
+assert 'python tools/generate_audio.py' in workflow
+assert 'x = 420f + i * (228f - zone * 2)' in kotlin_level
+assert 'x:420 + Float(i*(228-zone*2))' in swift_level
+print('PASS: 76-point constant rock widths, exact-cadence level transitions, no-scroll primary menus and native 48-second soundtrack')

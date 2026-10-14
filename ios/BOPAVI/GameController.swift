@@ -275,14 +275,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
-        // Home controls fit on one screen, including the safe area and the
-        // bottom navigation. Keep scrolling for information-dense submenus.
-        scroll.alwaysBounceVertical=title != "BOPAVI"
-        scroll.isScrollEnabled=title != "BOPAVI"
-        if title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" {
-            scroll.isScrollEnabled=false
-            scroll.alwaysBounceVertical=false
-        }
+        // All native menu screens are safe-area-contained; the content stack
+        // is fitted in viewDidLayoutSubviews, not clipped or made scrollable.
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
         scroll.showsVerticalScrollIndicator=false
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -344,10 +340,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
         backgroundGradient?.frame=view.bounds
-        // PROFILE combines a real pilot card, earned awards and best worlds.
-        // Fit the native stack (not a screenshot) into each device safe-area.
-        guard (currentMenuName == "PROFIL" || currentMenuName == "POSTIGNUĆA"),
+        // Uniform safe-area scaling for every native menu, with no scroll.
+        // Only the actual UI is transformed; illustrations stay full-bleed.
+        guard currentMenuName != "",
               let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
+              !scroll.isScrollEnabled,
               let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
               scroll.bounds.height>0,stack.bounds.height>0 else{return}
         let naturalHeight=stack.bounds.height
@@ -691,7 +688,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 worldTile(world,in:row){self.showLevels(world,page:1)}
             }
         }
-        button("‹  Natrag",in:stack,primary:false){self.showHome()}
+        button(progress.languageCode=="hr" ? "←  NATRAG" : "←  BACK",in:stack,primary:false){self.showHome()}
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)

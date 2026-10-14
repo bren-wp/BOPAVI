@@ -45,15 +45,16 @@ object LevelEngine {
             last = center
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)
             gates += Gate(
-                x = 560f + i * (242f - zone * 2), center = center,
+                x = 420f + i * (228f - zone * 2), center = center,
                 // A rhythm of tall/short pillars: the opening changes per obstacle,
                 // not by an almost invisible 0–3px. Intro gates stay forgiving.
                 // Gap >=164 before difficulty/movement; hard mode remains >=145.
                 gap = (gap + (r.next() - .5f) *
                     (if(i < 2) 12f else 30f + zone * 2f) +
                     (if(i % 5 == 0) 8f else 0f)).coerceAtLeast(164f),
-                // Nine seeded widths. Even the widest pillar leaves a reachable horizontal approach.
-                width = 48f + ((i * 5 + (r.next() * 9f).toInt()) % 9) * 5f,
+                // One substantial, consistent pillar thickness across all eight worlds.
+                // Difficulty instead varies top/bottom heights, opening and timing.
+                width = 76f,
                 movement = if (active) 7f + r.next() * 9f else 0f,
                 phase = r.next() * 6.283185f,
                 kind = world, coin = i % 3 != 2 || type == 1,
