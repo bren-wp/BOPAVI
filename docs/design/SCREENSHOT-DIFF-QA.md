@@ -378,3 +378,9 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - In an actual active flight, open Pause. Confirm the saved pilot portrait, three working action buttons, Sound/Music/Controls/Settings row and inline audio options all fit without vertical scrolling. Confirm tap/Back resume preserves the same game progress and the music mute remains honored.
 - For the **English default**, the native modal must say PAUSE, Paused · Level N, Music, Effects, Controls and Settings (including accessibility labels and feedback toasts). Croatian must retain PAUZA, Glazba, Zvukovi etc. Other locale strings fall back to English unless translated and separately reviewed.
 - Update side-by-side reference comparisons for Home, Worlds, Levels, 3×3 pilots, Pause, Settings, Results and gameplay. Current 2D native art is still not the exact painterly 3D supplied design; do not report 1:1 visual approval based on a green code/build test alone.
+
+## v0.1.91 — Level-selection focus
+- Android 15 and 16: verify the 20 actual illustrated level controls (5×4), visible in one frame without vertical scroll, each physically at least 72 pixels wide/high and accurately reporting level, lock status and earned stars. Verify Next 20, Back, Continue Flight and locked previews.
+- Tap the *Start Selected Level* action: numeric field must appear only inside a native cancelable dialog, prefilled from the actual unlocked range, with accessible label. Cancel must restore all 20 cards and Back. Out-of-range input must never launch a locked level.
+- iOS: 96-point native UIKit tiles, safe-area fitted screen and localized accessibility hints. Both platforms preserve the same level unlock/selection semantics.
+- English-first dictionary now covers the level gallery. Croatian remains available; remaining languages are partial until screen-by-screen linguistic signoff. 1:1 3D screenshot matching is still an open art-direction issue.
