@@ -928,6 +928,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Top-right 72px of the 480x800 playfield is reserved for the *real*
      * native Pause button, and the untouched physics remain in world units.
      */
+    /** Use one cached caption-width policy on score and distance updates. */
+    private fun fittedHudCaptionSize(value:String):Float {
+        p.typeface=headerTypeface
+        p.textSize=11f
+        return (11f*94f/p.measureText(value).coerceAtLeast(1f))
+            .coerceIn(7.5f,11f)
+    }
     private fun drawLevelProgress(c:Canvas) {
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
@@ -941,17 +948,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastProgressScore=score
             progressTitle="${word("SCORE","BODOVI")} $score"
             // Fit each value into its own half of the gauge, never across a border.
-            p.typeface=headerTypeface;p.textSize=11f
-            scoreCaptionSize=(11f*94f/p.measureText(progressTitle).coerceAtLeast(1f))
-                .coerceIn(7.5f,11f)
+            scoreCaptionSize=fittedHudCaptionSize(progressTitle)
         }
         val distanceTick=(game.time*10f).toInt()
         if(distanceTick!=lastDistanceTick) {
             lastDistanceTick=distanceTick
             distanceTitle="${word("DIST","PUT")} ${game.distance.toInt()}"
-            p.typeface=headerTypeface;p.textSize=11f
-            distanceCaptionSize=(11f*94f/p.measureText(distanceTitle).coerceAtLeast(1f))
-                .coerceIn(7.5f,11f)
+            distanceCaptionSize=fittedHudCaptionSize(distanceTitle)
         }
         // The actual course fraction animates continuously without text churn.
         val total=game.level.gates.size.coerceAtLeast(1)
