@@ -10,6 +10,7 @@ fun main() {
             val sig=LevelEngine.signature(l)
             check(seen.add(sig)) { "duplicate $w:$n" }
             check(l.gates.size in 11..15)
+            check(l.gates.first().x==420f) {"Off-screen first column at $w:$n"}
             check(l.speed in 140f..212f)
             check(l.gates.all {it.gap>=165f && it.width == 76f})
             check(l.gates.map {it.gap}.toSet().size>=3)
