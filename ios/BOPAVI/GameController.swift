@@ -405,13 +405,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         tile.layer.borderWidth=selected ? 3 : 1
         tile.layer.borderColor=worldAccents[world].withAlphaComponent(selected ? 1 : 0.65).cgColor
         // Exactly the same genuine values as Android's saved world cards.
-        tile.accessibilityLabel="\(BopaviCore.names[world]), otključano, " +
+        tile.accessibilityLabel=ui("\(BopaviCore.names[world]), otključano, " +
             "level \(progress.streamFrontier(world)), prikupljeno \(progress.collectibles(world)), " +
             "rekord \(progress.best(world)), zvjezdice \(progress.worldStars(world)) od 30" +
             (selected ? ", odabrano" : "") +
-            ", upravljanje dodirom"
+            ", upravljanje dodirom")
         tile.heightAnchor.constraint(equalToConstant:144).isActive=true
-        tile.accessibilityHint="Otvori levele svijeta"
+        tile.accessibilityHint=ui("Otvori levele svijeta")
         if selected {tile.accessibilityTraits.insert(.selected)}
         if let illustration=UIImage(named:"World\(world)") {
             let preview=UIImageView(image:illustration)
@@ -499,7 +499,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         let headline=UILabel()
         headline.translatesAutoresizingMaskIntoConstraints=false
-        headline.text=BopaviCore.names[world].uppercased()
+        headline.text=ui(BopaviCore.names[world]).uppercased()
         headline.textColor = .white
         headline.font=UIFont.systemFont(ofSize:15,weight:.black)
         headline.adjustsFontSizeToFitWidth=true
@@ -1375,7 +1375,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         if newRecord {
             let banner=UILabel()
-            banner.text="♛  NOVI REKORD!"
+            banner.text=ui("♛  NOVI REKORD!")
             banner.textColor=UIColor(red:1,green:0.93,blue:0.67,alpha:1)
             banner.textAlignment = .center
             banner.font=UIFont.systemFont(ofSize:19,weight:.heavy)
@@ -1385,7 +1385,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             banner.layer.borderColor=UIColor(red:1,green:0.79,blue:0.26,alpha:1).cgColor
             banner.clipsToBounds=true
             banner.heightAnchor.constraint(equalToConstant:46).isActive=true
-            banner.accessibilityLabel="Novi osobni rekord: \(g.score()) bodova"
+            banner.accessibilityLabel=ui("Novi osobni rekord: \(g.score()) bodova")
             stack.addArrangedSubview(banner)
         }
         let sky=UIColor(red:0.67,green:0.92,blue:1,alpha:1)
@@ -1416,7 +1416,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let amount=label(value,23,highlight,card)
             amount.adjustsFontSizeToFitWidth=true
             amount.minimumScaleFactor=0.67
-            amount.accessibilityLabel="\(caption) \(value)"
+            amount.accessibilityLabel=ui("\(caption) \(value)")
             amount.heightAnchor.constraint(equalToConstant:32).isActive=true
             return amount
         }
@@ -1465,7 +1465,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let amount=label(value,17,sky,card)
             amount.heightAnchor.constraint(equalToConstant:28).isActive=true
             amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.70
-            amount.accessibilityLabel="\(name) \(value)"
+            amount.accessibilityLabel=ui("\(name) \(value)")
             return amount
         }
         _=reward("KOVANICE",icon:"●",value:"×\(g.coins)")
@@ -1475,8 +1475,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         _=reward("REKORD",icon:"🏆",value:String(progress.bestPoints()))
         if bonus>0 {
             let claim=BopaviActionButton(primary:false)
-            claim.setTitle("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD",for:.normal)
-            claim.accessibilityLabel="Preuzmi bonus kovanica za rekord"
+            claim.setTitle(ui("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD"),for:.normal)
+            claim.accessibilityLabel=ui("Preuzmi bonus kovanica za rekord")
             claim.heightAnchor.constraint(equalToConstant:56).isActive=true
             claim.addAction(UIAction{[weak self,weak claim] _ in
                 guard let self=self else{return}
@@ -1484,8 +1484,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if awarded>0 {
                     self.sound.effect("purchase")
                     bonusCounter.text="+0"
-                    bonusCounter.accessibilityLabel="BONUS BODOVA 0"
-                    balance.text="Stanje novčanika: \(self.progress.coins()) kovanica"
+                    bonusCounter.accessibilityLabel=self.ui("BONUS BODOVA 0")
+                    balance.text=self.ui("Stanje novčanika: \(self.progress.coins()) kovanica")
                     claim?.isHidden=true
                 }
             },for:.touchUpInside)
@@ -1516,7 +1516,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footerAction("▥\nLJESTVICA"){self.showLeaderboard()}
         footerAction("⌂\nPOVRATAK"){self.showHome()}
         footerAction("↗\nPODIJELI"){
-            let message="BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)"
+            let message=ui("BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)")
             let share=UIActivityViewController(activityItems:[message],applicationActivities:nil)
             share.popoverPresentationController?.sourceView=self.view
             share.popoverPresentationController?.sourceRect=CGRect(
