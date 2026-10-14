@@ -355,8 +355,13 @@ final class GameCanvas: UIView {
             "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(game.passed)/\(total) \(word("GATES","PROLAZI"))"
         if lastLevelBadgeText != levelText {
             lastLevelBadgeText=levelText
+            // The badge is rebuilt only at level changes. Fit long translated
+            // stage names and seven-digit level IDs inside the 193pt gauge.
+            let textWidth=(levelText as NSString).size(withAttributes:[.font:levelBadgeFont]).width
+            let fittedSize=max(8,min(15,15*184/max(1,textWidth)))
+            let fittedFont=UIFont.monospacedDigitSystemFont(ofSize:fittedSize,weight:.heavy)
             cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
-                .font:levelBadgeFont,
+                .font:fittedFont,
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
         cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:64))
