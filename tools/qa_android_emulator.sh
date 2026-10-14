@@ -367,7 +367,34 @@ for n in clickable(level_root):
         visible.add(number)
 if visible!=set(range(1,21)):
     raise SystemExit(f'FAIL: 20 visible non-scrolling levels required, found: {sorted(visible)}')
-print('PASS: all 20 actual level cards visible in one frame without vertical scrolling',flush=True)
+# Inspect actual physical hit areas: the 20 colorful tiles must be both
+# visible and selectable. Tiny decorative pictures are not acceptable buttons.
+for n in clickable(level_root):
+    match=re.match(r'^Level (\\d+),',n.get('content-desc',''))
+    if match:
+        l,t,r,b=bounds(n)
+        if r-l<72 or b-t<72:
+            raise SystemExit(f'FAIL: Level {match.group(1)} card is too small to tap: {r-l}×{b-t}')
+# A jump field previously occupied permanent screen space and opened an
+# onscreen keypad. It is now optional, within a native cancelable dialog.
+jump=[n for n in clickable(level_root) if 'START SELECTED LEVEL' in
+      (n.get('text','')+' '+n.get('content-desc',''))]
+if len(jump)!=1:raise SystemExit('FAIL: single optional level-jump control missing')
+tap(jump[0]);time.sleep(.45)
+dialog=dump()
+fields=[n for n in dialog.iter('node')
+        if 'Unlocked level number' in (n.get('content-desc','')+' '+n.get('text',''))]
+if len(fields)!=1:
+    raise SystemExit('FAIL: optional level-jump dialog lacks accessible numeric input')
+cancel=[n for n in clickable(dialog) if 'CANCEL' in
+        (n.get('text','')+' '+n.get('content-desc',''))]
+if len(cancel)!=1:raise SystemExit('FAIL: level picker lacks accessible Cancel')
+tap(cancel[0]);time.sleep(.35)
+level_root=dump()
+if sum(bool(re.match(r'^Level (\\d+),',n.get('content-desc','')))
+       for n in clickable(level_root))!=20:
+    raise SystemExit('FAIL: dialog Cancel did not restore complete 20-card no-scroll gallery')
+print('PASS: 20 larger reachable level cards and working cancelable numeric jump, no vertical scrolling',flush=True)
 level_back=[n for n in clickable(level_root) if 'BACK' in
             (n.get('text','')+' '+n.get('content-desc',''))]
 if len(level_back)!=1:raise SystemExit('FAIL: levels Back missing')
