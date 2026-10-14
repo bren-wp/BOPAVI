@@ -339,6 +339,9 @@ enum GameLanguages {
     static func normalized(_ code:String)->String{codes.contains(code) ? code : "en"}
     static func name(_ code:String)->String{names[codes.firstIndex(of:normalized(code)) ?? 0]}
     private static let english:[(String,String)]=[
+        ("OPREMA ZA BOPIJEV LET","EQUIPMENT FOR BOPI FLIGHT"),
+        ("KUPI ŠTIT","BUY SHIELD"),
+        ("KUPI MAGNET","BUY MAGNET"),
         ("UČITAVANJE...","LOADING..."),
         ("Osam različitih avantura","Eight distinct adventures"),
         ("PREGLED ZAKLJUČANIH LEVELA","LOCKED LEVEL PREVIEW"),
