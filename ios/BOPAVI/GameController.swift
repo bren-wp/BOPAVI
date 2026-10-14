@@ -893,7 +893,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         chosenPicture.contentMode = .scaleAspectFit
         chosenPicture.isAccessibilityElement=false
         chosenPicture.widthAnchor.constraint(equalToConstant:104).isActive=true
-        chosenPicture.heightAnchor.constraint(equalToConstant:102).isActive=true
+        chosenPicture.heightAnchor.constraint(equalToConstant:96).isActive=true
         head.addArrangedSubview(chosenPicture)
         let currentName=UILabel()
         currentName.text="\(progress.skinNames[selected])\n" +
