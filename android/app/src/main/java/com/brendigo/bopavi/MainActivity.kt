@@ -1046,16 +1046,15 @@ class MainActivity : Activity() {
         content.addView(pauseSettings,LinearLayout.LayoutParams(-1,-2).apply{
             topMargin=d(8)
         })
-        val scroll=ScrollView(this).apply{
-            isVerticalScrollBarEnabled=false
-            addView(content)
-        }
-        dialog.setView(scroll)
+        val fitted=FitViewportColumn(this).apply{addView(content)}
+        dialog.setView(fitted)
         dialog.setOnCancelListener{game.paused=false;sound.resume()}
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        // Measured live buttons, no scroll even when inline pause options open.
         dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)), -2)
+            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
+            (resources.displayMetrics.heightPixels-d(70)).coerceAtLeast(d(360)))
     }
     private fun startGame(world:Int,number:Long){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
@@ -1148,20 +1147,17 @@ class MainActivity : Activity() {
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0x9903183a.toInt(),0x660a3464,0xcc061c42.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
-        val scroll=ScrollView(this).apply{
-            isFillViewport=true;isVerticalScrollBarEnabled=false
-            clipToPadding=false
-        }
+        val fitted=FitViewportColumn(this)
         val panel=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
             setPadding(d(18),d(12),d(18),d(18))
         }
-        scroll.addView(panel)
-        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        fitted.addView(panel)
+        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
         // Android 16 enforces edge-to-edge: keep result actions out of the
         // gesture-navigation/status-bar regions, while art remains full bleed.
         if (Build.VERSION.SDK_INT >= 35) {
-            scroll.setOnApplyWindowInsetsListener { view, insets ->
+            fitted.setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
                 view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
                 insets
