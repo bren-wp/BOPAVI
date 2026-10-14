@@ -734,45 +734,11 @@ class MainActivity : Activity() {
             pager.addView(next,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
             action(next,"SLJEDEĆIH 20 →",true){showLevels(world,start+20)}
         }
-        sectionHeading(b,if(start<=maxNumber)"NASTAVI ILI ODABERI LEVEL"
-            else "PREGLED ZAKLJUČANIH LEVELA")
-        small(b,"Otključano do levela $maxNumber")
-        // The continue CTA is available only on pages containing at least one
-        // unlocked tile. A preview-only page cannot expose a launch action.
-        if(start<=maxNumber){
-        action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        // Keep the full 5×4 illustrated gallery on one screen. Editing a
-        // level number is an optional native dialog, not a permanent keyboard
-        // field that squeezes the visible cards and Back control.
-        action(b,"▶  POKRENI ODABRANI LEVEL",false){
-            val input=EditText(this).apply{
-                inputType=android.text.InputType.TYPE_CLASS_NUMBER
-                setSingleLine(true);hint=ui("Broj otključanog levela")
-                setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
-                setText(maxNumber.coerceIn(start,(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)).toString())
-                gravity=Gravity.CENTER
-                background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
-                contentDescription=ui("Broj otključanog levela")
-            }
-            android.app.AlertDialog.Builder(this)
-                .setTitle(ui("POKRENI ODABRANI LEVEL"))
-                .setMessage(ui("Odaberi otključan level iz raspona") + " 1–$maxNumber")
-                .setView(input)
-                .setNegativeButton(ui("ODUSTANI"),null)
-                .setPositiveButton(ui("POKRENI")){_,_->
-                    val n=input.text.toString().toIntOrNull()
-                    if(n==null||n !in 1..maxNumber)Toast.makeText(this,
-                        ui("Level mora biti otključan i unutar raspona."),
-                        Toast.LENGTH_LONG).show()
-                    else showPilotPicker(world,n.toLong())
-                }.show()
-        }
-        }else{
-            small(b,"Ovi leveli su zaključani. Dovrši prethodne za otključavanje.")
-            action(b,"↶ VRATI NA OTKLJUČANE LEVELE",false){
-                showLevels(world,maxNumber)
-            }
-        }
+        // Reference layout: the 20 native, tappable tiles ARE the level
+        // chooser. Additional text fields / duplicated flight CTAs crowded
+        // the small-screen gallery and made the tiles too small to use.
+        // A locked tile continues to explain its state via its own handler.
+        // Keep one Back action, and never add an invisible screenshot hotspot.
         back(b){showWorlds()}
     }
     /**
