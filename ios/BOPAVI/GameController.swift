@@ -628,6 +628,20 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             backdrop.clipsToBounds=true
             backdrop.isUserInteractionEnabled=false
             backdrop.accessibilityElementsHidden=true
+            // Gentle GPU-composited camera breathing on the original art;
+            // genuine UIKit buttons, counters and hit targets stay fixed.
+            // The attached layer automatically releases the animation when
+            // Home is dismissed. Honour Reduce Motion.
+            if !UIAccessibility.isReduceMotionEnabled {
+                let drift=CABasicAnimation(keyPath:"transform.scale")
+                drift.fromValue=1.015
+                drift.toValue=1.045
+                drift.duration=12.5
+                drift.autoreverses=true
+                drift.repeatCount = .infinity
+                drift.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
+                backdrop.layer.add(drift,forKey:"home-scenery-drift")
+            }
             view.insertSubview(backdrop,at:0)
             NSLayoutConstraint.activate([
                 backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
