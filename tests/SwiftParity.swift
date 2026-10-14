@@ -34,6 +34,7 @@ struct SwiftParity {
                 let l=BopaviCore.create(w,n),sig=BopaviCore.signature(BopaviCore.create(w,n))
                 precondition(seen.insert(sig).inserted)
                 precondition((11...15).contains(l.gates.count))
+                precondition(l.gates[0].x==420,"First obstacle must be visible when flight starts")
                 precondition((140...212).contains(l.speed))
                 precondition(l.gates.allSatisfy{$0.gap>=164 && $0.width == 76})
                 precondition(Set(l.gates.map{$0.gap}).count>=3)
