@@ -2159,11 +2159,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
     private func showLegalNotice(privacy:Bool){
         let title=privacy ? "POLITIKA PRIVATNOSTI" : "UVJETI KORIŠTENJA"
-        let details=privacy
+        let details=progress.languageCode=="hr" ? (privacy
             ? "BOPAVI izdaje Brendigo. Igra nema račune, oglase, analitiku ili kupnje stvarnim novcem. Nadimak, rezultati, virtualne kovanice, napredak i postavke ostaju lokalno na uređaju. Dobrovoljni JSON izvoz koristi odabranu lokaciju, uključujući vanjske pružatelje. Podaci se ne šalju poslužiteljima izdavača. Izbriši podatke aplikacije ili je deinstaliraj za lokalno brisanje; izvezene kopije brišu se zasebno. Kontakt: github.com/bren-wp/BOPAVI/issues."
             : "BOPAVI je igra izdavača Brendigo. Igraj odgovorno. Kovanice, zvjezdice i nagrade imaju vrijednost samo unutar igre; nema plaćanja stvarnim novcem. Napredak ostaje na uređaju uz dobrovoljni izvoz i uvoz. Mlađim igračima preporučuje se roditeljsko vodstvo. Podrška: github.com/bren-wp/BOPAVI/issues. Primjenjuju se obvezna potrošačka prava."
-        let notice=UIAlertController(title:title,message:details,preferredStyle:.alert)
-        notice.addAction(UIAlertAction(title:"ZATVORI",style:.default))
+) : (privacy ? "BOPAVI is published by Brendigo. The game uses no accounts, ads, analytics or real-money purchases. Nickname, scores, virtual coins, progress and settings remain on this device and are not sent to the publisher. Exporting a JSON backup is optional and uses the location you select, which may include another provider. Clear the app data or uninstall to erase local data; delete exported backups separately. Support: github.com/bren-wp/BOPAVI/issues." : "BOPAVI is a game published by Brendigo. Play responsibly. Coins, stars and rewards have no cash value; there are no real-money purchases. Progress stays on your device with optional backup export and import. Parental guidance is recommended for younger players. Mandatory consumer rights remain applicable. Support: github.com/bren-wp/BOPAVI/issues.")
+        let notice=UIAlertController(title:ui(title),message:details,preferredStyle:.alert)
+        notice.addAction(UIAlertAction(title:progress.languageCode=="hr" ? "ZATVORI" : "CLOSE",style:.default))
         present(notice,animated:true)
     }
 
