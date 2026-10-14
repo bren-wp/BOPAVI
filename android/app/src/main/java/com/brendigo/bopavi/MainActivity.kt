@@ -687,19 +687,31 @@ class MainActivity : Activity() {
         // unlocked tile. A preview-only page cannot expose a launch action.
         if(start<=maxNumber){
         action(b,"▶  NASTAVI LET"){showPilotPicker(world,progress.streamFrontier(world))}
-        val input=EditText(this).apply{
-            inputType=android.text.InputType.TYPE_CLASS_NUMBER
-            setSingleLine(true);hint="Broj otključanog levela"
-            setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
-            setText(maxNumber.coerceIn(start,(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)).toString());gravity=Gravity.CENTER
-            background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
-        }
-        b.addView(input,LinearLayout.LayoutParams(-1,d(52)))
+        // Keep the full 5×4 illustrated gallery on one screen. Editing a
+        // level number is an optional native dialog, not a permanent keyboard
+        // field that squeezes the visible cards and Back control.
         action(b,"▶  POKRENI ODABRANI LEVEL",false){
-            val n=input.text.toString().toIntOrNull()
-            if(n==null||n !in 1..maxNumber)Toast.makeText(this,
-                "Level mora biti otključan i unutar raspona.",Toast.LENGTH_LONG).show()
-            else showPilotPicker(world,n.toLong())
+            val input=EditText(this).apply{
+                inputType=android.text.InputType.TYPE_CLASS_NUMBER
+                setSingleLine(true);hint=ui("Broj otključanog levela")
+                setTextColor(Color.WHITE);setHintTextColor(0xffb2d6ff.toInt())
+                setText(maxNumber.coerceIn(start,(start+19).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)).toString())
+                gravity=Gravity.CENTER
+                background=gradient(0xff082c61.toInt(),0xff07183d.toInt(),18)
+                contentDescription=ui("Broj otključanog levela")
+            }
+            android.app.AlertDialog.Builder(this)
+                .setTitle(ui("POKRENI ODABRANI LEVEL"))
+                .setMessage(ui("Odaberi otključan level iz raspona") + " 1–$maxNumber")
+                .setView(input)
+                .setNegativeButton(ui("ODUSTANI"),null)
+                .setPositiveButton(ui("POKRENI")){_,_->
+                    val n=input.text.toString().toIntOrNull()
+                    if(n==null||n !in 1..maxNumber)Toast.makeText(this,
+                        ui("Level mora biti otključan i unutar raspona."),
+                        Toast.LENGTH_LONG).show()
+                    else showPilotPicker(world,n.toLong())
+                }.show()
         }
         }else{
             small(b,"Ovi leveli su zaključani. Dovrši prethodne za otključavanje.")
@@ -771,7 +783,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         frame.addView(rating,FrameLayout.LayoutParams(-1,d(24),Gravity.BOTTOM))
-        parent.addView(frame,LinearLayout.LayoutParams(0,d(86),1f).apply{
+        parent.addView(frame,LinearLayout.LayoutParams(0,d(96),1f).apply{
             setMargins(d(3),d(4),d(3),d(4))
         })
     }
