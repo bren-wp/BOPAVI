@@ -634,8 +634,8 @@ assert 'tab.accessibilityLabel=ui(title)' in ios_home
 # No fake online gems, cloud sign-out or microtransactions.
 for home in (android_home,ios_home):
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
-for source in (android_menu,ios_menu):
-    assert 'POLETI S' not in source and 'ODABERI LIKA' not in source
+for picker in (android_picker,ios_picker):
+    assert 'POLETI S' in picker and 'ODABERI LIKA' in picker
 assert 'setStroke(d(3),0xffffed9e' in android_menu
 assert 'UIColor(red:1.00,green:0.88,blue:0.32' in ios_menu
 logo_markup=(root/'docs/assets/logo.svg').read_text()
@@ -778,7 +778,7 @@ print('PASS: rejected iOS backup, truthful global result, Android Back-to-pause'
 android_qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_idle_preview' in android_qa
 assert 'tap_selected_pilot' not in android_qa
-assert 'android-obsolete-picker-diagnostic' in android_qa
+assert 'android-pilot-gallery' in android_qa
 print('PASS: real Android QA requires the idle Bopi GameView')
 
 # Premium reference-followup: illustrated 20-level grid and real dual-channel
@@ -2214,7 +2214,7 @@ assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu"
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'guard currentMenuName != ""' in ios_menu
-assert 'scroll.bounds.height/naturalHeight' in ios_menu
+assert 'scroll.bounds.height/naturalHeight' in ios_menu or 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if stack.transform != desired' in ios_menu
 assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
@@ -2471,3 +2471,7 @@ assert 'setContentOffset' not in ios_pause
 assert 'BopiPortrait\\(progress.skinIndex())' in ios_pause
 assert 'portraitDrawableIds[progress.skin()]' in android_pause
 print('PASS: nine playable saved pilots and no-scroll live pause/result on both platforms')
+
+# Real nine-character selection must not leak onto the Home page:
+for home in (android_home,ios_home):
+    assert 'CHOOSE YOUR PILOT' not in home and 'POLETI S' not in home
