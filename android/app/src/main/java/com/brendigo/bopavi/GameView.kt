@@ -45,6 +45,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,8) // The player's save-backed pilot; same body collider for all nine.
+    private val pilotName=listOf("Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion")[selectedSkin]
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
@@ -151,7 +152,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = word("Tap to fly with Bopi","Dodirni za let Bopija")
+        contentDescription = if(language=="hr")"Dodirni za let: "+pilotName else "Tap to fly with "+pilotName
         p.isFilterBitmap = true
     }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
@@ -1059,7 +1060,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
         hudOrb(c,360f,124f,"∩","$seconds",
             0xff41dfff.toInt(),game.magnetTime>0f)
-        val status="Bopi is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
+        val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
             "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
             "Shield ${game.shield}. Magnet ${seconds} seconds."
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
@@ -1086,7 +1087,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            contentDescription=word("Bopi is flying","Bopi leti")
+            contentDescription=if(selectedSkin==0)word("Bopi is flying","Bopi leti") else pilotName+" is flying"
             onFlap()
             invalidate()
         }
