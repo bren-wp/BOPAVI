@@ -791,7 +791,9 @@ for level_ui in (android_levels,ios_levels):
     assert 'PRETHODNIH 20' in level_ui and 'SLJEDEĆIH 20' in level_ui
     assert 'kind' in level_ui and 'frontier' in level_ui
     assert 'LevelKind.icon(kind)' in level_ui and 'LevelKind.name(kind)' in level_ui
-    assert 'PRETHODNIH 20' in level_ui and 'POKRENI ODABRANI LEVEL' in level_ui
+    # Twenty real clickable cells replace the former redundant typed-level dialog.
+    assert 'POKRENI ODABRANI LEVEL' not in level_ui
+    assert 'PRETHODNIH 20' in level_ui and 'SLJEDEĆIH 20' in level_ui
 assert 'private fun levelTile(' in android_levels
 assert 'private func levelTile(' in ios_levels
 assert 'R.drawable.world0' in android_levels and 'UIImage(named:"World\\(world)")' in ios_levels
