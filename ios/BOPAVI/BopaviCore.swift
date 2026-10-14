@@ -583,10 +583,11 @@ enum GameLanguages {
         ("ZAHTJEVNO","HARD"),
         ("DODIRNI ZA LET","TAP TO FLY")
     ]
+    private static let sortedEnglish=english.sorted {$0.0.count > $1.0.count}
     static func text(_ original:String,_ code:String)->String {
         let locale=normalized(code)
         var result=original
-        for (source,value) in english {result=result.replacingOccurrences(of:source,with:value)}
+        for (source,value) in sortedEnglish {result=result.replacingOccurrences(of:source,with:value)}
         if locale=="en" {return result}
         if locale=="hr" {return original}
         let row=catalog[codes.firstIndex(of:locale) ?? 0]
