@@ -1,3 +1,10 @@
+## v0.1.82 — Varied fantasy obstacle heights and true difficulty corridors (build 85)
+- Gameplay phase: create noticeably different short/tall upper and lower floating rock pillars per gate in all eight worlds. Continue using nine existing seeded obstacle widths (48–88 logical pixels) and stable, uniquely coded level centers; add deterministic opening variation and occasional wider recovery passages instead of an almost constant three-pixel variance.
+- Difficulty is now visible and real: Easy opens each passage by 18 logical units, Normal uses the generated opening, Hard tightens it by 16. All three difficulty levels use **the identical corridor coordinates** for draw and body-only collision on Android and iOS; advanced animated gates never close below a safe 145 logical units.
+- Preserve Bopi's 18-unit body-only hit radius and existing sprite scale, one-touch flap impulse, responsive wingbeat, music, saves, rewards, pickups, world progression and streaming level transitions. Avoid adding fake premium art or repainting reference screenshot UI as live gameplay.
+- Add comprehensive Kotlin and Swift tests for eight biome worlds, seeded repeatability, variable pillar heights, animated openings and different Easy/Hard **actual collision** outcomes. Add source parity checks and bump both stores' app versions to 0.1.82 / 85.
+- Do not claim pixel-level similarity with the 3D concept gallery without actual per-platform game screenshots and a licensed illustration-layer art replacement. Android APK / unsigned AAB, iOS simulator / unsigned device ZIP and SHA-256 must pass full CI before merge and publication.
+
 ## v0.1.81 — Responsive Home polish and device-evidence gates (build 84)
 - Restore Android Home safe-area padding across API 26–36, including older navigation-bar insets and camera cutouts. The illustrated world background remains edge-to-edge while real score, coin, play, worlds, settings and bottom navigation controls remain protected.
 - Reduce excess Home side padding and footer separation, and apply a consistent rounded bold caption style without changing game economy or navigation.
