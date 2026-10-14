@@ -1,6 +1,9 @@
 ## v0.1.89 — Consistent selected pilot in Settings and shop (build 92)
 - Settings headers on Android and iOS now show the genuine **currently selected pilot**, rather than always reverting to Bopi. No new or fictitious pilot art is generated.
 - Replace obsolete assertions that Bopi is the only playable character in the in-game shop: all nine existing unlockable pilots remain functional and coin-earning/unlocking is displayed truthfully in English and Croatian.
+- The real Profile also follows the saved selected pilot on Android and iOS (previously hard-coded to Bopi). Its portrait, chosen pilot name, star gauge and VoiceOver/TalkBack description now correspond to persisted progress. This does not grant or unlock skins.
+- Default English Profile now translates award names, goals, earned counts, native Home/Edit actions and best-world titles; Croatian remains selectable. Emulator UI smoke rejects untranslated Croatian leftovers on the English profile.
+- Fix intermittent Android 16 CI false negatives caused by the emulator's **System UI isn't responding** dialog: allow bounded fresh hierarchical XML retries after cold launch and recover only an explicitly verified system process with the native Wait control. Never close a BOPAVI ANR or accept missing/invalid XML as a passing screen.
 - Extend native source QA to reject stale single-pilot copy and verify persisted selection in both Settings screens. Existing one-viewport non-scrolling menus, pause/results, uniformly wide grounded columns, seamless stage transitions and synthesized long-form soundtrack remain unchanged.
 - Exact 1:1 fidelity to provided painterly 3D concept images, legible 26-language translation of every long-form page, and exhaustive small-device visual approval remain unverified; do not claim these are complete.
 
