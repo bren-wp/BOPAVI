@@ -2022,7 +2022,7 @@ class MainActivity : Activity() {
             background=gradient(0xf40a3268.toInt(),0xf8051737.toInt(),21)
         }
         val backButton=TextView(this).apply{
-            text="‹";textSize=32f;gravity=Gravity.CENTER
+            text="←";textSize=27f;gravity=Gravity.CENTER
             setTextColor(Color.WHITE)
             background=gradient(0xff22b8fc.toInt(),0xff0759ca.toInt(),22).apply{
                 setStroke(d(2),Color.WHITE)
@@ -2037,6 +2037,12 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(Color.WHITE);gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(0,d(46),1f))
+        // Mirror the working selected pilot from Profile without adding a row.
+        header.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(46),d(46)))
         column.addView(header,LinearLayout.LayoutParams(-1,d(61)))
         column.addView(TextView(this).apply{
             text=ui("IZGLED I ZVUK");textSize=12f
@@ -2093,7 +2099,56 @@ class MainActivity : Activity() {
             progress.setLessMotion(!progress.lessMotion())
         }
         option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
-        option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}
+        // Primary difficulty is now always visible. Replace the redundant
+        // Privacy row (both legal controls remain in the footer) with three
+        // genuine selected difficulty buttons, not an advanced-only option.
+        val difficultyChoices=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")
+        val difficultyButtons=ArrayList<TextView>(3)
+        val difficultyRow=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+        }
+        fun refreshDifficulty(){
+            for(i in 0..2){
+                val selected=progress.difficulty()==i
+                val item=difficultyButtons[i]
+                item.background=gradient(
+                    if(selected)0xffb86d05.toInt() else 0xff0b67b4.toInt(),
+                    if(selected)0xff543213.toInt() else 0xff061d42.toInt(),18
+                ).apply{setStroke(d(2),if(selected)gold else electric)}
+                item.isSelected=selected
+                item.contentDescription=(if(progress.languageCode()=="hr")"Težina igre" else "Game difficulty")+
+                    ", "+ui(difficultyChoices[i])+", "+
+                    if(selected)(if(progress.languageCode()=="hr")"odabrano" else "selected")
+                    else (if(progress.languageCode()=="hr")"dodirni za odabir" else "tap to select")
+            }
+        }
+        for(i in 0..2){
+            val item=TextView(this).apply{
+                text=(if(i==1)"♛  " else "✦  ")+ui(difficultyChoices[i])
+                textSize=12f;gravity=Gravity.CENTER
+                setTextColor(Color.WHITE)
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                isClickable=true;isFocusable=true
+                setOnClickListener{
+                    progress.setDifficulty(i)
+                    sound.effect("click")
+                    refreshDifficulty()
+                }
+            }
+            difficultyButtons.add(item)
+            difficultyRow.addView(item,LinearLayout.LayoutParams(0,d(62),1f).apply{
+                setMargins(d(2),d(3),d(2),d(3))
+            })
+        }
+        refreshDifficulty()
+        column.addView(difficultyRow,LinearLayout.LayoutParams(-1,d(68)).apply{
+            bottomMargin=d(5)
+        })
+        column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         val advanced=TextView(this).apply{
             text=ui("⚙  NAPREDNE POSTAVKE");textSize=16f
             setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
