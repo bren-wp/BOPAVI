@@ -688,7 +688,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 worldTile(world,in:row){self.showLevels(world,page:1)}
             }
         }
-        button("‹  Natrag",in:stack,primary:false){self.showHome()}
+        button(progress.languageCode=="hr" ? "←  NATRAG" : "←  BACK",in:stack,primary:false){self.showHome()}
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
