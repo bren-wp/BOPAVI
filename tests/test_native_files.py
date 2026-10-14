@@ -2051,7 +2051,7 @@ for source in (android_game,ios_game):
     assert 'drawCliffShaft(' in source
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
-    assert 'hudGlass(c,cx-45' in source
+    assert 'hudGlass(c,cx-33' in source
 assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
@@ -2079,12 +2079,12 @@ print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms'
 # native canvases, not repeatedly drawn down the left edge of the playfield.
 for render,orb_prefix in ((android_game,'hudOrb(c,'),(ios_game,'hudOrb(c,')):
     hud=render.split('private fun drawHud(',1)[1] if 'private fun drawHud(' in render else render.split('private func drawBoostHUD(',1)[1]
-    for suffix in ('170','267','364'):
+    for suffix in ('174','267','360'):
         assert orb_prefix+suffix in hud, suffix
     for retired in ('hudOrb(c,46f,175f','hudOrb(c,46f,249f','hudOrb(c,46f,323f',
                     'hudOrb(c,46,175','hudOrb(c,46,249','hudOrb(c,46,323'):
         assert retired not in render, retired
-    assert 'hudGlass(c,cx-45' in render
+    assert 'hudGlass(c,cx-33' in render
 assert 'safeAreaInsets.top+4*hudScale' in ios_game
 assert 'topInset+4f*hudScale' in android_game
 print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both platforms')
@@ -2411,3 +2411,13 @@ for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
 assert 'everyPickerLanguageProvidesCompleteNonemptyGameplayVocabulary' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
 assert 'Missing live HUD vocabulary' in (root/'tests/SwiftParity.swift').read_text()
 print('PASS: fully rooted 8-world obstacle silhouettes, compact top HUD, 26 translated live-flight vocabularies')
+
+assert 'p.measureText(levelLabel)' in android_render
+assert 'fittedLevelFontSize' in android_render
+assert 'fittedSize=max(8,min(15' in ios_render
+assert 'hudRimColor' in ios_render
+ios_glass=ios_render.split('private func hudGlass(',1)[1].split('private func hudGoldCoin(',1)[0]
+assert 'CGPath(roundedRect:' not in ios_glass
+assert ios_glass.count('c.addArc(')==4
+assert 'c.strokePath()' in ios_glass
+print('PASS: fixed-width stage badges at any level, cached rim color and no per-frame CGPath')
