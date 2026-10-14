@@ -2447,4 +2447,6 @@ assert 'PROGRESSION = ' in audio_generator and 'harmonic(note)' in audio_generat
 assert '48*RATE' in audio_contract and 'audible loop click' in audio_contract
 assert workflow.count('python3 tools/generate_audio.py')==2
 assert 'python tools/generate_audio.py' in workflow
+assert 'x = 420f + i * (228f - zone * 2)' in kotlin_level
+assert 'x:420 + Float(i*(228-zone*2))' in swift_level
 print('PASS: 76-point constant rock widths, exact-cadence level transitions, no-scroll primary menus and native 48-second soundtrack')
