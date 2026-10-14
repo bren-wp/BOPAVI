@@ -61,6 +61,7 @@ class LevelEngineTest {
         for (world in 0 until LevelEngine.WORLD_COUNT) for (number in listOf(1,30,61,360,1001)) {
             val level=LevelEngine.create(world,number)
             assertEquals(level.gates,LevelEngine.create(world,number).gates)
+            assertEquals("First obstacle already visible at world=$world level=$number",420f,level.gates.first().x,0f)
             assertEquals(setOf(76f),level.gates.map { it.width }.toSet())
             assertTrue(level.gates.all { it.width==76f })
             val gaps=level.gates.map { it.gap }
