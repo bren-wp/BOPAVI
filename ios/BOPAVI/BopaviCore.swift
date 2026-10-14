@@ -50,7 +50,8 @@ enum BopaviCore {
             last = center
             let active = (zone >= 2 && i >= 5 && (i+number+world)%3 == 0) || (type == 2 && i >= 4 && i%3 == 0) || (world == 4 && i >= 4 && i%4 == 0)
             gates.append(Gate(x:560 + Float(i*(242-zone*2)), center:center,
-                              gap:gap-rng.next()*3,
+                              // Same per-obstacle gap rhythm and RNG call order as Kotlin.
+                              gap:max(164,gap+(rng.next()-0.5)*(i < 2 ? 12 : 30+Float(zone)*2)+(i%5 == 0 ? 8 : 0)),
                               width:48 + Float(((i*5 + Int(rng.next()*9)) % 9)*5),
                               movement:active ? 7+rng.next()*9 : 0, phase:rng.next()*6.283185,
                               kind:world, coin:i%3 != 2 || type == 1, star:i%4 == 2 || type == 1,
@@ -75,13 +76,15 @@ enum BopaviCore {
         }
         return Level(world:base.world,number:base.number,zone:base.zone,speed:base.speed,wind:base.wind,gates:remixed,type:base.type)
     }
-    static func opening(_ gate: Gate, _ time: Float) -> Opening {
+    // Shared rendering/collision corridor; the playable bird never scales.
+    static func opening(_ gate: Gate, _ time: Float, difficulty: Int = 1) -> Opening {
         let frequency:Float = gate.kind == 2 ? 0.65 : gate.kind == 4 ? 1.48 : gate.kind == 5 ? 0.48 : gate.kind == 7 ? 1.27 : 1.1
         let delta = gate.movement > 0 ? sin(time*frequency + gate.phase)*gate.movement : 0
         let tide:Float = gate.kind == 1 ? sin(time*0.75+gate.phase)*5 : gate.kind == 5 ? sin(time*0.38+gate.phase)*5 : 0
         let center = gate.center + delta + tide
         let pulse:Float = gate.movement>0 && (gate.kind == 3 || gate.kind == 6 || gate.kind == 7) ? (sin(time*1.35+gate.phase)+1)*2.5 : 0
-        let half = max(72.5, gate.gap*0.5-pulse)
+        let difficultyPadding:Float = difficulty <= 0 ? 18 : difficulty >= 2 ? -16 : 0
+        let half = max(72.5, (gate.gap+difficultyPadding)*0.5-pulse)
         return Opening(top:center-half, bottom:center+half)
     }
     static func milestoneReward(_ number:Int)->Int {
@@ -250,7 +253,7 @@ final class GameSimulation {
         for i in passed..<level.gates.count {
             let gate = level.gates[i]; let x = gateX(gate)
             if x > birdX+radius+115 { break }
-            let bounds = BopaviCore.opening(gate, time)
+            let bounds = BopaviCore.opening(gate, time,difficulty:difficulty)
             // Same hit area as the visible cap, including its left and right overhang.
             if x-7 < birdX+radius && x+gate.width+5 > birdX-radius &&
                 (y-radius < bounds.top || y+radius > bounds.bottom) {

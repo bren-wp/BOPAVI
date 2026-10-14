@@ -2327,3 +2327,25 @@ assert 'swiftc -O tools/verify_ios_home_screenshot.swift' in workflow
 assert 'home_ready=0' in workflow and 'if [ "$home_ready" -ne 1 ]; then' in workflow
 assert 'iOS screenshot is not the interactive Home' in workflow
 print('PASS: v0.1.81 iOS screenshot must contain interactive Home artwork and live controls')
+
+
+# v0.1.82: Flappy Bird gameplay must render the exact difficulty-adjusted
+# gap used by the collider, not narrower/longer decorative-only pillars.
+android_engine=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+swift_engine=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_sim_source=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+for source in (android_engine,swift_engine):
+    assert '30f + zone * 2f' in source or '30+Float(zone)*2' in source
+    assert 'difficultyPadding' in source
+    assert '164' in source and '72.5' in source
+assert 'LevelEngine.opening(gate, time, difficulty)' in android_sim_source
+assert 'BopaviCore.opening(gate, time,difficulty:difficulty)' in swift_engine
+assert 'LevelEngine.opening(g,game.time,game.difficulty)' in android_render
+assert 'BopaviCore.opening(g,game.time,difficulty:game.difficulty)' in ios_render
+assert 'val radius = 18f' in android_sim_source and 'let radius: Float = 18' in swift_engine
+assert 'velocity = -255f' in android_sim_source and 'velocity = -255' in swift_engine
+assert 'drawCliffShaft(c,x,w,0f,top' in android_render
+assert 'drawCliffShaft(c,x,w,0,top' in ios_render
+assert 'threeDifficultiesChangeRealRenderableAndCollidableOpenings' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+assert 'Difficulty must alter actual lip collision' in (root/'tests/SwiftParity.swift').read_text()
+print('PASS: eight-world deterministic tall/short gates, difficulty collision/render parity and fixed bird size')

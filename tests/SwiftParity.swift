@@ -12,8 +12,11 @@ struct SwiftParity {
                 precondition(seen.insert(sig).inserted)
                 precondition((11...15).contains(l.gates.count))
                 precondition((140...212).contains(l.speed))
-                precondition(l.gates.allSatisfy{$0.gap>=165 && $0.width >= 48 && $0.width <= 88})
+                precondition(l.gates.allSatisfy{$0.gap>=164 && $0.width >= 48 && $0.width <= 88})
                 precondition(Set(l.gates.map{$0.width}).count>=3)
+                let gaps=l.gates.map{$0.gap}
+                precondition((gaps.max() ?? 0)-(gaps.min() ?? 0) >= 1,
+                             "Seeded gate heights must vary within each level")
                 precondition(l.gates.allSatisfy {g in let o=BopaviCore.opening(g,100);return o.bottom-o.top >= 145})
                 checked += 1
             }
@@ -32,6 +35,39 @@ struct SwiftParity {
             let x=BopaviCore.createStream(4,ordinal)
             precondition(x.gates.count>=11 && x.gates.allSatisfy {g in let o=BopaviCore.opening(g,123);return o.bottom-o.top>=145})
             print("S|4|\(ordinal)|\(BopaviCore.signature(x))")
+        }
+        // v0.1.82: 8-biome difficulty opening must match live simulation.
+        for world in 0..<8 {
+            for number in [1,60,121,240,360,1048576] {
+                let gaps=BopaviCore.create(world,number).gates.map{$0.gap}
+                precondition((gaps.max() ?? 0)-(gaps.min() ?? 0) >= 9)
+                for gate in BopaviCore.create(world,number).gates {
+                    for t in [Float(0),1.25,7,15] {
+                        let easy=BopaviCore.opening(gate,t,difficulty:0)
+                        let normal=BopaviCore.opening(gate,t,difficulty:1)
+                        let hard=BopaviCore.opening(gate,t,difficulty:2)
+                        precondition(easy.bottom-easy.top >= normal.bottom-normal.top)
+                        precondition(normal.bottom-normal.top >= hard.bottom-hard.top)
+                        precondition(hard.bottom-hard.top >= 144.9)
+                        precondition(hard.top > 0 && easy.bottom < 755)
+                        precondition(normal.top == BopaviCore.opening(gate,t).top)
+                    }
+                }
+            }
+        }
+        do {
+            let base=BopaviCore.create(0,1)
+            let template=base.gates[0]
+            let obstacle=BopaviCore.Gate(x:148,center:290,gap:164,width:template.width,
+                movement:0,phase:template.phase,kind:template.kind,coin:false,star:false,power:0)
+            let single=BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+                                        gates:[obstacle],type:0)
+            let easy=GameSimulation(single,difficulty:0)
+            let hard=GameSimulation(single,difficulty:2)
+            easy.flap();hard.flap();easy.step(1/60);hard.step(1/60)
+            precondition(!easy.finished && hard.finished,
+                         "Difficulty must alter actual lip collision, not only visuals")
+            precondition(easy.radius==18 && hard.radius==18)
         }
         // All worlds use one touch-to-flap impulse, without drag steering.
         for world in 0..<8 {

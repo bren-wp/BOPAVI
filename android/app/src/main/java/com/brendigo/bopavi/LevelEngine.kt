@@ -46,7 +46,12 @@ object LevelEngine {
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)
             gates += Gate(
                 x = 560f + i * (242f - zone * 2), center = center,
-                gap = gap - r.next() * 3f,
+                // A rhythm of tall/short pillars: the opening changes per obstacle,
+                // not by an almost invisible 0–3px. Intro gates stay forgiving.
+                // Gap >=164 before difficulty/movement; hard mode remains >=145.
+                gap = (gap + (r.next() - .5f) *
+                    (if(i < 2) 12f else 30f + zone * 2f) +
+                    (if(i % 5 == 0) 8f else 0f)).coerceAtLeast(164f),
                 // Nine seeded widths. Even the widest pillar leaves a reachable horizontal approach.
                 width = 48f + ((i * 5 + (r.next() * 9f).toInt()) % 9) * 5f,
                 movement = if (active) 7f + r.next() * 9f else 0f,
@@ -80,7 +85,10 @@ object LevelEngine {
         number % 5L == 0L -> 20
         else -> 0
     }
-    fun opening(gate: Gate, time: Float): Opening {
+    /** The exact same difficulty-aware opening is used by drawing and collision.
+     * Easy opens the corridor, Hard tightens it; Bopi's radius never changes.
+     */
+    fun opening(gate: Gate, time: Float, difficulty: Int = 1): Opening {
         val frequency = when(gate.kind) { 2 -> 0.65f; 4 -> 1.48f; 5 -> 0.48f; 7 -> 1.27f; else -> 1.1f }
         val delta = if (gate.movement > 0f) sin(time * frequency + gate.phase) * gate.movement else 0f
         // Beach tides move gently; lava/crystal/meteor gates pulsate after activation.
@@ -89,7 +97,12 @@ object LevelEngine {
         val pulse = if(gate.movement > 0f && (gate.kind == 3 || gate.kind == 6 || gate.kind == 7))
             (sin(time * 1.35f + gate.phase)+1f)*2.5f else 0f
         // The same geometry drives drawing and collision; ≥145px always open.
-        val half = max(72.5f, gate.gap * .5f - pulse)
+        val difficultyPadding = when(difficulty.coerceIn(0,2)) {
+            0 -> 18f
+            2 -> -16f
+            else -> 0f
+        }
+        val half = max(72.5f, (gate.gap + difficultyPadding) * .5f - pulse)
         return Opening(middle - half, middle + half)
     }
     fun signature(level: Level): String = level.gates.take(10).joinToString(":") { it.center.toInt().toString() }

@@ -759,7 +759,7 @@ final class GameCanvas: UIView {
         }
     }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
-        let shape=BopaviCore.opening(g,game.time);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
+        let shape=BopaviCore.opening(g,game.time,difficulty:game.difficulty);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
         let hue:UInt32 = g.kind==0 ? 0xad8c71 : pillars[g.kind]
         let shade:UInt32 = g.kind==0 ? 0x6e5c63 : dark[g.kind]
