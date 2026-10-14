@@ -1446,7 +1446,7 @@ class MainActivity : Activity() {
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         val topBack=TextView(this).apply{
-            text="‹  POČETNA";textSize=13f;setTextColor(Color.WHITE)
+            text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME";textSize=13f;setTextColor(Color.WHITE)
             typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
             background=gradient(0xff1368b6.toInt(),0xff072657.toInt(),14)
             isClickable=true;isFocusable=true
@@ -1454,8 +1454,8 @@ class MainActivity : Activity() {
             setOnClickListener{showHome()}
         }
         b.addView(topBack,LinearLayout.LayoutParams(-1,d(33)))
-        val skin=0
-
+        // Profile reflects the current saved playable pilot, not fixed Bopi.
+        val skin=progress.skin()
 
         val hero=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
@@ -1463,7 +1463,8 @@ class MainActivity : Activity() {
             background=gradient(0xf40b4189.toInt(),0xf3051b40.toInt(),24).apply{
                 setStroke(d(2),electric)
             }
-            contentDescription="Letački profil, "+progress.playerName()+", lik "+progress.skinNames[skin]
+            contentDescription=ui("Letački profil, ")+progress.playerName()+", "+
+                (if(progress.languageCode()=="hr")"lik " else "pilot ")+progress.skinNames[skin]
         }
         val portraitBox=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
@@ -1489,14 +1490,14 @@ class MainActivity : Activity() {
             max=30;progress=profileStars
             progressTintList=ColorStateList.valueOf(gold)
             progressBackgroundTintList=ColorStateList.valueOf(0xff103d7d.toInt())
-            contentDescription="Zvjezdice svijeta ${LevelEngine.names[profileWorld]}: ${profileStars} od 30"
+            contentDescription=ui("Stars in world ")+ui(LevelEngine.names[profileWorld])+": ${profileStars}/30"
         }
         portraitBox.addView(profileStarGauge,
             LinearLayout.LayoutParams(-1,d(9)).apply{
                 leftMargin=d(9);rightMargin=d(9);topMargin=d(4)
             })
         portraitBox.addView(TextView(this).apply{
-            text="★  ${profileStars}/30 · ${LevelEngine.names[profileWorld]}"
+            text="★  ${profileStars}/30 · ${ui(LevelEngine.names[profileWorld])}"
             gravity=Gravity.CENTER;textSize=10f;setTextColor(Color.WHITE)
             setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(8,10,1,
@@ -1514,11 +1515,11 @@ class MainActivity : Activity() {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
         },LinearLayout.LayoutParams(-1,d(24)))
         stats.addView(TextView(this).apply{
-            text=progress.skinNames[skin]+" · pilot"
+            text=progress.skinNames[skin]+" · "+if(progress.languageCode()=="hr")"pilot" else "pilot"
             textSize=12f;setTextColor(0xffc5e9ff.toInt())
         },LinearLayout.LayoutParams(-1,d(19)))
         stats.addView(TextView(this).apply{
-            text="TVOJI REZULTATI";textSize=11f;setTextColor(gold)
+            text=ui("TVOJI REZULTATI");textSize=11f;setTextColor(gold)
             typeface=Typeface.DEFAULT_BOLD
         },LinearLayout.LayoutParams(-1,d(17)))
         val completed=(0..7).sumOf{(progress.frontier(it)-1).toLong()}
@@ -1535,7 +1536,7 @@ class MainActivity : Activity() {
                 contentDescription=ui(caption)+": "+value
             }
             tile.addView(TextView(this).apply{
-                text=caption;setTextColor(Color.WHITE);textSize=11f
+                text=ui(caption);setTextColor(Color.WHITE);textSize=11f
                 setSingleLine(true)
                 setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1575,7 +1576,9 @@ class MainActivity : Activity() {
                     0xff061d44.toInt(),15).apply{
                     setStroke(d(2),if(earned)gold else 0xff7183a6.toInt())
                 }
-                contentDescription=name+", cilj "+requirement+", "+if(earned)"osvojeno" else "zaključano"
+                contentDescription=ui(name)+", "+if(progress.languageCode()=="hr")
+                    "cilj " else "goal " +ui(requirement)+", "+
+                    if(earned)ui("osvojeno") else ui("zaključano")
             }
             tile.addView(TextView(this).apply{
                 text=if(earned)icon else "🔒";textSize=24f;gravity=Gravity.CENTER
