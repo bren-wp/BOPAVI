@@ -513,13 +513,33 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
-        root.addView(ImageView(this).apply {
+        val animatedBackdrop=ImageView(this).apply {
             val art=warmedHomeArt
             if(art!=null && !art.isRecycled) setImageBitmap(art)
             else setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,-1))
+            // Subtle, entirely decorative parallax-inspired breathing.
+            // No baked-in HUD or button hit areas. The animation is cancelled
+            // on detach, so navigating between screens cannot leak an Activity.
+            if(android.animation.ValueAnimator.areAnimatorsEnabled()){
+                val drift=android.animation.ObjectAnimator.ofPropertyValuesHolder(
+                    this,
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,1.015f,1.045f),
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y,1.015f,1.045f)
+                ).apply {
+                    duration=12500L
+                    repeatMode=android.animation.ValueAnimator.REVERSE
+                    repeatCount=android.animation.ValueAnimator.INFINITE
+                    interpolator=android.view.animation.AccelerateDecelerateInterpolator()
+                }
+                addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
+                    override fun onViewAttachedToWindow(v:View){drift.start()}
+                    override fun onViewDetachedFromWindow(v:View){drift.cancel()}
+                })
+            }
+        }
+        root.addView(animatedBackdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0x55052251,0x001967ae,0x001967ae,0xbb03112e.toInt()))
