@@ -1174,7 +1174,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if label=="Zvuk" || label=="Muzika" {
                     let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
                     control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
-                    control.accessibilityLabel=spokenLabel+(active ? " enabled":" disabled")
+                    control.accessibilityLabel=spokenLabel+(self.progress.languageCode=="hr" ? (active ? " uključeno":" isključeno") : (active ? " enabled":" disabled"))
                 }
             },for:.touchUpInside)
             footer.addArrangedSubview(control)
