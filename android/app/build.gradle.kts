@@ -9,8 +9,8 @@ android {
         applicationId = "com.brendigo.bopavi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 95
-        versionName = "0.1.92"
+        versionCode = 96
+        versionName = "0.1.93"
     }
     buildTypes {
         release {
