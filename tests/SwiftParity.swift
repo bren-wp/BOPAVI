@@ -15,6 +15,17 @@ struct SwiftParity {
             precondition(!GameLanguages.text("IGRAJ",code).isEmpty)
             precondition(!GameLanguages.name(code).isEmpty)
         }
+        let terms=["SCORE","DIST","LEVEL","NEW STAGE","GATES",
+                   "FLIGHT","TAP TO FLY","Bopi is flying"]
+        for code in GameLanguages.codes {
+            let pack=GameLanguages.hudPack(code)
+            precondition(Set(pack.keys)==Set(terms), "Missing live HUD vocabulary: \(code)")
+            precondition(pack.values.allSatisfy {!$0.isEmpty && !$0.contains("|")})
+        }
+        precondition(GameLanguages.hudPack("hr")["SCORE"]=="BODOVI")
+        precondition(GameLanguages.hudPack("ja")["SCORE"]=="スコア")
+        precondition(GameLanguages.hudPack("ko")["SCORE"]=="점수")
+        precondition(GameLanguages.hudPack("invalid")==GameLanguages.hudPack("en"))
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
         var checked=0
         for w in 0..<8 {
