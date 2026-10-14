@@ -929,7 +929,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             contentDescription="Bopi is flying. Gates passed: $passed"
         }
         // Real points and game-world travel units, never fictional metres.
-        // "PROLAZI UKUPNO" remains spoken and level gates remain in the bar.
+        // The live gate total is spoken through the flight accessibility label.
         val score=game.score()
         if(score!=lastProgressScore) {
             lastProgressScore=score
