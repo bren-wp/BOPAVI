@@ -37,6 +37,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastProgressPassed = -1
     private var lastProgressScore = -1
     private var lastDistanceTick = -1
+    private var lastLevelHudLabel = ""
+    private var fittedLevelFontSize = 13f
     private var progressTitle = ""
     private var distanceTitle = ""
     private var lastHudAccessibility = ""
@@ -959,7 +961,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,171f,60f,364f,86f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
         val levelLabel=if(entering)"${word("LEVEL","RAZINA")} ${game.displayLevel} · ${word("NEW STAGE","NOVA RAZINA")}"
             else "${word("LEVEL","RAZINA")} ${game.displayLevel} · ${game.passed}/$total ${word("GATES","PROLAZI")}"
-        text(c,levelLabel,267f,79f,13f,if(entering)0xffffd76a.toInt() else Color.WHITE,true)
+        // High level ordinals and long localizations must never overflow the
+        // central glass gauge or collide with neighbouring Pause/coin controls.
+        // Only recalculate text width when the badge changes, not at 60/120 Hz.
+        if(levelLabel!=lastLevelHudLabel){
+            lastLevelHudLabel=levelLabel
+            p.typeface=headerTypeface
+            p.textSize=13f
+            fittedLevelFontSize=(13f*184f/p.measureText(levelLabel).coerceAtLeast(1f))
+                .coerceIn(8f,13f)
+        }
+        text(c,levelLabel,267f,79f,fittedLevelFontSize,
+            if(entering)0xffffd76a.toInt() else Color.WHITE,true)
         text(c,progressTitle,204f,102f,11f,0xffddf4ff.toInt(),true)
         text(c,distanceTitle,330f,102f,11f,0xffddf4ff.toInt(),true)
     }
