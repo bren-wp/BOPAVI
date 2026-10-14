@@ -309,6 +309,37 @@ for node in clickable(root):
 if len(seen)!=8:
     raise SystemExit(f'FAIL: not all world cards reachable without scrolling: {sorted(set(worlds)-seen)}')
 print('PASS: all eight real illustrated world cards expose saved progress and are clickable without scrolling',flush=True)
+# Visit the actual first world. Its 20 level cards must ALL be reachable in the
+# same physical viewport without swiping, even when 19 cards are save-locked.
+first=[n for n in clickable(root) if n.get('content-desc','').startswith('Green Islands, unlocked,')]
+if len(first)!=1: raise SystemExit('FAIL: first world card cannot open levels')
+tap(first[0]);time.sleep(.8)
+with open('qa/screenshots/android-levels.png','wb') as screenshot:
+    subprocess.run(['adb','exec-out','screencap','-p'],stdout=screenshot,
+                   check=True,timeout=22)
+level_root=dump()
+if any(n.get('scrollable')=='true' for n in level_root.iter('node')):
+    raise SystemExit('FAIL: levels screen still requires scrolling')
+visible=set()
+for n in clickable(level_root):
+    label=n.get('content-desc','')
+    match=re.match(r'^Level (\d+),',label)
+    if match:
+        number=int(match.group(1))
+        l,t,r,b=bounds(n)
+        if not (0<=l<r<=width and 0<=t<b<=height):
+            raise SystemExit(f'FAIL: Level {number} control clipped off-screen')
+        visible.add(number)
+if visible!=set(range(1,21)):
+    raise SystemExit(f'FAIL: 20 visible non-scrolling levels required, found: {sorted(visible)}')
+print('PASS: all 20 actual level cards visible in one frame without vertical scrolling',flush=True)
+level_back=[n for n in clickable(level_root) if 'BACK' in
+            (n.get('text','')+' '+n.get('content-desc',''))]
+if len(level_back)!=1:raise SystemExit('FAIL: levels Back missing')
+tap(level_back[0]);time.sleep(.6)
+root=dump()
+if not any(n.get('content-desc','').startswith('Green Islands, unlocked,') for n in clickable(root)):
+    raise SystemExit('FAIL: levels Back failed to restore world gallery')
 back=[n for n in clickable(root) if 'BACK' in (n.get('content-desc','')+' '+n.get('text',''))]
 if len(back)!=1: raise SystemExit(f'FAIL: missing single worlds BACK action ({len(back)})')
 l,t,r,b=bounds(back[0])
