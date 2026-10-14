@@ -381,7 +381,7 @@ final class GameCanvas: UIView {
         c.setStrokeColor(hudRimColor)
         c.setLineWidth(2.2)
         // Draw the same 22pt rounded rim with reusable CGContext path commands:
-        // CGPath(roundedRect:) created up to five objects every 60/120Hz frame.
+        // Formerly each badge constructed a heap-backed rounded path at 60/120Hz.
         let left=x+1.5,top=y+1.5,right=x+w-1.5,bottom=y+h-1.5
         let r=min(22,(right-left)*0.5,(bottom-top)*0.5)
         c.beginPath()
