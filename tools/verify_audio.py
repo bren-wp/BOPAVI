@@ -26,7 +26,12 @@ for name in [f"world_{n}" for n in range(8)]:
     tail=[int(x) for x in data[-512:]]
     peak=max(abs(v) for v in data[::103])
     assert 100<peak<15000,(name,peak)
-    assert abs(int(data[0])-int(data[-1]))<480,(name,"audible loop click")
+    # A legitimate oscillator crossing can move by hundreds of PCM counts
+    # in one 11 kHz sample. Compare the seam against normal local slew,
+    # rather than rejecting a seamless sine at a steep zero crossing.
+    local_step=max(abs(int(data[i])-int(data[i-1])) for i in range(1,4096))
+    seam_step=abs(int(data[0])-int(data[-1]))
+    assert seam_step <= 1.5*local_step+32,(name,"audible loop click",seam_step,local_step)
     rms=math.sqrt(sum(v*v for v in data[::113])/len(data[::113]))/32768.0
     assert 0.005<rms<0.18,(name,rms)
 for name in ("tap","collect","level","hit","purchase","click"):
