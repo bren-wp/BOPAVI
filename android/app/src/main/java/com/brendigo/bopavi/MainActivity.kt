@@ -566,7 +566,7 @@ class MainActivity : Activity() {
         val avatar=ImageView(this).apply{
 
 
-            setImageResource(portraitDrawableIds[0])
+            setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
                 intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
