@@ -390,3 +390,8 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - Shafts at off-screen top/bottom edges must show broad jagged faces (3–8-unit internal cuts), never pencil-thin caps or floating detached stems. Do not draw material inside the dynamic flyable opening.
 - Level picker: keep all twenty real image-backed level buttons in a 5×4 non-scroll grid, one combined zone/page caption, genuine locked/unlocked badges and active Back/Continue. Check touch-target legibility on short aspect-ratio phones, not just screenshot generation.
 - Screenshots and device smoke tests must be genuine CI artifacts. The screenshot refs have far richer layered environment art than the existing simplified runtime: **not yet signed off as 1:1**.
+
+### PR #116 continued — rooted rock depth pass
+- Android and iOS paint multiple deterministic mineral fissure bands *inside* the existing 76-unit rocky shafts. They inherit each of the eight world palettes and the seeded obstacle phase. Both top and bottom halves terminate beyond the camera bounds, but fissures stay outside the traversable opening and cannot introduce false collision edges.
+- The new layers use a reused Android Paint/Path. Swift resolves each banded cliff's shade and glow CGColors once, outside the per-stratum loop. No new sprite, asset, remote service, purchased content or gameplay parameter.
+- Source regressions check parity of top/bottom placement, material selection, the exact 76-unit collision thickness and absence of per-band Swift CGColor allocations. Pixel-for-pixel parity with the supplied 3D concept-art backgrounds **remains unapproved**; subsequent artwork implementation needs side-by-side visual sign-off.
