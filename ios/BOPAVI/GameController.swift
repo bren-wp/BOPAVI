@@ -751,25 +751,30 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("▶  NASTAVI LET",in:s){
             self.showPilotPicker(world,self.progress.streamFrontier(world))
         }
-        let field=UITextField()
-        field.keyboardType = .numberPad
-        field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
-        field.placeholder="Broj otključanog levela"
-        field.textAlignment = .center
-        field.textColor = .white
-        field.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:1)
-        field.layer.cornerRadius=17
-        field.layer.borderWidth=1
-        field.layer.borderColor=UIColor(red:0.26,green:0.76,blue:1,alpha:1).cgColor
-        field.heightAnchor.constraint(equalToConstant:52).isActive=true
-        s.addArrangedSubview(field)
+        // An optional native alert keeps the illustrated 20-card gallery
+        // larger and never opens the keyboard until the player requests it.
         button("▶  POKRENI ODABRANI LEVEL",in:s,primary:false){
-            field.resignFirstResponder()
-            guard let n=Int(field.text ?? ""), (1...maxNumber).contains(n) else {
-                self.alert("Nedostupan level","Odaberi otključan level iz raspona 1–\(maxNumber).")
-                return
+            let dialog=UIAlertController(title:self.ui("POKRENI ODABRANI LEVEL"),
+                message:self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber)",
+                preferredStyle:.alert)
+            dialog.addTextField {field in
+                field.keyboardType = .numberPad
+                field.text=String(max(start,min(maxNumber,min(start+19,BopaviCore.levelsPerWorld))))
+                field.placeholder=self.ui("Broj otključanog levela")
+                field.accessibilityLabel=self.ui("Broj otključanog levela")
             }
-            self.showPilotPicker(world,n)
+            dialog.addAction(UIAlertAction(title:self.ui("ODUSTANI"),style:.cancel))
+            dialog.addAction(UIAlertAction(title:self.ui("POKRENI"),style:.default){[weak self,weak dialog] _ in
+                guard let self else{return}
+                let field=dialog?.textFields?.first
+                guard let n=Int(field?.text ?? ""), (1...maxNumber).contains(n) else {
+                    self.alert(self.ui("Nedostupan level"),
+                               self.ui("Odaberi otključan level iz raspona")+" 1–\(maxNumber).")
+                    return
+                }
+                self.showPilotPicker(world,n)
+            })
+            self.present(dialog,animated:true)
         }
         } else {
             label("Ovi leveli su zaključani. Dovrši prethodne za otključavanje.",14,.white,s)
@@ -796,7 +801,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ? UIColor(red:1,green:0.78,blue:0.30,alpha:1)
             : UIColor(red:0.43,green:0.84,blue:1,alpha:0.9)).cgColor
         cell.clipsToBounds=true
-        cell.heightAnchor.constraint(equalToConstant:86).isActive=true
+        cell.heightAnchor.constraint(equalToConstant:96).isActive=true
         let picture=UIImageView(image:UIImage(named:"World\(world)"))
         picture.translatesAutoresizingMaskIntoConstraints=false
         picture.contentMode = .scaleAspectFill
