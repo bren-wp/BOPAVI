@@ -2513,3 +2513,53 @@ assert '"▶  CONTINUE"' in ios_pause and '"PAUSE SETTINGS"' in ios_pause
 assert '"↻  RETRY"' in ios_pause and '"↪  EXIT"' in ios_pause
 assert 'pauseHaptic.accessibilityLabel=ui("VIBRACIJA")' in ios_pause
 print('PASS: English/Croatian non-scrolling pause dialog stays inside viewport and buttons remain accessible')
+
+
+# v0.1.88 — score, distance and stage text must not touch HUD rims.
+# Geometry corresponds to real 480x800 physical game coordinates on Android/iOS.
+and_view=(root/'android/app/src/main/java/com/brendigo/bopavi/GameView.kt').read_text()
+ios_view=(root/'ios/BOPAVI/GameCanvas.swift').read_text()
+and_gauge=and_view.split('private fun drawLevelProgress(',1)[1].split('private fun hudGlass(',1)[0]
+ios_gauge=ios_view.split('private func drawLevelProgress(',1)[1].split('private func hudGlass(',1)[0]
+for needle in (
+    'rect(c,171f,58f,364f,81f',
+    'text(c,levelLabel,267f,75f,fittedLevelFontSize,',
+    'text(c,progressTitle,204f,98f,scoreCaptionSize,',
+    'text(c,distanceTitle,330f,98f,distanceCaptionSize,',
+    'scoreCaptionSize=fittedHudCaptionSize(progressTitle)',
+    'distanceCaptionSize=fittedHudCaptionSize(distanceTitle)',
+):
+    assert needle in and_gauge, ('Android top HUD',needle)
+for needle in (
+    'rect(c,171,58,193,23,',
+    'cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:62))',
+    'progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:88))',
+    'distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:88))',
+    'progressLabel=fittedProgressText(',
+    'distanceLabel=fittedProgressText(',
+):
+    assert needle in ios_gauge, ('iOS top HUD',needle)
+assert and_view.count('private fun fittedHudCaptionSize(')==1
+assert ios_view.count('private func fittedProgressText(')==1
+assert '94f/p.measureText(value)' in and_view
+assert '12*94/max(1,measured)' in ios_view
+# Minimum four physical units between stage box, footer and frame, on both platforms.
+HUD_TOP,HUD_BOTTOM=18,108
+BADGE_TOP,BADGE_BOTTOM=58,81
+AND_FOOTER_BASELINE,AND_FOOTER_SIZE=98,11
+IOS_FOOTER_TOP,IOS_FOOTER_SIZE=88,12
+assert BADGE_TOP-55 >= 3
+assert AND_FOOTER_BASELINE-AND_FOOTER_SIZE-BADGE_BOTTOM >= 5
+assert HUD_BOTTOM-AND_FOOTER_BASELINE >= 8
+assert IOS_FOOTER_TOP-BADGE_BOTTOM >= 5
+assert HUD_BOTTOM-(IOS_FOOTER_TOP+IOS_FOOTER_SIZE)>=8
+for center in (204,330):
+    assert 146 < center-47 and center+47 < 381, center
+assert 204+47 < 330-47
+# The race physics, audio loop, rock-rooted gates and player size remain unchanged.
+for render in (and_view,ios_view):
+    assert 'drawRootedCliffBases(' in render and 'hudGlass(' in render
+    assert 'hudVocabulary' in render
+assert 'birdSize=124f' in and_view
+assert 'let artSize:CGFloat=124' in ios_view
+print('PASS: Android/iOS HUD stage/footer separation, locale-width fits and unchanged Bopi')

@@ -1,3 +1,11 @@
+## v0.1.88 — top HUD legibility and localized score clearance (build 91)
+
+- Fix a real defect visible in the v0.1.87 Android gameplay screenshot: the score and distance captions sat against the lower neon glass rim, while the level badge consumed their visual breathing room. Reposition the badge (y=58–81 instead of 60–86) and both metric baselines (Android y=98, iOS top y=88) into visually separate regions with predictable padding.
+- Score and distance now each have a dedicated 94-unit caption-width budget. Their fonts fit long, correctly localized labels and large real in-flight numeric values, with recomputation only on changes (score updates or 10 Hz world-distance samples), never every redraw. Android consolidates duplicate measuring logic into one helper; iOS caches the attributed values.
+- Preserve the connected race progress, exact flight data, top row of compact boosts, no-scroll menus, 76-unit equally thick rooted cliffs, continuous no-gap level transitions and quiet 48-second offline audio. **Bopi remains unchanged in drawn size and collision radius.** No artificial counters, new purchases or screenshots pasted as gameplay.
+- Add cross-platform source-geometry regressions for badge/footer/rim clearance and side-by-side captions so future UI polish cannot silently reintroduce the overlap.
+- Visual comparison against the supplied detailed fantasy artwork remains **not approved as 1:1**. Current generated native scenes and Bopi art are simpler 2D representations, and exhaustive 26-language review of all non-gameplay screens remains outstanding.
+
 ## v0.1.87 — English-first world and result UI, layout legibility (build 90)
 - Fix the eight actual world-gallery titles, physical level selection, and post-flight results: English installations now display English world names and genuine score, collected coins, completed gates, bonus state and share labels; Croatian mode retains the original Croatian text.
 - Correct substring-replacement ordering in the shared 26-locale text fallback, using a cached longest-first dictionary, so "MY RECORDS" and "YOUR RESULTS" cannot become corrupt hybrids like "RECORDI". Add eight-world and result phrase parity tests in Kotlin and Swift. Other 24 languages retain translated navigation/gameplay labels with English fallback for remaining text, not an unsupported claim of comprehensive localization.

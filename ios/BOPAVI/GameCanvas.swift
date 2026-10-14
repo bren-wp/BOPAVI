@@ -318,6 +318,17 @@ final class GameCanvas: UIView {
     private var hudOrbCachedValues=["","",""]
     private var hudOrbCachedNumbers=Array(repeating:NSAttributedString(string:""),count:3)
 
+    /** Measure a dynamic score only when its cached value changes.
+      * Narrow translated text stays inside the inner 94pt field of the
+      * 235pt race gauge, away from the border and pause button.
+      */
+    private func fittedProgressText(_ value:String)->NSAttributedString {
+        let measured=(value as NSString).size(withAttributes:[.font:levelProgressFont]).width
+        let size=max(7.5,min(12,12*94/max(1,measured)))
+        return NSAttributedString(string:value,attributes:[
+            .font:UIFont.monospacedDigitSystemFont(ofSize:size,weight:.heavy),
+            .foregroundColor:UIColor.white])
+    }
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
@@ -327,16 +338,14 @@ final class GameCanvas: UIView {
         let score=game.score()
         if score != lastProgressScore {
             lastProgressScore=score
-            progressLabel=NSAttributedString(string:"\(word("SCORE","BODOVI")) \(score)",
-                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+            progressLabel=fittedProgressText("\(word("SCORE","BODOVI")) \(score)")
         }
         // Sample real world-distance units at 10 Hz, avoiding per-frame
         // NSAttributedString allocation and fake metre claims.
         let distanceTick=Int(game.time*10)
         if distanceTick != lastDistanceTick {
             lastDistanceTick=distanceTick
-            distanceLabel=NSAttributedString(string:"\(word("DIST","PUT")) \(Int(game.distance))",
-                 attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
+            distanceLabel=fittedProgressText("\(word("DIST","PUT")) \(Int(game.distance))")
         }
         // Continuous actual course fraction, matching the Android gauge.
         let total=max(1,game.level.gates.count)
@@ -353,7 +362,7 @@ final class GameCanvas: UIView {
         // The existing race gauge briefly celebrates level entry without
         // covering obstacles or interrupting the continuous simulation.
         let entering=game.levelTransition>0
-        rect(c,171,60,193,26,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
+        rect(c,171,58,193,23,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
         let levelText=entering ? "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(word("NEW STAGE","NOVA RAZINA"))" :
             "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(game.passed)/\(total) \(word("GATES","PROLAZI"))"
         if lastLevelBadgeText != levelText {
@@ -367,9 +376,9 @@ final class GameCanvas: UIView {
                 .font:fittedFont,
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
-        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:64))
-        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:91))
-        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:91))
+        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:62))
+        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:88))
+        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:88))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
         accessibilityLabel="\(pilotName) is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
