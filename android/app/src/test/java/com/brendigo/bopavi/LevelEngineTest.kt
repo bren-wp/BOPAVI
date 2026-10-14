@@ -6,6 +6,22 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun languageCatalogDefaultsToEnglishAndPreservesCroatian() {
+        assertEquals(26,GameLanguages.codes.size)
+        assertEquals(GameLanguages.codes.size,GameLanguages.codes.toSet().size)
+        assertEquals("English",GameLanguages.name("en"))
+        assertEquals("en",GameLanguages.normalized("not-supported"))
+        assertEquals("⚙  SETTINGS",GameLanguages.text("⚙  POSTAVKE","en"))
+        assertEquals("⚙  POSTAVKE",GameLanguages.text("⚙  POSTAVKE","hr"))
+        assertEquals("▶  PLAY",GameLanguages.text("▶  IGRAJ","en"))
+        assertEquals("ADVANCED SETTINGS",GameLanguages.text("NAPREDNE POSTAVKE","en"))
+        assertEquals("ADVANCED SETTINGS",GameLanguages.text("NAPREDNE POSTAVKE","unknown"))
+        for (code in GameLanguages.codes) {
+            assertFalse("Empty UI label for $code",GameLanguages.text("▶  IGRAJ",code).isBlank())
+            assertFalse("Empty settings name $code",GameLanguages.name(code).isBlank())
+        }
+    }
+
     @Test fun everyWorldUsesTapImpulseWithoutDragSteering() {
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val game=GameSimulation(LevelEngine.create(world,1))
