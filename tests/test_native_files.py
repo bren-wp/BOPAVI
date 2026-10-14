@@ -535,8 +535,7 @@ for source in (android_canvas,ios_canvas):
 for source in (android_progress,ios_progress):
     assert "game.totalPassed" in source
     assert "lastProgressPassed" in source
-    assert "PROLAZI UKUPNO" in source
-    assert "Prolazi ukupno" in source
+    assert 'word("GATES","PROLAZI")' in source
     assert "game.passed" in source
     assert "level.gates" in source
     assert "UIImage(" not in source and "BitmapFactory" not in source
