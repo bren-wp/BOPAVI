@@ -382,6 +382,34 @@ if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
 if any("APPEARANCE & SOUND" in text for text in texts):
     raise SystemExit("FAIL: PROFILE incorrectly opened settings")
+# The mandatory pilot gallery must really contain all nine accessible native
+# portraits, preserve safe tap bounds and launch the chosen sprite on selection.
+verify_pilot_gallery(){
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+nodes=[n for n in root.iter('node') if n.get('clickable')=='true']
+for pilot in ('Bopi','Sunny','Berry','Luna','Mint','Shadow','Vihor','Iskra','Orion'):
+    cards=[n for n in nodes if n.get('content-desc','').startswith(pilot+', ')]
+    if len(cards)!=1:
+        raise SystemExit(f'FAIL: pilot gallery missing interactive {pilot}: {len(cards)}')
+    box=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cards[0].get('bounds',''))
+    if not box:raise SystemExit(f'FAIL: malformed pilot card bounds for {pilot}')
+    l,t,r,b=map(int,box.groups())
+    if r-l<45 or b-t<45:
+        raise SystemExit(f'FAIL: pilot card too small on device: {pilot}')
+cta=[n for n in nodes if 'FLY WITH ' in (n.get('text','')+' '+n.get('content-desc','')) or
+     'POLETI S ' in (n.get('text','')+' '+n.get('content-desc',''))]
+if len(cta)!=1:raise SystemExit(f'FAIL: pilot flight action unavailable: {len(cta)}')
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',cta[0].get('bounds',''))
+if not m:raise SystemExit('FAIL: malformed selected pilot play button')
+l,t,r,b=map(int,m.groups())
+if r-l<100 or b-t<45:
+    raise SystemExit('FAIL: selected pilot play control has unusable bounds')
+print('PASS: nine native pilot portraits and a reachable one-screen flight CTA',flush=True)
+subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
+PY
+}
 # A no-scroll profile must expose Edit and the four bottom actions without
 # swipe. Bounds of the real tap surfaces must be inside the display.
 nodes=list(root.iter("node"))
@@ -517,12 +545,15 @@ while [ "$attempt" -le 6 ]; do
     gameplay_ready=1
     break
   fi
-  # Bopi-only navigation must launch straight into the idle flight.
-  # An accidental reappearance of the removed gallery is a release blocker.
-  if grep -q 'ODABERI LIKA' qa/screenshots/android-current-ui.xml; then
-    capture android-obsolete-picker-diagnostic || true
-    echo "FAIL: obsolete character picker appeared before Bopi flight" >&2
-    exit 1
+  # Choosing PLAY deliberately opens the nine-pilot gallery first.
+  # Never bypass it to fake character selection or omit the Back button.
+  if grep -q 'CHOOSE YOUR PILOT' qa/screenshots/android-current-ui.xml ||
+     grep -q 'ODABERI LIKA' qa/screenshots/android-current-ui.xml; then
+    capture android-pilot-gallery
+    verify_pilot_gallery
+    sleep 2
+    dump_ui
+    continue
   fi
   if [ "$home_captured" -eq 0 ] && grep -q 'PLAY' qa/screenshots/android-current-ui.xml; then
     capture android-home
@@ -616,7 +647,7 @@ while [ "$attempt" -le 6 ]; do
     sleep 2
   else
     capture android-navigation-diagnostic || true
-    echo "FAIL: expected HOME, pilot picker or idle GameView, but foreground is another screen" >&2
+    echo "FAIL: expected HOME, selected pilot gallery or idle flight" >&2
     head -c 5000 qa/screenshots/android-current-ui.xml >&2 || true
     exit 1
   fi
@@ -635,7 +666,7 @@ if [ "$gameplay_ready" -ne 1 ]; then
   adb logcat -d -t 200 | tail -n 100 || true
   exit 1
 fi
-echo "PASS: PLAY opens idle flight without a premature pause button"
+echo "PASS: PLAY opens nine-pilot gallery then idle selected flight without premature pause"
 # Coordinates derived from the emulator resolution, not a hard-coded device size.
 size=$(adb shell wm size | tail -n 1 | sed 's/.*: //' | tr -d '\r')
 width=${size%x*}
