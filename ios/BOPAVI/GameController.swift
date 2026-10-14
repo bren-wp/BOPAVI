@@ -227,27 +227,109 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     // Menus share the illustrated backgrounds and gold / cyan / navy palette.
     // Gameplay and persistence remain independent of these presentation views.
     private func ui(_ text:String)->String {GameLanguages.text(text,progress.languageCode)}
-    /// Offline picker; all 26 choices persist locally. Untranslated sentences
-    /// intentionally retain English fallback rather than false machine output.
-    private func showLanguagePicker(){
-        let picker=UIAlertController(title:ui("JEZIK"),
-            message:"Core navigation is translated. Longer pages use English fallback while localization is reviewed.",
-            preferredStyle:.actionSheet)
-        for (index,code) in GameLanguages.codes.enumerated(){
-            let chosen=progress.languageCode==code ? "✓  " : ""
-            picker.addAction(UIAlertAction(title:chosen+GameLanguages.names[index],
-                                          style:.default){[weak self] _ in
-                self?.progress.languageCode=code
-                self?.showSettings()
-            })
+    /// Fixed-size 2×4 paged native picker: no action-sheet scrolling,
+    /// no external language libraries, no account or network access.
+    private func showLanguagePicker(page:Int=0){
+        let pageSize=8
+        let pageCount=(GameLanguages.codes.count+pageSize-1)/pageSize
+        let current=max(0,min(page,pageCount-1))
+        let croatian=progress.languageCode=="hr"
+        let sheet=UIViewController()
+        sheet.modalPresentationStyle = .overFullScreen
+        sheet.view.backgroundColor=UIColor(red:0.005,green:0.025,blue:0.08,alpha:0.88)
+        let panel=UIStackView()
+        panel.axis = .vertical
+        panel.spacing=8
+        panel.alignment = .fill
+        panel.isLayoutMarginsRelativeArrangement=true
+        panel.layoutMargins=UIEdgeInsets(top:17,left:13,bottom:14,right:13)
+        panel.backgroundColor=UIColor(red:0.015,green:0.13,blue:0.33,alpha:1)
+        panel.layer.cornerRadius=24
+        panel.layer.borderWidth=2
+        panel.layer.borderColor=UIColor(red:0.22,green:0.83,blue:1,alpha:1).cgColor
+        panel.translatesAutoresizingMaskIntoConstraints=false
+        sheet.view.addSubview(panel)
+        NSLayoutConstraint.activate([
+            panel.centerXAnchor.constraint(equalTo:sheet.view.centerXAnchor),
+            panel.centerYAnchor.constraint(equalTo:sheet.view.centerYAnchor),
+            panel.widthAnchor.constraint(equalToConstant:min(365,max(260,view.bounds.width-32))),
+            panel.topAnchor.constraint(greaterThanOrEqualTo:sheet.view.safeAreaLayoutGuide.topAnchor,constant:8),
+            panel.bottomAnchor.constraint(lessThanOrEqualTo:sheet.view.safeAreaLayoutGuide.bottomAnchor,constant:-8)
+        ])
+        let title=UILabel()
+        title.text="\(ui("JEZIK"))   \(current+1)/\(pageCount)"
+        title.textAlignment = .center
+        title.textColor = .white
+        title.font=UIFont.systemFont(ofSize:21,weight:.heavy)
+        title.heightAnchor.constraint(equalToConstant:37).isActive=true
+        panel.addArrangedSubview(title)
+        func navButton(_ text:String,_ active:Bool,_ action:@escaping()->Void)->UIButton {
+            let control=UIButton(type:.system)
+            control.setTitle(text,for:.normal)
+            control.setTitleColor(.white,for:.normal)
+            control.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.bold)
+            control.titleLabel?.adjustsFontSizeToFitWidth=true
+            control.titleLabel?.minimumScaleFactor=0.75
+            control.backgroundColor=UIColor(red:0.035,green:0.39,blue:0.72,alpha:1)
+            control.layer.cornerRadius=13
+            control.layer.borderWidth=1.5
+            control.layer.borderColor=UIColor(red:0.29,green:0.88,blue:1,alpha:1).cgColor
+            control.isEnabled=active
+            control.alpha=active ? 1 : 0.40
+            control.heightAnchor.constraint(greaterThanOrEqualToConstant:47).isActive=true
+            control.addAction(UIAction{_ in action()},for:.touchUpInside)
+            return control
         }
-        picker.addAction(UIAlertAction(title:"CANCEL",style:.cancel))
-        if let popover=picker.popoverPresentationController {
-            popover.sourceView=view
-            popover.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)
-            popover.permittedArrowDirections=[]
+        for line in 0..<4 {
+            let row=UIStackView()
+            row.axis = .horizontal
+            row.distribution = .fillEqually
+            row.spacing=7
+            panel.addArrangedSubview(row)
+            for col in 0..<2 {
+                let index=current*pageSize+line*2+col
+                if index>=GameLanguages.codes.count {
+                    let placeholder=UIView()
+                    placeholder.heightAnchor.constraint(equalToConstant:47).isActive=true
+                    row.addArrangedSubview(placeholder)
+                    continue
+                }
+                let code=GameLanguages.codes[index]
+                let selected=code==progress.languageCode
+                let name=GameLanguages.names[index]
+                let control=navButton((selected ? "✓ " : "")+name,true){[weak self,weak sheet] in
+                    guard let self=self else{return}
+                    self.progress.languageCode=code
+                    sheet?.dismiss(animated:true){[weak self] in self?.showSettings()}
+                }
+                control.backgroundColor=selected ?
+                    UIColor(red:0.72,green:0.40,blue:0.04,alpha:1) :
+                    UIColor(red:0.035,green:0.31,blue:0.65,alpha:1)
+                control.layer.borderColor=(selected ?
+                    UIColor(red:1,green:0.83,blue:0.25,alpha:1) :
+                    UIColor(red:0.28,green:0.82,blue:1,alpha:1)).cgColor
+                control.accessibilityLabel=name
+                if selected {control.accessibilityTraits.insert(.selected)}
+                row.addArrangedSubview(control)
+            }
         }
-        present(picker,animated:true)
+        let footer=UIStackView()
+        footer.axis = .horizontal
+        footer.distribution = .fillEqually
+        footer.spacing=5
+        footer.addArrangedSubview(navButton(croatian ? "PRETHODNO" : "PREV",current>0){
+            [weak self,weak sheet] in
+            sheet?.dismiss(animated:false){[weak self] in self?.showLanguagePicker(page:current-1)}
+        })
+        footer.addArrangedSubview(navButton(croatian ? "ODUSTANI" : "CANCEL",true){
+            [weak sheet] in sheet?.dismiss(animated:true)
+        })
+        footer.addArrangedSubview(navButton(croatian ? "SLJEDEĆE" : "NEXT",current<pageCount-1){
+            [weak self,weak sheet] in
+            sheet?.dismiss(animated:false){[weak self] in self?.showLanguagePicker(page:current+1)}
+        })
+        panel.addArrangedSubview(footer)
+        present(sheet,animated:true)
     }
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
