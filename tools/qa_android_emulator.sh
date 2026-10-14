@@ -461,8 +461,19 @@ texts=[n.get("text","") for n in root.iter("node")]
 desc=[n.get("content-desc","") for n in root.iter("node")]
 if not any("Your flight journal" in text for text in texts):
     raise SystemExit("FAIL: PROFILE did not navigate to its dedicated screen")
-if not any("Letački profil" in label for label in desc):
-    raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
+if not any("Flight profile" in label and "pilot Bopi" in label for label in desc):
+    raise SystemExit("FAIL: actual selected default Bopi pilot or English profile description missing")
+# Default English must be respected in visible native profile cards, not just
+# Settings. Do not silently publish a half-Croatian English screenshot.
+croatian_leftovers=("‹  POČETNA","←  POČETNA","MOJE NAGRADE","MOJI NAJBOLJI SVJETOVI",
+                    "PRVI LET","ISTRAŽIVAČ","SAKUPLJAČ","SVE NAGRADE",
+                    "UREDI PROFIL","Osvojene kovanice","Dovršeni leveli")
+for literal in croatian_leftovers:
+    if any(literal in text for text in texts):
+        raise SystemExit("FAIL: untranslated Croatian Profile label in English default: "+literal)
+for required in ("FIRST FLIGHT","EXPLORER","COLLECTOR","ALL AWARDS","EDIT PROFILE"):
+    if not any(required in value for value in texts+desc):
+        raise SystemExit("FAIL: missing translated profile action: "+required)
 if any("APPEARANCE & SOUND" in text for text in texts):
     raise SystemExit("FAIL: PROFILE incorrectly opened settings")
 # A no-scroll profile must expose Edit and the four bottom actions without
