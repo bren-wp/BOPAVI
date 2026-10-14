@@ -370,7 +370,7 @@ if visible!=set(range(1,21)):
 # Inspect actual physical hit areas: the 20 colorful tiles must be both
 # visible and selectable. Tiny decorative pictures are not acceptable buttons.
 for n in clickable(level_root):
-    match=re.match(r'^Level (\\d+),',n.get('content-desc',''))
+    match=re.match(r'^Level (\d+),',n.get('content-desc',''))
     if match:
         l,t,r,b=bounds(n)
         if r-l<72 or b-t<72:
@@ -391,7 +391,7 @@ cancel=[n for n in clickable(dialog) if 'CANCEL' in
 if len(cancel)!=1:raise SystemExit('FAIL: level picker lacks accessible Cancel')
 tap(cancel[0]);time.sleep(.35)
 level_root=dump()
-if sum(bool(re.match(r'^Level (\\d+),',n.get('content-desc','')))
+if sum(bool(re.match(r'^Level (\d+),',n.get('content-desc','')))
        for n in clickable(level_root))!=20:
     raise SystemExit('FAIL: dialog Cancel did not restore complete 20-card no-scroll gallery')
 print('PASS: 20 larger reachable level cards and working cancelable numeric jump, no vertical scrolling',flush=True)
