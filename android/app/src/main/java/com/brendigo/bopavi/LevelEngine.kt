@@ -146,3 +146,128 @@ internal object LevelKind {
         else -> "●"
     }
 }
+
+/** Offline UI locale catalog (26 choices; the remaining long-form pages use English fallback). */
+object GameLanguages {
+    private val keys=listOf("PLAY","WORLDS","SETTINGS","PROFILE","TASKS","COLLECTION","SHOP","LANGUAGE","SOUND","PAUSE")
+    private val rows=listOf(
+        "en|English|Play|Worlds|Settings|Profile|Tasks|Collection|Shop|Language|Sound|Pause",
+        "hr|Hrvatski|Igraj|Svjetovi|Postavke|Profil|Zadaci|Kolekcija|Trgovina|Jezik|Zvuk|Pauza",
+        "de|Deutsch|Spielen|Welten|Einstellungen|Profil|Aufgaben|Sammlung|Shop|Sprache|Ton|Pause",
+        "fr|Français|Jouer|Mondes|Paramètres|Profil|Missions|Collection|Boutique|Langue|Son|Pause",
+        "es|Español|Jugar|Mundos|Ajustes|Perfil|Tareas|Colección|Tienda|Idioma|Sonido|Pausa",
+        "it|Italiano|Gioca|Mondi|Impostazioni|Profilo|Compiti|Collezione|Negozio|Lingua|Audio|Pausa",
+        "pt|Português|Jogar|Mundos|Definições|Perfil|Tarefas|Coleção|Loja|Idioma|Som|Pausa",
+        "nl|Nederlands|Spelen|Werelden|Instellingen|Profiel|Taken|Verzameling|Winkel|Taal|Geluid|Pauze",
+        "pl|Polski|Graj|Światy|Ustawienia|Profil|Zadania|Kolekcja|Sklep|Język|Dźwięk|Pauza",
+        "cs|Čeština|Hrát|Světy|Nastavení|Profil|Úkoly|Sbírka|Obchod|Jazyk|Zvuk|Pauza",
+        "sk|Slovenčina|Hrať|Svety|Nastavenia|Profil|Úlohy|Zbierka|Obchod|Jazyk|Zvuk|Pauza",
+        "sl|Slovenščina|Igraj|Svetovi|Nastavitve|Profil|Naloge|Zbirka|Trgovina|Jezik|Zvok|Premor",
+        "hu|Magyar|Játék|Világok|Beállítások|Profil|Feladatok|Gyűjtemény|Bolt|Nyelv|Hang|Szünet",
+        "ro|Română|Joacă|Lumi|Setări|Profil|Sarcini|Colecție|Magazin|Limbă|Sunet|Pauză",
+        "bg|Български|Играй|Светове|Настройки|Профил|Задачи|Колекция|Магазин|Език|Звук|Пауза",
+        "el|Ελληνικά|Παίξε|Κόσμοι|Ρυθμίσεις|Προφίλ|Αποστολές|Συλλογή|Κατάστημα|Γλώσσα|Ήχος|Παύση",
+        "tr|Türkçe|Oyna|Dünyalar|Ayarlar|Profil|Görevler|Koleksiyon|Mağaza|Dil|Ses|Duraklat",
+        "uk|Українська|Грати|Світи|Налаштування|Профіль|Завдання|Колекція|Магазин|Мова|Звук|Пауза",
+        "sr|Српски|Играј|Светови|Подешавања|Профил|Задаци|Колекција|Продавница|Језик|Звук|Пауза",
+        "bs|Bosanski|Igraj|Svjetovi|Postavke|Profil|Zadaci|Kolekcija|Trgovina|Jezik|Zvuk|Pauza",
+        "sv|Svenska|Spela|Världar|Inställningar|Profil|Uppdrag|Samling|Butik|Språk|Ljud|Paus",
+        "nb|Norsk|Spill|Verdener|Innstillinger|Profil|Oppgaver|Samling|Butikk|Språk|Lyd|Pause",
+        "da|Dansk|Spil|Verdener|Indstillinger|Profil|Opgaver|Samling|Butik|Sprog|Lyd|Pause",
+        "fi|Suomi|Pelaa|Maailmat|Asetukset|Profiili|Tehtävät|Kokoelma|Kauppa|Kieli|Ääni|Tauko",
+        "ja|日本語|プレイ|ワールド|設定|プロフィール|タスク|コレクション|ショップ|言語|サウンド|一時停止",
+        "ko|한국어|플레이|월드|설정|프로필|과제|컬렉션|상점|언어|사운드|일시정지"
+    )
+    private val catalog=rows.map { it.split("|") }
+    val codes:List<String> = catalog.map { it[0] }
+    val names:List<String> = catalog.map { it[1] }
+    fun normalized(code:String):String=if(code in codes)code else "en"
+    fun name(code:String):String=names[codes.indexOf(normalized(code))]
+    // Legacy UI text keys are retained while English becomes the default
+    // presentation language. Replacement is longest-first to avoid overlap.
+    private val english=listOf(
+        "ZADACI I POSTIGNUĆA" to "TASKS & ACHIEVEMENTS",
+        "TRGOVINA KOVANICAMA" to "COIN SHOP",
+        "NAPREDNE POSTAVKE" to "ADVANCED SETTINGS",
+        "MANJE ANIMACIJA" to "REDUCED MOTION",
+        "POLITIKA PRIVATNOSTI" to "PRIVACY POLICY",
+        "UVJETI KORIŠTENJA" to "TERMS OF USE",
+        "POČETNA" to "HOME",
+        "POVRATAK" to "RETURN",
+        "SPREMI KOPIJU NAPRETKA" to "EXPORT PROGRESS",
+        "VRATI NAPREDAK IZ KOPIJE" to "IMPORT PROGRESS",
+        "SPREMI IME" to "SAVE NAME",
+        "UREDI PROFIL" to "EDIT PROFILE",
+        "MOJE NAGRADE" to "MY AWARDS",
+        "MOJI NAJBOLJI SVJETOVI" to "MY TOP WORLDS",
+        "MOJI REKORDI" to "MY RECORDS",
+        "MOJA POSTIGNUĆA" to "MY ACHIEVEMENTS",
+        "IGRAČ I TEŽINA" to "PLAYER & DIFFICULTY",
+        "PODACI I PRIVATNOST" to "DATA & PRIVACY",
+        "IZGLED I ZVUK" to "APPEARANCE & SOUND",
+        "DODATNE OPCIJE" to "EXTRA OPTIONS",
+        "ODABERI LIKA" to "CHOOSE A PILOT",
+        "ODABERI SVJET" to "CHOOSE A WORLD",
+        "RAZINE" to "LEVELS",
+        "LEVELI" to "LEVELS",
+        "RAZINA" to "LEVEL",
+        "OSTVARENI REZULTAT" to "YOUR SCORE",
+        "OSOBNI REKORD" to "PERSONAL BEST",
+        "NOVI REKORD" to "NEW RECORD",
+        "DOVRŠENO" to "COMPLETED",
+        "POREDAK" to "RANKING",
+        "PRETHODNIH" to "PREVIOUS",
+        "SLJEDEĆIH" to "NEXT",
+        "SLJEDEĆI" to "NEXT",
+        "PRETHODNI" to "PREVIOUS",
+        "NASTAVI LET" to "CONTINUE FLIGHT",
+        "POLETI" to "FLY",
+        "POČETNI ŠTIT" to "STARTING SHIELD",
+        "POČETNI MAGNET" to "STARTING MAGNET",
+        "PONOVO" to "RETRY",
+        "IZLAZ" to "EXIT",
+        "NATRAG" to "BACK",
+        "KONTROLE" to "CONTROLS",
+        "MUZIKA" to "MUSIC",
+        "GLAZBA" to "MUSIC",
+        "VIBRACIJA" to "VIBRATION",
+        "VIBRACIJE" to "VIBRATION",
+        "EFEKTI" to "EFFECTS",
+        "UKLJ." to "ON",
+        "ISKL." to "OFF",
+        "PROČITAJ" to "READ",
+        "POSTIGNUĆA" to "ACHIEVEMENTS",
+        "REKORDI" to "RECORDS",
+        "KOLEKCIJA" to "COLLECTION",
+        "ZADACI" to "TASKS",
+        "PROFIL" to "PROFILE",
+        "TRGOVINA" to "SHOP",
+        "SVJETOVI" to "WORLDS",
+        "POSTAVKE" to "SETTINGS",
+        "IGRAJ" to "PLAY",
+        "JEZIK" to "LANGUAGE",
+        "ZVUK" to "SOUND",
+        "PAUZA" to "PAUSE",
+        "KOVANICE" to "COINS",
+        "KOVANICA" to "COINS",
+        "BODOVA" to "POINTS",
+        "NAGRADE" to "REWARDS",
+        "OSVOJENO" to "EARNED",
+        "ZAKLJUČANO" to "LOCKED",
+        "DOSTUPNO" to "AVAILABLE",
+        "LAGANO" to "EASY",
+        "NORMALNO" to "NORMAL",
+        "ZAHTJEVNO" to "HARD",
+        "DODIRNI ZA LET" to "TAP TO FLY"
+    )
+    fun text(original:String,code:String):String {
+        val locale=normalized(code)
+        var result=original
+        for((source,value) in english)result=result.replace(source,value)
+        if(locale=="en")return result
+        if(locale=="hr")return original
+        val row=catalog[codes.indexOf(locale)]
+        for(i in keys.indices)result=result.replace(keys[i],row[i+2])
+        return result
+    }
+}
