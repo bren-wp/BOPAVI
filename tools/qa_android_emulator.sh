@@ -376,7 +376,7 @@ time.sleep(1.5)
 root=dump()
 texts=[n.get("text","") for n in root.iter("node")]
 desc=[n.get("content-desc","") for n in root.iter("node")]
-if not any("Tvoj letački dnevnik" in text for text in texts):
+if not any("Your flight journal" in text for text in texts):
     raise SystemExit("FAIL: PROFILE did not navigate to its dedicated screen")
 if not any("Letački profil" in label for label in desc):
     raise SystemExit("FAIL: missing genuine saved-player profile and pilot description")
@@ -385,7 +385,7 @@ if any("APPEARANCE & SOUND" in text for text in texts):
 # A no-scroll profile must expose Edit and the four bottom actions without
 # swipe. Bounds of the real tap surfaces must be inside the display.
 nodes=list(root.iter("node"))
-for label in ("Back to Home","Uredi profil","TASKS","SHOP"):
+for label in ("Back to Home","EDIT PROFILE","TASKS","SHOP"):
     targets=[n for n in nodes if n.get("clickable")=="true" and
              label.casefold() in (n.get("content-desc","")+" "+n.get("text","")).casefold()]
     if not targets:
@@ -401,7 +401,7 @@ capture=subprocess.run(["adb","exec-out","screencap","-p"],check=True,capture_ou
 if not capture.stdout.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(capture.stdout)<2000:
     raise SystemExit("FAIL: genuine profile screenshot missing or invalid")
 Path("qa/screenshots/android-profile.png").write_bytes(capture.stdout)
-print("PASS: dedicated PROFILEE screen shows saved pilot data and real screenshot",flush=True)
+print("PASS: dedicated PROFILE screen shows saved pilot data and real screenshot",flush=True)
 subprocess.run(["adb","shell","input","keyevent","4"],check=True)
 time.sleep(1)
 root=dump()
@@ -537,7 +537,7 @@ while [ "$attempt" -le 6 ]; do
         echo "FAIL: BOPAVI exited during settings navigation" >&2; exit 1;
       }
       dump_ui
-      if grep -q 'APPEARANCE & SOUND' qa/screenshots/android-current-ui.xml; then
+      if grep -q 'APPEARANCE &amp; SOUND' qa/screenshots/android-current-ui.xml; then
         settings_ready=1
         break
       fi
@@ -584,7 +584,7 @@ while [ "$attempt" -le 6 ]; do
       if recover_launcher_anr; then
         # Android Back might have been consumed by the system ANR dialog.
         sleep 2
-      elif grep -q 'APPEARANCE & SOUND' qa/screenshots/android-current-ui.xml; then
+      elif grep -q 'APPEARANCE &amp; SOUND' qa/screenshots/android-current-ui.xml; then
         adb shell input keyevent 4
         sleep 1
       else
