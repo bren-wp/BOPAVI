@@ -947,11 +947,11 @@ for hud in (android_hud,ios_hud):
     assert 'hudOrb(' in hud
 for progress in (android_progress,ios_progress):
     assert 'game.displayLevel' in progress
-    assert 'LEVEL ' in progress
+    assert 'word("LEVEL","RAZINA")' in progress
     assert 'hudGlass(' in progress
 for progress in (android_progress,ios_progress):
     assert 'game.passed' in progress and 'game.totalPassed' in progress
-    assert 'PROLAZI UKUPNO' in progress
+    assert 'word("GATES","PROLAZI")' in progress
 assert 'hudText' in ios_canvas
 assert 'let counter=UILabel()' not in ios_menu
 assert 'if(paused){rect(' not in android_canvas
