@@ -1105,7 +1105,11 @@ for pause in (android_pause,ios_pause):
     assert 'progress.effectsVolume' in pause
     assert 'progress.hapticEnabled' in pause
     assert 'sound.pause()' in pause
-    assert 'showSettings()' not in pause.split('quick("⚙',1)[1].split('panel.addArrangedSubview(footer)' if pause is ios_pause else 'content.addView(footer',1)[0]
+    pause_options=pause.split('pauseSettings.isHidden.toggle()' if pause is ios_pause
+        else 'pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)',1)[1]
+    assert 'showSettings()' not in pause_options.split(
+        'panel.addArrangedSubview(footer)' if pause is ios_pause
+        else 'content.addView(footer',1)[0]
 assert 'pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)' in android_pause
 assert 'content.addView(pauseSettings' in android_pause
 assert 'dialog.dismiss();showSettings()' not in android_pause
@@ -2609,3 +2613,22 @@ for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
                      'Pobjede','5 svjetova','500 predmeta'):
         assert original in source, ('Missing EN default profile label',path,original)
 print('PASS: saved pilot on Profile and core English-first achievements on iOS and Android')
+
+
+# v0.1.90: the live no-scroll Pause UI must be English-first in both native
+# platforms. All controls remain interactive and preserve the paused run.
+for pause in (android_pause, ios_pause):
+    assert '"♛  PAUSE"' in pause
+    assert '"Paused · Level ' in pause
+    assert '"♫  Music"' in pause and '"◖  Effects"' in pause
+    assert '"Changes save immediately. Your flight stays paused."' in pause
+    assert '"Flight controls"' in pause
+    assert '"Promjene se spremaju odmah. Let ostaje pauziran."' in pause
+    assert 'showSettings()' not in pause.split('PAUSE SETTINGS',1)[-1].split(
+        'private fun startGame(' if pause is android_pause else 'private func startGame(',1)[0].split('pauseSettings.isHidden.toggle()' if pause is ios_pause else 'pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)',1)[-1].split(
+        'panel.addArrangedSubview(footer)' if pause is ios_pause else 'content.addView(footer',1)[0]
+assert '"Sound enabled"' in android_pause and '"Music disabled"' in android_pause
+assert '"◖\\nSOUND"' in ios_pause and '"♫\\nMUSIC"' in ios_pause
+assert 'let spokenLabel=' in ios_pause and 'control.accessibilityLabel=spokenLabel' in ios_pause
+assert 'developmentRegion = en;' in (root/'ios/BOPAVI.xcodeproj/project.pbxproj').read_text()
+print('PASS: native offline English-first PAUSE labels, sound feedback, VoiceOver and English iOS launch metadata')

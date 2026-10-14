@@ -1,3 +1,10 @@
+## v0.1.90 — English-first native Pause, offline accessibility parity (build 93)
+- Fix a real English-language regression in the Android and iOS Pause overlays. The main pause heading, current stage label, inline Music/Effects sliders, saved-changes hint, fly controls tutorial and audio-state feedback now display English by default and the existing Croatian copy when Croatian is chosen.
+- The compact iOS Pause footer now labels Sound, Music, Controls and Settings in English while preserving the actual action, on/off state, VoiceOver label, haptic controls, local volume persistence, paused physics and no-scrolling panel. Native Android also displays localized feedback when sound/music is toggled.
+- Correct iOS Xcode project's default development region to **English** (Croatian stays in the language picker), matching the already English-first on-device application; no data migration and no online API.
+- Add static native regression checks for both locale branches, the saved-flight invariant and English accessibility controls. Existing 9 unlockable pilot art assets, 8 distinct grounded biome scenes, consistent-width procedural gates, continuous level cadence, 48-second calming local music and 26-language partial menu catalogs remain intact.
+- Current concepts' 3D painterly visuals are **not yet reproduced pixel-for-pixel**, and long-form text in every one of the 26 offered languages is **not fully reviewed**. Live Android/iOS device capture is required for final visual signoff.
+
 ## v0.1.89 — Consistent selected pilot in Settings and shop (build 92)
 - Settings headers on Android and iOS now show the genuine **currently selected pilot**, rather than always reverting to Bopi. No new or fictitious pilot art is generated.
 - Replace obsolete assertions that Bopi is the only playable character in the in-game shop: all nine existing unlockable pilots remain functional and coin-earning/unlocking is displayed truthfully in English and Croatian.
