@@ -180,18 +180,72 @@ class MainActivity : Activity() {
             0x66031837,0x99061b3e.toInt(),0xdd04132e.toInt()))
 
     private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
-    /** Language change is offline, immediately applied, and does not reset saves. */
-    private fun showLanguagePicker(){
-        android.app.AlertDialog.Builder(this)
-            .setTitle(ui("JEZIK"))
-            .setSingleChoiceItems(GameLanguages.names.toTypedArray(),
-                GameLanguages.codes.indexOf(progress.languageCode())){dialog,which->
-                progress.setLanguageCode(GameLanguages.codes[which])
-                dialog.dismiss()
-                showSettings()
+    /**
+     * Four short 2×4 pages rather than Android's 26-row scrolling list.
+     * Native clickable, minimum-48dp targets and a persistent selected state.
+     * Everything fits inside even a compact phone without scroll gestures.
+     */
+    private fun showLanguagePicker(page:Int=0){
+        val perPage=8
+        val total=(GameLanguages.codes.size+perPage-1)/perPage
+        val current=page.coerceIn(0,total-1)
+        val start=current*perPage
+        val croatian=progress.languageCode()=="hr"
+        val group=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(10),d(8),d(10),d(8))
+        }
+        lateinit var picker:android.app.AlertDialog
+        for(rowIndex in 0 until 4){
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            for(colIndex in 0..1){
+                val index=start+rowIndex*2+colIndex
+                if(index>=GameLanguages.codes.size){
+                    row.addView(View(this),LinearLayout.LayoutParams(0,d(48),1f))
+                    continue
+                }
+                val code=GameLanguages.codes[index]
+                val selected=code==progress.languageCode()
+                val button=TextView(this).apply{
+                    text=(if(selected)"✓ " else "")+GameLanguages.names[index]
+                    textSize=13f;gravity=Gravity.CENTER
+                    setTextColor(Color.WHITE)
+                    typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                    background=gradient(
+                        if(selected)0xffc47c0a.toInt() else 0xff0874cc.toInt(),
+                        if(selected)0xff673c08.toInt() else 0xff062653.toInt(),16
+                    ).apply{setStroke(d(2),if(selected)gold else electric)}
+                    isClickable=true;isFocusable=true;isSelected=selected
+                    contentDescription=GameLanguages.names[index]+", "+
+                        if(selected)(if(croatian)"odabrano" else "selected")
+                        else (if(croatian)"odaberi jezik" else "choose language")
+                    setOnClickListener{
+                        progress.setLanguageCode(code)
+                        picker.dismiss()
+                        showSettings()
+                    }
+                }
+                row.addView(button,LinearLayout.LayoutParams(0,d(48),1f).apply{
+                    setMargins(d(3),d(3),d(3),d(3))
+                })
             }
-            .setNegativeButton("CANCEL",null)
-            .show()
+            group.addView(row,LinearLayout.LayoutParams(-1,-2))
+        }
+        val builder=android.app.AlertDialog.Builder(this)
+            .setTitle(ui("JEZIK")+"   ${current+1}/$total")
+            .setView(group)
+            .setNegativeButton(if(croatian)"ODUSTANI" else "CANCEL",null)
+        if(current>0)builder.setNeutralButton(if(croatian)"PRETHODNO" else "PREVIOUS"){_,_->
+            showLanguagePicker(current-1)
+        }
+        if(current<total-1)builder.setPositiveButton(if(croatian)"SLJEDEĆE" else "NEXT"){_,_->
+            showLanguagePicker(current+1)
+        }
+        picker=builder.create()
+        picker.show()
     }
     private fun chip(label:String):TextView = TextView(this).apply {
         text=label
