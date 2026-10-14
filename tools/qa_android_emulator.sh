@@ -256,8 +256,8 @@ PY
 verify_world_cards(){
   python3 - <<'PY'
 import re,struct,subprocess,time,xml.etree.ElementTree as ET
-worlds=('Zeleni otoci','Kristalno nebo','Lava vrhovi','Noćni dvorci',
-        'Biserno more','Nebeske kule','Čarobna šuma','Zvjezdani bezdani')
+worlds=('Green Islands','Crystal Sky','Lava Peaks','Night Castles',
+        'Pearl Sea','Sky Towers','Enchanted Forest','Star Abyss')
 def dump():
     subprocess.run(['adb','shell','uiautomator','dump','/sdcard/window.xml'],
                    check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=24)
@@ -297,8 +297,8 @@ seen=set()
 for node in clickable(root):
     title=node.get('content-desc','')
     for name in worlds:
-        if title.startswith(name+', otključano,'):
-            if not all(piece in title for piece in ('level ','prikupljeno ','rekord ','zvjezdice ',' od 30')):
+        if title.startswith(name+', unlocked,'):
+            if not all(piece in title for piece in ('level ','collected ','record ','stars ','out of 30')):
                 raise SystemExit(f'FAIL: world missing real save metrics: {name}')
             l,t,r,b=bounds(node)
             if l<0 or t<0 or r>width or b>height:
