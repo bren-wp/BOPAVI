@@ -22,7 +22,10 @@ fun main() {
             val fmt=java.lang.String.format(java.util.Locale.US,"%.4f",l.speed)
             val gap=java.lang.String.format(java.util.Locale.US,"%.4f",l.gates[0].gap)
             println("V|$w|$n|${l.zone}|${l.type}|${l.gates.size}|$fmt|$gap|${LevelEngine.signature(l)}|${l.gates.take(5).joinToString(","){it.width.toInt().toString()}}")
-            check(l.gates.take(10).mapIndexed {i,g -> (((g.center-332f)/26f).toInt() shl (i*2)) }.fold(0) {a,b->a or b} == n-1)
+            val contour=intArrayOf(-40,-20,0,20,40,20,0,-20,-40,-20)
+            check(l.gates.take(10).mapIndexed {i,g ->
+                (((g.center-332f-contour[i])/26f).toInt() shl (i*2))
+            }.fold(0) {a,b->a or b} == n-1)
         }
     }
     for ((level,reward) in mapOf(0 to 0,1 to 0,4 to 0,5 to 20,10 to 20,15 to 50,30 to 100,60 to 200,120 to 200,121 to 0)) {
