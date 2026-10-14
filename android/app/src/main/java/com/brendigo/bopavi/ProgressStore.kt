@@ -78,6 +78,10 @@ class ProgressStore(context: Context) {
         edit.apply()
         saveLocalScore(game)
     }
+    fun languageCode():String = GameLanguages.normalized(prefs.getString("ui_language", "en") ?: "en")
+    fun setLanguageCode(code:String) {
+        prefs.edit().putString("ui_language",GameLanguages.normalized(code)).apply()
+    }
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */

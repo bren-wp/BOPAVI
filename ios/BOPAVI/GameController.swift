@@ -222,6 +222,29 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
     // Menus share the illustrated backgrounds and gold / cyan / navy palette.
     // Gameplay and persistence remain independent of these presentation views.
+    private func ui(_ text:String)->String {GameLanguages.text(text,progress.languageCode)}
+    /// Offline picker; all 26 choices persist locally. Untranslated sentences
+    /// intentionally retain English fallback rather than false machine output.
+    private func showLanguagePicker(){
+        let picker=UIAlertController(title:ui("JEZIK"),
+            message:"Core navigation is translated. Longer pages use English fallback while localization is reviewed.",
+            preferredStyle:.actionSheet)
+        for (index,code) in GameLanguages.codes.enumerated(){
+            let chosen=progress.languageCode==code ? "✓  " : ""
+            picker.addAction(UIAlertAction(title:chosen+GameLanguages.names[index],
+                                          style:.default){[weak self] _ in
+                self?.progress.languageCode=code
+                self?.showSettings()
+            })
+        }
+        picker.addAction(UIAlertAction(title:"CANCEL",style:.cancel))
+        if let popover=picker.popoverPresentationController {
+            popover.sourceView=view
+            popover.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)
+            popover.permittedArrowDirections=[]
+        }
+        present(picker,animated:true)
+    }
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
         currentMenuName=title
@@ -337,7 +360,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
-        l.numberOfLines=0;l.textAlignment = .center;l.text=text
+        l.numberOfLines=0;l.textAlignment = .center;l.text=ui(text)
         l.font=UIFont.systemFont(ofSize:size,weight:size>=26 ? .black : .semibold)
         l.adjustsFontForContentSizeCategory=true
         l.textColor=color
@@ -357,8 +380,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
         let b=BopaviActionButton(primary:primary)
-        b.setTitle(title,for:.normal)
-        b.accessibilityLabel=title
+        b.setTitle(ui(title),for:.normal)
+        b.accessibilityLabel=ui(title)
         b.heightAnchor.constraint(greaterThanOrEqualToConstant:primary ? 68 : 58).isActive=true
         b.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
         stack.addArrangedSubview(b)
@@ -546,7 +569,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         avatar.layer.borderWidth=2
         avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
         avatar.clipsToBounds=true
-        avatar.accessibilityLabel="PROFIL · Bopi"
+        avatar.accessibilityLabel=ui("PROFIL · Bopi")
         avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
         avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
         avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
@@ -571,11 +594,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             return chip
         }
         let best=headerChip("🏆  \(progress.bestPoints())",
-            "ZADACI I POSTIGNUĆA · najbolji rezultat \(progress.bestPoints())",
+            ui("ZADACI I POSTIGNUĆA") + " · best score \(progress.bestPoints())",
             .white){self.showAchievements(.home)}
         walletRow.addArrangedSubview(best)
         let coins=headerChip("♛  \(progress.coins())",
-            "TRGOVINA · \(progress.coins()) osvojenih kovanica",
+            ui("TRGOVINA") + " · \(progress.coins()) coins earned",
             UIColor(red:1,green:0.83,blue:0.37,alpha:1)){self.showPerks(.home)}
         walletRow.addArrangedSubview(coins)
         best.widthAnchor.constraint(equalTo:coins.widthAnchor).isActive=true
@@ -587,7 +610,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gear.layer.cornerRadius=17
         gear.layer.borderWidth=2
         gear.layer.borderColor=UIColor(red:0.27,green:0.84,blue:1,alpha:1).cgColor
-        gear.accessibilityLabel="POSTAVKE"
+        gear.accessibilityLabel=ui("POSTAVKE")
         gear.widthAnchor.constraint(equalToConstant:48).isActive=true
         gear.heightAnchor.constraint(equalToConstant:48).isActive=true
         gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
@@ -621,7 +644,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         for (icon,title,handler) in tabs {
             let tab=UIButton(type:.system)
             tab.setTitle("",for:.normal)
-            tab.accessibilityLabel=title
+            tab.accessibilityLabel=ui(title)
             tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
             tab.layer.cornerRadius=13
             tab.layer.borderWidth=1
@@ -1047,7 +1070,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
-            coinWallet:{[weak self] in self?.progress.coins() ?? 0})
+            coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
         gameCanvas.translatesAutoresizingMaskIntoConstraints=false
@@ -1426,7 +1449,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         back.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
         back.backgroundColor=UIColor(red:0.04,green:0.29,blue:0.62,alpha:0.96)
         back.layer.cornerRadius=15
-        back.accessibilityLabel="Natrag na početnu"
+        back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"
         back.heightAnchor.constraint(equalToConstant:34).isActive=true
         back.addAction(UIAction{_ in self.showHome()},for:.touchUpInside)
         s.addArrangedSubview(back)
@@ -1988,12 +2011,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         back.layer.cornerRadius=22
         back.layer.borderWidth=2
         back.layer.borderColor=UIColor.white.cgColor
-        back.accessibilityLabel="Natrag na početnu"
+        back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"
         back.translatesAutoresizingMaskIntoConstraints=false
         back.addAction(UIAction{[weak self] _ in self?.showHome()},for:.touchUpInside)
         header.addSubview(back)
         let heading=UILabel()
-        heading.text="POSTAVKE"
+        heading.text=ui("POSTAVKE")
         heading.font=UIFont.systemFont(ofSize:23,weight:.black)
         heading.textColor = .white
         heading.textAlignment = .center
@@ -2021,9 +2044,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             row.layer.cornerRadius=18
             row.layer.borderWidth=1
             row.layer.borderColor=UIColor(red:0.26,green:0.83,blue:1,alpha:0.9).cgColor
-            row.accessibilityLabel="\(name), \(statusText())"
+            row.accessibilityLabel="\(ui(name)), \(ui(statusText()))"
             let label=UILabel()
-            label.text=name
+            label.text=ui(name)
             label.font=UIFont.systemFont(ofSize:14,weight:.heavy)
             label.textColor = .white
             label.adjustsFontSizeToFitWidth=true
@@ -2032,7 +2055,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             label.isUserInteractionEnabled=false
             row.addSubview(label)
             let status=UILabel()
-            status.text=statusText()
+            status.text=ui(statusText())
             status.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.bold)
             status.textColor = .white
             status.backgroundColor=UIColor(red:0.04,green:0.43,blue:0.80,alpha:1)
@@ -2051,10 +2074,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 status.widthAnchor.constraint(equalToConstant:99),
                 status.heightAnchor.constraint(equalToConstant:31)
             ])
-            row.addAction(UIAction{[weak row, weak status] _ in
+            row.addAction(UIAction{[weak self, weak row, weak status] _ in
+                guard let self=self else{return}
                 press()
-                status?.text=statusText()
-                row?.accessibilityLabel="\(name), \(statusText())"
+                status?.text=self.ui(statusText())
+                row?.accessibilityLabel="\(self.ui(name)), \(self.ui(statusText()))"
             },for:.touchUpInside)
             rows.addArrangedSubview(row)
         }
@@ -2081,14 +2105,14 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             guard let self=self else{return}
             self.progress.lessMotion = !self.progress.lessMotion
         }
-        settingRow("JEZIK",{"HRVATSKI"}){
-            [weak self] in self?.alert("Jezik","Trenutačno je dostupan hrvatski jezik.")
+        settingRow("JEZIK",{[weak self] in GameLanguages.name(self?.progress.languageCode ?? "en")}){
+            [weak self] in self?.showLanguagePicker()
         }
         settingRow("PRIVATNOST",{"PROČITAJ"}){
             [weak self] in self?.showLegalNotice(privacy:true)
         }
         let advanced=UIButton(type:.system)
-        advanced.setTitle("⚙  NAPREDNE POSTAVKE",for:.normal)
+        advanced.setTitle(ui("⚙  NAPREDNE POSTAVKE"),for:.normal)
         advanced.setTitleColor(.white,for:.normal)
         advanced.titleLabel?.font=UIFont.systemFont(ofSize:15,weight:.heavy)
         advanced.backgroundColor=UIColor(red:0.025,green:0.38,blue:0.78,alpha:1)
@@ -2096,7 +2120,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         advanced.layer.borderWidth=2
         advanced.layer.borderColor=UIColor(red:0.23,green:0.85,blue:1,alpha:1).cgColor
         advanced.heightAnchor.constraint(equalToConstant:49).isActive=true
-        advanced.accessibilityLabel="NAPREDNE POSTAVKE"
+        advanced.accessibilityLabel=ui("NAPREDNE POSTAVKE")
         advanced.addAction(UIAction{[weak self] _ in self?.showSettingsDetails()},for:.touchUpInside)
         stack.addArrangedSubview(advanced)
 
@@ -2109,7 +2133,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         for (title,privacy) in [("POLITIKA PRIVATNOSTI",true),
                                 ("UVJETI KORIŠTENJA",false)] {
             let link=UIButton(type:.system)
-            link.setTitle(title,for:.normal)
+            link.setTitle(ui(title),for:.normal)
             link.titleLabel?.font=UIFont.systemFont(ofSize:10,weight:.bold)
             link.titleLabel?.adjustsFontSizeToFitWidth=true
             link.titleLabel?.minimumScaleFactor=0.78
@@ -2118,7 +2142,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             link.layer.cornerRadius=12
             link.layer.borderWidth=1
             link.layer.borderColor=UIColor(red:0.27,green:0.80,blue:1,alpha:1).cgColor
-            link.accessibilityLabel=title
+            link.accessibilityLabel=ui(title)
             link.addAction(UIAction{[weak self] _ in
                 self?.showLegalNotice(privacy:privacy)
             },for:.touchUpInside)
@@ -2136,11 +2160,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
 
     private func showLegalNotice(privacy:Bool){
         let title=privacy ? "POLITIKA PRIVATNOSTI" : "UVJETI KORIŠTENJA"
-        let details=privacy
+        let details=progress.languageCode=="hr" ? (privacy
             ? "BOPAVI izdaje Brendigo. Igra nema račune, oglase, analitiku ili kupnje stvarnim novcem. Nadimak, rezultati, virtualne kovanice, napredak i postavke ostaju lokalno na uređaju. Dobrovoljni JSON izvoz koristi odabranu lokaciju, uključujući vanjske pružatelje. Podaci se ne šalju poslužiteljima izdavača. Izbriši podatke aplikacije ili je deinstaliraj za lokalno brisanje; izvezene kopije brišu se zasebno. Kontakt: github.com/bren-wp/BOPAVI/issues."
             : "BOPAVI je igra izdavača Brendigo. Igraj odgovorno. Kovanice, zvjezdice i nagrade imaju vrijednost samo unutar igre; nema plaćanja stvarnim novcem. Napredak ostaje na uređaju uz dobrovoljni izvoz i uvoz. Mlađim igračima preporučuje se roditeljsko vodstvo. Podrška: github.com/bren-wp/BOPAVI/issues. Primjenjuju se obvezna potrošačka prava."
-        let notice=UIAlertController(title:title,message:details,preferredStyle:.alert)
-        notice.addAction(UIAlertAction(title:"ZATVORI",style:.default))
+) : (privacy ? "BOPAVI is published by Brendigo. The game uses no accounts, ads, analytics or real-money purchases. Nickname, scores, virtual coins, progress and settings remain on this device and are not sent to the publisher. Exporting a JSON backup is optional and uses the location you select, which may include another provider. Clear the app data or uninstall to erase local data; delete exported backups separately. Support: github.com/bren-wp/BOPAVI/issues." : "BOPAVI is a game published by Brendigo. Play responsibly. Coins, stars and rewards have no cash value; there are no real-money purchases. Progress stays on your device with optional backup export and import. Parental guidance is recommended for younger players. Mandatory consumer rights remain applicable. Support: github.com/bren-wp/BOPAVI/issues.")
+        let notice=UIAlertController(title:ui(title),message:details,preferredStyle:.alert)
+        notice.addAction(UIAlertAction(title:progress.languageCode=="hr" ? "ZATVORI" : "CLOSE",style:.default))
         present(notice,animated:true)
     }
 

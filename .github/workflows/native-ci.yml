@@ -225,6 +225,8 @@ jobs:
           else
             echo "::warning::KVM is unavailable; emulator may boot slowly."
           fi
+      - name: Verify and repair API35 system image before emulator boot
+        run: bash tools/prepare_android_emulator_image.sh 35
       - name: Set up native Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -302,6 +304,8 @@ jobs:
       - name: Enable Android KVM
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+      - name: Verify and repair API36 system image before emulator boot
+        run: bash tools/prepare_android_emulator_image.sh 36
       - name: Verify UI and navigation on Android 16
         uses: reactivecircus/android-emulator-runner@v2
         with:

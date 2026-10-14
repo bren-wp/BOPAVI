@@ -402,7 +402,7 @@ assert "if(hapticEnabled)performHapticFeedback" in android_canvas
 assert "if self?.progress.hapticEnabled == true" in ios_menu
 assert "drawBoostHUD(c)" in ios_canvas
 for surface in (android_canvas,ios_canvas):
-    assert "ŠTIT ×" in surface and "MAGNET " in surface
+    assert "Shield " in surface and "Magnet " in surface
 workflow=(root/".github/workflows/native-ci.yml").read_text()
 assert "tests/SwiftSaves.swift" in workflow
 assert "Verify legacy save migration and haptics round-trip" in workflow
@@ -535,8 +535,7 @@ for source in (android_canvas,ios_canvas):
 for source in (android_progress,ios_progress):
     assert "game.totalPassed" in source
     assert "lastProgressPassed" in source
-    assert "PROLAZI UKUPNO" in source
-    assert "Prolazi ukupno" in source
+    assert 'word("GATES","PROLAZI")' in source
     assert "game.passed" in source
     assert "level.gates" in source
     assert "UIImage(" not in source and "BitmapFactory" not in source
@@ -630,7 +629,7 @@ for home in (android_home,ios_home):
     assert 'showPilotPicker(' in home and 'startGame(' not in home
 assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
 assert 'UIStackView(arrangedSubviews:[glyph,caption])' in ios_home
-assert 'tab.accessibilityLabel=title' in ios_home
+assert 'tab.accessibilityLabel=ui(title)' in ios_home
 # No fake online gems, cloud sign-out or microtransactions.
 for home in (android_home,ios_home):
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
@@ -851,7 +850,7 @@ assert 'dialog.setOnCancelListener{game.paused=false;sound.resume()}' in android
 assert 'startGame(currentWorld,currentLevel)' in android_pause
 assert 'close(true)' in ios_pause and 'close(false)' in ios_pause
 assert 'canvas?.paused=false' in ios_pause and 'overlay?.removeFromSuperview()' in ios_pause
-assert 'preferredStyle:.actionSheet' not in ios_menu
+assert 'preferredStyle:.actionSheet' not in ios_pause
 assert 'View.INVISIBLE' in android_menu and 'pause.isHidden=true' in ios_menu
 print('PASS: native premium pause overlay and real continue/retry/exit, audio and controls parity')
 
@@ -948,11 +947,11 @@ for hud in (android_hud,ios_hud):
     assert 'hudOrb(' in hud
 for progress in (android_progress,ios_progress):
     assert 'game.displayLevel' in progress
-    assert 'LEVEL ' in progress
+    assert 'word("LEVEL","RAZINA")' in progress
     assert 'hudGlass(' in progress
 for progress in (android_progress,ios_progress):
     assert 'game.passed' in progress and 'game.totalPassed' in progress
-    assert 'PROLAZI UKUPNO' in progress
+    assert 'word("GATES","PROLAZI")' in progress
 assert 'hudText' in ios_canvas
 assert 'let counter=UILabel()' not in ios_menu
 assert 'if(paused){rect(' not in android_canvas
@@ -1226,7 +1225,7 @@ print('PASS: future locked preview hides misleading launch and shows real page p
 # v0.1.46 CI reliability: explicitly recover the exact system launcher ANR
 # even on the first foreground check, but never mask a BOPAVI ANR.
 android_qa=(root/'tools/qa_android_emulator.sh').read_text()
-main_loop=android_qa.split('gameplay_ready=0\nhome_captured=0',1)[1].split('echo "PASS: IGRAJ opens idle flight',1)[0]
+main_loop=android_qa.split('gameplay_ready=0\nhome_captured=0',1)[1].split('echo "PASS: PLAY opens idle flight',1)[0]
 assert 'dump_ui\n  # A system Pixel Launcher ANR' in main_loop
 assert 'if recover_launcher_anr; then\n    sleep 2\n    dump_ui' in main_loop
 assert 'elif recover_launcher_anr; then' in main_loop
@@ -1243,7 +1242,7 @@ ios_home=ios_menu.split('private func showHome()',1)[1].split('private func show
 for home in (android_home,ios_home):
     assert 'PROFIL ·' in home
     assert 'ZADACI I POSTIGNUĆA' in home
-    assert 'TRGOVINA ·' in home
+    assert 'ui("TRGOVINA")' in home
     assert 'POSTAVKE' in home
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'DIJAMANTI' not in home and 'ODJAVA' not in home
@@ -1264,8 +1263,8 @@ print('PASS: live Android/iOS four-action home header with honest earned currenc
 
 # v0.1.47 UI smoke must allow the reference's two independent Settings
 # controls (top gear and main CTA), never mask genuine broken navigation.
-assert 'expected={"IGRAJ":1,"SVJETOVI":1,"POSTAVKE":2}' in qa
-assert "('PROFIL ·','ZADACI I POSTIGNUĆA','TRGOVINA ·')" in qa
+assert 'expected={"PLAY":1,"WORLDS":1,"SETTINGS":2}' in qa
+assert "('PROFILE ·','TASKS & ACHIEVEMENTS','SHOP ·')" in qa
 assert 'if len(set(settings))!=2:' in qa
 assert 't,l,r,b=max(regions)' in qa
 print('PASS: QA verifies distinct home header gear and main Settings CTA')
@@ -1281,7 +1280,7 @@ assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in andro
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
-assert 'string:"DODIRNI ZA LET"' in ios_render
+assert 'string:word("TAP TO FLY","DODIRNI ZA LET")' in ios_render
 assert 'idlePrompt.draw(at:' in ios_render and 'dragPrompt' not in ios_render
 assert 'idlePrompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
@@ -1308,7 +1307,7 @@ for key in ('profile','tasks','collection','shop'):
     assert f'Nav{key.capitalize()}' in ios_home
 assert 'setImageResource(footerIcons[index])' in android_home
 assert 'UIImageView(image:UIImage(named:icon))' in ios_home
-assert 'tab.accessibilityLabel=title' in ios_home
+assert 'tab.accessibilityLabel=ui(title)' in ios_home
 assert 'Nav*.imageset/' in (root/'.github/workflows/native-ci.yml').read_text()
 print('PASS: unobscured logo placement and 4 shared accessible native footer icons')
 
@@ -1394,8 +1393,8 @@ assert 'hudCoinFont=UIFont.systemFont' in ios_game
 assert 'hudText("♛",86,33,hudCoinFont' in ios_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
-assert 'hudOrb(c,170f,154f,"★"' in android_game
-assert 'hudOrb(c,170,154,"★"' in ios_game
+assert 'hudOrb(c,170f,141f,"★"' in android_game
+assert 'hudOrb(c,170,141,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1471,12 +1470,12 @@ for source in (android_game,ios_game):
         assert forbidden not in source
     assert '⚑' in source
     assert 'game.flap()' in source
-assert 'hudGlass(c,146f,18f,381f,77f)' in android_game
-assert 'hudGlass(c,146,18,235,59)' in ios_game
-assert 'hudOrb(c,267f,154f,"◆"' in android_game
-assert 'hudOrb(c,267,154,"◆"' in ios_game
-assert 'hudOrb(c,364f,154f,"∩"' in android_game
-assert 'hudOrb(c,364,154,"∩"' in ios_game
+assert 'hudGlass(c,146f,18f,381f,99f)' in android_game
+assert 'hudGlass(c,146,18,235,81)' in ios_game
+assert 'hudOrb(c,267f,141f,"◆"' in android_game
+assert 'hudOrb(c,267,141,"◆"' in ios_game
+assert 'hudOrb(c,364f,141f,"∩"' in android_game
+assert 'hudOrb(c,364,141,"∩"' in ios_game
 assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
@@ -1524,7 +1523,7 @@ print("PASS: Android/iOS royal coin geometry, actual final-gate portal, reduced-
 qa_flight_loop=qa.split('capture android-gameplay-ready',1)[1].split('while [ "$attempt" -le 6 ]; do',1)[1].split('\ndone',1)[0]
 for required in ('screencap -p /sdcard/bopavi-flight-1.png','sleep 1','dump_ui',
                  'rm -f qa/screenshots/android-gameplay-active.png',
-                 "if grep -q 'Bopi leti'", "if grep -q 'PONOVO'"):
+                 "if grep -q 'Bopi is flying'", "if grep -q 'RETRY'"):
     assert required in qa_flight_loop,required
 assert qa_flight_loop.index('input tap $center') < qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png')
 assert qa_flight_loop.index('screencap -p /sdcard/bopavi-flight-1.png') < qa_flight_loop.index('sleep 1')
@@ -1608,7 +1607,7 @@ for key in ('NavProfile','NavTasks','NavCollection','NavShop'):
     assert key in ios_profile,key
 assert 'orientation=LinearLayout.HORIZONTAL' in android_profile
 assert 'hero.axis = .horizontal' in ios_profile
-assert 'contentDescription=navNames[index]' in android_profile
+assert 'contentDescription=ui(navNames[index])' in android_profile
 assert 'tab.accessibilityLabel=item.1' in ios_profile
 profile_qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'qa/screenshots/android-profile.png' in profile_qa
@@ -1755,7 +1754,7 @@ assert 'result_capture_attempt" -le 8' in emulator
 assert 'cmp -s qa/screenshots/android-gameplay-active.png qa/screenshots/android-result.png' in emulator
 assert 'cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-result.png' in emulator
 assert 'Results PNG duplicates active or idle gameplay after bounded retries' in emulator
-assert 'grep -q \'PONOVO\'' in emulator
+assert 'grep -q \'RETRY\'' in emulator
 assert 'capture android-result-diagnostic' in emulator
 workflow=(root/'.github/workflows/native-ci.yml').read_text()
 assert "results=Path('dist/BOPAVI-Android-Results.png')" in workflow
@@ -1975,12 +1974,12 @@ for source in (android_game,ios_game):
     assert '100_000_000' in source
     assert 'coin' in source.lower()
     assert '.1fM' in source and '.1fK' in source
-    assert 'Novčanik' in source and 'balance' in source
+    assert 'Wallet ' in source and 'balance' in source
     assert 'hudGoldCoin(' in source
 assert 'portraitSprites[selectedSkin]' in android_game
 assert 'BopiPortrait\\(selectedSkin)' in ios_game
-assert 'walletCoins={progress.coins()}' in android_menu
-assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0}' in ios_menu
+assert 'walletCoins={progress.coins()},languageCode=progress.languageCode()' in android_menu
+assert 'coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode' in ios_menu
 assert 'private let hudWalletFont' in ios_game  # never allocate fonts at 120 Hz
 assert 'coinWallet()))' in ios_game
 assert 'walletCoins().coerceIn(0,100_000_000)' in android_game
@@ -2003,12 +2002,12 @@ assert 'levelTransition=.85f' in android_sim
 assert 'levelTransition=0.85' in ios_sim
 for view in (android_hud,ios_hud):
     assert 'val entering=game.levelTransition>0f' in view or 'let entering=game.levelTransition>0' in view
-    assert 'NOVI LET' in view
+    assert 'word("NEW STAGE","NOVA RAZINA")' in view
     assert 'game.totalPassed' in view
     assert 'game.coins' in view
-    assert 'LET +' in view
-    assert 'Novčanik' in view
-    assert 'U ovom letu skupljeno' in view
+    assert 'word("FLIGHT","LET")' in view
+    assert 'Wallet ' in view
+    assert 'Flight pickups ' in view
     assert 'walletLabel(balance)' in view
 assert 'walletCoins().coerceIn(0,100_000_000)' in android_hud
 assert 'coinWallet()))' in ios_hud
@@ -2053,7 +2052,7 @@ for source in (android_game,ios_game):
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
     assert 'hudGlass(c,cx-45' in source
-assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.displayCutout())' in android_game
+assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
 assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
@@ -2094,10 +2093,10 @@ print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both plat
 # physical-top HUDs; only regenerate their textual labels at 10 Hz or on events.
 for render in (android_game,ios_game):
     assert 'lastProgressScore' in render and 'lastDistanceTick' in render
-    assert 'BODOVI ' in render and 'PUT ' in render
+    assert 'word("SCORE","BODOVI")' in render and 'word("DIST","PUT")' in render
     assert 'game.distance' in render and 'game.score()' in render
     assert 'game.time*10' in render
-    assert 'PROLAZI UKUPNO' in render
+    assert 'game.totalPassed' in render
 assert 'distanceTitle=' in android_game
 assert 'distanceLabel=NSAttributedString' in ios_game
 print('PASS: actual score + game-distance visible on both top HUDs with throttled text updates')
@@ -2180,7 +2179,7 @@ assert 'showLeaderboardPage(current+1,fromSettings:fromSettings)' in ios_menu
 emulator=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_shop_records_tabs' in emulator
 assert 'android-shop.png' in emulator and 'android-records.png' in emulator
-assert 'KUPI MAGNET' in emulator and 'KUPI ŠTIT' in emulator
+assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
 print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
 
@@ -2211,14 +2210,14 @@ assert 'FitViewportColumn(this)' in android_base
 assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
 assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
 assert 'menuBackAction={showHome()}' in android_prof
-assert 'contentDescription="Natrag na početnu"' in android_prof
+assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'currentMenuName == "PROFIL"' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if stack.transform != desired' in ios_menu
-assert 'back.accessibilityLabel="Natrag na početnu"' in ios_prof
+assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
 
@@ -2266,7 +2265,7 @@ android_notice=android_menu.split('private fun showLegalNotice(privacy:Boolean){
 ios_notice=ios_menu.split('private func showLegalNotice(privacy:Bool){',1)[1].split('private func showSettingsDetails()',1)[0]
 assert 'option("PRIVATNOST",{"PROČITAJ"}){showLegalNotice(true)}' in android_overview
 assert 'settingRow("PRIVATNOST",{"PROČITAJ"})' in ios_overview
-assert 'UIAlertController(title:title,message:details' in ios_notice
+assert 'UIAlertController(title:ui(title),message:details' in ios_notice
 assert 'android.app.AlertDialog.Builder(this)' in android_notice
 for native in (android_notice, ios_notice):
     for token in ('Brendigo','JSON','github.com/bren-wp/BOPAVI/issues',
@@ -2349,3 +2348,36 @@ assert 'drawCliffShaft(c,x,w,0,top' in ios_render
 assert 'threeDifficultiesChangeRealRenderableAndCollidableOpenings' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
 assert 'Difficulty must alter actual lip collision' in (root/'tests/SwiftParity.swift').read_text()
 print('PASS: eight-world deterministic tall/short gates, difficulty collision/render parity and fixed bird size')
+
+
+# v0.1.83: 26 local UI choices, English-first fallback, persisted language,
+# safe 480x800 grounded pillars, and user-locale HUD with unchanged hitboxes.
+android_languages=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+ios_languages=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+and_store=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+swift_store=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+for source in (android_languages,ios_languages):
+    assert 'GameLanguages' in source
+    for tag in ('English','Hrvatski','Deutsch','Français','Español','Português',
+                '日本語','한국어','Українська','Türkçe','Suomi'):
+        assert tag in source,tag
+    import re
+    catalog=re.findall(r'        "(?:en|hr|de|fr|es|it|pt|nl|pl|cs|sk|sl|hu|ro|bg|el|tr|uk|sr|bs|sv|nb|da|fi|ja|ko)\|[^"\n]+"',source)
+    assert len(catalog)==26,len(catalog)
+    assert 'if(locale=="en")return result' in source or 'if locale=="en" {return result}' in source
+assert 'languageCode()' in and_store and 'setLanguageCode' in and_store
+assert 'var languageCode:String' in swift_store
+assert 'showLanguagePicker()' in android_menu and 'showLanguagePicker()' in ios_menu
+assert 'setSingleChoiceItems(GameLanguages.names' in android_menu
+assert 'preferredStyle:.actionSheet' in ios_menu
+for render in (android_render,ios_render):
+    assert 'drawRootedCliffBases(' in render
+    assert 'top-38' in render and 'bottom+38' in render
+    assert 'drawCliffShaft(' in render
+    assert 'word("TAP TO FLY","DODIRNI ZA LET")' in render
+    assert 'game.difficulty' in render
+assert 'word("LEVEL","RAZINA")' in android_render and 'word("LEVEL","RAZINA")' in ios_render
+assert 'birdSize=124f' in android_render and 'let artSize:CGFloat=124' in ios_render
+assert 'val radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
+assert 'let radius: Float = 18' in ios_languages
+print('PASS: compact English-first HUD, grounded collider-safe cliffs and 26 offline locale choices')

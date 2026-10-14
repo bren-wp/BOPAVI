@@ -152,6 +152,10 @@ final class ProgressStore {
         let difficulty:Int
         let gates:Int
     }
+    var languageCode:String {
+        get {GameLanguages.normalized(defaults.string(forKey:"ui_language") ?? "en")}
+        set {defaults.set(GameLanguages.normalized(newValue),forKey:"ui_language")}
+    }
     let difficultyNames=["Opušteno","Standardno","Izazovno"]
     var difficulty:Int {
         get { min(2,max(0,defaults.object(forKey:"difficulty") as? Int ?? 1)) }

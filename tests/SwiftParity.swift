@@ -3,6 +3,18 @@ import Foundation
 @main
 struct SwiftParity {
     static func main() {
+        precondition(GameLanguages.codes.count == 26)
+        precondition(Set(GameLanguages.codes).count == 26)
+        precondition(GameLanguages.name("en") == "English")
+        precondition(GameLanguages.normalized("unknown") == "en")
+        precondition(GameLanguages.text("▶  IGRAJ","en") == "▶  PLAY")
+        precondition(GameLanguages.text("⚙  POSTAVKE","en") == "⚙  SETTINGS")
+        precondition(GameLanguages.text("⚙  POSTAVKE","hr") == "⚙  POSTAVKE")
+        precondition(GameLanguages.text("NAPREDNE POSTAVKE","en") == "ADVANCED SETTINGS")
+        for code in GameLanguages.codes {
+            precondition(!GameLanguages.text("IGRAJ",code).isEmpty)
+            precondition(!GameLanguages.name(code).isEmpty)
+        }
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
         var checked=0
         for w in 0..<8 {
