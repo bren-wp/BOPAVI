@@ -1625,8 +1625,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         portraitBox.layer.borderWidth=2
         portraitBox.layer.borderColor=UIColor(red:1,green:0.76,blue:0.30,alpha:1).cgColor
         portraitBox.isAccessibilityElement=true
-        portraitBox.accessibilityLabel=ui("Letački profil, ") + progress.playerName
-            + (progress.languageCode=="hr" ? ", lik " : ", pilot ") + progress.skinNames[skin]
+        portraitBox.accessibilityLabel=ui("Letački profil, ") + progress.playerName + (progress.languageCode=="hr" ? ", lik " : ", pilot ") + progress.skinNames[skin]
         portraitBox.widthAnchor.constraint(equalToConstant:124).isActive=true
         let portrait=UIImageView(image:UIImage(named:"BopiPortrait"+String(skin)))
         portrait.contentMode = .scaleAspectFit
@@ -1647,8 +1646,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         starGauge.transform=CGAffineTransform(scaleX:1,y:3)
         starGauge.heightAnchor.constraint(equalToConstant:8).isActive=true
         starGauge.isAccessibilityElement=true
-        starGauge.accessibilityLabel=(progress.languageCode=="hr" ? "Zvjezdice svijeta " : "Stars in world ")
-            + ui(BopaviCore.names[profileWorld])
+        starGauge.accessibilityLabel=(progress.languageCode=="hr" ? "Zvjezdice svijeta " : "Stars in world ") + ui(BopaviCore.names[profileWorld])
         starGauge.accessibilityValue="\(profileStars)/30"
         portraitBox.addArrangedSubview(starGauge)
         let starCaption=label("★  \(profileStars)/30 · "+ui(BopaviCore.names[profileWorld]),10,.white,portraitBox)
@@ -1737,8 +1735,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 ? UIColor(red:1,green:0.78,blue:0.30,alpha:1)
                 : UIColor(red:0.45,green:0.52,blue:0.65,alpha:1)).cgColor
             tile.isAccessibilityElement=true
-            tile.accessibilityLabel=ui(name) + (progress.languageCode=="hr" ? ", cilj " : ", goal ")
-                + ui(requirement) + ", " + ui(earned ? "osvojeno" : "zaključano")
+            tile.accessibilityLabel=ui(name) + (progress.languageCode=="hr" ? ", cilj " : ", goal ") + ui(requirement) + ", " + ui(earned ? "osvojeno" : "zaključano")
             let glyph=label(earned ? icon:"🔒",24,
                 UIColor(red:1,green:0.77,blue:0.30,alpha:1),tile)
             glyph.heightAnchor.constraint(equalToConstant:26).isActive=true
