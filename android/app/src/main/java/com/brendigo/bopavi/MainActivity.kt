@@ -226,35 +226,18 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        if(label=="TRGOVINA" || label=="MOJI REKORDI" || label=="PROFIL" || label=="POSTIGNUĆA"){
-            // Finite menus fit physical safe areas instead of hiding content
-            // in a long scroller. Do not apply a double root inset.
-            val fitted=FitViewportColumn(this)
-            fitted.addView(body)
-            root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
-            fitted.setOnApplyWindowInsetsListener{v,insets->
-                if(Build.VERSION.SDK_INT>=30){
-                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
-                        or android.view.WindowInsets.Type.displayCutout())
-                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                }
-                insets
+        // All primary game screens occupy exactly one safe-area viewport.
+        // Keep the real interactive views, not a single baked screenshot.
+        val fitted=FitViewportColumn(this)
+        fitted.addView(body)
+        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
+        fitted.setOnApplyWindowInsetsListener{v,insets->
+            if(Build.VERSION.SDK_INT>=30){
+                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                    or android.view.WindowInsets.Type.displayCutout())
+                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
             }
-        } else {
-            val scroll=ScrollView(this).apply{
-                isFillViewport=true;isVerticalScrollBarEnabled=false
-                clipToPadding=false
-                addView(body)
-            }
-            root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
-            if(Build.VERSION.SDK_INT>=35){
-                scroll.setOnApplyWindowInsetsListener{v,insets->
-                    val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
-                        or android.view.WindowInsets.Type.displayCutout())
-                    v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                    insets
-                }
-            }
+            insets
         }
         showNativeView(root)
         if(label=="POSTAVKE") {
@@ -361,7 +344,7 @@ class MainActivity : Activity() {
     }
     private fun back(parent:LinearLayout,onClick:()->Unit) {
         menuBackAction=onClick
-        action(parent,"‹  Natrag",false,onClick)
+        action(parent,if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK",false,onClick)
     }
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
         val name=LevelEngine.names[world]
