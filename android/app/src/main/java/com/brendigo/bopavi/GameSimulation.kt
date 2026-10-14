@@ -106,7 +106,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         for (i in passed until level.gates.size) {
             val gate = level.gates[i]; val x = gateX(gate)
             if (x > birdX + radius + 115f) break
-            val bounds = LevelEngine.opening(gate, time)
+            val bounds = LevelEngine.opening(gate, time, difficulty)
             // Collide with the actually DRAWN pillar cap (x-7 .. x+width+5), not
             // only the thinner central shaft. Resolve impact before pickups.
             if (x - 7f < birdX + radius && x + gate.width + 5f > birdX - radius &&
