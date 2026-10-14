@@ -1836,7 +1836,7 @@ assert 'steerTouch' not in android_view and 'steerTouch' not in ios_view
 assert 'override func touchesMoved(' not in ios_view
 assert 'if !touches.isEmpty {triggerFlap()}' in ios_view
 for ui in (android_ui,ios_ui):
-    assert '"● TAP"' in ui and '"TAP ZA ZAMAH"' in ui and 'POVUCI' not in ui
+    assert '"● TAP"' not in ui and '"TAP ZA ZAMAH"' in ui and 'POVUCI' not in ui
 assert 'POVUCI' not in android_view and 'POVUCI' not in ios_view
 print('PASS: Android and iOS tap-only controls, game physics and accessibility')
 
