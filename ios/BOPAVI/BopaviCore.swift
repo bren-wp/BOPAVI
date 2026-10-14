@@ -253,7 +253,7 @@ final class GameSimulation {
         for i in passed..<level.gates.count {
             let gate = level.gates[i]; let x = gateX(gate)
             if x > birdX+radius+115 { break }
-            let bounds = BopaviCore.opening(gate, time)
+            let bounds = BopaviCore.opening(gate, time,difficulty:difficulty)
             // Same hit area as the visible cap, including its left and right overhang.
             if x-7 < birdX+radius && x+gate.width+5 > birdX-radius &&
                 (y-radius < bounds.top || y+radius > bounds.bottom) {
