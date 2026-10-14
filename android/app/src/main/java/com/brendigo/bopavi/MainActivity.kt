@@ -908,8 +908,8 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(128)))
-        title(content,"♛  PAUZA",32,Color.WHITE)
-        small(content,"Pauza · Level ${game.game.displayLevel}")
+        title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
+        small(content,if(progress.languageCode()=="hr")"Pauza · Level ${game.game.displayLevel}" else "Paused · Level ${game.game.displayLevel}")
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -954,12 +954,12 @@ class MainActivity : Activity() {
             contentDescription=if(progress.languageCode()=="hr")"Postavke u pauzi" else "Pause settings"
         }
         sectionHeading(pauseSettings,if(progress.languageCode()=="hr")"POSTAVKE U PAUZI" else "PAUSE SETTINGS")
-        volumeSlider(pauseSettings,"♫  Glazba",progress.musicVolume()){
+        volumeSlider(pauseSettings,if(progress.languageCode()=="hr")"♫  Glazba" else "♫  Music",progress.musicVolume()){
             progress.setMusicVolume(it)
             sound.musicVolume=it/100f
             sound.pause()
         }
-        volumeSlider(pauseSettings,"◖  Zvukovi",progress.effectsVolume()){
+        volumeSlider(pauseSettings,if(progress.languageCode()=="hr")"◖  Zvukovi" else "◖  Effects",progress.effectsVolume()){
             progress.setEffectsVolume(it)
             sound.effectsVolume=it/100f
             sound.pause()
@@ -976,7 +976,7 @@ class MainActivity : Activity() {
             setOnCheckedChangeListener{_,checked->progress.setHapticEnabled(checked)}
         }
         pauseSettings.addView(pauseHaptic,LinearLayout.LayoutParams(-1,d(56)))
-        small(pauseSettings,"Promjene se spremaju odmah. Let ostaje pauziran.")
+        small(pauseSettings,if(progress.languageCode()=="hr")"Promjene se spremaju odmah. Let ostaje pauziran." else "Changes save immediately. Your flight stays paused.")
         val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             background=gradient(0xff052c62.toInt(),0xff041631.toInt(),17)
@@ -1013,22 +1013,23 @@ class MainActivity : Activity() {
             val enabled=!progress.soundEnabled()
             progress.setSoundEnabled(enabled);sound.enabled=enabled
             sound.pause() // Toggling audio must never resume a paused flight.
-            Toast.makeText(this,if(enabled)"Zvuk uključen" else "Zvuk isključen",
+            Toast.makeText(this,if(progress.languageCode()=="hr")(if(enabled)"Zvuk uključen" else "Zvuk isključen") else (if(enabled)"Sound enabled" else "Sound disabled"),
                 Toast.LENGTH_SHORT).show()
         }
         quick("♫","MUZIKA"){
             val level=progress.toggleMusicVolume()
             sound.musicVolume=level/100f
             sound.pause() // Changing audio must never resume a paused flight.
-            Toast.makeText(this,if(level==0)"Glazba isključena" else "Glazba uključena",
+            Toast.makeText(this,if(progress.languageCode()=="hr")(if(level==0)"Glazba isključena" else "Glazba uključena") else (if(level==0)"Music disabled" else "Music enabled"),
                 Toast.LENGTH_SHORT).show()
         }
         quick("✦","KONTROLE"){
             android.app.AlertDialog.Builder(this)
-                .setTitle("Kontrole leta")
-                .setMessage("Dodirni zaslon za svaki zamah krilima u svih osam svjetova. " +
-                    "Pauza je dostupna nakon početka leta; izbjegavaj prepreke i skupljaj nagrade.")
-                .setPositiveButton("U REDU",null).show()
+                .setTitle(if(progress.languageCode()=="hr")"Kontrole leta" else "Flight controls")
+                .setMessage(if(progress.languageCode()=="hr")
+                    "Dodirni zaslon za svaki zamah krilima u svih osam svjetova. Pauza je dostupna nakon početka leta; izbjegavaj prepreke i skupljaj nagrade."
+                    else "Tap anywhere to flap in all eight worlds. Pause becomes available after your first flap. Avoid obstacles and collect rewards.")
+                .setPositiveButton(if(progress.languageCode()=="hr")"U REDU" else "OK",null).show()
         }
         quick("⚙","POSTAVKE"){
             pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)View.GONE else View.VISIBLE
