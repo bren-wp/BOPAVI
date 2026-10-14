@@ -849,6 +849,9 @@ final class GameCanvas: UIView {
         let height=end-start
         guard height>=70 else{return}
         let count=max(1,min(7,Int(height/94)))
+        // Resolve just two CGColors for an entire shaft; never per stone row.
+        let shadowColor=color(shade,142.0/255)
+        let glowColor=color(glint,135.0/255)
         for i in 0..<count {
             let jitter=CGFloat((seed*17+i*23)&7)
             let y=start+18+CGFloat(i)*(height-35)/CGFloat(count)
@@ -861,12 +864,12 @@ final class GameCanvas: UIView {
             c.addLine(to:CGPoint(x:right,y:y+6))
             c.addLine(to:CGPoint(x:mid+4,y:y+28))
             c.closePath()
-            c.setFillColor(color(shade,142.0/255));c.fillPath()
+            c.setFillColor(shadowColor);c.fillPath()
             c.beginPath()
             c.move(to:CGPoint(x:left+2,y:y+1))
             c.addLine(to:CGPoint(x:mid,y:y+11))
             c.addLine(to:CGPoint(x:right-3,y:y+5))
-            c.setStrokeColor(color(glint,135.0/255))
+            c.setStrokeColor(glowColor)
             c.setLineWidth(1.5)
             c.strokePath()
         }
