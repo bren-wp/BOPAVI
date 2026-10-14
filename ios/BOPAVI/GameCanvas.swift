@@ -319,7 +319,7 @@ final class GameCanvas: UIView {
         let score=game.score()
         if score != lastProgressScore {
             lastProgressScore=score
-            progressLabel=NSAttributedString(string:"BODOVI \(score)",
+            progressLabel=NSAttributedString(string:"SCORE \(score)",
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
         }
         // Sample real world-distance units at 10 Hz, avoiding per-frame
@@ -327,13 +327,13 @@ final class GameCanvas: UIView {
         let distanceTick=Int(game.time*10)
         if distanceTick != lastDistanceTick {
             lastDistanceTick=distanceTick
-            distanceLabel=NSAttributedString(string:"PUT \(Int(game.distance))",
+            distanceLabel=NSAttributedString(string:"DIST \(Int(game.distance))",
                  attributes:[.font:levelProgressFont,.foregroundColor:UIColor.white])
         }
         // Continuous actual course fraction, matching the Android gauge.
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
-        hudGlass(c,146,18,235,59)
+        hudGlass(c,146,18,235,81)
         hudText("♛",154,28,hudIconFont,0xffd45b)
         hudText("⚑",350,29,hudIconFont,0xffffff)
         rect(c,181,34,173,21,0x05234e,10)
@@ -345,24 +345,23 @@ final class GameCanvas: UIView {
         // The existing race gauge briefly celebrates level entry without
         // covering obstacles or interrupting the continuous simulation.
         let entering=game.levelTransition>0
-        rect(c,171,80,193,27,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
-        let levelText=entering ? "LEVEL \(game.displayLevel)  ·  NOVI LET" :
-            "LEVEL \(game.displayLevel)  ·  \(game.passed)/\(total)"
+        rect(c,171,63,193,30,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
+        let levelText=entering ? "LEVEL \(game.displayLevel) · NEW STAGE" :
+            "LEVEL \(game.displayLevel) · \(game.passed)/\(total) GATES"
         if lastLevelBadgeText != levelText {
             lastLevelBadgeText=levelText
             cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
                 .font:levelBadgeFont,
                 .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
         }
-        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:85))
-        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:110))
-        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:110))
+        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:69))
+        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:103))
+        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:103))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
-        accessibilityLabel="Bopi leti. Novčanik \(balance) kovanica. U ovom letu skupljeno \(game.coins). " +
-            "Prolazi ukupno \(passed). Bodovi \(score). Udaljenost \(Int(game.distance)) jedinica. " +
-            "Zvjezdice \(game.stars). " +
-            "ŠTIT ×\(game.shield). MAGNET \(seconds)s"
+        accessibilityLabel="Bopi is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
+            "Total gates \(passed). Score \(score). Distance \(Int(game.distance)) units. " +
+            "Stars \(game.stars). Shield \(game.shield). Magnet \(seconds) seconds."
     }
     /// Source-matched, state-driven glass counters shared with Android Canvas.
     /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
@@ -438,11 +437,11 @@ final class GameCanvas: UIView {
         hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
-        hudText("LET +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,170,154,"★","\(game.stars)",0xffce43,true)
-        hudOrb(c,267,154,"◆","\(game.shield)",0x54e5ff,game.shield>0)
+        hudText("FLIGHT +\(game.coins)",84,87,collectedFont,0xffd76a)
+        hudOrb(c,170,141,"★","\(game.stars)",0xffce43,true)
+        hudOrb(c,267,141,"◆","\(game.shield)",0x54e5ff,game.shield>0)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,364,154,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
+        hudOrb(c,364,141,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
