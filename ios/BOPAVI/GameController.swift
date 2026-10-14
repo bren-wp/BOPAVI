@@ -1105,12 +1105,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         pauseSettings.layer.borderColor=UIColor(red:0.24,green:0.80,blue:1,alpha:1).cgColor
         pauseSettings.isHidden=true
         label(progress.languageCode=="hr" ? "POSTAVKE U PAUZI" : "PAUSE SETTINGS",17,.white,pauseSettings)
-        volumeSlider("♫  Glazba",value:progress.musicVolume,in:pauseSettings){value in
+        volumeSlider(progress.languageCode=="hr" ? "♫  Glazba" : "♫  Music",value:progress.musicVolume,in:pauseSettings){value in
             self.progress.musicVolume=value
             self.sound.musicVolume=Float(value)/100
             self.sound.pause()
         }
-        volumeSlider("◖  Zvukovi",value:progress.effectsVolume,in:pauseSettings){value in
+        volumeSlider(progress.languageCode=="hr" ? "◖  Zvukovi" : "◖  Effects",value:progress.effectsVolume,in:pauseSettings){value in
             self.progress.effectsVolume=value
             self.sound.effectsVolume=Float(value)/100
             self.sound.pause()
@@ -1137,7 +1137,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hapticRow.addArrangedSubview(hapticLabel)
         hapticRow.addArrangedSubview(pauseHaptic)
         pauseSettings.addArrangedSubview(hapticRow)
-        label("Promjene se spremaju odmah. Let ostaje pauziran.",13,
+        label(progress.languageCode=="hr" ? "Promjene se spremaju odmah. Let ostaje pauziran." : "Changes save immediately. Your flight stays paused.",13,
               UIColor(red:0.78,green:0.91,blue:1,alpha:1),pauseSettings)
         let footer=UIStackView()
         footer.axis = .horizontal
@@ -1160,7 +1160,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.titleLabel?.adjustsFontSizeToFitWidth=true
             control.titleLabel?.minimumScaleFactor=0.67
             control.setTitleColor(.white,for:.normal)
-            control.accessibilityLabel=self.ui(label)
+            let spokenLabel=self.progress.languageCode=="hr" ? label :
+                (label=="Zvuk" ? "Sound" : label=="Muzika" ? "Music" : label=="Kontrole" ? "Controls" : "Settings")
+            control.accessibilityLabel=spokenLabel
             control.backgroundColor=UIColor(red:0.03,green:0.35,blue:0.68,alpha:1)
             control.layer.cornerRadius=13
             control.layer.borderWidth=1
@@ -1172,25 +1174,26 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 if label=="Zvuk" || label=="Muzika" {
                     let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
                     control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
-                    control.accessibilityLabel=self.ui(label)+(active ? " enabled":" disabled")
+                    control.accessibilityLabel=spokenLabel+(active ? " enabled":" disabled")
                 }
             },for:.touchUpInside)
             footer.addArrangedSubview(control)
         }
-        quick("◖\nZVUK",label:"Zvuk"){
+        quick(progress.languageCode=="hr" ? "◖\nZVUK" : "◖\nSOUND",label:"Zvuk"){
             self.progress.soundEnabled.toggle()
             self.sound.enabled=self.progress.soundEnabled
             self.sound.pause() // Restore no-audio state until Continue.
         }
-        quick("♫\nMUZIKA",label:"Muzika"){
+        quick(progress.languageCode=="hr" ? "♫\nMUZIKA" : "♫\nMUSIC",label:"Muzika"){
             let volume=self.progress.toggleMusicVolume()
             self.sound.musicVolume=Float(volume)/100
             self.sound.pause()
         }
-        quick("✦\nKONTROLE",label:"Kontrole"){
-            self.alert("Kontrole leta","Dodirni zaslon za svaki zamah krilima u svih osam svjetova. Izbjegavaj prepreke i skupljaj nagrade.")
+        quick(progress.languageCode=="hr" ? "✦\nKONTROLE" : "✦\nCONTROLS",label:"Kontrole"){
+            self.alert(self.progress.languageCode=="hr" ? "Kontrole leta" : "Flight controls",
+                self.progress.languageCode=="hr" ? "Dodirni zaslon za svaki zamah krilima u svih osam svjetova. Izbjegavaj prepreke i skupljaj nagrade." : "Tap to flap in all eight worlds. Avoid obstacles and collect rewards.")
         }
-        quick("⚙\nPOSTAVKE",label:"Postavke"){
+        quick(progress.languageCode=="hr" ? "⚙\nPOSTAVKE" : "⚙\nSETTINGS",label:"Postavke"){
             pauseSettings.isHidden.toggle()
             self.sound.pause()
             self.view.setNeedsLayout()
