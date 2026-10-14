@@ -1658,7 +1658,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         hero.addArrangedSubview(portraitBox)
         let stats=UIStackView()
         stats.axis = .vertical;stats.alignment = .fill;stats.spacing=3
-        let pilotName=label(progress.playerName.uppercased(),20,.white,stats)
+        let pilotName=label(ui(progress.playerName.uppercased()),20,.white,stats)
         pilotName.textAlignment = .left
         pilotName.adjustsFontSizeToFitWidth=true;pilotName.minimumScaleFactor=0.55
         pilotName.numberOfLines=1
@@ -1780,7 +1780,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tile.layer.borderWidth=2
             tile.layer.borderColor=UIColor(red:0.0,green:0.83,blue:1,alpha:1).cgColor
             tile.backgroundColor=UIColor(red:0.03,green:0.23,blue:0.50,alpha:1)
-            tile.accessibilityLabel=BopaviCore.names[world] + ", " + String(progress.worldStars(world)) + " od 30 zvjezdica; otvori levele"
+            tile.accessibilityLabel=ui(BopaviCore.names[world]) + ", " +
+                String(progress.worldStars(world)) +
+                (progress.languageCode=="hr" ? " od 30 zvjezdica; otvori levele" :
+                    " of 30 stars; open levels")
             let content=UIStackView()
             content.translatesAutoresizingMaskIntoConstraints=false
             content.axis = .vertical;content.spacing=0
@@ -1822,7 +1825,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 rankMedal.heightAnchor.constraint(equalToConstant:28)
             ])
             content.addArrangedSubview(artFrame)
-            let title=label(BopaviCore.names[world].uppercased(),11,.white,content)
+            let title=label(ui(BopaviCore.names[world]).uppercased(),11,.white,content)
             title.numberOfLines=1;title.adjustsFontSizeToFitWidth=true
             title.minimumScaleFactor=0.72
             title.heightAnchor.constraint(equalToConstant:22).isActive=true
@@ -1837,12 +1840,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         s.addArrangedSubview(worldRow)
         let editProfile=BopaviActionButton(primary:true)
-        editProfile.setTitle("✎  UREDI PROFIL",for:.normal)
-        editProfile.accessibilityLabel="Uredi profil"
+        editProfile.setTitle(ui("✎  UREDI PROFIL"),for:.normal)
+        editProfile.accessibilityLabel=ui("UREDI PROFIL")
         editProfile.heightAnchor.constraint(equalToConstant:53).isActive=true
         editProfile.addAction(UIAction{_ in self.showSettings()},for:.touchUpInside)
         s.addArrangedSubview(editProfile)
-        // Bopi identity remains accessible in the hero and local progress data.
+        // Saved playable-pilot identity remains visible and accessible.
         let footer=UIStackView()
         footer.axis = .horizontal;footer.distribution = .fillEqually;footer.spacing=5
         footer.isLayoutMarginsRelativeArrangement=true
@@ -1863,7 +1866,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 : UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.8)
             tab.layer.cornerRadius=13
             tab.heightAnchor.constraint(equalToConstant:49).isActive=true
-            tab.accessibilityLabel=item.1+(index==0 ? ", odabrano":"")
+            tab.accessibilityLabel=ui(item.1)+(index==0 ?
+                (progress.languageCode=="hr" ? ", odabrano" : ", selected") : "")
             let content=UIStackView()
             content.axis = .vertical;content.translatesAutoresizingMaskIntoConstraints=false
             content.isUserInteractionEnabled=false
