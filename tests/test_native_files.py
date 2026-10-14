@@ -127,7 +127,7 @@ for world_tile in (android_tile,ios_tile):
     assert 'prikupljeno ' in world_tile
     assert 'POKRENI' not in world_tile  # whole accessible card remains the action
 assert 'name.uppercase()' in android_tile
-assert 'names[world].uppercased()' in ios_tile
+assert 'ui(BopaviCore.names[world]).uppercased()' in ios_tile
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_tile
 assert 'collection.accessibilityElementsHidden=true' in ios_tile
 assert 'verify_world_cards' in (root/'tools/qa_android_emulator.sh').read_text()
@@ -2475,3 +2475,24 @@ print('PASS: nine playable saved pilots and no-scroll live pause/result on both 
 # Real nine-character selection must not leak onto the Home page:
 for home in (android_home,ios_home):
     assert 'CHOOSE YOUR PILOT' not in home and 'POLETI S' not in home
+
+# v0.1.87: world/result native English-first screens without dead navigation.
+for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
+             'ios/BOPAVI/BopaviCore.swift'):
+    source=(root/path).read_text()
+    assert 'sortedEnglish' in source
+    for native_label in ('Green Islands','Crystal Sky','Lava Peaks',
+                         'Night Castles','Pearl Sea','Sky Towers',
+                         'Enchanted Forest','Star Abyss',
+                         'FLIGHT OVER!','LEVEL COMPLETE!',
+                         'COLLECTED\\nCOINS','TOTAL\\nGATES'):
+        assert native_label in source, (path,native_label)
+assert 'val name=ui(LevelEngine.names[world])' in android_menu
+assert 'headline.text=ui(BopaviCore.names[world]).uppercased()' in ios_menu
+assert 'destinationRow.addView(mapColumn' in android_menu
+assert 'destinationRow.addView(shopColumn' in android_menu
+assert 'stack.addArrangedSubview(destinationRow)' in ios_menu
+assert 'button("MAPA SVJETOVA",in:destinationRow' in ios_menu
+assert 'button("🛍  TRGOVINA KOVANICAMA",in:destinationRow' in ios_menu
+assert 'englishWorldsResultsAndCtaDoNotCorruptPartialKeys' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
+print('PASS: English-first world/result translation, preserved Croatian and no-scroll destination actions')
