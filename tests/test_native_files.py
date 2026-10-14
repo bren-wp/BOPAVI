@@ -2333,12 +2333,13 @@ print('PASS: v0.1.81 iOS screenshot must contain interactive Home artwork and li
 # gap used by the collider, not narrower/longer decorative-only pillars.
 android_engine=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 swift_engine=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_sim_source=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 for source in (android_engine,swift_engine):
     assert '30f + zone * 2f' in source or '30+Float(zone)*2' in source
     assert 'difficultyPadding' in source
     assert '164' in source and '72.5' in source
-assert 'LevelEngine.opening(gate, time, difficulty)' in android_game
-assert 'BopaviCore.opening(gate, time,difficulty:difficulty)' in ios_game
+assert 'LevelEngine.opening(gate, time, difficulty)' in android_sim_source
+assert 'BopaviCore.opening(gate, time,difficulty:difficulty)' in swift_engine
 assert 'LevelEngine.opening(g,game.time,game.difficulty)' in android_render
 assert 'BopaviCore.opening(g,game.time,difficulty:game.difficulty)' in ios_render
 assert 'val radius = 18f' in android_game and 'let radius: Float = 18' in ios_game
