@@ -44,7 +44,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
-    private val selectedSkin=0 // Bopi is the sole playable pilot; preserve legacy stored skins offline.
+    private val selectedSkin=skinIndex.coerceIn(0,8) // The player's save-backed pilot; same body collider for all nine.
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
