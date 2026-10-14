@@ -2362,7 +2362,8 @@ for source in (android_languages,ios_languages):
                 '日本語','한국어','Українська','Türkçe','Suomi'):
         assert tag in source,tag
     import re
-    catalog=re.findall(r'        "(?:en|hr|de|fr|es|it|pt|nl|pl|cs|sk|sl|hu|ro|bg|el|tr|uk|sr|bs|sv|nb|da|fi|ja|ko)\|[^"\n]+"',source)
+    navigation_catalog=source.split('private val flightKeys',1)[0].split('private static let flightKeys',1)[0]
+    catalog=re.findall(r'        "(?:en|hr|de|fr|es|it|pt|nl|pl|cs|sk|sl|hu|ro|bg|el|tr|uk|sr|bs|sv|nb|da|fi|ja|ko)\|[^"\n]+"',navigation_catalog)
     assert len(catalog)==26,len(catalog)
     assert 'if(locale=="en")return result' in source or 'if locale=="en" {return result}' in source
 assert 'languageCode()' in and_store and 'setLanguageCode' in and_store
