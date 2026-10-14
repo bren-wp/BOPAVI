@@ -170,7 +170,7 @@ final class GameCanvas: UIView {
         let firstFlap = !game.active
         game.flap()
         if firstFlap && game.active {onFlightStarted?()}
-        accessibilityLabel="Bopi leti"
+        accessibilityLabel=word("Bopi is flying","Bopi leti")
         onFlap?()
         start()
         setNeedsDisplay()
