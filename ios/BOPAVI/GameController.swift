@@ -594,11 +594,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             return chip
         }
         let best=headerChip("🏆  \(progress.bestPoints())",
-            "ZADACI I POSTIGNUĆA · najbolji rezultat \(progress.bestPoints())",
+            ui("ZADACI I POSTIGNUĆA") + " · best score \(progress.bestPoints())",
             .white){self.showAchievements(.home)}
         walletRow.addArrangedSubview(best)
         let coins=headerChip("♛  \(progress.coins())",
-            "TRGOVINA · \(progress.coins()) osvojenih kovanica",
+            ui("TRGOVINA") + " · \(progress.coins()) coins earned",
             UIColor(red:1,green:0.83,blue:0.37,alpha:1)){self.showPerks(.home)}
         walletRow.addArrangedSubview(coins)
         best.widthAnchor.constraint(equalTo:coins.widthAnchor).isActive=true
