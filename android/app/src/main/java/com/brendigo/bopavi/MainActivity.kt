@@ -1368,8 +1368,16 @@ class MainActivity : Activity() {
             }
             startActivity(android.content.Intent.createChooser(share,"Podijeli rezultat"))
         }
-        action(panel,"MAPA SVJETOVA",false){showWorlds()}
-        action(panel,"🛍  TRGOVINA KOVANICAMA",false){showPerks(MenuOrigin.HOME)}
+        // Keep BOTH destinations fully operable, but place them side by side:
+        // this frees an entire button row so Retry and Back stay legible without scrolling.
+        val destinationRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+        panel.addView(destinationRow,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(5)})
+        val mapColumn=LinearLayout(this)
+        val shopColumn=LinearLayout(this)
+        destinationRow.addView(mapColumn,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
+        destinationRow.addView(shopColumn,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
+        action(mapColumn,"MAPA SVJETOVA",false){showWorlds()}
+        action(shopColumn,"🛍  TRGOVINA KOVANICAMA",false){showPerks(MenuOrigin.HOME)}
         showNativeView(root)
     }
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
