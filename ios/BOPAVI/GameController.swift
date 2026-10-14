@@ -90,6 +90,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private var recordsReturnToSettings=false
     private var startupPending=false
     private var currentMenuName="BOPAVI"
+    private weak var pauseFitViewport:UIScrollView?
+    private weak var pauseFitPanel:UIStackView?
+    private weak var resultFitViewport:UIScrollView?
+    private weak var resultFitPanel:UIStackView?
     private var gameWorld=0
     private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
@@ -340,20 +344,28 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
         backgroundGradient?.frame=view.bounds
-        // Uniform safe-area scaling for every native menu, with no scroll.
-        // Only the actual UI is transformed; illustrations stay full-bleed.
-        guard currentMenuName != "",
-              let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
-              !scroll.isScrollEnabled,
-              let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first,
-              scroll.bounds.height>0,stack.bounds.height>0 else{return}
-        let naturalHeight=stack.bounds.height
-        let fit=min(CGFloat(1),scroll.bounds.height/naturalHeight)
-        let topShift = -(naturalHeight * (1 - fit) / 2)
-        let desired=CGAffineTransform(scaleX:fit,y:fit)
-            .translatedBy(x:0,y:fit>0 ? topShift/fit : 0)
-        // Avoid scheduling another UIKit layout pass for an unchanged fit.
-        if stack.transform != desired {stack.transform=desired}
+        // Apply the same non-scrolling safe-area fit to menus, pause and result.
+        // Each remains a real UIKit interface with functioning native buttons.
+        func fit(_ scroll:UIScrollView,_ panel:UIStackView) {
+            guard !scroll.isScrollEnabled, scroll.bounds.height>0,
+                  panel.bounds.height>0 else{return}
+            let naturalHeight=panel.bounds.height
+            let factor=min(CGFloat(1),scroll.bounds.height/naturalHeight)
+            let shift = -(naturalHeight * (1-factor) / 2)
+            let desired=CGAffineTransform(scaleX:factor,y:factor)
+                .translatedBy(x:0,y:factor>0 ? shift/factor : 0)
+            if panel.transform != desired {panel.transform=desired}
+        }
+        if let scroll=view.subviews.compactMap({$0 as? UIScrollView}).first,
+           let stack=scroll.subviews.compactMap({$0 as? UIStackView}).first {
+            fit(scroll,stack)
+        }
+        if let scroll=pauseFitViewport,let panel=pauseFitPanel {
+            fit(scroll,panel)
+        }
+        if let scroll=resultFitViewport,let panel=resultFitPanel {
+            fit(scroll,panel)
+        }
     }
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
@@ -1005,7 +1017,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.showsVerticalScrollIndicator=false
-        scroll.alwaysBounceVertical=true
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
+        pauseFitViewport=scroll
         overlay.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:overlay.safeAreaLayoutGuide.topAnchor,constant:5),
@@ -1020,6 +1034,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         panel.translatesAutoresizingMaskIntoConstraints=false
         panel.isLayoutMarginsRelativeArrangement=true
         panel.layoutMargins=UIEdgeInsets(top:15,left:17,bottom:20,right:17)
+        pauseFitPanel=panel
         panel.backgroundColor=UIColor(red:0.015,green:0.16,blue:0.37,alpha:0.98)
         panel.layer.cornerRadius=27
         panel.layer.borderWidth=3
@@ -1173,10 +1188,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         quick("⚙\nPOSTAVKE",label:"Postavke"){
             pauseSettings.isHidden.toggle()
             self.sound.pause()
+            self.view.setNeedsLayout()
+            self.view.layoutIfNeeded()
             if !pauseSettings.isHidden {
-                scroll.layoutIfNeeded()
-                let bottom=max(0,scroll.contentSize.height-scroll.bounds.height)
-                scroll.setContentOffset(CGPoint(x:0,y:bottom),animated:true)
                 UIAccessibility.post(notification:.layoutChanged,argument:pauseSettings)
             } else {
                 UIAccessibility.post(notification:.layoutChanged,argument:footer)
@@ -1286,7 +1300,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.showsVerticalScrollIndicator=false
-        scroll.alwaysBounceVertical=true
+        scroll.alwaysBounceVertical=false
+        scroll.isScrollEnabled=false
+        resultFitViewport=scroll
         view.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
@@ -1295,6 +1311,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
         ])
         let stack=UIStackView()
+        resultFitPanel=stack
         stack.axis = .vertical;stack.alignment = .fill;stack.spacing=7
         stack.isLayoutMarginsRelativeArrangement=true
         stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:18,right:18)
