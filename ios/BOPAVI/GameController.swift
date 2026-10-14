@@ -1076,12 +1076,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             } else {
                 control=BopaviActionButton(primary:style==0)
             }
-            control.setTitle(caption,for:.normal)
+            control.setTitle(ui(caption),for:.normal)
             control.setTitleColor(.white,for:.normal)
             control.titleLabel?.font=UIFont.systemFont(ofSize:18,weight:.heavy)
             control.titleLabel?.adjustsFontSizeToFitWidth=true
             control.titleLabel?.minimumScaleFactor=0.7
-            control.accessibilityLabel=caption
+            control.accessibilityLabel=ui(caption)
             control.heightAnchor.constraint(equalToConstant:59).isActive=true
             control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             panel.addArrangedSubview(control)
@@ -1497,7 +1497,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         footer.spacing=6;stack.addArrangedSubview(footer)
         func footerAction(_ caption:String,handler:@escaping()->Void){
             let control=UIButton(type:.system)
-            control.setTitle(caption,for:.normal)
+            control.setTitle(ui(caption),for:.normal)
             control.setTitleColor(.white,for:.normal)
             control.titleLabel?.numberOfLines=2
             control.titleLabel?.textAlignment = .center
@@ -1508,7 +1508,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             control.layer.borderWidth=2
             control.layer.borderColor=UIColor(red:0.57,green:0.84,blue:1,alpha:1).cgColor
             control.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.65,alpha:1)
-            control.accessibilityLabel=caption
+            control.accessibilityLabel=ui(caption)
             control.heightAnchor.constraint(equalToConstant:57).isActive=true
             control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             footer.addArrangedSubview(control)
