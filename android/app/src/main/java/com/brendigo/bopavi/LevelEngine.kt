@@ -431,10 +431,11 @@ object GameLanguages {
         "ZAHTJEVNO" to "HARD",
         "DODIRNI ZA LET" to "TAP TO FLY"
     )
+    private val sortedEnglish=english.sortedByDescending { it.first.length }
     fun text(original:String,code:String):String {
         val locale=normalized(code)
         var result=original
-        for((source,value) in english)result=result.replace(source,value)
+        for((source,value) in sortedEnglish)result=result.replace(source,value)
         if(locale=="en")return result
         if(locale=="hr")return original
         val row=catalog[codes.indexOf(locale)]
