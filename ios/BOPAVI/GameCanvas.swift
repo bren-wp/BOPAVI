@@ -5,6 +5,7 @@ final class GameCanvas: UIView {
     let game: GameSimulation
     let reducedMotion: Bool
     let skinIndex: Int
+    private let pilotName:String
     private let hudRimColor=UIColor(rgb:0x43d8ff).withAlphaComponent(196.0/255).cgColor
     private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
     private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
@@ -104,6 +105,7 @@ final class GameCanvas: UIView {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex)) // Render the saved pilot with unchanged sprite scale and hitbox.
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
+        self.pilotName=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion"][selectedSkin]
         self.coinWallet=coinWallet
         self.language=GameLanguages.normalized(languageCode)
         self.hudVocabulary=GameLanguages.hudPack(languageCode)
@@ -126,7 +128,7 @@ final class GameCanvas: UIView {
         isOpaque=true; contentMode = .redraw; isMultipleTouchEnabled=false
         isAccessibilityElement=true
         accessibilityTraits.insert(.button)
-        accessibilityLabel=word("Tap to fly with Bopi","Dodirni za let Bopija")
+        accessibilityLabel=language=="hr" ? "Dodirni za let: "+pilotName : "Tap to fly with "+pilotName
         backgroundColor=UIColor(rgb:skyA[game.level.world])
     }
     required init?(coder:NSCoder){fatalError("Use programmatic initialization")}
@@ -370,7 +372,7 @@ final class GameCanvas: UIView {
         distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:91))
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
         let balance=max(0,min(100_000_000,coinWallet()))
-        accessibilityLabel="Bopi is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
+        accessibilityLabel="\(pilotName) is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
             "Total gates \(passed). Score \(score). Distance \(Int(game.distance)) units. " +
             "Stars \(game.stars). Shield \(game.shield). Magnet \(seconds) seconds."
     }
