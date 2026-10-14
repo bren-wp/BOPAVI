@@ -2384,8 +2384,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             card.layer.cornerRadius=17
             card.layer.borderWidth=2
             card.isAccessibilityElement=true
-            card.accessibilityLabel=(progress.languageCode=="hr" ? "Težina igre" : "Game difficulty")+
-                ", "+ui(modeTitles[mode])
+            card.accessibilityLabel=(progress.languageCode=="hr" ? "Težina igre" : "Game difficulty") + ", " + ui(modeTitles[mode])
             let chosen=progress.difficulty==mode
             card.accessibilityTraits=chosen ? [.button,.selected] : .button
             card.backgroundColor=chosen ?
