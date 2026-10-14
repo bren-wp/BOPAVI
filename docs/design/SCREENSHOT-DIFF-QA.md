@@ -344,6 +344,7 @@ The supplied 2026-10-14 reference gallery is a **design target**, not an applica
 - **1:1 is not approved.** Actual world art and Bopi illustration are simpler than supplied fantasy 3D references. Do not imply that generated 2D assets equal licensed layered 3D art. Screenshot-by-screenshot review is required.
 
 ## v0.1.85 — no floating pillars, no inter-level void, and gentler soundtrack
+- Actual v0.1.85 QA revealed a blank first-flight view when the first gate spawned at x=560 beyond a 480-unit camera. New invariant: the first 76-unit gate begins at x=420; inspect the first active-flap PNG for a top/bottom attached obstacle at the right edge and unchanged Bopi size.
 - Every gate is 76 simulation-space units wide across all worlds and all difficulty levels. Eight world-specific rock shaders remain attached off-screen vertically. Top and lower visible shoulders never extend into the collision-tested opening. Difficulty, gap position and rock height still vary procedurally.
 - Adjacent gates are separated by the ordinary 228 − 2×zone step (218…228 units) even across a stream level boundary, with no special 190–208 transition and no extra pause. Check real flight screencaps and physical tap response at boundary.
 - All main menus use safe-area-adaptive live views without vertical scrolling. Accessibility/tap targets must be verified at short/long aspect ratios: a visually smaller page is not sufficient if controls become unusable.
