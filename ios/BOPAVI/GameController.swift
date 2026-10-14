@@ -2252,7 +2252,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.heightAnchor.constraint(equalToConstant:60).isActive=true
         stack.addArrangedSubview(header)
         let back=UIButton(type:.system)
-        back.setTitle("‹",for:.normal)
+        back.setTitle("←",for:.normal)
         back.setTitleColor(.white,for:.normal)
         back.titleLabel?.font=UIFont.systemFont(ofSize:31,weight:.heavy)
         back.backgroundColor=UIColor(red:0.04,green:0.51,blue:0.92,alpha:1)
@@ -2270,6 +2270,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         heading.textAlignment = .center
         heading.translatesAutoresizingMaskIntoConstraints=false
         header.addSubview(heading)
+        let chosenPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        chosenPilot.contentMode = .scaleAspectFit
+        chosenPilot.isAccessibilityElement=false
+        chosenPilot.translatesAutoresizingMaskIntoConstraints=false
+        header.addSubview(chosenPilot)
         NSLayoutConstraint.activate([
             back.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:8),
             back.centerYAnchor.constraint(equalTo:header.centerYAnchor),
@@ -2277,7 +2282,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             back.heightAnchor.constraint(equalToConstant:44),
             heading.leadingAnchor.constraint(equalTo:back.trailingAnchor,constant:7),
             heading.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-52),
-            heading.centerYAnchor.constraint(equalTo:header.centerYAnchor)
+            heading.centerYAnchor.constraint(equalTo:header.centerYAnchor),
+            chosenPilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-8),
+            chosenPilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
+            chosenPilot.widthAnchor.constraint(equalToConstant:44),
+            chosenPilot.heightAnchor.constraint(equalToConstant:44)
         ])
         let rows=UIStackView()
         rows.axis = .vertical
@@ -2356,9 +2365,53 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         settingRow("JEZIK",{[weak self] in GameLanguages.name(self?.progress.languageCode ?? "en")}){
             [weak self] in self?.showLanguagePicker()
         }
-        settingRow("PRIVATNOST",{"PROČITAJ"}){
-            [weak self] in self?.showLegalNotice(privacy:true)
+        // All three real difficulty modes are accessible directly in Settings,
+        // in the same row previously used by the redundant Privacy shortcut.
+        // Legal/privacy actions remain permanently available in the footer.
+        let difficultyRow=UIStackView()
+        difficultyRow.axis = .horizontal
+        difficultyRow.distribution = .fillEqually
+        difficultyRow.spacing=7
+        let modeTitles=["LAGANO","NORMALNO","ZAHTJEVNO"]
+        for mode in 0..<3 {
+            let card=UIButton(type:.system)
+            card.tag=mode
+            card.setTitle((mode==1 ? "♛  " : "✦  ")+ui(modeTitles[mode]),for:.normal)
+            card.titleLabel?.font=UIFont.systemFont(ofSize:12,weight:.heavy)
+            card.titleLabel?.adjustsFontSizeToFitWidth=true
+            card.titleLabel?.minimumScaleFactor=0.72
+            card.setTitleColor(.white,for:.normal)
+            card.layer.cornerRadius=17
+            card.layer.borderWidth=2
+            card.isAccessibilityElement=true
+            card.accessibilityLabel=(progress.languageCode=="hr" ? "Težina igre" : "Game difficulty")+
+                ", "+ui(modeTitles[mode])
+            let chosen=progress.difficulty==mode
+            card.accessibilityTraits=chosen ? [.button,.selected] : .button
+            card.backgroundColor=chosen ?
+                UIColor(red:0.60,green:0.33,blue:0.035,alpha:1) :
+                UIColor(red:0.025,green:0.25,blue:0.55,alpha:1)
+            card.layer.borderColor=(chosen ?
+                UIColor(red:1,green:0.81,blue:0.28,alpha:1) :
+                UIColor(red:0.24,green:0.81,blue:1,alpha:1)).cgColor
+            card.addAction(UIAction{[weak self,weak difficultyRow] _ in
+                guard let self=self else{return}
+                self.progress.difficulty=mode
+                self.sound.effect("click")
+                for case let option as UIButton in difficultyRow?.arrangedSubviews ?? [] {
+                    let active=option.tag==mode
+                    option.accessibilityTraits=active ? [.button,.selected] : .button
+                    option.backgroundColor=active ?
+                        UIColor(red:0.60,green:0.33,blue:0.035,alpha:1) :
+                        UIColor(red:0.025,green:0.25,blue:0.55,alpha:1)
+                    option.layer.borderColor=(active ?
+                        UIColor(red:1,green:0.81,blue:0.28,alpha:1) :
+                        UIColor(red:0.24,green:0.81,blue:1,alpha:1)).cgColor
+                }
+            },for:.touchUpInside)
+            difficultyRow.addArrangedSubview(card)
         }
+        rows.addArrangedSubview(difficultyRow)
         let advanced=UIButton(type:.system)
         advanced.setTitle(ui("⚙  NAPREDNE POSTAVKE"),for:.normal)
         advanced.setTitleColor(.white,for:.normal)
