@@ -44,12 +44,35 @@ def main() -> None:
     assert "showWorlds()" in a_home and "showWorlds()" in i_home
     assert "showPerks(" in a_home and "showPerks(" in i_home
 
-    # Motion is behind all controls; Android stops on detach, UIKit respects
-    # Reduce Motion, and the two native game simulations are not touched.
-    assert "onViewDetachedFromWindow(v:View){drift.cancel()}" in a_home
-    assert "UIAccessibility.isReduceMotionEnabled" in i_home
-    assert "home-scenery-drift" in i_home
-    print("PASS: functional, paged 20-level galleries and native live Home contracts")
+    # One animation helper per platform: only artwork moves, both user
+    # accessibility settings are honored, and Android detaches its animator.
+    a_helper = section(android, "    private fun startSceneryDrift(", "    private fun ui(")
+    i_helper = section(ios, "    private func startSceneryDrift(", "    private func menu(")
+    a_menu = section(android, "    private fun base(", "    private fun title(")
+    i_menu = section(ios, "    private func menu(", "    override func viewDidLayoutSubviews(")
+    assert "progress.lessMotion()" in a_helper
+    assert "ValueAnimator.areAnimatorsEnabled()" in a_helper
+    assert "onViewDetachedFromWindow(v:View){drift.cancel()}" in a_helper
+    assert "startSceneryDrift(scenicBackdrop)" in a_menu
+    assert "startSceneryDrift(this)" in a_home
+    assert "progress.lessMotion" in i_helper
+    assert "UIAccessibility.isReduceMotionEnabled" in i_helper
+    assert 'forKey:"scenery-breathing"' in i_helper
+    assert "startSceneryDrift(backdrop)" in i_menu
+    assert "startSceneryDrift(backdrop)" in i_home
+
+    # A profile icon must announce the CURRENT pilot, never a hardcoded Bopi.
+    assert 'contentDescription=ui("PROFIL")+" · "+progress.skinNames[progress.skin()]' in a_home
+    assert 'avatar.accessibilityLabel=ui("PROFIL")+" · "+progress.skinNames[progress.skinIndex()]' in i_home
+    assert 'ui("PROFIL · Bopi")' not in a_home + i_home
+
+    # A brighter illustrated backdrop still has a separate contrast veil;
+    # gameplay layers and actual clickable widgets are untouched.
+    assert "0x35031837,0x65061b3e,0xb004132e.toInt()" in android
+    assert "alpha:0.58" in i_menu
+    assert "root.addView(View(this).apply{background=premiumBackground()}" in a_menu
+    assert "view.addSubview(shade)" in i_menu
+    print("PASS: functional 20-level galleries, honest pilot a11y and motion-safe fantasy scenery")
 
 
 if __name__ == "__main__":
