@@ -2327,6 +2327,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             [weak self] in
             guard let self=self else{return}
             self.progress.lessMotion = !self.progress.lessMotion
+            self.showSettings()
         }
         settingRow("JEZIK",{[weak self] in GameLanguages.name(self?.progress.languageCode ?? "en")}){
             [weak self] in self?.showLanguagePicker()
@@ -2586,7 +2587,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let l=UILabel();l.text="Nježnije animacije";l.font=UIFont.systemFont(ofSize:16,weight:.medium);l.textColor = .white
         l.numberOfLines=0;l.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         toggleRow.addArrangedSubview(l);toggleRow.addArrangedSubview(toggle);settingsPanel.addArrangedSubview(toggleRow)
-        toggle.addAction(UIAction{_ in self.progress.lessMotion=toggle.isOn},for:.valueChanged)
+        toggle.addAction(UIAction{_ in
+            self.progress.lessMotion=toggle.isOn
+            self.showSettingsDetails()
+        },for:.valueChanged)
         let audio=UISwitch();audio.isOn=progress.soundEnabled
         audio.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
         let audioRow=UIStackView();audioRow.axis = .horizontal;audioRow.spacing=12
@@ -2595,7 +2599,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         audioRow.addArrangedSubview(audioLabel);audioRow.addArrangedSubview(audio);settingsPanel.addArrangedSubview(audioRow)
         audio.addAction(UIAction{_ in self.progress.soundEnabled=audio.isOn;self.sound.enabled=audio.isOn},for:.valueChanged)
 
-        label("Pilot: Bopi · sva oprema vrijedi za isti lik.",14,.white,settingsPanel)
+        label("Odabrani pilot: \(progress.skinNames[progress.skinIndex()]) · Oprema vrijedi za sve pilote.",14,.white,settingsPanel)
         button("🛍  TRGOVINA KOVANICAMA",in:settingsPanel,primary:false){self.showPerks()}
         button("🏆  MOJI REKORDI",in:settingsPanel,primary:false){self.showLeaderboard()}
         sectionHeading("PODACI I PRIVATNOST",in:settingsPanel)
