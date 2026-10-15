@@ -39,9 +39,8 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
-    // One shared drawable lookup table for legacy pilot-save art. Bopi is
-    // the only active pilot; avoid allocating the same nine-entry array in
-    // Home, pause, Settings and Profile on every screen transition.
+    // Share the nine saved-pilot resource IDs between native screens.
+    // All nine are playable; the chosen pilot must remain consistent in UI.
     private val portraitDrawableIds=intArrayOf(
         R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
         R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
@@ -177,7 +176,32 @@ class MainActivity : Activity() {
         }
     private fun premiumBackground():GradientDrawable =
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(
-            0x66031837,0x99061b3e.toInt(),0xdd04132e.toInt()))
+            // Preserve rich world art behind the genuine controls. The lower
+            // veil remains strongest where the accessible navigation sits.
+            0x35031837,0x65061b3e,0xb004132e.toInt()))
+
+    /** Decorative breathing for the existing illustrated world layers.
+     *  Only scenery moves: buttons, counters and hit areas never transform.
+     *  Respect both the in-game Reduced Motion preference and Android's
+     *  global animator switch. No timers survive a detached menu.
+     */
+    private fun startSceneryDrift(scene:ImageView){
+        if(progress.lessMotion() || !android.animation.ValueAnimator.areAnimatorsEnabled()) return
+        val drift=android.animation.ObjectAnimator.ofPropertyValuesHolder(
+            scene,
+            android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,1.015f,1.045f),
+            android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y,1.015f,1.045f)
+        ).apply{
+            duration=12500L
+            repeatMode=android.animation.ValueAnimator.REVERSE
+            repeatCount=android.animation.ValueAnimator.INFINITE
+            interpolator=android.view.animation.AccelerateDecelerateInterpolator()
+        }
+        scene.addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
+            override fun onViewAttachedToWindow(v:View){drift.start()}
+            override fun onViewDetachedFromWindow(v:View){drift.cancel()}
+        })
+    }
 
     private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
     /**
@@ -269,11 +293,13 @@ class MainActivity : Activity() {
         val root=FrameLayout(this).apply{setBackgroundColor(ocean)}
         val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
             R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
-        root.addView(ImageView(this).apply{
+        val scenicBackdrop=ImageView(this).apply{
             setImageResource(scenes[currentWorld.coerceIn(0,7)])
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,-1))
+        }
+        startSceneryDrift(scenicBackdrop)
+        root.addView(scenicBackdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{background=premiumBackground()},FrameLayout.LayoutParams(-1,-1))
         val body=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
@@ -511,25 +537,8 @@ class MainActivity : Activity() {
             else setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            // Subtle, entirely decorative parallax-inspired breathing.
-            // No baked-in HUD or button hit areas. The animation is cancelled
-            // on detach, so navigating between screens cannot leak an Activity.
-            if(android.animation.ValueAnimator.areAnimatorsEnabled()){
-                val drift=android.animation.ObjectAnimator.ofPropertyValuesHolder(
-                    this,
-                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,1.015f,1.045f),
-                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y,1.015f,1.045f)
-                ).apply {
-                    duration=12500L
-                    repeatMode=android.animation.ValueAnimator.REVERSE
-                    repeatCount=android.animation.ValueAnimator.INFINITE
-                    interpolator=android.view.animation.AccelerateDecelerateInterpolator()
-                }
-                addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
-                    override fun onViewAttachedToWindow(v:View){drift.start()}
-                    override fun onViewDetachedFromWindow(v:View){drift.cancel()}
-                })
-            }
+            // The system/in-game Reduced Motion settings also apply here.
+            startSceneryDrift(this)
         }
         root.addView(animatedBackdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
@@ -568,7 +577,7 @@ class MainActivity : Activity() {
             clipToOutline=true
             setPadding(d(3),d(3),d(3),d(3))
             isClickable=true;isFocusable=true
-            contentDescription=ui("PROFIL · Bopi")
+            contentDescription=ui("PROFIL")+" · "+progress.skinNames[progress.skin()]
             setOnClickListener{sound.effect("click");showProfile()}
         }
         wallets.addView(avatar,LinearLayout.LayoutParams(d(50),d(50)).apply{
