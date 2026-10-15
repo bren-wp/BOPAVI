@@ -2084,6 +2084,9 @@ class MainActivity : Activity() {
         option("EFEKTI",{progress.effectsVolume().toString()+"%"}){showSettingsDetails()}
         option("MANJE ANIMACIJA",{if(progress.lessMotion())"UKLJ." else "ISKL."}){
             progress.setLessMotion(!progress.lessMotion())
+            // Recreate only this menu: the old scene detaches and stops
+            // moving instantly instead of animating until the next visit.
+            showSettings()
         }
         option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
         // Primary difficulty is now always visible. Replace the redundant
@@ -2354,7 +2357,10 @@ class MainActivity : Activity() {
             Toast.makeText(this,"Ime je promijenjeno.",Toast.LENGTH_SHORT).show()
         }
         sectionHeading(settingsPanel,"DODATNE OPCIJE")
-        val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->progress.setLessMotion(v)}}
+        val low=Switch(this).apply{text="Nježnije animacije";setTextColor(Color.WHITE);isChecked=progress.lessMotion();setOnCheckedChangeListener{_,v->
+            progress.setLessMotion(v)
+            showSettingsDetails()
+        }}
         low.thumbTintList=ColorStateList.valueOf(gold)
         low.trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
         low.setPadding(d(12),d(10),d(12),d(10))
@@ -2367,7 +2373,7 @@ class MainActivity : Activity() {
         audio.background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
         settingsPanel.addView(audio,LinearLayout.LayoutParams(-1,d(54)).apply{bottomMargin=d(6)})
 
-        small(settingsPanel,"Pilot: Bopi · sva oprema vrijedi za isti lik.")
+        small(settingsPanel,"Odabrani pilot: ${progress.skinNames[progress.skin()]} · Oprema vrijedi za sve pilote.")
         action(settingsPanel,"🛍  TRGOVINA KOVANICAMA",false){showPerks()}
         action(settingsPanel,"🏆  MOJI REKORDI",false){showLeaderboard()}
         sectionHeading(settingsPanel,"PODACI I PRIVATNOST")
