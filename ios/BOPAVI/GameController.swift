@@ -331,6 +331,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         panel.addArrangedSubview(footer)
         present(sheet,animated:true)
     }
+    // Animate just the scene layer, never a hit target or live counter.
+    // Honor both iOS accessibility and BOPAVI's own saved Reduced Motion.
+    private func startSceneryDrift(_ backdrop:UIImageView) {
+        guard !progress.lessMotion && !UIAccessibility.isReduceMotionEnabled else {return}
+        let drift=CABasicAnimation(keyPath:"transform.scale")
+        drift.fromValue=1.015
+        drift.toValue=1.045
+        drift.duration=12.5
+        drift.autoreverses=true
+        drift.repeatCount = .infinity
+        drift.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
+        backdrop.layer.add(drift,forKey:"scenery-breathing")
+    }
     private func menu(_ title:String,_ subtitle:String)->UIStackView {
         clear()
         currentMenuName=title
@@ -341,6 +354,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             backdrop.contentMode = .scaleAspectFill
             backdrop.clipsToBounds=true
             backdrop.isAccessibilityElement=false
+            startSceneryDrift(backdrop)
             view.addSubview(backdrop)
             NSLayoutConstraint.activate([
                 backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
@@ -349,7 +363,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
             let shade=UIView()
-            shade.backgroundColor=UIColor(red:0.012,green:0.08,blue:0.19,alpha:0.75)
+            // Brighter painted biomes; dark real controls retain their contrast.
+            shade.backgroundColor=UIColor(red:0.012,green:0.08,blue:0.19,alpha:0.58)
             shade.translatesAutoresizingMaskIntoConstraints=false
             view.addSubview(shade)
             NSLayoutConstraint.activate([
@@ -613,20 +628,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             backdrop.clipsToBounds=true
             backdrop.isUserInteractionEnabled=false
             backdrop.accessibilityElementsHidden=true
-            // Gentle GPU-composited camera breathing on the original art;
-            // genuine UIKit buttons, counters and hit targets stay fixed.
-            // The attached layer automatically releases the animation when
-            // Home is dismissed. Honour Reduce Motion.
-            if !UIAccessibility.isReduceMotionEnabled {
-                let drift=CABasicAnimation(keyPath:"transform.scale")
-                drift.fromValue=1.015
-                drift.toValue=1.045
-                drift.duration=12.5
-                drift.autoreverses=true
-                drift.repeatCount = .infinity
-                drift.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
-                backdrop.layer.add(drift,forKey:"home-scenery-drift")
-            }
+            startSceneryDrift(backdrop)
             view.insertSubview(backdrop,at:0)
             NSLayoutConstraint.activate([
                 backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
@@ -659,7 +661,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         avatar.layer.borderWidth=2
         avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
         avatar.clipsToBounds=true
-        avatar.accessibilityLabel=ui("PROFIL · Bopi")
+        avatar.accessibilityLabel=ui("PROFIL")+" · "+progress.skinNames[progress.skinIndex()]
         avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
         avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
         avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
