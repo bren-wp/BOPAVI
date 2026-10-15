@@ -1233,7 +1233,7 @@ print('PASS: bounded Android startup recovery only for verified system launcher 
 android_home=android_menu.split('private fun showHome()',1)[1].split('private fun showWorlds()',1)[0]
 ios_home=ios_menu.split('private func showHome()',1)[1].split('private func showWorlds()',1)[0]
 for home in (android_home,ios_home):
-    assert 'PROFIL ·' in home
+    assert 'ui("PROFIL")' in home and 'progress.skinNames' in home
     assert 'ZADACI I POSTIGNUĆA' in home
     assert 'ui("TRGOVINA")' in home
     assert 'POSTAVKE' in home
