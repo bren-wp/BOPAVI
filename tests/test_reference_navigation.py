@@ -72,7 +72,26 @@ def main() -> None:
     assert "alpha:0.58" in i_menu
     assert "root.addView(View(this).apply{background=premiumBackground()}" in a_menu
     assert "view.addSubview(shade)" in i_menu
-    print("PASS: functional 20-level galleries, honest pilot a11y and motion-safe fantasy scenery")
+    a_settings = section(android, "    private fun showSettings(", "    private fun showSettingsDetails(")
+    i_settings = section(ios, "    private func showSettings(", "    private func showSettingsDetails(")
+    a_details = section(android, "    private fun showSettingsDetails(", "    private fun showProfile(") if (
+        android.index("    private fun showSettingsDetails(") <
+        android.index("    private fun showProfile(")
+    ) else android.split("    private fun showSettingsDetails(",1)[1]
+    i_details = ios.split("    private func showSettingsDetails(",1)[1]
+    assert "progress.setLessMotion(!progress.lessMotion())" in a_settings
+    assert "showSettings()" in a_settings
+    assert "self.progress.lessMotion = !self.progress.lessMotion" in i_settings
+    assert "self.showSettings()" in i_settings
+    assert "progress.setLessMotion(v)" in a_details
+    assert "showSettingsDetails()" in a_details
+    assert "self.progress.lessMotion=toggle.isOn" in i_details
+    assert "self.showSettingsDetails()" in i_details
+    for details in (a_details,i_details):
+        assert "Oprema vrijedi za sve pilote." in details
+        assert "Pilot: Bopi · sva oprema" not in details
+
+    print("PASS: live 20-level galleries, selected pilot a11y and immediate motion preferences")
 
 
 if __name__ == "__main__":
