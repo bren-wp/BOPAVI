@@ -487,7 +487,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xffe7ffff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
         p.alpha=210;c.drawCircle(cx,cy,r-7f,p)
         p.style=Paint.Style.FILL;p.alpha=255
-        text(c,"♛",cx,cy-38f,21f,0xffffdb63.toInt(),true)
+        drawHudCrown(c,cx,cy-44f,20f)
     }
     /** Five-point collectible art matches the iOS Core Graphics gold star;
      * no font-dependent biome glyph and no new Path allocation in flight.
@@ -996,6 +996,51 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         return (11f*94f/p.measureText(value).coerceAtLeast(1f))
             .coerceIn(7.5f,11f)
     }
+    /** Reference crown: geometric gold silhouette, no font/emoji fallback.
+     *  Coordinates are shared with Core Graphics on iOS. This is HUD-only
+     *  artwork: no score, collection or hitbox logic is attached to it.
+     */
+    private fun drawHudCrown(c:Canvas,cx:Float,cy:Float,size:Float){
+        val half=size*.50f
+        path.reset()
+        path.moveTo(cx-half,cy+size*.23f)
+        path.lineTo(cx-half,cy-size*.34f)
+        path.lineTo(cx-size*.24f,cy-size*.08f)
+        path.lineTo(cx,cy-size*.55f)
+        path.lineTo(cx+size*.24f,cy-size*.08f)
+        path.lineTo(cx+half,cy-size*.34f)
+        path.lineTo(cx+half,cy+size*.23f)
+        path.close()
+        fill(0xffc76f03.toInt());c.drawPath(path,p)
+        // Inset face and specular gold crown points.
+        path.reset()
+        path.moveTo(cx-half+size*.08f,cy+size*.14f)
+        path.lineTo(cx-half+size*.08f,cy-size*.20f)
+        path.lineTo(cx-size*.24f,cy+size*.06f)
+        path.lineTo(cx,cy-size*.39f)
+        path.lineTo(cx+size*.24f,cy+size*.06f)
+        path.lineTo(cx+half-size*.08f,cy-size*.20f)
+        path.lineTo(cx+half-size*.08f,cy+size*.14f)
+        path.close()
+        fill(0xffffd342.toInt());c.drawPath(path,p)
+        rect(c,cx-half,cy+size*.19f,cx+half,cy+size*.34f,0xffffef9b.toInt(),size*.055f)
+        // One compact jewel; never a fake collectible or a touch target.
+        oval(c,cx-size*.085f,cy-size*.04f,cx+size*.085f,cy+size*.13f,0xfffff8d9.toInt())
+    }
+    /** Four-by-four finish checker with a fixed mast and no Unicode flag. */
+    private fun drawHudFinishFlag(c:Canvas,cx:Float,cy:Float,size:Float){
+        val tile=size*.19f
+        val left=cx-size*.35f
+        val top=cy-size*.36f
+        rect(c,left-2f,top-2f,left-.3f,top+tile*4f+3f,0xffd7f4ff.toInt(),1f)
+        for(row in 0..3)for(col in 0..3){
+            val x=left+col*tile
+            val y=top+row*tile
+            rect(c,x,y,x+tile+.15f,y+tile+.15f,
+                if((row+col)%2==0)Color.WHITE else 0xff17488d.toInt())
+        }
+        rect(c,left,top+tile*4f,left+tile*4f,top+tile*4f+1.2f,0xff5eeaff.toInt(),.6f)
+    }
     private fun drawLevelProgress(c:Canvas) {
         val passed=game.totalPassed
         if(passed!=lastProgressPassed) {
@@ -1021,8 +1066,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val total=game.level.gates.size.coerceAtLeast(1)
         val ratio=game.levelProgress
         hudGlass(c,146f,18f,381f,108f)
-        text(c,"♛",165f,57f,28f,0xffffd45b.toInt(),true)
-        text(c,"⚑",363f,57f,26f,Color.WHITE,true)
+        drawHudCrown(c,165f,46f,22f)
+        drawHudFinishFlag(c,363f,45f,25f)
         rect(c,181f,34f,354f,55f,0xff05234e.toInt(),10f)
         rect(c,184f,38f,351f,51f,0xff0b66bf.toInt(),7f)
         if(ratio>0f){
@@ -1069,7 +1114,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,78f,30f,110f,67f,0xfff9a70e.toInt())
         oval(c,81f,33f,107f,64f,0xffffdf5f.toInt())
         oval(c,84f,36f,104f,61f,0xffec9500.toInt())
-        text(c,"♛",94f,56f,19f,0xfffff3a4.toInt(),true)
+        drawHudCrown(c,94f,50f,15f)
     }
     /** Avatar is decorative but shows the actual selected pilot, not a default. */
     private fun hudPilotPortrait(c:Canvas) {
