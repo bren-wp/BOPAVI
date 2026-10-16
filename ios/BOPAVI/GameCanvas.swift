@@ -553,10 +553,10 @@ final class GameCanvas: UIView {
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
         hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,42,103,"★","\(game.stars)",0xffd453,true)
+        hudOrb(c,42,101,"★","\(game.stars)",0xffd453,true)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,42,167,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
-        hudOrb(c,42,231,"◆","\(game.shield)",0x50dfff,game.shield>0)
+        hudOrb(c,42,163,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
+        hudOrb(c,42,225,"◆","\(game.shield)",0x50dfff,game.shield>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
