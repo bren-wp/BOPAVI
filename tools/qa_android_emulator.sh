@@ -2,6 +2,28 @@
 # Android visual-flow smoke: capture actual home, gameplay and collision result.
 set -eu
 mkdir -p qa/screenshots
+# A hosted Android emulator can disappear from ADB after many successful
+# navigation assertions. This is a runner transport failure, NOT proof that
+# BOPAVI crashed. Mark only an actual missing/offline ADB device at exit,
+# so CI may re-create an emulator and repeat the *entire* interactive test.
+# Never retry an assertion error while the device is connected; such a failure
+# must stay red and preserve diagnostics.
+qa_exit_diagnostic() {
+  qa_exit_code="$1"
+  trap - 0
+  if [ "$qa_exit_code" -ne 0 ]; then
+    qa_adb_state="$(adb get-state 2>&1 || true)"
+    if [ "$qa_adb_state" != "device" ]; then
+      printf 'Confirmed ADB transport loss: %s\n' "$qa_adb_state" >&2
+      printf 'ADB transport unavailable at test exit: %s\n' "$qa_adb_state" > qa/screenshots/adb-transport-offline.retry
+      adb devices -l >&2 || true
+    else
+      echo 'Connected Android device: preserving genuine application/test failure; no emulator retry' >&2
+    fi
+  fi
+  exit "$qa_exit_code"
+}
+trap 'qa_exit_diagnostic "$?"' 0
 adb wait-for-device
 adb install -r qa/apk/app-debug.apk
 # Debug-only QA: keep the real first active frame stable through slow Pixel
