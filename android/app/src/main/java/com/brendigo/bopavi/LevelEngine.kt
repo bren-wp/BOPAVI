@@ -18,9 +18,10 @@ object LevelEngine {
     data class Opening(val top: Float, val bottom: Float)
     // A rolling 10-gate ridge profile. The indexed 2-bit level fingerprint
     // remains injective, but Level 1 no longer has ten identical openings.
-    // Neighbouring base heights differ by at most 20 units; encoded 2-bit
-    // changes add at most 78, so adjacent gates never jump over 98 units.
-    private val centerContour=intArrayOf(-40,-20,0,20,40,20,0,-20,-40,-20)
+    // The contour alternates significantly so a level cannot be passed by flying
+    // at one fixed height. Encoded 2-bit fingerprints remain collision-safe;
+    // adjacent changes are bounded by 148 logical pixels.
+    private val centerContour=intArrayOf(-70,-25,25,65,5,-50,15,70,0,-55)
 
     private class Random32(seed: UInt) {
         var state = if (seed == 0u) 0x6d2b79f5u else seed
@@ -58,9 +59,9 @@ object LevelEngine {
                 gap = (gap + (r.next() - .5f) *
                     (if(i < 2) 12f else 30f + zone * 2f) +
                     (if(i % 5 == 0) 8f else 0f)).coerceAtLeast(164f),
-                // One substantial, consistent pillar thickness across all eight worlds.
-                // Difficulty instead varies top/bottom heights, opening and timing.
-                width = 76f,
+                // Individual obstacle widths vary but retain enough traversal time.
+                // The exact gate width is also used by the physical collider.
+                width = 64f + ((i * 7 + number + world) % 4) * 9f,
                 movement = if (active) 7f + r.next() * 9f else 0f,
                 phase = r.next() * 6.283185f,
                 kind = world, coin = i % 3 != 2 || type == 1,
@@ -105,8 +106,8 @@ object LevelEngine {
             (sin(time * 1.35f + gate.phase)+1f)*2.5f else 0f
         // The same geometry drives drawing and collision; ≥145px always open.
         val difficultyPadding = when(difficulty.coerceIn(0,2)) {
-            0 -> 18f
-            2 -> -16f
+            0 -> 40f
+            2 -> -18f
             else -> 0f
         }
         val half = max(72.5f, (gate.gap + difficultyPadding) * .5f - pulse)
