@@ -2652,7 +2652,7 @@ print('PASS: enlarged no-scroll 20-card gallery and live native accessibility')
 # signature and per-gate 64–91-unit real collision width.
 for source in (kotlin_level,swift_level):
     assert 'centerContour' in source
-    assert '-10,-70,-125,-75,25,105,145,45,-70,-125' in source
+    assert '-10,-80,-140,-90,35,115,175,50,-80,-145' in source
     assert 'width = 64f' in source or 'width:64' in source
 for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
@@ -2753,7 +2753,7 @@ ios_rules=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 android_store=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
 ios_store=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
 for engine in (android_rules,ios_rules):
-    assert '-10,-70,-125,-75,25,105,145,45,-70,-125' in engine
+    assert '-10,-80,-140,-90,35,115,175,50,-80,-145' in engine
     assert 'difficultyPadding' in engine
     assert ('0 -> 40f' in engine or 'difficulty <= 0 ? 40' in engine)
     assert ('2 -> -18f' in engine or 'difficulty >= 2 ? -18' in engine)
