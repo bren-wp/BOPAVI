@@ -23,29 +23,33 @@ systems. Source shoulders were manually inspected at (106,118) and (157,129).
 The rig still uses real simulation input: wings animate via flap events, the
 body tilts with velocity, and **no collision size or player x-coordinate changes**.
 
-## One-time installation
+## Bundled and reproducible (v0.2.3 build 108)
 
-Download the source ZIP from the ChatGPT conversation and, from the
-repository root, run:
+The *actual owner-approved reference source* now lives in the GitHub repository
+under `art/reference-approved/bopi/`: three independently movable WebP layers,
+`manifest.json`, and `README.txt`. Each source WebP has been compared against
+the original ZIP's immutable SHA-256 digest. No ZIP download, external CDN,
+ChatGPT link or network request is needed in GitHub CI, Android or iOS.
+
+GitHub Actions runs `python tools/generate_images.py`. The importer fails
+closed on missing/tampered layers, incorrect 224×192 canvases or a bad manifest,
+then produces **matching 512×512 PNG bytes** on Android and iOS. Its 2×2 marker
+activates the photograph-derived shoulders and moving wings. The newly added
+`tests/test_approved_bopi_source.py` makes the real art mandatory in graphics
+CI; synthetic sprites are only used by the separate negative-case test.
+
+For a completely fresh local checkout, reproduce and inspect the art with:
 
 ```sh
 python -m pip install pillow cairosvg
-python tools/install_reference_pack.py /path/to/BOPAVI-reference-bopi-layers-v0.2.1.zip
 python tools/generate_images.py
-python tests/test_reference_bopi_import.py
+python tests/test_approved_bopi_source.py
 python tools/verify_pilot_sprite_anatomy.py
-git add art/reference-approved/bopi
 ```
 
-Then commit the **source** directory on a feature branch and open a PR.
-The native PNGs are generated during CI, so do not hand-edit any output file.
-The source archive must not be fetched dynamically at runtime, downloaded
-from expiring URLs in CI, or silently copied from a screenshot inside the app.
-
-The import fails closed on a missing wing, unexpected ZIP entry, changed hash,
-invalid image dimensions, or tampered manifest. Without the source directory,
-the original nine animated SVG pilots remain available. No account, internet
-connection or external art services are required.
+Use `tools/install_reference_pack.py` only for a **new approved source pack**
+and update the pinned SHA-256 manifest/test after a deliberate, reviewed art
+change. Never generate synthetic production artwork to satisfy a checksum.
 
 ## Rendering and 1:1 acceptance
 
