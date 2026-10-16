@@ -81,23 +81,27 @@ final class ProgressStore {
         defaults.set(min(100_000_000,coins()+reward),forKey:"coins")
         return reward
     }
-    let perkNames=["Početni štit","Početni magnet"]
-    let perkPrices=[80,65]
-    func perkCount(_ index:Int)->Int { (0..<2).contains(index) ? min(99,max(0,defaults.integer(forKey:"perk_\(index)"))) : 0 }
+    let perkNames=["Početni štit","Početni magnet","Dvostruki štit","Dugi magnet"]
+    let perkPrices=[80,65,150,120]
+    func perkCount(_ index:Int)->Int { (0..<4).contains(index) ? min(99,max(0,defaults.integer(forKey:"perk_\(index)"))) : 0 }
     @discardableResult func buyPerk(_ index:Int)->Bool {
-        guard (0..<2).contains(index), perkCount(index)<99, coins()>=perkPrices[index] else {return false}
+        guard (0..<4).contains(index), perkCount(index)<99, coins()>=perkPrices[index] else {return false}
         defaults.set(coins()-perkPrices[index],forKey:"coins")
         defaults.set(perkCount(index)+1,forKey:"perk_\(index)")
         return true
     }
     func previewPerks()->(shield:Int,magnet:Float) {
-        return (perkCount(0)>0 ? 1 : 0,perkCount(1)>0 ? 8 : 0)
+        return (perkCount(2)>0 ? 2 : (perkCount(0)>0 ? 1 : 0),
+                perkCount(3)>0 ? 12 : (perkCount(1)>0 ? 8 : 0))
     }
     func consumePerks()->(shield:Int,magnet:Float) {
-        let a=perkCount(0),b=perkCount(1)
-        defaults.set(max(0,a-1),forKey:"perk_0")
-        defaults.set(max(0,b-1),forKey:"perk_1")
-        return (a>0 ? 1 : 0,b>0 ? 8 : 0)
+        let selected=previewPerks()
+        let shieldTier=perkCount(2)>0 ? 2 : (perkCount(0)>0 ? 0 : -1)
+        let magnetTier=perkCount(3)>0 ? 3 : (perkCount(1)>0 ? 1 : -1)
+        for index in [shieldTier,magnetTier] where index>=0 {
+            defaults.set(perkCount(index)-1,forKey:"perk_\(index)")
+        }
+        return selected
     }
 
     /// Ratings earned by flying through a completed level, not a fabricated star count.
@@ -225,7 +229,7 @@ final class ProgressStore {
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
                                  "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
-                                 "perks":(0..<2).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled,
+                                 "perks":(0..<4).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled,
                                   "musicVolume":musicVolume,"effectsVolume":effectsVolume]
         return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":6,"save":save],options:[.prettyPrinted,.sortedKeys])
     }
@@ -308,7 +312,7 @@ final class ProgressStore {
         if let d=s["lastDaily"] as? String,d.range(of:"^\\d{4}-\\d{2}-\\d{2}$",options:.regularExpression) != nil {
             defaults.set(d,forKey:"last_daily")
         }
-        if let arr=s["perks"] as? [Int],arr.count==2 {for n in 0..<2 {defaults.set(min(99,max(0,arr[n])),forKey:"perk_\(n)")}}
+        if let arr=s["perks"] as? [Int],(2...4).contains(arr.count) {for n in arr.indices {defaults.set(min(99,max(0,arr[n])),forKey:"perk_\(n)")}}
         if let arr=s["collectibles"] as? [Int],arr.count==8 {for n in 0..<8 {defaults.set(min(100_000_000,max(0,arr[n])),forKey:"collectibles_\(n)")}}
         playerName = s["playerName"] as? String ?? "Igrač"
         difficulty = s["difficulty"] as? Int ?? 1
