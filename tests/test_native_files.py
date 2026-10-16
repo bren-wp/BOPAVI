@@ -1273,7 +1273,7 @@ assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in andro
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
-assert 'string:word("TAP TO FLY","DODIRNI ZA LET")' in ios_render
+assert 'string:word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in ios_render
 assert 'idlePrompt.draw(at:' in ios_render and 'dragPrompt' not in ios_render
 assert 'idlePrompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
@@ -2383,7 +2383,7 @@ for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'top-38' in render and 'bottom+38' in render
     assert 'drawCliffShaft(' in render
-    assert 'word("TAP TO FLY","DODIRNI ZA LET")' in render
+    assert 'word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in render
     assert 'game.difficulty' in render
 assert 'word("LEVEL","RAZINA")' in android_render and 'word("LEVEL","RAZINA")' in ios_render
 assert 'birdSize=142f' in android_render and 'let artSize:CGFloat=142' in ios_render
