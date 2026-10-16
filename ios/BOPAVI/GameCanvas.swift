@@ -101,6 +101,12 @@ final class GameCanvas: UIView {
     private let biomeReliefGlints:[UInt32]=[0xd4ffb0,0x7ef4ff,0xffcf70,0xffefa8,
                                            0xffb6e7,0xffffff,0xffa7e7,0x85dfff]
 
+    // Cached immutable pigment tables: do not allocate two arrays for every moving obstacle at 120 Hz.
+    private let gateFleckHues:[UInt32]=[0xb7ed7a,0x9af7ff,0xffd06e,0xffe29a,
+                                         0xf8e5cc,0xffe6a1,0xa7ffdf,0xd9baff]
+    private let gateSeamHues:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
+                                        0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]
+
     init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0},languageCode:String = "en") {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex)) // Render the saved pilot with unchanged sprite scale and hitbox.
@@ -757,27 +763,30 @@ final class GameCanvas: UIView {
     /// Distinctive material facets, always inside the existing collision caps.
     /// Cosmetic geometry is identical to Android; never narrows the flight gap.
     private func drawBiomeGateRelief(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
-                                     _ top:CGFloat,_ bottom:CGFloat,_ world:Int) {
+                                     _ top:CGFloat,_ bottom:CGFloat,_ world:Int,_ seed:Int) {
         let accents=biomeReliefAccents
         let glints=biomeReliefGlints
+        // Positive modulo matches Kotlin for every signed seed.
+        let motif=((seed%3)+3)%3
         for side in 0...1 {
             let edge=side==0 ? top : bottom
             let sign:CGFloat=side==0 ? -1 : 1
             for i in 0...2 {
                 let left=x+8+CGFloat(i)*(w-27)/3
                 let right=min(x+w-7,left+(w-20)/3+6)
-                let depth:CGFloat=10+CGFloat(i%2)*6
+                let depth:CGFloat=9+CGFloat((i+motif)%3)*4
                 c.beginPath()
                 c.move(to:CGPoint(x:left,y:edge+sign*5))
                 c.addLine(to:CGPoint(x:(left+right)*0.5,y:edge+sign*(depth+6)))
                 c.addLine(to:CGPoint(x:right,y:edge+sign*5))
                 c.addLine(to:CGPoint(x:(left+right)*0.5,y:edge+sign*2))
                 c.closePath()
-                c.setFillColor(color(i==1 ? glints[world] : accents[world],
-                                     i==1 ? 210.0/255 : 145.0/255))
+                let isGlint=(i+motif)%3==1
+                c.setFillColor(color(isGlint ? glints[world] : accents[world],
+                                     isGlint ? 210.0/255 : 145.0/255))
                 c.fillPath()
             }
-            let inner=edge+sign*35
+            let inner=edge+sign*(32+CGFloat(motif)*4)
             if inner>=20 && inner<=730 {
                 if world==2 || world==1 || world==7 {
                     for i in 0...1 {
@@ -787,13 +796,13 @@ final class GameCanvas: UIView {
                         c.addLine(to:CGPoint(x:cx+1,y:inner+sign*23))
                         c.addLine(to:CGPoint(x:cx+8,y:inner+sign*3))
                         c.closePath()
-                        c.setFillColor(color(i==0 ? glints[world] : accents[world],210.0/255))
+                        c.setFillColor(color((i+motif)%2==0 ? glints[world] : accents[world],210.0/255))
                         c.fillPath()
                     }
                 } else {
                     for i in 0...2 {
                         let cx=x+13+CGFloat(i)*(w-28)/2
-                        oval(c,cx-5,inner-4,10,8,i==1 ? glints[world] : accents[world])
+                        oval(c,cx-5,inner-4,10,8,(i+motif)%3==1 ? glints[world] : accents[world])
                     }
                 }
             }
@@ -973,13 +982,11 @@ final class GameCanvas: UIView {
         drawRockStrata(c,x,w,-14,top-29,cliffSeed,shade,stratumGlint)
         drawRockStrata(c,x,w,bottom+28,813,-cliffSeed,shade,stratumGlint)
         // Responsive cap details never stick outside the simulated collision lip.
-        let flecks:[UInt32]=[0xb7ed7a,0x9af7ff,0xffd06e,0xffe29a,
-                             0xf8e5cc,0xffe6a1,0xa7ffdf,0xd9baff]
         for j in 0...2 {
             let fx=x+9+(w-22)*CGFloat(j)*0.5
             let inset:CGFloat=j==1 ? 2 : 0
-            oval(c,fx,top-17+inset,5,5,flecks[g.kind])
-            oval(c,fx,bottom+11+inset,5,5,flecks[g.kind])
+            oval(c,fx,top-17+inset,5,5,gateFleckHues[g.kind])
+            oval(c,fx,bottom+11+inset,5,5,gateFleckHues[g.kind])
         }
         rect(c,x+6,-12,7,top-18,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
         rect(c,x+6,bottom+28,7,781-bottom,g.kind==3 ? 0xffcf7b : 0xffffff,3,0.48)
@@ -1008,15 +1015,13 @@ final class GameCanvas: UIView {
         default:break
         }
         drawMovingGateRimCues(c,g,x,top,bottom)
-        drawBiomeGateRelief(c,x,w,top,bottom,g.kind)
+        drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)
         // Same rock strata and biome-specific highlights as Android.
-        let seam:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
-                           0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]
         func courses(_ start:CGFloat,_ end:CGFloat){
             var y=start
             var n=0
             while y+16<end && n<12 {
-                rect(c,x+8+CGFloat(n%3)*4,y,34+CGFloat(n%2)*6,3,seam[g.kind],2)
+                rect(c,x+8+CGFloat(n%3)*4,y,34+CGFloat(n%2)*6,3,gateSeamHues[g.kind],2)
                 if n%2==0 {
                     c.setStrokeColor(color(shade,0.49))
                     c.setLineWidth(2.5)
