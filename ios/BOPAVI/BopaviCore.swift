@@ -153,8 +153,8 @@ enum WorldCoordinates {
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
-    private var speedFactor:Float { difficulty == 0 ? 0.80 : (difficulty == 2 ? 1.24 : 1) }
-    private var gravityFactor:Float { difficulty == 0 ? 0.87 : (difficulty == 2 ? 1.12 : 1) }
+    private var speedFactor:Float { difficulty == 0 ? 0.73 : (difficulty == 2 ? 1.30 : 1) }
+    private var gravityFactor:Float { difficulty == 0 ? 0.84 : (difficulty == 2 ? 1.15 : 1) }
     let endless: Bool
     private(set) var totalPassed=0
     private(set) var y: Float = 366
