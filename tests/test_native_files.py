@@ -1340,8 +1340,8 @@ print('PASS: detailed royal-blue Bopi mascot with truly detached animated feathe
 # These are genuine 480x800 scenery art layers; physics remains untouched.
 assert 'val groundTop=' not in android_canvas
 assert 'let groundTop=' not in ios_canvas
-assert 'canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)' in android_canvas
-assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,' in ios_canvas
+assert 'canvas.drawBitmap(worldBitmap,null,worldDriftRect,p)' in android_canvas
+assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5+horizontal,' in ios_canvas
 assert 'drawColor(skyA[game.level.world])' in android_canvas
 # Real release captures, NOT the conceptual reference images, are the only
 # source for README screenshots. A missing capture fails publication.
@@ -1921,12 +1921,12 @@ print('PASS: both native gameplay paths draw faceted, textured island cliffs')
 # logical 480x800 viewport; no screen-dependent hitboxes or touch offsets.
 assert 'private val worldCoverRect=RectF()' in android_render
 assert 'val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)' in android_render
-assert 'canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)' in android_render
+assert 'canvas.drawBitmap(worldBitmap,null,worldDriftRect,p)' in android_render
 assert 'if(worldBitmap==null) drawBackground(canvas)' in android_render
 assert 'val scale=min(width/480f,height/800f)' in android_render
 assert 'worldCoverRect.isEmpty()' in android_render
 assert 'let scaleToCover=max(bound.width/world.size.width,' in ios_render
-assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,' in ios_render
+assert 'world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5+horizontal,' in ios_render
 assert 'if worldBackdrop==nil {background(c)}' in ios_render
 assert 'let s=min(bound.width/480,bound.height/800)' in ios_render
 assert 'canvas.drawBitmap(worldBitmap,null,worldRect,p)' not in android_render
