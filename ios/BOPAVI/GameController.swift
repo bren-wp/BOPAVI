@@ -1637,14 +1637,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 let description=label(explanations[n],11,
                                       UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
                 description.numberOfLines=1;description.adjustsFontSizeToFitWidth=true
-                let buy=button("KUPI \(name)",in:card,primary:false){
+                button("KUPI \(name)",in:card,primary:false){
                     if self.progress.buyPerk(n){
                         self.sound.effect("purchase");self.showPerks(origin)
                     } else {
                         self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
                     }
                 }
-                buy.accessibilityLabel="Kupi \(name), \(progress.perkPrices[n]) kovanica"
                 cardRow.addArrangedSubview(card)
             }
             cardGrid.addArrangedSubview(cardRow)
