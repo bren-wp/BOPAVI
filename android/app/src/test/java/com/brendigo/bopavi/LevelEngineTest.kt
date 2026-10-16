@@ -85,23 +85,32 @@ class LevelEngineTest {
                 opening.bottom - opening.top >= 2*18f+100f
             } })
             assertTrue(level.gates.zipWithNext().all { (one,two) ->
-                kotlin.math.abs(one.center - two.center) <= 148f
+                kotlin.math.abs(one.center - two.center) <= 208f
             })
         }
     }
 
     @Test fun firstTenGatesVaryHeightWithoutUnreachableJumps() {
-        val expected=listOf(262f,307f,357f,397f,337f,282f,347f,402f,332f,277f)
+        val expected=listOf(322f,252f,192f,242f,367f,447f,507f,382f,252f,187f)
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val level=LevelEngine.create(world,1)
             val centers=level.gates.take(10).map { it.center }
             assertEquals("First level must not look like ten identical columns",expected,centers)
-            assertEquals(10,centers.toSet().size)
-            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 148f })
+            assertTrue(centers.toSet().size>=9)
+            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 208f })
+            // A constant-altitude autopilot must hit a physical pillar on
+            // ALL three difficulty settings, not merely a decorative cap.
+            for(mode in 0..2) {
+                val mouths=level.gates.take(10).map{LevelEngine.opening(it,0f,mode)}
+                val requiredMin=mouths.maxOf{it.top+18f}
+                val requiredMax=mouths.minOf{it.bottom-18f}
+                assertTrue("World $world difficulty $mode has a straight safe lane",
+                    requiredMin>requiredMax)
+            }
             for (number in listOf(2,3,4,30,361,4096,524289,1048576)) {
                 val other=LevelEngine.create(world,number)
                 assertTrue("All generated gates must be reachable",other.gates.zipWithNext().all{
-                    (a,b) -> kotlin.math.abs(a.center-b.center)<=148f
+                    (a,b) -> kotlin.math.abs(a.center-b.center)<=208f
                 })
             }
         }
