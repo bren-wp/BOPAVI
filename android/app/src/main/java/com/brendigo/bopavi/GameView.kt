@@ -58,7 +58,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         R.drawable.bopiportrait8)
     private val hudPortrait=BitmapFactory.decodeResource(resources,portraitSprites[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
-    private val hudPortraitRect=RectF(7f,13f,77f,83f)
+    private val hudPortraitRect=RectF(11f,10f,65f,64f)
     private var lastWalletValue = -1
     private var walletDisplay = "0"
     // Video review: the 176px art dominated the passage. Render Bopi at 124px
@@ -1118,12 +1118,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     /** Avatar is decorative but shows the actual selected pilot, not a default. */
     private fun hudPilotPortrait(c:Canvas) {
-        oval(c,5f,12f,80f,87f,0x9003d9ff.toInt())
-        oval(c,8f,15f,77f,84f,0xffffc946.toInt())
-        oval(c,11f,18f,74f,81f,0xff062e70.toInt())
+        oval(c,12f,10f,66f,64f,0x9003d9ff.toInt())
+        oval(c,14f,12f,64f,62f,0xffffc946.toInt())
+        oval(c,17f,15f,61f,59f,0xff062e70.toInt())
         c.save()
         path.reset()
-        path.addCircle(42.5f,49.5f,29f,Path.Direction.CW)
+        path.addCircle(39f,37f,20.5f,Path.Direction.CW)
         c.clipPath(path)
         hudPortrait?.let {c.drawBitmap(it,null,hudPortraitRect,p)}
         c.restore()
@@ -1142,7 +1142,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         return walletDisplay
     }
-    /** Three compact top-row status chips. Passive, truthful game indicators. */
     /**
      * Reference-aligned, NON-interactive status lights. Center positions are
      * measured against the supplied 941×1672 flying-world reference (x≈41,
@@ -1216,11 +1215,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
 
         // Original left-side hierarchy at fixed reference screen coordinates.
         // No touch interception: these are honest real-time status indicators.
-        hudOrb(c,42f,116f,"★","${game.stars}",0xffffd453.toInt(),true)
+        hudOrb(c,42f,103f,"★","${game.stars}",0xffffd453.toInt(),true)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,42f,181f,"∩","$seconds",
+        hudOrb(c,42f,167f,"∩","$seconds",
             0xff50dfff.toInt(),game.magnetTime>0f)
-        hudOrb(c,42f,246f,"◆","${game.shield}",
+        hudOrb(c,42f,231f,"◆","${game.shield}",
             0xff50dfff.toInt(),game.shield>0)
         val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
             "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
