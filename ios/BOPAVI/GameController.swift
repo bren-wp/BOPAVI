@@ -1606,40 +1606,50 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",13,.white,s)
         sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
-        let cardRow=UIStackView()
-        cardRow.axis = .horizontal
-        cardRow.alignment = .fill
-        cardRow.distribution = .fillEqually
-        cardRow.spacing=7
-        for n in 0..<2 {
-            let name=n==0 ? "ŠTIT" : "MAGNET"
-            let extra=n==0 ? "Upija jedan stvarni sudar." :
-                             "Privlači predmete tijekom 8 sekundi."
-            let card=UIStackView()
-            card.axis = .vertical;card.alignment = .fill
-            card.spacing=4
-            card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:9,left:6,bottom:9,right:6)
-            card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
-            card.layer.cornerRadius=19;card.layer.borderWidth=2
-            card.layer.borderColor=(n==0 ?
-                UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
-                UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
-            label(n==0 ? "🛡" : "🧲",36,.white,card)
-            label(name,19,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
-            label("\(progress.perkPrices[n]) ♛ · U torbi: \(progress.perkCount(n))",
-                  12,.white,card)
-            label(extra,12,UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
-            button("KUPI \(name)",in:card,primary:false){
-                if self.progress.buyPerk(n){
-                    self.sound.effect("purchase");self.showPerks(origin)
-                } else {
-                    self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
+        let names=["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET"]
+        let explanations=["Upija jedan sudar.","Privlači 8 sekundi.",
+                          "Upija dva sudara.","Privlači 12 sekundi."]
+        let cardGrid=UIStackView()
+        cardGrid.axis = .vertical;cardGrid.spacing=6
+        for row in 0..<2 {
+            let cardRow=UIStackView()
+            cardRow.axis = .horizontal;cardRow.alignment = .fill
+            cardRow.distribution = .fillEqually;cardRow.spacing=6
+            for n in (row*2)..<(row*2+2) {
+                let name=names[n]
+                let card=UIStackView()
+                card.axis = .vertical;card.alignment = .fill;card.spacing=2
+                card.isLayoutMarginsRelativeArrangement=true
+                card.layoutMargins=UIEdgeInsets(top:6,left:5,bottom:6,right:5)
+                card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
+                card.layer.cornerRadius=17;card.layer.borderWidth=2
+                card.layer.borderColor=(n%2==0 ?
+                    UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
+                    UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
+                let badge=label(n%2==0 ? "🛡" : "🧲",25,.white,card)
+                badge.heightAnchor.constraint(equalToConstant:31).isActive=true
+                let title=label(name,14,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
+                title.adjustsFontSizeToFitWidth=true;title.minimumScaleFactor=0.65
+                title.numberOfLines=1
+                let price=label("\(progress.perkPrices[n]) ♛ · U torbi: \(progress.perkCount(n))",
+                                11,.white,card)
+                price.adjustsFontSizeToFitWidth=true;price.minimumScaleFactor=0.65
+                let description=label(explanations[n],11,
+                                      UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
+                description.numberOfLines=1;description.adjustsFontSizeToFitWidth=true
+                let buy=button("KUPI \(name)",in:card,primary:false){
+                    if self.progress.buyPerk(n){
+                        self.sound.effect("purchase");self.showPerks(origin)
+                    } else {
+                        self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
+                    }
                 }
+                buy.accessibilityLabel="Kupi \(name), \(progress.perkPrices[n]) kovanica"
+                cardRow.addArrangedSubview(card)
             }
-            cardRow.addArrangedSubview(card)
+            cardGrid.addArrangedSubview(cardRow)
         }
-        s.addArrangedSubview(cardRow)
+        s.addArrangedSubview(cardGrid)
         label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",13,.white,s)
         label(progress.languageCode=="hr" ?
             "Odaberi jednog od devet pilota prije leta. Kovanice otključavaju pilote i opremu." :
