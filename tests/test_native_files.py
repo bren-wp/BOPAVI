@@ -2760,7 +2760,8 @@ for engine in (android_rules,ios_rules):
 for store in (android_store,ios_store):
     assert '150,120' in store and 'perkCount(2)' in store and 'perkCount(3)' in store
     assert '12f' in store or '12 :' in store
-    assert 'perk_0' in store and 'perk_3' in store
+    assert ('"perk_$index"' in store or '"perk_\\(index)"' in store)
+    assert 'perkCount(3)' in store
 for menu in (android_menu,ios_menu):
     assert 'DVOSTRUKI ŠTIT' in menu and 'DUGI MAGNET' in menu
     assert 'KUPI' in menu and 'perkPrices[n]' in menu
