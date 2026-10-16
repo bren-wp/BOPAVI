@@ -281,4 +281,37 @@ generate_worlds(a,b)
 # SHA-256-verified three-layer assets. No runtime network or fake game controls.
 from reference_bopi_import import install_reference_bopi
 photo_bopi=install_reference_bopi(r)
+# The launcher must feature the OWNER-APPROVED mascot, not the outdated,
+# generic SVG face. The native icon is a genuine illustration, never a baked UI
+# screenshot. Pixel art is generated once, offline; no runtime bitmap work.
+if photo_bopi:
+    from PIL import ImageOps, ImageFilter, ImageDraw
+    source=Image.open(a/'drawable-nodpi/bopiportrait0.png').convert('RGBA')
+    bounds=source.getchannel('A').getbbox()
+    if not bounds:
+        raise RuntimeError('Approved Bopi portrait is empty: refusing launcher icon')
+    # Square, edge-to-edge game-world artwork; heavily softened so the bird
+    # remains legible even when launchers mask the outer 15-20%.
+    scene=Image.open(a/'drawable-nodpi/world0.png').convert('RGB')
+    scene=ImageOps.fit(scene,(1024,1024),method=Image.Resampling.LANCZOS,
+                       centering=(.51,.42)).filter(ImageFilter.GaussianBlur(14))
+    background=Image.alpha_composite(scene.convert('RGBA'),
+                                      Image.new('RGBA',(1024,1024),(2,20,67,152)))
+    foreground=Image.new('RGBA',(1024,1024),(0,0,0,0))
+    halo=Image.new('RGBA',(1024,1024),(0,0,0,0))
+    ImageDraw.Draw(halo,'RGBA').ellipse((160,165,866,875),fill=(0,174,255,190))
+    foreground=Image.alpha_composite(foreground,halo.filter(ImageFilter.GaussianBlur(54)))
+    # Frame stays inside Android's adaptive-icon mask safe zone.
+    frame=ImageDraw.Draw(foreground,'RGBA')
+    frame.ellipse((151,151,873,873),outline=(25,205,255,230),width=20)
+    frame.ellipse((169,169,855,855),outline=(254,211,87,165),width=8)
+    bird=ImageOps.contain(source.crop(bounds),(760,760),method=Image.Resampling.LANCZOS)
+    foreground.alpha_composite(bird,((1024-bird.width)//2,(1024-bird.height)//2+22))
+    # A separate alpha foreground lets Android's adaptive launcher retain a
+    # genuinely full-bleed blue background, never white rounded corners.
+    foreground.resize((512,512),Image.Resampling.LANCZOS).save(
+        a/'drawable/app_icon_foreground.png',optimize=True)
+    final=Image.alpha_composite(background,foreground).convert('RGB')
+    final.save(b/'AppIcon.appiconset/icon-1024.png',optimize=True)
+    final.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
 print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)
