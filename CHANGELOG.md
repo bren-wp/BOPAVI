@@ -1,3 +1,10 @@
+## v0.1.99 — Android 15 emulator transport resilience and strict gameplay release gate (build 104)
+- The first v0.1.98 production attempt lost the **hosted Android 15 ADB transport** after a real gameplay-preview screenshot; this did not establish an application process crash. An independent GitHub CI rerun **passed and published v0.1.98**. This release adds automatic recovery from that infrastructure fault without bypassing game QA.
+- At failed test exit, create an offline retry marker **only if** ADB cannot see a connected device. Real failures in application assertions, UI navigation or the BOPAVI process remain hard CI failures.
+- Preserve the first attempt's diagnostic evidence separately; reset the disconnected Android emulator; repeat the **complete** Android 15 native UI, pilot, flight, collision, results and screenshot suite at most once.
+- Require one full successful test attempt for release. A failed retry or no proven transport loss **blocks release**. Preserve the flat screenshot artifact contract and negative-case source-audit checks.
+- Native versions advance together to **v0.1.99 / build 104**, with no gameplay or physics change. Visual 1:1 fidelity is still an open objective.
+
 ## v0.1.98 — reference-style native crown, finish checker and live gameplay HUD (build 103)
 - Replace system-font-dependent Unicode chess crowns and goal flags with **native geometric artwork** at matching 480×800 logical coordinates in Kotlin Canvas and Swift Core Graphics. The race progress bar now has the same golden three-point crown and 4×4 checkered finish flag across devices, without emoji/font fallback differences.
 - Apply the same deterministic gold-crown geometry to the earned-coin wallet badge and the real last-gate checkpoint marker. Preserve the reference-inspired colors, specular rim and genuine accessible live progress, score, distance, coins and player status.

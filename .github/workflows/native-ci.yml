@@ -150,6 +150,7 @@ jobs:
       - run: python tests/test_reference_navigation.py
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
+      - run: python tests/test_android_emulator_transport_gate.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - name: Require a new version for every pull request
@@ -222,7 +223,8 @@ jobs:
     name: Android home, gameplay and collision visual QA
     needs: [android]
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    # Allow one clean emulator restart ONLY after verified ADB transport loss.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -240,6 +242,8 @@ jobs:
       - name: Verify and repair API35 system image before emulator boot
         run: bash tools/prepare_android_emulator_image.sh 35
       - name: Set up native Android emulator
+        id: api35_primary
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -252,6 +256,45 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
           script: sh tools/qa_android_emulator.sh
+      - name: Save first emulator diagnostic and reset disconnected device
+        if: ${{ steps.api35_primary.outcome == 'failure' && hashFiles('qa/screenshots/adb-transport-offline.retry') != '' }}
+        run: |
+          mkdir -p qa/first-emulator-attempt
+          cp -a qa/screenshots/. qa/first-emulator-attempt/
+          rm -f qa/screenshots/*
+          adb kill-server || true
+          rm -rf "${ANDROID_AVD_HOME:-$HOME/.android/avd}/test.avd" "${ANDROID_AVD_HOME:-$HOME/.android/avd}/test.ini"
+      - name: Retry full Android 15 QA only for confirmed offline ADB
+        id: api35_transport_retry
+        if: ${{ steps.api35_primary.outcome == 'failure' && hashFiles('qa/first-emulator-attempt/adb-transport-offline.retry') != '' }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          script: sh tools/qa_android_emulator.sh
+      - name: Require a complete passing Android 15 gameplay suite
+        if: ${{ always() }}
+        env:
+          PRIMARY: ${{ steps.api35_primary.outcome }}
+          RETRY: ${{ steps.api35_transport_retry.outcome }}
+        run: |
+          set -euo pipefail
+          if [ "$PRIMARY" = success ]; then
+            echo 'PASS: original Android 15 interactive gameplay QA'
+            exit 0
+          fi
+          if [ -f qa/first-emulator-attempt/adb-transport-offline.retry ] &&
+             [ "$RETRY" = success ]; then
+            echo 'PASS: full Android 15 gameplay QA on a fresh emulator'
+            exit 0
+          fi
+          echo "FAIL: Android 15 primary=$PRIMARY retry=$RETRY" >&2
+          echo 'Real application defects and unverified or repeated transport failures must block release.' >&2
+          exit 1
       - name: Preserve Android QA screenshots and UI hierarchy on failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -261,9 +304,19 @@ jobs:
             qa/screenshots/*.png
             qa/screenshots/*.xml
             qa/screenshots/*.txt
+            qa/screenshots/*.retry
           if-no-files-found: warn
           # A retry replaces incomplete screenshots uploaded by a failed attempt.
           overwrite: true
+      # Preserve offline evidence separately so the production screenshot
+      # archive still has the exact flat paths required by Play-listing QA.
+      - name: Save original failed-emulator files in a separate artifact
+        if: ${{ always() && hashFiles('qa/first-emulator-attempt/adb-transport-offline.retry') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: QA-Android35-ADB-transport-diagnostic
+          path: qa/first-emulator-attempt/
+          if-no-files-found: error
   play-listing:
     name: Package authentic Google Play preview assets
     needs: [graphics, android-smoke]
