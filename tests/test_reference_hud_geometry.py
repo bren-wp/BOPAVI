@@ -38,8 +38,9 @@ for code, a, b, c in (
 ):
     assert code.index(a) < code.index(b) < code.index(c)
     # All 3 outline points plus base must share coordinates on both OSes.
-    assert "0.34" in code and "0.55" in code and "0.24" in code
-    assert "0.19" in code and "0.08" in code
+    def has_fraction(value):
+        return ("0." + value in code) or ("." + value + "f" in code)
+    assert all(has_fraction(x) for x in ("34", "55", "24", "19", "08"))
     assert "0xc76f03" in code and "0xffd342" in code and "0xffef9b" in code
     assert "0xd7f4ff" in code and "0x17488d" in code and "0x5eeaff" in code
     progress = code.split(c, 1)[1].split("hudGlass(", 1)[0]
