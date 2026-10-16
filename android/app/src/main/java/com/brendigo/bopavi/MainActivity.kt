@@ -424,6 +424,10 @@ class MainActivity : Activity() {
     private fun back(parent:LinearLayout,onClick:()->Unit) {
         menuBackAction=onClick
         action(parent,if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK",false,onClick)
+        // The reference places one consistent Back action at the top of menus.
+        val backView=parent.getChildAt(parent.childCount-1)
+        parent.removeView(backView)
+        parent.addView(backView,0)
     }
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
         val name=ui(LevelEngine.names[world])
