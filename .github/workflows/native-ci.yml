@@ -150,6 +150,7 @@ jobs:
       - run: python tests/test_reference_navigation.py
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
+      - run: python tests/test_android_emulator_transport_gate.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - name: Require a new version for every pull request
