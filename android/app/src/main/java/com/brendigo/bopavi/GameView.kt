@@ -560,9 +560,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Distinct materials: moss, crystal, lava, moonlit stone, coral, marble,
      * enchanted roots and stardust. Both caps are anchored to the live opening.
      */
-    private fun drawBiomeGateRelief(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,world:Int) {
+    private fun drawBiomeGateRelief(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,world:Int,seed:Int) {
         val accent=biomeReliefAccents[world]
         val glint=biomeReliefGlints[world]
+        // Stable gate-specific rock mineral patterns; no clock-based noise or hitbox changes.
+        val motif=((seed%3)+3)%3
         for(side in 0..1) {
             val edge=if(side==0)top else bottom
             val sign=if(side==0)-1f else 1f
@@ -571,19 +573,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             for(i in 0..2) {
                 val left=x+8f+i*(w-27f)/3f
                 val right=(left+(w-20f)/3f+6f).coerceAtMost(x+w-7f)
-                val depth=10f+(i%2)*6f
+                val depth=9f+((i+motif)%3)*4f
                 path.reset()
                 path.moveTo(left,edge+sign*5f)
                 path.lineTo((left+right)*.5f,edge+sign*(depth+6f))
                 path.lineTo(right,edge+sign*5f)
                 path.lineTo((left+right)*.5f,edge+sign*2f)
                 path.close()
-                fill(if(i==1)glint else accent)
-                p.alpha=if(i==1)210 else 145
+                val isGlint=(i+motif)%3==1
+                fill(if(isGlint)glint else accent)
+                p.alpha=if(isGlint)210 else 145
                 c.drawPath(path,p);p.alpha=255
             }
             // Biome identity inside the obstacle, not in the unobstructed gap.
-            val inner=edge+sign*35f
+            val inner=edge+sign*(32f+motif*4f)
             if(inner in 20f..730f){
                 if(world==2 || world==1 || world==7) {
                     for(i in 0..1){
@@ -593,13 +596,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                         path.lineTo(cx+1f,inner+sign*23f)
                         path.lineTo(cx+8f,inner+sign*3f)
                         path.close()
-                        fill(if(i==0)glint else accent);p.alpha=210
+                        fill(if((i+motif)%2==0)glint else accent);p.alpha=210
                         c.drawPath(path,p);p.alpha=255
                     }
                 } else {
                     for(i in 0..2) {
                         val cx=x+13f+i*(w-28f)/2f
-                        oval(c,cx-5f,inner-4f,cx+5f,inner+4f,if(i==1)glint else accent)
+                        oval(c,cx-5f,inner-4f,cx+5f,inner+4f,if((i+motif)%3==1)glint else accent)
                     }
                 }
             }
@@ -807,7 +810,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
         drawMovingGateRimCues(c,g,x,top,bottom)
-        drawBiomeGateRelief(c,x,w,top,bottom,g.kind)
+        drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)
         // Stone courses, mineral seams and edge lighting add biome-specific
         // depth without textures decoded or allocated inside the frame loop.
         val seam=when(g.kind){
