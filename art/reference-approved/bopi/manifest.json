@@ -1,0 +1,32 @@
+{
+  "purpose": "BOPAVI native user-reference Bopi pilot layers",
+  "source": "User supplied gameplay screenshot, first screenshot (Zeleni Otoci style)",
+  "source_size": [
+    941,
+    1672
+  ],
+  "canvas_size": [
+    224,
+    192
+  ],
+  "layers": [
+    "bopi0_body.webp",
+    "bopi0_left.webp",
+    "bopi0_right.webp"
+  ],
+  "original_face_orientation": "right",
+  "left_pivot_px": [
+    106,
+    118
+  ],
+  "right_pivot_px": [
+    157,
+    129
+  ],
+  "max_display_width_ratio": 0.31,
+  "not_a_gameplay_screenshot": true,
+  "requires_visual_review": true,
+  "bopi0_body.webp_sha256": "b9872a4750392b8ec99851c5fc656751f05e1714ed5edeb26ab45d055443df74",
+  "bopi0_left.webp_sha256": "f61be45fa1c08c54199b17b14e148cd79a944cda255a9527ac74b98c30f8f8ae",
+  "bopi0_right.webp_sha256": "0101670d2ab6f6164ba6f133e68dca654b0abc48a618c659aceefce1cd27f071"
+}
