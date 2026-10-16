@@ -277,4 +277,8 @@ for key in ('profile','tasks','collection','shop'):
     }))
 from generate_worlds import generate_worlds
 generate_worlds(a,b)
-print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes')
+# Owner-reference photos are optional, but if supplied must be approved
+# SHA-256-verified three-layer assets. No runtime network or fake game controls.
+from reference_bopi_import import install_reference_bopi
+photo_bopi=install_reference_bopi(r)
+print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)
