@@ -1145,7 +1145,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /**
      * Reference-aligned, NON-interactive status lights. Center positions are
      * measured against the supplied 941×1672 flying-world reference (x≈41,
-     * y≈102/165/228 on 480×800). Everything stays in the left 72px strip,
+     * y≈101/163/225 on 480×800). Everything stays in the left 72px strip,
      * never across the playable opening or real pause touch target.
      * Screen art is native: no baked counts, Unicode icons or fake buttons.
      */
@@ -1215,11 +1215,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
 
         // Original left-side hierarchy at fixed reference screen coordinates.
         // No touch interception: these are honest real-time status indicators.
-        hudOrb(c,42f,103f,"★","${game.stars}",0xffffd453.toInt(),true)
+        hudOrb(c,42f,101f,"★","${game.stars}",0xffffd453.toInt(),true)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,42f,167f,"∩","$seconds",
+        hudOrb(c,42f,163f,"∩","$seconds",
             0xff50dfff.toInt(),game.magnetTime>0f)
-        hudOrb(c,42f,231f,"◆","${game.shield}",
+        hudOrb(c,42f,225f,"◆","${game.shield}",
             0xff50dfff.toInt(),game.shield>0)
         val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
             "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
