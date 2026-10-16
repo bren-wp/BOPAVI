@@ -110,16 +110,21 @@ final class GameCanvas: UIView {
         self.language=GameLanguages.normalized(languageCode)
         self.hudVocabulary=GameLanguages.hudPack(languageCode)
         self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
-        let artSize:CGFloat=124 // Video review: shrink art, never the real hitbox.
+        // The source-approved screenshot Bopi is a 224x192 three-layer
+        // articulated sprite. The marker exists only with validated assets.
+        let referenceBopi0=selectedSkin==0 && UIImage(named:"BopiReference0") != nil
+        let artSize:CGFloat=142 // Reference-proportioned art, same actual hitbox.
         self.birdArtSize=artSize
         let scale=artSize/100
         let premiumScale=artSize/160
-        self.leftWingPivot=selectedSkin>=6 ?
-            CGPoint(x:-12*premiumScale,y:4*premiumScale) :
-            CGPoint(x:-16*scale,y:5*scale)
-        self.rightWingPivot=selectedSkin>=6 ?
-            CGPoint(x:12*premiumScale,y:4*premiumScale) :
-            CGPoint(x:15*scale,y:-4*scale)
+        self.leftWingPivot=referenceBopi0 ?
+            CGPoint(x:-6*artSize/224,y:22*artSize/224) :
+            (selectedSkin>=6 ? CGPoint(x:-12*premiumScale,y:4*premiumScale) :
+                               CGPoint(x:-16*scale,y:5*scale))
+        self.rightWingPivot=referenceBopi0 ?
+            CGPoint(x:45*artSize/224,y:33*artSize/224) :
+            (selectedSkin>=6 ? CGPoint(x:12*premiumScale,y:4*premiumScale) :
+                               CGPoint(x:15*scale,y:-4*scale))
         self.birdSprite=UIImage(named:"Bopi\(selectedSkin)")
         self.leftWing=UIImage(named:"BopiLeft\(selectedSkin)")
         self.rightWing=UIImage(named:"BopiRight\(selectedSkin)")
