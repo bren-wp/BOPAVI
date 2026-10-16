@@ -1143,17 +1143,61 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         return walletDisplay
     }
     /** Three compact top-row status chips. Passive, truthful game indicators. */
+    /**
+     * Reference-aligned, NON-interactive status lights. Center positions are
+     * measured against the supplied 941×1672 flying-world reference (x≈41,
+     * y≈102/165/228 on 480×800). Everything stays in the left 72px strip,
+     * never across the playable opening or real pause touch target.
+     * Screen art is native: no baked counts, Unicode icons or fake buttons.
+     */
     private fun hudOrb(c:Canvas,cx:Float,cy:Float,icon:String,count:String,
                        accent:Int,enabled:Boolean) {
-        // All passive power readouts share a narrow TOP HUD row. No large
-        // floating side badges intercept the player's view of an obstacle.
-        val rim=if(enabled)accent else 0xff5d83ac.toInt()
-        hudGlass(c,cx-33f,cy-14f,cx+33f,cy+14f)
-        oval(c,cx-29f,cy-11f,cx-9f,cy+11f,rim)
-        oval(c,cx-26f,cy-8f,cx-12f,cy+8f,0xff052855.toInt())
-        text(c,icon,cx-19f,cy+6f,15f,
-            if(enabled)Color.WHITE else 0xffa4bdd6.toInt(),true)
-        text(c,count,cx+13f,cy+6f,13f,Color.WHITE,true)
+        val rim=if(enabled)accent else 0xff4f8fac.toInt()
+        oval(c,cx-29f,cy-29f,cx+29f,cy+29f,0x4243d8ff)
+        oval(c,cx-26f,cy-26f,cx+26f,cy+26f,0xff0069d9.toInt())
+        oval(c,cx-22f,cy-22f,cx+22f,cy+22f,0xff06265c.toInt())
+        fill(rim);p.style=Paint.Style.STROKE;p.strokeWidth=2.5f
+        c.drawCircle(cx,cy,24f,p)
+        p.style=Paint.Style.FILL
+        // The visual icon is drawn as a real vector primitive, not a
+        // device-dependent emoji or static screenshot with the wrong count.
+        when(icon) {
+            "★" -> drawHudCrown(c,cx,cy+3f,29f)
+            "∩" -> {
+                // Red / cyan horseshoe magnet as in the user's left rail.
+                path.reset();path.moveTo(cx-10f,cy-10f)
+                path.lineTo(cx-10f,cy+6f)
+                path.quadTo(cx,cy+19f,cx+10f,cy+6f)
+                path.lineTo(cx+10f,cy-10f)
+                fill(0xffdb3e54.toInt());p.style=Paint.Style.STROKE
+                p.strokeWidth=8f;p.strokeCap=Paint.Cap.BUTT
+                c.drawPath(path,p)
+                p.strokeWidth=3.4f;p.color=0xff69eaff.toInt()
+                c.drawLine(cx+10f,cy-10f,cx+10f,cy+6f,p)
+                p.style=Paint.Style.FILL
+                rect(c,cx-14f,cy-14f,cx-6f,cy-8f,0xfffff7ec.toInt(),2f)
+                rect(c,cx+6f,cy-14f,cx+14f,cy-8f,0xfffff7ec.toInt(),2f)
+            }
+            else -> {
+                // White-cyan feather/wing bonus in the third original slot.
+                path.reset();path.moveTo(cx-15f,cy+12f)
+                path.quadTo(cx-10f,cy-11f,cx+17f,cy-16f)
+                path.quadTo(cx+12f,cy+7f,cx-12f,cy+13f)
+                path.close();fill(0xfff4fdff.toInt());c.drawPath(path,p)
+                fill(0xff33c9ff.toInt());p.style=Paint.Style.STROKE
+                p.strokeWidth=2f;p.strokeCap=Paint.Cap.ROUND
+                c.drawLine(cx-14f,cy+14f,cx+12f,cy-11f,p)
+                c.drawLine(cx-5f,cy+3f,cx-8f,cy-6f,p)
+                c.drawLine(cx+3f,cy-5f,cx+1f,cy-12f,p)
+                p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
+            }
+        }
+        // A real, dynamic small number badge below-right of each orb.
+        oval(c,cx+12f,cy+10f,cx+34f,cy+32f,0xff0c234f.toInt())
+        fill(0xffeaf9ff.toInt());p.style=Paint.Style.STROKE
+        p.strokeWidth=1.8f;c.drawCircle(cx+23f,cy+21f,10.5f,p)
+        p.style=Paint.Style.FILL
+        text(c,count,cx+23f,cy+26f,12.5f,Color.WHITE,true)
     }
     private fun drawHud(c:Canvas){
         // Reference: left coin wallet, centre race bar, right real Pause view.
@@ -1170,14 +1214,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
         text(c,"${word("FLIGHT","LET")} +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
 
-        // The three narrow chips remain under the safe-top race gauge, entirely
-        // above Bopi and the moving gate corridor.
-        hudOrb(c,174f,124f,"★","${game.stars}",0xffffce43.toInt(),true)
-        hudOrb(c,267f,124f,"◆","${game.shield}",
-            0xff54e5ff.toInt(),game.shield>0)
+        // Original left-side hierarchy at fixed reference screen coordinates.
+        // No touch interception: these are honest real-time status indicators.
+        hudOrb(c,42f,116f,"★","${game.stars}",0xffffd453.toInt(),true)
         val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,360f,124f,"∩","$seconds",
-            0xff41dfff.toInt(),game.magnetTime>0f)
+        hudOrb(c,42f,181f,"∩","$seconds",
+            0xff50dfff.toInt(),game.magnetTime>0f)
+        hudOrb(c,42f,246f,"◆","${game.shield}",
+            0xff50dfff.toInt(),game.shield>0)
         val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
             "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
             "Shield ${game.shield}. Magnet ${seconds} seconds."
