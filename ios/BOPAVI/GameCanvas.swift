@@ -305,8 +305,6 @@ final class GameCanvas: UIView {
         (value as NSString).draw(at:CGPoint(x:x,y:y),withAttributes:[
             .font:font,.foregroundColor:UIColor(rgb:rgb)])
     }
-    private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
-    private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
     private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     // The three HUD orbs keep stable symbols and count labels between frames.
