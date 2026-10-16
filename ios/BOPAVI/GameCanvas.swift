@@ -305,8 +305,6 @@ final class GameCanvas: UIView {
         (value as NSString).draw(at:CGPoint(x:x,y:y),withAttributes:[
             .font:font,.foregroundColor:UIColor(rgb:rgb)])
     }
-    private let hudIconFont=UIFont.systemFont(ofSize:26,weight:.heavy)
-    private let hudCoinFont=UIFont.systemFont(ofSize:22,weight:.heavy)
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
     private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     // The three HUD orbs keep stable symbols and count labels between frames.
@@ -335,6 +333,49 @@ final class GameCanvas: UIView {
             .font:UIFont.monospacedDigitSystemFont(ofSize:size,weight:.heavy),
             .foregroundColor:UIColor.white])
     }
+    /// Font-independent reference crown: identical points and solid colors
+    /// to Android Canvas, with no new images or glyph allocations per frame.
+    private func drawHudCrown(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ size:CGFloat){
+        let half=size*0.50
+        c.setFillColor(color(0xc76f03))
+        c.beginPath()
+        c.move(to:CGPoint(x:cx-half,y:cy+size*0.23))
+        c.addLine(to:CGPoint(x:cx-half,y:cy-size*0.34))
+        c.addLine(to:CGPoint(x:cx-size*0.24,y:cy-size*0.08))
+        c.addLine(to:CGPoint(x:cx,y:cy-size*0.55))
+        c.addLine(to:CGPoint(x:cx+size*0.24,y:cy-size*0.08))
+        c.addLine(to:CGPoint(x:cx+half,y:cy-size*0.34))
+        c.addLine(to:CGPoint(x:cx+half,y:cy+size*0.23))
+        c.closePath();c.fillPath()
+        c.setFillColor(color(0xffd342))
+        c.beginPath()
+        c.move(to:CGPoint(x:cx-half+size*0.08,y:cy+size*0.14))
+        c.addLine(to:CGPoint(x:cx-half+size*0.08,y:cy-size*0.20))
+        c.addLine(to:CGPoint(x:cx-size*0.24,y:cy+size*0.06))
+        c.addLine(to:CGPoint(x:cx,y:cy-size*0.39))
+        c.addLine(to:CGPoint(x:cx+size*0.24,y:cy+size*0.06))
+        c.addLine(to:CGPoint(x:cx+half-size*0.08,y:cy-size*0.20))
+        c.addLine(to:CGPoint(x:cx+half-size*0.08,y:cy+size*0.14))
+        c.closePath();c.fillPath()
+        rect(c,cx-half,cy+size*0.19,size,size*0.15,0xffef9b,size*0.055)
+        oval(c,cx-size*0.085,cy-size*0.04,size*0.17,size*0.17,0xfff8d9)
+    }
+    /// The end-of-course flag is a native 4×4 checker with a fixed mast.
+    private func drawHudFinishFlag(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ size:CGFloat){
+        let tile=size*0.19
+        let left=cx-size*0.35
+        let top=cy-size*0.36
+        rect(c,left-2,top-2,1.7,tile*4+5,0xd7f4ff,1)
+        for row in 0..<4 {
+            for col in 0..<4 {
+                let x=left+CGFloat(col)*tile
+                let y=top+CGFloat(row)*tile
+                rect(c,x,y,tile+0.15,tile+0.15,
+                     (row+col)%2==0 ? 0xffffff : 0x17488d)
+            }
+        }
+        rect(c,left,top+tile*4,tile*4,1.2,0x5eeaff,0.6)
+    }
     private func drawLevelProgress(_ c:CGContext) {
         let passed=game.totalPassed
         if passed != lastProgressPassed {
@@ -357,8 +398,8 @@ final class GameCanvas: UIView {
         let total=max(1,game.level.gates.count)
         let ratio=CGFloat(game.levelProgress)
         hudGlass(c,146,18,235,90)
-        hudText("♛",154,28,hudIconFont,0xffd45b)
-        hudText("⚑",350,29,hudIconFont,0xffffff)
+        drawHudCrown(c,165,46,22)
+        drawHudFinishFlag(c,363,45,25)
         rect(c,181,34,173,21,0x05234e,10)
         rect(c,184,38,167,13,0x0b66bf,7)
         if ratio>0 {
@@ -424,7 +465,7 @@ final class GameCanvas: UIView {
         oval(c,78,30,32,37,0xf9a70e)
         oval(c,81,33,26,31,0xffdf5f)
         oval(c,84,36,20,25,0xec9500)
-        hudText("♛",86,33,hudCoinFont,0xfff3a4)
+        drawHudCrown(c,94,50,15)
     }
     /// Clip the exact previously selected pilot portrait into the gold avatar ring.
     private func hudPilotPortrait(_ c:CGContext) {
@@ -675,7 +716,7 @@ final class GameCanvas: UIView {
         c.setStrokeColor(color(0xe7ffff,0.82));c.setLineWidth(1.5)
         c.strokeEllipse(in:CGRect(x:cx-radius+7,y:cy-radius+7,
                                   width:2*radius-14,height:2*radius-14))
-        hudText("♛",cx-10,cy-51,hudIconFont,0xffdb63)
+        drawHudCrown(c,cx,cy-44,20)
     }
     /// Subtle suspended-cliff facets, confined to the existing gate shafts.
     /// Only drawn geometry changes: the BopaviCore opening and collision remain.

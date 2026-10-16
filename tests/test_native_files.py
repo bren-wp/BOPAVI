@@ -1382,8 +1382,9 @@ assert 'private fun hudGlass(' in android_game
 assert 'private fun hudGoldCoin(' in android_game
 assert 'private func hudGlass(' in ios_game
 assert 'private func hudGoldCoin(' in ios_game
-assert 'hudCoinFont=UIFont.systemFont' in ios_game
-assert 'hudText("♛",86,33,hudCoinFont' in ios_game
+assert 'private func drawHudCrown(' in ios_game
+assert 'drawHudCrown(c,94,50,15)' in ios_game
+assert 'drawHudCrown(c,94f,50f,15f)' in android_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
 assert 'hudOrb(c,174f,124f,"★"' in android_game
@@ -1461,7 +1462,7 @@ for source in (android_game,ios_game):
     # print the reference mockup's imaginary 1,280 / 2,000 metres.
     for forbidden in ('text(c,"1,280','hudText("1,280','text(c,"2,000','hudText("2,000'):
         assert forbidden not in source
-    assert '⚑' in source
+    assert 'drawHudFinishFlag(' in source
     assert 'game.flap()' in source
 assert 'hudGlass(c,146f,18f,381f,108f)' in android_game
 assert 'hudGlass(c,146,18,235,90)' in ios_game
