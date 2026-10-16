@@ -2160,7 +2160,7 @@ print('PASS: no-scroll native settings with real saved difficulty on first page 
 # v0.1.77: real two-column shop with device-sized safe-area fitting; never
 # show a static shop screenshot or fabricated diamond/real-money checkout.
 for code in (android_shop,ios_shop):
-    assert 'cardRow' in code and 'KUPI ' in code
+    assert ('perkRows' in code or 'cardGrid' in code) and 'KUPI ' in code
     assert 'buyPerk(n)' in code and 'perkCount(n)' in code
     assert 'perkPrices[n]' in code
     assert 'bonusCoinsAvailable()' in code and 'claimBonusCoins()' in code
@@ -2189,7 +2189,7 @@ assert 'verify_shop_records_tabs' in emulator
 assert 'android-shop.png' in emulator and 'android-records.png' in emulator
 assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
-print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
+print('PASS: native four-perk shop, honest inventory and paginated offline records with tested Back')
 
 # v0.1.77: one reusable Android pilot sprite table, not four identical
 # allocations on every navigation transition. Legacy art names stay linked.
