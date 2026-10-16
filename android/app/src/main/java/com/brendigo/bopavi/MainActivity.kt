@@ -421,13 +421,28 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
+    /** One shared, compact 48dp upper-left Back affordance for every native menu. */
     private fun back(parent:LinearLayout,onClick:()->Unit) {
         menuBackAction=onClick
-        action(parent,if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK",false,onClick)
-        // The reference places one consistent Back action at the top of menus.
-        val backView=parent.getChildAt(parent.childCount-1)
-        parent.removeView(backView)
-        parent.addView(backView,0)
+        val bar=LinearLayout(this).apply {
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL or Gravity.START
+        }
+        val arrow=TextView(this).apply {
+            text="←";textSize=29f;gravity=Gravity.CENTER
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            background=RippleDrawable(ColorStateList.valueOf(0x66ffffff),
+                gradient(0xff27c9ff.toInt(),0xff0754be.toInt(),25).apply {
+                    setStroke(d(2),0xffc1f7ff.toInt())
+                },null)
+            contentDescription=if(progress.languageCode()=="hr")"Natrag" else "Back"
+            isClickable=true;isFocusable=true
+            elevation=d(5).toFloat()
+            setOnClickListener { sound.effect("click");onClick() }
+        }
+        bar.addView(arrow,LinearLayout.LayoutParams(d(50),d(50)))
+        parent.addView(bar,0,LinearLayout.LayoutParams(-1,d(53)))
     }
     private fun worldTile(parent:LinearLayout,world:Int,onClick:()->Unit){
         val name=ui(LevelEngine.names[world])
@@ -1505,15 +1520,8 @@ class MainActivity : Activity() {
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        val topBack=TextView(this).apply{
-            text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME";textSize=13f;setTextColor(Color.WHITE)
-            typeface=Typeface.DEFAULT_BOLD;gravity=Gravity.CENTER
-            background=gradient(0xff1368b6.toInt(),0xff072657.toInt(),14)
-            isClickable=true;isFocusable=true
-            contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"
-            setOnClickListener{showHome()}
-        }
-        b.addView(topBack,LinearLayout.LayoutParams(-1,d(33)))
+        // Same tappable upper-left back control as Worlds, Levels and Shop.
+        back(b){showHome()}
         // Profile reflects the current saved playable pilot, not fixed Bopi.
         val skin=progress.skin()
 
