@@ -44,6 +44,13 @@ struct SwiftParity {
             precondition(zip(first.gates,first.gates.dropFirst()).allSatisfy{
                 abs($0.0.center-$0.1.center)<=208
             })
+            for mode in 0...2 {
+                let mouths=first.gates.prefix(10).map{ BopaviCore.opening($0,0,difficulty:mode) }
+                let requiredMin=mouths.map{$0.top+18}.max()!
+                let requiredMax=mouths.map{$0.bottom-18}.min()!
+                precondition(requiredMin>requiredMax,
+                             "World \(world) difficulty \(mode) must not have a straight safe lane")
+            }
         }
         let numbers=[1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576]
         var checked=0
