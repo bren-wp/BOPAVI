@@ -43,7 +43,8 @@ for code, a, b, c in (
     assert all(has_fraction(x) for x in ("34", "55", "24", "19", "08"))
     assert "0xc76f03" in code and "0xffd342" in code and "0xffef9b" in code
     assert "0xd7f4ff" in code and "0x17488d" in code and "0x5eeaff" in code
-    progress = code.split(c, 1)[1].split("hudGlass(", 1)[0]
+    progress_end = "    private fun hudGlass(" if code is ANDROID else "    private func hudGlass("
+    progress = code.split(c, 1)[1].split(progress_end, 1)[0]
     assert "drawHudCrown(" in progress and "drawHudFinishFlag(" in progress
     assert "⚑" not in progress and "♛" not in progress
     assert "game.levelProgress" in progress
