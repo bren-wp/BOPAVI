@@ -309,16 +309,7 @@ final class GameCanvas: UIView {
     private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     // The three HUD orbs keep stable symbols and count labels between frames.
     // Only a *changed* live counter rebuilds its attributed text.
-    private let hudOrbSymbolFont=UIFont.systemFont(ofSize:19,weight:.black)
-    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:16,weight:.heavy)
-    private lazy var hudOrbActiveSymbols:[NSAttributedString] = ["★","◆","∩"].map { icon in
-        NSAttributedString(string:icon,attributes:[
-            .font:hudOrbSymbolFont,.foregroundColor:UIColor.white])
-    }
-    private lazy var hudOrbInactiveSymbols:[NSAttributedString] = ["★","◆","∩"].map { icon in
-        NSAttributedString(string:icon,attributes:[
-            .font:hudOrbSymbolFont,.foregroundColor:UIColor(rgb:0xa4bdd6)])
-    }
+    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:12.5,weight:.heavy)
     private var hudOrbCachedValues=["","",""]
     private var hudOrbCachedNumbers=Array(repeating:NSAttributedString(string:""),count:3)
 
@@ -491,25 +482,64 @@ final class GameCanvas: UIView {
         return walletDisplay
     }
     /// Readable, passive top-row badges: no side-rail obstruction of the flight.
+    /// Compact reference left rail: all centers stay at x=42.
+    /// Passive real-time statuses; UIKit Pause and touch-to-flap stay separate.
     private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
                         _ count:String,_ accent:UInt32,_ enabled:Bool) {
-        // Match Android's compact top HUD. No vertical orb rail covers flight.
-        let rim:UInt32=enabled ? accent : 0x5d83ac
-        hudGlass(c,cx-33,cy-14,66,28)
-        oval(c,cx-29,cy-11,20,22,rim)
-        oval(c,cx-26,cy-8,14,16,0x052855)
-        let slot=icon=="★" ? 0 : (icon=="◆" ? 1 : 2)
-        let symbol=enabled ? hudOrbActiveSymbols[slot] : hudOrbInactiveSymbols[slot]
-        symbol.draw(at:CGPoint(x:cx-19-symbol.size().width/2,
-                               y:cy-symbol.size().height/2))
+        let rim:UInt32=enabled ? accent : 0x4f8fac
+        oval(c,cx-29,cy-29,58,58,0x43d8ff,66.0/255)
+        oval(c,cx-26,cy-26,52,52,0x0069d9)
+        oval(c,cx-22,cy-22,44,44,0x06265c)
+        c.setStrokeColor(color(rim));c.setLineWidth(2.5)
+        c.strokeEllipse(in:CGRect(x:cx-24,y:cy-24,width:48,height:48))
+        if icon=="★" {
+            drawHudCrown(c,cx,cy+3,29)
+        } else if icon=="∩" {
+            c.beginPath()
+            c.move(to:CGPoint(x:cx-10,y:cy-10))
+            c.addLine(to:CGPoint(x:cx-10,y:cy+6))
+            c.addQuadCurve(to:CGPoint(x:cx+10,y:cy+6),
+                           control:CGPoint(x:cx,y:cy+19))
+            c.addLine(to:CGPoint(x:cx+10,y:cy-10))
+            c.setStrokeColor(color(0xdb3e54))
+            c.setLineWidth(8);c.setLineCap(.butt);c.strokePath()
+            c.setStrokeColor(color(0x69eaff));c.setLineWidth(3.4)
+            c.move(to:CGPoint(x:cx+10,y:cy-10))
+            c.addLine(to:CGPoint(x:cx+10,y:cy+6));c.strokePath()
+            rect(c,cx-14,cy-14,8,6,0xfff7ec,2)
+            rect(c,cx+6,cy-14,8,6,0xfff7ec,2)
+        } else {
+            c.beginPath()
+            c.move(to:CGPoint(x:cx-15,y:cy+12))
+            c.addQuadCurve(to:CGPoint(x:cx+17,y:cy-16),
+                           control:CGPoint(x:cx-10,y:cy-11))
+            c.addQuadCurve(to:CGPoint(x:cx-12,y:cy+13),
+                           control:CGPoint(x:cx+12,y:cy+7))
+            c.closePath()
+            c.setFillColor(color(0xf4fdff));c.fillPath()
+            c.setStrokeColor(color(0x33c9ff));c.setLineWidth(2)
+            c.setLineCap(.round)
+            c.move(to:CGPoint(x:cx-14,y:cy+14))
+            c.addLine(to:CGPoint(x:cx+12,y:cy-11));c.strokePath()
+            c.move(to:CGPoint(x:cx-5,y:cy+3))
+            c.addLine(to:CGPoint(x:cx-8,y:cy-6));c.strokePath()
+            c.move(to:CGPoint(x:cx+3,y:cy-5))
+            c.addLine(to:CGPoint(x:cx+1,y:cy-12));c.strokePath()
+            c.setLineCap(.butt)
+        }
+        // Counter always reflects actual earned/active game state.
+        oval(c,cx+12,cy+10,22,22,0x0c234f)
+        c.setStrokeColor(color(0xeaf9ff));c.setLineWidth(1.8)
+        c.strokeEllipse(in:CGRect(x:cx+12.5,y:cy+10.5,width:21,height:21))
+        let slot=icon=="★" ? 0 : (icon=="∩" ? 1 : 2)
         if hudOrbCachedValues[slot] != count {
             hudOrbCachedValues[slot]=count
             hudOrbCachedNumbers[slot]=NSAttributedString(string:count,attributes:[
                 .font:hudOrbCounterFont,.foregroundColor:UIColor.white])
         }
         let number=hudOrbCachedNumbers[slot]
-        number.draw(at:CGPoint(x:cx+13-number.size().width/2,
-                               y:cy-number.size().height/2))
+        number.draw(at:CGPoint(x:cx+23-number.size().width/2,
+                               y:cy+21-number.size().height/2))
     }
     private func drawBoostHUD(_ c:CGContext) {
         // The icon/number hierarchy mirrors Android, leaving the top-right
@@ -524,10 +554,10 @@ final class GameCanvas: UIView {
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
         hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,174,124,"★","\(game.stars)",0xffce43,true)
-        hudOrb(c,267,124,"◆","\(game.shield)",0x54e5ff,game.shield>0)
+        hudOrb(c,42,116,"★","\(game.stars)",0xffd453,true)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,360,124,"∩","\(seconds)",0x41dfff,game.magnetTime>0)
+        hudOrb(c,42,181,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
+        hudOrb(c,42,246,"◆","\(game.shield)",0x50dfff,game.shield>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
