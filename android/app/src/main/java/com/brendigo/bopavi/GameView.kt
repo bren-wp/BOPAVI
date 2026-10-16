@@ -283,8 +283,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
-            rect(canvas,71f,565f,409f,638f,0xcc102654.toInt(),27f)
-            text(canvas,word("TAP TO FLY","DODIRNI ZA LET"),240f,613f,30f,Color.WHITE,true)
+            rect(canvas,60f,560f,420f,655f,0xe6092559.toInt(),24f)
+            rect(canvas,67f,566f,413f,571f,0xff36d7ff.toInt(),2f)
+            text(canvas,word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE"),240f,606f,25f,Color.WHITE,true)
+            text(canvas,word("EVERY TAP FLAPS YOUR WINGS","SVAKI DODIR = ZAMAH KRILIMA"),240f,632f,13f,0xffbceeff.toInt(),true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
