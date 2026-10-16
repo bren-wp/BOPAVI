@@ -251,6 +251,195 @@ def detailed_landmarks(index: int) -> str:
             'stroke-width="1.6" opacity=".65" stroke-linecap="round"/>')
     return "".join(parts)
 
+
+def storybook_landmarks(index: int) -> str:
+    """A distinct illustrated set-piece for each reference world.
+
+    Decorative art is baked into the Android/iOS world background *behind*
+    the live gates, Bopi, coins, HUD and collision shapes. Deterministic output
+    means a saved run looks the same on both platforms and without a network.
+    Keep the central flight lane relatively clear and artwork off the HUD.
+    """
+    rng = random.Random(26017 + index)
+    p = [
+        '<defs>'
+        '<radialGradient id="story-glow">'
+        '<stop stop-color="#fff8c1" stop-opacity=".72"/>'
+        '<stop offset="1" stop-color="#fff8c1" stop-opacity="0"/>'
+        '</radialGradient>'
+        '<linearGradient id="story-falls" x2="1" y2=".13">'
+        '<stop stop-color="#31a9ff" stop-opacity=".35"/>'
+        '<stop offset=".45" stop-color="#f0ffff" stop-opacity=".94"/>'
+        '<stop offset="1" stop-color="#19b8ef" stop-opacity=".46"/>'
+        '</linearGradient>'
+        '<linearGradient id="story-gold" x2="0" y2="1">'
+        '<stop stop-color="#fff9dd"/>'
+        '<stop offset=".57" stop-color="#ffe08a"/>'
+        '<stop offset="1" stop-color="#bb791d"/>'
+        '</linearGradient>'
+        '</defs>'
+    ]
+    def add(x: str) -> None:
+        p.append(x)
+
+    if index == 0:
+        # Green islands — tiers of turquoise water, sunlit houses and flowers.
+        for x, top, bottom, wide in ((307,354,559,14),(330,355,594,12),(365,356,555,10)):
+            add(f'<path d="M{x} {top} Q{x-17} {(top+bottom)/2:.0f} {x-4} {bottom}" '
+                f'stroke="url(#story-falls)" stroke-width="{wide}" '
+                'stroke-linecap="round" fill="none" opacity=".75"/>')
+            add(f'<path d="M{x+2} {top+6} Q{x-6} {(top+bottom)/2:.0f} {x-2} {bottom-8}" '
+                'stroke="#f5ffff" stroke-width="2.2" fill="none" opacity=".68"/>')
+        for x,y in ((26,457),(74,481),(323,303),(417,299)):
+            add(f'<path d="M{x-9} {y} L{x-9} {y-25} L{x} {y-39} '
+                f'L{x+9} {y-25} V{y}Z" fill="#fff6da" stroke="#91bcc4" stroke-width="2"/>'
+                f'<path d="M{x-12} {y-24} L{x} {y-43} L{x+12} {y-24}Z" fill="#2389d8"/>'
+                f'<rect x="{x-3}" y="{y-19}" width="6" height="11" rx="2" fill="#ffe495"/>')
+        for n in range(24):
+            x = [35,74,319,389][n%4] + rng.randrange(-23,24)
+            y = [489,493,333,326][n%4] + rng.randrange(-8,8)
+            add(f'<circle cx="{x}" cy="{y}" r="{1+n%2}" '
+                f'fill="{["#ffffff","#ffee84","#ffb6e5"][n%3]}" opacity=".94"/>')
+
+    elif index == 1:
+        # Enchanted forest — real hanging lanterns and luminous fungi.
+        add('<path d="M18 250 Q83 191 111 274 M474 236 Q408 177 381 279" '
+            'fill="none" stroke="#38663a" stroke-width="12" opacity=".79"/>')
+        for x, y, length in ((65,250,55),(96,263,32),(422,241,64),(390,270,39)):
+            add(f'<path d="M{x} {y} q-4 {length//2} 0 {length}" '
+                'fill="none" stroke="#8c7242" stroke-width="2.5"/>'
+                f'<ellipse cx="{x}" cy="{y+length+12}" rx="25" ry="25" '
+                'fill="url(#story-glow)" opacity=".78"/>'
+                f'<path d="M{x-8} {y+length+2} h16 l-3 16 h-10Z" '
+                'fill="#ffdb63" stroke="#fff4b6" stroke-width="2"/>'
+                f'<circle cx="{x}" cy="{y+length+9}" r="3" fill="#fff9da"/>')
+        for n in range(19):
+            x=25+(n*79)%436
+            y=365+(n*41)%328
+            add(f'<ellipse cx="{x}" cy="{y}" rx="{8+n%3*2}" ry="{4+n%3}" '
+                f'fill="{["#edabff","#75f2ff","#eaff9b"][n%3]}" opacity=".70"/>'
+                f'<path d="M{x} {y+3} v9" stroke="#d4e6bd" stroke-width="2"/>')
+
+    elif index == 2:
+        # Crystal sky — faceted colored spires anchored to existing cliffs.
+        for k,(x,y,h,w,col) in enumerate((
+            (328,329,87,19,"#6af0ff"),(352,327,136,27,"#80a5ff"),
+            (384,324,173,34,"#de9bff"),(424,331,118,25,"#ffbeec"),
+            (58,499,69,17,"#9cdbff"),(84,500,81,19,"#f4a0ff")
+        )):
+            add(f'<path d="M{x-w} {y} L{x} {y-h} L{x+w} {y}Z" '
+                f'fill="{col}" stroke="#ecffff" stroke-width="2.7" opacity=".88"/>'
+                f'<path d="M{x} {y-h} L{x+w} {y} L{x+2} {y-14}Z" '
+                'fill="#4657ba" opacity=".34"/>'
+                f'<path d="M{x} {y-h+7} L{x-2} {y-18}" '
+                'stroke="#ffffff" stroke-width="2" opacity=".66"/>')
+        for n in range(16):
+            x=283+(n*53)%172
+            y=230+(n*79)%290
+            add(f'<path d="M{x-3} {y} h6 M{x} {y-3} v6" '
+                'stroke="#f9ffff" stroke-width="1.7" opacity=".68"/>')
+
+    elif index == 3:
+        # Lava peaks — descending magma ribbons and incandescent rock rims.
+        for x,y,h in ((320,333,254),(360,336,284),(421,337,229),(49,512,161)):
+            add(f'<path d="M{x} {y} Q{x-11} {y+h*.45:.1f} '
+                f'{x-4} {y+h}" stroke="#8d2413" stroke-width="18" '
+                'stroke-linecap="round" fill="none" opacity=".75"/>'
+                f'<path d="M{x} {y} Q{x-12} {y+h*.45:.1f} '
+                f'{x-4} {y+h}" stroke="#ff8a17" stroke-width="11" '
+                'stroke-linecap="round" fill="none"/>'
+                f'<path d="M{x+2} {y+7} Q{x-9} {y+h*.45:.1f} '
+                f'{x-3} {y+h-14}" stroke="#fff18a" stroke-width="3.6" '
+                'stroke-linecap="round" fill="none" opacity=".85"/>')
+        for n in range(27):
+            x=280+(n*61)%180; y=140+(n*83)%463
+            add(f'<circle cx="{x}" cy="{y}" r="{1+(n%3)*.8:.1f}" '
+                'fill="#ffcd65" opacity=".81"/>')
+
+    elif index == 4:
+        # Heavenly towers — gold-capped marble columns, bridges and halo.
+        for x,y,scale in ((316,319,.76),(416,307,.85),(46,505,.55)):
+            add(f'<g transform="translate({x} {y}) scale({scale})">'
+                '<path d="M-29 0 V-78 H-17 V-3 M-6 -2 V-97 H7 V-2 '
+                'M18 -2 V-82 H30 V0" stroke="#fff9e6" stroke-width="13" fill="none"/>'
+                '<path d="M-34 -87 H35 M-40 -2 H39" stroke="url(#story-gold)" '
+                'stroke-width="11" fill="none"/>'
+                '<path d="M-27 -87 L0 -113 L30 -87Z" fill="#d29e4b" '
+                'stroke="#fff5d0" stroke-width="4"/>'
+                '</g>')
+        add('<path d="M290 332 Q344 288 415 327" fill="none" '
+            'stroke="#fff5ce" stroke-width="8" opacity=".90"/>'
+            '<path d="M290 331 Q344 307 415 326" fill="none" '
+            'stroke="#8ac9e2" stroke-width="3" opacity=".76"/>')
+        for x in (299,318,337,357,376,396):
+            add(f'<path d="M{x} 313 v-12" fill="none" stroke="#fce5ab" '
+                'stroke-width="2.4" opacity=".85"/>')
+
+    elif index == 5:
+        # Moonlit castles — extra Gothic roofs, candle windows and starbursts.
+        add('<circle cx="372" cy="167" r="73" fill="#f4f7ff" opacity=".16"/>'
+            '<circle cx="372" cy="167" r="51" fill="#e0edff" opacity=".30"/>')
+        for x,y,h in ((310,330,92),(344,328,126),(390,324,147),
+                      (421,332,107),(72,500,89)):
+            add(f'<path d="M{x-10} {y} V{y-h+22} L{x} {y-h} '
+                f'L{x+10} {y-h+22} V{y}Z" fill="#1d2c69" '
+                'stroke="#6e81c2" stroke-width="2"/>'
+                f'<path d="M{x-5} {y-26} v-12 q5 -11 10 0 v12Z" fill="#ffd274"/>'
+                f'<path d="M{x-4} {y-55} v-10 q4 -8 8 0 v10Z" fill="#ffd57e"/>')
+        for n in range(17):
+            x=19+(n*89)%458; y=97+(n*57)%368
+            add(f'<path d="M{x-4} {y} h8 M{x} {y-4} v8" '
+                'stroke="#ffffff" stroke-width="1.3" opacity=".72"/>')
+
+    elif index == 6:
+        # Pearl sea — coral thickets, mother-of-pearl domes and swimming fish.
+        for x,y,s in ((312,340,.76),(402,346,.95),(58,498,.65)):
+            add(f'<g transform="translate({x} {y}) scale({s})">'
+                '<path d="M-31 0 Q-35 -63 0 -69 Q36 -63 31 0Z" '
+                'fill="#c7fff8" opacity=".72" stroke="#f1ffff" stroke-width="4"/>'
+                '<path d="M-39 0 H39" stroke="#48e8f3" stroke-width="9"/>'
+                '<path d="M-15 -36 Q0 -61 15 -36" fill="none" '
+                'stroke="#fff8e6" stroke-width="5" opacity=".84"/>'
+                '</g>')
+        for n in range(36):
+            x=35+(n*53)%425; y=195+(n*97)%460
+            radius=2+(n%4)*2
+            add(f'<circle cx="{x}" cy="{y}" r="{radius}" fill="none" '
+                'stroke="#e6ffff" stroke-width="1.6" opacity=".55"/>')
+        for x,y,dx in ((119,274,18),(397,183,-21),(271,530,23)):
+            add(f'<path d="M{x} {y} q{dx} -9 {2*dx} 0 q{-dx} 10 {-2*dx} 0Z" '
+                'fill="#90f1ed" opacity=".64"/>'
+                f'<path d="M{x} {y} l{-dx/2:.1f} -8 l0 16Z" '
+                'fill="#ffde80" opacity=".75"/>')
+
+    elif index == 7:
+        # Star abyss — vortex energy arcs, asteroid chips and violet dust.
+        for r,rotation,opacity in ((105,-31,.48),(124,13,.35),(145,-14,.30)):
+            add(f'<ellipse cx="371" cy="269" rx="{r}" ry="{r*.72:.0f}" '
+                'fill="none" stroke="#ddafff" stroke-width="5" '
+                f'opacity="{opacity}" transform="rotate({rotation} 371 269)"/>')
+        for n in range(30):
+            x=205+(n*113)%261; y=113+(n*67)%535
+            rad=3+n%7
+            add(f'<path d="M{x-rad} {y} L{x-2} {y-rad} '
+                f'L{x+rad} {y-rad/2:.1f} L{x+rad/2:.1f} {y+rad}Z" '
+                'fill="#b3a9ef" stroke="#6a63aa" stroke-width=".8" opacity=".53"/>')
+        for n in range(15):
+            x=19+(n*71)%460; y=121+(n*83)%514
+            add(f'<circle cx="{x}" cy="{y}" r="{1+(n%3)*.7:.1f}" '
+                'fill="#e1baff" opacity=".80"/>')
+
+    # Low-alpha light motes introduce atmosphere without UI-like icons.
+    if index != 3:
+        for n in range(11):
+            x=29+(n*103+index*17)%419
+            y=124+(n*71+index*13)%537
+            r=1.1+(n%3)*.8
+            add(f'<circle cx="{x}" cy="{y}" r="{r:.1f}" '
+                'fill="#ffffff" opacity=".49"/>')
+    return "".join(p)
+
+
 def foreground_cloud_bank(index: int) -> str:
     """Soft foreground clouds replacing the former flat ground-colored strip.
 
@@ -388,6 +577,8 @@ def shapes(index: int):
             add(f'<circle cx="{x}" cy="{y}" r="{13+i*5}" fill="{shine}" opacity=".53"/>')
     # Landmarks use the same static raster on both platforms; gates stay on top.
     add(detailed_landmarks(index))
+    # Each world retains its original live collision and collectibles.
+    add(storybook_landmarks(index))
     # The illustrated world has no solid ground; clouds visually support
     # floating cliffs without covering the collision corridor or UI.
     add(foreground_cloud_bank(index))
