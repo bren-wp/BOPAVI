@@ -460,13 +460,13 @@ final class GameCanvas: UIView {
     }
     /// Clip the exact previously selected pilot portrait into the gold avatar ring.
     private func hudPilotPortrait(_ c:CGContext) {
-        oval(c,5,12,75,75,0x03d9ff,0.56)
-        oval(c,8,15,69,69,0xffc946)
-        oval(c,11,18,63,63,0x062e70)
+        oval(c,12,10,54,54,0x03d9ff,0.56)
+        oval(c,14,12,50,50,0xffc946)
+        oval(c,17,15,44,44,0x062e70)
         c.saveGState()
-        c.addEllipse(in:CGRect(x:13.5,y:20.5,width:58,height:58))
+        c.addEllipse(in:CGRect(x:18.5,y:16.5,width:41,height:41))
         c.clip()
-        hudPortrait?.draw(in:CGRect(x:7,y:13,width:70,height:70))
+        hudPortrait?.draw(in:CGRect(x:11,y:10,width:54,height:54))
         c.restoreGState()
     }
     /// A compact visual string is cached until the actual wallet changes.
@@ -481,7 +481,6 @@ final class GameCanvas: UIView {
         }
         return walletDisplay
     }
-    /// Readable, passive top-row badges: no side-rail obstruction of the flight.
     /// Compact reference left rail: all centers stay at x=42.
     /// Passive real-time statuses; UIKit Pause and touch-to-flap stay separate.
     private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
@@ -554,10 +553,10 @@ final class GameCanvas: UIView {
         hudPilotPortrait(c)
         rect(c,82,84,61,20,0x052a57,10,0.86)
         hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,42,116,"★","\(game.stars)",0xffd453,true)
+        hudOrb(c,42,103,"★","\(game.stars)",0xffd453,true)
         let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,42,181,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
-        hudOrb(c,42,246,"◆","\(game.shield)",0x50dfff,game.shield>0)
+        hudOrb(c,42,167,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
+        hudOrb(c,42,231,"◆","\(game.shield)",0x50dfff,game.shield>0)
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
