@@ -71,13 +71,13 @@ class LevelEngineTest {
         }
     }
 
-    @Test fun proceduralGatesKeepWideUniformPillarsAndVariedHeights() {
+    @Test fun proceduralGatesKeepVariedWidthsAndTraversableHeights() {
         for (world in 0 until LevelEngine.WORLD_COUNT) for (number in listOf(1,30,61,360,1001)) {
             val level=LevelEngine.create(world,number)
             assertEquals(level.gates,LevelEngine.create(world,number).gates)
             assertEquals("First obstacle already visible at world=$world level=$number",420f,level.gates.first().x,0f)
-            assertEquals(setOf(76f),level.gates.map { it.width }.toSet())
-            assertTrue(level.gates.all { it.width==76f })
+            assertEquals(setOf(64f,73f,82f,91f),level.gates.map { it.width }.toSet())
+            assertTrue(level.gates.all { it.width in 64f..91f })
             val gaps=level.gates.map { it.gap }
             assertTrue("Each level needs recognizable tall/short pillars",gaps.max()-gaps.min() >= 9f)
             assertTrue(gaps.all { it >= 164f })
@@ -85,23 +85,23 @@ class LevelEngineTest {
                 opening.bottom - opening.top >= 2*18f+100f
             } })
             assertTrue(level.gates.zipWithNext().all { (one,two) ->
-                kotlin.math.abs(one.center - two.center) <= 108f
+                kotlin.math.abs(one.center - two.center) <= 148f
             })
         }
     }
 
     @Test fun firstTenGatesVaryHeightWithoutUnreachableJumps() {
-        val expected=listOf(292f,312f,332f,352f,372f,352f,332f,312f,292f,312f)
+        val expected=listOf(262f,307f,357f,397f,337f,282f,347f,402f,332f,277f)
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val level=LevelEngine.create(world,1)
             val centers=level.gates.take(10).map { it.center }
             assertEquals("First level must not look like ten identical columns",expected,centers)
-            assertEquals(5,centers.toSet().size)
-            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 98f })
+            assertEquals(10,centers.toSet().size)
+            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 148f })
             for (number in listOf(2,3,4,30,361,4096,524289,1048576)) {
                 val other=LevelEngine.create(world,number)
                 assertTrue("All generated gates must be reachable",other.gates.zipWithNext().all{
-                    (a,b) -> kotlin.math.abs(a.center-b.center)<=108f
+                    (a,b) -> kotlin.math.abs(a.center-b.center)<=148f
                 })
             }
         }
