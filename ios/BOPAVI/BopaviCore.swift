@@ -21,8 +21,8 @@ enum BopaviCore {
         let type: Int
     }
     /// A rolling ridge contour for the first ten gates of every level.
-    /// 2-bit level digits remain unique and adjacent jumps stay <=193 units.
-    private static let centerContour:[Float]=[-10,-70,-125,-75,25,105,145,45,-70,-125]
+    /// 2-bit level digits remain unique and adjacent jumps stay <=208 units.
+    private static let centerContour:[Float]=[-10,-80,-140,-90,35,115,175,50,-80,-145]
     struct Opening { let top: Float, bottom: Float }
     struct Random32 {
         private var state: UInt32
