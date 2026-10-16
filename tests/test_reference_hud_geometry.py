@@ -41,8 +41,15 @@ for code, a, b, c in (
     def has_fraction(value):
         return ("0." + value in code) or ("." + value + "f" in code)
     assert all(has_fraction(x) for x in ("34", "55", "24", "19", "08"))
-    assert "0xc76f03" in code and "0xffd342" in code and "0xffef9b" in code
-    assert "0xd7f4ff" in code and "0x17488d" in code and "0x5eeaff" in code
+    # Android uses packed ARGB integers; iOS color() uses 24-bit RGB.
+    palette = (
+        ("0xffc76f03", "0xffffd342", "0xffffef9b",
+         "0xffd7f4ff", "0xff17488d", "0xff5eeaff")
+        if code is ANDROID else
+        ("0xc76f03", "0xffd342", "0xffef9b",
+         "0xd7f4ff", "0x17488d", "0x5eeaff")
+    )
+    assert all(col in code for col in palette)
     progress_end = "    private fun hudGlass(" if code is ANDROID else "    private func hudGlass("
     progress = code.split(c, 1)[1].split(progress_end, 1)[0]
     assert "drawHudCrown(" in progress and "drawHudFinishFlag(" in progress
