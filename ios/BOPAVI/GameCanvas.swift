@@ -228,16 +228,22 @@ final class GameCanvas: UIView {
             c.drawLinearGradient(gradient,start:CGPoint(x:0,y:0),
                 end:CGPoint(x:0,y:bound.height),options:[])
         }
-        // Far scenery fills the physical viewport without stretching Bopi or
-        // moving any 480x800 simulation/hitbox coordinates. On long iPhones
-        // it crops the image horizontally instead of showing empty sky bars.
+        // Match Android's independent painted-scene camera. An overscanned
+        // aspect-cover rectangle always fills the entire phone/tablet display
+        // despite the tiny drift (1.8% horizontally, 0.8% vertically).
+        // Real bird/gate collision coordinates, HUD, and pause button never
+        // move; Reduced Motion stops the environment immediately.
         if let world=worldBackdrop, world.size.width>0, world.size.height>0 {
             let scaleToCover=max(bound.width/world.size.width,
-                                 bound.height/world.size.height)
+                                 bound.height/world.size.height)*1.06
             let backdropWidth=world.size.width*scaleToCover
             let backdropHeight=world.size.height*scaleToCover
-            world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5,
-                                 y:(bound.height-backdropHeight)*0.5,
+            let horizontal:CGFloat = reducedMotion || !game.active || game.finished ?
+                0 : sin(CGFloat(game.distance)*0.0011)*bound.width*0.018
+            let vertical:CGFloat = reducedMotion || !game.active || game.finished ?
+                0 : sin(CGFloat(game.distance)*0.00045)*bound.height*0.008
+            world.draw(in:CGRect(x:(bound.width-backdropWidth)*0.5+horizontal,
+                                 y:(bound.height-backdropHeight)*0.5+vertical,
                                  width:backdropWidth,height:backdropHeight))
         }
         let s=min(bound.width/480,bound.height/800)

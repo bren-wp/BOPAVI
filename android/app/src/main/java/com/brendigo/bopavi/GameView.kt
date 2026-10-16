@@ -89,6 +89,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Unlike stretching the gameplay simulation, aspect-fill only crops distant
     // background artwork; bird/gates/HUD remain in the stable 480x800 world.
     private val worldCoverRect=RectF()
+    // Reused mutable destination rect for art-only camera drift. These never
+    // affect the stable 480×800 flight simulation, hitboxes or HUD placement.
+    private val worldDriftRect=RectF()
+    // A six-percent cover overscan guarantees opaque pixels even at maximum
+    // camera offset on a tall Pixel or wide tablet (no transparent sky strips).
+    private val worldOverscan=1.06f
+    private val worldHorizontalDrift=.018f
+    private val worldVerticalDrift=.008f
     // Prebuilt world-specific sunlight, moonshine and crystal glow.
     // Cached shaders are reused across frames; no bitmap or shader creation while drawing.
     private val glowHues=intArrayOf(0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff)
@@ -136,7 +144,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
         worldBitmap?.let { bmp ->
             if(w>0 && h>0 && bmp.width>0 && bmp.height>0){
-                val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)
+                val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)*
+                    worldOverscan
                 val fullWidth=bmp.width*cover
                 val fullHeight=bmp.height*cover
                 worldCoverRect.set((w-fullWidth)*.5f,(h-fullHeight)*.5f,
@@ -204,11 +213,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.drawRect(0f,0f,width.toFloat(),height.toFloat(),p)
             p.shader=null
         }
-        // Draw once in screen coordinates, extending behind safe areas and
-        // letterbox bands (no empty sky strips above/below active gameplay).
+        // The painted environment has a slow independent camera layer.
+        // All dynamic birds, cliffs, pickups and tappable controls stay in
+        // their original collision coordinate system. The precomputed 6%
+        // overscan is larger than both motion amplitudes on every aspect
+        // ratio; reduced motion freezes the camera perfectly centered.
         if(worldBitmap!=null && !worldCoverRect.isEmpty()) {
+            worldDriftRect.set(worldCoverRect)
+            if(!reducedMotion && game.active && !game.finished) {
+                val horizontal=kotlin.math.sin(game.distance*.0011f)*
+                    width*worldHorizontalDrift
+                val vertical=kotlin.math.sin(game.distance*.00045f)*
+                    height*worldVerticalDrift
+                worldDriftRect.offset(horizontal,vertical)
+            }
             fill(Color.WHITE)
-            canvas.drawBitmap(worldBitmap,null,worldCoverRect,p)
+            canvas.drawBitmap(worldBitmap,null,worldDriftRect,p)
         }
         val scale=min(width/480f,height/800f)
         canvas.save()
