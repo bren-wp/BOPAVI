@@ -490,7 +490,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         b.accessibilityLabel=ui(title)
         b.heightAnchor.constraint(greaterThanOrEqualToConstant:primary ? 68 : 58).isActive=true
         b.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
-        stack.addArrangedSubview(b)
+        // Keep screen-navigation Back in the same top position on every menu.
+        if title.hasPrefix("←") || title.hasPrefix("‹") {
+            stack.insertArrangedSubview(b,at:0)
+        } else {
+            stack.addArrangedSubview(b)
+        }
     }
     private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
         // Reference-like compact 2×4 gallery: all art, headings and earned stars live inside each card.
