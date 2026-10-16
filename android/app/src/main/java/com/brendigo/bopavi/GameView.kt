@@ -61,17 +61,36 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val hudPortraitRect=RectF(11f,10f,65f,64f)
     private var lastWalletValue = -1
     private var walletDisplay = "0"
-    // Video review: the 176px art dominated the passage. Render Bopi at 124px
-    // while keeping its existing, already tested 18px body collider unchanged.
-    // Never scale collision geometry together with decorative wings.
-    private val birdSize=124f
+    // Reference pilot is only enabled after build-time manifest and checksum
+    // validation. This optional art never alters the same 18px body collider.
+    private val referenceBopi0=selectedSkin==0 &&
+        resources.getIdentifier("bopireference0","drawable",context.packageName)!=0
+    // At 142 logical px (vs 124), Bopi more closely matches the provided
+    // screenshot's 29%-wide bird without returning to oversized 176px art.
+    private val birdSize=142f
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
-    // True SVG shoulder joints; the alternate pilots have narrower bodies.
-    // Old universal (-16,+5)/(+15,-4) anchors detached their wing roots.
-    private val wingLeftPivotX=if(selectedSkin>=6)-12f*birdSize/160f else -16f*birdSize/100f
-    private val wingLeftPivotY=if(selectedSkin>=6)4f*birdSize/160f else 5f*birdSize/100f
-    private val wingRightPivotX=if(selectedSkin>=6)12f*birdSize/160f else 15f*birdSize/100f
-    private val wingRightPivotY=if(selectedSkin>=6)4f*birdSize/160f else -4f*birdSize/100f
+    // Shoulder pivots are image-specific. Imported 224x192 screenshot layers
+    // have actual joints at (106,118) and (157,129), measured from (112,96).
+    private val wingLeftPivotX=when{
+        referenceBopi0 -> -6f*birdSize/224f
+        selectedSkin>=6 -> -12f*birdSize/160f
+        else -> -16f*birdSize/100f
+    }
+    private val wingLeftPivotY=when{
+        referenceBopi0 -> 22f*birdSize/224f
+        selectedSkin>=6 -> 4f*birdSize/160f
+        else -> 5f*birdSize/100f
+    }
+    private val wingRightPivotX=when{
+        referenceBopi0 -> 45f*birdSize/224f
+        selectedSkin>=6 -> 12f*birdSize/160f
+        else -> 15f*birdSize/100f
+    }
+    private val wingRightPivotY=when{
+        referenceBopi0 -> 33f*birdSize/224f
+        selectedSkin>=6 -> 4f*birdSize/160f
+        else -> -4f*birdSize/100f
+    }
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
         R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
