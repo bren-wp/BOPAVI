@@ -19,8 +19,8 @@ assert tuple(WORLD_SCENE_SOURCE) == (0, 2, 3, 5, 6, 4, 1, 7)
 assert len(set(WORLD_SCENE_SOURCE)) == 8
 
 descriptors = (
-    "story-falls", "story-glow", "#de9bff", "#ff8a17",
-    "story-gold", "#ffd274", "#c7fff8", "#ddafff"
+    "story-falls", "#de9bff", "#ff8a17", "#ffd274",
+    "#c7fff8", "story-gold", "#fff9da", "#ddafff"
 )
 checksums = set()
 for world in range(8):
