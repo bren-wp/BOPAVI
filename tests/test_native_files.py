@@ -1273,7 +1273,7 @@ assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in andro
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
-assert 'string:word("TAP TO FLY","DODIRNI ZA LET")' in ios_render
+assert 'string:word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in ios_render
 assert 'idlePrompt.draw(at:' in ios_render and 'dragPrompt' not in ios_render
 assert 'idlePrompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
@@ -1937,13 +1937,13 @@ print('PASS: Android/iOS full-bleed background only; letterboxed physical gamepl
 # v0.1.67 cross-platform seeded pillar diversity and proportional art.
 kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 assert 'i * (228f - zone * 2)' in kotlin_level and 'i*(228-zone*2)' in swift_level
 assert 'birdSize=142f' in android_view
 assert 'let artSize:CGFloat=142' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
-print('PASS: proportional pilots, pivot attachment, uniform substantial 76-unit pillars')
+print('PASS: proportional pilots, pivot attachment, varied physically collidable pillars')
 
 # v0.1.67 visual and gameplay polish: no long empty transition, no invented
 # metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
@@ -2160,7 +2160,7 @@ print('PASS: no-scroll native settings with real saved difficulty on first page 
 # v0.1.77: real two-column shop with device-sized safe-area fitting; never
 # show a static shop screenshot or fabricated diamond/real-money checkout.
 for code in (android_shop,ios_shop):
-    assert 'cardRow' in code and 'KUPI ' in code
+    assert ('perkRows' in code or 'cardGrid' in code) and 'KUPI ' in code
     assert 'buyPerk(n)' in code and 'perkCount(n)' in code
     assert 'perkPrices[n]' in code
     assert 'bonusCoinsAvailable()' in code and 'claimBonusCoins()' in code
@@ -2189,7 +2189,7 @@ assert 'verify_shop_records_tabs' in emulator
 assert 'android-shop.png' in emulator and 'android-records.png' in emulator
 assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
-print('PASS: v0.1.77 premium two-perk shop, honest inventory and paginated offline records with tested Back')
+print('PASS: native four-perk shop, honest inventory and paginated offline records with tested Back')
 
 # v0.1.77: one reusable Android pilot sprite table, not four identical
 # allocations on every navigation transition. Legacy art names stay linked.
@@ -2383,7 +2383,7 @@ for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'top-38' in render and 'bottom+38' in render
     assert 'drawCliffShaft(' in render
-    assert 'word("TAP TO FLY","DODIRNI ZA LET")' in render
+    assert 'word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in render
     assert 'game.difficulty' in render
 assert 'word("LEVEL","RAZINA")' in android_render and 'word("LEVEL","RAZINA")' in ios_render
 assert 'birdSize=142f' in android_render and 'let artSize:CGFloat=142' in ios_render
@@ -2432,13 +2432,13 @@ assert 'c.strokePath()' in ios_glass
 print('PASS: fixed-width stage badges at any level, cached rim color and no per-frame CGPath')
 
 # v0.1.85: continuous in-level and cross-level gate cadence, equal substantial
-# 76-unit pillar thickness, fixed safe-area menus and long ambient WAV loops.
+# variable 64–91-unit pillar thickness, fixed safe-area menus and long ambient WAV loops.
 for source in (kotlin_level,swift_level):
-    assert '228' in source and '76' in source
+    assert '228' in source and '64' in source
     assert '242' not in source.split('fun create(',1)[-1].split('fun opening(',1)[0] or '228' in source
 for simulation in (android_sim,ios_sim):
     assert 'transitionSpacing=ordinarySpacing' in simulation
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 ios_menu_base=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
 assert 'val fitted=FitViewportColumn(this)' in android_base
@@ -2649,11 +2649,11 @@ print('PASS: enlarged no-scroll 20-card gallery and live native accessibility')
 
 # v0.1.92: the first ten rock shafts must rise and descend visibly, even on
 # Level 1 (formerly all the same height). Preserve the ten-digit 2-bit
-# signature and old per-world 76-unit collider width with no extra gap.
+# signature and per-gate 64–91-unit real collision width.
 for source in (kotlin_level,swift_level):
     assert 'centerContour' in source
-    assert '-40,-20,0,20,40,20,0,-20,-40,-20' in source
-    assert 'width = 76f' in source or 'width:76' in source
+    assert '-10,-80,-140,-90,35,115,175,50,-80,-145' in source
+    assert 'width = 64f' in source or 'width:64' in source
 for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'drawCliffShaft(' in render
@@ -2688,7 +2688,7 @@ assert 'let glowColor=color(glint,135.0/255)' in swift_rock
 assert 'c.setFillColor(shadowColor)' in swift_rock
 assert 'c.setStrokeColor(glowColor)' in swift_rock
 assert swift_rock.count('color(')==2, 'No color reconstruction inside the per-row draw loop'
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 print('PASS: layered seeded rock volume on both native canvases without widened collision or per-row CGColor churn')
 
 
@@ -2746,3 +2746,31 @@ assert 'let flecks:[UInt32]' not in swift_gate and 'let seam:[UInt32]' not in sw
 assert 'gateFleckHues[g.kind]' in swift_gate and 'gateSeamHues[g.kind]' in swift_gate
 assert 'g.width' in android_render and 'g.width' in ios_render
 print('PASS: 8-world per-gate deterministic relief, retained collision geometry and no Swift per-gate palette allocation')
+
+# v0.2.4: verify real varied collisions, distinct difficulty and 4 purchaseable boosts.
+android_rules=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+ios_rules=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_store=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+ios_store=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+for engine in (android_rules,ios_rules):
+    assert '-10,-80,-140,-90,35,115,175,50,-80,-145' in engine
+    assert 'difficultyPadding' in engine
+    assert ('0 -> 40f' in engine or 'difficulty <= 0 ? 40' in engine)
+    assert ('2 -> -18f' in engine or 'difficulty >= 2 ? -18' in engine)
+for store in (android_store,ios_store):
+    assert '150,120' in store and 'perkCount(2)' in store and 'perkCount(3)' in store
+    assert '12f' in store or '12 :' in store
+    assert ('"perk_$index"' in store or '"perk_\\(index)"' in store)
+    assert 'perkCount(3)' in store
+for menu in (android_menu,ios_menu):
+    assert 'DVOSTRUKI ŠTIT' in menu and 'DUGI MAGNET' in menu
+    assert 'KUPI' in menu and 'perkPrices[n]' in menu
+for renderer in (android_render,ios_render):
+    assert 'EVERY TAP FLAPS YOUR WINGS' in renderer
+assert 'android:icon="@mipmap/ic_launcher"' in manifest
+adaptive=root/'android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'
+assert adaptive.exists() and 'adaptive-icon' in adaptive.read_text()
+icon_svg=(root/'docs/assets/icon.svg').read_text()
+assert '<rect width="1024" height="1024" fill="url(#bg)"/>' in icon_svg
+assert '<g opacity=".7" fill="#fff">' not in icon_svg
+print('PASS: 64–91px real obstacle widths, 3 distinct difficulties, advanced boosts and white-border-free adaptive icon')

@@ -21,8 +21,8 @@ enum BopaviCore {
         let type: Int
     }
     /// A rolling ridge contour for the first ten gates of every level.
-    /// Combined with the 2-bit level digits, adjacent jumps stay <=98 units.
-    private static let centerContour:[Float]=[-40,-20,0,20,40,20,0,-20,-40,-20]
+    /// 2-bit level digits remain unique and adjacent jumps stay <=208 units.
+    private static let centerContour:[Float]=[-10,-80,-140,-90,35,115,175,50,-80,-145]
     struct Opening { let top: Float, bottom: Float }
     struct Random32 {
         private var state: UInt32
@@ -55,7 +55,7 @@ enum BopaviCore {
             gates.append(Gate(x:420 + Float(i*(228-zone*2)), center:center,
                               // Same per-obstacle gap rhythm and RNG call order as Kotlin.
                               gap:max(164,gap+(rng.next()-0.5)*(i < 2 ? 12 : 30+Float(zone)*2)+(i%5 == 0 ? 8 : 0)),
-                              width:76,
+                              width:64 + Float((i * 7 + number + world) % 4)*9,
                               movement:active ? 7+rng.next()*9 : 0, phase:rng.next()*6.283185,
                               kind:world, coin:i%3 != 2 || type == 1, star:i%4 == 2 || type == 1,
                               power:i >= 2 && (number+i+world)%11 == 0 ? 1 : i >= 2 && (number+i+world)%13 == 0 ? 2 : 0))
@@ -86,7 +86,7 @@ enum BopaviCore {
         let tide:Float = gate.kind == 1 ? sin(time*0.75+gate.phase)*5 : gate.kind == 5 ? sin(time*0.38+gate.phase)*5 : 0
         let center = gate.center + delta + tide
         let pulse:Float = gate.movement>0 && (gate.kind == 3 || gate.kind == 6 || gate.kind == 7) ? (sin(time*1.35+gate.phase)+1)*2.5 : 0
-        let difficultyPadding:Float = difficulty <= 0 ? 18 : difficulty >= 2 ? -16 : 0
+        let difficultyPadding:Float = difficulty <= 0 ? 40 : difficulty >= 2 ? -18 : 0
         let half = max(72.5, (gate.gap+difficultyPadding)*0.5-pulse)
         return Opening(top:center-half, bottom:center+half)
     }
@@ -153,8 +153,8 @@ enum WorldCoordinates {
 final class GameSimulation {
     private(set) var level: BopaviCore.Level
     let difficulty:Int
-    private var speedFactor:Float { difficulty == 0 ? 0.80 : (difficulty == 2 ? 1.24 : 1) }
-    private var gravityFactor:Float { difficulty == 0 ? 0.87 : (difficulty == 2 ? 1.12 : 1) }
+    private var speedFactor:Float { difficulty == 0 ? 0.73 : (difficulty == 2 ? 1.30 : 1) }
+    private var gravityFactor:Float { difficulty == 0 ? 0.84 : (difficulty == 2 ? 1.15 : 1) }
     let endless: Bool
     private(set) var totalPassed=0
     private(set) var y: Float = 366

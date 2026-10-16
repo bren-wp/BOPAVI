@@ -67,6 +67,21 @@ struct SwiftSaves {
         precondition(store.previewPerks().magnet==8 && store.perkCount(1)==1)
         precondition(store.consumePerks().magnet==8 && store.perkCount(1)==0)
         precondition(store.previewPerks().magnet==0)
+        // Two paid-in-game advanced tiers are real, not a decorative shop row.
+        // Consume the strongest tier once and preserve lower-tier inventory.
+        UserDefaults.standard.set(1,forKey:"perk_0")
+        UserDefaults.standard.set(1,forKey:"perk_1")
+        UserDefaults.standard.set(1,forKey:"perk_2")
+        UserDefaults.standard.set(1,forKey:"perk_3")
+        precondition(store.previewPerks().shield==2 && store.previewPerks().magnet==12)
+        let advanced=store.consumePerks()
+        precondition(advanced.shield==2 && advanced.magnet==12)
+        precondition(store.perkCount(2)==0 && store.perkCount(3)==0)
+        precondition(store.perkCount(0)==1 && store.perkCount(1)==1)
+        precondition(store.consumePerks().shield==1 && store.perkCount(0)==0)
+        precondition(store.perkCount(1)==0 && store.perkCount(3)==0)
+        precondition(store.perkCount(-1)==0 && !store.buyPerk(4))
+
         store.hapticEnabled=false
         let roundtrip=try store.exportData()
         try store.importData(roundtrip)

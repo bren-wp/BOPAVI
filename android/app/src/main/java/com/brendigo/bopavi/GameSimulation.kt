@@ -7,8 +7,8 @@ import kotlin.math.min
 /** Fixed-coordinate game simulation; Android Canvas is presentation only. */
 class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = false, initialShield: Int = 0, initialMagnet: Float = 0f, difficulty: Int = 1, initialOrdinal:Long = initialLevel.number.toLong()) {
     val difficulty = difficulty.coerceIn(0,2)
-    private val speedFactor = when(this.difficulty) { 0 -> .80f; 2 -> 1.24f; else -> 1f }
-    private val gravityFactor = when(this.difficulty) { 0 -> .87f; 2 -> 1.12f; else -> 1f }
+    private val speedFactor = when(this.difficulty) { 0 -> .73f; 2 -> 1.30f; else -> 1f }
+    private val gravityFactor = when(this.difficulty) { 0 -> .84f; 2 -> 1.15f; else -> 1f }
     var level = initialLevel
         private set
     var totalPassed = 0
