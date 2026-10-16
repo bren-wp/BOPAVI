@@ -1387,8 +1387,8 @@ assert 'drawHudCrown(c,94,50,15)' in ios_game
 assert 'drawHudCrown(c,94f,50f,15f)' in android_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
-assert 'hudOrb(c,174f,124f,"★"' in android_game
-assert 'hudOrb(c,174,124,"★"' in ios_game
+assert 'hudOrb(c,42f,116f,"★"' in android_game
+assert 'hudOrb(c,42,116,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1466,10 +1466,10 @@ for source in (android_game,ios_game):
     assert 'game.flap()' in source
 assert 'hudGlass(c,146f,18f,381f,108f)' in android_game
 assert 'hudGlass(c,146,18,235,90)' in ios_game
-assert 'hudOrb(c,267f,124f,"◆"' in android_game
-assert 'hudOrb(c,267,124,"◆"' in ios_game
-assert 'hudOrb(c,360f,124f,"∩"' in android_game
-assert 'hudOrb(c,360,124,"∩"' in ios_game
+assert 'hudOrb(c,42f,181f,"∩"' in android_game
+assert 'hudOrb(c,42,181,"∩"' in ios_game
+assert 'hudOrb(c,42f,246f,"◆"' in android_game
+assert 'hudOrb(c,42,246,"◆"' in ios_game
 assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
@@ -2038,8 +2038,9 @@ assert 'let accents=biomeReliefAccents' in ios_relief
 assert 'let glints=biomeReliefGlints' in ios_relief
 # Count labels change only on live stars/shield/magnet updates, never by frame.
 ios_orb=ios_frame.split('private func hudOrb(',1)[1].split('private func drawBoostHUD(',1)[0]
-assert 'hudOrbActiveSymbols[slot]' in ios_orb
-assert 'hudOrbInactiveSymbols[slot]' in ios_orb
+assert 'drawHudCrown(c,cx,cy+3,29)' in ios_orb
+assert 'c.addQuadCurve(' in ios_orb
+assert 'c.setLineCap(.round)' in ios_orb
 assert 'hudOrbCachedValues[slot] != count' in ios_orb
 assert 'hudOrbCachedNumbers[slot]' in ios_orb
 assert 'UIFont.systemFont(' not in ios_orb and 'UIFont.monospacedDigitSystemFont(' not in ios_orb
@@ -2077,19 +2078,24 @@ for source in (android_render,ios_render):
     assert source.count('drawCliffShaft(')>=3
 print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms')
 
-# v0.1.74: status badges must be compact and strictly top-aligned on both
-# native canvases, not repeatedly drawn down the left edge of the playfield.
-for render,orb_prefix in ((android_game,'hudOrb(c,'),(ios_game,'hudOrb(c,')):
+# v0.2.0: original reference's left rail is compact, HIGH on the left,
+# and native-drawn rather than device-font badges. It cannot hide the bird
+# or the mid-screen gate corridor and never installs dead touch controls.
+for render,orb_prefix,centers in (
+    (android_game,'hudOrb(c,',('42f,116f','42f,181f','42f,246f')),
+    (ios_game,'hudOrb(c,',('42,116','42,181','42,246')),
+):
     hud=render.split('private fun drawHud(',1)[1] if 'private fun drawHud(' in render else render.split('private func drawBoostHUD(',1)[1]
-    for suffix in ('174','267','360'):
-        assert orb_prefix+suffix in hud, suffix
+    assert all(orb_prefix+pos in hud for pos in centers)
     for retired in ('hudOrb(c,46f,175f','hudOrb(c,46f,249f','hudOrb(c,46f,323f',
-                    'hudOrb(c,46,175','hudOrb(c,46,249','hudOrb(c,46,323'):
+                    'hudOrb(c,174f,124f','hudOrb(c,267f,124f',
+                    'hudOrb(c,46,175','hudOrb(c,46,249','hudOrb(c,46,323',
+                    'hudOrb(c,174,124','hudOrb(c,267,124'):
         assert retired not in render, retired
-    assert 'hudGlass(c,cx-33' in render
+    assert 'hudOrb(' in render
 assert 'safeAreaInsets.top+4*hudScale' in ios_game
 assert 'topInset+4f*hudScale' in android_game
-print('PASS: v0.1.74 tiny top-aligned star/shield/magnet indicators on both platforms')
+print('PASS: v0.2.0 three small reference-positioned status orbs, real counters and preserved safe-area HUD')
 
 # v0.1.74: score and actual world-distance must be visible on both native
 # physical-top HUDs; only regenerate their textual labels at 10 Hz or on events.
@@ -2398,9 +2404,9 @@ for render in (android_render,ios_render):
     assert 'GameLanguages.hudPack' in render
 assert 'hudGlass(c,146f,18f,381f,108f)' in android_render
 assert 'hudGlass(c,146,18,235,90)' in ios_render
-assert 'hudOrb(c,174f,124f' in android_render and 'hudOrb(c,174,124' in ios_render
-assert 'hudGlass(c,cx-33f,cy-14f,cx+33f,cy+14f)' in android_render
-assert 'hudGlass(c,cx-33,cy-14,66,28)' in ios_render
+assert 'hudOrb(c,42f,116f' in android_render and 'hudOrb(c,42,116' in ios_render
+assert 'oval(c,cx-29f,cy-29f,cx+29f,cy+29f' in android_render
+assert 'oval(c,cx-29,cy-29,58,58' in ios_render
 assert 'word("Bopi is flying","Bopi leti")' in android_render
 assert 'word("Bopi is flying","Bopi leti")' in ios_render
 for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
