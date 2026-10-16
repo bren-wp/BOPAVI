@@ -20,8 +20,8 @@ object LevelEngine {
     // remains injective, but Level 1 no longer has ten identical openings.
     // The contour alternates significantly so a level cannot be passed by flying
     // at one fixed height. Encoded 2-bit fingerprints remain collision-safe;
-    // adjacent changes are bounded by 148 logical pixels.
-    private val centerContour=intArrayOf(-70,-25,25,65,5,-50,15,70,0,-55)
+    // adjacent changes are bounded by 193 logical pixels.
+    private val centerContour=intArrayOf(-10,-70,-125,-75,25,105,145,45,-70,-125)
 
     private class Random32(seed: UInt) {
         var state = if (seed == 0u) 0x6d2b79f5u else seed
