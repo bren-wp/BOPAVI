@@ -1387,8 +1387,8 @@ assert 'drawHudCrown(c,94,50,15)' in ios_game
 assert 'drawHudCrown(c,94f,50f,15f)' in android_game
 assert 'hudGlass(c,73f,22f,145f,75f)' in android_game
 assert 'hudGlass(c,73,22,72,53)' in ios_game
-assert 'hudOrb(c,42f,116f,"★"' in android_game
-assert 'hudOrb(c,42,116,"★"' in ios_game
+assert 'hudOrb(c,42f,103f,"★"' in android_game
+assert 'hudOrb(c,42,103,"★"' in ios_game
 for source in (android_game,ios_game):
     for expression in ('game.coins','game.stars','game.displayLevel','game.shield','game.magnetTime'):
         assert expression in source
@@ -1466,10 +1466,10 @@ for source in (android_game,ios_game):
     assert 'game.flap()' in source
 assert 'hudGlass(c,146f,18f,381f,108f)' in android_game
 assert 'hudGlass(c,146,18,235,90)' in ios_game
-assert 'hudOrb(c,42f,181f,"∩"' in android_game
-assert 'hudOrb(c,42,181,"∩"' in ios_game
-assert 'hudOrb(c,42f,246f,"◆"' in android_game
-assert 'hudOrb(c,42,246,"◆"' in ios_game
+assert 'hudOrb(c,42f,167f,"∩"' in android_game
+assert 'hudOrb(c,42,167,"∩"' in ios_game
+assert 'hudOrb(c,42f,231f,"◆"' in android_game
+assert 'hudOrb(c,42,231,"◆"' in ios_game
 assert 'game.magnetTime>0f' in android_game and 'game.magnetTime>0' in ios_game
 assert 'game.shield>0' in android_game and 'game.shield>0' in ios_game
 assert 'showPremiumPause' in android_menu and 'showPremiumPause' in ios_menu
@@ -2082,8 +2082,8 @@ print('PASS: v0.1.73 phase-seeded per-obstacle mineral facets on both platforms'
 # and native-drawn rather than device-font badges. It cannot hide the bird
 # or the mid-screen gate corridor and never installs dead touch controls.
 for render,orb_prefix,centers in (
-    (android_game,'hudOrb(c,',('42f,116f','42f,181f','42f,246f')),
-    (ios_game,'hudOrb(c,',('42,116','42,181','42,246')),
+    (android_game,'hudOrb(c,',('42f,103f','42f,167f','42f,231f')),
+    (ios_game,'hudOrb(c,',('42,103','42,167','42,231')),
 ):
     hud=render.split('private fun drawHud(',1)[1] if 'private fun drawHud(' in render else render.split('private func drawBoostHUD(',1)[1]
     assert all(orb_prefix+pos in hud for pos in centers)
@@ -2404,7 +2404,7 @@ for render in (android_render,ios_render):
     assert 'GameLanguages.hudPack' in render
 assert 'hudGlass(c,146f,18f,381f,108f)' in android_render
 assert 'hudGlass(c,146,18,235,90)' in ios_render
-assert 'hudOrb(c,42f,116f' in android_render and 'hudOrb(c,42,116' in ios_render
+assert 'hudOrb(c,42f,103f' in android_render and 'hudOrb(c,42,103' in ios_render
 assert 'oval(c,cx-29f,cy-29f,cx+29f,cy+29f' in android_render
 assert 'oval(c,cx-29,cy-29,58,58' in ios_render
 assert 'word("Bopi is flying","Bopi leti")' in android_render
