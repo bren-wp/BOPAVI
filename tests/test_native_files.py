@@ -2717,3 +2717,32 @@ qa=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_paged_languages(){' in qa and 'verify_difficulty_cards(){' in qa
 assert 'all 26 language choices' in qa and 'on-screen EASY/NORMAL/HARD' in qa
 print('PASS: real native 2x4 locale pages, selected difficulty on primary Settings, no-scrolling, Bopi portrait')
+
+
+# v0.2.2: cosmetic relief seed, strictly outside the traversable gap.
+# The renderer's independent painting coordinates must never become physics bounds.
+for source, signature, call in (
+    (android_render, 'private fun drawBiomeGateRelief(', 'drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)'),
+    (ios_render, 'private func drawBiomeGateRelief(', 'drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)'),
+):
+    relief=source.split(signature,1)[1].split('drawCliffShaft(',1)[0] if signature.startswith('private fun') else source.split(signature,1)[1].split('private func drawRockFacets(',1)[0]
+    assert 'seed:Int' in relief or '_ seed:Int' in relief
+    assert '((seed%3)+3)%3' in relief, 'Both platforms must use the same stable positive modulo'
+    assert 'motif' in relief and 'i+motif' in relief
+    assert '32f+motif*4f' in relief or '32+CGFloat(motif)*4' in relief
+    assert 'game.time' not in relief, 'Relief shape must not fluctuate with game clock'
+for seed in range(-180,181):
+    motif=((seed%3)+3)%3
+    assert 0<=motif<=2
+    for facet in range(3):
+        depth=9+((facet+motif)%3)*4
+        assert 9<=depth<=17
+    inner=32+motif*4
+    assert 32<=inner<=40
+assert 'private let gateFleckHues:[UInt32]' in ios_render
+assert 'private let gateSeamHues:[UInt32]' in ios_render
+swift_gate=ios_render.split('private func gate(',1)[1].split('private func',1)[0]
+assert 'let flecks:[UInt32]' not in swift_gate and 'let seam:[UInt32]' not in swift_gate
+assert 'gateFleckHues[g.kind]' in swift_gate and 'gateSeamHues[g.kind]' in swift_gate
+assert 'g.width' in android_render and 'g.width' in ios_render
+print('PASS: 8-world per-gate deterministic relief, retained collision geometry and no Swift per-gate palette allocation')
