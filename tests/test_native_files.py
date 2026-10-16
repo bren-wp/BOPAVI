@@ -2746,3 +2746,30 @@ assert 'let flecks:[UInt32]' not in swift_gate and 'let seam:[UInt32]' not in sw
 assert 'gateFleckHues[g.kind]' in swift_gate and 'gateSeamHues[g.kind]' in swift_gate
 assert 'g.width' in android_render and 'g.width' in ios_render
 print('PASS: 8-world per-gate deterministic relief, retained collision geometry and no Swift per-gate palette allocation')
+
+# v0.2.4: verify real varied collisions, distinct difficulty and 4 purchaseable boosts.
+android_rules=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
+ios_rules=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
+android_store=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
+ios_store=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
+for engine in (android_rules,ios_rules):
+    assert '-70,-25,25,65,5,-50,15,70,0,-55' in engine
+    assert 'difficultyPadding' in engine
+    assert ('0 -> 40f' in engine or 'difficulty <= 0 ? 40' in engine)
+    assert ('2 -> -18f' in engine or 'difficulty >= 2 ? -18' in engine)
+for store in (android_store,ios_store):
+    assert '150,120' in store and 'perkCount(2)' in store and 'perkCount(3)' in store
+    assert '12f' in store or '12 :' in store
+    assert 'perk_0' in store and 'perk_3' in store
+for menu in (android_menu,ios_menu):
+    assert 'DVOSTRUKI ŠTIT' in menu and 'DUGI MAGNET' in menu
+    assert 'KUPI' in menu and 'perkPrices[n]' in menu
+for renderer in (android_render,ios_render):
+    assert 'EVERY TAP FLAPS YOUR WINGS' in renderer
+assert 'android:icon="@mipmap/ic_launcher"' in manifest
+adaptive=root/'android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'
+assert adaptive.exists() and 'adaptive-icon' in adaptive.read_text()
+icon_svg=(root/'docs/assets/icon.svg').read_text()
+assert '<rect width="1024" height="1024" fill="url(#bg)"/>' in icon_svg
+assert '<g opacity=".7" fill="#fff">' not in icon_svg
+print('PASS: 64–91px real obstacle widths, 3 distinct difficulties, advanced boosts and white-border-free adaptive icon')
