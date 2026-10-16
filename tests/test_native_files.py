@@ -733,9 +733,9 @@ for path in ('android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt',
     assert 'skin_index' in inventory and 'owned_mask' in inventory
 assert 'private val selectedSkin=skinIndex.coerceIn(0,8)' in android_render
 assert 'let selectedSkin=min(8,max(0,skinIndex))' in ios_render
-assert 'birdSize=124f' in android_render
-assert 'let artSize:CGFloat=124' in ios_render
-print('PASS: nine saved pilots preserve 124-point art and stable legacy ownership')
+assert 'birdSize=142f' in android_render
+assert 'let artSize:CGFloat=142' in ios_render
+print('PASS: nine saved pilots preserve 142-point art and stable legacy ownership')
 
 # Boosts are spent only on the first flap, not when viewing the idle game.
 android_start=android_menu.split('private fun startGame(',1)[1].split('private fun showResult(',1)[0]
@@ -1894,7 +1894,7 @@ for pilot in ('vihor','iskra','orion'):
 for name,source in (('Android',android_render),('iOS',ios_render)):
     for token in ('wingLeftPivot','wingRightPivot') if name=='Android' else ('leftWingPivot','rightWingPivot'):
         assert token in source,(name,token)
-    assert ('birdSize=124f' in source) if name=='Android' else ('let artSize:CGFloat=124' in source)
+    assert ('birdSize=142f' in source) if name=='Android' else ('let artSize:CGFloat=142' in source)
 assert 'private val birdRect=RectF(-birdSize*.5f' in android_render
 assert 'sprite.draw(in:CGRect(x:-half,y:-half,width:birdArtSize,height:birdArtSize))' in ios_render
 assert 'rotate(flap,wingLeftPivotX,wingLeftPivotY)' in android_render
@@ -1939,8 +1939,8 @@ kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
 assert 'i * (228f - zone * 2)' in kotlin_level and 'i*(228-zone*2)' in swift_level
-assert 'birdSize=124f' in android_view
-assert 'let artSize:CGFloat=124' in ios_view
+assert 'birdSize=142f' in android_view
+assert 'let artSize:CGFloat=142' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
 print('PASS: proportional pilots, pivot attachment, uniform substantial 76-unit pillars')
@@ -2386,7 +2386,7 @@ for render in (android_render,ios_render):
     assert 'word("TAP TO FLY","DODIRNI ZA LET")' in render
     assert 'game.difficulty' in render
 assert 'word("LEVEL","RAZINA")' in android_render and 'word("LEVEL","RAZINA")' in ios_render
-assert 'birdSize=124f' in android_render and 'let artSize:CGFloat=124' in ios_render
+assert 'birdSize=142f' in android_render and 'let artSize:CGFloat=142' in ios_render
 assert 'val radius = 18f' in (root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 assert 'let radius: Float = 18' in ios_languages
 print('PASS: compact English-first HUD, grounded collider-safe cliffs and 26 offline locale choices')
@@ -2567,8 +2567,8 @@ assert 204+47 < 330-47
 for render in (and_view,ios_view):
     assert 'drawRootedCliffBases(' in render and 'hudGlass(' in render
     assert 'hudVocabulary' in render
-assert 'birdSize=124f' in and_view
-assert 'let artSize:CGFloat=124' in ios_view
+assert 'birdSize=142f' in and_view
+assert 'let artSize:CGFloat=142' in ios_view
 print('PASS: Android/iOS HUD stage/footer separation, locale-width fits and unchanged Bopi')
 
 # v0.1.89: Settings and shop must reflect the actual nine playable pilots.
