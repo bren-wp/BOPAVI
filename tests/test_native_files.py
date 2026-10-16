@@ -1937,13 +1937,13 @@ print('PASS: Android/iOS full-bleed background only; letterboxed physical gamepl
 # v0.1.67 cross-platform seeded pillar diversity and proportional art.
 kotlin_level=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 swift_level=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 assert 'i * (228f - zone * 2)' in kotlin_level and 'i*(228-zone*2)' in swift_level
 assert 'birdSize=142f' in android_view
 assert 'let artSize:CGFloat=142' in ios_view
 assert 'radius = 18f' in android_game and 'radius: Float = 18' in ios_game
 assert 'private val wingLeftPivotX=' in android_view and 'self.leftWingPivot=' in ios_view
-print('PASS: proportional pilots, pivot attachment, uniform substantial 76-unit pillars')
+print('PASS: proportional pilots, pivot attachment, varied physically collidable pillars')
 
 # v0.1.67 visual and gameplay polish: no long empty transition, no invented
 # metres, continuous HUD fill, width-scaled obstacle material, honest VoiceOver.
@@ -2432,13 +2432,13 @@ assert 'c.strokePath()' in ios_glass
 print('PASS: fixed-width stage badges at any level, cached rim color and no per-frame CGPath')
 
 # v0.1.85: continuous in-level and cross-level gate cadence, equal substantial
-# 76-unit pillar thickness, fixed safe-area menus and long ambient WAV loops.
+# variable 64–91-unit pillar thickness, fixed safe-area menus and long ambient WAV loops.
 for source in (kotlin_level,swift_level):
-    assert '228' in source and '76' in source
+    assert '228' in source and '64' in source
     assert '242' not in source.split('fun create(',1)[-1].split('fun opening(',1)[0] or '228' in source
 for simulation in (android_sim,ios_sim):
     assert 'transitionSpacing=ordinarySpacing' in simulation
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 ios_menu_base=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
 assert 'val fitted=FitViewportColumn(this)' in android_base
@@ -2649,11 +2649,11 @@ print('PASS: enlarged no-scroll 20-card gallery and live native accessibility')
 
 # v0.1.92: the first ten rock shafts must rise and descend visibly, even on
 # Level 1 (formerly all the same height). Preserve the ten-digit 2-bit
-# signature and old per-world 76-unit collider width with no extra gap.
+# signature and per-gate 64–91-unit real collision width.
 for source in (kotlin_level,swift_level):
     assert 'centerContour' in source
-    assert '-40,-20,0,20,40,20,0,-20,-40,-20' in source
-    assert 'width = 76f' in source or 'width:76' in source
+    assert '-70,-25,25,65,5,-50,15,70,0,-55' in source
+    assert 'width = 64f' in source or 'width:64' in source
 for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'drawCliffShaft(' in render
@@ -2688,7 +2688,7 @@ assert 'let glowColor=color(glint,135.0/255)' in swift_rock
 assert 'c.setFillColor(shadowColor)' in swift_rock
 assert 'c.setStrokeColor(glowColor)' in swift_rock
 assert swift_rock.count('color(')==2, 'No color reconstruction inside the per-row draw loop'
-assert 'width = 76f' in kotlin_level and 'width:76' in swift_level
+assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and 'width:64 + Float((i * 7 + number + world) % 4)*9' in swift_level
 print('PASS: layered seeded rock volume on both native canvases without widened collision or per-row CGColor churn')
 
 
