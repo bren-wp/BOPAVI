@@ -1447,48 +1447,50 @@ class MainActivity : Activity() {
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         sectionHeading(b,"OPREMA ZA BOPIJEV LET")
-        // Two compact, symmetrical native cards on one screen.
-        val cardRow=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER_VERTICAL
-        }
-        for(n in 0..1){
-            val name=if(n==0)"ŠTIT" else "MAGNET"
-            val explanation=if(n==0)"Upija jedan stvarni sudar." else "Privlači predmete tijekom 8 sekundi."
+        // Four purchaseable real boosts on two responsive rows.
+        val perkRows=Array(2){LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+        }}
+        val names=listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET")
+        val explanations=listOf("Upija jedan sudar.","Privlači 8 sekundi.",
+            "Upija dva sudara.","Privlači 12 sekundi.")
+        for(n in 0..3){
+            val name=names[n]
             val card=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL
-                gravity=Gravity.CENTER_HORIZONTAL
-                setPadding(d(8),d(10),d(8),d(9))
-                background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),20).apply{
-                    setStroke(d(2),if(n==0)0xffffd56a.toInt() else electric)
+                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
+                setPadding(d(6),d(6),d(6),d(6))
+                background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),17).apply{
+                    setStroke(d(2),if(n%2==0)gold else electric)
                 }
             }
             card.addView(TextView(this).apply{
-                text=if(n==0)"🛡" else "🧲"
-                gravity=Gravity.CENTER;textSize=34f
+                text=if(n%2==0)"🛡" else "🧲"
+                gravity=Gravity.CENTER;textSize=25f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(57)))
+            },LinearLayout.LayoutParams(-1,d(33)))
             card.addView(TextView(this).apply{
                 text=name;gravity=Gravity.CENTER
-                textSize=19f;typeface=Typeface.DEFAULT_BOLD
-                setTextColor(if(n==0)gold else 0xffbcefff.toInt())
-                contentDescription="$name, cijena ${progress.perkPrices[n]} kovanica"
-            },LinearLayout.LayoutParams(-1,d(31)))
+                textSize=14f;typeface=Typeface.DEFAULT_BOLD
+                setTextColor(if(n%2==0)gold else 0xffbcefff.toInt())
+                setSingleLine(true)
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },LinearLayout.LayoutParams(-1,d(24)))
             card.addView(TextView(this).apply{
-                text="$explanation\nU torbi: ${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
-                textSize=12f;setTextColor(Color.WHITE)
-                gravity=Gravity.CENTER;maxLines=3
-                setPadding(0,d(4),0,d(4))
-            })
+                text=explanations[n]+"\nU torbi: ${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
+                textSize=11f;setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER;maxLines=2
+            },LinearLayout.LayoutParams(-1,d(36)))
             action(card,"KUPI $name",false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
                 else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
             }
-            cardRow.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
-                setMargins(d(3),d(3),d(3),d(3))
+            card.contentDescription="$name, ${explanations[n]} ${progress.perkPrices[n]} kovanica, u torbi ${progress.perkCount(n)}"
+            perkRows[n/2].addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
+                setMargins(d(3),d(2),d(3),d(2))
             })
         }
-        b.addView(cardRow,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(6)})
+        for(row in perkRows)b.addView(row,LinearLayout.LayoutParams(-1,-2))
         small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
         small(b,if(progress.languageCode()=="hr")
             "Odaberi jednog od devet pilota prije leta. Kovanice služe za otključavanje pilota i opreme."
