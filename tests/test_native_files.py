@@ -2054,7 +2054,7 @@ for source in (android_game,ios_game):
     assert 'drawCliffShaft(' in source
     assert source.count('drawCliffShaft(')>=3
     assert 'cliffSeed' in source and 'g.phase' in source
-    assert 'hudGlass(c,cx-33' in source
+    assert 'hudOrb(c,' in source and 'hudPilotPortrait(' in source
 assert 'rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or' in android_game
 assert 'canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)' in android_game
 assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
