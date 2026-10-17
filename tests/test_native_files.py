@@ -1708,8 +1708,8 @@ for source in (settings_android,settings_ios):
         if saved not in ("export","import"):
             assert saved in source,(saved,"settings persistence")
     assert "cloudSave" not in source and "signOut" not in source
-assert 'back(b){showHome()}' in settings_android
-assert 'menuBack(s){self.showHome()}' in settings_ios
+assert 'back(b){showSettings()}' in settings_android
+assert 'menuBack(s){self.showSettings()}' in settings_ios
 for text in ("SPREMI IME","SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE"):
     assert 'action(settingsPanel,"'+text+'"' in settings_android,text
     assert 'button("'+text+'",in:settingsPanel' in settings_ios,text
@@ -2910,3 +2910,5 @@ assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu_base
 assert 'scroll.showsVerticalScrollIndicator=isExtendedSettings' in ios_menu_base
 assert 'guard !scroll.isScrollEnabled' in ios_menu
 print('PASS: expanded Settings remains full-size and scrollable; compact menus preserve fit')
+assert 'back(b){showSettings()}' in settings_android
+assert 'menuBack(s){self.showSettings()}' in settings_ios
