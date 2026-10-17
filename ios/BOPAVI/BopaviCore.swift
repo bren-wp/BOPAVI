@@ -223,8 +223,8 @@ final class GameSimulation {
         self.difficulty = min(2,max(0,difficulty))
         self.displayLevel = initialOrdinal ?? level.number
         self.endless = endless
-        self.shield = min(2,max(0,initialShield))
-        self.magnetTime = min(12,max(0,initialMagnet))
+        self.shield = min(3,max(0,initialShield))
+        self.magnetTime = min(18,max(0,initialMagnet))
         collectedCoins=Array(repeating:false,count:level.gates.count)
         collectedStars=Array(repeating:false,count:level.gates.count)
         collectedPowers=Array(repeating:false,count:level.gates.count)
@@ -269,7 +269,7 @@ final class GameSimulation {
             if gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true;collectPulse=0.36}
             if gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;levelStars += 1;collectedStars[i]=true;collectPulse=0.36}
             if gate.power != 0 && !collectedPowers[i] && abs(cx+39-birdX)<30 && abs(cy+39-y)<30 {
-                if gate.power==1 {shield=min(2,shield+1)} else {magnetTime=5}
+                if gate.power==1 {shield=min(3,shield+1)} else {magnetTime=5}
                 collectedPowers[i]=true;collectPulse=0.36
             }
             if x+gate.width < birdX-radius && i == passed {
