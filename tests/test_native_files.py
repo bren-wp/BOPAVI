@@ -680,7 +680,7 @@ for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
                   'Tvoje ime','Bez oglasa, praćenja i kupnje stvarnim novcem.',
-                  'KUPI ','KOVANICA','BODOVA','Stvorio Brendigo'):
+                  'KUPI','KOVANICA','BODOVA','Stvorio Brendigo'):
         assert label in ui, label
     for deprecated in ('Smanji animacije (30 FPS)','(v0.1–v0.5)',
                        'Razvoj: Brendigo','telemetrije'):
