@@ -355,7 +355,7 @@ class MainActivity : Activity() {
             text=ui(s)
             textSize=size.toFloat()
             setTextColor(color)
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             gravity=Gravity.CENTER
             setPadding(d(6),d(11),d(6),d(11))
             if(size>=26)background=GradientDrawable(
@@ -372,7 +372,7 @@ class MainActivity : Activity() {
     private fun sectionHeading(parent:LinearLayout,heading:String){
         val label=TextView(this).apply{
             text=ui(heading);setTextColor(Color.WHITE);textSize=15f
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.06f
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setPadding(d(18),d(11),d(16),d(11))
@@ -867,28 +867,50 @@ class MainActivity : Activity() {
         val panel=base(if(croatian)"ODABERI LIKA" else "CHOOSE YOUR PILOT",
             if(croatian)"Svaki pilot ima svoj izgled" else "Nine unique flyers · choose before takeoff")
         val chosen=progress.skin()
+        // The reference hero is a prominent illustrated pilot on an open sky.
+        // Keep the selected portrait entirely separate from live labels.
         val heading=LinearLayout(this).apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            background=gradient(0xee063d86.toInt(),0xf205183b.toInt(),22).apply{
-                setStroke(d(2),electric)
-            }
-            setPadding(d(11),d(5),d(11),d(5))
+            clipChildren=false
+            setPadding(d(2),d(4),d(3),d(4))
         }
         heading.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[chosen])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(d(104),d(104)))
-        heading.addView(TextView(this).apply{
-            text=progress.skinNames[chosen]+"\n"+if(croatian)"ODABRANI PILOT" else "SELECTED PILOT"
-            textSize=21f
-            setTextColor(Color.WHITE)
+        },LinearLayout.LayoutParams(0,d(188),0.56f))
+        val pilotSummary=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(7),d(12),d(7),d(12))
+            background=gradient(0xee0d4a92.toInt(),0xf4081b43.toInt(),21).apply{
+                setStroke(d(2),electric)
+            }
+        }
+        pilotSummary.addView(TextView(this).apply{
+            text="♛  "+progress.skinNames[chosen].uppercase()
+            textSize=20f;setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             gravity=Gravity.CENTER
-            contentDescription=text
-        },LinearLayout.LayoutParams(0,-1,1f))
-        panel.addView(heading,LinearLayout.LayoutParams(-1,d(112)).apply{bottomMargin=d(8)})
+            setAutoSizeTextTypeUniformWithConfiguration(13,20,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,d(45)))
+        pilotSummary.addView(TextView(this).apply{
+            text=if(croatian)"ODABRANI PILOT" else "SELECTED PILOT"
+            textSize=11f;setTextColor(0xffd4edff.toInt())
+            gravity=Gravity.CENTER;typeface=Typeface.DEFAULT_BOLD
+        },LinearLayout.LayoutParams(-1,d(27)))
+        pilotSummary.addView(TextView(this).apply{
+            val ownedCount=(0..8).count{progress.owned(it)}
+            text="★  ${progress.worldStars(world)}/30    ·    ${ownedCount}/9"
+            textSize=12f;setTextColor(gold);gravity=Gravity.CENTER
+            typeface=Typeface.DEFAULT_BOLD
+            contentDescription=(if(croatian)"Zvjezdice i otključani piloti" else "World stars and unlocked pilots")+
+                ": ${progress.worldStars(world)}/30, ${ownedCount}/9"
+        },LinearLayout.LayoutParams(-1,d(32)))
+        heading.addView(pilotSummary,LinearLayout.LayoutParams(0,d(152),0.44f))
+        panel.addView(heading,LinearLayout.LayoutParams(-1,d(194)).apply{bottomMargin=d(5)})
         for(row in 0..2){
             val galleryRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             panel.addView(galleryRow,LinearLayout.LayoutParams(-1,-2))
@@ -2107,6 +2129,22 @@ class MainActivity : Activity() {
         }
         viewport.addView(column)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
+        // The illustrated wordmark + selected pilot are separate native art
+        // layers, mirroring the reference composition without screenshot UI.
+        val brandHero=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+        }
+        brandHero.addView(ImageView(this).apply{
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(0,d(92),1f))
+        brandHero.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(115),d(115)))
+        column.addView(brandHero,LinearLayout.LayoutParams(-1,d(108)))
         val header=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
             setPadding(d(8),d(5),d(9),d(5))
@@ -2125,7 +2163,7 @@ class MainActivity : Activity() {
         header.addView(backButton,LinearLayout.LayoutParams(d(46),d(46)))
         header.addView(TextView(this).apply{
             text=ui("POSTAVKE");textSize=23f
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(Color.WHITE);gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(0,d(46),1f))
         // Mirror the working selected pilot from Profile without adding a row.
@@ -2177,10 +2215,6 @@ class MainActivity : Activity() {
             // intrinsic dimensions instead of clipping or forcing scrolling.
             column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         }
-        option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
-            val enabled=!progress.soundEnabled()
-            progress.setSoundEnabled(enabled);sound.enabled=enabled
-        }
         settingsVolumeRow(column,"GLAZBA",progress.musicVolume()){
             progress.setMusicVolume(it);sound.musicVolume=it/100f
         }
@@ -2190,17 +2224,24 @@ class MainActivity : Activity() {
         settingsVolumeRow(column,"EFEKTI",progress.effectsVolume()){
             progress.setEffectsVolume(it);sound.effectsVolume=it/100f
         }
-        settingsSwitchRow(column,"MANJE ANIMACIJA",progress.lessMotion()){
-            if(it!=progress.lessMotion()) {
-                progress.setLessMotion(!progress.lessMotion())
-                // Recreate only the menu so reduced-motion takes effect instantly.
-                showSettings()
-            }
-        }
-        option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
         // Primary difficulty is now always visible. Replace the redundant
         // Privacy row (both legal controls remain in the footer) with three
         // genuine selected difficulty buttons, not an advanced-only option.
+        // Reference-style compact section rows; preserve honest offline choices
+        // and avoid fictional cloud sign-out/notification actions.
+        fun settingsSection(caption:String){
+            column.addView(TextView(this).apply{
+                text=ui(caption);textSize=13f
+                setTextColor(gold);typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(14),0,d(10),0)
+                background=gradient(0xee103f81.toInt(),0xf3061c42.toInt(),15).apply{
+                    setStroke(d(1),0xff46cfff.toInt())
+                }
+                contentDescription=ui(caption)
+            },LinearLayout.LayoutParams(-1,d(28)).apply{topMargin=d(5);bottomMargin=d(6)})
+        }
+        settingsSection("TEŽINA IGRE")
         val difficultyChoices=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")
         val difficultyButtons=ArrayList<TextView>(3)
         val difficultyRow=LinearLayout(this).apply{
@@ -2247,6 +2288,20 @@ class MainActivity : Activity() {
         column.addView(difficultyRow,LinearLayout.LayoutParams(-1,d(68)).apply{
             bottomMargin=d(5)
         })
+        settingsSection("JEZIK")
+        option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
+        settingsSection("DODATNE OPCIJE")
+        option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
+            val enabled=!progress.soundEnabled()
+            progress.setSoundEnabled(enabled);sound.enabled=enabled
+        }
+        settingsSwitchRow(column,"MANJE ANIMACIJA",progress.lessMotion()){
+            if(it!=progress.lessMotion()) {
+                progress.setLessMotion(!progress.lessMotion())
+                // Recreate only the menu so reduced-motion takes effect instantly.
+                showSettings()
+            }
+        }
         column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         val advanced=TextView(this).apply{
             text=ui("⚙  NAPREDNE POSTAVKE");textSize=16f

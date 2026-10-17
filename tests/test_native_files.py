@@ -1672,7 +1672,7 @@ print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchan
 assert 'Generate SHA-256 checksums for every release artifact' in workflow
 assert 'sha256sum \\' in workflow
 assert 'BOPAVI-iOS-Home.png > SHA256SUMS.txt' in workflow
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 19' in workflow
 assert 'dist/SHA256SUMS.txt' in workflow
 assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
 print('PASS: original release assets and authentic Settings capture have SHA-256 manifest')
@@ -1711,7 +1711,7 @@ workflow=(root/'.github/workflows/native-ci.yml').read_text()
 assert "'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png'" in workflow
 assert 'dist/BOPAVI-Android-Settings.png' in workflow
 assert 'BOPAVI-Android-Settings.png' in (root/'README.md').read_text()
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 19' in workflow
 print("PASS: responsive settings glass panels, saved pilot, functional audio/privacy, screenshot proof")
 
 # v0.1.61 — world + mascot artwork is regenerated from the same source
@@ -2845,8 +2845,35 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 115' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 116' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
 print('PASS: authentic Collection screenshot is a required release asset with SHA256')
+# v0.2.11 — regression coverage for the provided pilot/settings design.
+a_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
+i_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
+assert 'LinearLayout.LayoutParams(0,d(188),0.56f)' in a_picker
+assert 'LinearLayout.LayoutParams(-1,d(194))' in a_picker
+assert 'head.heightAnchor.constraint(equalToConstant:194)' in i_picker
+assert 'chosenPicture.heightAnchor.constraint(equalToConstant:185)' in i_picker
+assert 'progress.worldStars(world)' in a_picker and 'progress.worldStars(world)' in i_picker
+assert 'ownedCount' in a_picker and 'ownedCount' in i_picker
+for source,begin,end in ((android_menu,'private fun showSettings(){','private fun showLegalNotice('),
+                         (ios_menu,'private func showSettings(){','private func showLegalNotice(')):
+    page=source.split(begin,1)[1].split(end,1)[0]
+    for heading in ('IZGLED I ZVUK','TEŽINA IGRE','JEZIK','DODATNE OPCIJE'):
+        assert heading in page,(begin,heading)
+    assert page.index('IZGLED I ZVUK') < page.index('TEŽINA IGRE') < page.index('DODATNE OPCIJE')
+    assert 'brandHero' in page and 'settings' in page.lower()
+    assert 'GLAZBA' in page and 'EFEKTI' in page and 'VIBRACIJA' in page
+for source in ((root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text(),
+               (root/'ios/BOPAVI/ProgressStore.swift').read_text()):
+    assert 'ui_language' in source
+    assert ('Locale.getDefault()' in source or 'Locale.preferredLanguages' in source)
+for file in ('BOPAVI-Android-Pilots.png','BOPAVI-Android-Levels.png',
+             'BOPAVI-Android-Shop.png','BOPAVI-Android-Records.png',
+             'BOPAVI-Android-Achievements.png'):
+    assert file in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 19' in workflow
+print('PASS: reference pilot hero, four Settings groups and ten audited native menu screenshots')

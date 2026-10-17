@@ -504,6 +504,11 @@ jobs:
               'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png',
               'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png',
               'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png',
+              'dist/real-screenshots/android/android-pilot-gallery.png':'BOPAVI-Android-Pilots.png',
+              'dist/real-screenshots/android/android-levels.png':'BOPAVI-Android-Levels.png',
+              'dist/real-screenshots/android/android-shop.png':'BOPAVI-Android-Shop.png',
+              'dist/real-screenshots/android/android-records.png':'BOPAVI-Android-Records.png',
+              'dist/real-screenshots/android/android-achievements.png':'BOPAVI-Android-Achievements.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
@@ -566,11 +571,16 @@ jobs:
             BOPAVI-Android-Profile.png \
             BOPAVI-Android-Collection.png \
             BOPAVI-Android-Worlds.png \
+            BOPAVI-Android-Pilots.png \
+            BOPAVI-Android-Levels.png \
+            BOPAVI-Android-Shop.png \
+            BOPAVI-Android-Records.png \
+            BOPAVI-Android-Achievements.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
             BOPAVI-Android-Results.png \
             BOPAVI-iOS-Home.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 14
+          test "$(wc -l < SHA256SUMS.txt)" -eq 19
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -584,7 +594,7 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Settings.png BOPAVI-Android-Profile.png BOPAVI-Android-Collection.png BOPAVI-Android-Worlds.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Settings.png BOPAVI-Android-Profile.png BOPAVI-Android-Collection.png BOPAVI-Android-Worlds.png BOPAVI-Android-Pilots.png BOPAVI-Android-Levels.png BOPAVI-Android-Shop.png BOPAVI-Android-Records.png BOPAVI-Android-Achievements.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
@@ -605,6 +615,11 @@ jobs:
             dist/BOPAVI-Android-Profile.png \
             dist/BOPAVI-Android-Collection.png \
             dist/BOPAVI-Android-Worlds.png \
+            dist/BOPAVI-Android-Pilots.png \
+            dist/BOPAVI-Android-Levels.png \
+            dist/BOPAVI-Android-Shop.png \
+            dist/BOPAVI-Android-Records.png \
+            dist/BOPAVI-Android-Achievements.png \
             dist/BOPAVI-Android-Flight-Preview.png \
             dist/BOPAVI-Android-Flight-Active.png \
             dist/BOPAVI-Android-Results.png \
