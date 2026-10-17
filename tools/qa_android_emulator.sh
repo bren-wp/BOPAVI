@@ -144,7 +144,7 @@ click=[n for n in nodes if n.get("clickable")=="true"]
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
-if not any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: best score missing")
+if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
 for bad in ("WORLDS","SVJETOVI","SHOP","TRGOVINA","SETTINGS","POSTAVKE","PROFILE","PROFIL","LEVELS","LEVELI"):
     if any(bad in label(n) for n in click):raise SystemExit("FAIL: forbidden Home navigation: "+bad)
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
@@ -194,14 +194,14 @@ root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
 nodes=list(root.iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 labels=" ".join(label(n) for n in nodes)
-# English GameOver is intentionally titled FLIGHT OVER!, not RESULT.
-# Require one real terminal headline plus both run metrics and live controls.
+# The simplified Result contains only earned points, saved best, and live actions.
+# Never require deleted currencies, gate cards, or old Flight Over headings.
 if not any(title in labels for title in ("FLIGHT OVER", "RESULT", "REZULTAT", "LET ZAVRŠEN")):
     raise SystemExit("FAIL: loss result headline missing")
 if not any(score in labels for score in ("SCORE", "REZULTAT")):
     raise SystemExit("FAIL: real run score missing")
-if not any(gate in labels for gate in ("TOTAL", "PROLAZA")):
-    raise SystemExit("FAIL: run gate counter missing")
+if any(gate in labels for gate in ("UKUPNO PROLAZA", "TOTAL GATES", "PRIKUPLJENE KOVANICE", "COLLECTED COINS")):
+    raise SystemExit("FAIL: obsolete reward/gate summary returned")
 if "BEST SCORE" not in labels and "NAJBOLJI REZULTAT" not in labels:raise SystemExit("FAIL: saved best missing")
 click=[n for n in nodes if n.get("clickable")=="true"]
 retry=[n for n in click if "RETRY" in label(n) or "PONOVO" in label(n)]

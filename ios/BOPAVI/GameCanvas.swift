@@ -7,23 +7,13 @@ final class GameCanvas: UIView {
     let skinIndex: Int
     private let pilotName:String
     private let hudRimColor=UIColor(rgb:0x43d8ff).withAlphaComponent(196.0/255).cgColor
-    private let levelProgressFont=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.heavy)
-    private let levelBadgeFont=UIFont.monospacedDigitSystemFont(ofSize:15,weight:.heavy)
-    private let collectedFont=UIFont.systemFont(ofSize:11,weight:.heavy)
     private let language:String
     private let hudVocabulary:[String:String]
     private func word(_ en:String,_ hr:String)->String{hudVocabulary[en] ?? (language=="hr" ? hr : en)}
-    private var lastLevelBadgeText=""
-    private var cachedLevelBadge=NSAttributedString(string:"")
     private lazy var idlePrompt=NSAttributedString(string:word("TAP TO FLY","DODIRNI ZA LET"),attributes:[
         .font:UIFont.systemFont(ofSize:20,weight:.heavy),.foregroundColor:UIColor.white])
     private lazy var idleHelp=NSAttributedString(string:word("TAP = WING FLAP","DODIR = ZAMAH KRILIMA"),attributes:[
         .font:UIFont.systemFont(ofSize:11,weight:.bold),.foregroundColor:UIColor(rgb:0xbceeff)])
-    private var progressLabel=NSAttributedString(string:"")
-    private var distanceLabel=NSAttributedString(string:"")
-    private var lastProgressPassed = -1
-    private var lastProgressScore = -1
-    private var lastDistanceTick = -1
     // Same 8 biome colors, centers and 185pt radius as Android.
     // Cached gradients avoid allocating colors or shader arrays every frame.
     private let glowHues:[UInt32]=[0xdaffaf,0xffe6a6,0xc8f6ff,0xffb178,0xfff1cc,0xb7a0ff,0xa4fff4,0xbcb3ff]
@@ -53,10 +43,6 @@ final class GameCanvas: UIView {
 
     private let pickupHues:[UInt32]=[0xffc83b,0xffba83,0xa5efff,0xff9836,0xfff1ad,0xc5adff,0x89f7ef,0xc3a6ff]
     private let birdSprite:UIImage?
-    private let hudPortrait:UIImage?
-    private let coinWallet:()->Int
-    private var lastWalletValue = -1
-    private var walletDisplay = "0"
     private let leftWing:UIImage?
     private let rightWing:UIImage?
     // Match 20% smaller Android in-flight art while preserving real wing pivots.
@@ -109,15 +95,13 @@ final class GameCanvas: UIView {
     private let gateSeamHues:[UInt32]=[0x685e5e,0xb57852,0xe7fbff,0xff973e,
                                         0xffe9ab,0xa693ed,0x89fff0,0xb7b2ff]
 
-    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,coinWallet:@escaping ()->Int = {0},languageCode:String = "en") {
+    init(game:GameSimulation, reducedMotion:Bool,skinIndex:Int,languageCode:String = "en") {
         // The complete pilot illustration must resolve using one validated index.
         let selectedSkin=min(8,max(0,skinIndex)) // Render the saved pilot with unchanged sprite scale and hitbox.
         self.game=game;self.reducedMotion=reducedMotion;self.skinIndex=selectedSkin
         self.pilotName=["Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion"][selectedSkin]
-        self.coinWallet=coinWallet
         self.language=GameLanguages.normalized(languageCode)
         self.hudVocabulary=GameLanguages.hudPack(languageCode)
-        self.hudPortrait=UIImage(named:"BopiPortrait\(selectedSkin)")
         // The source-approved screenshot Bopi is a 224x192 three-layer
         // articulated sprite. The marker exists only with validated assets.
         let referenceBopi0=selectedSkin==0 && UIImage(named:"BopiReference0") != nil
@@ -305,7 +289,6 @@ final class GameCanvas: UIView {
                           y:safeAreaInsets.top+4*hudScale)
             c.scaleBy(x:hudScale,y:hudScale)
             drawBoostHUD(c)
-            drawLevelProgress(c)
             c.restoreGState()
         }
         // Preserve the painted island/clouds down to the final scene pixel:
@@ -321,125 +304,13 @@ final class GameCanvas: UIView {
             .font:font,.foregroundColor:UIColor(rgb:rgb)])
     }
     private let hudWalletFont=UIFont.systemFont(ofSize:15,weight:.heavy)
-    private let hudWalletCompactFont=UIFont.systemFont(ofSize:12,weight:.heavy)
     // The three HUD orbs keep stable symbols and count labels between frames.
     // Only a *changed* live counter rebuilds its attributed text.
-    private let hudOrbCounterFont=UIFont.monospacedDigitSystemFont(ofSize:12.5,weight:.heavy)
-    private var hudOrbCachedValues=["","",""]
-    private var hudOrbCachedNumbers=Array(repeating:NSAttributedString(string:""),count:3)
 
     /** Measure a dynamic score only when its cached value changes.
       * Narrow translated text stays inside the inner 94pt field of the
       * 235pt race gauge, away from the border and pause button.
       */
-    private func fittedProgressText(_ value:String)->NSAttributedString {
-        let measured=(value as NSString).size(withAttributes:[.font:levelProgressFont]).width
-        let size=max(7.5,min(12,12*94/max(1,measured)))
-        return NSAttributedString(string:value,attributes:[
-            .font:UIFont.monospacedDigitSystemFont(ofSize:size,weight:.heavy),
-            .foregroundColor:UIColor.white])
-    }
-    /// Font-independent reference crown: identical points and solid colors
-    /// to Android Canvas, with no new images or glyph allocations per frame.
-    private func drawHudCrown(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ size:CGFloat){
-        let half=size*0.50
-        c.setFillColor(color(0xc76f03))
-        c.beginPath()
-        c.move(to:CGPoint(x:cx-half,y:cy+size*0.23))
-        c.addLine(to:CGPoint(x:cx-half,y:cy-size*0.34))
-        c.addLine(to:CGPoint(x:cx-size*0.24,y:cy-size*0.08))
-        c.addLine(to:CGPoint(x:cx,y:cy-size*0.55))
-        c.addLine(to:CGPoint(x:cx+size*0.24,y:cy-size*0.08))
-        c.addLine(to:CGPoint(x:cx+half,y:cy-size*0.34))
-        c.addLine(to:CGPoint(x:cx+half,y:cy+size*0.23))
-        c.closePath();c.fillPath()
-        c.setFillColor(color(0xffd342))
-        c.beginPath()
-        c.move(to:CGPoint(x:cx-half+size*0.08,y:cy+size*0.14))
-        c.addLine(to:CGPoint(x:cx-half+size*0.08,y:cy-size*0.20))
-        c.addLine(to:CGPoint(x:cx-size*0.24,y:cy+size*0.06))
-        c.addLine(to:CGPoint(x:cx,y:cy-size*0.39))
-        c.addLine(to:CGPoint(x:cx+size*0.24,y:cy+size*0.06))
-        c.addLine(to:CGPoint(x:cx+half-size*0.08,y:cy-size*0.20))
-        c.addLine(to:CGPoint(x:cx+half-size*0.08,y:cy+size*0.14))
-        c.closePath();c.fillPath()
-        rect(c,cx-half,cy+size*0.19,size,size*0.15,0xffef9b,size*0.055)
-        oval(c,cx-size*0.085,cy-size*0.04,size*0.17,size*0.17,0xfff8d9)
-    }
-    /// The end-of-course flag is a native 4×4 checker with a fixed mast.
-    private func drawHudFinishFlag(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ size:CGFloat){
-        let tile=size*0.19
-        let left=cx-size*0.35
-        let top=cy-size*0.36
-        rect(c,left-2,top-2,1.7,tile*4+5,0xd7f4ff,1)
-        for row in 0..<4 {
-            for col in 0..<4 {
-                let x=left+CGFloat(col)*tile
-                let y=top+CGFloat(row)*tile
-                rect(c,x,y,tile+0.15,tile+0.15,
-                     (row+col)%2==0 ? 0xffffff : 0x17488d)
-            }
-        }
-        rect(c,left,top+tile*4,tile*4,1.2,0x5eeaff,0.6)
-    }
-    private func drawLevelProgress(_ c:CGContext) {
-        let passed=game.totalPassed
-        if passed != lastProgressPassed {
-            // The live total remains available through voice accessibility.
-            lastProgressPassed=passed
-        }
-        let score=game.score()
-        if score != lastProgressScore {
-            lastProgressScore=score
-            progressLabel=fittedProgressText("\(word("SCORE","BODOVI")) \(score)")
-        }
-        // Sample real world-distance units at 10 Hz, avoiding per-frame
-        // NSAttributedString allocation and fake metre claims.
-        let distanceTick=Int(game.time*10)
-        if distanceTick != lastDistanceTick {
-            lastDistanceTick=distanceTick
-            distanceLabel=fittedProgressText("\(word("DIST","PUT")) \(Int(game.distance))")
-        }
-        // Continuous actual course fraction, matching the Android gauge.
-        let total=max(1,game.level.gates.count)
-        let ratio=CGFloat(game.levelProgress)
-        hudGlass(c,146,18,235,90)
-        drawHudCrown(c,165,46,22)
-        drawHudFinishFlag(c,363,45,25)
-        rect(c,181,34,173,21,0x05234e,10)
-        rect(c,184,38,167,13,0x0b66bf,7)
-        if ratio>0 {
-            rect(c,184,38,167*ratio,13,0x15cfff,7)
-            rect(c,185,39,165*ratio,4,0xffffff,2,0.67)
-        }
-        // The existing race gauge briefly celebrates level entry without
-        // covering obstacles or interrupting the continuous simulation.
-        let entering=game.levelTransition>0
-        rect(c,171,58,193,23,entering ? 0x2d4775 : 0x062859,14,entering ? 0.94 : 0.91)
-        let levelText=entering ? "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(word("NEW STAGE","NOVA RAZINA"))" :
-            "\(word("LEVEL","RAZINA")) \(game.displayLevel) · \(game.passed)/\(total) \(word("GATES","PROLAZI"))"
-        if lastLevelBadgeText != levelText {
-            lastLevelBadgeText=levelText
-            // The badge is rebuilt only at level changes. Fit long translated
-            // stage names and seven-digit level IDs inside the 193pt gauge.
-            let textWidth=(levelText as NSString).size(withAttributes:[.font:levelBadgeFont]).width
-            let fittedSize=max(8,min(15,15*184/max(1,textWidth)))
-            let fittedFont=UIFont.monospacedDigitSystemFont(ofSize:fittedSize,weight:.heavy)
-            cachedLevelBadge=NSAttributedString(string:levelText,attributes:[
-                .font:fittedFont,
-                .foregroundColor:UIColor(rgb:entering ? 0xffd76a : 0xffffff)])
-        }
-        cachedLevelBadge.draw(at:CGPoint(x:267-cachedLevelBadge.size().width/2,y:62))
-        progressLabel.draw(at:CGPoint(x:204-progressLabel.size().width/2,y:88))
-        distanceLabel.draw(at:CGPoint(x:330-distanceLabel.size().width/2,y:88))
-        let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        let balance=max(0,min(100_000_000,coinWallet()))
-        accessibilityLabel="\(pilotName) is flying. Wallet \(balance) coins. Flight pickups \(game.coins). " +
-            "Total gates \(passed). Score \(score). Distance \(Int(game.distance)) units. " +
-            "Stars \(game.stars). Shield \(game.shield). Magnet \(seconds) seconds."
-    }
-    /// Source-matched, state-driven glass counters shared with Android Canvas.
-    /// Glossy cyan rims replace flat rectangular HUD paint; no game logic changes.
     private func hudGlass(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ w:CGFloat,_ h:CGFloat) {
         rect(c,x,y,w,h,0x062755,24,0.929)
         c.setStrokeColor(hudRimColor)
@@ -467,111 +338,12 @@ final class GameCanvas: UIView {
         rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
     }
-    private func hudGoldCoin(_ c:CGContext) {
-        oval(c,78,30,32,37,0xf9a70e)
-        oval(c,81,33,26,31,0xffdf5f)
-        oval(c,84,36,20,25,0xec9500)
-        drawHudCrown(c,94,50,15)
-    }
-    /// Clip the exact previously selected pilot portrait into the gold avatar ring.
-    private func hudPilotPortrait(_ c:CGContext) {
-        oval(c,12,10,54,54,0x03d9ff,0.56)
-        oval(c,14,12,50,50,0xffc946)
-        oval(c,17,15,44,44,0x062e70)
-        c.saveGState()
-        c.addEllipse(in:CGRect(x:18.5,y:16.5,width:41,height:41))
-        c.clip()
-        hudPortrait?.draw(in:CGRect(x:11,y:10,width:54,height:54))
-        c.restoreGState()
-    }
-    /// A compact visual string is cached until the actual wallet changes.
-    private func walletLabel(_ total:Int)->String {
-        if total != lastWalletValue {
-            lastWalletValue=total
-            if total>=10_000_000 {walletDisplay="\(total/1_000_000)M"}
-            else if total>=1_000_000 {walletDisplay=String(format:"%.1fM",Double(total)/1_000_000)}
-            else if total>=10_000 {walletDisplay="\(total/1_000)K"}
-            else if total>=1_000 {walletDisplay=String(format:"%.1fK",Double(total)/1_000)}
-            else {walletDisplay=String(total)}
-        }
-        return walletDisplay
-    }
-    /// Compact reference left rail: all centers stay at x=42.
-    /// Passive real-time statuses; UIKit Pause and touch-to-flap stay separate.
-    private func hudOrb(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ icon:String,
-                        _ count:String,_ accent:UInt32,_ enabled:Bool) {
-        let rim:UInt32=enabled ? accent : 0x4f8fac
-        oval(c,cx-29,cy-29,58,58,0x43d8ff,66.0/255)
-        oval(c,cx-26,cy-26,52,52,0x0069d9)
-        oval(c,cx-22,cy-22,44,44,0x06265c)
-        c.setStrokeColor(color(rim));c.setLineWidth(2.5)
-        c.strokeEllipse(in:CGRect(x:cx-24,y:cy-24,width:48,height:48))
-        if icon=="★" {
-            drawHudCrown(c,cx,cy+3,29)
-        } else if icon=="∩" {
-            c.beginPath()
-            c.move(to:CGPoint(x:cx-10,y:cy-10))
-            c.addLine(to:CGPoint(x:cx-10,y:cy+6))
-            c.addQuadCurve(to:CGPoint(x:cx+10,y:cy+6),
-                           control:CGPoint(x:cx,y:cy+19))
-            c.addLine(to:CGPoint(x:cx+10,y:cy-10))
-            c.setStrokeColor(color(0xdb3e54))
-            c.setLineWidth(8);c.setLineCap(.butt);c.strokePath()
-            c.setStrokeColor(color(0x69eaff));c.setLineWidth(3.4)
-            c.move(to:CGPoint(x:cx+10,y:cy-10))
-            c.addLine(to:CGPoint(x:cx+10,y:cy+6));c.strokePath()
-            rect(c,cx-14,cy-14,8,6,0xfff7ec,2)
-            rect(c,cx+6,cy-14,8,6,0xfff7ec,2)
-        } else {
-            c.beginPath()
-            c.move(to:CGPoint(x:cx-15,y:cy+12))
-            c.addQuadCurve(to:CGPoint(x:cx+17,y:cy-16),
-                           control:CGPoint(x:cx-10,y:cy-11))
-            c.addQuadCurve(to:CGPoint(x:cx-12,y:cy+13),
-                           control:CGPoint(x:cx+12,y:cy+7))
-            c.closePath()
-            c.setFillColor(color(0xf4fdff));c.fillPath()
-            c.setStrokeColor(color(0x33c9ff));c.setLineWidth(2)
-            c.setLineCap(.round)
-            c.move(to:CGPoint(x:cx-14,y:cy+14))
-            c.addLine(to:CGPoint(x:cx+12,y:cy-11));c.strokePath()
-            c.move(to:CGPoint(x:cx-5,y:cy+3))
-            c.addLine(to:CGPoint(x:cx-8,y:cy-6));c.strokePath()
-            c.move(to:CGPoint(x:cx+3,y:cy-5))
-            c.addLine(to:CGPoint(x:cx+1,y:cy-12));c.strokePath()
-            c.setLineCap(.butt)
-        }
-        // Counter always reflects actual earned/active game state.
-        oval(c,cx+12,cy+10,22,22,0x0c234f)
-        c.setStrokeColor(color(0xeaf9ff));c.setLineWidth(1.8)
-        c.strokeEllipse(in:CGRect(x:cx+12.5,y:cy+10.5,width:21,height:21))
-        let slot=icon=="★" ? 0 : (icon=="∩" ? 1 : 2)
-        if hudOrbCachedValues[slot] != count {
-            hudOrbCachedValues[slot]=count
-            hudOrbCachedNumbers[slot]=NSAttributedString(string:count,attributes:[
-                .font:hudOrbCounterFont,.foregroundColor:UIColor.white])
-        }
-        let number=hudOrbCachedNumbers[slot]
-        number.draw(at:CGPoint(x:cx+23-number.size().width/2,
-                               y:cy+21-number.size().height/2))
-    }
     private func drawBoostHUD(_ c:CGContext) {
-        // The icon/number hierarchy mirrors Android, leaving the top-right
-        // reserved for the real UIKit Pause button.
-        // Only saved currency is spendable. Flight coins are a real but
-        // separate score/collection counter, not minted wallet currency.
-        let balance=max(0,min(100_000_000,coinWallet()))
-        hudGlass(c,73,22,72,53)
-        hudGoldCoin(c)
-        let coinLabel=walletLabel(balance)
-        hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
-        hudPilotPortrait(c)
-        rect(c,82,84,61,20,0x052a57,10,0.86)
-        hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,42,101,"★","\(game.stars)",0xffd453,true)
-        let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,42,163,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
-        hudOrb(c,42,225,"◆","\(game.shield)",0x50dfff,game.shield>0)
+        // Two high-contrast live score lines. The game has no economy or stages.
+        hudGlass(c,18,20,194,68)
+        hudText(word("SCORE","BODOVI"),36,31,hudWalletFont,0xbceeff)
+        hudText(String(game.score()),36,53,hudWalletFont,0xffffff)
+        accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score())"
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
@@ -725,47 +497,6 @@ final class GameCanvas: UIView {
     }
     /// Bevelled crown coin, tied exclusively to the real pickup flags.
     /// Uses Core Graphics primitives, with no frame-time image decoding.
-    private func drawRoyalCoin(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ phase:Float) {
-        let pulse:CGFloat=reducedMotion ? 0 : CGFloat(sin(game.time*4.2+phase))*1.4
-        let radius:CGFloat=17+pulse
-        oval(c,cx-radius-4,cy-radius-4,2*radius+8,2*radius+8,0xffcf53,0.27)
-        oval(c,cx-radius,cy-radius,2*radius,2*radius,0xaa5b09)
-        oval(c,cx-radius+2,cy-radius+2,2*radius-4,2*radius-4,0xffc333)
-        oval(c,cx-radius+5,cy-radius+5,2*radius-10,2*radius-10,0xec8e07)
-        oval(c,cx-radius+6,cy-radius+6,2*radius-12,2*radius-12,0xffb91a)
-        c.setFillColor(color(0xfff0ad))
-        c.beginPath()
-        c.move(to:CGPoint(x:cx-8,y:cy-5))
-        c.addLine(to:CGPoint(x:cx-4,y:cy))
-        c.addLine(to:CGPoint(x:cx,y:cy-8))
-        c.addLine(to:CGPoint(x:cx+4,y:cy))
-        c.addLine(to:CGPoint(x:cx+8,y:cy-5))
-        c.addLine(to:CGPoint(x:cx+6,y:cy+7))
-        c.addLine(to:CGPoint(x:cx-6,y:cy+7))
-        c.closePath();c.fillPath()
-        rect(c,cx-6,cy+5,12,3,0xffffff,1)
-        oval(c,cx-radius+4,cy-radius+4,6,5,0xffffff,0.67)
-    }
-    /// Illustration-only finish marker at the *actual* last gate, never a
-    /// fictional transition or additional collision boundary.
-    private func drawFinishPortal(_ c:CGContext,_ cx:CGFloat,_ cy:CGFloat,_ phase:Float) {
-        let pulse:CGFloat=reducedMotion ? 0 : CGFloat(sin(game.time*2+phase))*1.5
-        let radius:CGFloat=30+pulse
-        oval(c,cx-radius-4,cy-radius-4,2*radius+8,2*radius+8,0x47cfff,0.20)
-        c.setStrokeColor(color(0x164eae,0.75));c.setLineWidth(6)
-        c.strokeEllipse(in:CGRect(x:cx-radius,y:cy-radius,width:2*radius,height:2*radius))
-        c.setStrokeColor(color(0x45e9ff));c.setLineWidth(3)
-        c.strokeEllipse(in:CGRect(x:cx-radius+3.5,y:cy-radius+3.5,
-                                  width:2*radius-7,height:2*radius-7))
-        c.setStrokeColor(color(0xe7ffff,0.82));c.setLineWidth(1.5)
-        c.strokeEllipse(in:CGRect(x:cx-radius+7,y:cy-radius+7,
-                                  width:2*radius-14,height:2*radius-14))
-        drawHudCrown(c,cx,cy-44,20)
-    }
-    /// Subtle suspended-cliff facets, confined to the existing gate shafts.
-    /// Only drawn geometry changes: the BopaviCore opening and collision remain.
-    /// Distinctive material facets, always inside the existing collision caps.
-    /// Cosmetic geometry is identical to Android; never narrows the flight gap.
     private func drawBiomeGateRelief(_ c:CGContext,_ x:CGFloat,_ w:CGFloat,
                                      _ top:CGFloat,_ bottom:CGFloat,_ world:Int,_ seed:Int) {
         let accents=biomeReliefAccents
@@ -1043,27 +774,7 @@ final class GameCanvas: UIView {
         courses(16,top-34);courses(bottom+34,809)
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
-        let center=(top+bottom)*0.5,mid=x+w*0.5
-        let finalGate=incoming ? index==game.upcomingGates.count-1 :
-            index==game.level.gates.count-1
-        if finalGate {drawFinishPortal(c,mid,center,g.phase)}
-        if g.coin && (incoming || game.coinVisible(index)) {
-            drawRoyalCoin(c,mid,center,g.phase)
-        }
-        if g.star && (incoming || game.starVisible(index)) {star(c,mid+35,center-25,12,0xffe25d)}
-        if g.power>0 && (incoming || game.powerVisible(index)) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
     }
-    private func star(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ size:CGFloat,_ rgb:UInt32){
-        c.setFillColor(color(rgb));c.beginPath()
-        for i in 0..<10 {
-            let angle=CGFloat(i) * .pi / 5 - .pi / 2;let r=(i%2==0 ? size : size*0.43)
-            let point=CGPoint(x:x+cos(angle)*r,y:y+sin(angle)*r)
-            if i==0 {c.move(to:point)} else {c.addLine(to:point)}
-        }
-        c.closePath();c.fillPath()
-    }
-    /// Bounded visual feedback for actual pickup and shield impact events.
-    /// No sprite assets or mutable particle objects; reduced motion keeps calm rings.
     private func drawFeedbackSparkles(_ c:CGContext) {
         if reducedMotion {return}
         let pickup=game.collectPulse

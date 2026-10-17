@@ -1,3 +1,12 @@
+## v0.2.18 — original Bopi, endless flight and four-view mobile game (build 123)
+- Android and iOS now navigate only between Home, endless gameplay, Pause and Results; delete unreachable old shop, profile, world/level selection, character picker, collection, achievements, records and settings controllers.
+- Lock the original blue Bopi as the playable and Home character. Keep native buttons, fantasy backgrounds and logo as independent live elements.
+- Score endless runs using successfully passed obstacles only; stop consuming saved perks, awarding level coins, or collecting obsolete in-flight pickups. The underlying level engine still produces seamless procedural obstacle chunks without a visible level system.
+- Replace wallet, power-up rail, progress bar and level indicators with a minimal current-score HUD; keep real native pause, retry and Home actions.
+- Preserve best score, legacy leaderboard and older preferences without destructive migration. Remove dormant HUD drawing functions and image decoding; update automated source tests.
+- Android and iOS **0.2.18 / build 123**; unsigned Android App Bundle, debug APK and unsigned iOS archives require full successful CI before publication.
+- **Design verification:** do not claim perfect 1:1 fidelity until actual device screenshots are compared with approved references.
+
 ## v0.2.17 — streamlined premium one-flight BOPAVI (build 122)
 - Remove Android's redundant custom splash so OS launch transitions directly into the live Home page. iOS system launch uses a neutral background rather than repeating a BOPAVI illustration before Home.
 - Simplify Android and iOS Home to separate full-resolution logo and currently saved Bopi character, one true PLAY action, and the user's actual best score. Keep illustrated backdrop and safe-area viewport.
