@@ -58,7 +58,7 @@ assert "setImageResource(R.drawable.logo)" in a_home
 assert 'UIImage(named:"Logo")' in i_home
 assert "FitViewportColumn(this)" in a_home
 assert "safeAreaLayoutGuide" in IOS
-assert 'one accessible action' in a_home
+assert a_home.count("action(content,") == 1
 
 a_pause = between(ANDROID,"    private fun showPremiumPause(", "    private fun startGame(")
 i_pause = between(IOS,"    private func showPremiumPause(", "    private func startGame(")
