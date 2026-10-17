@@ -178,7 +178,7 @@ class MainActivity : Activity() {
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(
             // Preserve rich world art behind the genuine controls. The lower
             // veil remains strongest where the accessible navigation sits.
-            0x35031837,0x65061b3e,0xb004132e.toInt()))
+            0x16031837,0x2c061b3e,0x8604132e.toInt()))
 
     /** Decorative breathing for the existing illustrated world layers.
      *  Only scenery moves: buttons, counters and hit areas never transform.
@@ -358,8 +358,11 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER
             setPadding(d(6),d(11),d(6),d(11))
-            if(size>=26)background=gradient(0xee064e9a.toInt(),0xee062b61.toInt(),24).apply {
-                setStroke(d(2),0xff50d7ff.toInt())
+            if(size>=26)background=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xff1287e3.toInt(),0xff0757b2.toInt(),0xff08285f.toInt())).apply {
+                cornerRadius=d(24).toFloat()
+                setStroke(d(2),0xff68e9ff.toInt())
             }
             setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xff001936.toInt())
             setAutoSizeTextTypeUniformWithConfiguration((size*.72f).toInt(),size,1,android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -393,7 +396,7 @@ class MainActivity : Activity() {
             contentDescription=ui(heading)
         },LinearLayout.LayoutParams(-1,d(33)).apply{topMargin=d(4);bottomMargin=d(4)})
     }
-    private fun action(parent:LinearLayout,text:String,primary:Boolean=true,onClick:()->Unit) {
+    private fun action(parent:LinearLayout,text:String,primary:Boolean=true,muted:Boolean=false,onClick:()->Unit) {
         val button=Button(this).apply {
             this.text=ui(text);setTextColor(Color.WHITE)
             textSize=18f;isAllCaps=false
@@ -406,6 +409,11 @@ class MainActivity : Activity() {
                 intArrayOf(0xffffdf50.toInt(),0xffffad17.toInt(),0xffff7a00.toInt())).apply{
                     cornerRadius=d(33).toFloat()
                     setStroke(d(3),0xffffed9e.toInt())
+                } else if(muted) GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff91b7e3.toInt(),0xff436eaa.toInt(),0xff203960.toInt())).apply{
+                    cornerRadius=d(32).toFloat()
+                    setStroke(d(2),0xffd9edff.toInt())
                 } else GradientDrawable(
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(0xff23c8fc.toInt(),0xff087dec.toInt(),0xff064cb4.toInt())).apply{
@@ -642,7 +650,7 @@ class MainActivity : Activity() {
             showPilotPicker(world,progress.streamFrontier(world))
         }
         action(layout,"🌍  SVJETOVI",false){showWorlds()}
-        action(layout,"⚙  POSTAVKE",false){showSettings()}
+        action(layout,"⚙  POSTAVKE",false,true){showSettings()}
         val navigation=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             setPadding(d(5),d(7),d(5),d(6))
@@ -1219,7 +1227,7 @@ class MainActivity : Activity() {
         root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x9903183a.toInt(),0x660a3464,0xcc061c42.toInt()))
+                intArrayOf(0x3403183a,0x320a3464,0x90061c42.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
         val fitted=FitViewportColumn(this)
         val panel=LinearLayout(this).apply{
@@ -2008,7 +2016,73 @@ class MainActivity : Activity() {
         parent.addView(panel,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=d(7)})
     }
 
-    /** The compact seven-row Settings page uses real controls, never a mockup. */
+    /** The primary Settings screen edits actual saved audio, not a second page. */
+    private fun settingsVolumeRow(parent:LinearLayout,label:String,value:Int,onValue:(Int)->Unit){
+        val row=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(10),d(3),d(8),d(3))
+            background=gradient(0xf20c4187.toInt(),0xf504183b.toInt(),18).apply{
+                setStroke(d(1),electric)
+            }
+        }
+        row.addView(TextView(this).apply{
+            text=ui(label);textSize=13f;setTextColor(Color.WHITE)
+            typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(d(86),-2))
+        val percentage=TextView(this).apply{
+            text="${value.coerceIn(0,100)}%";textSize=12f
+            setTextColor(gold);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER
+        }
+        val slider=android.widget.SeekBar(this).apply{
+            max=100;progress=value.coerceIn(0,100)
+            progressTintList=ColorStateList.valueOf(0xff00d9ff.toInt())
+            progressBackgroundTintList=ColorStateList.valueOf(0xff174477.toInt())
+            thumbTintList=ColorStateList.valueOf(gold)
+            contentDescription=ui(label)
+            setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(bar:android.widget.SeekBar,value:Int,fromUser:Boolean){
+                    percentage.text="$"+"value%"
+                    if(fromUser)onValue(value)
+                }
+                override fun onStartTrackingTouch(bar:android.widget.SeekBar){}
+                override fun onStopTrackingTouch(bar:android.widget.SeekBar){}
+            })
+        }
+        row.addView(slider,LinearLayout.LayoutParams(0,d(43),1f))
+        row.addView(percentage,LinearLayout.LayoutParams(d(44),d(32)))
+        parent.addView(row,LinearLayout.LayoutParams(-1,d(53)).apply{bottomMargin=d(6)})
+    }
+
+    /** Native, persisted toggle, consistent with the reference switch controls. */
+    private fun settingsSwitchRow(parent:LinearLayout,label:String,checked:Boolean,onChange:(Boolean)->Unit){
+        val row=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(13),d(3),d(9),d(3))
+            background=gradient(0xf20c4187.toInt(),0xf504183b.toInt(),18).apply{
+                setStroke(d(1),electric)
+            }
+        }
+        row.addView(TextView(this).apply{
+            text=ui(label);textSize=14f;setTextColor(Color.WHITE)
+            typeface=Typeface.DEFAULT_BOLD
+        },LinearLayout.LayoutParams(0,-2,1f))
+        val control=Switch(this).apply{
+            isChecked=checked
+            thumbTintList=ColorStateList.valueOf(0xffffffff.toInt())
+            trackTintList=ColorStateList.valueOf(0xff159df2.toInt())
+            contentDescription=ui(label)
+            setOnCheckedChangeListener{_,enabled->onChange(enabled)}
+        }
+        row.addView(control,LinearLayout.LayoutParams(d(65),d(42)))
+        row.isClickable=true
+        row.setOnClickListener{control.isChecked=!control.isChecked}
+        parent.addView(row,LinearLayout.LayoutParams(-1,d(53)).apply{bottomMargin=d(6)})
+    }
+
+    /** The compact Settings page uses real controls, never a mockup. */
     private fun showSettings(){
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
@@ -2023,7 +2097,7 @@ class MainActivity : Activity() {
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x66092b65,0x66083770,0xbb04152e.toInt()))
+                intArrayOf(0x22092b65,0x38083770,0x8604152e.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
         val viewport=FitViewportColumn(this)
         val column=LinearLayout(this).apply{
@@ -2107,16 +2181,21 @@ class MainActivity : Activity() {
             val enabled=!progress.soundEnabled()
             progress.setSoundEnabled(enabled);sound.enabled=enabled
         }
-        option("GLAZBA",{progress.musicVolume().toString()+"%"}){showSettingsDetails()}
-        option("VIBRACIJA",{if(progress.hapticEnabled())"UKLJ." else "ISKL."}){
-            progress.setHapticEnabled(!progress.hapticEnabled())
+        settingsVolumeRow(column,"GLAZBA",progress.musicVolume()){
+            progress.setMusicVolume(it);sound.musicVolume=it/100f
         }
-        option("EFEKTI",{progress.effectsVolume().toString()+"%"}){showSettingsDetails()}
-        option("MANJE ANIMACIJA",{if(progress.lessMotion())"UKLJ." else "ISKL."}){
-            progress.setLessMotion(!progress.lessMotion())
-            // Recreate only this menu: the old scene detaches and stops
-            // moving instantly instead of animating until the next visit.
-            showSettings()
+        settingsSwitchRow(column,"VIBRACIJA",progress.hapticEnabled()){
+            progress.setHapticEnabled(it)
+        }
+        settingsVolumeRow(column,"EFEKTI",progress.effectsVolume()){
+            progress.setEffectsVolume(it);sound.effectsVolume=it/100f
+        }
+        settingsSwitchRow(column,"MANJE ANIMACIJA",progress.lessMotion()){
+            if(it!=progress.lessMotion()) {
+                progress.setLessMotion(!progress.lessMotion())
+                // Recreate only the menu so reduced-motion takes effect instantly.
+                showSettings()
+            }
         }
         option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
         // Primary difficulty is now always visible. Replace the redundant
