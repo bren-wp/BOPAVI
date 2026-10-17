@@ -1616,14 +1616,43 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button("🛍  TRGOVINA KOVANICAMA",in:destinationRow,primary:false){self.showPerks(.home)}
 
     }
+
     private func showPerks(){showPerks(.settings)}
     private func showPerks(_ origin:MenuOrigin){
         let croatian=progress.languageCode=="hr"
-        let s=menu("TRGOVINA","")
-        label(croatian ? "♛  \(progress.coins()) KOVANICA" : "♛  \(progress.coins()) COINS",24,
-              UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
-        label(croatian ? "Za kovanice osvojene igrom — bez stvarnog novca." :
-              "Earned coins only — no real-money purchases.",14,.white,s)
+        let s=menu("TRGOVINA",croatian ? "Oprema za nove avanture" : "Gear for the next adventure")
+        menuBack(s){if origin == .home {self.showHome()} else {self.showSettings()}}
+        // Full-width illustrated wallet: ONLY actual saved crown currency.
+        // No invented gems, IAP buttons, advertisements, or fake purchases.
+        let wallet=UIStackView()
+        wallet.axis = .horizontal;wallet.alignment = .center;wallet.spacing=7
+        wallet.isLayoutMarginsRelativeArrangement=true
+        wallet.layoutMargins=UIEdgeInsets(top:7,left:12,bottom:7,right:12)
+        wallet.backgroundColor=UIColor(red:0.03,green:0.16,blue:0.38,alpha:0.98)
+        wallet.layer.cornerRadius=22;wallet.layer.borderWidth=2
+        wallet.layer.borderColor=UIColor(red:1,green:0.79,blue:0.30,alpha:1).cgColor
+        wallet.heightAnchor.constraint(equalToConstant:69).isActive=true
+        wallet.isAccessibilityElement=true
+        wallet.accessibilityLabel=(croatian ? "Osvojene kovanice: " : "Earned coins: ")+String(progress.coins())
+        let crown=UILabel()
+        crown.text="♛";crown.font=UIFont.systemFont(ofSize:35,weight:.heavy)
+        crown.textColor=UIColor(red:1,green:0.81,blue:0.30,alpha:1)
+        crown.textAlignment = .center
+        crown.widthAnchor.constraint(equalToConstant:49).isActive=true
+        wallet.addArrangedSubview(crown)
+        let balance=UIStackView()
+        balance.axis = .vertical;balance.alignment = .fill;balance.spacing=2
+        let amount=label(String(progress.coins())+(croatian ? " KOVANICA" : " COINS"),
+            22,UIColor(red:1,green:0.81,blue:0.30,alpha:1),balance)
+        amount.textAlignment = .left;amount.numberOfLines=1
+        amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.7
+        let detail=label(croatian ? "Osvojeno igranjem · bez stvarnog novca" :
+            "Earned in-game · no real money",11,
+            UIColor(red:0.81,green:0.93,blue:1,alpha:1),balance)
+        detail.textAlignment = .left;detail.numberOfLines=1
+        detail.adjustsFontSizeToFitWidth=true;detail.minimumScaleFactor=0.7
+        wallet.addArrangedSubview(balance)
+        s.addArrangedSubview(wallet)
         let bonus=progress.bonusCoinsAvailable()
         if bonus>0 {
             button(croatian ? "🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE" :
@@ -1633,8 +1662,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 }
             }
         }
-        label(croatian ? "Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu." :
-              "Earn one coin for each new 1,000 points of your personal best.",13,.white,s)
         sectionHeading(croatian ? "OPREMA ZA BOPIJEV LET" : "FLIGHT EQUIPMENT",in:s)
         let names=croatian
             ? ["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET"]
@@ -1651,47 +1678,90 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             cardRow.axis = .horizontal;cardRow.alignment = .fill
             cardRow.distribution = .fillEqually;cardRow.spacing=6
             for n in (row*2)..<(row*2+2) {
-                let name=names[n]
-                let card=UIStackView()
-                card.axis = .vertical;card.alignment = .fill;card.spacing=2
-                card.isLayoutMarginsRelativeArrangement=true
-                card.layoutMargins=UIEdgeInsets(top:6,left:5,bottom:6,right:5)
-                card.backgroundColor=UIColor(red:0.018,green:0.16,blue:0.35,alpha:0.98)
-                card.layer.cornerRadius=17;card.layer.borderWidth=2
+                let price=progress.perkPrices[n]
+                let owned=progress.perkCount(n)
+                // One 97-point accessible control per offer, matching Android:
+                // there is no oversized nested UIButton to shrink the whole UI.
+                let card=UIButton(type:.custom)
+                card.backgroundColor=UIColor(red:0.04,green:0.17,blue:0.38,alpha:0.99)
+                card.layer.cornerRadius=18;card.layer.borderWidth=2
                 card.layer.borderColor=(n%2==0 ?
-                    UIColor(red:1,green:0.84,blue:0.42,alpha:1) :
-                    UIColor(red:0.25,green:0.82,blue:1,alpha:1)).cgColor
-                let badge=label(n%2==0 ? "🛡" : "🧲",25,.white,card)
-                badge.heightAnchor.constraint(equalToConstant:31).isActive=true
-                let title=label(name,14,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
-                title.adjustsFontSizeToFitWidth=true;title.minimumScaleFactor=0.65
-                title.numberOfLines=1
-                let price=label("\(progress.perkPrices[n]) ♛ · \(croatian ? "U torbi" : "Owned"): \(progress.perkCount(n))",
-                                11,.white,card)
-                price.adjustsFontSizeToFitWidth=true;price.minimumScaleFactor=0.65
-                let description=label(explanations[n],11,
-                                      UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
-                description.numberOfLines=1;description.adjustsFontSizeToFitWidth=true
-                button("\(croatian ? "KUPI" : "BUY") \(name)",in:card,primary:false){
-                    if self.progress.buyPerk(n){
+                    UIColor(red:1,green:0.81,blue:0.30,alpha:1) :
+                    UIColor(red:0.17,green:0.84,blue:1,alpha:1)).cgColor
+                card.heightAnchor.constraint(equalToConstant:97).isActive=true
+                card.accessibilityLabel=names[n]+". "+explanations[n]+
+                    ". "+String(price)+(croatian ? " kovanica. U torbi: " : " coins. Owned: ")+
+                    String(owned)+(croatian ? ". KUPI" : ". BUY")
+                let layout=UIStackView()
+                layout.axis = .vertical;layout.alignment = .fill;layout.spacing=4
+                layout.isUserInteractionEnabled=false
+                layout.translatesAutoresizingMaskIntoConstraints=false
+                card.addSubview(layout)
+                NSLayoutConstraint.activate([
+                    layout.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:7),
+                    layout.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-7),
+                    layout.topAnchor.constraint(equalTo:card.topAnchor,constant:7),
+                    layout.bottomAnchor.constraint(equalTo:card.bottomAnchor,constant:-7)
+                ])
+                let top=UIStackView()
+                top.axis = .horizontal;top.alignment = .center;top.spacing=3
+                let icon=UILabel()
+                icon.text=n%2==0 ? "🛡" : "🧲"
+                icon.font=UIFont.systemFont(ofSize:26)
+                icon.textAlignment = .center
+                icon.widthAnchor.constraint(equalToConstant:38).isActive=true
+                top.addArrangedSubview(icon)
+                let caption=UIStackView()
+                caption.axis = .vertical;caption.alignment = .fill;caption.spacing=0
+                let title=label(names[n],13,.white,caption)
+                title.textAlignment = .left;title.numberOfLines=1
+                title.adjustsFontSizeToFitWidth=true;title.minimumScaleFactor=0.64
+                let description=label(explanations[n],10,
+                    UIColor(red:0.79,green:0.93,blue:1,alpha:1),caption)
+                description.textAlignment = .left;description.numberOfLines=1
+                description.adjustsFontSizeToFitWidth=true;description.minimumScaleFactor=0.7
+                top.addArrangedSubview(caption)
+                layout.addArrangedSubview(top)
+                let foot=UIStackView()
+                foot.axis = .horizontal;foot.alignment = .center;foot.spacing=4
+                let priceLabel=UILabel()
+                priceLabel.text="♛ \(price) · "+(croatian ? "U torbi: " : "Owned: ")+String(owned)
+                priceLabel.font=UIFont.systemFont(ofSize:11,weight:.bold)
+                priceLabel.textColor=UIColor(red:1,green:0.82,blue:0.32,alpha:1)
+                priceLabel.adjustsFontSizeToFitWidth=true;priceLabel.minimumScaleFactor=0.62
+                foot.addArrangedSubview(priceLabel)
+                let buy=UILabel()
+                buy.text=croatian ? "KUPI ›" : "BUY ›"
+                buy.font=UIFont.systemFont(ofSize:11,weight:.heavy)
+                buy.textAlignment = .center;buy.textColor = .white
+                buy.backgroundColor=UIColor(red:0.02,green:0.49,blue:0.90,alpha:1)
+                buy.layer.cornerRadius=12;buy.clipsToBounds=true
+                buy.layer.borderWidth=1
+                buy.layer.borderColor=UIColor(red:0.43,green:0.91,blue:1,alpha:1).cgColor
+                buy.widthAnchor.constraint(equalToConstant:54).isActive=true
+                buy.heightAnchor.constraint(equalToConstant:29).isActive=true
+                foot.addArrangedSubview(buy)
+                layout.addArrangedSubview(foot)
+                card.addAction(UIAction{_ in
+                    if self.progress.buyPerk(n) {
                         self.sound.effect("purchase");self.showPerks(origin)
                     } else {
                         self.alert(croatian ? "Kupnja nije moguća" : "Purchase unavailable",
                                    croatian ? "Nedovoljno kovanica ili je zaliha puna." :
                                               "Not enough coins or inventory is full.")
                     }
-                }
+                },for:.touchUpInside)
                 cardRow.addArrangedSubview(card)
             }
             cardGrid.addArrangedSubview(cardRow)
         }
         s.addArrangedSubview(cardGrid)
         label(croatian ? "Kupljena oprema automatski se koristi na početku sljedećeg leta." :
-              "Purchased equipment automatically activates when your next flight begins.",13,.white,s)
-        label(progress.languageCode=="hr" ?
-            "Odaberi jednog od devet pilota prije leta. Kovanice otključavaju pilote i opremu." :
-            "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.",13,.white,s)
-        menuBack(s){if origin == .home {self.showHome()} else {self.showSettings()}}
+              "Purchased equipment automatically activates when your next flight begins.",12,.white,s)
+        label(croatian ? "Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu." :
+              "Earn one coin for each new 1,000 points of your personal best.",12,.white,s)
+        label(croatian ? "Odaberi jednog od devet pilota prije leta." :
+              "Choose from nine pilots before takeoff.",12,.white,s)
     }
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
