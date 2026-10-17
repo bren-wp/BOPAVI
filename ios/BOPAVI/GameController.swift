@@ -1,5 +1,4 @@
 import UIKit
-import UniformTypeIdentifiers
 
 /// Premium, self-contained control. The gradient resizes without a new image allocation.
 private final class BopaviActionButton: UIButton {
@@ -49,42 +48,8 @@ private final class BopaviActionButton: UIButton {
     }
 }
 
-/// Gradient-backed Settings sheet; reflows with Dynamic Type and safe areas.
-private final class BopaviSettingsPanel: UIStackView {
-    private let fill=CAGradientLayer()
-    override init(frame:CGRect) {
-        super.init(frame:frame)
-        axis = .vertical
-        alignment = .fill
-        spacing = 10
-        isLayoutMarginsRelativeArrangement = true
-        layoutMargins = UIEdgeInsets(top:14,left:13,bottom:18,right:13)
-        fill.colors = [
-            UIColor(red:0.024,green:0.196,blue:0.431,alpha:0.97).cgColor,
-            UIColor(red:0.016,green:0.086,blue:0.192,alpha:0.99).cgColor
-        ]
-        fill.startPoint=CGPoint(x:0.5,y:0)
-        fill.endPoint=CGPoint(x:0.5,y:1)
-        fill.cornerRadius=27
-        layer.insertSublayer(fill,at:0)
-        layer.cornerRadius=27
-        layer.borderWidth=2
-        layer.borderColor=UIColor(red:0.259,green:0.812,blue:1,alpha:1).cgColor
-        layer.shadowColor=UIColor(red:0,green:0.3,blue:0.8,alpha:1).cgColor
-        layer.shadowOpacity=0.46
-        layer.shadowRadius=12
-        layer.shadowOffset=CGSize(width:0,height:6)
-    }
-    required init(coder:NSCoder){fatalError("Use programmatic initialization")}
-    override func layoutSubviews(){
-        super.layoutSubviews()
-        fill.frame=bounds
-        layer.shadowPath=UIBezierPath(roundedRect:bounds,cornerRadius:27).cgPath
-    }
-}
-
 /** Native UIKit menus and Core Graphics gameplay, no WKWebView. */
-final class GameController: UIViewController, UIDocumentPickerDelegate {
+final class GameController: UIViewController {
     private let progress=ProgressStore()
     private let sound=Soundscape()
     private let collectHaptic=UISelectionFeedbackGenerator()
@@ -96,14 +61,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private weak var resultFitViewport:UIScrollView?
     private weak var resultFitPanel:UIStackView?
     private var gameWorld=0
-    private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
-    private let worldAccents:[UIColor] = [
-        UIColor(red:0.23,green:0.83,blue:0.56,alpha:1), UIColor(red:0.50,green:0.92,blue:1,alpha:1),
-        UIColor(red:1,green:0.51,blue:0.39,alpha:1), UIColor(red:0.72,green:0.60,blue:0.98,alpha:1),
-        UIColor(red:0.39,green:0.91,blue:0.88,alpha:1), UIColor(red:1,green:0.85,blue:0.57,alpha:1),
-        UIColor(red:0.70,green:0.93,blue:0.45,alpha:1), UIColor(red:0.74,green:0.69,blue:1,alpha:1)
-    ]
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     // Full-bleed menus retain UIKit safe-area protection for device cutouts.
     override var prefersStatusBarHidden:Bool { true }
@@ -476,7 +434,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
     private func startGame(_ world:Int,_ number:Int){
-        clear();gameWorld=world;gameNumber=number
+        clear();gameWorld=world
         let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:0,initialMagnet:0,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
@@ -625,5 +583,4 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
 
-    private func alert(_ title:String,_ message:String){let a=UIAlertController(title:title,message:message,preferredStyle:.alert);a.addAction(UIAlertAction(title:"U redu",style:.default));present(a,animated:true)}
 }
