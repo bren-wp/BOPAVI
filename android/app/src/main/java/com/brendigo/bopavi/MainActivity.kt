@@ -2044,7 +2044,7 @@ class MainActivity : Activity() {
             contentDescription=ui(label)
             setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener{
                 override fun onProgressChanged(bar:android.widget.SeekBar,value:Int,fromUser:Boolean){
-                    percentage.text="$"+"value%"
+                    percentage.text="${value}%"
                     if(fromUser)onValue(value)
                 }
                 override fun onStartTrackingTouch(bar:android.widget.SeekBar){}
