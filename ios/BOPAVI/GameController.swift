@@ -1646,7 +1646,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             22,UIColor(red:1,green:0.81,blue:0.30,alpha:1),balance)
         amount.textAlignment = .left;amount.numberOfLines=1
         amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.7
-        let detail=label(croatian ? "Osvojeno igranjem · bez stvarnog novca" :
+        let detail=label(croatian ? "Za kovanice osvojene igrom — bez stvarnog novca." :
             "Earned in-game · no real money",11,
             UIColor(red:0.81,green:0.93,blue:1,alpha:1),balance)
         detail.textAlignment = .left;detail.numberOfLines=1
@@ -1689,7 +1689,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     UIColor(red:1,green:0.81,blue:0.30,alpha:1) :
                     UIColor(red:0.17,green:0.84,blue:1,alpha:1)).cgColor
                 card.heightAnchor.constraint(equalToConstant:97).isActive=true
-                card.accessibilityLabel=names[n]+". "+explanations[n]+
+                card.accessibilityLabel=(croatian ? "KUPI " : "BUY ")+names[n]+". "+explanations[n]+
                     ". "+String(price)+(croatian ? " kovanica. U torbi: " : " coins. Owned: ")+
                     String(owned)+(croatian ? ". KUPI" : ". BUY")
                 let layout=UIStackView()
