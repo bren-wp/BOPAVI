@@ -1,7 +1,6 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -12,13 +11,10 @@ import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Switch
 import android.widget.TextView
-import android.widget.Toast
 
 /** Fully native Android activity, controls and GPU Canvas game surface. */
 class MainActivity : Activity() {
@@ -27,15 +23,10 @@ class MainActivity : Activity() {
     private var currentWorld = 0
     private var currentLevel = 1L
     private var gameView: GameView? = null
-    private var gamePauseButton: Button? = null
-    private var warmedHomeArt: android.graphics.Bitmap? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
-    private var menuBackAction:(()->Unit)?=null
-    private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
-    private val ocean = 0xff081e45.toInt()
     private val electric = 0xff00d9ff.toInt()
     // Share the nine saved-pilot resource IDs between native screens.
     // All nine are playable; the chosen pilot must remain consistent in UI.
@@ -202,14 +193,11 @@ class MainActivity : Activity() {
     /** One shared, compact 48dp upper-left Back affordance for every native menu. */
     private fun showHome(){
         applyPremiumSystemBars()
-        menuBackAction=null
-        gameView?.paused=true;gameView=null;gamePauseButton=null
+        gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply{
-            val art=warmedHomeArt
-            if(art!=null && !art.isRecycled)setImageBitmap(art)
-            else setImageResource(R.drawable.homeback)
+            setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             startSceneryDrift(this)
@@ -383,7 +371,6 @@ class MainActivity : Activity() {
             }
         }
         pauseButton=pause
-        gamePauseButton=pause
         frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
         // Keep the pause button clear of notches/cutouts on edge-to-edge phones.
         if (Build.VERSION.SDK_INT >= 35) {
@@ -407,8 +394,8 @@ class MainActivity : Activity() {
         val newRecord=g.score()>previousBest && g.score()>0
         sound.effect("hit")
         progress.recordRun(g)
-        gameView?.paused=true;gameView=null;gamePauseButton=null
-        menuBackAction=null;selectedScreen="result"
+        gameView?.paused=true;gameView=null
+        selectedScreen="result"
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff0a4b88.toInt())}
         root.addView(ImageView(this).apply{
