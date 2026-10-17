@@ -1431,7 +1431,9 @@ assert "launch_art.save(b/'LaunchArt.imageset/launch.png'" in image_source
 assert "b/'HomeArt.imageset/Contents.json'" in image_source
 assert 'setImageResource(R.drawable.homeback)' in android_menu
 assert 'UIImage(named:"HomeArt")' in ios_menu
-assert "android:drawable=\"@drawable/splash\"" in (root/'android/app/src/main/res/drawable/bopavi_startup.xml').read_text()
+launch_window=(root/'android/app/src/main/res/drawable/bopavi_startup.xml').read_text()
+assert 'android:drawable="@color/bopavi_launch_sky"' in launch_window
+assert 'android:drawable="@drawable/splash"' not in launch_window
 assert "<string>LaunchArt</string>" in (root/'ios/BOPAVI/Info.plist').read_text()
 for live in ('showPilotPicker(world,progress.streamFrontier(world))','showWorlds()','showSettings()'):
     assert live in android_menu
@@ -2117,27 +2119,26 @@ assert 'distanceTitle=' in android_game
 assert 'distanceLabel=NSAttributedString' in ios_game
 print('PASS: actual score + game-distance visible on both top HUDs with throttled text updates')
 
-# v0.1.75: launch composition follows the approved Splash/Loading order;
-# platform implementations use the SAME artwork and truthful loading stages.
+# v0.2.14: do not stack two fully-branded loading screens while launching.
+# Android needs a real asynchronous bitmap warmup; iOS has none and must
+# render Home directly after its one native OS LaunchArt.
 assert 'launch_halo' in image_source
 assert 'launch_art=launch.copy().convert(\'RGBA\')' in image_source
 android_splash=android_menu.split('private fun showSplash()',1)[1].split('private fun showNativeView(',1)[0]
-ios_splash=ios_menu.split('private func showSplash()',1)[1].split('private func menu(',1)[0]
 assert 'setImageResource(R.drawable.splash)' in android_splash
-assert 'UIImage(named:"LaunchArt")' in ios_splash
 assert 'ProgressBar(' in android_splash and 'isIndeterminate=true' in android_splash
-assert 'sweep.add(movement,forKey:"startup-progress")' in ios_splash
-assert 'UIAccessibility.isReduceMotionEnabled' in ios_splash
-for splash in (android_splash,ios_splash):
-    assert 'UČITAVANJE...' in splash
-    assert 'ScrollView' not in splash and 'UIScrollView' not in splash
+assert 'UČITAVANJE...' in android_splash
+assert 'ScrollView' not in android_splash
 assert 'warmedHomeArt=loaded' in android_menu
 assert 'if(::sound.isInitialized) sound.pause()' in android_menu
 assert 'if(isFinishing || isDestroyed)' in android_menu
-assert 'startupPending=false' in ios_menu and 'override func viewDidAppear(' in ios_menu
-assert 'DispatchQueue.main.async' in ios_menu
 assert 'postDelayed' not in android_splash
-print('PASS: v0.1.75 reference-order full-bleed startup, no fake percentage, safe lifecycle')
+assert 'private func showSplash()' not in ios_menu
+assert 'startupPending' not in ios_menu
+ios_launch=ios_menu.split('override func viewDidLoad()',1)[1].split('deinit {',1)[0]
+assert 'showHome()' in ios_launch and 'showSplash()' not in ios_launch
+assert "<string>LaunchArt</string>" in (root/'ios/BOPAVI/Info.plist').read_text()
+print('PASS: one Android live loading stage and one iOS native launch before real Home')
 
 
 # v0.1.76: screenshot-shaped seven-row native Settings OVERVIEW, no
@@ -2851,7 +2852,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 118' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 119' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2917,3 +2918,15 @@ assert "android-settings-advanced-top.png" in emulator
 assert "android-settings-advanced-bottom.png" in emulator
 assert "scrollable native" not in emulator or "advanced Settings" in emulator
 print('PASS: real emulator QA covers advanced Settings legibility and actual backup actions')
+# v0.2.14 physical-device fidelity regression: a fixed, readable 4-tab rail
+# must not inherit shrink from the oversized reference Home hero.
+assert 'root.addView(navigation,FrameLayout.LayoutParams(-1,d(78)' in android_home
+assert 'layout.addView(navigation' not in android_home
+assert 'rail.bottomMargin=safeBottom' in android_home
+assert 'setPadding(d(18),d(8),d(18),d(96))' in android_home
+assert 'navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor' in ios_home
+# Independent flying pilot image appears behind, not on top of the functional
+# header/Worlds/Profile buttons and uses the actually chosen skin.
+assert 'if(label=="SVJETOVI" || label=="PROFIL")' in android_menu
+assert 'if title == "SVJETOVI" || title == "PROFIL"' in ios_menu
+print('PASS: responsive Home footer, two independent reference-header pilots and no duplicate startup')
