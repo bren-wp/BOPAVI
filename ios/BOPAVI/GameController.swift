@@ -1691,8 +1691,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 card.heightAnchor.constraint(equalToConstant:97).isActive=true
                 let orderLabel=croatian ? "KUPI " : "BUY "
                 let unitLabel=croatian ? " kovanica. U torbi: " : " coins. Owned: "
-                card.accessibilityLabel="\(orderLabel)\(names[n]). \(explanations[n]) " +
-                    "\(price)\(unitLabel)\(owned)"
+                card.accessibilityLabel="\(orderLabel)\(names[n]). \(explanations[n]) \(price)\(unitLabel)\(owned)"
                 let layout=UIStackView()
                 layout.axis = .vertical;layout.alignment = .fill;layout.spacing=4
                 layout.isUserInteractionEnabled=false
