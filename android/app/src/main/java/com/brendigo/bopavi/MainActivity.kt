@@ -305,12 +305,26 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
         }
-        // All primary game screens occupy exactly one safe-area viewport.
-        // Keep the real interactive views, not a single baked screenshot.
-        val fitted=FitViewportColumn(this)
-        fitted.addView(body)
-        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
-        fitted.setOnApplyWindowInsetsListener{v,insets->
+        // A full settings sheet is longer than a real phone's viewport.
+        // Do not uniformly downscale every button/letter to fit it on screen:
+        // preserve readable physical touch targets and scroll only this sheet.
+        // Compact World/Level/Profile screens retain the established fit logic.
+        val contentViewport:View=if(label=="POSTAVKE") {
+            android.widget.ScrollView(this).apply {
+                isFillViewport=false
+                isVerticalScrollBarEnabled=true
+                overScrollMode=View.OVER_SCROLL_IF_CONTENT_SCROLLS
+                clipToPadding=false
+                addView(body,FrameLayout.LayoutParams(-1,-2))
+                root.addView(this,FrameLayout.LayoutParams(-1,-1))
+            }
+        } else {
+            val fitted=FitViewportColumn(this)
+            fitted.addView(body)
+            root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
+            fitted
+        }
+        contentViewport.setOnApplyWindowInsetsListener{v,insets->
             if(Build.VERSION.SDK_INT>=30){
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
                     or android.view.WindowInsets.Type.displayCutout())
@@ -2575,7 +2589,7 @@ class MainActivity : Activity() {
             val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{addCategory(Intent.CATEGORY_OPENABLE);type="application/json"}
             startActivityForResult(intent,43)
         }
-        back(b){showHome()}
+        back(b){showSettings()}
     }
     @Deprecated("Document picker compatibility for existing Android installations")
     override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){

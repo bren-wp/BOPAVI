@@ -1,3 +1,12 @@
+## v0.2.13 — legible advanced Settings on physical Android/iOS devices (build 118)
+- Fix severe physical-device legibility failure: advanced Settings previously shrank all music sliders, language/difficulty cards, backup actions and legal sections into a tiny fixed-height screen on tall/short phones.
+- Android advanced Settings now has a proper edge-safe native ScrollView; iOS has a matching real UIScrollView enabled exclusively for this long screen. Never scale its text or tap targets down to fit the entire form at once.
+- Keep first-page Settings, Profile, Worlds, Levels and Gameplay existing one-screen navigation unchanged.
+- Android/iOS Back from advanced Settings now returns to the primary Settings page, preserving save state and working actions instead of exiting immediately to Home.
+- Extend Android emulator QA to open advanced Settings, verify its native scrollability and both live volume sliders, scroll to actual JSON backup/restore actions, capture top/bottom **real** screenshots and verify Back returns to primary Settings.
+- This is a targeted functional UI correction, **not** a 100% 1:1 visual-signoff: original approved high-quality illustration assets, layout refinement and screen-by-screen device reference comparisons remain necessary.
+- Android/iOS version **0.2.13 / build 118**. Distribution requires passing all CI checks; no gameplay/physics/coin economy changes.
+
 ## v0.2.12 — responsive standalone hero and verified fidelity baseline (build 117)
 - Separate BOPAVI Home scene from native winged logo and player-selected pilot on Android/iOS. No duplicate Bopi/logo baked into HomeArt: both can scale and align independently across portrait device aspect ratios without creating fake buttons, scores or currencies.
 - Increase the actual selected-pilot hero in the functional nine-pilot picker on both platforms and use the supplied reference's story subtitle in Croatian.

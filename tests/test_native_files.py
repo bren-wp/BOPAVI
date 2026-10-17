@@ -651,7 +651,7 @@ for settings in (android_settings,ios_settings):
                   "TRGOVINA KOVANICAMA","MOJI REKORDI"):
         assert title in settings
     assert 'showSkins()' not in settings and 'showPerks()' in settings
-    assert 'showLeaderboard()' in settings and 'showHome()' in settings
+    assert 'showLeaderboard()' in settings and ('showHome()' in settings or 'showSettings()' in settings)
     assert 'SPREMI IME' in settings and 'Vibracije' in settings
     assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
 
@@ -898,7 +898,7 @@ print("PASS: Play API36, real screenshots, signing isolation and publishing docs
 # Edge-to-edge release candidate: game controls and result actions avoid cutouts/system bars.
 assert "WindowInsets.Type.displayCutout()" in android
 assert "val top = maxOf(d(24),cutout.top+d(8))" in android
-assert "fitted.setOnApplyWindowInsetsListener" in android
+assert "contentViewport.setOnApplyWindowInsetsListener" in android
 print("PASS: Android16 game controls and result safe-area handling")
 
 # Premium results follow the supplied 3-stat / 4-reward reference layout,
@@ -1140,8 +1140,8 @@ assert 'window.decorView.systemUiVisibility=0' not in android_menu
 # Both branches of the shared menu must independently honor OS safe areas,
 # irrespective of line-wrapping or source formatting of the flags.
 base_view=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
-assert 'fitted.setOnApplyWindowInsetsListener' in base_view
-assert 'fitted.setOnApplyWindowInsetsListener' in base_view
+assert 'contentViewport.setOnApplyWindowInsetsListener' in base_view
+assert 'contentViewport.setOnApplyWindowInsetsListener' in base_view
 assert base_view.count('android.view.WindowInsets.Type.displayCutout()')>=1
 # The splash MUST reserve the bottom inset for its loading bar; only Home
 # must avoid a second root-level inset listener around already-safe controls.
@@ -1708,8 +1708,8 @@ for source in (settings_android,settings_ios):
         if saved not in ("export","import"):
             assert saved in source,(saved,"settings persistence")
     assert "cloudSave" not in source and "signOut" not in source
-assert 'back(b){showHome()}' in settings_android
-assert 'menuBack(s){self.showHome()}' in settings_ios
+assert 'back(b){showSettings()}' in settings_android
+assert 'menuBack(s){self.showSettings()}' in settings_ios
 for text in ("SPREMI IME","SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE"):
     assert 'action(settingsPanel,"'+text+'"' in settings_android,text
     assert 'button("'+text+'",in:settingsPanel' in settings_ios,text
@@ -2069,7 +2069,7 @@ assert 'y:safeAreaInsets.top+4*hudScale' in ios_game
 assert android_game.split('canvas.restore()',1)[1].count('drawLevelProgress(canvas)')==1
 assert 'drawBoostHUD(c)' in ios_game.split('c.restoreGState()',1)[1] or 'drawBoostHUD(c)' in ios_game
 assert 'FitViewportColumn(this)' in android_menu
-assert 'scroll.isScrollEnabled=false' in ios_menu
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu
 fit_screen=(root/'android/app/src/main/java/com/brendigo/bopavi/FitViewportColumn.kt').read_text()
 assert 'View.MeasureSpec.UNSPECIFIED' in fit_screen and 'availableH.toFloat()/intrinsicH' in fit_screen
 assert 'body.scaleY=fit' in fit_screen and 'body.scaleX=fit' in fit_screen
@@ -2177,7 +2177,7 @@ assert 'LinearLayout.LayoutParams(0,-2,1f)' in android_shop
 assert 'cardRow.distribution = .fillEqually' in ios_shop
 assert 'val fitted=FitViewportColumn(this)' in android_menu
 assert 'val fitted=FitViewportColumn(this)' in android_menu
-assert 'scroll.isScrollEnabled=false' in ios_menu
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu
 assert 'title == "TRGOVINA" || title == "MOJI REKORDI"' in ios_menu
 
 # Pages must retain all ten historical records and absolute ranks, without
@@ -2241,7 +2241,7 @@ assert 'menuBackAction={showHome()}' in android_prof
 assert 'back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}' in android_prof
 assert 'contentDescription=description' in android_menu
 assert 'title == "PROFIL"' in ios_menu_base
-assert 'scroll.isScrollEnabled=false' in ios_menu_base
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
@@ -2334,7 +2334,7 @@ assert 'scroll.setOnApplyWindowInsetsListener{v,insets->' in android_home
 assert 'scroll.requestApplyInsets()' in android_home
 assert 'insets.systemWindowInsetBottom' in android_home
 assert 'insets.displayCutout' in android_home
-assert 'scroll.isScrollEnabled=false' in ios_menu
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu
 assert 'homeViewport.frameLayoutGuide.heightAnchor' in ios_home
 assert 'stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGuide.heightAnchor)' not in ios_home
 for home in (android_home, ios_home):
@@ -2471,9 +2471,9 @@ assert 'width = 64f + ((i * 7 + number + world) % 4) * 9f' in kotlin_level and '
 android_base=android_menu.split('private fun base(',1)[1].split('private fun title(',1)[0]
 ios_menu_base=ios_menu.split('private func menu(',1)[1].split('override func viewDidLayoutSubviews()',1)[0]
 assert 'val fitted=FitViewportColumn(this)' in android_base
-assert 'ScrollView(this)' not in android_base
-assert 'scroll.isScrollEnabled=false' in ios_menu_base
-assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
+assert 'android.widget.ScrollView(this)' in android_base and 'if(label=="POSTAVKE")' in android_base
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu_base
+assert 'scroll.alwaysBounceVertical=isExtendedSettings' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'private fun back(parent:LinearLayout,' in android_menu
 assert 'description:String=if(progress.languageCode()=="hr")"Natrag" else "Back"' in android_menu
@@ -2675,7 +2675,7 @@ assert 'android.app.AlertDialog.Builder(this)' not in and_levels
 assert 'dialog.addTextField' not in ios_levels
 assert 'cell.accessibilityLabel=ui(' in ios_menu
 assert 'cell.accessibilityHint=ui(' in ios_menu
-assert 'scroll.isScrollEnabled=false' in ios_menu
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu
 for path in ('android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt',
              'ios/BOPAVI/BopaviCore.swift'):
     src=(root/path).read_text()
@@ -2851,7 +2851,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 117' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 118' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2898,3 +2898,22 @@ assert 'stack.addArrangedSubview(navigation)' not in ios_home
 assert 'homeMargins.bottom=105' in ios_home
 assert 'home_art.paste(scene_only,(0,340),mask)' in image_source
 print('PASS: responsive artwork-free Home UI overlays use large selected native pilots, not duplicated baked-in Bopi')
+
+# v0.2.13: advanced settings must not shrink every touch target on
+# real 20:9 devices; keep single-screen fitting for compact menus only.
+assert 'android.widget.ScrollView(this)' in android_base
+assert 'contentViewport.setOnApplyWindowInsetsListener' in android_base
+assert 'val fitted=FitViewportColumn(this)' in android_base
+assert 'isVerticalScrollBarEnabled=true' in android_base
+assert 'let isExtendedSettings = title == "POSTAVKE"' in ios_menu_base
+assert 'scroll.isScrollEnabled=isExtendedSettings' in ios_menu_base
+assert 'scroll.showsVerticalScrollIndicator=isExtendedSettings' in ios_menu_base
+assert 'guard !scroll.isScrollEnabled' in ios_menu
+print('PASS: expanded Settings remains full-size and scrollable; compact menus preserve fit')
+assert 'back(b){showSettings()}' in settings_android
+assert 'menuBack(s){self.showSettings()}' in settings_ios
+assert "verify_advanced_settings_readability(){" in emulator
+assert "android-settings-advanced-top.png" in emulator
+assert "android-settings-advanced-bottom.png" in emulator
+assert "scrollable native" not in emulator or "advanced Settings" in emulator
+print('PASS: real emulator QA covers advanced Settings legibility and actual backup actions')

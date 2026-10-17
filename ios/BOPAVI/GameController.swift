@@ -380,11 +380,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
-        // All native menu screens are safe-area-contained; the content stack
-        // is fitted in viewDidLayoutSubviews, not clipped or made scrollable.
-        scroll.alwaysBounceVertical=false
-        scroll.isScrollEnabled=false
-        scroll.showsVerticalScrollIndicator=false
+        // Extended Settings requires readable controls, not a downscaled
+        // whole screen. Only this advanced Settings sheet scrolls; the normal
+        // reference menus still fit inside the device's safe-area viewport.
+        let isExtendedSettings = title == "POSTAVKE"
+        scroll.alwaysBounceVertical=isExtendedSettings
+        scroll.isScrollEnabled=isExtendedSettings
+        scroll.showsVerticalScrollIndicator=isExtendedSettings
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
         NSLayoutConstraint.activate([
@@ -2821,7 +2823,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        menuBack(s){self.showHome()}
+        menuBack(s){self.showSettings()}
     }
 
     /// Saved progress only: eight discoverable worlds, collected tokens and local pilots.
