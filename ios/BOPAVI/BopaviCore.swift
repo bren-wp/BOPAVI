@@ -257,9 +257,10 @@ final class GameSimulation {
             let gate = level.gates[i]; let x = gateX(gate)
             if x > birdX+radius+115 { break }
             let bounds = BopaviCore.opening(gate, time,difficulty:difficulty)
-            // Same hit area as the visible cap, including its left and right overhang.
-            if x-7 < birdX+radius && x+gate.width+5 > birdX-radius &&
-                (y-radius < bounds.top || y+radius > bounds.bottom) {
+            // Circular body vs the actual cap bands and solid shafts.
+            // No phantom impacts beside an overhang's empty vertical space.
+            if PillarCollision.bodyHitsPillar(birdX:birdX,birdY:y,radius:radius,
+                                            gateX:x,gateWidth:gate.width,opening:bounds) {
                 damage()
                 if finished { return }
             }
@@ -641,5 +642,26 @@ enum GameLanguages {
         let row=catalog[codes.firstIndex(of:locale) ?? 0]
         for i in keys.indices {result=result.replacingOccurrences(of:keys[i],with:row[i+2])}
         return result
+    }
+}
+
+/// Geometric parity with Android: the side overhang is only 28/27 points tall;
+/// a circular hitbox cannot collide with empty space outside that painted lip.
+enum PillarCollision {
+    static func bodyHitsPillar(birdX:Float,birdY:Float,radius:Float,gateX:Float,
+                               gateWidth:Float,opening:BopaviCore.Opening) -> Bool {
+        guard radius > 0 else { return false }
+        let right=gateX+gateWidth
+        return touchesRectangle(birdX,birdY,radius,gateX,-25,right,opening.top) ||
+            touchesRectangle(birdX,birdY,radius,gateX-7,opening.top-28,right+5,opening.top) ||
+            touchesRectangle(birdX,birdY,radius,gateX,opening.bottom,right,825) ||
+            touchesRectangle(birdX,birdY,radius,gateX-7,opening.bottom,right+5,opening.bottom+27)
+    }
+    private static func touchesRectangle(_ cx:Float,_ cy:Float,_ r:Float,
+                                         _ left:Float,_ top:Float,
+                                         _ right:Float,_ bottom:Float) -> Bool {
+        let dx=max(0,max(left-cx,cx-right))
+        let dy=max(0,max(top-cy,cy-bottom))
+        return dx*dx+dy*dy < r*r
     }
 }
