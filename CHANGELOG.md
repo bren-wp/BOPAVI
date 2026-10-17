@@ -1,3 +1,10 @@
+## v0.2.8 — clearer alternating pillar openings and cross-platform gameplay parity (build 113)
+- Make obstacle silhouettes visibly less repetitive: after two forgiving introductory gates, the existing deterministic varying opening adds an alternating +9/−9 logical unit gap contour. This produces an intentional narrow/wide rhythm on top of the already randomized per-gate widths, centers, level progression, and world-specific movement. The collision corridor and visible pillar mouth are derived from the **same gate data**; no invisible or enlarged hitboxes.
+- Apply identical rules to Kotlin and Swift without modifying game economy, saves, premium equipment, actual difficulty factors, flapping, bird hitbox, or pause/resume. Minimum gap safety (≥164 before difficulty and ≥145 after) is retained.
+- Expand native source regression to prohibit divergent Android/iOS gate rhythms and verify collision rendering continues to consume the shared difficulty-aware opening.
+- **UI art fidelity is not complete:** the owner-supplied reference scenes, responsive layouts and remaining screens must still be reviewed against actual device screenshots. Do not claim screenshot-accurate 1:1 from geometry tests alone.
+- Android / iOS **0.2.8 (build 113)**; store signing remains a publisher action.
+
 ## v0.2.7 — explicit iOS navigation, safe record pagination and localized offline shop (build 112)
 - **Correct the real UIKit navigation bug:** the generic iOS button renderer used to guess whether a caption beginning with `‹` or `←` was a Back action. This mistakenly turned the leaderboard's `‹ PRETHODNI` pagination control into a top-left Back button rather than the intended previous-page control. Generic buttons are now generic; Home/Worlds/Levels/Pilot Picker/Shop/Records/Achievements/Advanced Settings each explicitly installs the same 50pt top-left native Back control with the original destination.
 - Match the special iOS Settings header's Back touch target, corner radius and blue/cyan border to the common 50pt Back affordance. Preserve its actual Home destination and existing save controls.
