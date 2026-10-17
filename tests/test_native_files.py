@@ -1420,7 +1420,7 @@ image_source=(root/'tools/generate_images.py').read_text()
 assert "home_art.paste(scene_only,(0,340),mask)" in image_source
 assert "home_art.paste(logoCrop" not in image_source
 assert "homeLogo=ImageView(this)" in android_home and "homePilot=ImageView(this)" in android_home
-assert "val homeLogo=UIImageView(image:UIImage(named:\"Logo\"))" in ios_home
+assert "let homeLogo=UIImageView(image:UIImage(named:\"Logo\"))" in ios_home
 assert "let homePilot=UIImageView(image:UIImage(named:\"BopiPortrait\\(progress.skinIndex())\"))" in ios_home
 assert "portraitDrawableIds[progress.skin()]" in android_home
 assert "launch_art.alpha_composite(logoCrop,((900-logoCrop.width)//2,215))" in image_source
