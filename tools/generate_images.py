@@ -110,7 +110,7 @@ logoCrop.thumbnail((740,250),Image.Resampling.LANCZOS)
 # are interactive/native runtime layers and must remain aligned on tall phones.
 import re
 hero_source=(r/'docs/assets/hero.svg').read_text()
-flight_group=re.search(r'<g transform="translate\\(454 336\\) rotate\\(-12\\)">[\\s\\S]*?</g>',hero_source)
+flight_group=re.search(r'<g transform="translate\(454 336\) rotate\(-12\)">[\s\S]*?</g>',hero_source)
 if flight_group is None:
     raise RuntimeError('Approved home source has no detachable Bopi pilot')
 scene_only_svg=hero_source[:flight_group.start()]+hero_source[flight_group.end():]
