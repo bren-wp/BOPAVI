@@ -859,7 +859,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
         title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
-        small(content,if(progress.languageCode()=="hr")"Pauza · Level ${game.game.displayLevel}" else "Paused · Level ${game.game.displayLevel}")
+        small(content,if(progress.languageCode()=="hr")"Let je pauziran" else "Flight paused")
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -924,7 +924,7 @@ class MainActivity : Activity() {
                 progress.recordLevelStars(world,completed,simulation.completedLevelStars)
                 val amount=progress.completeLevel(world,completed,simulation.score())
                 sound.effect("level")
-                if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()
+                // Progression is saved silently; no visible level system in simple mode.
             },
             onFlap={sound.effect("tap")},
             onFlightStarted={
