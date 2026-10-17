@@ -128,6 +128,13 @@ PY
 # New production UX: one Play -> live endless game -> genuine result -> Retry.
 sleep 2
 dump_ui
+# A system-only Pixel Launcher ANR can cover an otherwise running BOPAVI
+# after emulator cold boot. Recover ONLY the allowlisted system dialog,
+# then capture a fresh hierarchy and demand the actual game's PLAY control.
+if recover_launcher_anr; then
+  sleep 3
+  dump_ui
+fi
 capture android-home
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
@@ -187,7 +194,14 @@ root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
 nodes=list(root.iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 labels=" ".join(label(n) for n in nodes)
-if "RESULT" not in labels and "REZULTAT" not in labels:raise SystemExit("FAIL: loss result missing")
+# English GameOver is intentionally titled FLIGHT OVER!, not RESULT.
+# Require one real terminal headline plus both run metrics and live controls.
+if not any(title in labels for title in ("FLIGHT OVER", "RESULT", "REZULTAT", "LET ZAVRŠEN")):
+    raise SystemExit("FAIL: loss result headline missing")
+if not any(score in labels for score in ("SCORE", "REZULTAT")):
+    raise SystemExit("FAIL: real run score missing")
+if not any(gate in labels for gate in ("TOTAL", "PROLAZA")):
+    raise SystemExit("FAIL: run gate counter missing")
 if "BEST SCORE" not in labels and "NAJBOLJI REZULTAT" not in labels:raise SystemExit("FAIL: saved best missing")
 click=[n for n in nodes if n.get("clickable")=="true"]
 retry=[n for n in click if "RETRY" in label(n) or "PONOVO" in label(n)]
