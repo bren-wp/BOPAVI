@@ -979,7 +979,7 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
             setPadding(d(18),d(15),d(18),d(19))
-            background=gradient(0xff0876db.toInt(),0xff031936.toInt(),26).apply{
+            background=gradient(0xff106bd2.toInt(),0xff031936.toInt(),26).apply{
                 setStroke(d(3),electric)
             }
         }
@@ -989,7 +989,7 @@ class MainActivity : Activity() {
             setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(128)))
+        },LinearLayout.LayoutParams(-1,d(154)))
         title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
         small(content,if(progress.languageCode()=="hr")"Pauza · Level ${game.game.displayLevel}" else "Paused · Level ${game.game.displayLevel}")
         fun command(text:String,style:Int,action:()->Unit){
@@ -1274,7 +1274,7 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
-        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(144)).apply{bottomMargin=d(5)})
+        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(174)).apply{bottomMargin=d(5)})
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
