@@ -253,6 +253,73 @@ print("PASS: privacy/terms native footer, truthful Brendigo notices and no-scrol
       flush=True)
 PY
 }
+# Android portrait QA: advanced Settings must have readable native touch targets.
+# A tiny, uniformly scaled 1-screen screenshot is not an acceptable substitute.
+verify_advanced_settings_readability(){
+  python3 - <<'PY'
+import re,subprocess,time,xml.etree.ElementTree as ET
+from pathlib import Path
+
+def dump():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-advanced.xml"],
+                   check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=30)
+    raw=subprocess.run(["adb","exec-out","cat","/sdcard/bopavi-advanced.xml"],
+                       check=True,capture_output=True,timeout=15).stdout
+    return ET.fromstring(raw)
+def bounds(node):
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",node.get("bounds",""))
+    if not m: raise SystemExit("FAIL: invalid advanced Settings coordinates")
+    return tuple(map(int,m.groups()))
+def tap(node):
+    l,t,r,b=bounds(node)
+    subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],
+                   check=True,timeout=15)
+def png(name):
+    data=subprocess.run(["adb","exec-out","screencap","-p"],check=True,
+                        capture_output=True,timeout=25).stdout
+    if not data.startswith(bytes.fromhex("89504e470d0a1a0a")):
+        raise SystemExit("FAIL: advanced Settings captured screenshot is not PNG")
+    Path("qa/screenshots/"+name).write_bytes(data)
+
+main=dump()
+trigger=[n for n in main.iter("node") if n.get("clickable")=="true" and
+         n.get("content-desc")=="ADVANCED SETTINGS"]
+if len(trigger)!=1: raise SystemExit("FAIL: advanced Settings is not a unique real button")
+tap(trigger[0]);time.sleep(.8)
+advanced=dump()
+scrolls=[n for n in advanced.iter("node")
+         if n.get("class")=="android.widget.ScrollView" and n.get("scrollable")=="true"]
+if len(scrolls)!=1:
+    raise SystemExit("FAIL: advanced Settings are still squeezed into a non-scroll scaled viewport")
+l,t,r,b=bounds(scrolls[0])
+if r-l<200 or b-t<400: raise SystemExit("FAIL: advanced Settings viewport too small")
+slider=[n for n in advanced.iter("node") if n.get("class")=="android.widget.SeekBar"]
+if len(slider)<2: raise SystemExit("FAIL: live advanced sound sliders missing")
+for item in slider[:2]:
+    a,c,d,e=bounds(item)
+    if e-c<35: raise SystemExit("FAIL: advanced Settings slider has a tiny hit target")
+png("android-settings-advanced-top.png")
+x=(l+r)//2
+for _ in range(4):
+    subprocess.run(["adb","shell","input","swipe",str(x),str(b-110),
+                    str(x),str(t+140),"350"],check=True,timeout=15)
+    time.sleep(.18)
+at_bottom=dump()
+png("android-settings-advanced-bottom.png")
+bottom_text=" ".join(n.get("content-desc","")+" "+n.get("text","")
+                     for n in at_bottom.iter("node"))
+if not any(term in bottom_text for term in
+           ("SAVE PROGRESS BACKUP","RESTORE PROGRESS FROM BACKUP",
+            "SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE")):
+    raise SystemExit("FAIL: advanced Settings cannot reach live backup/restore actions")
+subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
+time.sleep(.5)
+returned=dump()
+if not any(n.get("content-desc")=="ADVANCED SETTINGS" for n in returned.iter("node")):
+    raise SystemExit("FAIL: advanced Settings Back did not restore parent Settings screen")
+print("PASS: advanced Settings are full-size, scrollable, touch-safe, and return to parent",flush=True)
+PY
+}
 # Verify actual touch selection and persisted difficulty without disturbing
 # the user's normal default before the gameplay/collision QA starts.
 # Real device verification: no scroll anywhere in the 26-language picker.
@@ -836,6 +903,7 @@ while [ "$attempt" -le 6 ]; do
     verify_settings_legal
     verify_paged_languages
     verify_difficulty_cards
+    verify_advanced_settings_readability
     adb shell input keyevent 4
     sleep 1
     # The system launcher can raise an ANR *while navigating back*, too.
