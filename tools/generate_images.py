@@ -297,6 +297,10 @@ if photo_bopi:
                        centering=(.51,.42)).filter(ImageFilter.GaussianBlur(14))
     background=Image.alpha_composite(scene.convert('RGBA'),
                                       Image.new('RGBA',(1024,1024),(2,20,67,152)))
+    # Android adaptive icons need an actual full-bleed world layer behind the transparent mascot.
+    # A flat launcher color previously discarded the detailed BOPAVI background.
+    background.resize((512,512),Image.Resampling.LANCZOS).convert("RGB").save(
+        a/'drawable/app_icon_background.png',optimize=True)
     foreground=Image.new('RGBA',(1024,1024),(0,0,0,0))
     halo=Image.new('RGBA',(1024,1024),(0,0,0,0))
     ImageDraw.Draw(halo,'RGBA').ellipse((128,130,896,899),fill=(0,174,255,190))
