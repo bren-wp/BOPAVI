@@ -6,6 +6,20 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun premiumShopBoostsHaveRealThreeHitAndEighteenSecondCapacity() {
+        val stage=LevelEngine.create(0,1)
+        val premium=GameSimulation(stage,initialShield=3,initialMagnet=18f)
+        assertEquals("Third shield charge must survive construction",3,premium.shield)
+        assertEquals("The full purchased magnet duration must be available",18f,premium.magnetTime,0f)
+        val capped=GameSimulation(stage,initialShield=999,initialMagnet=999f)
+        assertEquals("Shields must remain bounded to the strongest purchased tier",3,capped.shield)
+        assertEquals("Magnets must remain bounded to the strongest purchased tier",18f,capped.magnetTime,0f)
+        premium.flap()
+        premium.step(1f/60f)
+        assertTrue("Magnet timer advances only during real flight",premium.magnetTime in 17f..18f)
+        assertEquals(3,premium.shield)
+    }
+
     @Test fun languageCatalogDefaultsToEnglishAndPreservesCroatian() {
         assertEquals(26,GameLanguages.codes.size)
         assertEquals(GameLanguages.codes.size,GameLanguages.codes.toSet().size)
