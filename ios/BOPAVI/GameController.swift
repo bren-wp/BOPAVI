@@ -1091,7 +1091,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func showPremiumPause(for canvas:GameCanvas){
         let overlay=UIView()
         overlay.translatesAutoresizingMaskIntoConstraints=false
-        overlay.backgroundColor=UIColor(red:0,green:0.055,blue:0.14,alpha:0.80)
+        overlay.backgroundColor=UIColor(red:0,green:0.055,blue:0.14,alpha:0.70)
         view.addSubview(overlay)
         NSLayoutConstraint.activate([
             overlay.leadingAnchor.constraint(equalTo:view.leadingAnchor),
@@ -1135,7 +1135,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
-        mascot.heightAnchor.constraint(equalToConstant:130).isActive=true
+        mascot.heightAnchor.constraint(equalToConstant:154).isActive=true
         panel.addArrangedSubview(mascot)
         label(progress.languageCode=="hr" ? "♛  PAUZA" : "♛  PAUSE",33,UIColor.white,panel)
         label((progress.languageCode=="hr" ? "Pauza · Level " : "Paused · Level ") + String(canvas.game.displayLevel),14,
@@ -1421,7 +1421,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.layer.cornerRadius=22
         header.layer.borderWidth=2
         header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
-        header.heightAnchor.constraint(equalToConstant:144).isActive=true
+        header.heightAnchor.constraint(equalToConstant:174).isActive=true
         header.isAccessibilityElement=true
         header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
         stack.addArrangedSubview(header)
@@ -1453,7 +1453,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             pilot.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:6),
             pilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-6),
             pilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
-            pilot.heightAnchor.constraint(equalToConstant:140)
+            pilot.heightAnchor.constraint(equalToConstant:170)
         ])
         label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
         if newRecord {
