@@ -1,4 +1,6 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- System-owned launch window: one neutral sky under the real runtime splash.
+         Do not repeat the giant branded splash drawable here: on Android 12+
+         it causes two successive BOPAVI logos before any Home controls exist. -->
     <item android:drawable="@color/bopavi_launch_sky"/>
-    <item android:gravity="center" android:drawable="@drawable/splash"/>
 </layer-list>

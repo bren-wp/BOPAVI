@@ -92,7 +92,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
     private var recordsReturnToSettings=false
-    private var startupPending=false
     private var currentMenuName="BOPAVI"
     private weak var pauseFitViewport:UIScrollView?
     private weak var pauseFitPanel:UIStackView?
@@ -120,18 +119,11 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         sound.enabled=progress.soundEnabled
         sound.musicVolume=Float(progress.musicVolume)/100
         sound.effectsVolume=Float(progress.effectsVolume)/100
-        showSplash()
-    }
-    override func viewDidAppear(_ animated:Bool) {
-        super.viewDidAppear(animated)
-        guard startupPending else{return}
-        startupPending=false
-        // UIKit has laid out the real launch scene; display Home as soon as
-        // the first full-screen scene has been attached. No artificial timer.
-        DispatchQueue.main.async { [weak self] in
-            guard let self=self, self.view.window != nil, self.canvas == nil else{return}
-            self.showHome()
-        }
+        // iOS already displays the branded native LaunchArt while UIKit loads.
+        // The old extra runtime splash was replaced on the very next frame,
+        // producing the duplicate logo/loading flash reported on real phones.
+        // There is no asynchronous data to await here; create Home once.
+        showHome()
     }
     deinit { NotificationCenter.default.removeObserver(self) }
     @objc private func pauseForInterruption(_ note:Notification) {
@@ -155,79 +147,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         view.layer.sublayers?.forEach{$0.removeFromSuperlayer()}
         view.backgroundColor=UIColor(red:0.03,green:0.10,blue:0.24,alpha:1)
     }
-    /** Full-bleed branded startup, distinct from Home and with live activity. */
-    private func showSplash() {
-        clear()
-        startupPending=true
-        let art=UIImageView(image:UIImage(named:"LaunchArt"))
-        art.contentMode = .scaleAspectFill
-        art.clipsToBounds=true
-        art.isAccessibilityElement=false
-        art.translatesAutoresizingMaskIntoConstraints=false
-        view.addSubview(art)
-        NSLayoutConstraint.activate([
-            art.topAnchor.constraint(equalTo:view.topAnchor),
-            art.bottomAnchor.constraint(equalTo:view.bottomAnchor),
-            art.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-            art.trailingAnchor.constraint(equalTo:view.trailingAnchor)
-        ])
-        let panel=UIView()
-        panel.backgroundColor=UIColor(red:0.025,green:0.12,blue:0.27,alpha:0.94)
-        panel.layer.cornerRadius=20
-        panel.layer.borderWidth=2
-        panel.layer.borderColor=UIColor(red:0.02,green:0.85,blue:1,alpha:0.95).cgColor
-        panel.translatesAutoresizingMaskIntoConstraints=false
-        view.addSubview(panel)
-        let loading=UILabel()
-        loading.text="UČITAVANJE..."
-        loading.textColor = .white
-        loading.font=UIFont.systemFont(ofSize:13,weight:.heavy)
-        loading.textAlignment = .center
-        loading.accessibilityLabel="BOPAVI, učitavanje igre"
-        loading.translatesAutoresizingMaskIntoConstraints=false
-        panel.addSubview(loading)
-        let track=UIView()
-        track.backgroundColor=UIColor(red:0.07,green:0.23,blue:0.46,alpha:1)
-        track.layer.cornerRadius=6
-        track.clipsToBounds=true
-        track.translatesAutoresizingMaskIntoConstraints=false
-        panel.addSubview(track)
-        NSLayoutConstraint.activate([
-            panel.widthAnchor.constraint(equalToConstant:252),
-            panel.widthAnchor.constraint(lessThanOrEqualTo:view.widthAnchor,constant:-32),
-            panel.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-30),
-            panel.centerXAnchor.constraint(equalTo:view.centerXAnchor),
-            panel.heightAnchor.constraint(equalToConstant:78),
-            loading.leadingAnchor.constraint(equalTo:panel.leadingAnchor,constant:12),
-            loading.trailingAnchor.constraint(equalTo:panel.trailingAnchor,constant:-12),
-            loading.topAnchor.constraint(equalTo:panel.topAnchor,constant:10),
-            loading.heightAnchor.constraint(equalToConstant:25),
-            track.leadingAnchor.constraint(equalTo:panel.leadingAnchor,constant:18),
-            track.trailingAnchor.constraint(equalTo:panel.trailingAnchor,constant:-18),
-            track.topAnchor.constraint(equalTo:loading.bottomAnchor,constant:10),
-            track.heightAnchor.constraint(equalToConstant:12)
-        ])
-        // An indeterminate sweep represents genuine startup work, not a
-        // fictional 10/30/100-percent progress value.
-        let sweep=CAGradientLayer()
-        sweep.colors=[UIColor(red:1,green:0.65,blue:0.03,alpha:1).cgColor,
-                      UIColor(red:1,green:0.90,blue:0.35,alpha:1).cgColor]
-        sweep.frame=CGRect(x:-72,y:2,width:72,height:8)
-        sweep.cornerRadius=4
-        track.layer.addSublayer(sweep)
-        if !UIAccessibility.isReduceMotionEnabled {
-            let movement=CABasicAnimation(keyPath:"transform.translation.x")
-            movement.fromValue=0
-            movement.toValue=290
-            movement.duration=1.35
-            movement.repeatCount = .infinity
-            movement.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
-            sweep.add(movement,forKey:"startup-progress")
-        } else {
-            sweep.frame.origin.x=2
-        }
-    }
-
     // Menus share the illustrated backgrounds and gold / cyan / navy palette.
     // Gameplay and persistence remain independent of these presentation views.
     private func ui(_ text:String)->String {GameLanguages.text(text,progress.languageCode)}
@@ -377,6 +296,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 shade.topAnchor.constraint(equalTo:view.topAnchor),
                 shade.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
+            // The reference Worlds/Profile header features a second flying
+            // Bopi behind live UI. Match the Android native layered approach.
+            if title == "SVJETOVI" || title == "PROFIL" {
+                let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                flyingPilot.contentMode = .scaleAspectFit
+                flyingPilot.isAccessibilityElement=false
+                flyingPilot.isUserInteractionEnabled=false
+                flyingPilot.translatesAutoresizingMaskIntoConstraints=false
+                view.addSubview(flyingPilot)
+                NSLayoutConstraint.activate([
+                    flyingPilot.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:37),
+                    flyingPilot.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-7),
+                    flyingPilot.widthAnchor.constraint(equalToConstant:150),
+                    flyingPilot.heightAnchor.constraint(equalToConstant:165)
+                ])
+            }
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false

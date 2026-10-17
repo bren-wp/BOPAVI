@@ -1,3 +1,12 @@
+## v0.2.14 — startup de-duplication and responsive menu shell (build 119)
+- Remove iOS duplicate branded loading step: UIKit now shows the real interactive Home immediately after the existing OS-provided LaunchArt, without an extra splash screen and viewDidAppear route transition. No fake loading percentage.
+- Keep Android's real asynchronous HomeArt warmup and one native loading interface, but remove the second full-branded bitmap from the OS window background. The static OS stage is neutral sky; the only runtime splash has a genuine indeterminate progress indicator.
+- Fix Android Home footer being downscaled on compact phones: separate the four clickable tabs from FitViewportColumn, pin the bar to the physical bottom safe-area inset, and reserve space so Home CTAs cannot collide with the footer.
+- Draw the genuinely selected Bopi pilot in a separate decorative layer behind Profile and Worlds headers on both Android and iOS; no fake metrics, static buttons, or progression.
+- Expand Android/iOS source regression contracts to cover no duplicate startup, real Home safe-area footer and selected pilot art.
+- Existing Settings, Shop, world progression, result save data and physics are intentionally untouched; the high-fidelity painted world/card/hero assets and typography remain outstanding **1:1 requirements**.
+- Android and iOS **v0.2.14 / build 119**; publishing requires green CI and genuine emulator/simulator captures.
+
 ## v0.2.13 — legible advanced Settings on physical Android/iOS devices (build 118)
 - Fix severe physical-device legibility failure: advanced Settings previously shrank all music sliders, language/difficulty cards, backup actions and legal sections into a tiny fixed-height screen on tall/short phones.
 - Android advanced Settings now has a proper edge-safe native ScrollView; iOS has a matching real UIScrollView enabled exclusively for this long screen. Never scale its text or tap targets down to fit the entire form at once.
