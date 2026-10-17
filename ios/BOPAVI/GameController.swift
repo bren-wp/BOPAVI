@@ -1014,7 +1014,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         mascot.heightAnchor.constraint(equalToConstant:154).isActive=true
         panel.addArrangedSubview(mascot)
         label(progress.languageCode=="hr" ? "♛  PAUZA" : "♛  PAUSE",33,UIColor.white,panel)
-        label((progress.languageCode=="hr" ? "Pauza · Level " : "Paused · Level ") + String(canvas.game.displayLevel),14,
+        label(progress.languageCode=="hr" ? "Let je pauziran" : "Flight paused",14,
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
@@ -1082,7 +1082,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.progress.recordLevelStars(world:world,number:level,earned:game.completedLevelStars)
             let reward=self.progress.completeLevel(world:world,number:level,score:game.score())
             self.sound.effect("level")
-            if reward>0 {self.showToast("Level \(level): +\(reward) kovanica")}
+            _ = reward // Store legacy progress, but do not surface a level system.
         }
         // Gameplay counts now share one frame-synchronous Core Graphics HUD
         // on Android and iOS; avoid a duplicate UIKit chip over the scene.
@@ -1108,15 +1108,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.showPremiumPause(for:canvas)
 
         },for:.touchUpInside)
-    }
-    private func showToast(_ message:String){
-        guard view.window != nil else{return}
-        let notice=UILabel();notice.text=message;notice.textAlignment = .center;notice.textColor = .white
-        notice.font=UIFont.systemFont(ofSize:15,weight:.bold);notice.backgroundColor=UIColor(red:0.06,green:0.27,blue:0.43,alpha:0.92)
-        notice.layer.cornerRadius=12;notice.clipsToBounds=true
-        notice.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(notice)
-        NSLayoutConstraint.activate([notice.centerXAnchor.constraint(equalTo:view.centerXAnchor),notice.centerYAnchor.constraint(equalTo:view.centerYAnchor,constant:-110),notice.widthAnchor.constraint(lessThanOrEqualTo:view.widthAnchor,multiplier:0.85),notice.heightAnchor.constraint(equalToConstant:44)])
-        DispatchQueue.main.asyncAfter(deadline:.now()+1.5){[weak notice] in notice?.removeFromSuperview()}
     }
     private func showResult(_ g:GameSimulation){
         let previousRecord=progress.bestPoints()
