@@ -644,6 +644,30 @@ class MainActivity : Activity() {
         }
         wallets.addView(gear,LinearLayout.LayoutParams(d(48),d(48)))
         layout.addView(wallets,LinearLayout.LayoutParams(-1,d(52)))
+        // These are separate transparent game assets, not UI painted onto a
+        // screenshot. Scaling them independently preserves the reference's
+        // enormous centered Bopi on 18:9, 19.5:9 and tall Android screens.
+        val homeLogo=ImageView(this).apply{
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        layout.addView(homeLogo,LinearLayout.LayoutParams(-1,d(128)).apply{
+            topMargin=d(8)
+        })
+        val homePilot=ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            contentDescription=null
+        }
+        layout.addView(homePilot,LinearLayout.LayoutParams(-1,d(252)).apply{
+            topMargin=d(3)
+        })
+        // Distribute spare height only AFTER the portrait, so Bopi remains in
+        // the reference hero band instead of shrinking near the header.
         layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(layout,"▶  IGRAJ"){
             val world=progress.chosenWorld()
