@@ -2859,10 +2859,10 @@ print('PASS: authentic Collection screenshot is a required release asset with SH
 # v0.2.11 — regression coverage for the provided pilot/settings design.
 a_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
 i_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
-assert 'LinearLayout.LayoutParams(0,d(188),0.56f)' in a_picker
-assert 'LinearLayout.LayoutParams(-1,d(194))' in a_picker
-assert 'head.heightAnchor.constraint(equalToConstant:194)' in i_picker
-assert 'chosenPicture.heightAnchor.constraint(equalToConstant:185)' in i_picker
+assert 'LinearLayout.LayoutParams(0,d(224),0.61f)' in a_picker
+assert 'LinearLayout.LayoutParams(-1,d(230))' in a_picker
+assert 'head.heightAnchor.constraint(equalToConstant:230)' in i_picker
+assert 'chosenPicture.heightAnchor.constraint(equalToConstant:222)' in i_picker
 assert 'progress.worldStars(world)' in a_picker and 'progress.worldStars(world)' in i_picker
 assert 'ownedCount' in a_picker and 'ownedCount' in i_picker
 for source,begin,end in ((android_menu,'private fun showSettings(){','private fun showLegalNotice('),
