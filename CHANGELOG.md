@@ -1,3 +1,12 @@
+## v0.2.19 — smoother cliffs, collectible berries and premium gameplay polish (build 124)
+- Richer forest-stone pillars: layered grass, mossy caps, climbing foliage and small flowers rendered as native geometry on Android and iOS. Berry fruit uses separate live native graphics, never painted buttons or coin icons.
+- A gentle, deterministic rise-and-fall obstacle rhythm replaces abrupt alternation. Per-chunk height changes and seamless procedural course boundaries remain bounded. Keep original collision geometry and progressive difficulty.
+- Real red berries are collectable only when the bird touches the fruit in a safe opening, exactly once per berry, triggering feedback. Food is not a virtual currency.
+- Show the true **HRANA / FOOD** count in the flight HUD and on the Result screen next to real scores. Keep the original four-view experience with no store or extra screens.
+- New Kotlin/Swift tests cover contact versus missed fruit, collection once, no coin rewards, natural gate heights and continuous level seams. Legacy best scores and saved preferences remain intact.
+- Android/iOS **v0.2.19 / build 124**. GitHub CI must pass before unsigned APK/AAB and iOS archives can be released.
+- Visual fidelity still requires comparison of real device captures with original approved concept references.
+
 ## v0.2.18 — original Bopi, endless flight and four-view mobile game (build 123)
 - Android and iOS now navigate only between Home, endless gameplay, Pause and Results; delete unreachable old shop, profile, world/level selection, character picker, collection, achievements, records and settings controllers.
 - Lock the original blue Bopi as the playable and Home character. Keep native buttons, fantasy backgrounds and logo as independent live elements.
