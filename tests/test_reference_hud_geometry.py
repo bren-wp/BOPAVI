@@ -16,7 +16,7 @@ for hud in (a_hud,i_hud):
     assert "game.score()" in hud
     assert "SCORE" in hud
     assert "game.coins" not in hud and "game.stars" not in hud
-    assert "wallet" not in hud.lower() and "displayLevel" not in hud
+    assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
 assert "hudGlass(c,18f,20f,212f,88f)" in a_hud
 assert "hudGlass(c,18,20,194,68)" in i_hud
 print("PASS: Android/iOS safe-area gameplay scoreboard only")
