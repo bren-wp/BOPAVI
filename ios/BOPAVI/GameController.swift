@@ -2732,8 +2732,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         menuBack(s){self.showHome()}
         let owned=(0...8).filter{progress.owned($0)}.count
         let stars=(0..<8).reduce(0){$0+progress.worldStars($1)}
-        label("♛  \(progress.coins()) "+(croatian ? "kovanica" : "coins")+
-              "   ·   ★ \(stars) "+(croatian ? "zvjezdica" : "stars"),14,.white,s)
+        let collectionTotals="♛  \(progress.coins()) " + (croatian ? "kovanica" : "coins") + "   ·   ★ \(stars) " + (croatian ? "zvjezdica" : "stars")
+        label(collectionTotals,14,.white,s)
         sectionHeading(croatian ? "MOJA OTKRIĆA" : "MY DISCOVERIES",in:s)
         for line in 0..<4 {
             let row=UIStackView()
@@ -2748,9 +2748,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     : UIColor(red:0.15,green:0.82,blue:1,alpha:1)).cgColor
                 card.clipsToBounds=true
                 card.heightAnchor.constraint(equalToConstant:84).isActive=true
-                card.accessibilityLabel="\(ui(BopaviCore.names[world])), "+
-                    "\(progress.worldStars(world)) stars, "+
-                    "\(progress.collectibles(world)) collected"
+                card.accessibilityLabel="\(ui(BopaviCore.names[world])), \(progress.worldStars(world)) stars, \(progress.collectibles(world)) collected"
                 card.accessibilityHint=ui("Open world levels")
                 let scene=UIImageView(image:UIImage(named:"World\(world)"))
                 scene.translatesAutoresizingMaskIntoConstraints=false
@@ -2818,8 +2816,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         avatar.heightAnchor.constraint(equalToConstant:54).isActive=true
         pilotRow.addArrangedSubview(avatar)
         let pilotCaption=UILabel()
-        pilotCaption.text="\(progress.skinNames[selected]) · \(owned)/9 "+
-            (croatian ? "otključanih pilota" : "pilots unlocked")
+        pilotCaption.text="\(progress.skinNames[selected]) · \(owned)/9 " + (croatian ? "otključanih pilota" : "pilots unlocked")
         pilotCaption.textColor = .white
         pilotCaption.font=UIFont.systemFont(ofSize:13,weight:.heavy)
         pilotCaption.adjustsFontSizeToFitWidth=true;pilotCaption.minimumScaleFactor=0.70
