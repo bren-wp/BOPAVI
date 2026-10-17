@@ -94,22 +94,22 @@ class ProgressStore(context: Context) {
         e.putInt("coins",(coins().toLong()+reward).coerceAtMost(100000000L).toInt()).apply()
         return reward
     }
-    val perkNames=listOf("Početni štit", "Početni magnet", "Dvostruki štit", "Dugi magnet")
-    val perkPrices=listOf(80,65,150,120)
-    fun perkCount(index:Int):Int = if(index in 0..3) prefs.getInt("perk_$index",0).coerceIn(0,99) else 0
+    val perkNames=listOf("Početni štit", "Početni magnet", "Dvostruki štit", "Dugi magnet", "Trostruki štit", "Super magnet")
+    val perkPrices=listOf(80,65,150,120,230,195)
+    fun perkCount(index:Int):Int = if(index in 0..5) prefs.getInt("perk_$index",0).coerceIn(0,99) else 0
     fun buyPerk(index:Int):Boolean {
-        if(index !in 0..3 || perkCount(index)>=99 || coins()<perkPrices[index]) return false
+        if(index !in 0..5 || perkCount(index)>=99 || coins()<perkPrices[index]) return false
         prefs.edit().putInt("coins",coins()-perkPrices[index]).putInt("perk_$index",perkCount(index)+1).apply()
         return true
     }
     /** Higher-tier purchases override standard gear; never consume both tiers. */
     fun previewPerks():Pair<Int,Float> = Pair(
-        if(perkCount(2)>0)2 else if(perkCount(0)>0)1 else 0,
-        if(perkCount(3)>0)12f else if(perkCount(1)>0)8f else 0f)
+        if(perkCount(4)>0)3 else if(perkCount(2)>0)2 else if(perkCount(0)>0)1 else 0,
+        if(perkCount(5)>0)18f else if(perkCount(3)>0)12f else if(perkCount(1)>0)8f else 0f)
     fun consumePerks():Pair<Int,Float> {
         val selected=previewPerks()
-        val shieldTier=if(perkCount(2)>0)2 else if(perkCount(0)>0)0 else -1
-        val magnetTier=if(perkCount(3)>0)3 else if(perkCount(1)>0)1 else -1
+        val shieldTier=if(perkCount(4)>0)4 else if(perkCount(2)>0)2 else if(perkCount(0)>0)0 else -1
+        val magnetTier=if(perkCount(5)>0)5 else if(perkCount(3)>0)3 else if(perkCount(1)>0)1 else -1
         val editor=prefs.edit()
         for(index in listOf(shieldTier,magnetTier))if(index>=0)
             editor.putInt("perk_$index",perkCount(index)-1)
@@ -219,7 +219,7 @@ class ProgressStore(context: Context) {
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
         s.put("wins",wins());s.put("deaths",deaths());s.put("flaps",prefs.getLong("flaps",0L))
         s.put("endlessBest",endlessBest());s.put("endlessRuns",prefs.getInt("endless_runs",0))
-        s.put("perks",JSONArray((0..3).map{perkCount(it)}))
+        s.put("perks",JSONArray((0..5).map{perkCount(it)}))
         s.put("collectibles",JSONArray((0..7).map{collectibles(it)})); s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
         s.put("musicVolume",musicVolume());s.put("effectsVolume",effectsVolume())
         return JSONObject().put("format", "bopavi-save").put("exportVersion", 6).put("save", s).toString(2)
@@ -300,7 +300,7 @@ class ProgressStore(context: Context) {
         val daily=s.optString("lastDaily","")
         if(daily.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))e.putString("last_daily",daily)
         val perkData=s.optJSONArray("perks")
-        if(perkData!=null && perkData.length() in 2..4)for(j in 0 until perkData.length())e.putInt("perk_$j",perkData.optInt(j,0).coerceIn(0,99))
+        if(perkData!=null && perkData.length() in 2..6)for(j in 0 until perkData.length())e.putInt("perk_$j",perkData.optInt(j,0).coerceIn(0,99))
         val collection=s.optJSONArray("collectibles")
         if(collection!=null && collection.length()==8)for(j in 0..7)e.putInt("collectibles_$j",collection.optInt(j,0).coerceIn(0,100000000))
         val restoredName = s.optString("playerName", "Igrač").trim().take(24).filter {
