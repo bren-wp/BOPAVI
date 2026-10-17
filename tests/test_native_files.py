@@ -2369,6 +2369,13 @@ assert 'drawCliffShaft(c,x,w,-25f,top' in android_render
 assert 'drawCliffShaft(c,x,w,-25,top' in ios_render
 assert 'threeDifficultiesChangeRealRenderableAndCollidableOpenings' in (root/'android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt').read_text()
 assert 'Difficulty must alter actual lip collision' in (root/'tests/SwiftParity.swift').read_text()
+# v0.2.8: a predictable but varied narrow/wide obstacle rhythm must affect
+# actual gate geometry on both platforms; intro gates remain unchanged.
+assert '(if(i < 2) 0f else if(i % 2 == 0) 9f else -9f)' in android_engine
+assert '(i < 2 ? 0 : (i%2 == 0 ? 9 : -9))' in swift_engine
+assert 'LevelEngine.opening(gate, time, difficulty)' in android_sim_source
+assert 'BopaviCore.opening(gate, time,difficulty:difficulty)' in swift_engine
+print('PASS: world gates use equivalent alternating narrow/wide physics openings')
 print('PASS: eight-world deterministic tall/short gates, difficulty collision/render parity and fixed bird size')
 
 
