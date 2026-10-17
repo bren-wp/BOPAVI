@@ -487,14 +487,16 @@ level_root=dump()
 if set(tiles(level_root))!=set(range(1,21)):
     raise SystemExit('FAIL: pilot Back did not restore all 20 level cards')
 print('PASS: 20 real level hit targets, locked selection, page navigation, playable level and pilot Back without scrolling',flush=True)
+# Accessible Back captions are localized sentence-case, not always all-caps.
+# Still require exactly one real tappable control and exercise its navigation.
 level_back=[n for n in clickable(level_root) if 'BACK' in
-            (n.get('text','')+' '+n.get('content-desc',''))]
+            (n.get('text','')+' '+n.get('content-desc','')).upper()]
 if len(level_back)!=1:raise SystemExit('FAIL: levels Back missing')
 tap(level_back[0]);time.sleep(.6)
 root=dump()
 if not any(n.get('content-desc','').startswith('Green Islands, unlocked,') for n in clickable(root)):
     raise SystemExit('FAIL: levels Back failed to restore world gallery')
-back=[n for n in clickable(root) if 'BACK' in (n.get('content-desc','')+' '+n.get('text',''))]
+back=[n for n in clickable(root) if 'BACK' in (n.get('content-desc','')+' '+n.get('text','')).upper()]
 if len(back)!=1: raise SystemExit(f'FAIL: missing single worlds BACK action ({len(back)})')
 l,t,r,b=bounds(back[0])
 if l<0 or t<0 or r>width or b>height:
