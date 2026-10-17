@@ -1764,7 +1764,7 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
         }
-        val navNames=listOf("PROFIL","ZADACI","REKORDI","TRGOVINA")
+        val navNames=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
         val navIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
             R.drawable.nav_collection,R.drawable.nav_shop)
         for(index in 0..3){
@@ -1792,7 +1792,7 @@ class MainActivity : Activity() {
                     when(index){
                         0->showProfile()
                         1->showAchievements(MenuOrigin.PROFILE)
-                        2->showLeaderboard()
+                        2->showCollection()
                         else->showPerks(MenuOrigin.PROFILE)
                     }
                 }
