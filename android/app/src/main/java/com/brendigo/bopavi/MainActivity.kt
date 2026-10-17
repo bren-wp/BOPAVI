@@ -226,7 +226,7 @@ class MainActivity : Activity() {
         // Keep it decorative so it can never intercept real navigation taps.
         if(label=="SVJETOVI" || label=="PROFIL" || label=="TRGOVINA"){
             root.addView(ImageView(this).apply{
-                setImageResource(portraitDrawableIds[progress.skin()])
+                setImageResource(portraitDrawableIds[0])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alpha=0.96f
@@ -556,18 +556,6 @@ class MainActivity : Activity() {
             sound.effect("click")
             startGame(0,1L)
         }
-        content.addView(TextView(this).apply{
-            val record=progress.bestPoints()
-            text=if(progress.languageCode()=="hr")
-                "★  NAJBOLJI REZULTAT: $record" else "★  BEST SCORE: $record"
-            textSize=16f
-            setTextColor(Color.WHITE)
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            gravity=Gravity.CENTER
-            setPadding(d(9),d(9),d(9),d(9))
-            background=gradient(0xd0082a61.toInt(),0xf0061735.toInt(),18)
-            contentDescription=text
-        },LinearLayout.LayoutParams(-1,d(53)).apply{topMargin=d(12)})
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             if(Build.VERSION.SDK_INT>=30){
@@ -911,26 +899,18 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
-        val boosts=progress.previewPerks()
-        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
+        val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,1,1L)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
-            onLevelCompleted={completed ->
-                progress.recordLevelStars(world,completed,simulation.completedLevelStars)
-                val amount=progress.completeLevel(world,completed,simulation.score())
-                sound.effect("level")
-                // Progression is saved silently; no visible level system in simple mode.
-            },
             onFlap={sound.effect("tap")},
             onFlightStarted={
                 if(selectedScreen=="game" && gameView?.game === simulation) {
                     // Charge exactly once when the player actually starts flying.
-                    progress.consumePerks()
                     pauseButton?.visibility=View.VISIBLE
                 }
             },
@@ -975,7 +955,7 @@ class MainActivity : Activity() {
         val previousRecord=progress.bestPoints()
         val newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(if(g.won)"level" else "hit")
-        val headline=ResultHeadline.label(g.score(),previousRecord,g.won)
+        val headline=if(progress.languageCode()=="hr") "REZULTAT" else "RESULT"
         progress.recordRun(g)
         currentLevel=g.displayLevel
         menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
@@ -1011,7 +991,7 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=progress.skin()
+        val pilotIndex=0
         val pilotPortraits=intArrayOf(
             R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
             R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
@@ -1101,8 +1081,6 @@ class MainActivity : Activity() {
             return stat
         }
         resultCard("REZULTAT","★",g.score().toString(),gold)
-        resultCard("PRIKUPLJENE\nKOVANICE","●",g.coins.toString(),0xffb8edff.toInt())
-        resultCard("UKUPNO\nPROLAZA","⚑",g.totalPassed.toString(),Color.WHITE)
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
             text=if(progress.languageCode()=="hr")"★  NAJBOLJI REZULTAT: $best"

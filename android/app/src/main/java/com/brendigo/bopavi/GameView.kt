@@ -299,7 +299,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
             canvas.scale(hudScale,hudScale)
             drawHud(canvas)
-            drawLevelProgress(canvas)
             canvas.restore()
         }
         // The illustrated world already owns its entire 480x800 canvas.
@@ -841,15 +840,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         courses(16f,top-34f);courses(bottom+34f,809f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
-        val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
-        val finalGate=if(incoming)index==game.upcomingGates().lastIndex
-            else index==game.level.gates.lastIndex
-        if(finalGate)drawFinishPortal(c,middle,center,g.phase)
-        if(g.coin && (incoming || game.coinVisible(index))) {
-            drawRoyalCoin(c,middle,center,g.phase)
-        }
-        if(g.star && (incoming || game.starVisible(index))){drawGoldStar(c,middle+35f,center-25f,12f)}
-        if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
      * Deterministic Canvas particles are bounded and allocate no sprites each frame.
@@ -1223,31 +1213,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,count,cx+23f,cy+26f,12.5f,Color.WHITE,true)
     }
     private fun drawHud(c:Canvas){
-        // Reference: left coin wallet, centre race bar, right real Pause view.
-        // No extra rectangular level/star chips covering the flying scene.
-        // The spendable currency comes ONLY from persistent level/milestone
-        // rewards. In-flight pickups contribute to score/collection statistics,
-        // not to the wallet: show them as a separate, truthful run counter.
-        val balance=walletCoins().coerceIn(0,100_000_000)
-        hudGlass(c,73f,22f,145f,75f)
-        hudGoldCoin(c)
-        val coinLabel=walletLabel(balance)
-        text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
-        hudPilotPortrait(c)
-        rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
-        text(c,"${word("FLIGHT","LET")} +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
-
-        // Original left-side hierarchy at fixed reference screen coordinates.
-        // No touch interception: these are honest real-time status indicators.
-        hudOrb(c,42f,101f,"★","${game.stars}",0xffffd453.toInt(),true)
-        val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,42f,163f,"∩","$seconds",
-            0xff50dfff.toInt(),game.magnetTime>0f)
-        hudOrb(c,42f,225f,"◆","${game.shield}",
-            0xff50dfff.toInt(),game.shield>0)
-        val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
-            "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
-            "Shield ${game.shield}. Magnet ${seconds} seconds."
+        // Accessible current score; no wallets, level meters or power-ups.
+        hudGlass(c,18f,20f,212f,88f)
+        text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
+        text(c,game.score().toString(),36f,76f,26f,Color.WHITE)
+        val status="${word("SCORE","BODOVI")}: ${game.score()}"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */

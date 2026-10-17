@@ -305,7 +305,6 @@ final class GameCanvas: UIView {
                           y:safeAreaInsets.top+4*hudScale)
             c.scaleBy(x:hudScale,y:hudScale)
             drawBoostHUD(c)
-            drawLevelProgress(c)
             c.restoreGState()
         }
         // Preserve the painted island/clouds down to the final scene pixel:
@@ -556,22 +555,11 @@ final class GameCanvas: UIView {
                                y:cy+21-number.size().height/2))
     }
     private func drawBoostHUD(_ c:CGContext) {
-        // The icon/number hierarchy mirrors Android, leaving the top-right
-        // reserved for the real UIKit Pause button.
-        // Only saved currency is spendable. Flight coins are a real but
-        // separate score/collection counter, not minted wallet currency.
-        let balance=max(0,min(100_000_000,coinWallet()))
-        hudGlass(c,73,22,72,53)
-        hudGoldCoin(c)
-        let coinLabel=walletLabel(balance)
-        hudText(coinLabel,111,39,coinLabel.count>=4 ? hudWalletCompactFont : hudWalletFont,0xffffff)
-        hudPilotPortrait(c)
-        rect(c,82,84,61,20,0x052a57,10,0.86)
-        hudText("\(word("FLIGHT","LET")) +\(game.coins)",84,87,collectedFont,0xffd76a)
-        hudOrb(c,42,101,"★","\(game.stars)",0xffd453,true)
-        let seconds=max(0,Int(ceil(Double(game.magnetTime))))
-        hudOrb(c,42,163,"∩","\(seconds)",0x50dfff,game.magnetTime>0)
-        hudOrb(c,42,225,"◆","\(game.shield)",0x50dfff,game.shield>0)
+        // Two high-contrast live score lines. The game has no economy or stages.
+        hudGlass(c,18,20,194,68)
+        hudText(word("SCORE","BODOVI"),36,31,hudWalletFont,0xbceeff)
+        hudText(String(game.score()),36,53,hudWalletFont,0xffffff)
+        accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score())"
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
@@ -1043,15 +1031,6 @@ final class GameCanvas: UIView {
         courses(16,top-34);courses(bottom+34,809)
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
-        let center=(top+bottom)*0.5,mid=x+w*0.5
-        let finalGate=incoming ? index==game.upcomingGates.count-1 :
-            index==game.level.gates.count-1
-        if finalGate {drawFinishPortal(c,mid,center,g.phase)}
-        if g.coin && (incoming || game.coinVisible(index)) {
-            drawRoyalCoin(c,mid,center,g.phase)
-        }
-        if g.star && (incoming || game.starVisible(index)) {star(c,mid+35,center-25,12,0xffe25d)}
-        if g.power>0 && (incoming || game.powerVisible(index)) {oval(c,mid+26,center+26,26,26,0x1a3c8b);oval(c,mid+34,center+34,10,10,g.power==1 ? 0x63edff : 0xff8ddd)}
     }
     private func star(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ size:CGFloat,_ rgb:UInt32){
         c.setFillColor(color(rgb));c.beginPath()

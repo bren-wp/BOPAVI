@@ -116,9 +116,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
             val magnetRange = if (magnetTime > 0f) 108f else 23f
-            if(gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
-            if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;levelStars++;collectedStars[i]=true;collectPulse=.36f}
-            if(gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
+            if(!endless && gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
+            if(!endless && gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;levelStars++;collectedStars[i]=true;collectPulse=.36f}
+            if(!endless && gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
                 if(gate.power==1)shield=min(3,shield+1) else magnetTime=max(magnetTime,5f)
                 collectedPowers[i]=true;collectPulse=.36f
             }
@@ -152,7 +152,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if (shield > 0) { shield--; invulnerable = 1.25f; impactPulse = .65f; velocity = -90f }
         else { finished = true; active = false; won = false }
     }
-    fun score(): Int = (totalPassed.toLong() * 100L + coins.toLong() * 10L + stars.toLong() * 25L).coerceIn(0L,100_000_000L).toInt()
+    fun score(): Int = (totalPassed.toLong() * 100L + (if(endless) 0L else coins.toLong() * 10L + stars.toLong() * 25L)).coerceIn(0L,100_000_000L).toInt()
 }
 
 /** Screen-space projection must subtract in Double before the final Float conversion. */

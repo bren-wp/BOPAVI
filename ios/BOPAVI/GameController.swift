@@ -299,7 +299,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             // The reference Worlds/Profile header features a second flying
             // Bopi behind live UI. Match the Android native layered approach.
             if title == "SVJETOVI" || title == "PROFIL" || title == "TRGOVINA" {
-                let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
                 flyingPilot.contentMode = .scaleAspectFit
                 flyingPilot.isAccessibilityElement=false
                 flyingPilot.isUserInteractionEnabled=false
@@ -638,15 +638,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.effect("click")
             self.startGame(0,1)
         }
-        let record=label(progress.languageCode=="hr" ?
-            "★  NAJBOLJI REZULTAT: \(progress.bestPoints())" :
-            "★  BEST SCORE: \(progress.bestPoints())",17,.white,stack)
-        record.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.35,alpha:0.94)
-        record.layer.cornerRadius=18
-        record.layer.borderWidth=1
-        record.layer.borderColor=UIColor(red:0.32,green:0.82,blue:1,alpha:1).cgColor
-        record.heightAnchor.constraint(equalToConstant:53).isActive=true
-        record.accessibilityLabel=record.text
     }
 
     private func showWorlds(){
@@ -1053,10 +1044,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
-        let boosts=progress.previewPerks()
-        let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
+        let game=GameSimulation(BopaviCore.createStream(0,1),endless:true,initialShield:0,initialMagnet:0,difficulty:1,initialOrdinal:1)
         sound.startWorld(world)
-        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
+        let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
             coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
@@ -1077,13 +1067,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.effect("hit")
             if self.progress.hapticEnabled {self.shieldHaptic.impactOccurred()}
         }
-        gameCanvas.onLevelComplete = { [weak self] level in
-            guard let self=self else{return}
-            self.progress.recordLevelStars(world:world,number:level,earned:game.completedLevelStars)
-            let reward=self.progress.completeLevel(world:world,number:level,score:game.score())
-            self.sound.effect("level")
-            _ = reward // Store legacy progress, but do not surface a level system.
-        }
         // Gameplay counts now share one frame-synchronous Core Graphics HUD
         // on Android and iOS; avoid a duplicate UIKit chip over the scene.
         let pause=UIButton(type:.system);pause.setTitle("Ⅱ",for:.normal);pause.titleLabel?.font=UIFont.boldSystemFont(ofSize:24)
@@ -1097,7 +1080,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause] in
             guard let self=self, self.canvas === gameCanvas else{return}
             // The pre-flight preview never spends purchased equipment.
-            _ = self.progress.consumePerks()
             pause?.isHidden=false
         }
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
@@ -1113,7 +1095,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let previousRecord=progress.bestPoints()
         let newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(g.won ? "level" : "hit")
-        let headline=ResultHeadline.label(score:g.score(),previousBest:previousRecord,won:g.won)
+        let headline=progress.languageCode == "hr" ? "REZULTAT" : "RESULT"
         progress.recordRun(g)
         gameNumber=g.displayLevel
         clear()
@@ -1169,7 +1151,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=progress.skinIndex()
+        let pilotIndex=0
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22
@@ -1258,8 +1240,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             return amount
         }
         _=resultCard("REZULTAT",icon:"★",value:String(g.score()),highlight:gold)
-        _=resultCard("PRIKUPLJENE\nKOVANICE",icon:"●",value:String(g.coins),highlight:sky)
-        _=resultCard("UKUPNO\nPROLAZA",icon:"⚑",value:String(g.totalPassed),highlight:.white)
         let best=label(progress.languageCode=="hr" ?
             "★  NAJBOLJI REZULTAT: \(progress.bestPoints())" :
             "★  BEST SCORE: \(progress.bestPoints())",18,.white,stack)
