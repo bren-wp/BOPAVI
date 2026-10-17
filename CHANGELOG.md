@@ -1,3 +1,10 @@
+## v0.2.10 — reference-inspired native menus, functional audio controls and collections (build 115)
+- Polish Android/iOS non-gameplay reference design: show the eight original illustrated worlds behind real menu controls with a less intrusive veil; improve blue/cyan premium heading hierarchy and independent gold/blue/silver home CTAs.
+- Expose genuine 0–100 music and sound-effect sliders directly in main Settings, with immediate on-device persistence and dynamic percentage labels. Use platform-native haptics and reduced-motion switches with matching accessible names. Keep all advanced settings, backup/restore and offline privacy controls.
+- Restore the reference's Collection destination using actual saved coins, stars, unlocked local pilots and world pickups, not unimplemented cloud sync or imaginary paid diamonds. Retain separate local leaderboard access.
+- No gameplay, physics, obstacle, save-format or currency-economy changes. User-owned 1:1 reference artwork remains an explicit screen-by-screen acceptance target; do not claim absolute pixel parity without simulator screenshots and original reusable artwork exports.
+- Android and iOS **0.2.10 / build 115**. Debug APK and unsigned AAB/iOS distribution are gated by passing CI.
+
 ## v0.2.9 — accurate Bopi body-to-obstacle collisions on Android and iOS (build 114)
 - Fix a real false-death bug: the previous cap collider extended the pillar's 7px left/5px right lip across the full shaft height. This could register a crash in empty space when the circular Bopi body was near an obstacle corner.
 - Replace the rectangular body bounding-box test with allocation-free circle/rectangle contact against each **actual painted shaft and its separately bounded 28px upper / 27px lower lip**. Tangential non-overlap is safe; a real cap or shaft touch still causes immediate impact. Android Kotlin and iOS Swift use the same contact geometry and preserve the 18-unit body radius, deterministic obstacle simulation and shield behavior.
