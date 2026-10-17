@@ -91,7 +91,7 @@ def audit_resource_reachability():
         *(f"bopiright{i}" for i in range(9)),
         *(f"bopiportrait{i}" for i in range(9)),
         *(f"world{i}" for i in range(8)),
-        "logo", "homeback", "nav_profile", "nav_tasks", "nav_collection", "nav_shop",
+        "logo", "homeback",
     }
     issues.extend(f"Runtime drawable missing from source references: {name}"
                   for name in sorted(expected_dynamic - referenced["drawable"]))
@@ -108,8 +108,10 @@ def audit_resource_reachability():
     for token in ('UIImage(named:"Logo")', 'UIImage(named:"HomeArt")'):
         if token not in ios_source:
             issues.append(f"Referenced iOS app art missing: {token}")
-    if "<string>LaunchArt</string>" not in ios_plist:
-        issues.append("iOS system launch art missing")
+    # Minimal game intentionally uses only a native neutral launch background;
+    # the large BOPAVI illustration is drawn once by the live Home view.
+    if "<key>UILaunchScreen</key>" not in ios_plist or "<string>LaunchBackground</string>" not in ios_plist:
+        issues.append("iOS system launch background missing")
     if not (ROOT / "docs/assets/hero.svg").is_file():
         issues.append("Source hero SVG must remain for Bopi sprite generator and README")
     fail(issues)

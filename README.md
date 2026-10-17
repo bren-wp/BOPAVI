@@ -4,104 +4,59 @@
 
 ### MALI LETOVI • VELIKE PRIČE
 
-**One little pilot. Eight magical worlds. A sky full of adventures.**
+**Jedan Bopi. Jedan dodir. Beskrajni let.**
 
-<img src="docs/assets/hero.svg" alt="Bopi, the cheerful blue aviator, soars across magical floating islands" width="850">
+<img src="docs/assets/hero.svg" alt="Bopi, plava ptica s naočalama, leti među nebeskim otocima" width="850">
 
-[**Play BOPAVI**](https://github.com/bren-wp/BOPAVI/releases/latest) · [**Discover the worlds**](#eight-worlds-of-wonder) · [**Your flight journal**](#your-flight-your-story)
+[**Preuzmi BOPAVI**](https://github.com/bren-wp/BOPAVI/releases/latest)
 
-**Android & iPhone · Play offline · No ads · No account needed**
+**Android i iOS · Igra bez interneta · Bez oglasa · Bez registracije**
 
 </div>
 
 ---
 
-## Meet Bopi. Your adventure takes flight.
+## Jednostavna premium igra
 
-Bopi is a fearless little blue bird with golden goggles, an explorer’s heart, and one big dream: to discover what lies beyond the clouds.
+BOPAVI je lagana, offline arkadna igra u kojoj vodiš Bopija kroz šarene nebeske prepreke. **Dodirni zaslon za zamah krila, leti što dulje i pokušaj nadmašiti vlastiti rekord.**
 
-Guide Bopi across sparkling waterfalls, sky-high castles, glowing crystals, and mysterious floating islands. **Tap to flap**, collect rewards, glide through the gates, and chase your next personal best.
+Cijelo korisničko iskustvo sada ima samo tri koraka:
 
-Every flight is a new story. Every world has something wonderful to discover.
+1. **IGRAJ** — jedan veliki gumb na početnom ekranu odmah otvara let.
+2. **LET** — tapkaj za letenje, izbjegavaj prepreke i skupljaj nagrade.
+3. **REZULTAT** — nakon sudara vidiš stvarni rezultat, broj prikupljenih kovanica, broj prolaza i osobni rekord, uz **PONOVO** i **POČETNA**.
 
-## A glimpse of the adventure
+U letu postoji samo jednostavna pauza s **NASTAVI**, **PONOVO** i **IZLAZ**.
 
-<div align="center">
-<table>
-<tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="BOPAVI Android home screen captured from the real game" width="205"><br><b>Your adventure begins</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Priprema za let — real Android pre-flight screen" width="205"><br><b>Priprema za let</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Real Android game flight with Bopi and interactive course" width="205"><br><b>Take to the skies</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Real BOPAVI Android results screen" width="205"><br><b>Celebrate every flight</b></td>
-</tr>
-</table>
-<table>
-<tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Worlds.png" alt="Eight worlds on a real Android game screen" width="220"><br><b>Choose your world</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Profile.png" alt="Bopi's real save-backed profile screen on Android" width="220"><br><b>Your flight journal</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Real Android game Settings screen" width="220"><br><b>Make it yours</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-iOS-Home.png" alt="BOPAVI home screen captured from the iPhone simulator" width="220"><br><b>Adventure on iPhone</b></td>
-</tr>
-</table>
-</div>
+Više nema korisničkog odabira svjetova i levela, zasebne trgovine, profila, postavki, kartica postignuća ili zasebnih rekorda. Interni prethodno spremljeni podaci ostaju netaknuti kako starijim instalacijama ne bismo izbrisali napredak.
 
-<sub>Images above are captured from the running Android game and iOS simulator.</sub>
-
-## Eight worlds of wonder
-
-| World | Your next discovery |
-|:--|:--|
-| 🌿 **Zeleni otoci** | Sunlit gardens, floating castles, and cascading waterfalls |
-| 💎 **Kristalno nebo** | Dazzling crystals and luminous sky islands |
-| 🌋 **Lava vrhovi** | Fiery peaks and an unforgettable volcanic horizon |
-| 🌙 **Noćni dvorci** | Moonlit fortresses in a mysterious starry night |
-| 🐚 **Biserno more** | An underwater dream of turquoise light and hidden treasures |
-| 🏛️ **Nebeske kule** | Golden towers and ancient gateways above the clouds |
-| 🍄 **Čarobna šuma** | Enchanted woodlands alive with magical surprises |
-| 🪐 **Zvjezdani bezdani** | Cosmic wonders at the edge of the known sky |
-
-Each world brings its own colors, atmosphere, and challenges. Earn stars, discover fresh stages, and keep flying toward the horizon.
-
-## Every wingbeat matters
-
-- 🪽 **Fly with a tap.** Simple, responsive controls keep the adventure easy to pick up.
-- 👑 **Collect the magic.** Gather crowns, stars, and coins on your journey.
-- 🛡️ **Choose your moment.** Spend your earned coins on shields and magnets to help your next flight.
-- 🏆 **Chase your best.** Your personal records and world achievements tell the story of every adventure.
-- 🎚️ **Play your way.** Choose your difficulty and tailor sound, vibration, and motion.
-- 🔒 **Keep it yours.** Play without an account, with progress saved on your device and optional backup export.
-
-## Your flight, your story
+## Stvarne snimke aplikacije
 
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="docs/assets/nav-profile.svg" alt="Profile icon" width="64"><br><b>Profile</b><br>Follow Bopi's progress</td>
-<td align="center"><img src="docs/assets/nav-tasks.svg" alt="Achievement icon" width="64"><br><b>Achievements</b><br>Discover new goals</td>
-<td align="center"><img src="docs/assets/nav-collection.svg" alt="Records icon" width="64"><br><b>Records</b><br>Celebrate personal bests</td>
-<td align="center"><img src="docs/assets/nav-shop.svg" alt="Shop icon" width="64"><br><b>Shop</b><br>Use the coins you earn</td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android Home" width="210"><br><b>Početna</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni početak leta" width="210"><br><b>Početak leta</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarni aktivni let" width="210"><br><b>Let</b></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni rezultat nakon leta" width="210"><br><b>Rezultat</b></td>
 </tr>
 </table>
 </div>
 
-BOPAVI is designed around **Bopi as your playable pilot**. Your local flight journal keeps track of the stars, victories, best scores, and unlocked adventures that you have actually earned.
+<sub>Snimke nastaju iz stvarnog Android emulatora u CI-ju; nisu marketinški mockupovi. Izdanje se objavljuje samo nakon prolaska testova.</sub>
 
-## Your adventure starts here
+## Privatnost i tehnička osnova
 
-<div align="center">
+- Android: Kotlin, nativni UI i 2D gameplay
+- iOS: Swift, UIKit i nativni 2D gameplay
+- Offline-first: bez računa, oglasa ili praćenja korisnika
+- Lokalno spremljen osobni rekord i postojeći podaci kompatibilni sa starijim izdanjima
+- Zasebni izvorni testovi simulacije, sudara, migracija i pokretanja aplikacije
 
-<img src="docs/assets/icon.svg" alt="Official BOPAVI app icon" width="110">
+**Napomena o grafici:** 3D fantasy reference određuju željeni vizualni standard. Trenutni grafički resursi ne smiju se opisivati kao 100% 1:1 dok se usporedba stvarnih snimaka uređaja s izvornim referencama ne dovrši.
 
-[**Get the latest BOPAVI release**](https://github.com/bren-wp/BOPAVI/releases/latest)
+## Preuzimanje i razvoj
 
-**Offline adventures · Virtual in-game rewards · No real-money purchases**
+[Posljednje GitHub izdanje](https://github.com/bren-wp/BOPAVI/releases/latest) · [Automatizirani buildovi](https://github.com/bren-wp/BOPAVI/actions) · [Izvorni kod](https://github.com/bren-wp/BOPAVI)
 
-[Privacy Policy](docs/play/PRIVACY_POLICY.md) · [Terms of Use](docs/play/TERMS_OF_USE.md) · [Support](https://github.com/bren-wp/BOPAVI/issues)
-
-<img src="docs/assets/logo.svg" alt="BOPAVI" width="280">
-
-**MALI LETOVI • VELIKE PRIČE**
-
-**© Brendigo**
-
-</div>
+© Brendigo
