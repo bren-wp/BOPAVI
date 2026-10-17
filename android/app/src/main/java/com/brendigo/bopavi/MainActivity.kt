@@ -1468,14 +1468,14 @@ class MainActivity : Activity() {
 
         small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
         sectionHeading(b,"OPREMA ZA BOPIJEV LET")
-        // Four purchaseable real boosts on two responsive rows.
-        val perkRows=Array(2){LinearLayout(this).apply{
+        // Six functional offline boosts: shield and magnet tiers on three responsive rows.
+        val perkRows=Array(3){LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
         }}
-        val names=listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET")
+        val names=listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET")
         val explanations=listOf("Upija jedan sudar.","Privlači 8 sekundi.",
-            "Upija dva sudara.","Privlači 12 sekundi.")
-        for(n in 0..3){
+            "Upija dva sudara.","Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi.")
+        for(n in 0..5){
             val name=names[n]
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
