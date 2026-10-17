@@ -2265,7 +2265,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let stack=UIStackView()
         stack.axis = .vertical
         stack.alignment = .fill
-        stack.spacing=8
+        stack.spacing=5
         stack.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -2274,6 +2274,24 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:16),
             stack.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-16)
         ])
+        // Independent layered logo and active-pilot artwork, not a screenshot.
+        let brandHero=UIStackView()
+        brandHero.axis = .horizontal
+        brandHero.alignment = .center
+        brandHero.distribution = .fill
+        brandHero.spacing=5
+        let brandLogo=UIImageView(image:UIImage(named:"Logo"))
+        brandLogo.contentMode = .scaleAspectFit
+        brandLogo.isAccessibilityElement=false
+        brandHero.addArrangedSubview(brandLogo)
+        let brandPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        brandPilot.contentMode = .scaleAspectFit
+        brandPilot.isAccessibilityElement=false
+        brandPilot.widthAnchor.constraint(equalToConstant:105).isActive=true
+        brandHero.addArrangedSubview(brandPilot)
+        let heroHeight=min(CGFloat(96),max(CGFloat(65),view.bounds.height*0.11))
+        brandHero.heightAnchor.constraint(equalToConstant:heroHeight).isActive=true
+        stack.addArrangedSubview(brandHero)
         let header=UIView()
         header.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.34,alpha:0.96)
         header.layer.cornerRadius=22
@@ -2295,7 +2313,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         header.addSubview(back)
         let heading=UILabel()
         heading.text=ui("POSTAVKE")
-        heading.font=UIFont.systemFont(ofSize:23,weight:.black)
+        let settingsTitleFont=UIFont.systemFont(ofSize:23,weight:.black)
+        heading.font=UIFont(descriptor:settingsTitleFont.fontDescriptor.withDesign(.rounded)
+            ?? settingsTitleFont.fontDescriptor,size:23)
         heading.textColor = .white
         heading.textAlignment = .center
         heading.translatesAutoresizingMaskIntoConstraints=false
@@ -2318,12 +2338,28 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             chosenPilot.widthAnchor.constraint(equalToConstant:44),
             chosenPilot.heightAnchor.constraint(equalToConstant:44)
         ])
-        let rows=UIStackView()
-        rows.axis = .vertical
-        rows.alignment = .fill
-        rows.distribution = .fillEqually
-        rows.spacing=6
-        stack.addArrangedSubview(rows)
+        // A distinct group stack per section preserves the reference's audio,
+        // difficulty, language and additional-options hierarchy.
+        var rows=UIStackView()
+        func settingsSection(_ title:String){
+            let heading=UILabel()
+            heading.text=ui(title)
+            heading.font=UIFont.systemFont(ofSize:12,weight:.heavy)
+            heading.textColor=UIColor(red:1,green:0.81,blue:0.34,alpha:1)
+            heading.backgroundColor=UIColor(red:0.025,green:0.17,blue:0.37,alpha:0.95)
+            heading.layer.cornerRadius=12
+            heading.clipsToBounds=true
+            heading.textAlignment = .center
+            heading.heightAnchor.constraint(equalToConstant:22).isActive=true
+            stack.addArrangedSubview(heading)
+            rows=UIStackView()
+            rows.axis = .vertical
+            rows.alignment = .fill
+            rows.distribution = .fillEqually
+            rows.spacing=4
+            stack.addArrangedSubview(rows)
+        }
+        settingsSection("IZGLED I ZVUK")
         // Native main-screen sliders: audio adjusts here, no surprise
         // navigation into Advanced Settings or fake percentage buttons.
         func settingsSlider(_ name:String,_ value:Int,onChange:@escaping(Int)->Void) {
@@ -2431,13 +2467,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             },for:.touchUpInside)
             rows.addArrangedSubview(row)
         }
-        settingRow("ZVUK",{[weak self] in self?.progress.soundEnabled == true ? "UKLJ." : "ISKL."}){
-            [weak self] in
-            guard let self=self else{return}
-            let value = !self.progress.soundEnabled
-            self.progress.soundEnabled=value
-            self.sound.enabled=value
-        }
         settingsSlider("GLAZBA",progress.musicVolume){[weak self] value in
             self?.progress.musicVolume=value
             self?.sound.musicVolume=Float(value)/100
@@ -2449,19 +2478,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self?.progress.effectsVolume=value
             self?.sound.effectsVolume=Float(value)/100
         }
-        settingsSwitch("MANJE ANIMACIJA",progress.lessMotion){[weak self] value in
-            guard let self=self else{return}
-            if value != self.progress.lessMotion {
-                self.progress.lessMotion = !self.progress.lessMotion
-                self.showSettings()
-            }
-        }
-        settingRow("JEZIK",{[weak self] in GameLanguages.name(self?.progress.languageCode ?? "en")}){
-            [weak self] in self?.showLanguagePicker()
-        }
         // All three real difficulty modes are accessible directly in Settings,
         // in the same row previously used by the redundant Privacy shortcut.
         // Legal/privacy actions remain permanently available in the footer.
+        settingsSection("TEŽINA IGRE")
         let difficultyRow=UIStackView()
         difficultyRow.axis = .horizontal
         difficultyRow.distribution = .fillEqually
@@ -2505,6 +2525,25 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             difficultyRow.addArrangedSubview(card)
         }
         rows.addArrangedSubview(difficultyRow)
+        settingsSection("JEZIK")
+        settingRow("JEZIK",{[weak self] in GameLanguages.name(self?.progress.languageCode ?? "en")}){
+            [weak self] in self?.showLanguagePicker()
+        }
+        settingsSection("DODATNE OPCIJE")
+        settingRow("ZVUK",{[weak self] in self?.progress.soundEnabled == true ? "UKLJ." : "ISKL."}){
+            [weak self] in
+            guard let self=self else{return}
+            let value = !self.progress.soundEnabled
+            self.progress.soundEnabled=value
+            self.sound.enabled=value
+        }
+        settingsSwitch("MANJE ANIMACIJA",progress.lessMotion){[weak self] value in
+            guard let self=self else{return}
+            if value != self.progress.lessMotion {
+                self.progress.lessMotion = !self.progress.lessMotion
+                self.showSettings()
+            }
+        }
         let advanced=UIButton(type:.system)
         advanced.setTitle(ui("⚙  NAPREDNE POSTAVKE"),for:.normal)
         advanced.setTitleColor(.white,for:.normal)
