@@ -3,6 +3,17 @@ import Foundation
 @main
 struct SwiftParity {
     static func main() {
+        // A purchased third shield charge and 18-second magnet must survive
+        // construction; the previous two-charge/12-second clamps broke both.
+        let premium=BopaviCore.create(0,1)
+        let fullBoost=GameSimulation(premium,initialShield:3,initialMagnet:18)
+        precondition(fullBoost.shield==3 && fullBoost.magnetTime==18)
+        let boundedBoost=GameSimulation(premium,initialShield:99,initialMagnet:99)
+        precondition(boundedBoost.shield==3 && boundedBoost.magnetTime==18)
+        fullBoost.flap()
+        fullBoost.step(1/60)
+        precondition(fullBoost.magnetTime>17 && fullBoost.magnetTime<18)
+        precondition(fullBoost.shield==3)
         precondition(GameLanguages.codes.count == 26)
         precondition(Set(GameLanguages.codes).count == 26)
         precondition(GameLanguages.name("en") == "English")
