@@ -1273,7 +1273,7 @@ assert 'if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()' in andro
 assert 'game.flap()' in android_click and 'game.flap()' not in android_touch
 assert 'super.performClick()' in android_click
 assert 'if(!paused && !game.finished)' in android_click
-assert 'string:word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in ios_render
+assert 'string:word("TAP TO FLY","DODIRNI ZA LET")' in ios_render
 assert 'idlePrompt.draw(at:' in ios_render and 'dragPrompt' not in ios_render
 assert 'idlePrompt.draw(at:' in ios_render
 assert 'guard link == nil && window != nil && game.active && !game.finished && !paused' in ios_render
@@ -2397,7 +2397,7 @@ for render in (android_render,ios_render):
     assert 'drawRootedCliffBases(' in render
     assert 'top-38' in render and 'bottom+38' in render
     assert 'drawCliffShaft(' in render
-    assert 'word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE")' in render
+    assert 'word("TAP TO FLY","DODIRNI ZA LET")' in render
     assert 'game.difficulty' in render
 assert 'word("LEVEL","RAZINA")' in android_render and 'word("LEVEL","RAZINA")' in ios_render
 assert 'birdSize=142f' in android_render and 'let artSize:CGFloat=142' in ios_render
@@ -2768,7 +2768,7 @@ assert 'gateFleckHues[g.kind]' in swift_gate and 'gateSeamHues[g.kind]' in swift
 assert 'g.width' in android_render and 'g.width' in ios_render
 print('PASS: 8-world per-gate deterministic relief, retained collision geometry and no Swift per-gate palette allocation')
 
-# v0.2.4: verify real varied collisions, distinct difficulty and 4 purchaseable boosts.
+# v0.2.6: verify real varied collisions, stronger difficulty and six purchasable boosts.
 android_rules=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.kt').read_text()
 ios_rules=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 android_store=(root/'android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt').read_text()
@@ -2776,8 +2776,8 @@ ios_store=(root/'ios/BOPAVI/ProgressStore.swift').read_text()
 for engine in (android_rules,ios_rules):
     assert '-10,-80,-140,-90,35,115,175,50,-80,-145' in engine
     assert 'difficultyPadding' in engine
-    assert ('0 -> 40f' in engine or 'difficulty <= 0 ? 40' in engine)
-    assert ('2 -> -18f' in engine or 'difficulty >= 2 ? -18' in engine)
+    assert ('0 -> 54f' in engine or 'difficulty <= 0 ? 54' in engine)
+    assert ('2 -> -30f' in engine or 'difficulty >= 2 ? -30' in engine)
 for store in (android_store,ios_store):
     assert '150,120' in store and 'perkCount(2)' in store and 'perkCount(3)' in store
     assert '12f' in store or '12 :' in store
@@ -2787,7 +2787,7 @@ for menu in (android_menu,ios_menu):
     assert 'DVOSTRUKI ŠTIT' in menu and 'DUGI MAGNET' in menu
     assert 'KUPI' in menu and 'perkPrices[n]' in menu
 for renderer in (android_render,ios_render):
-    assert 'EVERY TAP FLAPS YOUR WINGS' in renderer
+    assert 'word("TAP = WING FLAP","DODIR = ZAMAH KRILIMA")' in renderer
 assert 'android:icon="@mipmap/ic_launcher"' in manifest
 adaptive=root/'android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'
 assert adaptive.exists() and 'adaptive-icon' in adaptive.read_text()
