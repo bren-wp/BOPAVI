@@ -14,6 +14,17 @@ struct SwiftParity {
         fullBoost.step(1/60)
         precondition(fullBoost.magnetTime>17 && fullBoost.magnetTime<18)
         precondition(fullBoost.shield==3)
+        // Ordinary five-second magnets may extend a weak boost, but must
+        // never overwrite a more expensive eighteen-second premium magnet.
+        let pickup=BopaviCore.Gate(x:55,center:325,gap:240,width:64,
+                                   movement:0,phase:0,kind:0,coin:false,star:false,power:2)
+        let pickupStage=BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+                                         gates:[pickup],type:0)
+        let premiumPickup=GameSimulation(pickupStage,initialMagnet:18)
+        premiumPickup.flap()
+        premiumPickup.step(1/60)
+        precondition(!premiumPickup.finished && premiumPickup.magnetTime>17,
+                     "Ordinary pickup downgraded purchased 18-second magnet")
         precondition(GameLanguages.codes.count == 26)
         precondition(Set(GameLanguages.codes).count == 26)
         precondition(GameLanguages.name("en") == "English")
