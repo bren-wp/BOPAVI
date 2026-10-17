@@ -218,7 +218,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(156)))
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[progress.skin()])
+            setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(325)).apply{topMargin=d(14)})

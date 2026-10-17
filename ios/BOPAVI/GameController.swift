@@ -242,7 +242,7 @@ final class GameController: UIViewController {
             if title == "POSTAVKE" {
                 // Same selected-pilot header arrangement as Android, drawn from
                 // shipped standalone portrait art rather than a reference PNG.
-                let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
                 pilot.contentMode = .scaleAspectFit
                 pilot.isAccessibilityElement=false
                 pilot.widthAnchor.constraint(equalToConstant:117).isActive=true

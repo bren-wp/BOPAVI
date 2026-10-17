@@ -25,7 +25,8 @@ assert "showSplash()" not in A and "showSplash()" not in I
 a_home=section(A,"    private fun showHome(){","    private fun showPremiumPause(")
 i_home=section(I,"    private func showHome(){","    private func showPremiumPause(")
 for label,home in (("android",a_home),("iOS",i_home)):
-    assert "IGRAJ" in home and "Bopi" in home or "IGRAJ" in home and "portraitDrawableIds[0]" in home, label
+    assert "IGRAJ" in home, label
+    assert ("BopiPortrait0" in home or "portraitDrawableIds[0]" in home), label
     assert "bestPoints()" not in home, label
     assert "startSceneryDrift" in home, label
     for forbidden in ("showWorlds(", "showSettings(", "showProfile(", "showPerks(", "showCollection(", "showLeaderboard("):
