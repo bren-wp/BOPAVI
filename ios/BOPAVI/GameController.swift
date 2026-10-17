@@ -456,7 +456,7 @@ final class GameController: UIViewController {
         let game=GameSimulation(BopaviCore.createStream(0,1),endless:true,initialShield:0,initialMagnet:0,difficulty:1,initialOrdinal:1)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
-            coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
+            languageCode:progress.languageCode)
         canvas=gameCanvas
         setNeedsStatusBarAppearanceUpdate()
         gameCanvas.translatesAutoresizingMaskIntoConstraints=false
