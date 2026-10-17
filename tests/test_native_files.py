@@ -2218,8 +2218,8 @@ assert 'FitViewportColumn(this)' in android_base
 assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
 assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
 assert 'menuBackAction={showHome()}' in android_prof
-assert 'back(b){showHome()}' in android_prof
-assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag" else "Back"' in android_menu
+assert 'back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}' in android_prof
+assert 'contentDescription=description' in android_menu
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
@@ -2448,7 +2448,8 @@ assert 'ScrollView(this)' not in android_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
-assert 'private fun back(parent:LinearLayout,onClick:()->Unit)' in android_menu
+assert 'private fun back(parent:LinearLayout,' in android_menu
+assert 'description:String=if(progress.languageCode()=="hr")"Natrag" else "Back"' in android_menu
 assert 'parent.addView(bar,0,LinearLayout.LayoutParams(-1,d(53)))' in android_menu
 assert 'menuBack(s){self.showHome()}' in ios_menu
 assert 'private func menuBack(_ stack:UIStackView,action:@escaping()->Void)' in ios_menu
@@ -2601,7 +2602,7 @@ assert 'text=ui(name)' in android_profile
 assert 'text=ui(requirement)' in android_profile
 assert 'text=ui("★  SVE NAGRADE  ›")' in android_profile
 assert 'menuBack(s){self.showHome()}' in ios_profile
-assert 'back(b){showHome()}' in android_profile
+assert 'back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}' in android_profile
 assert 'textLabel.text=ui(caption)' in ios_profile
 assert 'editProfile.setTitle(ui("✎  UREDI PROFIL")' in ios_profile
 assert 'tab.accessibilityLabel=ui(item.1)' in ios_profile
