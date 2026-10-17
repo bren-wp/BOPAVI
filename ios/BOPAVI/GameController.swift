@@ -296,6 +296,22 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 shade.topAnchor.constraint(equalTo:view.topAnchor),
                 shade.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
+            // The reference Worlds/Profile header features a second flying
+            // Bopi behind live UI. Match the Android native layered approach.
+            if title == "SVJETOVI" || title == "PROFIL" {
+                let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+                flyingPilot.contentMode = .scaleAspectFit
+                flyingPilot.isAccessibilityElement=false
+                flyingPilot.isUserInteractionEnabled=false
+                flyingPilot.translatesAutoresizingMaskIntoConstraints=false
+                view.addSubview(flyingPilot)
+                NSLayoutConstraint.activate([
+                    flyingPilot.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:37),
+                    flyingPilot.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-7),
+                    flyingPilot.widthAnchor.constraint(equalToConstant:150),
+                    flyingPilot.heightAnchor.constraint(equalToConstant:165)
+                ])
+            }
         }
         let scroll=UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints=false
