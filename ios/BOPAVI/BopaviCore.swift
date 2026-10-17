@@ -22,7 +22,7 @@ enum BopaviCore {
     }
     /// A rolling ridge contour for the first ten gates of every level.
     /// Smooth upward/downward curves, keeping a unique two-bit stage fingerprint.
-    private static let centerContour:[Float]=[-20,-65,-115,-82,-30,20,78,125,78,20]
+    private static let centerContour:[Float]=[-20,-65,-115,-82,-30,20,78,125,77,19]
     struct Opening { let top: Float, bottom: Float }
     struct Random32 {
         private var state: UInt32

@@ -81,7 +81,7 @@ struct SwiftParity {
             let heights=[stage.gates.last!.center]+stream.upcomingGates.map{$0.center}
             precondition(zip(heights,heights.dropFirst()).allSatisfy{abs($0.0-$0.1)<=82.001})
         }
-        let firstContours:[Float]=[312,267,217,250,302,352,410,457,410,352]
+        let firstContours:[Float]=[312,267,217,250,302,352,410,457,409,351]
         for world in 0..<8 {
             let first=BopaviCore.create(world,1)
             precondition(Array(first.gates.prefix(10).map{$0.center})==firstContours,
@@ -119,7 +119,7 @@ struct SwiftParity {
                 let l=BopaviCore.create(w,n)
                 print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))|\(l.gates.prefix(5).map{String(Int($0.width))}.joined(separator:","))")
                 var reconstructed=0
-                let contour:[Float]=[-20,-65,-115,-82,-30,20,78,125,78,20]
+                let contour:[Float]=[-20,-65,-115,-82,-30,20,78,125,77,19]
                 for (i,g) in l.gates.prefix(10).enumerated(){
                     reconstructed |= Int((g.center-332-contour[i])/18) << (i*2)
                 }

@@ -114,7 +114,7 @@ class LevelEngineTest {
     }
 
     @Test fun firstTenGatesVaryHeightWithoutUnreachableJumps() {
-        val expected=listOf(312f,267f,217f,250f,302f,352f,410f,457f,410f,352f)
+        val expected=listOf(312f,267f,217f,250f,302f,352f,410f,457f,409f,351f)
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val level=LevelEngine.create(world,1)
             val centers=level.gates.take(10).map { it.center }
