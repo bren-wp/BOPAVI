@@ -1672,7 +1672,7 @@ print('PASS: Bopi flight aura source parity, caching, reduced motion, and unchan
 assert 'Generate SHA-256 checksums for every release artifact' in workflow
 assert 'sha256sum \\' in workflow
 assert 'BOPAVI-iOS-Home.png > SHA256SUMS.txt' in workflow
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
 assert 'dist/SHA256SUMS.txt' in workflow
 assert 'BOPAVI-iOS-Home.png SHA256SUMS.txt; do' in workflow
 print('PASS: original release assets and authentic Settings capture have SHA-256 manifest')
@@ -1711,7 +1711,7 @@ workflow=(root/'.github/workflows/native-ci.yml').read_text()
 assert "'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png'" in workflow
 assert 'dist/BOPAVI-Android-Settings.png' in workflow
 assert 'BOPAVI-Android-Settings.png' in (root/'README.md').read_text()
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 13' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 14' in workflow
 print("PASS: responsive settings glass panels, saved pilot, functional audio/privacy, screenshot proof")
 
 # v0.1.61 — world + mascot artwork is regenerated from the same source
@@ -2188,7 +2188,7 @@ assert 'showLeaderboardPage(next,fromSettings)' in android_menu
 assert 'showLeaderboardPage(current+1,fromSettings:fromSettings)' in ios_menu
 emulator=(root/'tools/qa_android_emulator.sh').read_text()
 assert 'verify_shop_records_tabs' in emulator
-assert 'android-shop.png' in emulator and 'android-records.png' in emulator
+assert 'android-shop.png' in emulator and 'android-records.png' in emulator and 'android-collection.png' in emulator
 assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
 # v0.2.6: six genuine consumed offline boosts, purchase tiers and backward-compatible saves.
@@ -2847,3 +2847,6 @@ assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
 assert 'versionCode = 115' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
+assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
+assert "dist/BOPAVI-Android-Collection.png" in workflow
+print('PASS: authentic Collection screenshot is a required release asset with SHA256')
