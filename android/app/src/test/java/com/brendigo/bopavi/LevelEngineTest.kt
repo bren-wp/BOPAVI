@@ -116,6 +116,25 @@ class LevelEngineTest {
         }
     }
 
+    @Test fun difficultyModesHavePronouncedOpeningDifferencesAndVisibleHeightChanges() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            val level = LevelEngine.create(world, 1)
+            val centers = level.gates.take(10).map { it.center }
+            assertTrue("No constant-altitude straight lane", centers.max() - centers.min() >= 300f)
+            for (gate in level.gates) {
+                val easy = LevelEngine.opening(gate, 0f, 0)
+                val normal = LevelEngine.opening(gate, 0f, 1)
+                val hard = LevelEngine.opening(gate, 0f, 2)
+                val easyGap = easy.bottom - easy.top
+                val normalGap = normal.bottom - normal.top
+                val hardGap = hard.bottom - hard.top
+                assertTrue("Easy must be visibly wider", easyGap - normalGap >= 53.8f)
+                assertTrue("Hard must be meaningfully tighter", normalGap - hardGap >= 18.9f)
+                assertTrue("Hard must retain a flyable corridor", hardGap >= 144.9f)
+            }
+        }
+    }
+
     @Test fun threeDifficultiesChangeRealRenderableAndCollidableOpenings() {
         for(world in 0 until LevelEngine.WORLD_COUNT) {
             for(number in listOf(1, 60, 121, 240, 360, 1048576)) {
