@@ -88,8 +88,8 @@ struct SwiftSaves {
         precondition(store.coins()==75 && store.perkCount(4)==1 && store.perkCount(5)==1)
         UserDefaults.standard.set(1,forKey:"perk_2")
         UserDefaults.standard.set(1,forKey:"perk_3")
-        let premium=store.previewPerks()
-        precondition(premium.shield==3 && premium.magnet==18)
+        let elitePreview=store.previewPerks()
+        precondition(elitePreview.shield==3 && elitePreview.magnet==18)
         precondition(store.perkCount(4)==1 && store.perkCount(5)==1,
                      "Viewing the game must not spend the premium inventory")
         let spentPremium=store.consumePerks()
