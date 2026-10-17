@@ -267,9 +267,9 @@ final class GameSimulation {
             let cx=x+gate.width*0.5
             let cy=(bounds.top+bounds.bottom)*0.5
             let magnetRange:Float = magnetTime>0 ? 108 : 23
-            if gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true;collectPulse=0.36}
-            if gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;levelStars += 1;collectedStars[i]=true;collectPulse=0.36}
-            if gate.power != 0 && !collectedPowers[i] && abs(cx+39-birdX)<30 && abs(cy+39-y)<30 {
+            if !endless && gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true;collectPulse=0.36}
+            if !endless && gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;levelStars += 1;collectedStars[i]=true;collectPulse=0.36}
+            if !endless && gate.power != 0 && !collectedPowers[i] && abs(cx+39-birdX)<30 && abs(cy+39-y)<30 {
                 if gate.power==1 {shield=min(3,shield+1)} else {magnetTime=max(magnetTime,5)}
                 collectedPowers[i]=true;collectPulse=0.36
             }
@@ -302,7 +302,7 @@ final class GameSimulation {
         if shield > 0 { shield -= 1; invulnerable = 1.25; impactPulse=0.65; velocity = -90 }
         else { finished = true; active = false; won = false }
     }
-    func score() -> Int { Int(min(100_000_000, max(0,Int64(totalPassed)*100 + Int64(coins)*10 + Int64(stars)*25))) }
+    func score() -> Int { Int(min(100_000_000, max(0,Int64(totalPassed)*100 + (endless ? 0 : Int64(coins)*10 + Int64(stars)*25)))) }
 }
 
 /// Offline UI locale catalog. English is the default and safe fallback for

@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, private val walletCoins:()->Int = {0}, languageCode:String = "en") : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, languageCode:String = "en") : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -34,15 +34,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val path = Path()
     // Update point totals on change and the real distance readout at 10 Hz,
     // rather than allocating formatted text on every animation frame.
-    private var lastProgressPassed = -1
-    private var lastProgressScore = -1
-    private var scoreCaptionSize = 11f
-    private var distanceCaptionSize = 11f
-    private var lastDistanceTick = -1
-    private var lastLevelHudLabel = ""
-    private var fittedLevelFontSize = 13f
-    private var progressTitle = ""
-    private var distanceTitle = ""
     private var lastHudAccessibility = ""
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
@@ -51,16 +42,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
     private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
-    // The already-shipped full-wing gallery portrait is decoded once per flight.
-    private val portraitSprites=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait1,
-        R.drawable.bopiportrait2,R.drawable.bopiportrait3,R.drawable.bopiportrait4,
-        R.drawable.bopiportrait5,R.drawable.bopiportrait6,R.drawable.bopiportrait7,
-        R.drawable.bopiportrait8)
-    private val hudPortrait=BitmapFactory.decodeResource(resources,portraitSprites[selectedSkin],
-        BitmapFactory.Options().apply{inScaled=false})
-    private val hudPortraitRect=RectF(11f,10f,65f,64f)
-    private var lastWalletValue = -1
-    private var walletDisplay = "0"
     // Reference pilot is only enabled after build-time manifest and checksum
     // validation. This optional art never alters the same 18px body collider.
     private val referenceBopi0=selectedSkin==0 &&
@@ -299,7 +280,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
             canvas.scale(hudScale,hudScale)
             drawHud(canvas)
-            drawLevelProgress(canvas)
             canvas.restore()
         }
         // The illustrated world already owns its entire 480x800 canvas.
@@ -476,59 +456,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** Bevelled gold crown coins use real collectible visibility and a single
      * reusable Path/Paint. No animation-loop asset or shader allocations.
      * The actual pickup radius stays defined exclusively by GameSimulation.
-     */
-    private fun drawRoyalCoin(c:Canvas,cx:Float,cy:Float,phase:Float) {
-        val pulse=if(reducedMotion)0f else sin(game.time*4.2f+phase)*1.4f
-        val radius=17f+pulse
-        oval(c,cx-radius-4f,cy-radius-4f,cx+radius+4f,cy+radius+4f,0x44ffcf53)
-        oval(c,cx-radius,cy-radius,cx+radius,cy+radius,0xffaa5b09.toInt())
-        oval(c,cx-radius+2f,cy-radius+2f,cx+radius-2f,cy+radius-2f,0xffffc333.toInt())
-        oval(c,cx-radius+5f,cy-radius+5f,cx+radius-5f,cy+radius-5f,0xffec8e07.toInt())
-        oval(c,cx-radius+6f,cy-radius+6f,cx+radius-6f,cy+radius-6f,0xffffb91a.toInt())
-        // A geometric crown is reliable even on devices lacking emoji fonts.
-        path.reset();path.moveTo(cx-8f,cy-5f)
-        path.lineTo(cx-4f,cy);path.lineTo(cx,cy-8f)
-        path.lineTo(cx+4f,cy);path.lineTo(cx+8f,cy-5f)
-        path.lineTo(cx+6f,cy+7f);path.lineTo(cx-6f,cy+7f)
-        path.close();fill(0xfffff0ad.toInt());c.drawPath(path,p)
-        rect(c,cx-6f,cy+5f,cx+6f,cy+8f,0xffffffff.toInt(),1f)
-        oval(c,cx-radius+4f,cy-radius+4f,cx-radius+10f,cy-radius+9f,0xaaffffff.toInt())
-    }
-    /** A visual checkpoint at the real LAST gate. It adds no fake win state,
-     * no hitbox, and never changes the continuous procedural transition.
-     */
-    private fun drawFinishPortal(c:Canvas,cx:Float,cy:Float,phase:Float) {
-        val pulse=if(reducedMotion)0f else sin(game.time*2f+phase)*1.5f
-        val r=30f+pulse
-        oval(c,cx-r-4f,cy-r-4f,cx+r+4f,cy+r+4f,0x3347cfff)
-        fill(0xff164eae.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=6f
-        p.alpha=190;c.drawCircle(cx,cy,r,p)
-        fill(0xff45e9ff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-        c.drawCircle(cx,cy,r-3.5f,p)
-        fill(0xffe7ffff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
-        p.alpha=210;c.drawCircle(cx,cy,r-7f,p)
-        p.style=Paint.Style.FILL;p.alpha=255
-        drawHudCrown(c,cx,cy-44f,20f)
-    }
-    /** Five-point collectible art matches the iOS Core Graphics gold star;
-     * no font-dependent biome glyph and no new Path allocation in flight.
-     */
-    private fun drawGoldStar(c:Canvas,cx:Float,cy:Float,radius:Float) {
-        path.reset()
-        for(i in 0 until 10) {
-            val angle=i*3.1415927f/5f-3.1415927f/2f
-            val r=if(i%2==0)radius else radius*.43f
-            val x=cx+cos(angle)*r
-            val y=cy+sin(angle)*r
-            if(i==0)path.moveTo(x,y) else path.lineTo(x,y)
-        }
-        path.close()
-        fill(0xffffe25d.toInt())
-        c.drawPath(path,p)
-    }
-    /** Faceted cliff surfaces inside the unchanged top/bottom collision shafts.
-     * Real art-only perspective makes the columns read as suspended stone
-     * instead of two flat rectangles. Reuses the shared Path and Paint.
      */
     private fun drawRockFacets(c:Canvas,x:Float,w:Float,start:Float,end:Float){
         if(end-start<34f)return
@@ -841,15 +768,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         courses(16f,top-34f);courses(bottom+34f,809f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
-        val middle=x+w*.5f;val center=(a.top+a.bottom)*.5f
-        val finalGate=if(incoming)index==game.upcomingGates().lastIndex
-            else index==game.level.gates.lastIndex
-        if(finalGate)drawFinishPortal(c,middle,center,g.phase)
-        if(g.coin && (incoming || game.coinVisible(index))) {
-            drawRoyalCoin(c,middle,center,g.phase)
-        }
-        if(g.star && (incoming || game.starVisible(index))){drawGoldStar(c,middle+35f,center-25f,12f)}
-        if(g.power!=0 && (incoming || game.powerVisible(index))){oval(c,middle+26f,center+26f,middle+52f,center+52f,0xff1a3c8b.toInt());text(c,if(g.power==1)"◆" else "↗",middle+39f,center+46f,19f,Color.WHITE,true)}
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
      * Deterministic Canvas particles are bounded and allocate no sprites each frame.
@@ -1014,115 +932,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * native Pause button, and the untouched physics remain in world units.
      */
     /** Use one cached caption-width policy on score and distance updates. */
-    private fun fittedHudCaptionSize(value:String):Float {
-        p.typeface=headerTypeface
-        p.textSize=11f
-        return (11f*94f/p.measureText(value).coerceAtLeast(1f))
-            .coerceIn(7.5f,11f)
-    }
-    /** Reference crown: geometric gold silhouette, no font/emoji fallback.
-     *  Coordinates are shared with Core Graphics on iOS. This is HUD-only
-     *  artwork: no score, collection or hitbox logic is attached to it.
-     */
-    private fun drawHudCrown(c:Canvas,cx:Float,cy:Float,size:Float){
-        val half=size*.50f
-        path.reset()
-        path.moveTo(cx-half,cy+size*.23f)
-        path.lineTo(cx-half,cy-size*.34f)
-        path.lineTo(cx-size*.24f,cy-size*.08f)
-        path.lineTo(cx,cy-size*.55f)
-        path.lineTo(cx+size*.24f,cy-size*.08f)
-        path.lineTo(cx+half,cy-size*.34f)
-        path.lineTo(cx+half,cy+size*.23f)
-        path.close()
-        fill(0xffc76f03.toInt());c.drawPath(path,p)
-        // Inset face and specular gold crown points.
-        path.reset()
-        path.moveTo(cx-half+size*.08f,cy+size*.14f)
-        path.lineTo(cx-half+size*.08f,cy-size*.20f)
-        path.lineTo(cx-size*.24f,cy+size*.06f)
-        path.lineTo(cx,cy-size*.39f)
-        path.lineTo(cx+size*.24f,cy+size*.06f)
-        path.lineTo(cx+half-size*.08f,cy-size*.20f)
-        path.lineTo(cx+half-size*.08f,cy+size*.14f)
-        path.close()
-        fill(0xffffd342.toInt());c.drawPath(path,p)
-        rect(c,cx-half,cy+size*.19f,cx+half,cy+size*.34f,0xffffef9b.toInt(),size*.055f)
-        // One compact jewel; never a fake collectible or a touch target.
-        oval(c,cx-size*.085f,cy-size*.04f,cx+size*.085f,cy+size*.13f,0xfffff8d9.toInt())
-    }
-    /** Four-by-four finish checker with a fixed mast and no Unicode flag. */
-    private fun drawHudFinishFlag(c:Canvas,cx:Float,cy:Float,size:Float){
-        val tile=size*.19f
-        val left=cx-size*.35f
-        val top=cy-size*.36f
-        rect(c,left-2f,top-2f,left-.3f,top+tile*4f+3f,0xffd7f4ff.toInt(),1f)
-        for(row in 0..3)for(col in 0..3){
-            val x=left+col*tile
-            val y=top+row*tile
-            rect(c,x,y,x+tile+.15f,y+tile+.15f,
-                if((row+col)%2==0)Color.WHITE else 0xff17488d.toInt())
-        }
-        rect(c,left,top+tile*4f,left+tile*4f,top+tile*4f+1.2f,0xff5eeaff.toInt(),.6f)
-    }
-    private fun drawLevelProgress(c:Canvas) {
-        val passed=game.totalPassed
-        if(passed!=lastProgressPassed) {
-            lastProgressPassed=passed
-            contentDescription="${word("Bopi is flying","Bopi leti")}. ${word("GATES","PROLAZI")}: $passed"
-        }
-        // Real points and game-world travel units, never fictional metres.
-        // The live gate total is spoken through the flight accessibility label.
-        val score=game.score()
-        if(score!=lastProgressScore) {
-            lastProgressScore=score
-            progressTitle="${word("SCORE","BODOVI")} $score"
-            // Fit each value into its own half of the gauge, never across a border.
-            scoreCaptionSize=fittedHudCaptionSize(progressTitle)
-        }
-        val distanceTick=(game.time*10f).toInt()
-        if(distanceTick!=lastDistanceTick) {
-            lastDistanceTick=distanceTick
-            distanceTitle="${word("DIST","PUT")} ${game.distance.toInt()}"
-            distanceCaptionSize=fittedHudCaptionSize(distanceTitle)
-        }
-        // The actual course fraction animates continuously without text churn.
-        val total=game.level.gates.size.coerceAtLeast(1)
-        val ratio=game.levelProgress
-        hudGlass(c,146f,18f,381f,108f)
-        drawHudCrown(c,165f,46f,22f)
-        drawHudFinishFlag(c,363f,45f,25f)
-        rect(c,181f,34f,354f,55f,0xff05234e.toInt(),10f)
-        rect(c,184f,38f,351f,51f,0xff0b66bf.toInt(),7f)
-        if(ratio>0f){
-            rect(c,184f,38f,184f+167f*ratio,51f,0xff15cfff.toInt(),7f)
-            rect(c,185f,39f,185f+165f*ratio,43f,0xaaffffff.toInt(),2f)
-        }
-        // Announce the next level inside the existing gauge, never as an
-        // opaque transition overlay or a pause of the physics/game loop.
-        val entering=game.levelTransition>0f
-        rect(c,171f,58f,364f,81f,if(entering)0xf02d4775.toInt() else 0xe7062859.toInt(),14f)
-        val levelLabel=if(entering)"${word("LEVEL","RAZINA")} ${game.displayLevel} · ${word("NEW STAGE","NOVA RAZINA")}"
-            else "${word("LEVEL","RAZINA")} ${game.displayLevel} · ${game.passed}/$total ${word("GATES","PROLAZI")}"
-        // High level ordinals and long localizations must never overflow the
-        // central glass gauge or collide with neighbouring Pause/coin controls.
-        // Only recalculate text width when the badge changes, not at 60/120 Hz.
-        if(levelLabel!=lastLevelHudLabel){
-            lastLevelHudLabel=levelLabel
-            p.typeface=headerTypeface
-            p.textSize=13f
-            fittedLevelFontSize=(13f*184f/p.measureText(levelLabel).coerceAtLeast(1f))
-                .coerceIn(8f,13f)
-        }
-        text(c,levelLabel,267f,75f,fittedLevelFontSize,
-            if(entering)0xffffd76a.toInt() else Color.WHITE,true)
-        text(c,progressTitle,204f,98f,scoreCaptionSize,0xffddf4ff.toInt(),true)
-        text(c,distanceTitle,330f,98f,distanceCaptionSize,0xffddf4ff.toInt(),true)
-    }
-    /** High-contrast midnight-glass HUD, reused without shaders or bitmaps per frame.
-     *  Gloss and neon outlines match the same 480x800 coordinates on iOS.
-     *  All counters remain real GameSimulation values.
-     */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         rect(c,l,t,r,b,0xed062755.toInt(),24f)
         fill(0xff43d8ff.toInt())
@@ -1134,120 +943,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+14f,t+5f,r-14f,t+8f,0x98d3faff.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
-    private fun hudGoldCoin(c:Canvas) {
-        oval(c,78f,30f,110f,67f,0xfff9a70e.toInt())
-        oval(c,81f,33f,107f,64f,0xffffdf5f.toInt())
-        oval(c,84f,36f,104f,61f,0xffec9500.toInt())
-        drawHudCrown(c,94f,50f,15f)
-    }
-    /** Avatar is decorative but shows the actual selected pilot, not a default. */
-    private fun hudPilotPortrait(c:Canvas) {
-        oval(c,12f,10f,66f,64f,0x9003d9ff.toInt())
-        oval(c,14f,12f,64f,62f,0xffffc946.toInt())
-        oval(c,17f,15f,61f,59f,0xff062e70.toInt())
-        c.save()
-        path.reset()
-        path.addCircle(39f,37f,20.5f,Path.Direction.CW)
-        c.clipPath(path)
-        hudPortrait?.let {c.drawBitmap(it,null,hudPortraitRect,p)}
-        c.restore()
-    }
-    /** Cached compact visual label; TalkBack always reads the exact balance. */
-    private fun walletLabel(total:Int):String {
-        if(total!=lastWalletValue){
-            lastWalletValue=total
-            walletDisplay=when {
-                total>=10_000_000 -> "${total/1_000_000}M"
-                total>=1_000_000 -> String.format(java.util.Locale.US,"%.1fM",total/1_000_000.0)
-                total>=10_000 -> "${total/1_000}K"
-                total>=1_000 -> String.format(java.util.Locale.US,"%.1fK",total/1_000.0)
-                else -> total.toString()
-            }
-        }
-        return walletDisplay
-    }
-    /**
-     * Reference-aligned, NON-interactive status lights. Center positions are
-     * measured against the supplied 941×1672 flying-world reference (x≈41,
-     * y≈101/163/225 on 480×800). Everything stays in the left 72px strip,
-     * never across the playable opening or real pause touch target.
-     * Screen art is native: no baked counts, Unicode icons or fake buttons.
-     */
-    private fun hudOrb(c:Canvas,cx:Float,cy:Float,icon:String,count:String,
-                       accent:Int,enabled:Boolean) {
-        val rim=if(enabled)accent else 0xff4f8fac.toInt()
-        oval(c,cx-29f,cy-29f,cx+29f,cy+29f,0x4243d8ff)
-        oval(c,cx-26f,cy-26f,cx+26f,cy+26f,0xff0069d9.toInt())
-        oval(c,cx-22f,cy-22f,cx+22f,cy+22f,0xff06265c.toInt())
-        fill(rim);p.style=Paint.Style.STROKE;p.strokeWidth=2.5f
-        c.drawCircle(cx,cy,24f,p)
-        p.style=Paint.Style.FILL
-        // The visual icon is drawn as a real vector primitive, not a
-        // device-dependent emoji or static screenshot with the wrong count.
-        when(icon) {
-            "★" -> drawHudCrown(c,cx,cy+3f,29f)
-            "∩" -> {
-                // Red / cyan horseshoe magnet as in the user's left rail.
-                path.reset();path.moveTo(cx-10f,cy-10f)
-                path.lineTo(cx-10f,cy+6f)
-                path.quadTo(cx,cy+19f,cx+10f,cy+6f)
-                path.lineTo(cx+10f,cy-10f)
-                fill(0xffdb3e54.toInt());p.style=Paint.Style.STROKE
-                p.strokeWidth=8f;p.strokeCap=Paint.Cap.BUTT
-                c.drawPath(path,p)
-                p.strokeWidth=3.4f;p.color=0xff69eaff.toInt()
-                c.drawLine(cx+10f,cy-10f,cx+10f,cy+6f,p)
-                p.style=Paint.Style.FILL
-                rect(c,cx-14f,cy-14f,cx-6f,cy-8f,0xfffff7ec.toInt(),2f)
-                rect(c,cx+6f,cy-14f,cx+14f,cy-8f,0xfffff7ec.toInt(),2f)
-            }
-            else -> {
-                // White-cyan feather/wing bonus in the third original slot.
-                path.reset();path.moveTo(cx-15f,cy+12f)
-                path.quadTo(cx-10f,cy-11f,cx+17f,cy-16f)
-                path.quadTo(cx+12f,cy+7f,cx-12f,cy+13f)
-                path.close();fill(0xfff4fdff.toInt());c.drawPath(path,p)
-                fill(0xff33c9ff.toInt());p.style=Paint.Style.STROKE
-                p.strokeWidth=2f;p.strokeCap=Paint.Cap.ROUND
-                c.drawLine(cx-14f,cy+14f,cx+12f,cy-11f,p)
-                c.drawLine(cx-5f,cy+3f,cx-8f,cy-6f,p)
-                c.drawLine(cx+3f,cy-5f,cx+1f,cy-12f,p)
-                p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
-            }
-        }
-        // A real, dynamic small number badge below-right of each orb.
-        oval(c,cx+12f,cy+10f,cx+34f,cy+32f,0xff0c234f.toInt())
-        fill(0xffeaf9ff.toInt());p.style=Paint.Style.STROKE
-        p.strokeWidth=1.8f;c.drawCircle(cx+23f,cy+21f,10.5f,p)
-        p.style=Paint.Style.FILL
-        text(c,count,cx+23f,cy+26f,12.5f,Color.WHITE,true)
-    }
     private fun drawHud(c:Canvas){
-        // Reference: left coin wallet, centre race bar, right real Pause view.
-        // No extra rectangular level/star chips covering the flying scene.
-        // The spendable currency comes ONLY from persistent level/milestone
-        // rewards. In-flight pickups contribute to score/collection statistics,
-        // not to the wallet: show them as a separate, truthful run counter.
-        val balance=walletCoins().coerceIn(0,100_000_000)
-        hudGlass(c,73f,22f,145f,75f)
-        hudGoldCoin(c)
-        val coinLabel=walletLabel(balance)
-        text(c,coinLabel,111f,55f,if(coinLabel.length>=4)12f else 15f,Color.WHITE)
-        hudPilotPortrait(c)
-        rect(c,82f,84f,143f,104f,0xdc052a57.toInt(),10f)
-        text(c,"${word("FLIGHT","LET")} +${game.coins}",112f,99f,10f,0xffffd76a.toInt(),true)
-
-        // Original left-side hierarchy at fixed reference screen coordinates.
-        // No touch interception: these are honest real-time status indicators.
-        hudOrb(c,42f,101f,"★","${game.stars}",0xffffd453.toInt(),true)
-        val seconds=kotlin.math.ceil(game.magnetTime.toDouble()).toInt().coerceAtLeast(0)
-        hudOrb(c,42f,163f,"∩","$seconds",
-            0xff50dfff.toInt(),game.magnetTime>0f)
-        hudOrb(c,42f,225f,"◆","${game.shield}",
-            0xff50dfff.toInt(),game.shield>0)
-        val status=pilotName+" is flying. Wallet ${balance} coins. Flight pickups ${game.coins}. " +
-            "Total gates ${game.totalPassed}. Stars ${game.stars}. " +
-            "Shield ${game.shield}. Magnet ${seconds} seconds."
+        // Accessible current score; no wallets, level meters or power-ups.
+        hudGlass(c,18f,20f,212f,88f)
+        text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
+        text(c,game.score().toString(),36f,76f,26f,Color.WHITE)
+        val status="${word("SCORE","BODOVI")}: ${game.score()}"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */

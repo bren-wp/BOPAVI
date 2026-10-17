@@ -76,7 +76,7 @@ for source in (android,ios):
     assert "142" in source
     assert "bopireference0" in source.lower()
     assert "game.flap()" in source
-    assert "game.shield" in source
+    assert "game.score()" in source  # Minimal V5 HUD; shield status is intentionally absent
     assert "bird" in source
 assert "referenceBopi0" in android and "referenceBopi0" in ios
 assert "install_reference_bopi(r)" in images
