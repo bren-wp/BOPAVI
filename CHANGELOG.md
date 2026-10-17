@@ -1,3 +1,11 @@
+## v0.2.11 — reference-aligned pilot and Settings layouts (build 116)
+- Increase the true selected pilot portrait and give it a dedicated status panel on both Android and iOS. Progress statistics always come from local saves, never hardcoded screenshots.
+- Render rounded heavyweight menu typography and illustrated Settings header using the existing BOPAVI wordmark and selected pilot portrait on both platforms.
+- Reorganize primary Settings into appearance/audio, real difficulty selection, language, and additional offline controls while preserving 0–100 live sliders, haptics, reduced motion, backup routes and privacy options.
+- Initial language now follows the system locale, including Croatian; previously selected user language is unchanged.
+- Release CI now requires emulator-created non-gameplay screenshot evidence for Pilots, Levels, Shop, Records and Achievements in addition to Home, Profile, Settings, Worlds and Collection. All five new screenshots have SHA-256 checksums.
+- Production version v0.2.11 / build 116, gated on cross-platform QA. **All-screen pixel-for-pixel parity remains unverified** until original compositing assets and device screenshots are aligned. Gameplay simulation, obstacles and physics are unchanged.
+
 ## v0.2.10 — reference-inspired native menus, functional audio controls and collections (build 115)
 - Polish Android/iOS non-gameplay reference design: show the eight original illustrated worlds behind real menu controls with a less intrusive veil; improve blue/cyan premium heading hierarchy and independent gold/blue/silver home CTAs.
 - Expose genuine 0–100 music and sound-effect sliders directly in main Settings, with immediate on-device persistence and dynamic percentage labels. Use platform-native haptics and reduced-motion switches with matching accessible names. Keep all advanced settings, backup/restore and offline privacy controls.
