@@ -144,7 +144,7 @@ click=[n for n in nodes if n.get("clickable")=="true"]
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
-if not any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: best score missing")
+if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
 for bad in ("WORLDS","SVJETOVI","SHOP","TRGOVINA","SETTINGS","POSTAVKE","PROFILE","PROFIL","LEVELS","LEVELI"):
     if any(bad in label(n) for n in click):raise SystemExit("FAIL: forbidden Home navigation: "+bad)
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
