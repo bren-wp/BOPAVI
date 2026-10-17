@@ -386,11 +386,18 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             gravity=Gravity.CENTER
             setPadding(d(6),d(11),d(6),d(11))
-            if(size>=26)background=GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xff1287e3.toInt(),0xff0757b2.toInt(),0xff08285f.toInt())).apply {
-                cornerRadius=d(24).toFloat()
-                setStroke(d(2),0xff68e9ff.toInt())
+            // Shared illustrated-title treatment from the approved UI board:
+            // a recessed midnight-blue body, blue illuminated lip and gold
+            // accent. Keep the caption native for accessibility/localization.
+            if(size>=26) {
+                background=GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff1b9eff.toInt(),0xff0759bf.toInt(),0xff061b49.toInt())).apply {
+                    cornerRadius=d(24).toFloat()
+                    setStroke(d(2),0xff72e8ff.toInt())
+                }
+                elevation=d(5).toFloat()
+                letterSpacing=.035f
             }
             setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xff001936.toInt())
             setAutoSizeTextTypeUniformWithConfiguration((size*.72f).toInt(),size,1,android.util.TypedValue.COMPLEX_UNIT_SP)
