@@ -157,7 +157,11 @@ final class ProgressStore {
         let gates:Int
     }
     var languageCode:String {
-        get {GameLanguages.normalized(defaults.string(forKey:"ui_language") ?? "en")}
+        get {
+            let system=Locale.preferredLanguages.first?.split(separator:"-").first
+                .map(String.init) ?? "en"
+            return GameLanguages.normalized(defaults.string(forKey:"ui_language") ?? system)
+        }
         set {defaults.set(GameLanguages.normalized(newValue),forKey:"ui_language")}
     }
     let difficultyNames=["Opušteno","Standardno","Izazovno"]
