@@ -1582,7 +1582,7 @@ class MainActivity : Activity() {
             setAutoSizeTextTypeUniformWithConfiguration(13,22,1,android.util.TypedValue.COMPLEX_UNIT_SP)
         },LinearLayout.LayoutParams(-1,d(30)))
         balance.addView(TextView(this).apply{
-            text=if(croatian)"Osvojeno igranjem · bez stvarnog novca"
+            text=if(croatian)"Za kovanice osvojene igrom — bez stvarnog novca."
                 else "Earned in-game · no real money"
             textSize=11f;setTextColor(0xffd4eaff.toInt());setSingleLine(true)
             setAutoSizeTextTypeUniformWithConfiguration(9,11,1,android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -1619,7 +1619,7 @@ class MainActivity : Activity() {
                     }
                     elevation=d(4).toFloat()
                     isClickable=true;isFocusable=true
-                    contentDescription=names[n]+". "+explanations[n]+" "+
+                    contentDescription=(if(croatian)"KUPI " else "BUY ")+names[n]+". "+explanations[n]+" "+
                         price.toString()+" "+(if(croatian)"kovanica" else "coins")+
                         ", "+(if(croatian)"U torbi: " else "Owned: ")+owned+
                         ". "+(if(croatian)"KUPI" else "BUY")
