@@ -422,7 +422,9 @@ class MainActivity : Activity() {
         })
     }
     /** One shared, compact 48dp upper-left Back affordance for every native menu. */
-    private fun back(parent:LinearLayout,onClick:()->Unit) {
+    private fun back(parent:LinearLayout,
+                     description:String=if(progress.languageCode()=="hr")"Natrag" else "Back",
+                     onClick:()->Unit) {
         menuBackAction=onClick
         val bar=LinearLayout(this).apply {
             orientation=LinearLayout.HORIZONTAL
@@ -436,7 +438,7 @@ class MainActivity : Activity() {
                 gradient(0xff27c9ff.toInt(),0xff0754be.toInt(),25).apply {
                     setStroke(d(2),0xffc1f7ff.toInt())
                 },null)
-            contentDescription=if(progress.languageCode()=="hr")"Natrag" else "Back"
+            contentDescription=description
             isClickable=true;isFocusable=true
             elevation=d(5).toFloat()
             setOnClickListener { sound.effect("click");onClick() }
@@ -1520,8 +1522,8 @@ class MainActivity : Activity() {
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
         val b=base("PROFIL","Tvoj letački dnevnik i osobni rezultati")
-        // Same tappable upper-left back control as Worlds, Levels and Shop.
-        back(b){showHome()}
+        // Same native shape; announce the actual destination for accessibility.
+        back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}
         // Profile reflects the current saved playable pilot, not fixed Bopi.
         val skin=progress.skin()
 
