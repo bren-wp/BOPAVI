@@ -58,7 +58,10 @@ object LevelEngine {
                 // Gap >=164 before difficulty/movement; hard mode remains >=145.
                 gap = (gap + (r.next() - .5f) *
                     (if(i < 2) 12f else 42f + zone * 3f) +
-                    (if(i % 5 == 0) 8f else 0f)).coerceAtLeast(164f),
+                    (if(i % 5 == 0) 8f else 0f) +
+                    // Alternate narrow/wide mouths once introductory gates finish.
+                    // Both collision and renderer consume this same gate.gap.
+                    (if(i < 2) 0f else if(i % 2 == 0) 9f else -9f)).coerceAtLeast(164f),
                 // Individual obstacle widths vary but retain enough traversal time.
                 // The exact gate width is also used by the physical collider.
                 width = 64f + ((i * 7 + number + world) % 4) * 9f,
