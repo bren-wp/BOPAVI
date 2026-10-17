@@ -121,6 +121,7 @@ jobs:
           name: rendered-graphics
           path: |
             android/app/src/main/res/drawable/app_icon.png
+            android/app/src/main/res/drawable/app_icon_foreground.png
             android/app/src/main/res/drawable-nodpi/logo.png
             android/app/src/main/res/drawable-nodpi/splash.png
             android/app/src/main/res/drawable-nodpi/homeback.png
