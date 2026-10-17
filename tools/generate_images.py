@@ -104,8 +104,22 @@ logoCrop=brand.copy()
 logoCrop.thumbnail((740,250),Image.Resampling.LANCZOS)
 # These are two different reference screens. The home backdrop keeps its
 # wordmark ABOVE Bopi and leaves all navigation/real counters as live views.
+# The Home reference requires the wordmark and selected pilot to scale
+# separately. Rasterize ONLY the existing painted landscape into HomeArt.
+# In particular, NEVER bake another Bopi or BOPAVI wordmark into it: both
+# are interactive/native runtime layers and must remain aligned on tall phones.
+import re
+hero_source=(r/'docs/assets/hero.svg').read_text()
+flight_group=re.search(r'<g transform="translate\(454 336\) rotate\(-12\)">[\s\S]*?</g>',hero_source)
+if flight_group is None:
+    raise RuntimeError('Approved home source has no detachable Bopi pilot')
+scene_only_svg=hero_source[:flight_group.start()]+hero_source[flight_group.end():]
+scene_only=Image.open(io.BytesIO(cairosvg.svg2png(
+    bytestring=scene_only_svg.encode('utf-8'),output_width=900))).convert('RGB')
+if scene_only.size != hero.size:
+    raise RuntimeError('Bopi-free scene dimensions do not match existing artwork')
 home_art=launch.copy()
-home_art.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)
+home_art.paste(scene_only,(0,340),mask)
 home_art.save(a/'drawable-nodpi/homeback.png',optimize=True)
 home_art.save(b/'HomeArt.imageset/home.png',optimize=True)
 # The approved SPLASH / LOADING reference stacks the original winged logo

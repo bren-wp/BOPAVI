@@ -1290,8 +1290,9 @@ print('PASS: idle frame scheduling, on-canvas prompt and accessible first flap')
 # v0.1.49: footer illustration art is built from shared source SVGs
 # and is never a second, inaccessible/fake button.
 render=(root/'tools/generate_images.py').read_text()
-assert '((900-logoCrop.width)//2,230)' in render
-assert '((900-logoCrop.width)//2,130)' not in render
+assert "home_art.paste(scene_only,(0,340),mask)" in render
+assert "home_art.paste(logoCrop" not in render
+assert "scene_only_svg=hero_source[:flight_group.start()]+hero_source[flight_group.end():]" in render
 android_home=android_menu.split("private fun showHome()",1)[1].split("private fun showWorlds()",1)[0]
 ios_home=ios_menu.split("private func showHome()",1)[1].split("private func showWorlds()",1)[0]
 for key in ('profile','tasks','collection','shop'):
@@ -1416,7 +1417,12 @@ print('PASS: compact Android/iOS world gallery with interactive 2x4 image cards 
 # scene compositions. Both are generated from approved existing art for the
 # exact same Android/iOS assets; progress bar is never faked in a still image.
 image_source=(root/'tools/generate_images.py').read_text()
-assert "home_art.paste(logoCrop,((900-logoCrop.width)//2,230),logoCrop)" in image_source
+assert "home_art.paste(scene_only,(0,340),mask)" in image_source
+assert "home_art.paste(logoCrop" not in image_source
+assert "homeLogo=ImageView(this)" in android_home and "homePilot=ImageView(this)" in android_home
+assert "let homeLogo=UIImageView(image:UIImage(named:\"Logo\"))" in ios_home
+assert "let homePilot=UIImageView(image:UIImage(named:\"BopiPortrait\\(progress.skinIndex())\"))" in ios_home
+assert "portraitDrawableIds[progress.skin()]" in android_home
 assert "launch_art.alpha_composite(logoCrop,((900-logoCrop.width)//2,215))" in image_source
 assert "home_art.save(a/'drawable-nodpi/homeback.png'" in image_source
 assert "home_art.save(b/'HomeArt.imageset/home.png'" in image_source
@@ -2845,7 +2851,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 116' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 117' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2853,10 +2859,10 @@ print('PASS: authentic Collection screenshot is a required release asset with SH
 # v0.2.11 — regression coverage for the provided pilot/settings design.
 a_picker=android_menu.split('private fun showPilotPicker(',1)[1].split('private fun showPremiumPause(',1)[0]
 i_picker=ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0]
-assert 'LinearLayout.LayoutParams(0,d(188),0.56f)' in a_picker
-assert 'LinearLayout.LayoutParams(-1,d(194))' in a_picker
-assert 'head.heightAnchor.constraint(equalToConstant:194)' in i_picker
-assert 'chosenPicture.heightAnchor.constraint(equalToConstant:185)' in i_picker
+assert 'LinearLayout.LayoutParams(0,d(224),0.61f)' in a_picker
+assert 'LinearLayout.LayoutParams(-1,d(230))' in a_picker
+assert 'head.heightAnchor.constraint(equalToConstant:230)' in i_picker
+assert 'chosenPicture.heightAnchor.constraint(equalToConstant:222)' in i_picker
 assert 'progress.worldStars(world)' in a_picker and 'progress.worldStars(world)' in i_picker
 assert 'ownedCount' in a_picker and 'ownedCount' in i_picker
 for source,begin,end in ((android_menu,'private fun showSettings(){','private fun showLegalNotice('),
@@ -2877,3 +2883,18 @@ for file in ('BOPAVI-Android-Pilots.png','BOPAVI-Android-Levels.png',
     assert file in workflow
 assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 19' in workflow
 print('PASS: reference pilot hero, four Settings groups and ten audited native menu screenshots')
+# v0.2.12: the supplied Home reference requires an exceptionally large Bopi
+# and a separately scaled wordmark, not one fixed image with fake controls.
+for current in (android_home,ios_home):
+    assert 'homeLogo' in current and 'homePilot' in current
+    assert current.index('homeLogo') < current.index('homePilot')
+    assert current.index('homePilot') < current.index('▶  IGRAJ')
+    assert current.index('▶  IGRAJ') < current.index('🌍  SVJETOVI')
+    assert current.index('🌍  SVJETOVI') < current.index('⚙  POSTAVKE')
+assert 'LinearLayout.LayoutParams(-1,d(252))' in android_home
+assert 'homePilot.heightAnchor.constraint(equalToConstant:252)' in ios_home
+assert 'navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-7)' in ios_home
+assert 'stack.addArrangedSubview(navigation)' not in ios_home
+assert 'homeMargins.bottom=105' in ios_home
+assert 'home_art.paste(scene_only,(0,340),mask)' in image_source
+print('PASS: responsive artwork-free Home UI overlays use large selected native pilots, not duplicated baked-in Bopi')

@@ -669,12 +669,15 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
         }
-        // The art already includes the mascot and game title; only live,
-        // clickable controls and player-dependent values sit on top.
+        // HomeArt contains scenery alone; the native wordmark, selected pilot,
+        // currency and all controls sit above it as responsive live views.
         // Home fits exactly within the available iPhone safe area: no scrolling,
         // clipped footer, or large blank region below the navigation.
         if let homeViewport=view.subviews.compactMap({$0 as? UIScrollView}).first {
-            stack.heightAnchor.constraint(equalTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
+            // Keep the footer at the bottom on tall devices, but permit a
+            // larger intrinsic stack on short devices so viewport fitting
+            // can scale all hit targets coherently instead of clipping them.
+            stack.heightAnchor.constraint(greaterThanOrEqualTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
         }
         // Real home navigation: current pilot, earned results, coins and
         // settings. Each separately accessible element has a working action.
@@ -740,6 +743,25 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
         walletRow.addArrangedSubview(gear)
         stack.addArrangedSubview(walletRow)
+        // Reserve a fixed bottom rail for the real four-tab navigation.
+        // The rail itself is independently pinned to the safe bottom edge:
+        // content fitting cannot push it off-screen on short iPhones.
+        var homeMargins=stack.layoutMargins
+        homeMargins.bottom=105
+        stack.layoutMargins=homeMargins
+        // The reference hero is composed from genuinely independent assets.
+        // Bopi follows the player's saved selection, not an uneditable home
+        // screenshot. The full-size images fit the safe-area-scaled UI stack.
+        let homeLogo=UIImageView(image:UIImage(named:"Logo"))
+        homeLogo.contentMode = .scaleAspectFit
+        homeLogo.isAccessibilityElement=false
+        homeLogo.heightAnchor.constraint(equalToConstant:128).isActive=true
+        stack.addArrangedSubview(homeLogo)
+        let homePilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        homePilot.contentMode = .scaleAspectFit
+        homePilot.isAccessibilityElement=false
+        homePilot.heightAnchor.constraint(equalToConstant:252).isActive=true
+        stack.addArrangedSubview(homePilot)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
@@ -800,7 +822,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tab.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             navigation.addArrangedSubview(tab)
         }
-        stack.addArrangedSubview(navigation)
+        // Match the fixed bottom navigation in the supplied reference.
+        // A separate UIKit view remains clickable and VoiceOver-addressable
+        // even when the hero stack needs responsive downscaling.
+        navigation.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(navigation)
+        NSLayoutConstraint.activate([
+            navigation.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:18),
+            navigation.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-18),
+            navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-7),
+            navigation.heightAnchor.constraint(equalToConstant:78)
+        ])
     }
 
     private func showWorlds(){
@@ -961,7 +993,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let croatian=progress.languageCode=="hr"
         let selected=progress.skinIndex()
         let stack=menu(croatian ? "ODABERI LIKA" : "CHOOSE YOUR PILOT",
-                       croatian ? "Izaberi svog pilota za let" : "Nine unique flyers · choose before takeoff")
+                       croatian ? "SVAKI PILOT IMA SVOJU PRIČU" : "EVERY PILOT HAS A STORY")
         let head=UIStackView()
         head.axis = .horizontal
         head.alignment = .center
@@ -969,13 +1001,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         head.isLayoutMarginsRelativeArrangement=true
         head.layoutMargins=UIEdgeInsets(top:4,left:3,bottom:4,right:3)
         head.backgroundColor = .clear
-        head.heightAnchor.constraint(equalToConstant:194).isActive=true
+        head.heightAnchor.constraint(equalToConstant:230).isActive=true
         stack.addArrangedSubview(head)
         let chosenPicture=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
         chosenPicture.contentMode = .scaleAspectFit
         chosenPicture.isAccessibilityElement=false
-        chosenPicture.widthAnchor.constraint(equalToConstant:180).isActive=true
-        chosenPicture.heightAnchor.constraint(equalToConstant:185).isActive=true
+        chosenPicture.widthAnchor.constraint(equalToConstant:203).isActive=true
+        chosenPicture.heightAnchor.constraint(equalToConstant:222).isActive=true
         head.addArrangedSubview(chosenPicture)
         let pilotSummary=UIStackView()
         pilotSummary.axis = .vertical;pilotSummary.alignment = .fill

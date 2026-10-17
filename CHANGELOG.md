@@ -1,3 +1,11 @@
+## v0.2.12 — responsive standalone hero and verified fidelity baseline (build 117)
+- Separate BOPAVI Home scene from native winged logo and player-selected pilot on Android/iOS. No duplicate Bopi/logo baked into HomeArt: both can scale and align independently across portrait device aspect ratios without creating fake buttons, scores or currencies.
+- Increase the actual selected-pilot hero in the functional nine-pilot picker on both platforms and use the supplied reference's story subtitle in Croatian.
+- Add an opt-in real-capture/reference comparison tool for objective differences at matched screen sizes (MAE, near-pixel agreement, aspect-ratio mismatch and exact-pixel verdict). The benchmark inputs remain user-owned outside the repository; no reference screenshot is ever relabelled as runtime evidence.
+- Real v0.2.11 Android simulator screenshot audit shows major deviations from the supplied visual concepts across every matched non-gameplay screen. Full 1:1 visual parity is **NOT** claimed: isolated approved high-fidelity art assets, exact typography and multi-device screenshot comparison remain required.
+- Gameplay engine, collision/physics, saved data, currency rules, real offline actions and privacy remain unchanged.
+- Release only when Android and iOS CI and emulator/simulator QA pass. Android and iOS **v0.2.12 / build 117**.
+
 ## v0.2.11 — reference-aligned pilot and Settings layouts (build 116)
 - Increase the true selected pilot portrait and give it a dedicated status panel on both Android and iOS. Progress statistics always come from local saves, never hardcoded screenshots.
 - Render rounded heavyweight menu typography and illustrated Settings header using the existing BOPAVI wordmark and selected pilot portrait on both platforms.
