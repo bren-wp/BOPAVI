@@ -21,8 +21,8 @@ enum BopaviCore {
         let type: Int
     }
     /// A rolling ridge contour for the first ten gates of every level.
-    /// 2-bit level digits remain unique and adjacent jumps stay <=208 units.
-    private static let centerContour:[Float]=[-10,-80,-140,-90,35,115,175,50,-80,-145]
+    /// Smooth upward/downward curves, keeping a unique two-bit stage fingerprint.
+    private static let centerContour:[Float]=[-20,-65,-115,-82,-30,20,78,125,77,19]
     struct Opening { let top: Float, bottom: Float }
     struct Random32 {
         private var state: UInt32
@@ -48,8 +48,8 @@ enum BopaviCore {
         var last: Float = 355
         for i in 0..<count {
             let center: Float
-            if i < 10 { center = 332 + centerContour[i] + Float(((number - 1) >> (i*2)) & 3)*26 }
-            else { center = min(465, max(235, last + (rng.next() - 0.5)*90)) }
+            if i < 10 { center = 332 + centerContour[i] + Float(((number - 1) >> (i*2)) & 3)*18 }
+            else { center = min(434, max(270, last + (rng.next() - 0.5)*72)) }
             last = center
             let active = (zone >= 2 && i >= 5 && (i+number+world)%3 == 0) || (type == 2 && i >= 4 && i%3 == 0) || (world == 4 && i >= 4 && i%4 == 0)
             gates.append(Gate(x:420 + Float(i*(228-zone*2)), center:center,
@@ -73,7 +73,7 @@ enum BopaviCore {
         let salt=cycle%4096
         let remixed=base.gates.enumerated().map{ (index,gate) in
             let diff=Float((Int64(salt)*37+Int64(index)*11)%25-12)
-            return Gate(x:gate.x,center:min(475,max(220,gate.center+diff)),gap:gate.gap,width:gate.width,
+            return Gate(x:gate.x,center:min(440,max(265,gate.center+diff)),gap:gate.gap,width:gate.width,
                         movement:gate.movement,phase:gate.phase+Float(salt)*0.017,
                         kind:gate.kind,coin:gate.coin,star:gate.star,power:gate.power)
         }
@@ -179,7 +179,17 @@ final class GameSimulation {
     func upcomingGateX(_ gate:BopaviCore.Gate)->Float {WorldCoordinates.screenX(gate.x,origin:nextOrigin,travelled:preciseDistance)}
     private func prepareNext() {
         guard endless && displayLevel<Int.max-3 else {nextLevel=nil;return}
-        let next=BopaviCore.createStream(level.world,displayLevel+1)
+        let generated=BopaviCore.createStream(level.world,displayLevel+1)
+        var previous=level.gates.last!.center
+        let gentle=generated.gates.map { gate -> BopaviCore.Gate in
+            let center=min(previous+82,max(previous-82,gate.center))
+            previous=center
+            return BopaviCore.Gate(x:gate.x,center:center,gap:gate.gap,width:gate.width,
+                movement:gate.movement,phase:gate.phase,kind:gate.kind,
+                coin:gate.coin,star:gate.star,power:gate.power)
+        }
+        let next=BopaviCore.Level(world:generated.world,number:generated.number,zone:generated.zone,
+            speed:generated.speed,wind:generated.wind,gates:gentle,type:generated.type)
         // Keep the identical 218..228 px obstacle cadence across levels:
         // no longer or shorter transition beat, camera jump or visible void.
         let last=level.gates.count-1
@@ -191,6 +201,8 @@ final class GameSimulation {
     private(set) var levelTransition: Float = 0
     private(set) var passed = 0
     private(set) var coins = 0
+    /// Edible fruit, not a spendable currency. Lifetime of this flight only.
+    private(set) var foodCollected = 0
     private(set) var stars = 0
     /// Reset per-level stars only after a real completed level; marathon stars stay cumulative.
     private(set) var levelStars = 0
@@ -206,9 +218,11 @@ final class GameSimulation {
     private(set) var active = false
     private(set) var finished = false
     private(set) var won = false
+    private var collectedFood:[Bool]
     private var collectedCoins:[Bool]
     private var collectedStars:[Bool]
     private var collectedPowers:[Bool]
+    func foodVisible(_ index:Int) -> Bool { index>=0 && index<collectedFood.count && !collectedFood[index] }
     func coinVisible(_ index:Int) -> Bool { !collectedCoins[index] }
     func starVisible(_ index:Int) -> Bool { !collectedStars[index] }
     func powerVisible(_ index:Int) -> Bool { !collectedPowers[index] }
@@ -225,6 +239,7 @@ final class GameSimulation {
         self.endless = endless
         self.shield = min(3,max(0,initialShield))
         self.magnetTime = min(18,max(0,initialMagnet))
+        collectedFood=Array(repeating:false,count:level.gates.count)
         collectedCoins=Array(repeating:false,count:level.gates.count)
         collectedStars=Array(repeating:false,count:level.gates.count)
         collectedPowers=Array(repeating:false,count:level.gates.count)
@@ -266,6 +281,13 @@ final class GameSimulation {
             }
             let cx=x+gate.width*0.5
             let cy=(bounds.top+bounds.bottom)*0.5
+            // Berry collection uses the same opening midpoint as native artwork.
+            if endless && gate.coin && !collectedFood[i] {
+                let dx=cx-birdX,dy=cy-y
+                if dx*dx+dy*dy <= (radius+13)*(radius+13) {
+                    collectedFood[i]=true;foodCollected+=1;collectPulse=0.36
+                }
+            }
             let magnetRange:Float = magnetTime>0 ? 108 : 23
             if !endless && gate.coin && !collectedCoins[i] && abs(cx-birdX)<magnetRange && abs(cy-y)<magnetRange {coins += 1;collectedCoins[i]=true;collectPulse=0.36}
             if !endless && gate.star && !collectedStars[i] && abs(cx+35-birdX)<magnetRange && abs(cy-25-y)<magnetRange {stars += 1;levelStars += 1;collectedStars[i]=true;collectPulse=0.36}
@@ -288,6 +310,7 @@ final class GameSimulation {
                         levelTransition=0.85
                         passed=0
                         levelStars=0
+                        collectedFood=Array(repeating:false,count:level.gates.count)
                         collectedCoins=Array(repeating:false,count:level.gates.count)
                         collectedStars=Array(repeating:false,count:level.gates.count)
                         collectedPowers=Array(repeating:false,count:level.gates.count)

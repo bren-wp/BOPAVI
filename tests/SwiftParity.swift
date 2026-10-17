@@ -58,7 +58,30 @@ struct SwiftParity {
         precondition(GameLanguages.text("UKUPNO\nPROLAZA","en")=="TOTAL\nGATES")
         precondition(GameLanguages.text("MOJI REKORDI","en")=="MY RECORDS")
         precondition(GameLanguages.text("TVOJI REZULTATI","en")=="YOUR RESULTS")
-        let firstContours:[Float]=[322,252,192,242,367,447,507,382,252,187]
+        // V5 fruit is an actual body/contact pickup, not old spendable currency.
+        let berry=BopaviCore.Gate(x:94,center:366,gap:240,width:64,movement:0,phase:0,
+            kind:0,coin:true,star:false,power:0)
+        let berryStage=BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+            gates:[berry],type:0)
+        let berryGame=GameSimulation(berryStage,endless:true)
+        berryGame.flap();berryGame.step(1/60)
+        precondition(berryGame.foodCollected==1 && !berryGame.foodVisible(0))
+        precondition(berryGame.coins==0 && berryGame.score()==0)
+        berryGame.step(1/60)
+        precondition(berryGame.foodCollected==1, "Fruit collected more than once")
+        let distant=BopaviCore.Gate(x:94,center:260,gap:340,width:64,movement:0,phase:0,
+            kind:0,coin:true,star:false,power:0)
+        let missed=GameSimulation(BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+            gates:[distant],type:0),endless:true)
+        missed.flap();missed.step(1/60)
+        precondition(!missed.finished && missed.foodCollected==0 && missed.foodVisible(0))
+        for world in 0..<8 {
+            let stage=BopaviCore.create(world,61)
+            let stream=GameSimulation(stage,endless:true)
+            let heights=[stage.gates.last!.center]+stream.upcomingGates.map{$0.center}
+            precondition(zip(heights,heights.dropFirst()).allSatisfy{abs($0.0-$0.1)<=82.001})
+        }
+        let firstContours:[Float]=[312,267,217,250,302,352,410,457,409,351]
         for world in 0..<8 {
             let first=BopaviCore.create(world,1)
             precondition(Array(first.gates.prefix(10).map{$0.center})==firstContours,
@@ -96,9 +119,9 @@ struct SwiftParity {
                 let l=BopaviCore.create(w,n)
                 print("V|\(w)|\(n)|\(l.zone)|\(l.type)|\(l.gates.count)|\(String(format:"%.4f",Double(l.speed)))|\(String(format:"%.4f",Double(l.gates[0].gap)))|\(BopaviCore.signature(l))|\(l.gates.prefix(5).map{String(Int($0.width))}.joined(separator:","))")
                 var reconstructed=0
-                let contour:[Float]=[-10,-80,-140,-90,35,115,175,50,-80,-145]
+                let contour:[Float]=[-20,-65,-115,-82,-30,20,78,125,77,19]
                 for (i,g) in l.gates.prefix(10).enumerated(){
-                    reconstructed |= Int((g.center-332-contour[i])/26) << (i*2)
+                    reconstructed |= Int((g.center-332-contour[i])/18) << (i*2)
                 }
                 precondition(reconstructed == n-1)
             }

@@ -66,6 +66,9 @@ for source in (A,I):
         assert removed not in source, removed
 
 assert "if(!endless && gate.coin" in AC and "if !endless && gate.coin" in IC
+assert "foodCollected" in AC and "foodCollected" in IC
+assert "collectedFood" in AC and "collectedFood" in IC
+assert "g.foodCollected" in a_result and "g.foodCollected" in i_result
 assert "if(!endless && gate.power" in AC and "if !endless && gate.power" in IC
 assert "source-audit:" in WORKFLOW and "python tools/audit_native_dead_code.py" in WORKFLOW
 print("PASS: native four-view gameplay, original Bopi, non-reward endless score and safe persistence")

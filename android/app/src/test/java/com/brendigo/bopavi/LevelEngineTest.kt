@@ -114,13 +114,13 @@ class LevelEngineTest {
     }
 
     @Test fun firstTenGatesVaryHeightWithoutUnreachableJumps() {
-        val expected=listOf(322f,252f,192f,242f,367f,447f,507f,382f,252f,187f)
+        val expected=listOf(312f,267f,217f,250f,302f,352f,410f,457f,409f,351f)
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val level=LevelEngine.create(world,1)
             val centers=level.gates.take(10).map { it.center }
             assertEquals("First level must not look like ten identical columns",expected,centers)
             assertTrue(centers.toSet().size>=9)
-            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 208f })
+            assertTrue(centers.zipWithNext().all { (a,b) -> kotlin.math.abs(a-b) <= 115f })
             // A constant-altitude autopilot must hit a physical pillar on
             // ALL three difficulty settings, not merely a decorative cap.
             for(mode in 0..2) {
@@ -143,7 +143,7 @@ class LevelEngineTest {
         for (world in 0 until LevelEngine.WORLD_COUNT) {
             val level = LevelEngine.create(world, 1)
             val centers = level.gates.take(10).map { it.center }
-            assertTrue("No constant-altitude straight lane", centers.max() - centers.min() >= 300f)
+            assertTrue("No constant-altitude straight lane", centers.max() - centers.min() >= 230f)
             for (gate in level.gates) {
                 val easy = LevelEngine.opening(gate, 0f, 0)
                 val normal = LevelEngine.opening(gate, 0f, 1)
@@ -539,4 +539,42 @@ class LevelEngineTest {
             assertEquals(LevelEngine.LEVELS_PER_WORLD,LevelEngine.create(world,LevelEngine.LEVELS_PER_WORLD).number)
         }
     }
+    @Test fun endlessFoodRequiresRealTouchAndNeverBecomesCurrency() {
+        val prototype=LevelEngine.create(0,1)
+        val near=prototype.gates.first().copy(x=94f,center=366f,gap=240f,width=64f,
+            movement=0f,coin=true,star=false,power=0)
+        val safe=prototype.copy(gates=listOf(near),speed=140f,wind=0f)
+        val game=GameSimulation(safe,endless=true)
+        assertTrue(game.foodVisible(0))
+        game.flap()
+        game.step(1f/60f)
+        assertEquals(1,game.foodCollected)
+        assertFalse(game.foodVisible(0))
+        assertEquals("Fruit must never add legacy coins",0,game.coins)
+        assertEquals("Passing gates alone earns score; food is counted separately",0,game.score())
+        game.step(1f/60f)
+        assertEquals("One berry must never be counted twice",1,game.foodCollected)
+
+        val missed=GameSimulation(safe.copy(gates=listOf(near.copy(center=260f,gap=340f))),endless=true)
+        missed.flap()
+        missed.step(1f/60f)
+        assertFalse("Non-contact must not collect fruit",missed.finished)
+        assertEquals(0,missed.foodCollected)
+        assertTrue(missed.foodVisible(0))
+    }
+
+    @Test fun beginnerObstaclesFormGentleRhythmIncludingNextStream() {
+        for(world in 0 until LevelEngine.WORLD_COUNT)for(n in listOf(1,2,35,61,360)) {
+            val l=LevelEngine.create(world,n)
+            assertTrue(l.gates.zipWithNext().all { (a,b) ->
+                kotlin.math.abs(a.center-b.center)<=115f
+            })
+            val game=GameSimulation(l,endless=true)
+            val all=listOf(l.gates.last().center)+game.upcomingGates().map { it.center }
+            assertTrue("Next stream must avoid abrupt up/down reversal", all.zipWithNext().all{(a,b)->
+                kotlin.math.abs(a-b)<=82f+0.001f
+            })
+        }
+    }
+
 }

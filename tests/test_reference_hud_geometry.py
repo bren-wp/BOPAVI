@@ -13,10 +13,12 @@ assert "drawLevelProgress(c)" not in i_draw
 a_hud=get(a,"    private fun drawHud(c:Canvas){","    override fun onTouchEvent(")
 i_hud=get(i,"    private func drawBoostHUD(_ c:CGContext) {","    private func drawWorldLighting(")
 for hud in (a_hud,i_hud):
-    assert "game.score()" in hud
+    assert "game.score()" in hud and "game.foodCollected" in hud
     assert "SCORE" in hud
     assert "game.coins" not in hud and "game.stars" not in hud
     assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
 assert "hudGlass(c,18f,20f,212f,88f)" in a_hud
 assert "hudGlass(c,18,20,194,68)" in i_hud
+assert "hudGlass(c,228f,20f,376f,88f)" in a_hud
+assert "hudGlass(c,228,20,148,68)" in i_hud
 print("PASS: Android/iOS safe-area gameplay scoreboard only")

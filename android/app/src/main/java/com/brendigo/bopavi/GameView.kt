@@ -189,8 +189,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 completedSeen=game.completionCount
                 onLevelCompleted(game.completedOrdinal)
             }
-            if(game.coins+game.stars>pickupSeen) {
-                pickupSeen=game.coins+game.stars
+            if(game.foodCollected+game.coins+game.stars>pickupSeen) {
+                pickupSeen=game.foodCollected+game.coins+game.stars
                 if(hapticEnabled)performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 onCollect()
             }
@@ -673,6 +673,21 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.style=Paint.Style.FILL;p.alpha=255
         }
     }
+    /** Native illustrated forest berry, shared by corridor and safe-area HUD.
+     * Its red body is inside the 13px food collider; foliage is decorative only.
+     */
+    private fun drawBerry(c:Canvas,cx:Float,cy:Float,r:Float){
+        oval(c,cx-r+2f,cy-r*.65f,cx+r+2f,cy+r+3f,0x66301530)
+        oval(c,cx-r,cy-r*.85f,cx+r,cy+r,0xffa51f45.toInt())
+        oval(c,cx-r+2f,cy-r*.73f,cx+r-3f,cy+r-3f,0xfff0445b.toInt())
+        oval(c,cx-r*.62f,cy-r*.53f,cx-r*.12f,cy-r*.08f,0x99ffe2ab.toInt())
+        rect(c,cx-1.5f,cy-r-5f,cx+1.5f,cy-r*.5f,0xff734a2d.toInt(),1f)
+        path.reset()
+        path.moveTo(cx,cy-r*.86f)
+        path.quadTo(cx+r*.52f,cy-r*1.75f,cx+r*.82f,cy-r*.92f)
+        path.quadTo(cx+r*.44f,cy-r*.50f,cx,cy-r*.86f)
+        fill(0xff5de18b.toInt());c.drawPath(path,p)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -768,6 +783,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         courses(16f,top-34f);courses(bottom+34f,809f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
+        // Vegetated stone relief in the collision-solid lip/shaft, never in the gap.
+        if(g.kind==0) {
+            for(j in 0..3) {
+                val fx=x+10f+(w-24f)*j/3f
+                oval(c,fx-5f,top-24f,fx+9f,top-12f,0xff2f965a.toInt())
+                oval(c,fx-3f,top-23f,fx+7f,top-16f,0xff79ed86.toInt())
+                oval(c,fx-4f,bottom+8f,fx+6f,bottom+18f,0xff40a768.toInt())
+            }
+            // Sparse tiny flowers and climbing leaves, arranged by the pillar seed.
+            for(j in 0..2) {
+                val yy=bottom+47f+j*81f+(cliffSeed%13)
+                if(yy+22f<791f) {
+                    val fx=x+15f+(j%2)*27f
+                    oval(c,fx-9f,yy-4f,fx+6f,yy+11f,0xff387451.toInt())
+                    oval(c,fx-3f,yy-7f,fx+11f,yy+5f,0xff72d887.toInt())
+                    oval(c,fx+3f,yy-4f,fx+8f,yy+1f,0xffffe2a1.toInt())
+                }
+            }
+        }
+        if(game.endless && g.coin && (incoming || game.foodVisible(index))) {
+            val mid=x+w*.5f
+            drawBerry(c,mid,(a.top+a.bottom)*.5f,13f)
+        }
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
      * Deterministic Canvas particles are bounded and allocate no sprites each frame.
@@ -948,7 +986,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         hudGlass(c,18f,20f,212f,88f)
         text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
         text(c,game.score().toString(),36f,76f,26f,Color.WHITE)
-        val status="${word("SCORE","BODOVI")}: ${game.score()}"
+        hudGlass(c,228f,20f,376f,88f)
+        drawBerry(c,250f,58f,11f)
+        text(c,if(language=="hr")"HRANA" else "FOOD",274f,46f,12f,0xffbceeff.toInt())
+        text(c,game.foodCollected.toString(),274f,76f,26f,Color.WHITE)
+        val status="${word("SCORE","BODOVI")}: ${game.score()}; ${if(language=="hr")"Hrana" else "Food"}: ${game.foodCollected}"
         if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */

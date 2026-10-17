@@ -36,7 +36,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
-        val upcoming=LevelEngine.createStream(level.world,displayLevel+1)
+        val generated=LevelEngine.createStream(level.world,displayLevel+1)
+        var previous=level.gates.last().center
+        val upcoming=generated.copy(gates=generated.gates.map { gate ->
+            val center=gate.center.coerceIn(previous-82f,previous+82f)
+            previous=center
+            gate.copy(center=center)
+        })
         // A level boundary is not a gap or a special shortened/lengthened beat.
         // Match the current level's exact 218..228 px gate cadence so the next
         // visible obstacle is positioned in the same uninterrupted world stream.
@@ -49,6 +55,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var levelTransition = 0f; private set
     var passed = 0; private set
     var coins = 0; private set
+    /** Run-only berry count, never spendable virtual coins. */
+    var foodCollected = 0; private set
     var stars = 0; private set
     /** Separate current-level pickups from the lifetime marathon score. */
     var levelStars = 0; private set
@@ -68,9 +76,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var finished = false; private set
     var won = false; private set
     init { prepareNext() }
+    private var collectedFood = BooleanArray(level.gates.size)
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
+    fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
     fun coinVisible(index: Int) = !collectedCoins[index]
     fun starVisible(index: Int) = !collectedStars[index]
     fun powerVisible(index: Int) = !collectedPowers[index]
@@ -115,6 +125,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             }
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
+            // Body-to-berry overlap, not a free reward for avoiding the pillar.
+            if(endless && gate.coin && !collectedFood[i]) {
+                val dx=cx-birdX;val dy=cy-y
+                if(dx*dx+dy*dy <= (radius+13f)*(radius+13f)) {
+                    collectedFood[i]=true;foodCollected++;collectPulse=.36f
+                }
+            }
             val magnetRange = if (magnetTime > 0f) 108f else 23f
             if(!endless && gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
             if(!endless && gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;levelStars++;collectedStars[i]=true;collectPulse=.36f}
@@ -138,6 +155,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         levelTransition=.85f
                         passed = 0
                         levelStars = 0
+                        collectedFood = BooleanArray(level.gates.size)
                         collectedCoins = BooleanArray(level.gates.size)
                         collectedStars = BooleanArray(level.gates.size)
                         collectedPowers = BooleanArray(level.gates.size)

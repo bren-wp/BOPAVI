@@ -151,7 +151,7 @@ final class GameCanvas: UIView {
         if game.completionCount>completedSeen {
             completedSeen=game.completionCount;onLevelComplete?(game.completedOrdinal)
         }
-        if game.coins+game.stars>pickupSeen {pickupSeen=game.coins+game.stars;onCollect?()}
+        if game.foodCollected+game.coins+game.stars>pickupSeen {pickupSeen=game.foodCollected+game.coins+game.stars;onCollect?()}
         // One callback on shield consumption, not each frame of the impact pulse.
         if game.impactPulse>0 && !shieldImpactNotified {
             shieldImpactNotified=true
@@ -338,12 +338,17 @@ final class GameCanvas: UIView {
         rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
     }
+    private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:26,weight:.heavy)
     private func drawBoostHUD(_ c:CGContext) {
         // Two high-contrast live score lines. The game has no economy or stages.
         hudGlass(c,18,20,194,68)
         hudText(word("SCORE","BODOVI"),36,31,hudWalletFont,0xbceeff)
-        hudText(String(game.score()),36,53,hudWalletFont,0xffffff)
-        accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score())"
+        hudText(String(game.score()),36,50,hudCountFont,0xffffff)
+        hudGlass(c,228,20,148,68)
+        berry(c,250,58,11)
+        hudText(language=="hr" ? "HRANA" : "FOOD",274,31,hudWalletFont,0xbceeff)
+        hudText(String(game.foodCollected),274,50,hudCountFont,0xffffff)
+        accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score()); \(language=="hr" ? "Hrana" : "Food"): \(game.foodCollected)"
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.
@@ -699,6 +704,21 @@ final class GameCanvas: UIView {
             c.strokePath()
         }
     }
+    /// Fruit is drawn as actual Core Graphics layers, not a baked image or coin.
+    private func berry(_ c:CGContext,_ x:CGFloat,_ y:CGFloat,_ r:CGFloat) {
+        oval(c,x-r+2,y-r*0.65,2*r,1.7*r,0x301530,0.40)
+        oval(c,x-r,y-r*0.85,2*r,1.85*r,0xa51f45)
+        oval(c,x-r+2,y-r*0.73,2*r-5,1.73*r-3,0xf0445b)
+        oval(c,x-r*0.62,y-r*0.53,r*0.5,r*0.45,0xffe2ab,0.60)
+        rect(c,x-1.5,y-r-5,3,r*0.5+5,0x734a2d,1)
+        c.setFillColor(color(0x5de18b))
+        c.move(to:CGPoint(x:x,y:y-r*0.86))
+        c.addQuadCurve(to:CGPoint(x:x+r*0.82,y:y-r*0.92),
+                       control:CGPoint(x:x+r*0.52,y:y-r*1.75))
+        c.addQuadCurve(to:CGPoint(x:x,y:y-r*0.86),
+                       control:CGPoint(x:x+r*0.44,y:y-r*0.50))
+        c.closePath();c.fillPath()
+    }
     private func gate(_ c:CGContext,_ g:BopaviCore.Gate,_ x:CGFloat,_ index:Int,_ incoming:Bool=false){
         let shape=BopaviCore.opening(g,game.time,difficulty:game.difficulty);let top=CGFloat(shape.top),bottom=CGFloat(shape.bottom)
         let w=CGFloat(g.width)
@@ -774,6 +794,27 @@ final class GameCanvas: UIView {
         courses(16,top-34);courses(bottom+34,809)
         rect(c,x-3,top-27,w+5,4,0xffffff,2,0.53)
         rect(c,x-3,bottom+3,w+5,5,0xffffff,2,0.40)
+        // Rich rooted cap foliage and tiny shaft-side flowers, all collision-solid.
+        if g.kind==0 {
+            for j in 0...3 {
+                let fx=x+10+(w-24)*CGFloat(j)/3
+                oval(c,fx-5,top-24,14,12,0x2f965a)
+                oval(c,fx-3,top-23,10,7,0x79ed86)
+                oval(c,fx-4,bottom+8,10,10,0x40a768)
+            }
+            for j in 0...2 {
+                let yy=bottom+47+CGFloat(j)*81+CGFloat(cliffSeed%13)
+                if yy+22<791 {
+                    let fx=x+15+CGFloat(j%2)*27
+                    oval(c,fx-9,yy-4,15,15,0x387451)
+                    oval(c,fx-3,yy-7,14,12,0x72d887)
+                    oval(c,fx+3,yy-4,5,5,0xffe2a1)
+                }
+            }
+        }
+        if game.endless && g.coin && (incoming || game.foodVisible(index)) {
+            berry(c,x+w*0.5,(top+bottom)*0.5,13)
+        }
     }
     private func drawFeedbackSparkles(_ c:CGContext) {
         if reducedMotion {return}

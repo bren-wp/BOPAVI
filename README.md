@@ -23,8 +23,10 @@ BOPAVI je lagana, offline arkadna igra u kojoj vodiš Bopija kroz šarene nebesk
 Cijelo korisničko iskustvo sada ima samo tri koraka:
 
 1. **IGRAJ** — jedan veliki gumb na početnom ekranu odmah otvara let.
-2. **LET** — tapkaj za letenje, izbjegavaj prepreke i skupljaj bodove prolaskom.
-3. **REZULTAT** — nakon sudara vidiš stvarni rezultat, ostvarene bodove i osobni rekord, uz **PONOVO** i **POČETNA**.
+2. **LET** — tapkaj za letenje, izbjegavaj bogato oslikane stijene, skupljaj crvene bobice i osvajaj bodove prolaskom.
+3. **REZULTAT** — nakon sudara vidiš bodove, koliko si hrane prikupio i svoj najbolji rezultat, uz **PONOVO** i **POČETNA**.
+
+Bobice nisu valuta ni nagrade za kupnju: Bopi ih mora stvarno dotaknuti, a brojač **HRANA / FOOD** prikazuje se u gameplayu i na rezultatu. Raspored prolaza prati prirodan val penjanja i spuštanja, bez naglih uzastopnih promjena visine. Stijene su dodatno obogaćene raslinjem i detaljima.
 
 U letu postoji samo jednostavna pauza s **NASTAVI**, **PONOVO** i **IZLAZ**.
 
