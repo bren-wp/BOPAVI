@@ -16,12 +16,8 @@ object LevelEngine {
     data class Gate(val x: Float, val center: Float, val gap: Float, val width: Float, val movement: Float, val phase: Float, val kind: Int, val coin: Boolean, val star: Boolean, val power: Int)
     data class Level(val world: Int, val number: Int, val zone: Int, val speed: Float, val wind: Float, val gates: List<Gate>, val type: Int)
     data class Opening(val top: Float, val bottom: Float)
-    // A rolling 10-gate ridge profile. The indexed 2-bit level fingerprint
-    // remains injective, but Level 1 no longer has ten identical openings.
-    // The contour alternates significantly so a level cannot be passed by flying
-    // at one fixed height. Encoded 2-bit fingerprints remain collision-safe;
-    // adjacent changes are bounded by 208 logical pixels.
-    private val centerContour=intArrayOf(-10,-80,-140,-90,35,115,175,50,-80,-145)
+    // Gentle ridge rhythm. Independent base-4 digits preserve unique stage seeds.
+    private val centerContour=intArrayOf(-12,-38,-58,-32,2,25,42,18,-10,-30)
 
     private class Random32(seed: UInt) {
         var state = if (seed == 0u) 0x6d2b79f5u else seed
@@ -47,8 +43,8 @@ object LevelEngine {
         for (i in 0 until count) {
             // Ten 2-bit digits give an injective signature for all 2^20 level numbers.
             // No random position is added to these ten centers.
-            val center = if (i < 10) 332f + centerContour[i].toFloat() + (((number - 1) ushr (i * 2)) and 3) * 26f
-                else (last + (r.next() - 0.5f) * 90f).coerceIn(235f, 465f)
+            val center = if (i < 10) 332f + centerContour[i].toFloat() + (((number - 1) ushr (i * 2)) and 3) * 18f
+                else (last + (r.next() - 0.5f) * 72f).coerceIn(270f, 434f)
             last = center
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)
             gates += Gate(
@@ -84,7 +80,7 @@ object LevelEngine {
         val salt=(cycle%4096L).toInt()
         val remixed=base.gates.mapIndexed{index,gate ->
             val diff=((salt*37L+index*11L)%25L-12L).toFloat()
-            gate.copy(center=(gate.center+diff).coerceIn(220f,475f),phase=gate.phase+salt*.017f)
+            gate.copy(center=(gate.center+diff).coerceIn(265f,440f),phase=gate.phase+salt*.017f)
         }
         return base.copy(gates=remixed)
     }
