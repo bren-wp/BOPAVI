@@ -1689,9 +1689,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                     UIColor(red:1,green:0.81,blue:0.30,alpha:1) :
                     UIColor(red:0.17,green:0.84,blue:1,alpha:1)).cgColor
                 card.heightAnchor.constraint(equalToConstant:97).isActive=true
-                card.accessibilityLabel=(croatian ? "KUPI " : "BUY ")+names[n]+". "+explanations[n]+
-                    ". "+String(price)+(croatian ? " kovanica. U torbi: " : " coins. Owned: ")+
-                    String(owned)+(croatian ? ". KUPI" : ". BUY")
+                let orderLabel=croatian ? "KUPI " : "BUY "
+                let unitLabel=croatian ? " kovanica. U torbi: " : " coins. Owned: "
+                card.accessibilityLabel="\(orderLabel)\(names[n]). \(explanations[n]) " +
+                    "\(price)\(unitLabel)\(owned)"
                 let layout=UIStackView()
                 layout.axis = .vertical;layout.alignment = .fill;layout.spacing=4
                 layout.isUserInteractionEnabled=false
