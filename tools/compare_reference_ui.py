@@ -20,6 +20,10 @@ def measure(reference: Path, actual: Path) -> dict:
         screen = ImageOps.exif_transpose(actual_src).convert("RGB")
         original_reference_size = list(ref.size)
         device_size = list(screen.size)
+        # Exact comparison always uses ORIGINAL decoded full-resolution pixels,
+        # never the downsampled triage images (which can hide fine differences).
+        full_resolution_exact = (original_reference_size == device_size and
+            ImageChops.difference(ref, screen).getbbox() is None)
         if original_reference_size != device_size:
             # Center crop approximates cover-mode artwork; record this explicitly
             # because unequal aspect ratios cannot possibly be pixel-identical.
@@ -43,8 +47,7 @@ def measure(reference: Path, actual: Path) -> dict:
             "rgb_mean_absolute_error_0_255": round(mae, 2),
             "exact_luma_fraction": round(exact_fraction, 6),
             "near_luma_fraction_tolerance_12": round(near_fraction, 6),
-            "pixel_identical": original_reference_size == device_size and
-                ImageChops.difference(ref, screen).getbbox() is None,
+            "pixel_identical": full_resolution_exact,
         }
 
 
