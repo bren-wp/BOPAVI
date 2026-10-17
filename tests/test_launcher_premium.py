@@ -35,5 +35,7 @@ for corner in ((0,0),(511,0),(0,511),(511,511)):
 assert len(legacy.resize((48,48)).getcolors(maxcolors=2400) or [])>380
 xml=(ANDROID/"mipmap-anydpi-v26/ic_launcher.xml").read_text()
 assert '@drawable/app_icon_foreground' in xml
-assert '@color/bopavi_icon_background' in xml
+assert '@drawable/app_icon_background' in xml
+with Image.open(ANDROID/"drawable/app_icon_background.png") as im:
+    assert im.size == (512,512) and im.convert('RGB').getpixel((0,0)) != (255,255,255)
 print("PASS: actual reference mascot, full-bleed icon, no white launcher padding, transparent adaptive layer and identical Android/iOS base pixels")
