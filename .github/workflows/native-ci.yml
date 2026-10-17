@@ -500,15 +500,6 @@ jobs:
           import struct
           captures = {
               'dist/real-screenshots/android/android-home.png':'BOPAVI-Android-Home.png',
-              'dist/real-screenshots/android/android-settings.png':'BOPAVI-Android-Settings.png',
-              'dist/real-screenshots/android/android-profile.png':'BOPAVI-Android-Profile.png',
-              'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png',
-              'dist/real-screenshots/android/android-worlds.png':'BOPAVI-Android-Worlds.png',
-              'dist/real-screenshots/android/android-pilot-gallery.png':'BOPAVI-Android-Pilots.png',
-              'dist/real-screenshots/android/android-levels.png':'BOPAVI-Android-Levels.png',
-              'dist/real-screenshots/android/android-shop.png':'BOPAVI-Android-Shop.png',
-              'dist/real-screenshots/android/android-records.png':'BOPAVI-Android-Records.png',
-              'dist/real-screenshots/android/android-achievements.png':'BOPAVI-Android-Achievements.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
