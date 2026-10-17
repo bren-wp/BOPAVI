@@ -2851,7 +2851,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 116' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 117' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
