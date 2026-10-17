@@ -369,11 +369,18 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 stack.addArrangedSubview(logo)
             }
             let headline=label(title,31,.white,stack)
-            headline.backgroundColor=UIColor(red:0.025,green:0.39,blue:0.80,alpha:0.98)
+            // Retain an independently accessible native heading rather than
+            // a baked title inside the concept painting. Saturated azure
+            // metal and cyan edge mirror Android's shared header treatment.
+            headline.backgroundColor=UIColor(red:0.025,green:0.28,blue:0.66,alpha:0.98)
             headline.layer.cornerRadius=23
             headline.layer.borderWidth=2
-            headline.layer.borderColor=UIColor(red:0.28,green:0.83,blue:1,alpha:1).cgColor
-            headline.clipsToBounds=true
+            headline.layer.borderColor=UIColor(red:0.45,green:0.91,blue:1,alpha:1).cgColor
+            headline.layer.shadowColor=UIColor(red:0.02,green:0.78,blue:1,alpha:1).cgColor
+            headline.layer.shadowOpacity=0.24
+            headline.layer.shadowRadius=6
+            headline.layer.shadowOffset=CGSize(width:0,height:2)
+            headline.clipsToBounds=false
             headline.heightAnchor.constraint(greaterThanOrEqualToConstant:compact ? 49 : 58).isActive=true
             if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.79,green:0.93,blue:1,alpha:1),stack)}
         }
