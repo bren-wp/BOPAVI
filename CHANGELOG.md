@@ -1,3 +1,9 @@
+## v0.2.16 — refined native menu title shells (build 121)
+- Align Android's standard menu heading treatment with the deep blue, cyan-edged reference glass panel; add controlled elevation and spacing while retaining live captions.
+- Align iOS native menu headings to the same darker panel, cyan rim and subtle drop shadow, without baking titles into reference screenshots.
+- Add source regression coverage. Preserve gameplay, offline balances, user selections, navigation, privacy and persistence.
+- **1:1 visual fidelity remains incomplete**: the premium painted reference assets, exact title lettering and layout still need device-side screenshot comparison and genuine artwork improvements.
+
 ## v0.2.15 — premium six-offer Shop layout and device hit-target QA (build 120)
 - Rebuild Android and iOS Shop as a **true 2-column × 3-row native card matrix**, not a column of oversized nested buttons scaled to illegibility on physical devices.
 - Each 97dp/pt-high premium blue/gold card is one accessible, tappable purchase action showing the actual shield/magnet icon, localized name, real active duration/effect, live coin price, owned quantity, and a visually distinct cyan **KUPI/BUY** affordance.
