@@ -2823,7 +2823,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        menuBack(s){self.showHome()}
+        menuBack(s){self.showSettings()}
     }
 
     /// Saved progress only: eight discoverable worlds, collected tokens and local pilots.
