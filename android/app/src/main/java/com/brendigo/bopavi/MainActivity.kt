@@ -578,7 +578,7 @@ class MainActivity : Activity() {
         action(content,"▶  IGRAJ"){
             // Preserve the legacy chosen world as the opening biome, while
             // removing world/level selection and starting one endless flight.
-            startGame(progress.chosenWorld(),progress.streamFrontier(progress.chosenWorld()))
+            startGame(progress.chosenWorld(),1L)
         }
         small(content,if(progress.languageCode()=="hr")
             "Dodirni zaslon za zamah. Leti što dalje!"
@@ -881,7 +881,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
         title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
-        small(content,if(progress.languageCode()=="hr")"Pauza · Level ${game.game.displayLevel}" else "Paused · Level ${game.game.displayLevel}")
+        small(content,if(progress.languageCode()=="hr")"Let je zaustavljen" else "Flight paused")
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -912,112 +912,9 @@ class MainActivity : Activity() {
         command(if(progress.languageCode()=="hr")"▶  NASTAVI" else "▶  CONTINUE",0){game.paused=false;sound.resume()}
         command("↻  PONOVO",1){startGame(currentWorld,currentLevel)}
         command("↪  IZLAZ",2){showHome()}
-        // Editing audio/haptics in a paused flight MUST NOT navigate to
-        // showSettings(): that route clears the canvas and abandons the run.
-        // These are genuine persisted controls, inside the current pause modal.
-        val pauseSettings=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(10),d(10),d(10),d(9))
-            background=gradient(0xff103e7e.toInt(),0xff04152f.toInt(),19).apply{
-                setStroke(d(2),electric)
-            }
-            visibility=View.GONE
-            isFocusable=true
-            contentDescription=if(progress.languageCode()=="hr")"Postavke u pauzi" else "Pause settings"
-        }
-        sectionHeading(pauseSettings,if(progress.languageCode()=="hr")"POSTAVKE U PAUZI" else "PAUSE SETTINGS")
-        volumeSlider(pauseSettings,if(progress.languageCode()=="hr")"♫  Glazba" else "♫  Music",progress.musicVolume()){
-            progress.setMusicVolume(it)
-            sound.musicVolume=it/100f
-            sound.pause()
-        }
-        volumeSlider(pauseSettings,if(progress.languageCode()=="hr")"◖  Zvukovi" else "◖  Effects",progress.effectsVolume()){
-            progress.setEffectsVolume(it)
-            sound.effectsVolume=it/100f
-            sound.pause()
-        }
-        val pauseHaptic=Switch(this).apply{
-            text=ui("VIBRACIJA")
-            textSize=16f
-            setTextColor(Color.WHITE)
-            isChecked=progress.hapticEnabled()
-            thumbTintList=ColorStateList.valueOf(gold)
-            trackTintList=ColorStateList.valueOf(0xff1681df.toInt())
-            setPadding(d(12),d(10),d(12),d(10))
-            background=gradient(0xee082856.toInt(),0xee031632.toInt(),16)
-            setOnCheckedChangeListener{_,checked->progress.setHapticEnabled(checked)}
-        }
-        pauseSettings.addView(pauseHaptic,LinearLayout.LayoutParams(-1,d(56)))
-        small(pauseSettings,if(progress.languageCode()=="hr")"Promjene se spremaju odmah. Let ostaje pauziran." else "Changes save immediately. Your flight stays paused.")
-        val footer=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            background=gradient(0xff052c62.toInt(),0xff041631.toInt(),17)
-            setPadding(d(3),d(5),d(3),d(5))
-        }
-        fun quick(icon:String,label:String,onClick:()->Unit){
-            val btn=Button(this).apply{
-                val iconState=when(label){
-                    "ZVUK" -> if(progress.soundEnabled())"✓" else "✕"
-                    "MUZIKA" -> if(progress.musicVolume()>0)"✓" else "✕"
-                    else -> ""
-                }
-                text="$icon\n${ui(label)} $iconState".trimEnd();isAllCaps=false;textSize=10f
-                setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
-                setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    gradient(0xff1269b9.toInt(),0xff08234b.toInt(),13),null)
-                contentDescription=ui(label)
-                setOnClickListener{
-                    sound.effect("click");onClick()
-                    if(label=="ZVUK"||label=="MUZIKA"){
-                        val active=if(label=="ZVUK")progress.soundEnabled() else progress.musicVolume()>0
-                        text="$icon\n${ui(label)} " + if(active)"✓" else "✕"
-                        contentDescription=ui(label) + if(progress.languageCode()=="hr")(if(active)" uključeno" else " isključeno") else (if(active)" enabled" else " disabled")
-                    }
-                }
-            }
-            footer.addView(btn,LinearLayout.LayoutParams(0,d(62),1f).apply{
-                setMargins(d(2),0,d(2),0)
-            })
-        }
-        quick("◖","ZVUK"){
-            val enabled=!progress.soundEnabled()
-            progress.setSoundEnabled(enabled);sound.enabled=enabled
-            sound.pause() // Toggling audio must never resume a paused flight.
-            Toast.makeText(this,if(progress.languageCode()=="hr")(if(enabled)"Zvuk uključen" else "Zvuk isključen") else (if(enabled)"Sound enabled" else "Sound disabled"),
-                Toast.LENGTH_SHORT).show()
-        }
-        quick("♫","MUZIKA"){
-            val level=progress.toggleMusicVolume()
-            sound.musicVolume=level/100f
-            sound.pause() // Changing audio must never resume a paused flight.
-            Toast.makeText(this,if(progress.languageCode()=="hr")(if(level==0)"Glazba isključena" else "Glazba uključena") else (if(level==0)"Music disabled" else "Music enabled"),
-                Toast.LENGTH_SHORT).show()
-        }
-        quick("✦","KONTROLE"){
-            android.app.AlertDialog.Builder(this)
-                .setTitle(if(progress.languageCode()=="hr")"Kontrole leta" else "Flight controls")
-                .setMessage(if(progress.languageCode()=="hr")
-                    "Dodirni zaslon za svaki zamah krilima u svih osam svjetova. Pauza je dostupna nakon početka leta; izbjegavaj prepreke i skupljaj nagrade."
-                    else "Tap anywhere to flap in all eight worlds. Pause becomes available after your first flap. Avoid obstacles and collect rewards.")
-                .setPositiveButton(if(progress.languageCode()=="hr")"U REDU" else "OK",null).show()
-        }
-        quick("⚙","POSTAVKE"){
-            pauseSettings.visibility=if(pauseSettings.visibility==View.VISIBLE)View.GONE else View.VISIBLE
-            if(pauseSettings.visibility==View.VISIBLE){
-                pauseSettings.requestFocus()
-                // FitViewportColumn will remeasure on visibility changes.
-                // The former ScrollView cast was unreachable and did nothing.
-                pauseSettings.requestLayout()
-            }
-            // Never dismiss the pause dialog or restart simulation here.
-            sound.pause()
-        }
-        content.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(12)})
-        content.addView(pauseSettings,LinearLayout.LayoutParams(-1,-2).apply{
-            topMargin=d(8)
-        })
+        small(content,if(progress.languageCode()=="hr")
+            "Dodirni zaslon za zamah. Nastavi, pokušaj ponovno ili se vrati."
+            else "Tap to flap. Resume, retry or return Home.")
         val fitted=FitViewportColumn(this).apply{addView(content)}
         dialog.setView(fitted)
         dialog.setOnCancelListener{game.paused=false;sound.resume()}
@@ -1037,8 +934,7 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         currentWorld=world;currentLevel=number;selectedScreen="game"
-        val boosts=progress.previewPerks()
-        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,boosts.first,boosts.second,progress.difficulty(),number)
+        val simulation=GameSimulation(LevelEngine.createStream(world,number),true,0,0f,progress.difficulty(),number)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         // The idle flight preview is not gameplay. Do not expose pause until
@@ -1046,17 +942,11 @@ class MainActivity : Activity() {
         var pauseButton:Button?=null
         val game=GameView(this,simulation,progress.lessMotion(),progress.skin(),progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
-            onLevelCompleted={completed ->
-                progress.recordLevelStars(world,completed,simulation.completedLevelStars)
-                val amount=progress.completeLevel(world,completed,simulation.score())
-                sound.effect("level")
-                if(amount>0)Toast.makeText(this,"Level $completed: +$amount kovanica!",Toast.LENGTH_SHORT).show()
-            },
+            onLevelCompleted={ _ -> }, // endless flight, no level rewards
             onFlap={sound.effect("tap")},
             onFlightStarted={
                 if(selectedScreen=="game" && gameView?.game === simulation) {
                     // Charge exactly once when the player actually starts flying.
-                    progress.consumePerks()
                     pauseButton?.visibility=View.VISIBLE
                 }
             },
@@ -1097,260 +987,85 @@ class MainActivity : Activity() {
         }
         showNativeView(frame)
     }
+    /** One terminal result, saved locally; no shop, level or achievement routes. */
     private fun showResult(g:GameSimulation){
-        val previousRecord=progress.bestPoints()
-        val newRecord=g.score()>previousRecord && g.score()>0
-        sound.effect(if(g.won)"level" else "hit")
-        val headline=ResultHeadline.label(g.score(),previousRecord,g.won)
+        val previousBest=progress.bestPoints()
+        val newRecord=g.score()>previousBest && g.score()>0
+        sound.effect("hit")
         progress.recordRun(g)
-        currentLevel=g.displayLevel
-        menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
-        @Suppress("DEPRECATION")
+        gameView?.paused=true;gameView=null;gamePauseButton=null
+        menuBackAction=null;selectedScreen="result"
         applyPremiumSystemBars()
-        val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
-        val backdrop=ImageView(this).apply{
-            setImageResource(scenes[currentWorld]);scaleType=ImageView.ScaleType.CENTER_CROP
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
-        root.addView(View(this).apply{
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x3403183a,0x320a3464,0x90061c42.toInt()))
-        },FrameLayout.LayoutParams(-1,-1))
-        val fitted=FitViewportColumn(this)
-        val panel=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(18),d(12),d(18),d(18))
-        }
-        fitted.addView(panel)
-        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
-        // Android 16 enforces edge-to-edge: keep result actions out of the
-        // gesture-navigation/status-bar regions, while art remains full bleed.
-        if (Build.VERSION.SDK_INT >= 35) {
-            fitted.setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
-                view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                insets
-            }
-        }
-        // The result hero renders the ACTUAL selected pilot above the played
-        // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=progress.skin()
-        val pilotPortraits=intArrayOf(
-            R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
-            R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8
-        )
-        val artwork=FrameLayout(this).apply{
-            background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
-            clipToOutline=true
-            contentDescription="Odabrani letač: ${progress.skinNames[pilotIndex]}, " +
-                "svijet ${LevelEngine.names[currentWorld]}"
-        }
-        artwork.addView(ImageView(this).apply{
-            setImageResource(scenes[currentWorld])
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff0a4b88.toInt())}
+        root.addView(ImageView(this).apply{
+            setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        artwork.addView(View(this).apply {
+        root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x003da8ee,0xa4032355.toInt()))
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                intArrayOf(0x55052250,0x44032557,0xd1041436.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
-        artwork.addView(ImageView(this).apply{
-            setImageResource(pilotPortraits[pilotIndex])
+        val fit=FitViewportColumn(this)
+        val panel=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER_HORIZONTAL
+            setPadding(d(19),d(12),d(19),d(18))
+        }
+        fit.addView(panel)
+        root.addView(fit,FrameLayout.LayoutParams(-1,-1))
+        panel.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
-        panel.addView(artwork,LinearLayout.LayoutParams(-1,d(174)).apply{bottomMargin=d(5)})
-        title(panel,headline,31,Color.WHITE)
-        if(newRecord) {
-            val recordBanner=TextView(this).apply {
-                text=ui("♛  NOVI REKORD!")
-                textSize=19f
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(0xffffecaa.toInt())
-                gravity=Gravity.CENTER
-                letterSpacing=.06f
-                background=gradient(0xffb55b09.toInt(),0xff542c06.toInt(),20).apply{
-                    setStroke(d(2),0xffffca46.toInt())
-                }
-                contentDescription=ui("Novi osobni rekord: ${g.score()} bodova")
+        },LinearLayout.LayoutParams(-1,d(198)))
+        title(panel,if(newRecord)"♛  NOVI REKORD!" else "REZULTAT",32,Color.WHITE)
+        if(newRecord)small(panel,if(progress.languageCode()=="hr")
+            "Tvoj najbolji let!" else "Your best flight!")
+        val stats=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(14),d(12),d(14),d(12))
+            background=gradient(0xf50b4c9e.toInt(),0xf5031b43.toInt(),26).apply{
+                setStroke(d(3),electric)
             }
-            panel.addView(recordBanner,LinearLayout.LayoutParams(-1,d(46)).apply{
-                topMargin=d(3);bottomMargin=d(5)
-            })
         }
-        // Three genuine values from this completed run, never screenshot text.
-        val summary=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        panel.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{
-            topMargin=d(5);bottomMargin=d(5)
+        panel.addView(stats,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(15);bottomMargin=d(14)
         })
-        fun resultCard(heading:String,icon:String,value:String,color:Int):TextView{
-            val card=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
-                setPadding(d(3),d(10),d(3),d(10))
-                background=gradient(0xf5083570.toInt(),0xf5031738.toInt(),19).apply{
-                    setStroke(d(2),0xff37cfff.toInt())
-                }
-                elevation=d(4).toFloat()
+        fun stat(label:String,value:String){
+            val row=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL
+                gravity=Gravity.CENTER_VERTICAL
             }
-            card.addView(TextView(this).apply{
-                text=icon;textSize=29f;gravity=Gravity.CENTER
-                setTextColor(gold)
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(37)))
-            card.addView(TextView(this).apply{
-                text=ui(heading);textSize=11f;gravity=Gravity.CENTER
-                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
-                setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(34)))
-            val stat=TextView(this).apply{
-                text=value;textSize=23f;gravity=Gravity.CENTER
-                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-                setTextColor(color)
-                setAutoSizeTextTypeUniformWithConfiguration(16,23,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-                contentDescription=ui("$heading $value")
+            val name=TextView(this).apply{
+                text=ui(label);textSize=17f
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(Color.WHITE)
             }
-            card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
-            summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
-                setMargins(d(3),d(3),d(3),d(3))
-            })
-            return stat
-        }
-        resultCard("REZULTAT","★",g.score().toString(),gold)
-        resultCard("PRIKUPLJENE\nKOVANICE","●",g.coins.toString(),0xffb8edff.toInt())
-        resultCard("UKUPNO\nPROLAZA","⚑",g.totalPassed.toString(),Color.WHITE)
-        // Compact accessible details, rather than three large padded cards
-        // pushing Retry and result navigation below the viewport.
-        panel.addView(TextView(this).apply{
-            text=ui("Najbolji rezultat: ${progress.bestPoints()}\n" +
-                "Level $currentLevel · Ukupno prolaza: ${g.totalPassed}\n" +
-                "Težina: ${progress.difficultyNames[g.difficulty]} · ${progress.playerName()}")
-            textSize=14f;setTextColor(Color.WHITE)
-            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
-            gravity=Gravity.CENTER;setLineSpacing(d(3).toFloat(),1f)
-            setPadding(d(3),d(6),d(3),d(5))
-        },LinearLayout.LayoutParams(-1,-2))
-        val balance=TextView(this).apply{
-            text=ui("Stanje novčanika: ${progress.coins()} kovanica")
-            textSize=15f;gravity=Gravity.CENTER;setTextColor(0xffc6eeff.toInt())
-            contentDescription=text
-        }
-        panel.addView(balance,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(4)})
-        sectionHeading(panel,"♛  NAGRADE")
-        // No fake diamonds, chests, paid bonuses or unlocked character claims.
-        // Every icon has a verifiable offline state behind its number.
-        val rewardPanel=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            setPadding(d(3),d(7),d(3),d(7))
-            background=gradient(0xff073b7f.toInt(),0xff031a3c.toInt(),23).apply{
-                setStroke(d(2),0xff3eceff.toInt())
-            }
-        }
-        panel.addView(rewardPanel,LinearLayout.LayoutParams(-1,-2))
-        fun reward(label:String,icon:String,value:String):TextView{
-            val box=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
-                setPadding(d(2),d(7),d(2),d(7))
-                background=gradient(0xff0b4f9b.toInt(),0xff031937.toInt(),15).apply{
-                    setStroke(d(1),0xff408bca.toInt())
-                }
-            }
-            box.addView(TextView(this).apply{
-                text=icon;gravity=Gravity.CENTER;textSize=25f
-                setTextColor(gold) // Never render black reward glyphs on navy.
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(35)))
-            box.addView(TextView(this).apply{
-                text=ui(label);textSize=10f;gravity=Gravity.CENTER
-                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
-                setAutoSizeTextTypeUniformWithConfiguration(9,11,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(27)))
-            val count=TextView(this).apply{
-                text=value;textSize=17f;gravity=Gravity.CENTER
-                setTextColor(0xffbceeff.toInt())
-                typeface=Typeface.DEFAULT_BOLD
-                setAutoSizeTextTypeUniformWithConfiguration(12,17,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            row.addView(name,LinearLayout.LayoutParams(0,d(56),1f))
+            row.addView(TextView(this).apply{
+                text=value;textSize=24f;setTextColor(gold)
+                gravity=Gravity.CENTER_VERTICAL or Gravity.END
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 contentDescription=ui("$label $value")
-            }
-            box.addView(count,LinearLayout.LayoutParams(-1,d(28)))
-            rewardPanel.addView(box,LinearLayout.LayoutParams(0,d(99),1f).apply{
-                setMargins(d(2),0,d(2),0)
-            })
-            return count
+            },LinearLayout.LayoutParams(-2,d(56)))
+            stats.addView(row,LinearLayout.LayoutParams(-1,-2))
         }
-        reward("KOVANICE","●","×${g.coins}")
-        reward("ZVIJEZDE","★","×${g.stars}")
-        val bonus=progress.bonusCoinsAvailable()
-        val bonusCounter=reward("BONUS\nBODOVA","♛","+$bonus")
-        reward("REKORD","🏆",progress.bestPoints().toString())
-        if(bonus>0){
-            action(panel,"🎁  PREUZMI $bonus KOVANICA ZA REKORD",false){
-                val awarded=progress.claimBonusCoins()
-                if(awarded>0){
-                    sound.effect("purchase")
-                    bonusCounter.text="+0"
-                    bonusCounter.contentDescription=ui("BONUS BODOVA 0")
-                    balance.text=ui("Stanje novčanika: ${progress.coins()} kovanica")
-                    balance.contentDescription=balance.text
-                    Toast.makeText(this,ui("Preuzeto $awarded kovanica."),Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        action(panel,"▶  PONOVO"){showPilotPicker(currentWorld,currentLevel)}
-        // Compact footer follows the reference, while all three actions work.
-        val footer=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-        panel.addView(footer,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(6)})
-        fun footerAction(caption:String,callback:()->Unit){
-            val button=Button(this).apply{
-                text=ui(caption);isAllCaps=false;textSize=13f
-                typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
-                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    gradient(0xff367fd0.toInt(),0xff112e64.toInt(),17).apply{
-                        setStroke(d(2),0xff92d8ff.toInt())
-                    },null)
-                contentDescription=ui(caption)
-                setOnClickListener{sound.effect("click");callback()}
-            }
-            footer.addView(button,LinearLayout.LayoutParams(0,d(57),1f).apply{
-                setMargins(d(3),d(4),d(3),d(4))
-            })
-        }
-        footerAction("▥\nLJESTVICA"){showLeaderboard()}
-        footerAction("⌂\nPOVRATAK"){showHome()}
-        footerAction("↗\nPODIJELI"){
-            val message=ui("BOPAVI · Rezultat ${g.score()} · Ukupno prolaza: ${g.totalPassed}")
-            val share=android.content.Intent(android.content.Intent.ACTION_SEND).apply{
-                type="text/plain"
-                putExtra(android.content.Intent.EXTRA_TEXT,message)
-            }
-            startActivity(android.content.Intent.createChooser(share,"Podijeli rezultat"))
-        }
-        // Keep BOTH destinations fully operable, but place them side by side:
-        // this frees an entire button row so Retry and Back stay legible without scrolling.
-        val destinationRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
-        panel.addView(destinationRow,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(5)})
-        val mapColumn=LinearLayout(this)
-        val shopColumn=LinearLayout(this)
-        destinationRow.addView(mapColumn,LinearLayout.LayoutParams(0,-2,1f).apply{rightMargin=d(4)})
-        destinationRow.addView(shopColumn,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=d(4)})
-        action(mapColumn,"MAPA SVJETOVA",false){showWorlds()}
-        action(shopColumn,"🛍  TRGOVINA KOVANICAMA",false){showPerks(MenuOrigin.HOME)}
+        stat("★  REZULTAT",g.score().toString())
+        stat("♛  PROLAZI",g.totalPassed.toString())
+        stat("🏆  NAJBOLJI REZULTAT",progress.bestPoints().toString())
+        action(panel,"▶  PONOVO"){startGame(currentWorld,1L)}
+        action(panel,"⌂  POČETNA",false){showHome()}
         showNativeView(root)
+        fit.setOnApplyWindowInsetsListener{view,insets->
+            if(Build.VERSION.SDK_INT>=30){
+                val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                    or android.view.WindowInsets.Type.displayCutout())
+                view.setPadding(safe.left,safe.top,safe.right,safe.bottom)
+            }
+            insets
+        }
+        fit.requestApplyInsets()
     }
 
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
