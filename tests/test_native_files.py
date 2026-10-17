@@ -2893,5 +2893,8 @@ for current in (android_home,ios_home):
     assert current.index('🌍  SVJETOVI') < current.index('⚙  POSTAVKE')
 assert 'LinearLayout.LayoutParams(-1,d(252))' in android_home
 assert 'homePilot.heightAnchor.constraint(equalToConstant:252)' in ios_home
+assert 'navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-7)' in ios_home
+assert 'stack.addArrangedSubview(navigation)' not in ios_home
+assert 'homeMargins.bottom=105' in ios_home
 assert 'home_art.paste(scene_only,(0,340),mask)' in image_source
 print('PASS: responsive artwork-free Home UI overlays use large selected native pilots, not duplicated baked-in Bopi')
