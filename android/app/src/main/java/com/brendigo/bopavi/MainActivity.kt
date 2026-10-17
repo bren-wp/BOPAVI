@@ -2129,6 +2129,22 @@ class MainActivity : Activity() {
         }
         viewport.addView(column)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
+        // The illustrated wordmark + selected pilot are separate native art
+        // layers, mirroring the reference composition without screenshot UI.
+        val brandHero=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+        }
+        brandHero.addView(ImageView(this).apply{
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(0,d(92),1f))
+        brandHero.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[progress.skin()])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(115),d(115)))
+        column.addView(brandHero,LinearLayout.LayoutParams(-1,d(108)))
         val header=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
             setPadding(d(8),d(5),d(9),d(5))
@@ -2147,7 +2163,7 @@ class MainActivity : Activity() {
         header.addView(backButton,LinearLayout.LayoutParams(d(46),d(46)))
         header.addView(TextView(this).apply{
             text=ui("POSTAVKE");textSize=23f
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(Color.WHITE);gravity=Gravity.CENTER
         },LinearLayout.LayoutParams(0,d(46),1f))
         // Mirror the working selected pilot from Profile without adding a row.
@@ -2199,10 +2215,6 @@ class MainActivity : Activity() {
             // intrinsic dimensions instead of clipping or forcing scrolling.
             column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         }
-        option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
-            val enabled=!progress.soundEnabled()
-            progress.setSoundEnabled(enabled);sound.enabled=enabled
-        }
         settingsVolumeRow(column,"GLAZBA",progress.musicVolume()){
             progress.setMusicVolume(it);sound.musicVolume=it/100f
         }
@@ -2212,17 +2224,24 @@ class MainActivity : Activity() {
         settingsVolumeRow(column,"EFEKTI",progress.effectsVolume()){
             progress.setEffectsVolume(it);sound.effectsVolume=it/100f
         }
-        settingsSwitchRow(column,"MANJE ANIMACIJA",progress.lessMotion()){
-            if(it!=progress.lessMotion()) {
-                progress.setLessMotion(!progress.lessMotion())
-                // Recreate only the menu so reduced-motion takes effect instantly.
-                showSettings()
-            }
-        }
-        option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
         // Primary difficulty is now always visible. Replace the redundant
         // Privacy row (both legal controls remain in the footer) with three
         // genuine selected difficulty buttons, not an advanced-only option.
+        // Reference-style compact section rows; preserve honest offline choices
+        // and avoid fictional cloud sign-out/notification actions.
+        fun settingsSection(caption:String){
+            column.addView(TextView(this).apply{
+                text=ui(caption);textSize=13f
+                setTextColor(gold);typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(14),0,d(10),0)
+                background=gradient(0xee103f81.toInt(),0xf3061c42.toInt(),15).apply{
+                    setStroke(d(1),0xff46cfff.toInt())
+                }
+                contentDescription=ui(caption)
+            },LinearLayout.LayoutParams(-1,d(28)).apply{topMargin=d(5);bottomMargin=d(6)})
+        }
+        settingsSection("TEŽINA IGRE")
         val difficultyChoices=arrayOf("LAGANO","NORMALNO","ZAHTJEVNO")
         val difficultyButtons=ArrayList<TextView>(3)
         val difficultyRow=LinearLayout(this).apply{
@@ -2269,6 +2288,20 @@ class MainActivity : Activity() {
         column.addView(difficultyRow,LinearLayout.LayoutParams(-1,d(68)).apply{
             bottomMargin=d(5)
         })
+        settingsSection("JEZIK")
+        option("JEZIK",{GameLanguages.name(progress.languageCode())}){showLanguagePicker()}
+        settingsSection("DODATNE OPCIJE")
+        option("ZVUK",{if(progress.soundEnabled())"UKLJ." else "ISKL."}){
+            val enabled=!progress.soundEnabled()
+            progress.setSoundEnabled(enabled);sound.enabled=enabled
+        }
+        settingsSwitchRow(column,"MANJE ANIMACIJA",progress.lessMotion()){
+            if(it!=progress.lessMotion()) {
+                progress.setLessMotion(!progress.lessMotion())
+                // Recreate only the menu so reduced-motion takes effect instantly.
+                showSettings()
+            }
+        }
         column.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         val advanced=TextView(this).apply{
             text=ui("⚙  NAPREDNE POSTAVKE");textSize=16f
