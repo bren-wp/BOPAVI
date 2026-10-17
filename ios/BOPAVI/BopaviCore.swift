@@ -54,8 +54,7 @@ enum BopaviCore {
             let active = (zone >= 2 && i >= 5 && (i+number+world)%3 == 0) || (type == 2 && i >= 4 && i%3 == 0) || (world == 4 && i >= 4 && i%4 == 0)
             gates.append(Gate(x:420 + Float(i*(228-zone*2)), center:center,
                               // Same per-obstacle gap rhythm and RNG call order as Kotlin.
-                              gap:max(164,gap+(rng.next()-0.5)*(i < 2 ? 12 : 42+Float(zone)*3)+(i%5 == 0 ? 8 : 0)
-                                      +(i < 2 ? 0 : (i%2 == 0 ? 9 : -9))),
+                              gap:max(164,gap+(rng.next()-0.5)*(i < 2 ? 12 : 42+Float(zone)*3)+(i%5 == 0 ? 8 : 0)+(i < 2 ? 0 : (i%2 == 0 ? 9 : -9))),
                               width:64 + Float((i * 7 + number + world) % 4)*9,
                               movement:active ? 7+rng.next()*9 : 0, phase:rng.next()*6.283185,
                               kind:world, coin:i%3 != 2 || type == 1, star:i%4 == 2 || type == 1,
