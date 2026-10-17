@@ -57,7 +57,7 @@ object LevelEngine {
                 // not by an almost invisible 0–3px. Intro gates stay forgiving.
                 // Gap >=164 before difficulty/movement; hard mode remains >=145.
                 gap = (gap + (r.next() - .5f) *
-                    (if(i < 2) 12f else 30f + zone * 2f) +
+                    (if(i < 2) 12f else 42f + zone * 3f) +
                     (if(i % 5 == 0) 8f else 0f)).coerceAtLeast(164f),
                 // Individual obstacle widths vary but retain enough traversal time.
                 // The exact gate width is also used by the physical collider.
@@ -106,8 +106,8 @@ object LevelEngine {
             (sin(time * 1.35f + gate.phase)+1f)*2.5f else 0f
         // The same geometry drives drawing and collision; ≥145px always open.
         val difficultyPadding = when(difficulty.coerceIn(0,2)) {
-            0 -> 40f
-            2 -> -18f
+            0 -> 54f
+            2 -> -30f
             else -> 0f
         }
         val half = max(72.5f, (gate.gap + difficultyPadding) * .5f - pulse)
