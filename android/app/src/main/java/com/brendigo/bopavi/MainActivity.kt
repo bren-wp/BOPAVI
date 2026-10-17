@@ -61,86 +61,20 @@ class MainActivity : Activity() {
         window.statusBarColor=0xff09264a.toInt()
         window.navigationBarColor=0xff09264a.toInt()
         applyPremiumSystemBars()
-        showSplash()
-        // Prepare the REAL HomeArt bitmap off the UI thread. The illustrated
-        // splash remains visible only while startup resources are being loaded,
-        // never for an arbitrary delay or a fabricated percentage.
-        Thread({
-            val loaded=runCatching {
-                android.graphics.BitmapFactory.decodeResource(
-                    resources,R.drawable.homeback,
-                    android.graphics.BitmapFactory.Options().apply{inScaled=false})
-            }.getOrNull()
-            runOnUiThread {
-                if(isFinishing || isDestroyed) {
-                    loaded?.recycle()
-                    return@runOnUiThread
-                }
-                warmedHomeArt=loaded
-                progress=ProgressStore(this)
-                sound=Soundscape(this)
-                sound.enabled=progress.soundEnabled()
-                sound.musicVolume=progress.musicVolume()/100f
-                sound.effectsVolume=progress.effectsVolume()/100f
-                // Android 16 predictive Back requires an explicit callback.
-                if (Build.VERSION.SDK_INT >= 33) {
-                    val callback = android.window.OnBackInvokedCallback { navigateBack() }
-                    onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                        android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
-                    platformBackCallback = callback
-                }
-                showHome()
-            }
-        },"BOPAVI-startup-assets").start()
-    }
-    /** Non-scrolling startup stage: live indeterminate loading, never a fake bar. */
-    private fun showSplash() {
-        selectedScreen="splash"
-        val root=FrameLayout(this).apply{setBackgroundColor(0xff146bb7.toInt())}
-        root.addView(ImageView(this).apply{
-            setImageResource(R.drawable.splash)
-            scaleType=ImageView.ScaleType.CENTER_CROP
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },FrameLayout.LayoutParams(-1,-1))
-        val footer=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            gravity=Gravity.CENTER
-            setPadding(d(18),d(11),d(18),d(13))
-            background=gradient(0xe5082c63.toInt(),0xef031937.toInt(),20).apply{
-                setStroke(d(2),electric)
-            }
+        // The operating system displays the launch window. Never show a
+        // second in-app splash or fake progress screen.
+        progress=ProgressStore(this)
+        sound=Soundscape(this)
+        sound.enabled=progress.soundEnabled()
+        sound.musicVolume=progress.musicVolume()/100f
+        sound.effectsVolume=progress.effectsVolume()/100f
+        if(Build.VERSION.SDK_INT>=33) {
+            val callback=android.window.OnBackInvokedCallback { navigateBack() }
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback)
+            platformBackCallback=callback
         }
-        footer.addView(TextView(this).apply{
-            text="UČITAVANJE..."
-            textSize=13f
-            typeface=Typeface.DEFAULT_BOLD
-            letterSpacing=.09f
-            gravity=Gravity.CENTER
-            setTextColor(Color.WHITE)
-            contentDescription="BOPAVI, učitavanje igre"
-        },LinearLayout.LayoutParams(-1,d(29)))
-        footer.addView(android.widget.ProgressBar(
-            this,null,android.R.attr.progressBarStyleHorizontal).apply{
-            isIndeterminate=true
-            indeterminateTintList=ColorStateList.valueOf(gold)
-            progressBackgroundTintList=ColorStateList.valueOf(0xff153d73.toInt())
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(9)).apply{topMargin=d(3)})
-        val position=FrameLayout.LayoutParams(d(252),-2,Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply{
-            bottomMargin=d(45)
-        }
-        root.addView(footer,position)
-        root.setOnApplyWindowInsetsListener{_,insets->
-            if(Build.VERSION.SDK_INT>=30){
-                val bars=insets.getInsets(android.view.WindowInsets.Type.navigationBars()
-                    or android.view.WindowInsets.Type.displayCutout())
-                val params=footer.layoutParams as FrameLayout.LayoutParams
-                val bottom=bars.bottom+d(30)
-                if(params.bottomMargin!=bottom){params.bottomMargin=bottom;footer.layoutParams=params}
-            }
-            insets
-        }
-        showNativeView(root)
+        showHome()
     }
     private fun showNativeView(root: View) {
         // Keep the scene artwork edge-to-edge. Safe-area-fitted menus (home,
@@ -590,223 +524,82 @@ class MainActivity : Activity() {
             setMargins(d(4),d(5),d(4),d(7))
         })
     }
+    /** One premium Home, one action; no abandoned profile/shop/world/level routes. */
     private fun showHome(){
-        @Suppress("DEPRECATION")
         applyPremiumSystemBars()
-        menuBackAction=null;gameView?.paused=true;gameView=null;gamePauseButton=null;sound.stop();selectedScreen="home"
+        menuBackAction=null
+        gameView?.paused=true;gameView=null;gamePauseButton=null
+        sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
-        val animatedBackdrop=ImageView(this).apply {
+        root.addView(ImageView(this).apply{
             val art=warmedHomeArt
-            if(art!=null && !art.isRecycled) setImageBitmap(art)
+            if(art!=null && !art.isRecycled)setImageBitmap(art)
             else setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            // The system/in-game Reduced Motion settings also apply here.
             startSceneryDrift(this)
-        }
-        root.addView(animatedBackdrop,FrameLayout.LayoutParams(-1,-1))
+        },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x55052251,0x001967ae,0x001967ae,0xbb03112e.toInt()))
+                intArrayOf(0x28031a50,0x001d80bf,0x18052250,0xb9031635.toInt()))
         },FrameLayout.LayoutParams(-1,-1))
-        // The first screen has no scroll gesture. On compact/notched devices
-        // live controls are fitted as one coherent viewport rather than cropped.
-        val scroll=FitViewportColumn(this).apply {
-            clipToPadding=false
-            clipChildren=false
-        }
-        val layout=LinearLayout(this).apply{
+        val fitted=FitViewportColumn(this)
+        val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            // Keep 96dp available for the independently pinned footer.
-            // The navigation rail is never downscaled by FitViewportColumn.
-            setPadding(d(18),d(8),d(18),d(96))
+            setPadding(d(22),d(8),d(22),d(20))
         }
-        scroll.addView(layout)
-        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
-        // All four header elements are accessible live actions, never
-        // screenshots or non-clickable mock currency. Use the saved pilot.
-        val wallets=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER_VERTICAL
-        }
-        val avatar=ImageView(this).apply{
-
-
-            setImageResource(portraitDrawableIds[progress.skin()])
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            background=GradientDrawable(GradientDrawable.Orientation.TL_BR,
-                intArrayOf(0xff126bd9.toInt(),0xff031b44.toInt())).apply{
-                shape=GradientDrawable.OVAL
-                setStroke(d(2),gold)
-            }
-            clipToOutline=true
-            setPadding(d(3),d(3),d(3),d(3))
-            isClickable=true;isFocusable=true
-            contentDescription=ui("PROFIL")+" · "+progress.skinNames[progress.skin()]
-            setOnClickListener{sound.effect("click");showProfile()}
-        }
-        wallets.addView(avatar,LinearLayout.LayoutParams(d(50),d(50)).apply{
-            rightMargin=d(5)
-        })
-        val best=chip("🏆  ${progress.bestPoints()}").apply{
+        fitted.addView(content)
+        root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
+        // Historical scores remain stored and visible; no wallet or purchase UI.
+        val record=TextView(this).apply{
+            text=ui("★  NAJBOLJI REZULTAT: ${progress.bestPoints()}")
+            textSize=15f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(Color.WHITE)
-            setPadding(d(4),d(9),d(4),d(9))
-            isClickable=true;isFocusable=true
-            contentDescription=ui("ZADACI I POSTIGNUĆA") + " · best score ${progress.bestPoints()}"
-            setOnClickListener{sound.effect("click");showAchievements(MenuOrigin.HOME)}
-        }
-        wallets.addView(best,LinearLayout.LayoutParams(0,d(48),1f).apply{
-            rightMargin=d(4)
-        })
-        val coins=chip("♛  ${progress.coins()}").apply{
-            setTextColor(gold)
-            setPadding(d(4),d(9),d(4),d(9))
-            isClickable=true;isFocusable=true
-            contentDescription=ui("TRGOVINA") + " · ${progress.coins()} coins earned"
-            setOnClickListener{sound.effect("click");showPerks(MenuOrigin.HOME)}
-        }
-        wallets.addView(coins,LinearLayout.LayoutParams(0,d(48),1f).apply{
-            rightMargin=d(4)
-        })
-        val gear=TextView(this).apply{
-            text="⚙";textSize=27f;gravity=Gravity.CENTER
-            setTextColor(Color.WHITE)
-            background=gradient(0xff147bdc.toInt(),0xff05265c.toInt(),18).apply{
+            gravity=Gravity.CENTER
+            background=gradient(0xdb073b83.toInt(),0xec031b44.toInt(),23).apply{
                 setStroke(d(2),electric)
             }
-            isClickable=true;isFocusable=true
-            contentDescription=ui("POSTAVKE")
-            setOnClickListener{sound.effect("click");showSettings()}
+            contentDescription=ui("Najbolji rezultat ${progress.bestPoints()}")
         }
-        wallets.addView(gear,LinearLayout.LayoutParams(d(48),d(48)))
-        layout.addView(wallets,LinearLayout.LayoutParams(-1,d(52)))
-        // These are separate transparent game assets, not UI painted onto a
-        // screenshot. Scaling them independently preserves the reference's
-        // enormous centered Bopi on 18:9, 19.5:9 and tall Android screens.
-        val homeLogo=ImageView(this).apply{
+        content.addView(record,LinearLayout.LayoutParams(-1,d(47)))
+        content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
-            adjustViewBounds=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        layout.addView(homeLogo,LinearLayout.LayoutParams(-1,d(128)).apply{
-            topMargin=d(8)
-        })
-        val homePilot=ImageView(this).apply{
+        },LinearLayout.LayoutParams(-1,d(154)).apply{topMargin=d(14)})
+        content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[progress.skin()])
             scaleType=ImageView.ScaleType.FIT_CENTER
-            adjustViewBounds=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            contentDescription=null
+        },LinearLayout.LayoutParams(-1,d(310)).apply{topMargin=d(3)})
+        content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        action(content,"▶  IGRAJ"){
+            // Preserve the legacy chosen world as the opening biome, while
+            // removing world/level selection and starting one endless flight.
+            startGame(progress.chosenWorld(),progress.streamFrontier(progress.chosenWorld()))
         }
-        layout.addView(homePilot,LinearLayout.LayoutParams(-1,d(252)).apply{
-            topMargin=d(3)
-        })
-        // Distribute spare height only AFTER the portrait, so Bopi remains in
-        // the reference hero band instead of shrinking near the header.
-        layout.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        action(layout,"▶  IGRAJ"){
-            val world=progress.chosenWorld()
-            showPilotPicker(world,progress.streamFrontier(world))
-        }
-        action(layout,"🌍  SVJETOVI",false){showWorlds()}
-        action(layout,"⚙  POSTAVKE",false,true){showSettings()}
-        val navigation=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            setPadding(d(5),d(7),d(5),d(6))
-            background=gradient(0xf3062a64.toInt(),0xfa041736.toInt(),23).apply{
-                setStroke(d(2),electric)
-            }
-        }
-        val entries=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
-        val footerIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
-            R.drawable.nav_collection,R.drawable.nav_shop)
-        for((index,label) in entries.withIndex()){
-            val tab=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL
-                gravity=Gravity.CENTER
-                isClickable=true;isFocusable=true
-                contentDescription=ui(label)
-                background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),
-                    gradient(0xff1358a5.toInt(),0xff071e46.toInt(),14),null)
-                addView(ImageView(this@MainActivity).apply{
-                    setImageResource(footerIcons[index])
-                    scaleType=ImageView.ScaleType.FIT_CENTER
-                    setPadding(d(1),d(1),d(1),d(1))
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(29)))
-                addView(TextView(this@MainActivity).apply{
-                    text=ui(label);textSize=11f;setTextColor(Color.WHITE)
-                    gravity=Gravity.CENTER;typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                    setSingleLine(true)
-                    setAutoSizeTextTypeUniformWithConfiguration(8,11,1,
-                        android.util.TypedValue.COMPLEX_UNIT_SP)
-                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },LinearLayout.LayoutParams(-1,d(21)))
-                setOnClickListener{
-                    sound.effect("click")
-                    when(index){
-                        0->showProfile()
-                        1->showAchievements(MenuOrigin.HOME)
-                        2->showCollection()
-                        else->showPerks(MenuOrigin.HOME)
-                    }
-                }
-            }
-            navigation.addView(tab,LinearLayout.LayoutParams(0,d(62),1f).apply{
-                setMargins(d(2),0,d(2),0)
-            })
-        }
-        // A full-size, safe-area-pinned native navigation rail. It must not
-        // shrink with the hero/CTA column on short physical phones.
-        root.addView(navigation,FrameLayout.LayoutParams(-1,d(78),
-            Gravity.BOTTOM).apply{
-            leftMargin=d(12);rightMargin=d(12);bottomMargin=d(7)
-        })
+        small(content,if(progress.languageCode()=="hr")
+            "Dodirni zaslon za zamah. Leti što dalje!"
+            else "Tap to flap. Fly as far as you can!")
         showNativeView(root)
-        // The scene extends behind the system bars; only live controls
-        // receive safe-area padding, on both modern and older Android phones.
-        scroll.setOnApplyWindowInsetsListener{v,insets->
-            val left:Int
-            val top:Int
-            val right:Int
-            val bottom:Int
-            if(Build.VERSION.SDK_INT>=30){
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+        fitted.setOnApplyWindowInsetsListener{v,insets->
+            val bars=if(Build.VERSION.SDK_INT>=30)
+                insets.getInsets(android.view.WindowInsets.Type.systemBars()
                     or android.view.WindowInsets.Type.displayCutout())
-                left=bars.left;top=bars.top;right=bars.right;bottom=bars.bottom
-            } else {
-                @Suppress("DEPRECATION")
-                val bars=intArrayOf(insets.systemWindowInsetLeft,
-                    insets.systemWindowInsetTop,insets.systemWindowInsetRight,
-                    insets.systemWindowInsetBottom)
-                if(Build.VERSION.SDK_INT>=28){
-                    val cutout=insets.displayCutout
-                    left=maxOf(bars[0],cutout?.safeInsetLeft?:0)
-                    top=maxOf(bars[1],cutout?.safeInsetTop?:0)
-                    right=maxOf(bars[2],cutout?.safeInsetRight?:0)
-                    bottom=maxOf(bars[3],cutout?.safeInsetBottom?:0)
-                } else {
-                    left=bars[0];top=bars[1];right=bars[2];bottom=bars[3]
-                }
-            }
-            if(v.paddingLeft!=left || v.paddingTop!=top ||
-               v.paddingRight!=right || v.paddingBottom!=bottom){
+            else null
+            val left=bars?.left?:0
+            val top=bars?.top?:0
+            val right=bars?.right?:0
+            val bottom=bars?.bottom?:0
+            if(v.paddingLeft!=left||v.paddingTop!=top||
+                v.paddingRight!=right||v.paddingBottom!=bottom){
                 v.setPadding(left,top,right,bottom)
-            }
-            val rail=navigation.layoutParams as FrameLayout.LayoutParams
-            val safeBottom=bottom+d(7)
-            if(rail.bottomMargin!=safeBottom ||
-                rail.leftMargin!=left+d(12) || rail.rightMargin!=right+d(12)){
-                rail.bottomMargin=safeBottom
-                rail.leftMargin=left+d(12)
-                rail.rightMargin=right+d(12)
-                navigation.layoutParams=rail
             }
             insets
         }
-        scroll.requestApplyInsets()
+        fitted.requestApplyInsets()
     }
 
     private fun showWorlds(){
