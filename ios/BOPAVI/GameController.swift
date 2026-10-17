@@ -561,6 +561,8 @@ final class GameController: UIViewController {
             return amount
         }
         _=resultCard("REZULTAT",icon:"★",value:String(g.score()),highlight:gold)
+        _=resultCard(progress.languageCode=="hr" ? "HRANA" : "FOOD",
+            icon:"🍓",value:String(g.foodCollected),highlight:sky)
         let best=label(progress.languageCode=="hr" ?
             "★  NAJBOLJI REZULTAT: \(progress.bestPoints())" :
             "★  BEST SCORE: \(progress.bestPoints())",18,.white,stack)

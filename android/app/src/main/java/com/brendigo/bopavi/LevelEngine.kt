@@ -17,7 +17,7 @@ object LevelEngine {
     data class Level(val world: Int, val number: Int, val zone: Int, val speed: Float, val wind: Float, val gates: List<Gate>, val type: Int)
     data class Opening(val top: Float, val bottom: Float)
     // Gentle ridge rhythm. Independent base-4 digits preserve unique stage seeds.
-    private val centerContour=intArrayOf(-12,-38,-58,-32,2,25,42,18,-10,-30)
+    private val centerContour=intArrayOf(-20,-65,-115,-82,-30,20,78,125,78,20)
 
     private class Random32(seed: UInt) {
         var state = if (seed == 0u) 0x6d2b79f5u else seed

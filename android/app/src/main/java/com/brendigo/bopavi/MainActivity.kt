@@ -493,6 +493,8 @@ class MainActivity : Activity() {
             return stat
         }
         resultCard("REZULTAT","★",g.score().toString(),gold)
+        resultCard(if(progress.languageCode()=="hr")"HRANA" else "FOOD",
+            "🍓",g.foodCollected.toString(),0xffffd5d7.toInt())
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
             text=if(progress.languageCode()=="hr")"★  NAJBOLJI REZULTAT: $best"
