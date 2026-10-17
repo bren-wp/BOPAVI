@@ -2356,7 +2356,7 @@ android_engine=(root/'android/app/src/main/java/com/brendigo/bopavi/LevelEngine.
 swift_engine=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
 android_sim_source=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 for source in (android_engine,swift_engine):
-    assert '30f + zone * 2f' in source or '30+Float(zone)*2' in source
+    assert '42f + zone * 3f' in source or '42+Float(zone)*3' in source
     assert 'difficultyPadding' in source
     assert '164' in source and '72.5' in source
 assert 'LevelEngine.opening(gate, time, difficulty)' in android_sim_source
