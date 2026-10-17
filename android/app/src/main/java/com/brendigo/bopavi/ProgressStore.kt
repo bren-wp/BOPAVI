@@ -78,7 +78,12 @@ class ProgressStore(context: Context) {
         edit.apply()
         saveLocalScore(game)
     }
-    fun languageCode():String = GameLanguages.normalized(prefs.getString("ui_language", "en") ?: "en")
+    // The concept screenshots use Croatian. New installs follow the phone's
+    // language; existing user selections are never overwritten.
+    fun languageCode():String {
+        val defaultLanguage=java.util.Locale.getDefault().language.lowercase(java.util.Locale.ROOT)
+        return GameLanguages.normalized(prefs.getString("ui_language",null) ?: defaultLanguage)
+    }
     fun setLanguageCode(code:String) {
         prefs.edit().putString("ui_language",GameLanguages.normalized(code)).apply()
     }
