@@ -2169,7 +2169,7 @@ print('PASS: no-scroll native settings with real saved difficulty on first page 
 # v0.1.77: real two-column shop with device-sized safe-area fitting; never
 # show a static shop screenshot or fabricated diamond/real-money checkout.
 for code in (android_shop,ios_shop):
-    assert ('perkRows' in code or 'cardGrid' in code) and 'KUPI' in code and 'BUY' in code
+    assert ('for(rowIndex in 0..2)' in code or 'cardGrid' in code) and 'KUPI' in code and 'BUY' in code
     assert 'buyPerk(n)' in code and 'perkCount(n)' in code
     assert 'perkPrices[n]' in code
     assert 'bonusCoinsAvailable()' in code and 'claimBonusCoins()' in code
