@@ -90,7 +90,7 @@ assert i_result.index("previousRecord") < i_result.index("progress.recordRun(g)"
 
 # Gameplay stays real, not a static composite drawn on the menu.
 a_game = between(ANDROID,"    private fun startGame(", "    private fun showResult(")
-i_game = between(IOS,"    private func startGame(", "    private func showToast(")
+i_game = between(IOS,"    private func startGame(", "    private func showResult(")
 assert "GameSimulation(" in a_game and "onFinished=" in a_game
 assert "GameSimulation(" in i_game and "onFinished" in i_game
 assert "progress.consumePerks()" in a_game and "progress.consumePerks()" in i_game
