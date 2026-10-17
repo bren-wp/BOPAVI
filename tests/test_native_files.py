@@ -2600,8 +2600,8 @@ assert 'text=ui("TVOJI REZULTATI")' in android_profile
 assert 'text=ui(name)' in android_profile
 assert 'text=ui(requirement)' in android_profile
 assert 'text=ui("★  SVE NAGRADE  ›")' in android_profile
-assert 'back.setTitle(progress.languageCode=="hr" ? "←  POČETNA" : "←  HOME"' in ios_profile
-assert 'text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME"' in android_profile
+assert 'menuBack(s){self.showHome()}' in ios_profile
+assert 'back(b){showHome()}' in android_profile
 assert 'textLabel.text=ui(caption)' in ios_profile
 assert 'editProfile.setTitle(ui("✎  UREDI PROFIL")' in ios_profile
 assert 'tab.accessibilityLabel=ui(item.1)' in ios_profile
