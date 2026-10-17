@@ -600,7 +600,7 @@ if any("APPEARANCE & SOUND" in text for text in texts):
 # A no-scroll profile must expose Edit and the four bottom actions without
 # swipe. Bounds of the real tap surfaces must be inside the display.
 nodes=list(root.iter("node"))
-for label in ("Back to Home","EDIT PROFILE","TASKS","SHOP"):
+for label in ("Back to Home","EDIT PROFILE","TASKS","COLLECTION","SHOP"):
     targets=[n for n in nodes if n.get("clickable")=="true" and
              label.casefold() in (n.get("content-desc","")+" "+n.get("text","")).casefold()]
     if not targets:
@@ -656,7 +656,7 @@ print('PASS: nine native pilot portraits and a reachable one-screen flight CTA',
 subprocess.run(['adb','shell','input','tap',str((l+r)//2),str((t+b)//2)],check=True)
 PY
 }
-# Verify Shop and Records from the real Home footer, then ensure Back
+# Verify Shop and Collection from the real Home footer, then enter Records via Collection.
 # returns to Home. Capture *authentic* emulator frames for visual review.
 verify_shop_records_tabs(){
   python3 - <<'PY'
@@ -681,7 +681,7 @@ def tap_tab(name):
     time.sleep(.8)
 for name,expected,path in (
     ("SHOP","FLIGHT EQUIPMENT","android-shop.png"),
-    ("RECORDS","MY RECORDS","android-records.png"),
+    ("COLLECTION","MY DISCOVERIES","android-collection.png"),
 ):
     tap_tab(name)
     root=dump()
@@ -690,14 +690,40 @@ for name,expected,path in (
         raise SystemExit(f"FAIL: {name} destination not open")
     if name=="SHOP" and not all(any(text in v for v in labels) for text in ("BUY SHIELD","BUY MAGNET")):
         raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
-    if name=="RECORDS" and not any("Your first record awaits" in v or "PERSONAL BEST" in v for v in labels):
-        raise SystemExit("FAIL: offline records neither show real results nor honest empty state")
+    if name=="COLLECTION":
+        collection_cards=[n for n in root.iter("node") if n.get("clickable")=="true"
+                          and (" stars," in n.get("content-desc","")
+                               or " zvjezdica," in n.get("content-desc",""))]
+        if len(collection_cards)!=8:
+            raise SystemExit(f"FAIL: expected eight accessible saved-world collection cards, got {len(collection_cards)}")
+        if not any("pilots unlocked" in v or "otključanih pilota" in v for v in labels):
+            raise SystemExit("FAIL: live Collection pilot ownership missing")
     png=subprocess.run(["adb","exec-out","screencap","-p"],
                        check=True,capture_output=True,timeout=20).stdout
     if not png.startswith(bytes.fromhex("89504e470d0a1a0a")) or len(png)<2000:
         raise SystemExit(f"FAIL: invalid {name} screenshot")
     Path("qa/screenshots",path).write_bytes(png)
-    if name=="RECORDS":
+    if name=="COLLECTION":
+        # The dedicated Collection menu must link to the old, still-functional
+        # Records page; a screenshot-only or inert footer would fail this.
+        action=[n for n in root.iter("node") if n.get("clickable")=="true"
+                and "MY RECORDS" in (n.get("text","")+" "+n.get("content-desc",""))]
+        if len(action)!=1: raise SystemExit("FAIL: Collection -> Records button missing")
+        match=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",action[0].get("bounds",""))
+        if not match: raise SystemExit("FAIL: invalid Collection Records bounds")
+        l,t,r,b=map(int,match.groups())
+        subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],
+                       check=True,timeout=15)
+        time.sleep(.8)
+        root=dump()
+        labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
+        if not any("Your first record awaits" in v or "PERSONAL BEST" in v for v in labels):
+            raise SystemExit("FAIL: Collection cannot open honest offline Records")
+        screenshot=subprocess.run(["adb","exec-out","screencap","-p"],
+            check=True,capture_output=True,timeout=20).stdout
+        if not screenshot.startswith(bytes.fromhex("89504e470d0a1a0a")):
+            raise SystemExit("FAIL: Records screenshot is not PNG")
+        Path("qa/screenshots/android-records.png").write_bytes(screenshot)
         # Test the actual Records -> Achievements -> Records round-trip.
         # Every one of the eight save-backed world cards must fit without
         # scrolling or send Back to the Settings screen by mistake.

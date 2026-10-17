@@ -68,8 +68,8 @@ def main() -> None:
 
     # A brighter illustrated backdrop still has a separate contrast veil;
     # gameplay layers and actual clickable widgets are untouched.
-    assert "0x35031837,0x65061b3e,0xb004132e.toInt()" in android
-    assert "alpha:0.58" in i_menu
+    assert "0x16031837,0x2c061b3e,0x8604132e.toInt()" in android
+    assert "alpha:0.18" in i_menu
     assert "root.addView(View(this).apply{background=premiumBackground()}" in a_menu
     assert "view.addSubview(shade)" in i_menu
     a_settings = section(android, "    private fun showSettings(", "    private fun showSettingsDetails(")
