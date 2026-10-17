@@ -304,7 +304,7 @@ class MainActivity : Activity() {
         // In the supplied Worlds/Profile concepts a large flying Bopi belongs
         // behind the header, not inside each card or baked into the background.
         // Keep it decorative so it can never intercept real navigation taps.
-        if(label=="SVJETOVI" || label=="PROFIL"){
+        if(label=="SVJETOVI" || label=="PROFIL" || label=="TRGOVINA"){
             root.addView(ImageView(this).apply{
                 setImageResource(portraitDrawableIds[progress.skin()])
                 scaleType=ImageView.ScaleType.FIT_CENTER
