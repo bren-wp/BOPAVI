@@ -2852,7 +2852,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 119' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 120' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2927,6 +2927,28 @@ assert 'setPadding(d(18),d(8),d(18),d(96))' in android_home
 assert 'navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor' in ios_home
 # Independent flying pilot image appears behind, not on top of the functional
 # header/Worlds/Profile buttons and uses the actually chosen skin.
-assert 'if(label=="SVJETOVI" || label=="PROFIL")' in android_menu
-assert 'if title == "SVJETOVI" || title == "PROFIL"' in ios_menu
+assert 'if(label=="SVJETOVI" || label=="PROFIL" || label=="TRGOVINA")' in android_menu
+assert 'if title == "SVJETOVI" || title == "PROFIL" || title == "TRGOVINA"' in ios_menu
 print('PASS: responsive Home footer, two independent reference-header pilots and no duplicate startup')
+
+# v0.2.15: the user reference has six compact, independently tappable
+# offer cards; scaling six nested 58dp buttons produced tiny text on phones.
+for shop in (android_shop,ios_shop):
+    assert 'OPREMA ZA BOPIJEV LET' in shop
+    assert 'Za kovanice osvojene igrom — bez stvarnog novca.' in shop
+    assert 'bonusCoinsAvailable()' in shop and 'claimBonusCoins()' in shop
+    assert 'progress.perkPrices[n]' in shop and 'progress.perkCount(n)' in shop
+    assert 'buyPerk(n)' in shop and 'showSettings()' in shop
+    assert 'BUY ' in shop and 'KUPI ' in shop
+    assert 'Owned:' in shop and 'U torbi:' in shop
+assert 'LinearLayout.LayoutParams(0,d(97),1f)' in android_shop
+assert 'card.heightAnchor.constraint(equalToConstant:97)' in ios_shop
+assert 'card.addAction(UIAction' in ios_shop
+assert 'card.addView(bottom,LinearLayout.LayoutParams(-1,d(30)))' in android_shop
+assert 'action(card,' not in android_shop
+assert 'button("\\(croatian ? "KUPI"' not in ios_shop
+assert 'cardGrid.addArrangedSubview(cardRow)' in ios_shop
+assert 'row.addView(card,' in android_shop
+assert 'expected six native tappable shop offers' in qa
+assert 'shop cards must form a real 2x3 matrix' in qa
+print('PASS: premium Shop 2x3 full-tile native affordances, real wallet, honest offline transactions and device hit-geometry')
