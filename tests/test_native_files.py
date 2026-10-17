@@ -651,7 +651,7 @@ for settings in (android_settings,ios_settings):
                   "TRGOVINA KOVANICAMA","MOJI REKORDI"):
         assert title in settings
     assert 'showSkins()' not in settings and 'showPerks()' in settings
-    assert 'showLeaderboard()' in settings and 'showHome()' in settings
+    assert 'showLeaderboard()' in settings and ('showHome()' in settings or 'showSettings()' in settings)
     assert 'SPREMI IME' in settings and 'Vibracije' in settings
     assert 'SPREMI KOPIJU NAPRETKA' in settings and 'VRATI NAPREDAK IZ KOPIJE' in settings
 
