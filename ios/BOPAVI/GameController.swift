@@ -669,8 +669,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
             ])
         }
-        // The art already includes the mascot and game title; only live,
-        // clickable controls and player-dependent values sit on top.
+        // HomeArt contains scenery alone; the native wordmark, selected pilot,
+        // currency and all controls sit above it as responsive live views.
         // Home fits exactly within the available iPhone safe area: no scrolling,
         // clipped footer, or large blank region below the navigation.
         if let homeViewport=view.subviews.compactMap({$0 as? UIScrollView}).first {
@@ -740,6 +740,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
         walletRow.addArrangedSubview(gear)
         stack.addArrangedSubview(walletRow)
+        // The reference hero is composed from genuinely independent assets.
+        // Bopi follows the player's saved selection, not an uneditable home
+        // screenshot. The full-size images fit the safe-area-scaled UI stack.
+        let homeLogo=UIImageView(image:UIImage(named:"Logo"))
+        homeLogo.contentMode = .scaleAspectFit
+        homeLogo.isAccessibilityElement=false
+        homeLogo.heightAnchor.constraint(equalToConstant:128).isActive=true
+        stack.addArrangedSubview(homeLogo)
+        let homePilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        homePilot.contentMode = .scaleAspectFit
+        homePilot.isAccessibilityElement=false
+        homePilot.heightAnchor.constraint(equalToConstant:252).isActive=true
+        stack.addArrangedSubview(homePilot)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
