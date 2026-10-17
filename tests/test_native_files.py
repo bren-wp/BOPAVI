@@ -2851,7 +2851,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 117' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 118' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2912,3 +2912,8 @@ assert 'guard !scroll.isScrollEnabled' in ios_menu
 print('PASS: expanded Settings remains full-size and scrollable; compact menus preserve fit')
 assert 'back(b){showSettings()}' in settings_android
 assert 'menuBack(s){self.showSettings()}' in settings_ios
+assert "verify_advanced_settings_readability(){" in emulator
+assert "android-settings-advanced-top.png" in emulator
+assert "android-settings-advanced-bottom.png" in emulator
+assert "scrollable native" not in emulator or "advanced Settings" in emulator
+print('PASS: real emulator QA covers advanced Settings legibility and actual backup actions')
