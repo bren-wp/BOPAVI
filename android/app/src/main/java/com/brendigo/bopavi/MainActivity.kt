@@ -301,6 +301,20 @@ class MainActivity : Activity() {
         startSceneryDrift(scenicBackdrop)
         root.addView(scenicBackdrop,FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{background=premiumBackground()},FrameLayout.LayoutParams(-1,-1))
+        // In the supplied Worlds/Profile concepts a large flying Bopi belongs
+        // behind the header, not inside each card or baked into the background.
+        // Keep it decorative so it can never intercept real navigation taps.
+        if(label=="SVJETOVI" || label=="PROFIL"){
+            root.addView(ImageView(this).apply{
+                setImageResource(portraitDrawableIds[progress.skin()])
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alpha=0.96f
+            },FrameLayout.LayoutParams(d(150),d(165),
+                Gravity.TOP or Gravity.RIGHT).apply{
+                topMargin=d(37);rightMargin=d(7)
+            })
+        }
         val body=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 18),d(if(label=="PROFIL")12 else 18),d(if(label=="PROFIL")7 else 28))
