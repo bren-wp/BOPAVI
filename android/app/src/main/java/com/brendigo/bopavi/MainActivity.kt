@@ -597,7 +597,9 @@ class MainActivity : Activity() {
         val layout=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(18),d(8),d(18),d(8))
+            // Keep 96dp available for the independently pinned footer.
+            // The navigation rail is never downscaled by FitViewportColumn.
+            setPadding(d(18),d(8),d(18),d(96))
         }
         scroll.addView(layout)
         root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
@@ -735,7 +737,12 @@ class MainActivity : Activity() {
                 setMargins(d(2),0,d(2),0)
             })
         }
-        layout.addView(navigation,LinearLayout.LayoutParams(-1,-2).apply{topMargin=d(9)})
+        // A full-size, safe-area-pinned native navigation rail. It must not
+        // shrink with the hero/CTA column on short physical phones.
+        root.addView(navigation,FrameLayout.LayoutParams(-1,d(78),
+            Gravity.BOTTOM).apply{
+            leftMargin=d(12);rightMargin=d(12);bottomMargin=d(7)
+        })
         showNativeView(root)
         // The scene extends behind the system bars; only live controls
         // receive safe-area padding, on both modern and older Android phones.
@@ -766,6 +773,15 @@ class MainActivity : Activity() {
             if(v.paddingLeft!=left || v.paddingTop!=top ||
                v.paddingRight!=right || v.paddingBottom!=bottom){
                 v.setPadding(left,top,right,bottom)
+            }
+            val rail=navigation.layoutParams as FrameLayout.LayoutParams
+            val safeBottom=bottom+d(7)
+            if(rail.bottomMargin!=safeBottom ||
+                rail.leftMargin!=left+d(12) || rail.rightMargin!=right+d(12)){
+                rail.bottomMargin=safeBottom
+                rail.leftMargin=left+d(12)
+                rail.rightMargin=right+d(12)
+                navigation.layoutParams=rail
             }
             insets
         }
