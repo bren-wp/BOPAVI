@@ -674,7 +674,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // Home fits exactly within the available iPhone safe area: no scrolling,
         // clipped footer, or large blank region below the navigation.
         if let homeViewport=view.subviews.compactMap({$0 as? UIScrollView}).first {
-            stack.heightAnchor.constraint(equalTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
+            // Keep the footer at the bottom on tall devices, but permit a
+            // larger intrinsic stack on short devices so viewport fitting
+            // can scale all hit targets coherently instead of clipping them.
+            stack.heightAnchor.constraint(greaterThanOrEqualTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
         }
         // Real home navigation: current pilot, earned results, coins and
         // settings. Each separately accessible element has a working action.
