@@ -1,3 +1,13 @@
+## v0.2.15 — premium six-offer Shop layout and device hit-target QA (build 120)
+- Rebuild Android and iOS Shop as a **true 2-column × 3-row native card matrix**, not a column of oversized nested buttons scaled to illegibility on physical devices.
+- Each 97dp/pt-high premium blue/gold card is one accessible, tappable purchase action showing the actual shield/magnet icon, localized name, real active duration/effect, live coin price, owned quantity, and a visually distinct cyan **KUPI/BUY** affordance.
+- Introduce a crowned, save-backed currency wallet banner in both platforms; retain the honest **in-game coins only / no real-money purchases** notice and genuinely claimable earned-score bonus.
+- Preserve six real inventory transaction paths, insufficient-funds/full-inventory feedback, original wallet persistence, Back navigation and all localized explanations.
+- Carry independently composited selected-pilot header art into the Shop scenic background on both platforms. The whole screen remains native and editable without baked-in fake counters.
+- Extend Android emulator UI checks: verify six *actual* clickable purchase targets, physical minimum bounds, three distinct two-card rows, and no horizontal hit-box overlap. Tests continue verifying Shop → Home, collection, world cards, gameplay and saved values.
+- Android/iOS release version **0.2.15 / build 120**. No changes to gameplay physics, collisions or save file format.
+- **Not a 100% pixel match**: the original concept's painterly 3D backgrounds, premium character art and metallic typography are still substantially more detailed than the current generated native asset set. Do not claim pixel-perfect parity without genuine-device image diff.
+
 ## v0.2.14 — startup de-duplication and responsive menu shell (build 119)
 - Remove iOS duplicate branded loading step: UIKit now shows the real interactive Home immediately after the existing OS-provided LaunchArt, without an extra splash screen and viewDidAppear route transition. No fake loading percentage.
 - Keep Android's real asynchronous HomeArt warmup and one native loading interface, but remove the second full-branded bitmap from the OS window background. The static OS stage is neutral sky; the only runtime splash has a genuine indeterminate progress indicator.

@@ -754,8 +754,36 @@ for name,expected,path in (
     labels=[n.get("text","")+" "+n.get("content-desc","") for n in root.iter("node")]
     if not any(expected in v for v in labels):
         raise SystemExit(f"FAIL: {name} destination not open")
-    if name=="SHOP" and not all(any(text in v for v in labels) for text in ("BUY SHIELD","BUY MAGNET")):
-        raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
+    if name=="SHOP":
+        if not all(any(text in v for v in labels) for text in ("BUY SHIELD","BUY MAGNET")):
+            raise SystemExit("FAIL: live shield/magnet purchase actions not reachable")
+        # Reference shopping matrix: six whole-card buttons in exactly three
+        # rows of two. Detect compressed/invisible cards and overlaps on a
+        # real rendered emulator, not only a source-code layout assertion.
+        offers=[node for node in root.iter("node") if node.get("clickable")=="true"
+                and (node.get("content-desc","").startswith("BUY ")
+                     or node.get("content-desc","").startswith("KUPI "))]
+        if len(offers)!=6:
+            raise SystemExit(f"FAIL: expected six native tappable shop offers, got {len(offers)}")
+        shop_bounds=[]
+        for node in offers:
+            rect=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",node.get("bounds",""))
+            if not rect:
+                raise SystemExit("FAIL: shop offer has no valid physical hit bounds")
+            l,t,r,b=map(int,rect.groups())
+            if r-l<115 or b-t<90:
+                raise SystemExit(f"FAIL: shop card too small for legible price/action: {node.get('content-desc')}")
+            shop_bounds.append((l,t,r,b))
+        levels={}
+        for l,t,r,b in shop_bounds:
+            y=(t+b)//2
+            levels.setdefault(y,[]).append((l,r))
+        if len(levels)!=3 or any(len(cells)!=2 for cells in levels.values()):
+            raise SystemExit("FAIL: shop cards must form a real 2x3 matrix without clipped rows")
+        for cells in levels.values():
+            cells.sort()
+            if cells[0][1]>cells[1][0]:
+                raise SystemExit("FAIL: shop offers overlap horizontally")
     if name=="COLLECTION":
         collection_cards=[n for n in root.iter("node") if n.get("clickable")=="true"
                           and (" stars," in n.get("content-desc","")
