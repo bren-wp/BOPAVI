@@ -2446,7 +2446,13 @@ assert 'ScrollView(this)' not in android_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
-assert 'if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK"' in android_menu
+assert 'private fun back(parent:LinearLayout,onClick:()->Unit)' in android_menu
+assert 'parent.addView(bar,0,LinearLayout.LayoutParams(-1,d(53)))' in android_menu
+assert 'menuBack(s){self.showHome()}' in ios_menu
+assert 'private func menuBack(_ stack:UIStackView,action:@escaping()->Void)' in ios_menu
+assert 'stack.insertArrangedSubview(row,at:0)' in ios_menu
+assert 'arrow.widthAnchor.constraint(equalToConstant:50)' in ios_menu
+assert 'bar.addView(arrow,LinearLayout.LayoutParams(d(50),d(50)))' in android_menu
 audio_generator=(root/'tools/generate_audio.py').read_text()
 audio_contract=(root/'tools/verify_audio.py').read_text()
 workflow=(root/'.github/workflows/native-ci.yml').read_text()
