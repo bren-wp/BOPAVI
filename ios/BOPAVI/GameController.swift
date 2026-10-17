@@ -974,7 +974,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let croatian=progress.languageCode=="hr"
         let selected=progress.skinIndex()
         let stack=menu(croatian ? "ODABERI LIKA" : "CHOOSE YOUR PILOT",
-                       croatian ? "Izaberi svog pilota za let" : "Nine unique flyers · choose before takeoff")
+                       croatian ? "SVAKI PILOT IMA SVOJU PRIČU" : "EVERY PILOT HAS A STORY")
         let head=UIStackView()
         head.axis = .horizontal
         head.alignment = .center
@@ -982,13 +982,13 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         head.isLayoutMarginsRelativeArrangement=true
         head.layoutMargins=UIEdgeInsets(top:4,left:3,bottom:4,right:3)
         head.backgroundColor = .clear
-        head.heightAnchor.constraint(equalToConstant:194).isActive=true
+        head.heightAnchor.constraint(equalToConstant:230).isActive=true
         stack.addArrangedSubview(head)
         let chosenPicture=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
         chosenPicture.contentMode = .scaleAspectFit
         chosenPicture.isAccessibilityElement=false
-        chosenPicture.widthAnchor.constraint(equalToConstant:180).isActive=true
-        chosenPicture.heightAnchor.constraint(equalToConstant:185).isActive=true
+        chosenPicture.widthAnchor.constraint(equalToConstant:203).isActive=true
+        chosenPicture.heightAnchor.constraint(equalToConstant:222).isActive=true
         head.addArrangedSubview(chosenPicture)
         let pilotSummary=UIStackView()
         pilotSummary.axis = .vertical;pilotSummary.alignment = .fill
