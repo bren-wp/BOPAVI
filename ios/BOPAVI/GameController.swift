@@ -484,18 +484,43 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         heading.clipsToBounds=true
         heading.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true
     }
+    /// A single 50pt upper-left Back control, not a full-width footer button.
+    private func menuBack(_ stack:UIStackView,action:@escaping()->Void) {
+        let row=UIView()
+        row.heightAnchor.constraint(equalToConstant:53).isActive=true
+        let arrow=UIButton(type:.system)
+        arrow.translatesAutoresizingMaskIntoConstraints=false
+        arrow.setTitle("←",for:.normal)
+        arrow.setTitleColor(.white,for:.normal)
+        arrow.titleLabel?.font=UIFont.systemFont(ofSize:30,weight:.heavy)
+        arrow.backgroundColor=UIColor(red:0.035,green:0.40,blue:0.84,alpha:1)
+        arrow.layer.cornerRadius=25
+        arrow.layer.borderWidth=2
+        arrow.layer.borderColor=UIColor(red:0.75,green:0.97,blue:1,alpha:1).cgColor
+        arrow.accessibilityLabel=progress.languageCode=="hr" ? "Natrag" : "Back"
+        arrow.accessibilityTraits.insert(.button)
+        arrow.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
+        row.addSubview(arrow)
+        NSLayoutConstraint.activate([
+            arrow.leadingAnchor.constraint(equalTo:row.leadingAnchor),
+            arrow.topAnchor.constraint(equalTo:row.topAnchor,constant:1),
+            arrow.widthAnchor.constraint(equalToConstant:50),
+            arrow.heightAnchor.constraint(equalToConstant:50)
+        ])
+        stack.insertArrangedSubview(row,at:0)
+    }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
+        // Pagination goes backward within a level grid and is NOT the menu Back action.
+        if (title.hasPrefix("←") && !title.contains("PRETHODNIH")) || title.hasPrefix("‹") {
+            menuBack(stack,action:action)
+            return
+        }
         let b=BopaviActionButton(primary:primary)
         b.setTitle(ui(title),for:.normal)
         b.accessibilityLabel=ui(title)
         b.heightAnchor.constraint(greaterThanOrEqualToConstant:primary ? 68 : 58).isActive=true
         b.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
-        // Keep screen-navigation Back in the same top position on every menu.
-        if title.hasPrefix("←") || title.hasPrefix("‹") {
-            stack.insertArrangedSubview(b,at:0)
-        } else {
-            stack.addArrangedSubview(b)
-        }
+        stack.addArrangedSubview(b)
     }
     private func worldTile(_ world:Int,in stack:UIStackView,action:@escaping()->Void){
         // Reference-like compact 2×4 gallery: all art, headings and earned stars live inside each card.
@@ -1666,16 +1691,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func showProfile(){
         let s=menu("PROFIL","Tvoj letački dnevnik i osobni rezultati")
         // All metrics, badges and world ranks are derived from offline saves.
-        let back=UIButton(type:.system)
-        back.setTitle(progress.languageCode=="hr" ? "←  POČETNA" : "←  HOME",for:.normal)
-        back.setTitleColor(.white,for:.normal)
-        back.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.heavy)
-        back.backgroundColor=UIColor(red:0.04,green:0.29,blue:0.62,alpha:0.96)
-        back.layer.cornerRadius=15
-        back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"
-        back.heightAnchor.constraint(equalToConstant:34).isActive=true
-        back.addAction(UIAction{_ in self.showHome()},for:.touchUpInside)
-        s.addArrangedSubview(back)
+        // Reuse the same upper-left native Back control used on all menus.
+        menuBack(s){self.showHome()}
         // Profile is the saved actual pilot, not an immutable Bopi banner.
         let skin=progress.skinIndex()
         let hero=UIStackView()

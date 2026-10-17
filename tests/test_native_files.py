@@ -2218,14 +2218,16 @@ assert 'FitViewportColumn(this)' in android_base
 assert 'profileHeading(b,"MOJE NAGRADE")' in android_prof
 assert 'profileHeading(b,"MOJI NAJBOLJI SVJETOVI")' in android_prof
 assert 'menuBackAction={showHome()}' in android_prof
-assert 'contentDescription=if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"' in android_prof
+assert 'back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}' in android_prof
+assert 'contentDescription=description' in android_menu
 assert 'title == "PROFIL"' in ios_menu_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
 assert 'scroll.bounds.height/naturalHeight' in ios_menu
 assert 'let desired=CGAffineTransform' in ios_menu
 assert 'if panel.transform != desired' in ios_menu
-assert 'back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"' in ios_prof
+assert 'menuBack(s){self.showHome()}' in ios_prof
+assert 'arrow.accessibilityLabel=progress.languageCode=="hr" ? "Natrag" : "Back"' in ios_menu
 assert 'showHome()' in ios_prof
 print('PASS: v0.1.78 compact accessible no-scroll Android/iOS Profile and save-backed achievements')
 
@@ -2446,7 +2448,14 @@ assert 'ScrollView(this)' not in android_base
 assert 'scroll.isScrollEnabled=false' in ios_menu_base
 assert 'scroll.alwaysBounceVertical=false' in ios_menu_base
 assert 'func fit(_ scroll:UIScrollView,_ panel:UIStackView)' in ios_menu
-assert 'if(progress.languageCode()=="hr")"←  NATRAG" else "←  BACK"' in android_menu
+assert 'private fun back(parent:LinearLayout,' in android_menu
+assert 'description:String=if(progress.languageCode()=="hr")"Natrag" else "Back"' in android_menu
+assert 'parent.addView(bar,0,LinearLayout.LayoutParams(-1,d(53)))' in android_menu
+assert 'menuBack(s){self.showHome()}' in ios_menu
+assert 'private func menuBack(_ stack:UIStackView,action:@escaping()->Void)' in ios_menu
+assert 'stack.insertArrangedSubview(row,at:0)' in ios_menu
+assert 'arrow.widthAnchor.constraint(equalToConstant:50)' in ios_menu
+assert 'bar.addView(arrow,LinearLayout.LayoutParams(d(50),d(50)))' in android_menu
 audio_generator=(root/'tools/generate_audio.py').read_text()
 audio_contract=(root/'tools/verify_audio.py').read_text()
 workflow=(root/'.github/workflows/native-ci.yml').read_text()
@@ -2592,8 +2601,8 @@ assert 'text=ui("TVOJI REZULTATI")' in android_profile
 assert 'text=ui(name)' in android_profile
 assert 'text=ui(requirement)' in android_profile
 assert 'text=ui("★  SVE NAGRADE  ›")' in android_profile
-assert 'back.setTitle(progress.languageCode=="hr" ? "←  POČETNA" : "←  HOME"' in ios_profile
-assert 'text=if(progress.languageCode()=="hr")"←  POČETNA" else "←  HOME"' in android_profile
+assert 'menuBack(s){self.showHome()}' in ios_profile
+assert 'back(b,if(progress.languageCode()=="hr")"Natrag na početnu" else "Back to Home"){showHome()}' in android_profile
 assert 'textLabel.text=ui(caption)' in ios_profile
 assert 'editProfile.setTitle(ui("✎  UREDI PROFIL")' in ios_profile
 assert 'tab.accessibilityLabel=ui(item.1)' in ios_profile
