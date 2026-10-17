@@ -658,7 +658,7 @@ class MainActivity : Activity() {
                 setStroke(d(2),electric)
             }
         }
-        val entries=listOf("PROFIL","ZADACI","REKORDI","TRGOVINA")
+        val entries=listOf("PROFIL","ZADACI","KOLEKCIJA","TRGOVINA")
         val footerIcons=intArrayOf(R.drawable.nav_profile,R.drawable.nav_tasks,
             R.drawable.nav_collection,R.drawable.nav_shop)
         for((index,label) in entries.withIndex()){
@@ -688,7 +688,7 @@ class MainActivity : Activity() {
                     when(index){
                         0->showProfile()
                         1->showAchievements(MenuOrigin.HOME)
-                        2->showLeaderboard()
+                        2->showCollection()
                         else->showPerks(MenuOrigin.HOME)
                     }
                 }
@@ -2540,6 +2540,102 @@ class MainActivity : Activity() {
     // Android 13-16 predictive Back, without losing the current flight.
     @Deprecated("Back navigation compatibility on Android 12 and older")
     override fun onBackPressed() = navigateBack()
+
+    /** Illustrated offline Collection, backed only by persisted player data.
+     * No fake diamonds, network achievements or painted screenshot hotspots.
+     */
+    private fun showCollection(){
+        val croatian=progress.languageCode()=="hr"
+        val b=base("KOLEKCIJA",if(croatian)"Tvoja otkrića u osam svjetova"
+            else "Your discoveries across eight worlds")
+        back(b){showHome()}
+        val owned=(0..8).count{progress.owned(it)}
+        small(b,if(croatian)"♛  ${progress.coins()} kovanica   ·   ★  ${(0..7).sumOf{progress.worldStars(it)}} zvjezdica"
+            else "♛  ${progress.coins()} coins   ·   ★  ${(0..7).sumOf{progress.worldStars(it)}} stars")
+        sectionHeading(b,if(croatian)"MOJA OTKRIĆA" else "MY DISCOVERIES")
+        val art=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
+        for(line in 0..3){
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            b.addView(row,LinearLayout.LayoutParams(-1,-2))
+            for(col in 0..1){
+                val world=line*2+col
+                val cell=FrameLayout(this).apply{
+                    isClickable=true;isFocusable=true
+                    background=gradient(0xff1678ce.toInt(),0xff032049.toInt(),17).apply{
+                        setStroke(d(2),if(world==progress.chosenWorld())gold else electric)
+                    }
+                    clipToOutline=true
+                    elevation=d(3).toFloat()
+                    contentDescription=ui(LevelEngine.names[world])+", "+
+                        progress.worldStars(world)+" "+(if(croatian)"zvjezdica" else "stars")+", "+
+                        progress.collectibles(world)+" "+(if(croatian)"prikupljeno" else "collected")
+                    setOnClickListener{
+                        sound.effect("click");showLevels(world,1)
+                    }
+                }
+                cell.addView(ImageView(this).apply{
+                    setImageResource(art[world]);scaleType=ImageView.ScaleType.CENTER_CROP
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,-1))
+                cell.addView(View(this).apply{
+                    background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(0x1004162f,0x4804162f,0xee03142f.toInt()))
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },FrameLayout.LayoutParams(-1,-1))
+                val caption=LinearLayout(this).apply{
+                    orientation=LinearLayout.VERTICAL
+                    setPadding(d(9),0,d(4),d(4))
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }
+                caption.addView(TextView(this).apply{
+                    text=ui(LevelEngine.names[world]).uppercase();textSize=13f
+                    setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                },LinearLayout.LayoutParams(-1,d(24)))
+                caption.addView(TextView(this).apply{
+                    text="★ ${progress.worldStars(world)}/30   ·   ✦ ${progress.collectibles(world)}"
+                    textSize=12f;setTextColor(gold);typeface=Typeface.DEFAULT_BOLD
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
+                },LinearLayout.LayoutParams(-1,d(20)))
+                cell.addView(caption,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
+                row.addView(cell,LinearLayout.LayoutParams(0,d(84),1f).apply{
+                    setMargins(d(3),d(3),d(3),d(3))
+                })
+            }
+        }
+        sectionHeading(b,if(croatian)"MOJI PILOTI" else "MY PILOTS")
+        val current=progress.skin()
+        val pilots=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(9),d(3),d(12),d(3))
+            background=gradient(0xf10a448b.toInt(),0xf504193d.toInt(),18).apply{
+                setStroke(d(2),gold)
+            }
+        }
+        pilots.addView(ImageView(this).apply{
+            setImageResource(portraitDrawableIds[current])
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(54),d(54)))
+        pilots.addView(TextView(this).apply{
+            text=progress.skinNames[current]+"  ·  ${owned}/9 "+
+                (if(croatian)"otključanih pilota" else "pilots unlocked")
+            textSize=13f;setTextColor(Color.WHITE);typeface=Typeface.DEFAULT_BOLD
+            gravity=Gravity.CENTER_VERTICAL
+            contentDescription=text
+        },LinearLayout.LayoutParams(0,-1,1f).apply{leftMargin=d(7)})
+        b.addView(pilots,LinearLayout.LayoutParams(-1,d(60)))
+        action(b,if(croatian)"ODABERI LIKA" else "CHOOSE PILOT",false){
+            val world=progress.chosenWorld()
+            showPilotPicker(world,progress.streamFrontier(world))
+        }
+        action(b,if(croatian)"MOJI REKORDI" else "MY RECORDS",false){showLeaderboard()}
+    }
 
     private fun navigateBack() {
         if(selectedScreen=="game") {
