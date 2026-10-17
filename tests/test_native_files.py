@@ -677,7 +677,7 @@ for home in (android_home,ios_home):
     assert 'SVJETOVI' in home and 'POSTAVKE' in home
     assert '🏆' in home and 'coins()' in home
     assert 'bestPoints()' in home
-    assert 'showPerks(' in home and 'showLeaderboard(' in home
+    assert 'showPerks(' in home and 'showCollection()' in home
 for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
@@ -1159,7 +1159,7 @@ print('PASS: no idle preview-animation allocation')
 assert 'menuBackAction=onClick' in android_menu
 assert 'menuBackAction?.invoke() ?: showHome()' in android_menu
 for home in (android_home,ios_home):
-    assert 'showPerks(' in home and 'showLeaderboard(' in home
+    assert 'showPerks(' in home and 'showCollection()' in home
 print('PASS: nine-pilot home and store navigation')
 
 assert 'verify_pilot_gallery' in (root/'tools/qa_android_emulator.sh').read_text()
