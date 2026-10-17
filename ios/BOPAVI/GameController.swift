@@ -623,160 +623,37 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             // can scale all hit targets coherently instead of clipping them.
             stack.heightAnchor.constraint(greaterThanOrEqualTo:homeViewport.frameLayoutGuide.heightAnchor).isActive=true
         }
-        // Real home navigation: current pilot, earned results, coins and
-        // settings. Each separately accessible element has a working action.
-        let walletRow=UIStackView()
-        walletRow.axis = .horizontal
-        walletRow.alignment = .center
-        walletRow.distribution = .fill
-        walletRow.spacing=5
-        let avatar=UIButton(type:.custom)
-        avatar.setImage(UIImage(named:"BopiPortrait\(progress.skinIndex())"),for:.normal)
-        avatar.imageView?.contentMode = .scaleAspectFit
-        avatar.contentVerticalAlignment = .fill
-        avatar.contentHorizontalAlignment = .fill
-        avatar.backgroundColor=UIColor(red:0.02,green:0.28,blue:0.59,alpha:0.96)
-        avatar.layer.cornerRadius=24
-        avatar.layer.borderWidth=2
-        avatar.layer.borderColor=UIColor(red:1,green:0.78,blue:0.22,alpha:1).cgColor
-        avatar.clipsToBounds=true
-        avatar.accessibilityLabel=ui("PROFIL")+" · "+progress.skinNames[progress.skinIndex()]
-        avatar.widthAnchor.constraint(equalToConstant:48).isActive=true
-        avatar.heightAnchor.constraint(equalToConstant:48).isActive=true
-        avatar.addAction(UIAction{_ in self.sound.effect("click");self.showProfile()},for:.touchUpInside)
-        walletRow.addArrangedSubview(avatar)
-        func headerChip(_ title:String,_ description:String,_ color:UIColor,
-                        _ action:@escaping()->Void)->UIButton {
-            let chip=UIButton(type:.system)
-            chip.setTitle(title,for:.normal)
-            chip.setTitleColor(color,for:.normal)
-            chip.titleLabel?.font=UIFont.systemFont(ofSize:15,weight:.heavy)
-            chip.titleLabel?.adjustsFontSizeToFitWidth=true
-            chip.titleLabel?.minimumScaleFactor=0.65
-            chip.backgroundColor=UIColor(red:0.03,green:0.14,blue:0.35,alpha:0.93)
-            chip.layer.cornerRadius=20
-            chip.layer.borderWidth=1
-            chip.layer.borderColor=UIColor(red:0.40,green:0.84,blue:1,alpha:0.9).cgColor
-            chip.accessibilityLabel=description
-            chip.heightAnchor.constraint(equalToConstant:48).isActive=true
-            chip.setContentHuggingPriority(.defaultLow,for:.horizontal)
-            chip.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-            chip.addAction(UIAction{_ in self.sound.effect("click");action()},for:.touchUpInside)
-            return chip
-        }
-        let best=headerChip("🏆  \(progress.bestPoints())",
-            ui("ZADACI I POSTIGNUĆA") + " · best score \(progress.bestPoints())",
-            .white){self.showAchievements(.home)}
-        walletRow.addArrangedSubview(best)
-        let coins=headerChip("♛  \(progress.coins())",
-            ui("TRGOVINA") + " · \(progress.coins()) coins earned",
-            UIColor(red:1,green:0.83,blue:0.37,alpha:1)){self.showPerks(.home)}
-        walletRow.addArrangedSubview(coins)
-        best.widthAnchor.constraint(equalTo:coins.widthAnchor).isActive=true
-        let gear=UIButton(type:.system)
-        gear.setTitle("⚙",for:.normal)
-        gear.setTitleColor(.white,for:.normal)
-        gear.titleLabel?.font=UIFont.systemFont(ofSize:26,weight:.bold)
-        gear.backgroundColor=UIColor(red:0.03,green:0.29,blue:0.61,alpha:0.96)
-        gear.layer.cornerRadius=17
-        gear.layer.borderWidth=2
-        gear.layer.borderColor=UIColor(red:0.27,green:0.84,blue:1,alpha:1).cgColor
-        gear.accessibilityLabel=ui("POSTAVKE")
-        gear.widthAnchor.constraint(equalToConstant:48).isActive=true
-        gear.heightAnchor.constraint(equalToConstant:48).isActive=true
-        gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
-        walletRow.addArrangedSubview(gear)
-        stack.addArrangedSubview(walletRow)
-        // Reserve a fixed bottom rail for the real four-tab navigation.
-        // The rail itself is independently pinned to the safe bottom edge:
-        // content fitting cannot push it off-screen on short iPhones.
-        var homeMargins=stack.layoutMargins
-        homeMargins.bottom=105
-        stack.layoutMargins=homeMargins
-        // The reference hero is composed from genuinely independent assets.
-        // Bopi follows the player's saved selection, not an uneditable home
-        // screenshot. The full-size images fit the safe-area-scaled UI stack.
+        // The two original transparent hero assets remain independent.
+        let record=UILabel()
+        record.text="★  "+(progress.languageCode=="hr" ? "NAJBOLJI REZULTAT: " : "BEST SCORE: ")+String(progress.bestPoints())
+        record.font=UIFont.systemFont(ofSize:17,weight:.heavy)
+        record.textColor = .white
+        record.textAlignment = .center
+        record.backgroundColor=UIColor(red:0.02,green:0.17,blue:0.42,alpha:0.93)
+        record.layer.cornerRadius=21;record.clipsToBounds=true
+        record.layer.borderWidth=2
+        record.layer.borderColor=UIColor(red:0.26,green:0.84,blue:1,alpha:1).cgColor
+        record.heightAnchor.constraint(equalToConstant:47).isActive=true
+        record.accessibilityLabel=record.text
+        stack.addArrangedSubview(record)
         let homeLogo=UIImageView(image:UIImage(named:"Logo"))
         homeLogo.contentMode = .scaleAspectFit
         homeLogo.isAccessibilityElement=false
-        homeLogo.heightAnchor.constraint(equalToConstant:128).isActive=true
+        homeLogo.heightAnchor.constraint(equalToConstant:154).isActive=true
         stack.addArrangedSubview(homeLogo)
         let homePilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
         homePilot.contentMode = .scaleAspectFit
         homePilot.isAccessibilityElement=false
-        homePilot.heightAnchor.constraint(equalToConstant:252).isActive=true
+        homePilot.heightAnchor.constraint(equalToConstant:310).isActive=true
         stack.addArrangedSubview(homePilot)
         let spacer=UIView()
         spacer.setContentHuggingPriority(.defaultLow,for:.vertical)
         stack.addArrangedSubview(spacer)
         button("▶  IGRAJ",in:stack){
-            let world=self.progress.chosenWorld()
-            self.showPilotPicker(world,self.progress.streamFrontier(world))
+            self.startGame(self.progress.chosenWorld(),1)
         }
-        button("🌍  SVJETOVI",in:stack,primary:false){self.showWorlds()}
-        button("⚙  POSTAVKE",in:stack,primary:false,muted:true){self.showSettings()}
-        let navigation=UIStackView()
-        navigation.axis = .horizontal
-        navigation.distribution = .fillEqually
-        navigation.spacing=5
-        navigation.layoutMargins=UIEdgeInsets(top:8,left:7,bottom:8,right:7)
-        navigation.isLayoutMarginsRelativeArrangement=true
-        navigation.backgroundColor=UIColor(red:0.012,green:0.13,blue:0.32,alpha:0.96)
-        navigation.layer.cornerRadius=22
-        navigation.layer.borderWidth=2
-        navigation.layer.borderColor=UIColor(red:0.15,green:0.72,blue:1,alpha:1).cgColor
-        let tabs:[(String,String,()->Void)]=[
-            ("NavProfile","PROFIL",{self.showProfile()}),
-            ("NavTasks","ZADACI",{self.showAchievements(.home)}),
-            ("NavCollection","KOLEKCIJA",{self.showCollection()}),
-            ("NavShop","TRGOVINA",{self.showPerks(.home)})
-        ]
-        for (icon,title,handler) in tabs {
-            let tab=UIButton(type:.system)
-            tab.setTitle("",for:.normal)
-            tab.accessibilityLabel=ui(title)
-            tab.backgroundColor=UIColor(red:0.04,green:0.31,blue:0.63,alpha:0.70)
-            tab.layer.cornerRadius=13
-            tab.layer.borderWidth=1
-            tab.layer.borderColor=UIColor(red:0.38,green:0.83,blue:1,alpha:0.42).cgColor
-            tab.heightAnchor.constraint(equalToConstant:62).isActive=true
-            let glyph=UIImageView(image:UIImage(named:icon))
-            glyph.contentMode = .scaleAspectFit
-            glyph.isAccessibilityElement=false
-            let caption=UILabel()
-            caption.text=title;caption.textAlignment = .center
-            caption.textColor = .white
-            let captionFace=UIFont.systemFont(ofSize:11,weight:.bold)
-            caption.font=UIFont(descriptor:captionFace.fontDescriptor.withDesign(.rounded)
-                ?? captionFace.fontDescriptor,size:11)
-            caption.adjustsFontSizeToFitWidth=true
-            caption.minimumScaleFactor=0.77
-            let content=UIStackView(arrangedSubviews:[glyph,caption])
-            content.axis = .vertical;content.spacing=0
-            content.translatesAutoresizingMaskIntoConstraints=false
-            content.isUserInteractionEnabled=false
-            tab.addSubview(content)
-            NSLayoutConstraint.activate([
-                content.leadingAnchor.constraint(equalTo:tab.leadingAnchor,constant:2),
-                content.trailingAnchor.constraint(equalTo:tab.trailingAnchor,constant:-2),
-                content.centerYAnchor.constraint(equalTo:tab.centerYAnchor),
-                glyph.heightAnchor.constraint(equalToConstant:30),
-                caption.heightAnchor.constraint(equalToConstant:20)
-            ])
-            tab.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
-            navigation.addArrangedSubview(tab)
-        }
-        // Match the fixed bottom navigation in the supplied reference.
-        // A separate UIKit view remains clickable and VoiceOver-addressable
-        // even when the hero stack needs responsive downscaling.
-        navigation.translatesAutoresizingMaskIntoConstraints=false
-        view.addSubview(navigation)
-        NSLayoutConstraint.activate([
-            navigation.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:18),
-            navigation.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-18),
-            navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-7),
-            navigation.heightAnchor.constraint(equalToConstant:78)
-        ])
+        label(progress.languageCode=="hr" ? "Dodirni zaslon za zamah. Leti što dalje!" :
+            "Tap to flap. Fly as far as you can!",14,.white,stack)
     }
 
     private func showWorlds(){
@@ -1144,7 +1021,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         mascot.heightAnchor.constraint(equalToConstant:154).isActive=true
         panel.addArrangedSubview(mascot)
         label(progress.languageCode=="hr" ? "♛  PAUZA" : "♛  PAUSE",33,UIColor.white,panel)
-        label((progress.languageCode=="hr" ? "Pauza · Level " : "Paused · Level ") + String(canvas.game.displayLevel),14,
+        label((progress.languageCode=="hr" ? "Let je zaustavljen" : "Flight paused"),14,
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
@@ -1174,130 +1051,18 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         command(progress.languageCode=="hr" ? "▶  NASTAVI" : "▶  CONTINUE",style:0){close(true)}
         command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY",style:1){
-            close(false);self.startGame(self.gameWorld,self.gameNumber)
+            close(false);self.startGame(self.gameWorld,1)
         }
         command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT",style:2){close(false);self.showHome()}
-        // Paused in-place settings: navigating to the standalone Settings screen
-        // destroys the live canvas. Keep the original simulation and overlay.
-        let pauseSettings=UIStackView()
-        pauseSettings.axis = .vertical
-        pauseSettings.alignment = .fill
-        pauseSettings.spacing=8
-        pauseSettings.isLayoutMarginsRelativeArrangement=true
-        pauseSettings.layoutMargins=UIEdgeInsets(top:12,left:10,bottom:12,right:10)
-        pauseSettings.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:1)
-        pauseSettings.layer.cornerRadius=19
-        pauseSettings.layer.borderWidth=2
-        pauseSettings.layer.borderColor=UIColor(red:0.24,green:0.80,blue:1,alpha:1).cgColor
-        pauseSettings.isHidden=true
-        label(progress.languageCode=="hr" ? "POSTAVKE U PAUZI" : "PAUSE SETTINGS",17,.white,pauseSettings)
-        volumeSlider(progress.languageCode=="hr" ? "♫  Glazba" : "♫  Music",value:progress.musicVolume,in:pauseSettings){value in
-            self.progress.musicVolume=value
-            self.sound.musicVolume=Float(value)/100
-            self.sound.pause()
-        }
-        volumeSlider(progress.languageCode=="hr" ? "◖  Zvukovi" : "◖  Effects",value:progress.effectsVolume,in:pauseSettings){value in
-            self.progress.effectsVolume=value
-            self.sound.effectsVolume=Float(value)/100
-            self.sound.pause()
-        }
-        let pauseHaptic=UISwitch()
-        pauseHaptic.isOn=progress.hapticEnabled
-        pauseHaptic.onTintColor=UIColor(red:0.05,green:0.62,blue:0.98,alpha:1)
-        pauseHaptic.accessibilityLabel=ui("VIBRACIJA")
-        pauseHaptic.addAction(UIAction{_ in self.progress.hapticEnabled=pauseHaptic.isOn},
-                              for:.valueChanged)
-        let hapticRow=UIStackView()
-        hapticRow.axis = .horizontal
-        hapticRow.alignment = .center
-        hapticRow.spacing=10
-        hapticRow.isLayoutMarginsRelativeArrangement=true
-        hapticRow.layoutMargins=UIEdgeInsets(top:9,left:12,bottom:9,right:12)
-        hapticRow.backgroundColor=UIColor(red:0.025,green:0.13,blue:0.30,alpha:1)
-        hapticRow.layer.cornerRadius=15
-        let hapticLabel=UILabel()
-        hapticLabel.text=ui("VIBRACIJA")
-        hapticLabel.textColor = .white
-        hapticLabel.font=UIFont.systemFont(ofSize:16,weight:.medium)
-        hapticLabel.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
-        hapticRow.addArrangedSubview(hapticLabel)
-        hapticRow.addArrangedSubview(pauseHaptic)
-        pauseSettings.addArrangedSubview(hapticRow)
-        label(progress.languageCode=="hr" ? "Promjene se spremaju odmah. Let ostaje pauziran." : "Changes save immediately. Your flight stays paused.",13,
-              UIColor(red:0.78,green:0.91,blue:1,alpha:1),pauseSettings)
-        let footer=UIStackView()
-        footer.axis = .horizontal
-        footer.distribution = .fillEqually
-        footer.spacing=5
-        footer.layoutMargins=UIEdgeInsets(top:7,left:5,bottom:7,right:5)
-        footer.isLayoutMarginsRelativeArrangement=true
-        footer.backgroundColor=UIColor(red:0.01,green:0.13,blue:0.31,alpha:1)
-        footer.layer.cornerRadius=17
-        func quick(_ caption:String,label:String,handler:@escaping()->Void){
-            let control=UIButton(type:.system)
-            let suffix:String
-            if label=="Zvuk" {suffix=self.progress.soundEnabled ? " ✓":" ✕"}
-            else if label=="Muzika" {suffix=self.progress.musicVolume>0 ? " ✓":" ✕"}
-            else {suffix=""}
-            control.setTitle(caption+suffix,for:.normal)
-            control.titleLabel?.numberOfLines=2
-            control.titleLabel?.textAlignment = .center
-            control.titleLabel?.font=UIFont.systemFont(ofSize:11,weight:.bold)
-            control.titleLabel?.adjustsFontSizeToFitWidth=true
-            control.titleLabel?.minimumScaleFactor=0.67
-            control.setTitleColor(.white,for:.normal)
-            let spokenLabel=self.progress.languageCode=="hr" ? label :
-                (label=="Zvuk" ? "Sound" : label=="Muzika" ? "Music" : label=="Kontrole" ? "Controls" : "Settings")
-            control.accessibilityLabel=spokenLabel
-            control.backgroundColor=UIColor(red:0.03,green:0.35,blue:0.68,alpha:1)
-            control.layer.cornerRadius=13
-            control.layer.borderWidth=1
-            control.layer.borderColor=UIColor(red:0.37,green:0.83,blue:1,alpha:1).cgColor
-            control.heightAnchor.constraint(equalToConstant:64).isActive=true
-            control.addAction(UIAction{[weak control] _ in
-                guard let control=control else{return}
-                self.sound.effect("click");handler()
-                if label=="Zvuk" || label=="Muzika" {
-                    let active=label=="Zvuk" ? self.progress.soundEnabled : self.progress.musicVolume>0
-                    control.setTitle(caption+(active ? " ✓":" ✕"),for:.normal)
-                    control.accessibilityLabel=spokenLabel+(self.progress.languageCode=="hr" ? (active ? " uključeno":" isključeno") : (active ? " enabled":" disabled"))
-                }
-            },for:.touchUpInside)
-            footer.addArrangedSubview(control)
-        }
-        quick(progress.languageCode=="hr" ? "◖\nZVUK" : "◖\nSOUND",label:"Zvuk"){
-            self.progress.soundEnabled.toggle()
-            self.sound.enabled=self.progress.soundEnabled
-            self.sound.pause() // Restore no-audio state until Continue.
-        }
-        quick(progress.languageCode=="hr" ? "♫\nMUZIKA" : "♫\nMUSIC",label:"Muzika"){
-            let volume=self.progress.toggleMusicVolume()
-            self.sound.musicVolume=Float(volume)/100
-            self.sound.pause()
-        }
-        quick(progress.languageCode=="hr" ? "✦\nKONTROLE" : "✦\nCONTROLS",label:"Kontrole"){
-            self.alert(self.progress.languageCode=="hr" ? "Kontrole leta" : "Flight controls",
-                self.progress.languageCode=="hr" ? "Dodirni zaslon za svaki zamah krilima u svih osam svjetova. Izbjegavaj prepreke i skupljaj nagrade." : "Tap to flap in all eight worlds. Avoid obstacles and collect rewards.")
-        }
-        quick(progress.languageCode=="hr" ? "⚙\nPOSTAVKE" : "⚙\nSETTINGS",label:"Postavke"){
-            pauseSettings.isHidden.toggle()
-            self.sound.pause()
-            self.view.setNeedsLayout()
-            self.view.layoutIfNeeded()
-            if !pauseSettings.isHidden {
-                UIAccessibility.post(notification:.layoutChanged,argument:pauseSettings)
-            } else {
-                UIAccessibility.post(notification:.layoutChanged,argument:footer)
-            }
-        }
-        panel.addArrangedSubview(footer)
-        panel.addArrangedSubview(pauseSettings)
+        label(progress.languageCode=="hr" ?
+            "Nastavi let, pokušaj ponovno ili se vrati na početnu." :
+            "Resume your flight, retry or return Home.",13,
+            UIColor(red:0.82,green:0.92,blue:1,alpha:1),panel)
         UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
     private func startGame(_ world:Int,_ number:Int){
         clear();gameWorld=world;gameNumber=number
-        let boosts=progress.previewPerks()
-        let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:boosts.shield,initialMagnet:boosts.magnet,difficulty:progress.difficulty,initialOrdinal:number)
+        let game=GameSimulation(BopaviCore.createStream(world,number),endless:true,initialShield:0,initialMagnet:0,difficulty:progress.difficulty,initialOrdinal:number)
         sound.startWorld(world)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:progress.skinIndex(),
             coinWallet:{[weak self] in self?.progress.coins() ?? 0},languageCode:progress.languageCode)
@@ -1320,13 +1085,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             self.sound.effect("hit")
             if self.progress.hapticEnabled {self.shieldHaptic.impactOccurred()}
         }
-        gameCanvas.onLevelComplete = { [weak self] level in
-            guard let self=self else{return}
-            self.progress.recordLevelStars(world:world,number:level,earned:game.completedLevelStars)
-            let reward=self.progress.completeLevel(world:world,number:level,score:game.score())
-            self.sound.effect("level")
-            if reward>0 {self.showToast("Level \(level): +\(reward) kovanica")}
-        }
         // Gameplay counts now share one frame-synchronous Core Graphics HUD
         // on Android and iOS; avoid a duplicate UIKit chip over the scene.
         let pause=UIButton(type:.system);pause.setTitle("Ⅱ",for:.normal);pause.titleLabel?.font=UIFont.boldSystemFont(ofSize:24)
@@ -1340,7 +1098,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gameCanvas.onFlightStarted = { [weak self,weak gameCanvas,weak pause] in
             guard let self=self, self.canvas === gameCanvas else{return}
             // The pre-flight preview never spends purchased equipment.
-            _ = self.progress.consumePerks()
             pause?.isHidden=false
         }
         NSLayoutConstraint.activate([pause.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-15),pause.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:12),pause.heightAnchor.constraint(equalToConstant:48),pause.widthAnchor.constraint(equalToConstant:58)])
@@ -1361,267 +1118,106 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         NSLayoutConstraint.activate([notice.centerXAnchor.constraint(equalTo:view.centerXAnchor),notice.centerYAnchor.constraint(equalTo:view.centerYAnchor,constant:-110),notice.widthAnchor.constraint(lessThanOrEqualTo:view.widthAnchor,multiplier:0.85),notice.heightAnchor.constraint(equalToConstant:44)])
         DispatchQueue.main.asyncAfter(deadline:.now()+1.5){[weak notice] in notice?.removeFromSuperview()}
     }
+    /// Endless flight result. Keep the user's older records but no shop/world routes.
     private func showResult(_ g:GameSimulation){
-        let previousRecord=progress.bestPoints()
-        let newRecord=g.score()>previousRecord && g.score()>0
-        sound.effect(g.won ? "level" : "hit")
-        let headline=ResultHeadline.label(score:g.score(),previousBest:previousRecord,won:g.won)
+        let previous=progress.bestPoints()
+        let newRecord=g.score()>previous && g.score()>0
+        sound.effect("hit")
         progress.recordRun(g)
-        gameNumber=g.displayLevel
         clear()
-        view.backgroundColor=UIColor(red:0.09,green:0.39,blue:0.73,alpha:1)
-        if let image=UIImage(named:"World\(gameWorld)") {
-            let backdrop=UIImageView(image:image)
-            backdrop.contentMode = .scaleAspectFill
-            backdrop.clipsToBounds=true;backdrop.translatesAutoresizingMaskIntoConstraints=false
-            backdrop.isAccessibilityElement=false;view.addSubview(backdrop)
-            NSLayoutConstraint.activate([
-                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
-                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
-                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
-            ])
-        }
-        let dim=UIView()
-        dim.backgroundColor=UIColor(red:0.01,green:0.08,blue:0.21,alpha:0.34)
-        dim.translatesAutoresizingMaskIntoConstraints=false
-        view.addSubview(dim)
+        view.backgroundColor=UIColor(red:0.04,green:0.25,blue:0.54,alpha:1)
+        let backdrop=UIImageView(image:UIImage(named:"HomeArt"))
+        backdrop.translatesAutoresizingMaskIntoConstraints=false
+        backdrop.contentMode = .scaleAspectFill
+        backdrop.clipsToBounds=true
+        backdrop.isAccessibilityElement=false
+        view.addSubview(backdrop)
         NSLayoutConstraint.activate([
-            dim.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-            dim.trailingAnchor.constraint(equalTo:view.trailingAnchor),
-            dim.topAnchor.constraint(equalTo:view.topAnchor),
-            dim.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+            backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+            backdrop.topAnchor.constraint(equalTo:view.topAnchor),
+            backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
         ])
-        let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false
-        scroll.showsVerticalScrollIndicator=false
-        scroll.alwaysBounceVertical=false
+        let shade=UIView()
+        shade.translatesAutoresizingMaskIntoConstraints=false
+        shade.backgroundColor=UIColor(red:0.01,green:0.07,blue:0.18,alpha:0.51)
+        view.addSubview(shade)
+        NSLayoutConstraint.activate([
+            shade.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            shade.trailingAnchor.constraint(equalTo:view.trailingAnchor),
+            shade.topAnchor.constraint(equalTo:view.topAnchor),
+            shade.bottomAnchor.constraint(equalTo:view.bottomAnchor)
+        ])
+        let scroll=UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints=false
         scroll.isScrollEnabled=false
+        scroll.showsVerticalScrollIndicator=false
         resultFitViewport=scroll
         view.addSubview(scroll)
         NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
             scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+            scroll.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor)
         ])
-        let stack=UIStackView()
-        resultFitPanel=stack
-        stack.axis = .vertical;stack.alignment = .fill;stack.spacing=7
-        stack.isLayoutMarginsRelativeArrangement=true
-        stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:18,right:18)
-        stack.translatesAutoresizingMaskIntoConstraints=false
-        scroll.addSubview(stack)
+        let panel=UIStackView()
+        panel.axis = .vertical
+        panel.alignment = .fill
+        panel.spacing=12
+        panel.translatesAutoresizingMaskIntoConstraints=false
+        panel.isLayoutMarginsRelativeArrangement=true
+        panel.layoutMargins=UIEdgeInsets(top:18,left:18,bottom:18,right:18)
+        resultFitPanel=panel
+        scroll.addSubview(panel)
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
-            stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
-            stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor),
-            stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor),
-            stack.heightAnchor.constraint(greaterThanOrEqualTo:scroll.frameLayoutGuide.heightAnchor)
+            panel.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
+            panel.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
+            panel.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
+            panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor),
+            panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor),
+            panel.heightAnchor.constraint(greaterThanOrEqualTo:scroll.frameLayoutGuide.heightAnchor)
         ])
-        // Same live visual composition as Android: real selected pilot and
-        // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=progress.skinIndex()
-        let header=UIView()
-        header.clipsToBounds=true
-        header.layer.cornerRadius=22
-        header.layer.borderWidth=2
-        header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
-        header.heightAnchor.constraint(equalToConstant:174).isActive=true
-        header.isAccessibilityElement=true
-        header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
-        stack.addArrangedSubview(header)
-        let scene=UIImageView(image:UIImage(named:"World\(gameWorld)"))
-        scene.translatesAutoresizingMaskIntoConstraints=false
-        scene.contentMode = .scaleAspectFill
-        scene.clipsToBounds=true
-        scene.isAccessibilityElement=false
-        header.addSubview(scene)
-        let fade=UIView()
-        fade.translatesAutoresizingMaskIntoConstraints=false
-        fade.backgroundColor=UIColor(red:0.02,green:0.09,blue:0.26,alpha:0.32)
-        fade.isAccessibilityElement=false
-        header.addSubview(fade)
-        let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(pilotIndex)"))
-        pilot.translatesAutoresizingMaskIntoConstraints=false
-        pilot.contentMode = .scaleAspectFit
-        pilot.isAccessibilityElement=false
-        header.addSubview(pilot)
-        NSLayoutConstraint.activate([
-            scene.leadingAnchor.constraint(equalTo:header.leadingAnchor),
-            scene.trailingAnchor.constraint(equalTo:header.trailingAnchor),
-            scene.topAnchor.constraint(equalTo:header.topAnchor),
-            scene.bottomAnchor.constraint(equalTo:header.bottomAnchor),
-            fade.leadingAnchor.constraint(equalTo:header.leadingAnchor),
-            fade.trailingAnchor.constraint(equalTo:header.trailingAnchor),
-            fade.topAnchor.constraint(equalTo:header.topAnchor),
-            fade.bottomAnchor.constraint(equalTo:header.bottomAnchor),
-            pilot.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:6),
-            pilot.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-6),
-            pilot.centerYAnchor.constraint(equalTo:header.centerYAnchor),
-            pilot.heightAnchor.constraint(equalToConstant:170)
-        ])
-        label(headline,31,UIColor(red:1,green:0.86,blue:0.38,alpha:1),stack)
-        if newRecord {
-            let banner=UILabel()
-            banner.text=ui("♛  NOVI REKORD!")
-            banner.textColor=UIColor(red:1,green:0.93,blue:0.67,alpha:1)
-            banner.textAlignment = .center
-            banner.font=UIFont.systemFont(ofSize:19,weight:.heavy)
-            banner.backgroundColor=UIColor(red:0.42,green:0.22,blue:0.04,alpha:0.96)
-            banner.layer.cornerRadius=20
-            banner.layer.borderWidth=2
-            banner.layer.borderColor=UIColor(red:1,green:0.79,blue:0.26,alpha:1).cgColor
-            banner.clipsToBounds=true
-            banner.heightAnchor.constraint(equalToConstant:46).isActive=true
-            banner.accessibilityLabel=ui("Novi osobni rekord: \(g.score()) bodova")
-            stack.addArrangedSubview(banner)
+        let portrait=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        portrait.contentMode = .scaleAspectFit
+        portrait.isAccessibilityElement=false
+        portrait.heightAnchor.constraint(equalToConstant:198).isActive=true
+        panel.addArrangedSubview(portrait)
+        label(newRecord ? "♛  NOVI REKORD!" : "REZULTAT",32,.white,panel)
+        let stats=UIStackView()
+        stats.axis = .vertical
+        stats.alignment = .fill
+        stats.spacing=7
+        stats.layoutMargins=UIEdgeInsets(top:14,left:15,bottom:14,right:15)
+        stats.isLayoutMarginsRelativeArrangement=true
+        stats.layer.cornerRadius=24
+        stats.layer.borderWidth=3
+        stats.layer.borderColor=UIColor(red:0.3,green:0.85,blue:1,alpha:1).cgColor
+        stats.backgroundColor=UIColor(red:0.02,green:0.13,blue:0.32,alpha:0.96)
+        panel.addArrangedSubview(stats)
+        func stat(_ title:String,_ number:Int){
+            let row=UIStackView()
+            row.axis = .horizontal
+            row.alignment = .center
+            let heading=UILabel()
+            heading.text=title
+            heading.font=UIFont.systemFont(ofSize:16,weight:.bold)
+            heading.textColor = .white
+            heading.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
+            row.addArrangedSubview(heading)
+            let value=UILabel()
+            value.text=String(number)
+            value.font=UIFont.systemFont(ofSize:24,weight:.heavy)
+            value.textColor=UIColor(red:1,green:0.81,blue:0.3,alpha:1)
+            row.addArrangedSubview(value)
+            row.heightAnchor.constraint(equalToConstant:54).isActive=true
+            stats.addArrangedSubview(row)
         }
-        let sky=UIColor(red:0.67,green:0.92,blue:1,alpha:1)
-        let gold=UIColor(red:1,green:0.82,blue:0.28,alpha:1)
-        let summary=UIStackView()
-        summary.axis = .horizontal;summary.alignment = .fill
-        summary.distribution = .fillEqually;summary.spacing=6
-        stack.addArrangedSubview(summary)
-        // All summary values are derived from the real finished GameSimulation.
-        func resultCard(_ caption:String,icon:String,value:String,highlight:UIColor)->UILabel {
-            let card=UIStackView()
-            card.axis = .vertical;card.alignment = .fill;card.spacing=3
-            card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:8,left:3,bottom:9,right:3)
-            card.backgroundColor=UIColor(red:0.025,green:0.15,blue:0.34,alpha:0.97)
-            card.layer.cornerRadius=19;card.layer.borderWidth=2
-            card.layer.borderColor=UIColor(red:0.22,green:0.79,blue:1,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:116).isActive=true
-            summary.addArrangedSubview(card)
-            let iconView=label(icon,29,gold,card)
-            iconView.heightAnchor.constraint(equalToConstant:37).isActive=true
-            iconView.isAccessibilityElement=false
-            let title=label(caption,11,.white,card)
-            title.numberOfLines=2;title.adjustsFontSizeToFitWidth=true
-            title.minimumScaleFactor=0.80
-            title.heightAnchor.constraint(equalToConstant:34).isActive=true
-            title.isAccessibilityElement=false
-            let amount=label(value,23,highlight,card)
-            amount.adjustsFontSizeToFitWidth=true
-            amount.minimumScaleFactor=0.67
-            amount.accessibilityLabel=ui("\(caption) \(value)")
-            amount.heightAnchor.constraint(equalToConstant:32).isActive=true
-            return amount
-        }
-        _=resultCard("REZULTAT",icon:"★",value:String(g.score()),highlight:gold)
-        _=resultCard("PRIKUPLJENE\nKOVANICE",icon:"●",value:String(g.coins),highlight:sky)
-        _=resultCard("UKUPNO\nPROLAZA",icon:"⚑",value:String(g.totalPassed),highlight:.white)
-        // Mirror Android's condensed readable detail block, leaving room
-        // for the primary Retry and result navigation on compact iPhones.
-        let details=label("Najbolji rezultat: \(progress.bestPoints())\n" +
-            "Level \(gameNumber) · Ukupno prolaza: \(g.totalPassed)\n" +
-            "Težina: \(progress.difficultyNames[g.difficulty]) · \(progress.playerName)",
-            14,.white,stack)
-        details.numberOfLines=3
-        details.lineBreakMode = .byWordWrapping
-        let balance=label("Stanje novčanika: \(progress.coins()) kovanica",15,sky,stack)
-        sectionHeading("♛  NAGRADE",in:stack)
-        // No fake diamonds, chests, purchases or video rewards. The displayed
-        // coins/stars are pickups; the wallet balance remains independently real.
-        let rewardPanel=UIStackView()
-        rewardPanel.axis = .horizontal;rewardPanel.alignment = .fill
-        rewardPanel.distribution = .fillEqually;rewardPanel.spacing=4
-        rewardPanel.isLayoutMarginsRelativeArrangement=true
-        rewardPanel.layoutMargins=UIEdgeInsets(top:7,left:4,bottom:7,right:4)
-        rewardPanel.backgroundColor=UIColor(red:0.015,green:0.15,blue:0.34,alpha:1)
-        rewardPanel.layer.cornerRadius=23;rewardPanel.layer.borderWidth=2
-        rewardPanel.layer.borderColor=UIColor(red:0.22,green:0.80,blue:1,alpha:1).cgColor
-        stack.addArrangedSubview(rewardPanel)
-        func reward(_ name:String,icon:String,value:String)->UILabel {
-            let card=UIStackView()
-            card.axis = .vertical;card.alignment = .fill;card.spacing=2
-            card.isLayoutMarginsRelativeArrangement=true
-            card.layoutMargins=UIEdgeInsets(top:7,left:2,bottom:7,right:2)
-            card.backgroundColor=UIColor(red:0.02,green:0.23,blue:0.46,alpha:1)
-            card.layer.cornerRadius=15;card.layer.borderWidth=1
-            card.layer.borderColor=UIColor(red:0.28,green:0.64,blue:0.90,alpha:1).cgColor
-            card.heightAnchor.constraint(equalToConstant:99).isActive=true
-            rewardPanel.addArrangedSubview(card)
-            let picture=label(icon,25,gold,card)
-            picture.heightAnchor.constraint(equalToConstant:35).isActive=true
-            picture.isAccessibilityElement=false
-            let caption=label(name,10,.white,card)
-            caption.heightAnchor.constraint(equalToConstant:27).isActive=true
-            caption.numberOfLines=2;caption.adjustsFontSizeToFitWidth=true
-            caption.minimumScaleFactor=0.78
-            caption.isAccessibilityElement=false
-            let amount=label(value,17,sky,card)
-            amount.heightAnchor.constraint(equalToConstant:28).isActive=true
-            amount.adjustsFontSizeToFitWidth=true;amount.minimumScaleFactor=0.70
-            amount.accessibilityLabel=ui("\(name) \(value)")
-            return amount
-        }
-        _=reward("KOVANICE",icon:"●",value:"×\(g.coins)")
-        _=reward("ZVIJEZDE",icon:"★",value:"×\(g.stars)")
-        let bonus=progress.bonusCoinsAvailable()
-        let bonusCounter=reward("BONUS\nBODOVA",icon:"♛",value:"+\(bonus)")
-        _=reward("REKORD",icon:"🏆",value:String(progress.bestPoints()))
-        if bonus>0 {
-            let claim=BopaviActionButton(primary:false)
-            claim.setTitle(ui("🎁  PREUZMI \(bonus) KOVANICA ZA REKORD"),for:.normal)
-            claim.accessibilityLabel=ui("Preuzmi bonus kovanica za rekord")
-            claim.heightAnchor.constraint(equalToConstant:56).isActive=true
-            claim.addAction(UIAction{[weak self,weak claim] _ in
-                guard let self=self else{return}
-                let awarded=self.progress.claimBonusCoins()
-                if awarded>0 {
-                    self.sound.effect("purchase")
-                    bonusCounter.text="+0"
-                    bonusCounter.accessibilityLabel=self.ui("BONUS BODOVA 0")
-                    balance.text=self.ui("Stanje novčanika: \(self.progress.coins()) kovanica")
-                    claim?.isHidden=true
-                }
-            },for:.touchUpInside)
-            stack.addArrangedSubview(claim)
-        }
-        button("▶  PONOVO",in:stack){self.showPilotPicker(self.gameWorld,self.gameNumber)}
-        let footer=UIStackView()
-        footer.axis = .horizontal;footer.distribution = .fillEqually
-        footer.spacing=6;stack.addArrangedSubview(footer)
-        func footerAction(_ caption:String,handler:@escaping()->Void){
-            let control=UIButton(type:.system)
-            control.setTitle(self.ui(caption),for:.normal)
-            control.setTitleColor(.white,for:.normal)
-            control.titleLabel?.numberOfLines=2
-            control.titleLabel?.textAlignment = .center
-            control.titleLabel?.font=UIFont.systemFont(ofSize:13,weight:.bold)
-            control.titleLabel?.adjustsFontSizeToFitWidth=true
-            control.titleLabel?.minimumScaleFactor=0.72
-            control.layer.cornerRadius=17
-            control.layer.borderWidth=2
-            control.layer.borderColor=UIColor(red:0.57,green:0.84,blue:1,alpha:1).cgColor
-            control.backgroundColor=UIColor(red:0.10,green:0.32,blue:0.65,alpha:1)
-            control.accessibilityLabel=self.ui(caption)
-            control.heightAnchor.constraint(equalToConstant:57).isActive=true
-            control.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
-            footer.addArrangedSubview(control)
-        }
-        footerAction("▥\nLJESTVICA"){self.showLeaderboard()}
-        footerAction("⌂\nPOVRATAK"){self.showHome()}
-        footerAction("↗\nPODIJELI"){
-            let message=self.ui("BOPAVI · Rezultat \(g.score()) · Ukupno prolaza: \(g.totalPassed)")
-            let share=UIActivityViewController(activityItems:[message],applicationActivities:nil)
-            share.popoverPresentationController?.sourceView=self.view
-            share.popoverPresentationController?.sourceRect=CGRect(
-                x:self.view.bounds.midX,y:self.view.bounds.midY,width:1,height:1)
-            self.present(share,animated:true)
-        }
-        // Two real links on one row: prevent compact iPhone results from
-        // shrinking to unreadable labels while preserving both destinations.
-        let destinationRow=UIStackView()
-        destinationRow.axis = .horizontal
-        destinationRow.distribution = .fillEqually
-        destinationRow.spacing=8
-        stack.addArrangedSubview(destinationRow)
-        button("MAPA SVJETOVA",in:destinationRow,primary:false){self.showWorlds()}
-        button("🛍  TRGOVINA KOVANICAMA",in:destinationRow,primary:false){self.showPerks(.home)}
-
+        stat("★  REZULTAT",g.score())
+        stat("♛  PROLAZI",g.totalPassed)
+        stat("🏆  NAJBOLJI REZULTAT",progress.bestPoints())
+        button("▶  PONOVO",in:panel){self.startGame(self.gameWorld,1)}
+        button("⌂  POČETNA",in:panel,primary:false){self.showHome()}
+        UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
 
     private func showPerks(){showPerks(.settings)}
