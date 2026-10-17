@@ -625,9 +625,9 @@ for home in (android_home,ios_home):
     for button_label in ('▶  IGRAJ','🌍  SVJETOVI','⚙  POSTAVKE'):
         assert home.count(button_label)==1
     assert home.index('▶  IGRAJ') < home.index('🌍  SVJETOVI') < home.index('⚙  POSTAVKE')
-    for label in ('PROFIL','ZADACI','REKORDI','TRGOVINA'):
+    for label in ('PROFIL','ZADACI','KOLEKCIJA','TRGOVINA'):
         assert label in home
-    for destination in ('showWorlds()','showSettings()','showAchievements(','showLeaderboard(','showPerks('):
+    for destination in ('showWorlds()','showSettings()','showAchievements(','showCollection()','showPerks('):
         assert destination in home
     assert 'showPilotPicker(' in home and 'startGame(' not in home
 assert 'LinearLayout.VERTICAL' in android_home and 'View.IMPORTANT_FOR_ACCESSIBILITY_NO' in android_home
@@ -2334,7 +2334,7 @@ assert 'stack.heightAnchor.constraint(greaterThanOrEqualTo:view.safeAreaLayoutGu
 for home in (android_home, ios_home):
     assert 'progress.coins()' in home and 'progress.bestPoints()' in home
     assert 'showWorlds()' in home and 'showSettings()' in home
-    assert 'showProfile()' in home and 'showLeaderboard()' in home
+    assert 'showProfile()' in home and 'showCollection()' in home
 qa_script=(root/'tools/qa_android_emulator.sh').read_text()
 for guard in ('android-home.png', 'min_touch=round(40', 'overlap_x>3',
               'width,height=struct.unpack', 'Home control outside screenshot'):
@@ -2824,3 +2824,26 @@ for shop in (android_shop,ios_shop):
         assert literal in shop, ('Missing localized shop element',literal)
     assert 'croatian' in shop and 'CLAIM ' in shop
 print('PASS: explicit iOS Back actions, truthful records pagination, English/Croatian shop UI')
+
+# v0.2.10 — 1:1-reference menu infrastructure must use honest, functional
+# controls on both platforms. Source assertions supplement actual emulator QA.
+android_settings_main=android_menu.split('private fun showSettings(){',1)[1].split('private fun showLegalNotice(',1)[0]
+ios_settings_main=ios_menu.split('private func showSettings(){',1)[1].split('private func showLegalNotice(',1)[0]
+assert 'settingsVolumeRow(column,"GLAZBA"' in android_settings_main
+assert 'settingsVolumeRow(column,"EFEKTI"' in android_settings_main
+assert 'settingsSwitchRow(column,"VIBRACIJA"' in android_settings_main
+assert 'settingsSwitchRow(column,"MANJE ANIMACIJA"' in android_settings_main
+assert 'settingsSlider("GLAZBA"' in ios_settings_main
+assert 'settingsSlider("EFEKTI"' in ios_settings_main
+assert 'settingsSwitch("VIBRACIJA"' in ios_settings_main
+assert 'settingsSwitch("MANJE ANIMACIJA"' in ios_settings_main
+for source,signature in ((android_menu,'private fun showCollection(){'),
+                         (ios_menu,'private func showCollection(){')):
+    collection=source.split(signature,1)[1]
+    for required in ('worldStars(', 'collectibles(', 'owned(', 'showLeaderboard()',
+                     'showPilotPicker(', 'showLevels('):
+        assert required in collection,(signature,required)
+assert '2->showCollection()' in android_home
+assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
+assert 'versionCode = 115' in (root/'android/app/build.gradle.kts').read_text()
+print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
