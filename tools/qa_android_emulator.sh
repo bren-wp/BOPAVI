@@ -308,10 +308,9 @@ at_bottom=dump()
 png("android-settings-advanced-bottom.png")
 bottom_text=" ".join(n.get("content-desc","")+" "+n.get("text","")
                      for n in at_bottom.iter("node"))
-if not any(term in bottom_text for term in
-           ("SAVE PROGRESS BACKUP","RESTORE PROGRESS FROM BACKUP",
-            "SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE")):
-    raise SystemExit("FAIL: advanced Settings cannot reach live backup/restore actions")
+if not (("EXPORT PROGRESS" in bottom_text and "IMPORT PROGRESS" in bottom_text)
+        or ("SPREMI KOPIJU NAPRETKA" in bottom_text and "VRATI NAPREDAK IZ KOPIJE" in bottom_text)):
+    raise SystemExit("FAIL: advanced Settings cannot reach both live export/import actions")
 subprocess.run(["adb","shell","input","keyevent","4"],check=True,timeout=15)
 time.sleep(.5)
 returned=dump()
