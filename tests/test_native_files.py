@@ -2852,7 +2852,7 @@ for source,signature in ((android_menu,'private fun showCollection(){'),
         assert required in collection,(signature,required)
 assert '2->showCollection()' in android_home
 assert '("NavCollection","KOLEKCIJA",{self.showCollection()})' in ios_home
-assert 'versionCode = 120' in (root/'android/app/build.gradle.kts').read_text()
+assert 'versionCode = 121' in (root/'android/app/build.gradle.kts').read_text()
 print('PASS: fully native Collection, saved-progress values, Settings sliders/toggles and home navigation')
 assert "'dist/real-screenshots/android/android-collection.png':'BOPAVI-Android-Collection.png'" in workflow
 assert "dist/BOPAVI-Android-Collection.png" in workflow
@@ -2952,3 +2952,8 @@ assert 'row.addView(card,' in android_shop
 assert 'expected six native tappable shop offers' in qa
 assert 'shop cards must form a real 2x3 matrix' in qa
 print('PASS: premium Shop 2x3 full-tile native affordances, real wallet, honest offline transactions and device hit-geometry')
+
+# v0.2.16: Premium title shell remains native, readable, and aligned.
+assert '0xff1b9eff.toInt(),0xff0759bf.toInt(),0xff061b49.toInt()' in android_menu
+assert 'headline.layer.shadowOpacity=0.24' in ios_menu
+print('PASS: consistent native premium menu title treatment')
