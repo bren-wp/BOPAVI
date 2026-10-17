@@ -338,15 +338,16 @@ final class GameCanvas: UIView {
         rect(c,x+14,y+5,w-28,3,0xd3faff,2,152.0/255)
         rect(c,x+16,y+h-7,w-32,2,0x36aaff,1,54.0/255)
     }
+    private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:26,weight:.heavy)
     private func drawBoostHUD(_ c:CGContext) {
         // Two high-contrast live score lines. The game has no economy or stages.
         hudGlass(c,18,20,194,68)
         hudText(word("SCORE","BODOVI"),36,31,hudWalletFont,0xbceeff)
-        hudText(String(game.score()),36,53,hudWalletFont,0xffffff)
-        hudGlass(c,228,20,162,68)
+        hudText(String(game.score()),36,50,hudCountFont,0xffffff)
+        hudGlass(c,228,20,148,68)
         berry(c,250,58,11)
         hudText(language=="hr" ? "HRANA" : "FOOD",274,31,hudWalletFont,0xbceeff)
-        hudText(String(game.foodCollected),274,53,hudWalletFont,0xffffff)
+        hudText(String(game.foodCollected),274,50,hudCountFont,0xffffff)
         accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score()); \(language=="hr" ? "Hrana" : "Food"): \(game.foodCollected)"
     }
     /// Procedural scenery over the illustration and behind real collision geometry.

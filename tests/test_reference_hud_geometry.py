@@ -19,6 +19,6 @@ for hud in (a_hud,i_hud):
     assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
 assert "hudGlass(c,18f,20f,212f,88f)" in a_hud
 assert "hudGlass(c,18,20,194,68)" in i_hud
-assert "hudGlass(c,228f,20f,390f,88f)" in a_hud
-assert "hudGlass(c,228,20,162,68)" in i_hud
+assert "hudGlass(c,228f,20f,376f,88f)" in a_hud
+assert "hudGlass(c,228,20,148,68)" in i_hud
 print("PASS: Android/iOS safe-area gameplay scoreboard only")

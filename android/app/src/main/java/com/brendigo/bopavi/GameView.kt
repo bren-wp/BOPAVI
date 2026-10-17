@@ -986,7 +986,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         hudGlass(c,18f,20f,212f,88f)
         text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
         text(c,game.score().toString(),36f,76f,26f,Color.WHITE)
-        hudGlass(c,228f,20f,390f,88f)
+        hudGlass(c,228f,20f,376f,88f)
         drawBerry(c,250f,58f,11f)
         text(c,if(language=="hr")"HRANA" else "FOOD",274f,46f,12f,0xffbceeff.toInt())
         text(c,game.foodCollected.toString(),274f,76f,26f,Color.WHITE)
