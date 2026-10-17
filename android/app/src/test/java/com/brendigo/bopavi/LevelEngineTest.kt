@@ -18,6 +18,15 @@ class LevelEngineTest {
         premium.step(1f/60f)
         assertTrue("Magnet timer advances only during real flight",premium.magnetTime in 17f..18f)
         assertEquals(3,premium.shield)
+        val pickup=stage.gates.first().copy(x=55f,center=325f,gap=240f,width=64f,
+            movement=0f,phase=0f,coin=false,star=false,power=2)
+        val pickupFlight=GameSimulation(stage.copy(gates=listOf(pickup),speed=140f,wind=0f),
+            initialMagnet=18f)
+        pickupFlight.flap()
+        pickupFlight.step(1f/60f)
+        assertFalse("A safe magnet pickup must not end the flight",pickupFlight.finished)
+        assertTrue("A five-second pickup must not shorten an 18-second paid magnet",
+            pickupFlight.magnetTime>17f)
     }
 
     @Test fun languageCatalogDefaultsToEnglishAndPreservesCroatian() {
