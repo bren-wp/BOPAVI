@@ -90,7 +90,6 @@ final class GameController: UIViewController {
     private let collectHaptic=UISelectionFeedbackGenerator()
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
-    private var currentMenuName="BOPAVI"
     private weak var pauseFitViewport:UIScrollView?
     private weak var pauseFitPanel:UIStackView?
     private weak var resultFitViewport:UIScrollView?
@@ -155,123 +154,36 @@ final class GameController: UIViewController {
         drift.timingFunction=CAMediaTimingFunction(name:.easeInEaseOut)
         backdrop.layer.add(drift,forKey:"scenery-breathing")
     }
-    private func menu(_ title:String,_ subtitle:String)->UIStackView {
+    /** Only the simplified Home uses a menu host. No hidden screens or old navigation. */
+    private func menu()->UIStackView {
         clear()
-        currentMenuName=title
-        if title != "BOPAVI" {
-            let world=gameWorld >= 0 && gameWorld < 8 ? gameWorld : 0
-            let backdrop=UIImageView(image:UIImage(named:"World\(world)"))
-            backdrop.translatesAutoresizingMaskIntoConstraints=false
-            backdrop.contentMode = .scaleAspectFill
-            backdrop.clipsToBounds=true
-            backdrop.isAccessibilityElement=false
-            startSceneryDrift(backdrop)
-            view.addSubview(backdrop)
-            NSLayoutConstraint.activate([
-                backdrop.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-                backdrop.trailingAnchor.constraint(equalTo:view.trailingAnchor),
-                backdrop.topAnchor.constraint(equalTo:view.topAnchor),
-                backdrop.bottomAnchor.constraint(equalTo:view.bottomAnchor)
-            ])
-            let shade=UIView()
-            // Brighter painted biomes; dark real controls retain their contrast.
-            shade.backgroundColor=UIColor(red:0.012,green:0.08,blue:0.19,alpha:0.18)
-            shade.translatesAutoresizingMaskIntoConstraints=false
-            view.addSubview(shade)
-            NSLayoutConstraint.activate([
-                shade.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-                shade.trailingAnchor.constraint(equalTo:view.trailingAnchor),
-                shade.topAnchor.constraint(equalTo:view.topAnchor),
-                shade.bottomAnchor.constraint(equalTo:view.bottomAnchor)
-            ])
-            // The reference Worlds/Profile header features a second flying
-            // Bopi behind live UI. Match the Android native layered approach.
-            if title == "SVJETOVI" || title == "PROFIL" || title == "TRGOVINA" {
-                let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
-                flyingPilot.contentMode = .scaleAspectFit
-                flyingPilot.isAccessibilityElement=false
-                flyingPilot.isUserInteractionEnabled=false
-                flyingPilot.translatesAutoresizingMaskIntoConstraints=false
-                view.addSubview(flyingPilot)
-                NSLayoutConstraint.activate([
-                    flyingPilot.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor,constant:37),
-                    flyingPilot.trailingAnchor.constraint(equalTo:view.trailingAnchor,constant:-7),
-                    flyingPilot.widthAnchor.constraint(equalToConstant:150),
-                    flyingPilot.heightAnchor.constraint(equalToConstant:165)
-                ])
-            }
-        }
-        let scroll=UIScrollView()
-        scroll.translatesAutoresizingMaskIntoConstraints=false
-        // Extended Settings requires readable controls, not a downscaled
-        // whole screen. Only this advanced Settings sheet scrolls; the normal
-        // reference menus still fit inside the device's safe-area viewport.
-        let isExtendedSettings = title == "POSTAVKE"
-        scroll.alwaysBounceVertical=isExtendedSettings
-        scroll.isScrollEnabled=isExtendedSettings
-        scroll.showsVerticalScrollIndicator=isExtendedSettings
-        scroll.keyboardDismissMode = .interactive
-        view.addSubview(scroll)
+        let viewport=UIScrollView()
+        viewport.translatesAutoresizingMaskIntoConstraints=false
+        viewport.isScrollEnabled=false
+        viewport.alwaysBounceVertical=false
+        viewport.showsVerticalScrollIndicator=false
+        view.addSubview(viewport)
         NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
+            viewport.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),
+            viewport.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),
+            viewport.leadingAnchor.constraint(equalTo:view.leadingAnchor),
+            viewport.trailingAnchor.constraint(equalTo:view.trailingAnchor)
+        ])
         let stack=UIStackView()
-        stack.axis = .vertical;stack.alignment = .fill
-        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" || title == "KOLEKCIJA"
-        stack.spacing=title == "BOPAVI" || compact ? 7 : 12
-        stack.translatesAutoresizingMaskIntoConstraints=false
-        stack.layoutMargins=title == "BOPAVI" ?
-            UIEdgeInsets(top:12,left:18,bottom:12,right:18) :
-            compact ? UIEdgeInsets(top:7,left:12,bottom:8,right:12) :
-            UIEdgeInsets(top:18,left:18,bottom:28,right:18)
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.spacing=7
         stack.isLayoutMarginsRelativeArrangement=true
-        scroll.addSubview(stack)
+        stack.layoutMargins=UIEdgeInsets(top:12,left:18,bottom:12,right:18)
+        stack.translatesAutoresizingMaskIntoConstraints=false
+        viewport.addSubview(stack)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor),
-            stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor),
-            stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor),
-            stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor)])
-        if title != "BOPAVI" {
-            let logo=UIImageView(image:UIImage(named:"Logo"))
-            logo.contentMode = .scaleAspectFit
-            logo.accessibilityElementsHidden=true
-            logo.heightAnchor.constraint(equalToConstant:compact ? 68 : 94).isActive=true
-            if title == "POSTAVKE" {
-                // Same selected-pilot header arrangement as Android, drawn from
-                // shipped standalone portrait art rather than a reference PNG.
-                let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
-                pilot.contentMode = .scaleAspectFit
-                pilot.isAccessibilityElement=false
-                pilot.widthAnchor.constraint(equalToConstant:117).isActive=true
-                pilot.heightAnchor.constraint(equalToConstant:117).isActive=true
-                let hero=UIStackView(arrangedSubviews:[logo,pilot])
-                hero.axis = .horizontal
-                hero.alignment = .center
-                hero.spacing = 3
-                hero.heightAnchor.constraint(equalToConstant:118).isActive=true
-                stack.addArrangedSubview(hero)
-            } else {
-                stack.addArrangedSubview(logo)
-            }
-            let headline=label(title,31,.white,stack)
-            // Retain an independently accessible native heading rather than
-            // a baked title inside the concept painting. Saturated azure
-            // metal and cyan edge mirror Android's shared header treatment.
-            headline.backgroundColor=UIColor(red:0.025,green:0.28,blue:0.66,alpha:0.98)
-            headline.layer.cornerRadius=23
-            headline.layer.borderWidth=2
-            headline.layer.borderColor=UIColor(red:0.45,green:0.91,blue:1,alpha:1).cgColor
-            headline.layer.shadowColor=UIColor(red:0.02,green:0.78,blue:1,alpha:1).cgColor
-            headline.layer.shadowOpacity=0.24
-            headline.layer.shadowRadius=6
-            headline.layer.shadowOffset=CGSize(width:0,height:2)
-            headline.clipsToBounds=false
-            headline.heightAnchor.constraint(greaterThanOrEqualToConstant:compact ? 49 : 58).isActive=true
-            if !subtitle.isEmpty {label(subtitle,15,UIColor(red:0.79,green:0.93,blue:1,alpha:1),stack)}
-        }
+            stack.topAnchor.constraint(equalTo:viewport.contentLayoutGuide.topAnchor),
+            stack.bottomAnchor.constraint(equalTo:viewport.contentLayoutGuide.bottomAnchor),
+            stack.leadingAnchor.constraint(equalTo:viewport.contentLayoutGuide.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo:viewport.contentLayoutGuide.trailingAnchor),
+            stack.widthAnchor.constraint(equalTo:viewport.frameLayoutGuide.widthAnchor)
+        ])
         return stack
     }
     override func viewDidLayoutSubviews(){
@@ -319,7 +231,7 @@ final class GameController: UIViewController {
         stack.addArrangedSubview(b)
     }
     private func showHome(){
-        let stack=menu("BOPAVI","")
+        let stack=menu()
         view.backgroundColor=UIColor(red:0.04,green:0.45,blue:0.79,alpha:1)
         if let artwork=UIImage(named:"HomeArt"){
             let backdrop=UIImageView(image:artwork)
@@ -347,7 +259,7 @@ final class GameController: UIViewController {
         logo.isAccessibilityElement=false
         logo.heightAnchor.constraint(equalToConstant:156).isActive=true
         stack.addArrangedSubview(logo)
-        let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
         pilot.contentMode = .scaleAspectFit
         pilot.isAccessibilityElement=false
         pilot.heightAnchor.constraint(equalToConstant:325).isActive=true
@@ -408,7 +320,7 @@ final class GameController: UIViewController {
             panel.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-8),
             panel.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-26)
         ])
-        let mascot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
+        let mascot=UIImageView(image:UIImage(named:"BopiPortrait0"))
         mascot.contentMode = .scaleAspectFit
         mascot.isAccessibilityElement=false
         mascot.heightAnchor.constraint(equalToConstant:154).isActive=true
