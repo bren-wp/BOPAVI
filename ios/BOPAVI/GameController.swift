@@ -471,7 +471,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     @discardableResult private func label(_ text:String,_ size:CGFloat,_ color:UIColor,_ into:UIStackView)->UILabel {
         let l=UILabel()
         l.numberOfLines=0;l.textAlignment = .center;l.text=ui(text)
-        l.font=UIFont.systemFont(ofSize:size,weight:size>=26 ? .black : .semibold)
+        let font=UIFont.systemFont(ofSize:size,weight:size>=26 ? .black : .semibold)
+        l.font=UIFont(descriptor:font.fontDescriptor.withDesign(.rounded) ?? font.fontDescriptor,size:size)
         l.adjustsFontForContentSizeCategory=true
         l.textColor=color
         l.setContentCompressionResistancePriority(.required,for:.vertical);into.addArrangedSubview(l)
@@ -480,7 +481,9 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     private func sectionHeading(_ title:String,in stack:UIStackView) {
         let heading=label("   "+title,15,.white,stack)
         heading.textAlignment = .left
-        heading.font=UIFont.systemFont(ofSize:15,weight:.heavy)
+        let sectionFont=UIFont.systemFont(ofSize:15,weight:.heavy)
+        heading.font=UIFont(descriptor:sectionFont.fontDescriptor.withDesign(.rounded)
+            ?? sectionFont.fontDescriptor,size:15)
         heading.backgroundColor=UIColor(red:0.03,green:0.16,blue:0.36,alpha:0.97)
         heading.layer.cornerRadius=20
         heading.layer.borderWidth=1
@@ -964,27 +967,54 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         head.alignment = .center
         head.spacing=8
         head.isLayoutMarginsRelativeArrangement=true
-        head.layoutMargins=UIEdgeInsets(top:5,left:12,bottom:5,right:12)
-        head.backgroundColor=UIColor(red:0.025,green:0.19,blue:0.42,alpha:0.97)
-        head.layer.cornerRadius=20
-        head.layer.borderWidth=2
-        head.layer.borderColor=UIColor(red:0.25,green:0.85,blue:1,alpha:1).cgColor
-        head.heightAnchor.constraint(equalToConstant:108).isActive=true
+        head.layoutMargins=UIEdgeInsets(top:4,left:3,bottom:4,right:3)
+        head.backgroundColor = .clear
+        head.heightAnchor.constraint(equalToConstant:194).isActive=true
         stack.addArrangedSubview(head)
         let chosenPicture=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
         chosenPicture.contentMode = .scaleAspectFit
         chosenPicture.isAccessibilityElement=false
-        chosenPicture.widthAnchor.constraint(equalToConstant:104).isActive=true
-        chosenPicture.heightAnchor.constraint(equalToConstant:96).isActive=true
+        chosenPicture.widthAnchor.constraint(equalToConstant:180).isActive=true
+        chosenPicture.heightAnchor.constraint(equalToConstant:185).isActive=true
         head.addArrangedSubview(chosenPicture)
+        let pilotSummary=UIStackView()
+        pilotSummary.axis = .vertical;pilotSummary.alignment = .fill
+        pilotSummary.spacing=5
+        pilotSummary.isLayoutMarginsRelativeArrangement=true
+        pilotSummary.layoutMargins=UIEdgeInsets(top:14,left:7,bottom:14,right:7)
+        pilotSummary.backgroundColor=UIColor(red:0.035,green:0.19,blue:0.42,alpha:0.96)
+        pilotSummary.layer.cornerRadius=21
+        pilotSummary.layer.borderWidth=2
+        pilotSummary.layer.borderColor=UIColor(red:0.25,green:0.85,blue:1,alpha:1).cgColor
+        head.addArrangedSubview(pilotSummary)
         let currentName=UILabel()
-        currentName.text="\(progress.skinNames[selected])\n" +
-            (croatian ? "ODABRANI PILOT" : "SELECTED PILOT")
-        currentName.numberOfLines=2
-        currentName.font=UIFont.systemFont(ofSize:21,weight:.black)
+        currentName.text="♛  "+progress.skinNames[selected].uppercased()
+        currentName.numberOfLines=1
+        let nameFont=UIFont.systemFont(ofSize:19,weight:.black)
+        currentName.font=UIFont(descriptor:nameFont.fontDescriptor.withDesign(.rounded)
+            ?? nameFont.fontDescriptor,size:19)
+        currentName.adjustsFontSizeToFitWidth=true
+        currentName.minimumScaleFactor=0.7
         currentName.textColor = .white
         currentName.textAlignment = .center
-        head.addArrangedSubview(currentName)
+        pilotSummary.addArrangedSubview(currentName)
+        let chosenDescription=UILabel()
+        chosenDescription.text=croatian ? "ODABRANI PILOT" : "SELECTED PILOT"
+        chosenDescription.font=UIFont.systemFont(ofSize:11,weight:.bold)
+        chosenDescription.textColor=UIColor(red:0.80,green:0.92,blue:1,alpha:1)
+        chosenDescription.textAlignment = .center
+        pilotSummary.addArrangedSubview(chosenDescription)
+        let pilotRecord=UILabel()
+        let ownedCount=(0...8).filter{progress.owned($0)}.count
+        pilotRecord.text="★  \(progress.worldStars(world))/30   ·   \(ownedCount)/9"
+        pilotRecord.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.bold)
+        pilotRecord.textColor=UIColor(red:1,green:0.83,blue:0.3,alpha:1)
+        pilotRecord.textAlignment = .center
+        pilotRecord.adjustsFontSizeToFitWidth=true
+        pilotRecord.minimumScaleFactor=0.7
+        pilotRecord.accessibilityLabel=(croatian ? "Zvjezdice i otključani piloti" :
+            "World stars and unlocked pilots") + ": \(progress.worldStars(world))/30, \(ownedCount)/9"
+        pilotSummary.addArrangedSubview(pilotRecord)
         for rowIndex in 0..<3 {
             let galleryRow=UIStackView()
             galleryRow.axis = .horizontal
