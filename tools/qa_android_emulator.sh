@@ -680,7 +680,7 @@ def tap_tab(name):
                     str((left+right)//2),str((top+bottom)//2)],check=True,timeout=15)
     time.sleep(.8)
 for name,expected,path in (
-    ("SHOP","EQUIPMENT FOR BOPI FLIGHT","android-shop.png"),
+    ("SHOP","FLIGHT EQUIPMENT","android-shop.png"),
     ("RECORDS","MY RECORDS","android-records.png"),
 ):
     tap_tab(name)

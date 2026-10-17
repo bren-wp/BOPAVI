@@ -680,7 +680,7 @@ for ui in (android_menu,ios_menu):
     for label in ('TRGOVINA KOVANICAMA','SPREMI KOPIJU NAPRETKA',
                   'VRATI NAPREDAK IZ KOPIJE','Nježnije animacije',
                   'Tvoje ime','Bez oglasa, praćenja i kupnje stvarnim novcem.',
-                  'KUPI ','KOVANICA','BODOVA','Stvorio Brendigo'):
+                  'KUPI','KOVANICA','BODOVA','Stvorio Brendigo'):
         assert label in ui, label
     for deprecated in ('Smanji animacije (30 FPS)','(v0.1–v0.5)',
                        'Razvoj: Brendigo','telemetrije'):
@@ -690,7 +690,7 @@ android_shop=android_menu.split('private fun showPerks()',1)[1].split('private f
 ios_shop=ios_menu.split('private func showPerks()',1)[1].split('private func showProfile()',1)[0]
 for shop in (android_shop,ios_shop):
     assert 'Za kovanice osvojene igrom — bez stvarnog novca' in shop
-    assert 'KUPI ' in shop and 'ŠTIT' in shop and 'MAGNET' in shop
+    assert 'KUPI' in shop and 'BUY' in shop and 'ŠTIT' in shop and 'SHIELD' in shop and 'MAGNET' in shop
     assert 'buyPerk(' in shop and 'showSkins(' not in shop
     assert 'progress.coins()' in shop and 'showSettings()' in shop
 # Primary gradient is orange gold and secondary gradient is cyan-to-royal-blue,
@@ -1701,7 +1701,7 @@ for source in (settings_android,settings_ios):
             assert saved in source,(saved,"settings persistence")
     assert "cloudSave" not in source and "signOut" not in source
 assert 'back(b){showHome()}' in settings_android
-assert 'button("‹  POČETNA",in:s,primary:false){self.showHome()}' in settings_ios
+assert 'menuBack(s){self.showHome()}' in settings_ios
 for text in ("SPREMI IME","SPREMI KOPIJU NAPRETKA","VRATI NAPREDAK IZ KOPIJE"):
     assert 'action(settingsPanel,"'+text+'"' in settings_android,text
     assert 'button("'+text+'",in:settingsPanel' in settings_ios,text
@@ -2160,7 +2160,7 @@ print('PASS: no-scroll native settings with real saved difficulty on first page 
 # v0.1.77: real two-column shop with device-sized safe-area fitting; never
 # show a static shop screenshot or fabricated diamond/real-money checkout.
 for code in (android_shop,ios_shop):
-    assert ('perkRows' in code or 'cardGrid' in code) and 'KUPI ' in code
+    assert ('perkRows' in code or 'cardGrid' in code) and 'KUPI' in code and 'BUY' in code
     assert 'buyPerk(n)' in code and 'perkCount(n)' in code
     assert 'perkPrices[n]' in code
     assert 'bonusCoinsAvailable()' in code and 'claimBonusCoins()' in code
@@ -2795,3 +2795,23 @@ icon_svg=(root/'docs/assets/icon.svg').read_text()
 assert '<rect width="1024" height="1024" fill="url(#bg)"/>' in icon_svg
 assert '<g opacity=".7" fill="#fff">' not in icon_svg
 print('PASS: 64–91px real obstacle widths, 3 distinct difficulties, advanced boosts and white-border-free adaptive icon')
+
+# v0.2.7: every navigation arrow is explicit; translating button text
+# must never turn a leaderboard pagination button into a top-left Back button.
+assert 'title.hasPrefix("←")' not in ios_menu
+assert 'title.hasPrefix("‹")' not in ios_menu
+assert 'button("‹ PRETHODNI",in:nav,primary:false)' in ios_menu
+for nav in (
+    ios_menu.split('private func showWorlds(){',1)[1].split('private func showLevels(',1)[0],
+    ios_menu.split('private func showLevels(',1)[1].split('private func levelTile(',1)[0],
+    ios_menu.split('private func showPilotPicker(',1)[1].split('private func showPremiumPause(',1)[0],
+    ios_shop,
+    ios_menu.split('private func showLeaderboardPage(',1)[1].split('private func showAchievements(',1)[0],
+):
+    assert 'menuBack(' in nav, 'Native Back must be explicit on each screen'
+for shop in (android_shop,ios_shop):
+    for literal in ('DOUBLE SHIELD','TRIPLE SHIELD','Absorbs three collisions.',
+                    'Attracts coins for 18 seconds.','Not enough coins or inventory is full.'):
+        assert literal in shop, ('Missing localized shop element',literal)
+    assert 'croatian' in shop and 'CLAIM ' in shop
+print('PASS: explicit iOS Back actions, truthful records pagination, English/Croatian shop UI')

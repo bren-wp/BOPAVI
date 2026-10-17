@@ -510,11 +510,6 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         stack.insertArrangedSubview(row,at:0)
     }
     private func button(_ title:String,in stack:UIStackView,primary:Bool=true,action:@escaping()->Void){
-        // Pagination goes backward within a level grid and is NOT the menu Back action.
-        if (title.hasPrefix("←") && !title.contains("PRETHODNIH")) || title.hasPrefix("‹") {
-            menuBack(stack,action:action)
-            return
-        }
         let b=BopaviActionButton(primary:primary)
         b.setTitle(ui(title),for:.normal)
         b.accessibilityLabel=ui(title)
@@ -813,7 +808,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 worldTile(world,in:row){self.showLevels(world,page:1)}
             }
         }
-        button(progress.languageCode=="hr" ? "←  NATRAG" : "←  BACK",in:stack,primary:false){self.showHome()}
+        menuBack(stack){self.showHome()}
     }
     private func showLevels(_ world:Int,page:Int){
         gameWorld=world;progress.chooseWorld(world)
@@ -860,7 +855,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         // existing level unlocks, accessible labels and saved star ratings.
         // Avoid duplicating the level picker, Continue and long instructions
         // below the paged gallery: they reduce its size on compact iPhones.
-        button("‹  Svjetovi",in:s,primary:false){self.showWorlds()}
+        menuBack(s){self.showWorlds()}
     }
     /// Every image is a reusable, real world illustration. Completion is read
     /// exclusively from saved frontier; no invented three-star achievements.
@@ -1084,9 +1079,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         button(flightTitle,in:stack) {
             self.startGame(world,number)
         }
-        button(croatian ? "←  NATRAG" : "←  BACK",in:stack,primary:false) {
-            self.showLevels(world,page:number)
-        }
+        menuBack(stack){self.showLevels(world,page:number)}
     }
 
     /// All elements are real UIKit views and actions. A full-screen dimmer
@@ -1622,23 +1615,32 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
     }
     private func showPerks(){showPerks(.settings)}
     private func showPerks(_ origin:MenuOrigin){
+        let croatian=progress.languageCode=="hr"
         let s=menu("TRGOVINA","")
-        label("♛  \(progress.coins()) KOVANICA",24,
+        label(croatian ? "♛  \(progress.coins()) KOVANICA" : "♛  \(progress.coins()) COINS",24,
               UIColor(red:1,green:0.86,blue:0.44,alpha:1),s)
-        label("Za kovanice osvojene igrom — bez stvarnog novca.",14,.white,s)
+        label(croatian ? "Za kovanice osvojene igrom — bez stvarnog novca." :
+              "Earned coins only — no real-money purchases.",14,.white,s)
         let bonus=progress.bonusCoinsAvailable()
         if bonus>0 {
-            button("🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE",in:s,primary:false){
+            button(croatian ? "🎁  PREUZMI \(bonus) KOVANICA ZA BODOVE" :
+                   "🎁  CLAIM \(bonus) SCORE REWARD COINS",in:s,primary:false){
                 if self.progress.claimBonusCoins()>0 {
                     self.sound.effect("purchase");self.showPerks(origin)
                 }
             }
         }
-        label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",13,.white,s)
-        sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
-        let names=["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET"]
-        let explanations=["Upija jedan sudar.","Privlači 8 sekundi.",
-                          "Upija dva sudara.","Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi."]
+        label(croatian ? "Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu." :
+              "Earn one coin for each new 1,000 points of your personal best.",13,.white,s)
+        sectionHeading(croatian ? "OPREMA ZA BOPIJEV LET" : "FLIGHT EQUIPMENT",in:s)
+        let names=croatian
+            ? ["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET"]
+            : ["SHIELD","MAGNET","DOUBLE SHIELD","LONG MAGNET","TRIPLE SHIELD","SUPER MAGNET"]
+        let explanations=croatian
+            ? ["Upija jedan sudar.","Privlači 8 sekundi.","Upija dva sudara.",
+               "Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi."]
+            : ["Absorbs one collision.","Attracts coins for 8 seconds.","Absorbs two collisions.",
+               "Attracts coins for 12 seconds.","Absorbs three collisions.","Attracts coins for 18 seconds."]
         let cardGrid=UIStackView()
         cardGrid.axis = .vertical;cardGrid.spacing=6
         for row in 0..<3 {
@@ -1661,17 +1663,19 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
                 let title=label(name,14,UIColor(red:1,green:0.87,blue:0.5,alpha:1),card)
                 title.adjustsFontSizeToFitWidth=true;title.minimumScaleFactor=0.65
                 title.numberOfLines=1
-                let price=label("\(progress.perkPrices[n]) ♛ · U torbi: \(progress.perkCount(n))",
+                let price=label("\(progress.perkPrices[n]) ♛ · \(croatian ? "U torbi" : "Owned"): \(progress.perkCount(n))",
                                 11,.white,card)
                 price.adjustsFontSizeToFitWidth=true;price.minimumScaleFactor=0.65
                 let description=label(explanations[n],11,
                                       UIColor(red:0.83,green:0.93,blue:1,alpha:1),card)
                 description.numberOfLines=1;description.adjustsFontSizeToFitWidth=true
-                button("KUPI \(name)",in:card,primary:false){
+                button("\(croatian ? "KUPI" : "BUY") \(name)",in:card,primary:false){
                     if self.progress.buyPerk(n){
                         self.sound.effect("purchase");self.showPerks(origin)
                     } else {
-                        self.alert("Kupnja nije moguća","Nedovoljno kovanica ili je zaliha puna.")
+                        self.alert(croatian ? "Kupnja nije moguća" : "Purchase unavailable",
+                                   croatian ? "Nedovoljno kovanica ili je zaliha puna." :
+                                              "Not enough coins or inventory is full.")
                     }
                 }
                 cardRow.addArrangedSubview(card)
@@ -1679,13 +1683,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             cardGrid.addArrangedSubview(cardRow)
         }
         s.addArrangedSubview(cardGrid)
-        label("Kupljena oprema automatski se koristi na početku sljedećeg leta.",13,.white,s)
+        label(croatian ? "Kupljena oprema automatski se koristi na početku sljedećeg leta." :
+              "Purchased equipment automatically activates when your next flight begins.",13,.white,s)
         label(progress.languageCode=="hr" ?
             "Odaberi jednog od devet pilota prije leta. Kovanice otključavaju pilote i opremu." :
             "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.",13,.white,s)
-        button(origin == .home ? "‹  POČETNA" : "‹  POSTAVKE",in:s,primary:false){
-            if origin == .home {self.showHome()} else {self.showSettings()}
-        }
+        menuBack(s){if origin == .home {self.showHome()} else {self.showSettings()}}
     }
     /// All profile values are derived from local save state; no fabricated account.
     private func showProfile(){
@@ -2061,9 +2064,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             stack.addArrangedSubview(nav)
         }
         button("★  MOJA POSTIGNUĆA",in:stack,primary:false){self.showAchievements(.records)}
-        button(fromSettings ? "‹  POSTAVKE" : "‹  POČETNA",in:stack,primary:false){
-            if fromSettings {self.showSettings()} else {self.showHome()}
-        }
+        menuBack(stack){if fromSettings {self.showSettings()} else {self.showHome()}}
     }
     private func showAchievements(){showAchievements(.settings)}
     private func showAchievements(_ origin:MenuOrigin){
@@ -2152,9 +2153,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             }
             s.addArrangedSubview(columns)
         }
-        let backTitle=origin == .home ? "POČETNA" : origin == .profile ? "PROFIL"
-                     : origin == .records ? "REKORDI" : "POSTAVKE"
-        button("‹  "+backTitle,in:s,primary:false){
+        menuBack(s){
             switch origin {
             case .home: self.showHome()
             case .profile: self.showProfile()
@@ -2252,10 +2251,10 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         back.setTitle("←",for:.normal)
         back.setTitleColor(.white,for:.normal)
         back.titleLabel?.font=UIFont.systemFont(ofSize:31,weight:.heavy)
-        back.backgroundColor=UIColor(red:0.04,green:0.51,blue:0.92,alpha:1)
-        back.layer.cornerRadius=22
+        back.backgroundColor=UIColor(red:0.035,green:0.40,blue:0.84,alpha:1)
+        back.layer.cornerRadius=25
         back.layer.borderWidth=2
-        back.layer.borderColor=UIColor.white.cgColor
+        back.layer.borderColor=UIColor(red:0.75,green:0.97,blue:1,alpha:1).cgColor
         back.accessibilityLabel=progress.languageCode=="hr" ? "Natrag na početnu" : "Back to Home"
         back.translatesAutoresizingMaskIntoConstraints=false
         back.addAction(UIAction{[weak self] _ in self?.showHome()},for:.touchUpInside)
@@ -2275,8 +2274,8 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         NSLayoutConstraint.activate([
             back.leadingAnchor.constraint(equalTo:header.leadingAnchor,constant:8),
             back.centerYAnchor.constraint(equalTo:header.centerYAnchor),
-            back.widthAnchor.constraint(equalToConstant:44),
-            back.heightAnchor.constraint(equalToConstant:44),
+            back.widthAnchor.constraint(equalToConstant:50),
+            back.heightAnchor.constraint(equalToConstant:50),
             heading.leadingAnchor.constraint(equalTo:back.trailingAnchor,constant:7),
             heading.trailingAnchor.constraint(equalTo:header.trailingAnchor,constant:-52),
             heading.centerYAnchor.constraint(equalTo:header.centerYAnchor),
@@ -2654,7 +2653,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             let picker=UIDocumentPickerViewController(forOpeningContentTypes:[.json],asCopy:true)
             picker.delegate=self;self.present(picker,animated:true)
         }
-        button("‹  POČETNA",in:s,primary:false){self.showHome()}
+        menuBack(s){self.showHome()}
     }
     func documentPicker(_ controller:UIDocumentPickerViewController,didPickDocumentsAt urls:[URL]) {
         guard let url=urls.first else{return}
