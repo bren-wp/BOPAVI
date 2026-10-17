@@ -1552,29 +1552,51 @@ class MainActivity : Activity() {
         action(shopColumn,"🛍  TRGOVINA KOVANICAMA",false){showPerks(MenuOrigin.HOME)}
         showNativeView(root)
     }
+
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
     private fun showPerks(origin:MenuOrigin){
         val croatian=progress.languageCode()=="hr"
-        val b=base("TRGOVINA","")
-        title(b,if(croatian)"♛  ${progress.coins()} KOVANICA" else "♛  ${progress.coins()} COINS",24,gold)
-        small(b,if(croatian)"Za kovanice osvojene igrom — bez stvarnog novca."
-            else "Earned coins only — no real-money purchases.")
-        small(b,if(croatian)"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu."
-            else "Earn one coin for each new 1,000 points of your personal best.")
+        val b=base("TRGOVINA",if(croatian)"Oprema za nove avanture" else "Gear for the next adventure")
+        back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
+        // Each label reports REAL locally earned currency; no fictional gems
+        // and no inactive fake real-money purchase controls.
+        val wallet=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+            setPadding(d(12),d(6),d(12),d(6))
+            background=gradient(0xff1459ac.toInt(),0xff041b43.toInt(),22).apply{
+                setStroke(d(2),gold)
+            }
+            elevation=d(5).toFloat()
+            contentDescription=(if(croatian)"Osvojene kovanice: " else "Earned coins: ")+progress.coins()
+        }
+        wallet.addView(TextView(this).apply{
+            text="♛";textSize=35f;setTextColor(gold);gravity=Gravity.CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(d(49),d(54)))
+        val balance=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
+        balance.addView(TextView(this).apply{
+            text=progress.coins().toString()+" "+(if(croatian)"KOVANICA" else "COINS")
+            textSize=22f;setTextColor(gold)
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(13,22,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,d(30)))
+        balance.addView(TextView(this).apply{
+            text=if(croatian)"Osvojeno igranjem · bez stvarnog novca"
+                else "Earned in-game · no real money"
+            textSize=11f;setTextColor(0xffd4eaff.toInt());setSingleLine(true)
+            setAutoSizeTextTypeUniformWithConfiguration(9,11,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,d(20)))
+        wallet.addView(balance,LinearLayout.LayoutParams(0,-2,1f))
+        b.addView(wallet,LinearLayout.LayoutParams(-1,d(69)).apply{
+            topMargin=d(5);bottomMargin=d(7)
+        })
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0)action(b,if(croatian)"🎁  PREUZMI $bonus KOVANICA ZA BODOVE"
             else "🎁  CLAIM $bonus SCORE REWARD COINS",false){
-            val earned=progress.claimBonusCoins()
-            if(earned>0){sound.effect("purchase");showPerks(origin)}
+            if(progress.claimBonusCoins()>0){sound.effect("purchase");showPerks(origin)}
         }
-
-        small(b,if(croatian)"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let."
-            else "Earn coins by clearing reward levels and equip your next flight.")
         sectionHeading(b,if(croatian)"OPREMA ZA BOPIJEV LET" else "FLIGHT EQUIPMENT")
-        // Six functional offline boosts: shield and magnet tiers on three responsive rows.
-        val perkRows=Array(3){LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
-        }}
         val names=if(croatian)
             listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET")
         else listOf("SHIELD","MAGNET","DOUBLE SHIELD","LONG MAGNET","TRIPLE SHIELD","SUPER MAGNET")
@@ -1583,53 +1605,85 @@ class MainActivity : Activity() {
                 "Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi.")
         else listOf("Absorbs one collision.","Attracts coins for 8 seconds.","Absorbs two collisions.",
             "Attracts coins for 12 seconds.","Absorbs three collisions.","Attracts coins for 18 seconds.")
-        for(n in 0..5){
-            val name=names[n]
-            val card=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
-                setPadding(d(6),d(6),d(6),d(6))
-                background=gradient(0xff0b4587.toInt(),0xff041a3c.toInt(),17).apply{
-                    setStroke(d(2),if(n%2==0)gold else electric)
+        for(rowIndex in 0..2){
+            val row=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
+            for(col in 0..1){
+                val n=rowIndex*2+col
+                val price=progress.perkPrices[n]
+                val owned=progress.perkCount(n)
+                val card=LinearLayout(this).apply{
+                    orientation=LinearLayout.VERTICAL
+                    setPadding(d(7),d(6),d(7),d(6))
+                    background=gradient(0xff1653a1.toInt(),0xff031b42.toInt(),18).apply{
+                        setStroke(d(2),if(n%2==0)gold else electric)
+                    }
+                    elevation=d(4).toFloat()
+                    isClickable=true;isFocusable=true
+                    contentDescription=names[n]+". "+explanations[n]+" "+
+                        price.toString()+" "+(if(croatian)"kovanica" else "coins")+
+                        ", "+(if(croatian)"U torbi: " else "Owned: ")+owned+
+                        ". "+(if(croatian)"KUPI" else "BUY")
+                    setOnClickListener{
+                        if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
+                        else Toast.makeText(this@MainActivity,
+                            if(croatian)"Nedovoljno kovanica ili je zaliha puna."
+                            else "Not enough coins or inventory is full.",Toast.LENGTH_SHORT).show()
+                    }
                 }
+                val top=LinearLayout(this).apply{
+                    orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                }
+                top.addView(TextView(this).apply{
+                    text=if(n%2==0)"🛡" else "🧲"
+                    textSize=26f;gravity=Gravity.CENTER
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(d(40),d(46)))
+                val caption=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL}
+                caption.addView(TextView(this).apply{
+                    text=names[n];textSize=13f;setTextColor(Color.WHITE)
+                    typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(9,13,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+                },LinearLayout.LayoutParams(-1,d(24)))
+                caption.addView(TextView(this).apply{
+                    text=explanations[n];textSize=10f;setTextColor(0xffc5e9ff.toInt())
+                    setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,10,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+                },LinearLayout.LayoutParams(-1,d(19)))
+                top.addView(caption,LinearLayout.LayoutParams(0,-2,1f))
+                card.addView(top,LinearLayout.LayoutParams(-1,d(48)))
+                val bottom=LinearLayout(this).apply{
+                    orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
+                }
+                bottom.addView(TextView(this).apply{
+                    text="♛ $price · "+(if(croatian)"U torbi: " else "Owned: ")+owned
+                    textSize=11f;setTextColor(gold)
+                    typeface=Typeface.DEFAULT_BOLD;setSingleLine(true)
+                    setAutoSizeTextTypeUniformWithConfiguration(8,11,1,android.util.TypedValue.COMPLEX_UNIT_SP)
+                },LinearLayout.LayoutParams(0,d(29),1f))
+                bottom.addView(TextView(this).apply{
+                    text=if(croatian)"KUPI ›" else "BUY ›"
+                    textSize=12f;setTextColor(Color.WHITE);gravity=Gravity.CENTER
+                    typeface=Typeface.DEFAULT_BOLD
+                    background=gradient(0xff15c9f8.toInt(),0xff0756bd.toInt(),13).apply{
+                        setStroke(d(1),0xffb9f3ff.toInt())
+                    }
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },LinearLayout.LayoutParams(d(54),d(29)))
+                card.addView(bottom,LinearLayout.LayoutParams(-1,d(30)))
+                row.addView(card,LinearLayout.LayoutParams(0,d(97),1f).apply{
+                    setMargins(d(3),d(3),d(3),d(3))
+                })
             }
-            card.addView(TextView(this).apply{
-                text=if(n%2==0)"🛡" else "🧲"
-                gravity=Gravity.CENTER;textSize=25f
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(33)))
-            card.addView(TextView(this).apply{
-                text=name;gravity=Gravity.CENTER
-                textSize=14f;typeface=Typeface.DEFAULT_BOLD
-                setTextColor(if(n%2==0)gold else 0xffbcefff.toInt())
-                setSingleLine(true)
-                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
-                    android.util.TypedValue.COMPLEX_UNIT_SP)
-            },LinearLayout.LayoutParams(-1,d(24)))
-            card.addView(TextView(this).apply{
-                text=explanations[n]+"\n"+(if(croatian)"U torbi: " else "Owned: ")+
-                    "${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
-                textSize=11f;setTextColor(Color.WHITE)
-                gravity=Gravity.CENTER;maxLines=2
-            },LinearLayout.LayoutParams(-1,d(36)))
-            action(card,(if(croatian)"KUPI " else "BUY ")+name,false){
-                if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
-                else Toast.makeText(this,if(croatian)"Nedovoljno kovanica ili je zaliha puna."
-                    else "Not enough coins or inventory is full.",Toast.LENGTH_SHORT).show()
-            }
-            card.contentDescription="$name, ${explanations[n]} ${progress.perkPrices[n]} "+
-                (if(croatian)"kovanica, u torbi " else "coins, owned ")+progress.perkCount(n)
-            perkRows[n/2].addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
-                setMargins(d(3),d(2),d(3),d(2))
-            })
+            b.addView(row,LinearLayout.LayoutParams(-1,-2))
         }
-        for(row in perkRows)b.addView(row,LinearLayout.LayoutParams(-1,-2))
         small(b,if(croatian)"Kupljena oprema automatski se koristi na početku sljedećeg leta."
             else "Purchased equipment automatically activates when your next flight begins.")
-        small(b,if(progress.languageCode()=="hr")
-            "Odaberi jednog od devet pilota prije leta. Kovanice služe za otključavanje pilota i opreme."
-            else "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.")
-        b.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        back(b){if(origin==MenuOrigin.HOME)showHome() else showSettings()}
+        small(b,if(croatian)
+            "Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu."
+            else "Earn one coin for each new 1,000 points of your personal best.")
+        small(b,if(croatian)"Odaberi jednog od devet pilota prije leta."
+            else "Choose from nine pilots before takeoff.")
     }
     /** The offline PROFILE is built from actual saved pilot data and game art. */
     private fun showProfile(){
