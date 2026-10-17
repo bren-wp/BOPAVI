@@ -1636,12 +1636,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         label("Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.",13,.white,s)
         sectionHeading("OPREMA ZA BOPIJEV LET",in:s)
-        let names=["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET"]
+        let names=["ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET"]
         let explanations=["Upija jedan sudar.","Privlači 8 sekundi.",
-                          "Upija dva sudara.","Privlači 12 sekundi."]
+                          "Upija dva sudara.","Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi."]
         let cardGrid=UIStackView()
         cardGrid.axis = .vertical;cardGrid.spacing=6
-        for row in 0..<2 {
+        for row in 0..<3 {
             let cardRow=UIStackView()
             cardRow.axis = .horizontal;cardRow.alignment = .fill
             cardRow.distribution = .fillEqually;cardRow.spacing=6

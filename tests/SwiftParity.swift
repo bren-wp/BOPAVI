@@ -3,6 +3,28 @@ import Foundation
 @main
 struct SwiftParity {
     static func main() {
+        // A purchased third shield charge and 18-second magnet must survive
+        // construction; the previous two-charge/12-second clamps broke both.
+        let premium=BopaviCore.create(0,1)
+        let fullBoost=GameSimulation(premium,initialShield:3,initialMagnet:18)
+        precondition(fullBoost.shield==3 && fullBoost.magnetTime==18)
+        let boundedBoost=GameSimulation(premium,initialShield:99,initialMagnet:99)
+        precondition(boundedBoost.shield==3 && boundedBoost.magnetTime==18)
+        fullBoost.flap()
+        fullBoost.step(1/60)
+        precondition(fullBoost.magnetTime>17 && fullBoost.magnetTime<18)
+        precondition(fullBoost.shield==3)
+        // Ordinary five-second magnets may extend a weak boost, but must
+        // never overwrite a more expensive eighteen-second premium magnet.
+        let pickup=BopaviCore.Gate(x:55,center:325,gap:240,width:64,
+                                   movement:0,phase:0,kind:0,coin:false,star:false,power:2)
+        let pickupStage=BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+                                         gates:[pickup],type:0)
+        let premiumPickup=GameSimulation(pickupStage,initialMagnet:18)
+        premiumPickup.flap()
+        premiumPickup.step(1/60)
+        precondition(!premiumPickup.finished && premiumPickup.magnetTime>17,
+                     "Ordinary pickup downgraded purchased 18-second magnet")
         precondition(GameLanguages.codes.count == 26)
         precondition(Set(GameLanguages.codes).count == 26)
         precondition(GameLanguages.name("en") == "English")

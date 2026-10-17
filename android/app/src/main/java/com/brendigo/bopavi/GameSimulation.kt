@@ -53,8 +53,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     /** Separate current-level pickups from the lifetime marathon score. */
     var levelStars = 0; private set
     var completedLevelStars = 0; private set
-    var shield = initialShield.coerceIn(0,2); private set
-    var magnetTime = initialMagnet.coerceIn(0f,12f); private set
+    var shield = initialShield.coerceIn(0,3); private set
+    var magnetTime = initialMagnet.coerceIn(0f,18f); private set
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
     // Presentation-only impulse: responsive wing beat, no effect on collision or score.
@@ -120,7 +120,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             if(gate.coin && !collectedCoins[i] && abs(cx-birdX) < magnetRange && abs(cy-y) < magnetRange) {coins++;collectedCoins[i]=true;collectPulse=.36f}
             if(gate.star && !collectedStars[i] && abs(cx+35f-birdX) < magnetRange && abs(cy-25f-y) < magnetRange) {stars++;levelStars++;collectedStars[i]=true;collectPulse=.36f}
             if(gate.power!=0 && !collectedPowers[i] && abs(cx+39f-birdX) < 30f && abs(cy+39f-y) < 30f) {
-                if(gate.power==1)shield=min(2,shield+1) else magnetTime=5f
+                if(gate.power==1)shield=min(3,shield+1) else magnetTime=max(magnetTime,5f)
                 collectedPowers[i]=true;collectPulse=.36f
             }
             if (x + gate.width < birdX - radius && i == passed) {

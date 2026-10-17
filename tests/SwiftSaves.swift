@@ -80,7 +80,27 @@ struct SwiftSaves {
         precondition(store.perkCount(0)==1 && store.perkCount(1)==1)
         precondition(store.consumePerks().shield==1 && store.perkCount(0)==0)
         precondition(store.perkCount(1)==0 && store.perkCount(3)==0)
-        precondition(store.perkCount(-1)==0 && !store.buyPerk(4))
+        precondition(store.perkCount(-1)==0 && !store.buyPerk(6))
+        // New tiers must debit the real wallet, equip without spending during
+        // preview, and consume only once at the genuine flight start.
+        UserDefaults.standard.set(500,forKey:"coins")
+        precondition(store.buyPerk(4) && store.buyPerk(5))
+        precondition(store.coins()==75 && store.perkCount(4)==1 && store.perkCount(5)==1)
+        UserDefaults.standard.set(1,forKey:"perk_2")
+        UserDefaults.standard.set(1,forKey:"perk_3")
+        let elitePreview=store.previewPerks()
+        precondition(elitePreview.shield==3 && elitePreview.magnet==18)
+        precondition(store.perkCount(4)==1 && store.perkCount(5)==1,
+                     "Viewing the game must not spend the premium inventory")
+        let spentPremium=store.consumePerks()
+        precondition(spentPremium.shield==3 && spentPremium.magnet==18)
+        precondition(store.perkCount(4)==0 && store.perkCount(5)==0)
+        precondition(store.perkCount(2)==1 && store.perkCount(3)==1,
+                     "Premium purchases must not consume lower-tier items")
+        precondition(store.previewPerks().shield==2 && store.previewPerks().magnet==12)
+        UserDefaults.standard.set(0,forKey:"perk_2")
+        UserDefaults.standard.set(0,forKey:"perk_3")
+        UserDefaults.standard.set(40,forKey:"coins")
 
         store.hapticEnabled=false
         let roundtrip=try store.exportData()

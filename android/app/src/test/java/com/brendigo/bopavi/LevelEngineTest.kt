@@ -6,6 +6,29 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun premiumShopBoostsHaveRealThreeHitAndEighteenSecondCapacity() {
+        val stage=LevelEngine.create(0,1)
+        val premium=GameSimulation(stage,initialShield=3,initialMagnet=18f)
+        assertEquals("Third shield charge must survive construction",3,premium.shield)
+        assertEquals("The full purchased magnet duration must be available",18f,premium.magnetTime,0f)
+        val capped=GameSimulation(stage,initialShield=999,initialMagnet=999f)
+        assertEquals("Shields must remain bounded to the strongest purchased tier",3,capped.shield)
+        assertEquals("Magnets must remain bounded to the strongest purchased tier",18f,capped.magnetTime,0f)
+        premium.flap()
+        premium.step(1f/60f)
+        assertTrue("Magnet timer advances only during real flight",premium.magnetTime in 17f..18f)
+        assertEquals(3,premium.shield)
+        val pickup=stage.gates.first().copy(x=55f,center=325f,gap=240f,width=64f,
+            movement=0f,phase=0f,coin=false,star=false,power=2)
+        val pickupFlight=GameSimulation(stage.copy(gates=listOf(pickup),speed=140f,wind=0f),
+            initialMagnet=18f)
+        pickupFlight.flap()
+        pickupFlight.step(1f/60f)
+        assertFalse("A safe magnet pickup must not end the flight",pickupFlight.finished)
+        assertTrue("A five-second pickup must not shorten an 18-second paid magnet",
+            pickupFlight.magnetTime>17f)
+    }
+
     @Test fun languageCatalogDefaultsToEnglishAndPreservesCroatian() {
         assertEquals(26,GameLanguages.codes.size)
         assertEquals(GameLanguages.codes.size,GameLanguages.codes.toSet().size)
@@ -112,6 +135,25 @@ class LevelEngineTest {
                 assertTrue("All generated gates must be reachable",other.gates.zipWithNext().all{
                     (a,b) -> kotlin.math.abs(a.center-b.center)<=208f
                 })
+            }
+        }
+    }
+
+    @Test fun difficultyModesHavePronouncedOpeningDifferencesAndVisibleHeightChanges() {
+        for (world in 0 until LevelEngine.WORLD_COUNT) {
+            val level = LevelEngine.create(world, 1)
+            val centers = level.gates.take(10).map { it.center }
+            assertTrue("No constant-altitude straight lane", centers.max() - centers.min() >= 300f)
+            for (gate in level.gates) {
+                val easy = LevelEngine.opening(gate, 0f, 0)
+                val normal = LevelEngine.opening(gate, 0f, 1)
+                val hard = LevelEngine.opening(gate, 0f, 2)
+                val easyGap = easy.bottom - easy.top
+                val normalGap = normal.bottom - normal.top
+                val hardGap = hard.bottom - hard.top
+                assertTrue("Easy must be visibly wider", easyGap - normalGap >= 53.8f)
+                assertTrue("Hard must be meaningfully tighter", normalGap - hardGap >= 18.9f)
+                assertTrue("Hard must retain a flyable corridor", hardGap >= 144.9f)
             }
         }
     }

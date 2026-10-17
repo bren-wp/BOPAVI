@@ -15,10 +15,10 @@ final class GameCanvas: UIView {
     private func word(_ en:String,_ hr:String)->String{hudVocabulary[en] ?? (language=="hr" ? hr : en)}
     private var lastLevelBadgeText=""
     private var cachedLevelBadge=NSAttributedString(string:"")
-    private lazy var idlePrompt=NSAttributedString(string:word("TAP TO TAKE OFF","DODIRNI ZA POLIJETANJE"),attributes:[
-        .font:UIFont.systemFont(ofSize:25,weight:.heavy),.foregroundColor:UIColor.white])
-    private lazy var idleHelp=NSAttributedString(string:word("EVERY TAP FLAPS YOUR WINGS","SVAKI DODIR = ZAMAH KRILIMA"),attributes:[
-        .font:UIFont.systemFont(ofSize:13,weight:.bold),.foregroundColor:UIColor(rgb:0xbceeff)])
+    private lazy var idlePrompt=NSAttributedString(string:word("TAP TO FLY","DODIRNI ZA LET"),attributes:[
+        .font:UIFont.systemFont(ofSize:20,weight:.heavy),.foregroundColor:UIColor.white])
+    private lazy var idleHelp=NSAttributedString(string:word("TAP = WING FLAP","DODIR = ZAMAH KRILIMA"),attributes:[
+        .font:UIFont.systemFont(ofSize:11,weight:.bold),.foregroundColor:UIColor(rgb:0xbceeff)])
     private var progressLabel=NSAttributedString(string:"")
     private var distanceLabel=NSAttributedString(string:"")
     private var lastProgressPassed = -1
@@ -288,10 +288,10 @@ final class GameCanvas: UIView {
         bird(c)
         // Matches Android idle hint in the 480x800 logical game coordinates.
         if !game.active && !game.finished {
-            rect(c,60,560,360,95,0x092559,24,0.90)
-            rect(c,67,566,346,5,0x36d7ff,2)
-            idlePrompt.draw(at:CGPoint(x:240-idlePrompt.size().width/2,y:583))
-            idleHelp.draw(at:CGPoint(x:240-idleHelp.size().width/2,y:620))
+            rect(c,87,671,306,75,0x092559,22,0.85)
+            rect(c,98,677,284,4,0x36d7ff,2)
+            idlePrompt.draw(at:CGPoint(x:240-idlePrompt.size().width/2,y:690))
+            idleHelp.draw(at:CGPoint(x:240-idleHelp.size().width/2,y:719))
         }
         // The native premium pause modal owns this layer, without duplicate text.
         c.restoreGState()
