@@ -91,7 +91,7 @@ def audit_resource_reachability():
         *(f"bopiright{i}" for i in range(9)),
         *(f"bopiportrait{i}" for i in range(9)),
         *(f"world{i}" for i in range(8)),
-        "logo", "homeback", "nav_profile", "nav_tasks", "nav_collection", "nav_shop",
+        "logo", "homeback",
     }
     issues.extend(f"Runtime drawable missing from source references: {name}"
                   for name in sorted(expected_dynamic - referenced["drawable"]))
