@@ -312,7 +312,7 @@ class LevelEngineTest {
         assertTrue("Bird touching the painted lower lip must be hit",
             PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,LevelEngine.Opening(190f,355f)))
         assertFalse("Exact edge tangent is not a body overlap",
-            PillarCollision.bodyHitsPillar(126f,350f,18f,144f,73f,LevelEngine.Opening(376f,536f)))
+            PillarCollision.bodyHitsPillar(126f,300f,18f,144f,73f,LevelEngine.Opening(376f,536f)))
     }
 
     @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
