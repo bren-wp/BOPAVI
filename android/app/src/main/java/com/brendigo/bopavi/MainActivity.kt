@@ -889,7 +889,7 @@ class MainActivity : Activity() {
         currentWorld=world;currentLevel=number
         val croatian=progress.languageCode()=="hr"
         val panel=base(if(croatian)"ODABERI LIKA" else "CHOOSE YOUR PILOT",
-            if(croatian)"Svaki pilot ima svoj izgled" else "Nine unique flyers · choose before takeoff")
+            if(croatian)"SVAKI PILOT IMA SVOJU PRIČU" else "EVERY PILOT HAS A STORY")
         val chosen=progress.skin()
         // The reference hero is a prominent illustrated pilot on an open sky.
         // Keep the selected portrait entirely separate from live labels.
@@ -903,7 +903,7 @@ class MainActivity : Activity() {
             setImageResource(portraitDrawableIds[chosen])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,d(188),0.56f))
+        },LinearLayout.LayoutParams(0,d(224),0.61f))
         val pilotSummary=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_VERTICAL
@@ -933,8 +933,8 @@ class MainActivity : Activity() {
             contentDescription=(if(croatian)"Zvjezdice i otključani piloti" else "World stars and unlocked pilots")+
                 ": ${progress.worldStars(world)}/30, ${ownedCount}/9"
         },LinearLayout.LayoutParams(-1,d(32)))
-        heading.addView(pilotSummary,LinearLayout.LayoutParams(0,d(152),0.44f))
-        panel.addView(heading,LinearLayout.LayoutParams(-1,d(194)).apply{bottomMargin=d(5)})
+        heading.addView(pilotSummary,LinearLayout.LayoutParams(0,d(169),0.39f))
+        panel.addView(heading,LinearLayout.LayoutParams(-1,d(230)).apply{bottomMargin=d(5)})
         for(row in 0..2){
             val galleryRow=LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL}
             panel.addView(galleryRow,LinearLayout.LayoutParams(-1,-2))
