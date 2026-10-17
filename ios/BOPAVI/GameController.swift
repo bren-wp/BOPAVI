@@ -298,7 +298,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             ])
             // The reference Worlds/Profile header features a second flying
             // Bopi behind live UI. Match the Android native layered approach.
-            if title == "SVJETOVI" || title == "PROFIL" {
+            if title == "SVJETOVI" || title == "PROFIL" || title == "TRGOVINA" {
                 let flyingPilot=UIImageView(image:UIImage(named:"BopiPortrait\(progress.skinIndex())"))
                 flyingPilot.contentMode = .scaleAspectFit
                 flyingPilot.isAccessibilityElement=false
