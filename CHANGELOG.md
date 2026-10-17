@@ -1,3 +1,10 @@
+## v0.2.9 — accurate Bopi body-to-obstacle collisions on Android and iOS (build 114)
+- Fix a real false-death bug: the previous cap collider extended the pillar's 7px left/5px right lip across the full shaft height. This could register a crash in empty space when the circular Bopi body was near an obstacle corner.
+- Replace the rectangular body bounding-box test with allocation-free circle/rectangle contact against each **actual painted shaft and its separately bounded 28px upper / 27px lower lip**. Tangential non-overlap is safe; a real cap or shaft touch still causes immediate impact. Android Kotlin and iOS Swift use the same contact geometry and preserve the 18-unit body radius, deterministic obstacle simulation and shield behavior.
+- Add source, Android JVM and native Kotlin/Swift parity regressions for corner misses, true painted cap and shaft contacts, lower-lip contact, one-hit shield consumption and real one-frame game-over outcomes. No change to saved progress, purchase balances, translations or world artwork.
+- **Reference fidelity remains an open visual QA requirement:** full screenshot-by-screenshot 1:1 comparison, physical-device testing and production store signing are not claimed.
+- Android/iOS **0.2.9 (build 114)**. The debug APK is for testing; release AAB and iOS device archives require publisher signing.
+
 ## v0.2.8 — clearer alternating pillar openings and cross-platform gameplay parity (build 113)
 - Make obstacle silhouettes visibly less repetitive: after two forgiving introductory gates, the existing deterministic varying opening adds an alternating +9/−9 logical unit gap contour. This produces an intentional narrow/wide rhythm on top of the already randomized per-gate widths, centers, level progression, and world-specific movement. The collision corridor and visible pillar mouth are derived from the **same gate data**; no invisible or enlarged hitboxes.
 - Apply identical rules to Kotlin and Swift without modifying game economy, saves, premium equipment, actual difficulty factors, flapping, bird hitbox, or pause/resume. Minimum gap safety (≥164 before difficulty and ≥145 after) is retained.

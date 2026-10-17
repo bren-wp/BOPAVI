@@ -170,7 +170,7 @@ struct SwiftParity {
         do {
             let l=BopaviCore.create(0,2)
             let g=l.gates[0]
-            let hit=BopaviCore.Gate(x:148,center:510,gap:160,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let hit=BopaviCore.Gate(x:148,center:456,gap:160,width:g.width,movement:0,phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
             let custom=BopaviCore.Level(world:0,number:2,zone:l.zone,speed:140,wind:0,gates:[hit],type:l.type)
             let direct=GameSimulation(custom)
             direct.flap();direct.step(1/60)
@@ -186,6 +186,20 @@ struct SwiftParity {
             let run=GameSimulation(BopaviCore.Level(world:0,number:2,zone:level.zone,speed:140,wind:0,gates:[safe],type:level.type))
             run.flap();run.step(1/60)
             precondition(!run.finished,"False collision inside safe gap")
+        }
+        do {
+            let level=BopaviCore.create(0,2)
+            let g=level.gates[0]
+            let phantom=BopaviCore.Gate(x:148,center:490,gap:160,width:g.width,movement:0,
+                phase:g.phase,kind:g.kind,coin:false,star:false,power:0)
+            let flight=GameSimulation(BopaviCore.Level(world:0,number:2,zone:level.zone,
+                speed:140,wind:0,gates:[phantom],type:level.type))
+            flight.flap();flight.step(1/60)
+            precondition(!flight.finished,"False corner hit: cap overhang is not infinitely tall")
+            precondition(!PillarCollision.bodyHitsPillar(birdX:126,birdY:362,radius:18,
+                gateX:148,gateWidth:73,opening:BopaviCore.Opening(top:410,bottom:570)))
+            precondition(PillarCollision.bodyHitsPillar(birdX:126,birdY:362,radius:18,
+                gateX:148,gateWidth:73,opening:BopaviCore.Opening(top:376,bottom:536)))
         }
         do {
             let level=BopaviCore.create(0,2)

@@ -107,10 +107,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val gate = level.gates[i]; val x = gateX(gate)
             if (x > birdX + radius + 115f) break
             val bounds = LevelEngine.opening(gate, time, difficulty)
-            // Collide with the actually DRAWN pillar cap (x-7 .. x+width+5), not
-            // only the thinner central shaft. Resolve impact before pickups.
-            if (x - 7f < birdX + radius && x + gate.width + 5f > birdX - radius &&
-                (y - radius < bounds.top || y + radius > bounds.bottom)) {
+            // Check the circular body against the separately painted shaft and
+            // lip. The old full-height cap AABB killed Bopi near empty corners.
+            if (PillarCollision.bodyHitsPillar(birdX,y,radius,x,gate.width,bounds)) {
                 damage()
                 if (finished) return
             }
@@ -160,4 +159,26 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
 internal object WorldCoordinates {
     fun screenX(gateX:Float, origin:Double, travelled:Double):Float =
         (gateX.toDouble() + origin - travelled).toFloat()
+}
+
+/** Exact circle-vs-painted-rectangle contact, shared geometrically with Swift.
+ * The wide overhang exists only in the 28px/27px visible lip bands, never
+ * all the way to the top or bottom of the world.
+ */
+internal object PillarCollision {
+    fun bodyHitsPillar(birdX:Float,birdY:Float,radius:Float,gateX:Float,
+                       gateWidth:Float,opening:LevelEngine.Opening):Boolean {
+        if (radius <= 0f) return false
+        val right=gateX+gateWidth
+        return touchesRectangle(birdX,birdY,radius,gateX,-25f,right,opening.top) ||
+            touchesRectangle(birdX,birdY,radius,gateX-7f,opening.top-28f,right+5f,opening.top) ||
+            touchesRectangle(birdX,birdY,radius,gateX,opening.bottom,right,825f) ||
+            touchesRectangle(birdX,birdY,radius,gateX-7f,opening.bottom,right+5f,opening.bottom+27f)
+    }
+    private fun touchesRectangle(cx:Float,cy:Float,r:Float,left:Float,top:Float,
+                                 right:Float,bottom:Float):Boolean {
+        val dx=maxOf(0f,left-cx,cx-right)
+        val dy=maxOf(0f,top-cy,cy-bottom)
+        return dx*dx+dy*dy < r*r
+    }
 }

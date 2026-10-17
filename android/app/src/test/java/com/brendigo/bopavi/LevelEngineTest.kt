@@ -281,7 +281,7 @@ class LevelEngineTest {
     @Test fun visiblePillarCapCollisionKillsImmediatelyWithoutShield() {
         // The front edge of the wide cap overlaps Bopi, though the thin shaft does not.
         val level=LevelEngine.create(0,2)
-        val near=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val near=level.gates[0].copy(x=148f,center=456f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val synthetic=level.copy(gates=listOf(near),speed=140f,wind=0f)
         val flight=GameSimulation(synthetic)
         flight.flap()
@@ -293,7 +293,7 @@ class LevelEngineTest {
 
     @Test fun shieldAbsorbsExactlyOneCapImpact() {
         val level=LevelEngine.create(0,2)
-        val near=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val near=level.gates[0].copy(x=148f,center=456f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val flight=GameSimulation(level.copy(gates=listOf(near),speed=140f,wind=0f),initialShield=1)
         flight.flap()
         flight.step(1f/60f)
@@ -301,6 +301,30 @@ class LevelEngineTest {
         assertEquals(0,flight.shield)
         assertTrue(flight.invulnerable>0f)
     }
+    @Test fun circularBodyIgnoresEmptyLipCornerButTouchesVisibleGeometry() {
+        val safeCorner=LevelEngine.Opening(top=410f,bottom=570f)
+        assertFalse("Corner AABB must not count as real body contact",
+            PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,safeCorner))
+        assertTrue("Bird touching the painted upper lip must be hit",
+            PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,LevelEngine.Opening(376f,536f)))
+        assertTrue("Bird touching a solid shaft must be hit",
+            PillarCollision.bodyHitsPillar(126f,362f,18f,135f,73f,LevelEngine.Opening(410f,570f)))
+        assertTrue("Bird touching the painted lower lip must be hit",
+            PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,LevelEngine.Opening(190f,355f)))
+        assertFalse("Exact edge tangent is not a body overlap",
+            PillarCollision.bodyHitsPillar(126f,300f,18f,144f,73f,LevelEngine.Opening(376f,536f)))
+    }
+
+    @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
+        val level=LevelEngine.create(0,2)
+        val lipTooHigh=level.gates[0].copy(x=148f,center=490f,gap=160f,
+            movement=0f,coin=false,star=false,power=0)
+        val flight=GameSimulation(level.copy(gates=listOf(lipTooHigh),speed=140f,wind=0f))
+        flight.flap()
+        flight.step(1f/60f)
+        assertFalse("No collision where only the old infinite cap AABB existed",flight.finished)
+    }
+
     @Test fun illustratedBirdSurvivesSafeCapOverlap() {
         val level=LevelEngine.create(0,2)
         val safe=level.gates[0].copy(x=148f,center=366f,gap=220f,movement=0f,coin=false,star=false,power=0)

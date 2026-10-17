@@ -59,7 +59,7 @@ fun main() {
     // before the pillar shaft, and the run must end within this frame.
     run {
         val level=LevelEngine.create(0,2)
-        val hit=level.gates[0].copy(x=148f,center=510f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val hit=level.gates[0].copy(x=148f,center=456f,gap=160f,movement=0f,coin=false,star=false,power=0)
         val custom=level.copy(gates=listOf(hit),speed=140f,wind=0f)
         val direct=GameSimulation(custom)
         direct.flap();direct.step(1f/60f)
@@ -74,6 +74,15 @@ fun main() {
         val run=GameSimulation(level.copy(gates=listOf(safe),speed=140f,wind=0f))
         run.flap();run.step(1f/60f)
         check(!run.finished) {"False collision inside safe gap"}
+    }
+    run {
+        val level=LevelEngine.create(0,2)
+        val phantom=level.gates[0].copy(x=148f,center=490f,gap=160f,movement=0f,coin=false,star=false,power=0)
+        val flight=GameSimulation(level.copy(gates=listOf(phantom),speed=140f,wind=0f))
+        flight.flap();flight.step(1f/60f)
+        check(!flight.finished) {"False corner hit: cap overhang cannot extend infinitely"}
+        check(!PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,LevelEngine.Opening(410f,570f)))
+        check(PillarCollision.bodyHitsPillar(126f,362f,18f,148f,73f,LevelEngine.Opening(376f,536f)))
     }
     run {
         val level=LevelEngine.create(0,2)
