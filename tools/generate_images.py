@@ -299,13 +299,13 @@ if photo_bopi:
                                       Image.new('RGBA',(1024,1024),(2,20,67,152)))
     foreground=Image.new('RGBA',(1024,1024),(0,0,0,0))
     halo=Image.new('RGBA',(1024,1024),(0,0,0,0))
-    ImageDraw.Draw(halo,'RGBA').ellipse((160,165,866,875),fill=(0,174,255,190))
+    ImageDraw.Draw(halo,'RGBA').ellipse((128,130,896,899),fill=(0,174,255,190))
     foreground=Image.alpha_composite(foreground,halo.filter(ImageFilter.GaussianBlur(54)))
     # Frame stays inside Android's adaptive-icon mask safe zone.
     frame=ImageDraw.Draw(foreground,'RGBA')
-    frame.ellipse((151,151,873,873),outline=(25,205,255,230),width=20)
-    frame.ellipse((169,169,855,855),outline=(254,211,87,165),width=8)
-    bird=ImageOps.contain(source.crop(bounds),(760,760),method=Image.Resampling.LANCZOS)
+    frame.ellipse((130,130,894,894),outline=(25,205,255,230),width=16)
+    frame.ellipse((146,146,878,878),outline=(254,211,87,165),width=7)
+    bird=ImageOps.contain(source.crop(bounds),(840,840),method=Image.Resampling.LANCZOS)
     foreground.alpha_composite(bird,((1024-bird.width)//2,(1024-bird.height)//2+22))
     # A separate alpha foreground lets Android's adaptive launcher retain a
     # genuinely full-bleed blue background, never white rounded corners.
