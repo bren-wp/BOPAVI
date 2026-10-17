@@ -1456,25 +1456,35 @@ class MainActivity : Activity() {
     }
     private fun showPerks(){showPerks(MenuOrigin.SETTINGS)}
     private fun showPerks(origin:MenuOrigin){
+        val croatian=progress.languageCode()=="hr"
         val b=base("TRGOVINA","")
-        title(b,"♛  ${progress.coins()} KOVANICA",24,gold)
-        small(b,"Za kovanice osvojene igrom — bez stvarnog novca.")
-        small(b,"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu.")
+        title(b,if(croatian)"♛  ${progress.coins()} KOVANICA" else "♛  ${progress.coins()} COINS",24,gold)
+        small(b,if(croatian)"Za kovanice osvojene igrom — bez stvarnog novca."
+            else "Earned coins only — no real-money purchases.")
+        small(b,if(croatian)"Za svakih novih 1.000 bodova najboljeg rezultata dobivaš 1 kovanicu."
+            else "Earn one coin for each new 1,000 points of your personal best.")
         val bonus=progress.bonusCoinsAvailable()
-        if(bonus>0)action(b,"🎁  PREUZMI $bonus KOVANICA ZA BODOVE",false){
+        if(bonus>0)action(b,if(croatian)"🎁  PREUZMI $bonus KOVANICA ZA BODOVE"
+            else "🎁  CLAIM $bonus SCORE REWARD COINS",false){
             val earned=progress.claimBonusCoins()
             if(earned>0){sound.effect("purchase");showPerks(origin)}
         }
 
-        small(b,"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let.")
-        sectionHeading(b,"OPREMA ZA BOPIJEV LET")
+        small(b,if(croatian)"Osvajaj kovanice prelaskom nagradnih levela i biraj opremu za svoj sljedeći let."
+            else "Earn coins by clearing reward levels and equip your next flight.")
+        sectionHeading(b,if(croatian)"OPREMA ZA BOPIJEV LET" else "FLIGHT EQUIPMENT")
         // Six functional offline boosts: shield and magnet tiers on three responsive rows.
         val perkRows=Array(3){LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL;gravity=Gravity.CENTER_VERTICAL
         }}
-        val names=listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET")
-        val explanations=listOf("Upija jedan sudar.","Privlači 8 sekundi.",
-            "Upija dva sudara.","Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi.")
+        val names=if(croatian)
+            listOf("ŠTIT","MAGNET","DVOSTRUKI ŠTIT","DUGI MAGNET","TROSTRUKI ŠTIT","SUPER MAGNET")
+        else listOf("SHIELD","MAGNET","DOUBLE SHIELD","LONG MAGNET","TRIPLE SHIELD","SUPER MAGNET")
+        val explanations=if(croatian)
+            listOf("Upija jedan sudar.","Privlači 8 sekundi.","Upija dva sudara.",
+                "Privlači 12 sekundi.","Upija tri sudara.","Privlači 18 sekundi.")
+        else listOf("Absorbs one collision.","Attracts coins for 8 seconds.","Absorbs two collisions.",
+            "Attracts coins for 12 seconds.","Absorbs three collisions.","Attracts coins for 18 seconds.")
         for(n in 0..5){
             val name=names[n]
             val card=LinearLayout(this).apply{
@@ -1498,21 +1508,25 @@ class MainActivity : Activity() {
                     android.util.TypedValue.COMPLEX_UNIT_SP)
             },LinearLayout.LayoutParams(-1,d(24)))
             card.addView(TextView(this).apply{
-                text=explanations[n]+"\nU torbi: ${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
+                text=explanations[n]+"\n"+(if(croatian)"U torbi: " else "Owned: ")+
+                    "${progress.perkCount(n)} · ${progress.perkPrices[n]} ♛"
                 textSize=11f;setTextColor(Color.WHITE)
                 gravity=Gravity.CENTER;maxLines=2
             },LinearLayout.LayoutParams(-1,d(36)))
-            action(card,"KUPI $name",false){
+            action(card,(if(croatian)"KUPI " else "BUY ")+name,false){
                 if(progress.buyPerk(n)){sound.effect("purchase");showPerks(origin)}
-                else Toast.makeText(this,"Nedovoljno kovanica ili je zaliha puna.",Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this,if(croatian)"Nedovoljno kovanica ili je zaliha puna."
+                    else "Not enough coins or inventory is full.",Toast.LENGTH_SHORT).show()
             }
-            card.contentDescription="$name, ${explanations[n]} ${progress.perkPrices[n]} kovanica, u torbi ${progress.perkCount(n)}"
+            card.contentDescription="$name, ${explanations[n]} ${progress.perkPrices[n]} "+
+                (if(croatian)"kovanica, u torbi " else "coins, owned ")+progress.perkCount(n)
             perkRows[n/2].addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{
                 setMargins(d(3),d(2),d(3),d(2))
             })
         }
         for(row in perkRows)b.addView(row,LinearLayout.LayoutParams(-1,-2))
-        small(b,"Kupljena oprema automatski se koristi na početku sljedećeg leta.")
+        small(b,if(croatian)"Kupljena oprema automatski se koristi na početku sljedećeg leta."
+            else "Purchased equipment automatically activates when your next flight begins.")
         small(b,if(progress.languageCode()=="hr")
             "Odaberi jednog od devet pilota prije leta. Kovanice služe za otključavanje pilota i opreme."
             else "Choose from nine pilots before takeoff. Earned coins unlock pilots and equipment.")
