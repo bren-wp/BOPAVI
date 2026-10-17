@@ -181,8 +181,10 @@ assert 'DODIRNI Ⅱ ZA NASTAVAK' not in android_render and 'DODIRNI Ⅱ ZA NASTA
 # Regression from supplied phone capture: hitbox spans the visibly extended pillar caps.
 android=(root/'android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt').read_text()
 ios=(root/'ios/BOPAVI/BopaviCore.swift').read_text()
-assert 'x - 7f < birdX + radius' in android
-assert 'x-7 < birdX+radius' in ios
+assert 'PillarCollision.bodyHitsPillar(birdX,y,radius,x,gate.width,bounds)' in android
+assert 'PillarCollision.bodyHitsPillar(birdX:birdX,birdY:y,radius:radius,' in ios
+assert 'gateX-7f,opening.top-28f,right+5f,opening.top' in android
+assert 'gateX-7,opening.top-28,right+5,opening.top' in ios
 assert 'val radius = 18f' in android and 'let radius: Float = 18' in ios
 # Hero artwork must be an illustration, not a tiny screenshot/CTA embedded in a screenshot.
 hero=(root/'docs/assets/hero.svg').read_text()
