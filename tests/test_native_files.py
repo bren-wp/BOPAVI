@@ -2190,7 +2190,7 @@ assert 'android-shop.png' in emulator and 'android-records.png' in emulator
 assert 'BUY MAGNET' in emulator and 'BUY SHIELD' in emulator
 assert 'Back did not restore Home' in emulator
 # v0.2.6: six genuine consumed offline boosts, purchase tiers and backward-compatible saves.
-for store in (android_store,ios_store):
+for store in (android_save,ios_save):
     for name in ("Trostruki štit","Super magnet"):
         assert name in store, ("missing functional item",name)
     assert "230" in store and "195" in store
@@ -2199,8 +2199,8 @@ for store in (android_store,ios_store):
 for shop in (android_shop,ios_shop):
     assert "TROSTRUKI ŠTIT" in shop and "SUPER MAGNET" in shop
     assert "Privlači 18 sekundi." in shop and "Upija tri sudara." in shop
-assert "perkData.length() in 2..6" in android_store
-assert "(2...6).contains(arr.count)" in ios_store
+assert "perkData.length() in 2..6" in android_save
+assert "(2...6).contains(arr.count)" in ios_save
 print('PASS: six functional tiered perks, honest purchased inventory and paginated records')
 
 # v0.1.77: one reusable Android pilot sprite table, not four identical
