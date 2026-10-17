@@ -394,7 +394,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor)])
         let stack=UIStackView()
         stack.axis = .vertical;stack.alignment = .fill
-        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA"
+        let compact = title == "TRGOVINA" || title == "MOJI REKORDI" || title == "PROFIL" || title == "POSTIGNUĆA" || title == "KOLEKCIJA"
         stack.spacing=title == "BOPAVI" || compact ? 7 : 12
         stack.translatesAutoresizingMaskIntoConstraints=false
         stack.layoutMargins=title == "BOPAVI" ?
@@ -759,7 +759,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let tabs:[(String,String,()->Void)]=[
             ("NavProfile","PROFIL",{self.showProfile()}),
             ("NavTasks","ZADACI",{self.showAchievements(.home)}),
-            ("NavCollection","REKORDI",{self.showLeaderboard()}),
+            ("NavCollection","KOLEKCIJA",{self.showCollection()}),
             ("NavShop","TRGOVINA",{self.showPerks(.home)})
         ]
         for (icon,title,handler) in tabs {
@@ -1947,7 +1947,7 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         let tabs:[(String,String,()->Void)]=[
             ("NavProfile","PROFIL",{self.showProfile()}),
             ("NavTasks","ZADACI",{self.showAchievements(.profile)}),
-            ("NavCollection","REKORDI",{self.showLeaderboard()}),
+            ("NavCollection","KOLEKCIJA",{self.showCollection()}),
             ("NavShop","TRGOVINA",{self.showPerks(.profile)})
         ]
         for (index,item) in tabs.enumerated(){
@@ -2722,6 +2722,118 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         }
         menuBack(s){self.showHome()}
     }
+
+    /// Saved progress only: eight discoverable worlds, collected tokens and local pilots.
+    /// Illustrated cards contain real UIKit actions, never screenshot hotspots.
+    private func showCollection(){
+        let croatian=progress.languageCode=="hr"
+        let s=menu("KOLEKCIJA",croatian ? "Tvoja otkrića u osam svjetova" :
+            "Your discoveries across eight worlds")
+        menuBack(s){self.showHome()}
+        let owned=(0...8).filter{progress.owned($0)}.count
+        let stars=(0..<8).reduce(0){$0+progress.worldStars($1)}
+        label("♛  \(progress.coins()) "+(croatian ? "kovanica" : "coins")+
+              "   ·   ★ \(stars) "+(croatian ? "zvjezdica" : "stars"),14,.white,s)
+        sectionHeading(croatian ? "MOJA OTKRIĆA" : "MY DISCOVERIES",in:s)
+        for line in 0..<4 {
+            let row=UIStackView()
+            row.axis = .horizontal;row.alignment = .fill
+            row.distribution = .fillEqually;row.spacing=6
+            for col in 0..<2 {
+                let world=line*2+col
+                let card=UIButton(type:.custom)
+                card.layer.cornerRadius=17;card.layer.borderWidth=2
+                card.layer.borderColor=(world==progress.chosenWorld()
+                    ? UIColor(red:1,green:0.82,blue:0.30,alpha:1)
+                    : UIColor(red:0.15,green:0.82,blue:1,alpha:1)).cgColor
+                card.clipsToBounds=true
+                card.heightAnchor.constraint(equalToConstant:84).isActive=true
+                card.accessibilityLabel="\(ui(BopaviCore.names[world])), "+
+                    "\(progress.worldStars(world)) stars, "+
+                    "\(progress.collectibles(world)) collected"
+                card.accessibilityHint=ui("Open world levels")
+                let scene=UIImageView(image:UIImage(named:"World\(world)"))
+                scene.translatesAutoresizingMaskIntoConstraints=false
+                scene.contentMode = .scaleAspectFill;scene.clipsToBounds=true
+                scene.isUserInteractionEnabled=false;scene.accessibilityElementsHidden=true
+                card.addSubview(scene)
+                let shade=UIView()
+                shade.translatesAutoresizingMaskIntoConstraints=false
+                shade.backgroundColor=UIColor(red:0.01,green:0.07,blue:0.19,alpha:0.50)
+                shade.isUserInteractionEnabled=false
+                card.addSubview(shade)
+                let heading=UILabel()
+                heading.translatesAutoresizingMaskIntoConstraints=false
+                heading.text=ui(BopaviCore.names[world]).uppercased()
+                heading.font=UIFont.systemFont(ofSize:13,weight:.black)
+                heading.textColor = .white;heading.adjustsFontSizeToFitWidth=true
+                heading.minimumScaleFactor=0.70
+                heading.isUserInteractionEnabled=false
+                card.addSubview(heading)
+                let progressLabel=UILabel()
+                progressLabel.translatesAutoresizingMaskIntoConstraints=false
+                progressLabel.text="★ \(progress.worldStars(world))/30   ·   ✦ \(progress.collectibles(world))"
+                progressLabel.textColor=UIColor(red:1,green:0.83,blue:0.33,alpha:1)
+                progressLabel.font=UIFont.monospacedDigitSystemFont(ofSize:12,weight:.bold)
+                progressLabel.adjustsFontSizeToFitWidth=true
+                progressLabel.minimumScaleFactor=0.7
+                progressLabel.isUserInteractionEnabled=false
+                card.addSubview(progressLabel)
+                NSLayoutConstraint.activate([
+                    scene.leadingAnchor.constraint(equalTo:card.leadingAnchor),
+                    scene.trailingAnchor.constraint(equalTo:card.trailingAnchor),
+                    scene.topAnchor.constraint(equalTo:card.topAnchor),
+                    scene.bottomAnchor.constraint(equalTo:card.bottomAnchor),
+                    shade.leadingAnchor.constraint(equalTo:card.leadingAnchor),
+                    shade.trailingAnchor.constraint(equalTo:card.trailingAnchor),
+                    shade.topAnchor.constraint(equalTo:card.topAnchor),
+                    shade.bottomAnchor.constraint(equalTo:card.bottomAnchor),
+                    heading.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:9),
+                    heading.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
+                    heading.bottomAnchor.constraint(equalTo:progressLabel.topAnchor,constant:-3),
+                    progressLabel.leadingAnchor.constraint(equalTo:card.leadingAnchor,constant:9),
+                    progressLabel.trailingAnchor.constraint(equalTo:card.trailingAnchor,constant:-4),
+                    progressLabel.bottomAnchor.constraint(equalTo:card.bottomAnchor,constant:-8)
+                ])
+                card.addAction(UIAction{[weak self] _ in
+                    self?.sound.effect("click")
+                    self?.showLevels(world,page:1)
+                },for:.touchUpInside)
+                row.addArrangedSubview(card)
+            }
+            s.addArrangedSubview(row)
+        }
+        sectionHeading(croatian ? "MOJI PILOTI" : "MY PILOTS",in:s)
+        let selected=progress.skinIndex()
+        let pilotRow=UIStackView()
+        pilotRow.axis = .horizontal;pilotRow.alignment = .center;pilotRow.spacing=9
+        pilotRow.layoutMargins=UIEdgeInsets(top:3,left:9,bottom:3,right:9)
+        pilotRow.isLayoutMarginsRelativeArrangement=true
+        pilotRow.backgroundColor=UIColor(red:0.02,green:0.18,blue:0.41,alpha:0.98)
+        pilotRow.layer.cornerRadius=18;pilotRow.layer.borderWidth=2
+        pilotRow.layer.borderColor=UIColor(red:1,green:0.78,blue:0.25,alpha:1).cgColor
+        let avatar=UIImageView(image:UIImage(named:"BopiPortrait\(selected)"))
+        avatar.contentMode = .scaleAspectFit;avatar.isAccessibilityElement=false
+        avatar.widthAnchor.constraint(equalToConstant:54).isActive=true
+        avatar.heightAnchor.constraint(equalToConstant:54).isActive=true
+        pilotRow.addArrangedSubview(avatar)
+        let pilotCaption=UILabel()
+        pilotCaption.text="\(progress.skinNames[selected]) · \(owned)/9 "+
+            (croatian ? "otključanih pilota" : "pilots unlocked")
+        pilotCaption.textColor = .white
+        pilotCaption.font=UIFont.systemFont(ofSize:13,weight:.heavy)
+        pilotCaption.adjustsFontSizeToFitWidth=true;pilotCaption.minimumScaleFactor=0.70
+        pilotRow.addArrangedSubview(pilotCaption)
+        s.addArrangedSubview(pilotRow)
+        button(croatian ? "ODABERI LIKA" : "CHOOSE PILOT",in:s,primary:false){
+            let world=self.progress.chosenWorld()
+            self.showPilotPicker(world,self.progress.streamFrontier(world))
+        }
+        button(croatian ? "MOJI REKORDI" : "MY RECORDS",in:s,primary:false){
+            self.showLeaderboard()
+        }
+    }
+
     func documentPicker(_ controller:UIDocumentPickerViewController,didPickDocumentsAt urls:[URL]) {
         guard let url=urls.first else{return}
         let scoped=url.startAccessingSecurityScopedResource()
