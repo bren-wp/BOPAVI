@@ -204,19 +204,6 @@ class MainActivity : Activity() {
         picker=builder.create()
         picker.show()
     }
-    private fun chip(label:String):TextView = TextView(this).apply {
-        text=label
-        setTextColor(gold)
-        textSize=16f
-        typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
-        setSingleLine(true)
-        setAutoSizeTextTypeUniformWithConfiguration(11,16,1,
-            android.util.TypedValue.COMPLEX_UNIT_SP)
-        gravity=Gravity.CENTER
-        setPadding(d(16),d(13),d(16),d(13))
-        background=gradient(0xff192d50.toInt(),0xff203c65.toInt(),24)
-        contentDescription=label
-    }
     private fun base(label:String,subtitle:String):LinearLayout {
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
