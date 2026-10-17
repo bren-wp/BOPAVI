@@ -743,6 +743,12 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
         gear.addAction(UIAction{_ in self.sound.effect("click");self.showSettings()},for:.touchUpInside)
         walletRow.addArrangedSubview(gear)
         stack.addArrangedSubview(walletRow)
+        // Reserve a fixed bottom rail for the real four-tab navigation.
+        // The rail itself is independently pinned to the safe bottom edge:
+        // content fitting cannot push it off-screen on short iPhones.
+        var homeMargins=stack.layoutMargins
+        homeMargins.bottom=105
+        stack.layoutMargins=homeMargins
         // The reference hero is composed from genuinely independent assets.
         // Bopi follows the player's saved selection, not an uneditable home
         // screenshot. The full-size images fit the safe-area-scaled UI stack.
@@ -816,7 +822,17 @@ final class GameController: UIViewController, UIDocumentPickerDelegate {
             tab.addAction(UIAction{_ in self.sound.effect("click");handler()},for:.touchUpInside)
             navigation.addArrangedSubview(tab)
         }
-        stack.addArrangedSubview(navigation)
+        // Match the fixed bottom navigation in the supplied reference.
+        // A separate UIKit view remains clickable and VoiceOver-addressable
+        // even when the hero stack needs responsive downscaling.
+        navigation.translatesAutoresizingMaskIntoConstraints=false
+        view.addSubview(navigation)
+        NSLayoutConstraint.activate([
+            navigation.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:18),
+            navigation.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-18),
+            navigation.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-7),
+            navigation.heightAnchor.constraint(equalToConstant:78)
+        ])
     }
 
     private func showWorlds(){
