@@ -1,3 +1,12 @@
+## v0.2.17 — streamlined premium one-flight BOPAVI (build 122)
+- Remove Android's redundant custom splash so OS launch transitions directly into the live Home page. iOS system launch uses a neutral background rather than repeating a BOPAVI illustration before Home.
+- Simplify Android and iOS Home to separate full-resolution logo and currently saved Bopi character, one true PLAY action, and the user's actual best score. Keep illustrated backdrop and safe-area viewport.
+- PLAY immediately starts the existing endless flight in the original first biome (no world/level/pilot/shop/profile selection). Do not discard existing local player data or alter collision physics.
+- Pause offers only Continue, Retry and Exit. After losing, show the completed run's actual score, collected coins and gate count plus real saved personal best, then Retry/Home. No store, reward-claim, leaderboard or world navigation.
+- Legacy save-compatible catalog and unlock logic remains internal for migration; unused menus are removed from the normal user journey, not destructively wiped.
+- **Visual note:** the design is a new intentionally minimal premium reference, not literal screen-by-screen parity with the old, much larger menu gallery. Character/background artwork may still differ from the owner's premium renders and needs real-device QA.
+- Android + iOS **0.2.17 / build 122**, unsigned AAB and debug APK after verified CI.
+
 ## v0.2.16 — refined native menu title shells (build 121)
 - Align Android's standard menu heading treatment with the deep blue, cyan-edged reference glass panel; add controlled elevation and spacing while retaining live captions.
 - Align iOS native menu headings to the same darker panel, cyan rim and subtle drop shadow, without baking titles into reference screenshots.
