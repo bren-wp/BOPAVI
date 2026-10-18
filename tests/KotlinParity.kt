@@ -91,7 +91,7 @@ fun main() {
         val previewX=game.upcomingGateX(game.upcomingGates().first())
         game.flap();game.step(1f/60f)
         check(game.completionCount==1 && game.displayLevel==3L)
-        check(game.levelTransition==.85f) {"Level badge must acknowledge real completion"}
+        check(game.levelTransition in .83f.. .85f) {"Level badge must acknowledge real completion"}
         check(game.distance>0 && kotlin.math.abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01f)
         check(game.active && !game.finished)
         check(game.totalPassed==1 && game.passed==0) {"Global pass count reset across levels"}

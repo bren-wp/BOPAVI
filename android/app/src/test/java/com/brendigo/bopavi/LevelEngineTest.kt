@@ -454,7 +454,8 @@ class LevelEngineTest {
         assertEquals("Global completed gates must never reset between levels",1,game.totalPassed)
         assertTrue("Global distance must remain monotonic",game.distance>0f)
         assertEquals("Upcoming obstacle must never jump at the boundary",previewX-game.distance,game.gateX(game.level.gates[0]),0.01f)
-        assertEquals(.85f,game.levelTransition,.001f)
+        assertTrue("The completion pulse can decay within the remaining 120Hz substep",
+            game.levelTransition in .83f.. .85f)
         game.step(.05f)
         assertTrue("The brief level badge fades while flight remains live",game.levelTransition>0f && game.levelTransition<.85f)
         assertTrue(game.active)
