@@ -1,4 +1,4 @@
-# BOPAVI — FEATURE MATRIX (release v0.2.23, build 128)
+# BOPAVI — FEATURE MATRIX (candidate v0.2.24, build 129)
 
 Evidence snapshot: main commit fa3e2ede9345759616f31f30a057f11c47f7fa03, checked 2026-10-18. This describes **reachable UX**, not files merely present in the repository. Android: MainActivity.kt; iOS: GameController.swift. Changes require a fresh code/navigation audit and native test.
 
@@ -10,8 +10,8 @@ The JSON block is consumed by tests/test_store_claims.py; valid states are visib
 {
   "schema": 1,
   "baseline_sha": "fa3e2ede9345759616f31f30a057f11c47f7fa03",
-  "release": "v0.2.23",
-  "build": 128,
+  "release": "v0.2.24",\n  "publication_status": "candidate-unpublished",\n  "last_published_github_release": "v0.2.23",
+  "build": 129,
   "scope_decision": "pending",
   "screens": ["home", "flight", "pause", "results"],
   "features": [
