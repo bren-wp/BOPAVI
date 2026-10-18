@@ -1,6 +1,6 @@
-# BOPAVI — FEATURE MATRIX (release v0.2.21, build 126)
+# BOPAVI — FEATURE MATRIX (release v0.2.23, build 128)
 
-Evidence snapshot: main commit 952d2139ff0ee76c84fd4354eeefb13c6139a3cb, checked 2026-10-18. This describes **reachable UX**, not files merely present in the repository. Android: MainActivity.kt; iOS: GameController.swift. Changes require a fresh code/navigation audit and native test.
+Evidence snapshot: main commit fa3e2ede9345759616f31f30a057f11c47f7fa03, checked 2026-10-18. This describes **reachable UX**, not files merely present in the repository. Android: MainActivity.kt; iOS: GameController.swift. Changes require a fresh code/navigation audit and native test.
 
 ## Machine-readable source of truth
 
@@ -9,9 +9,9 @@ The JSON block is consumed by tests/test_store_claims.py; valid states are visib
 ~~~json
 {
   "schema": 1,
-  "baseline_sha": "952d2139ff0ee76c84fd4354eeefb13c6139a3cb",
-  "release": "v0.2.21",
-  "build": 126,
+  "baseline_sha": "fa3e2ede9345759616f31f30a057f11c47f7fa03",
+  "release": "v0.2.23",
+  "build": 128,
   "scope_decision": "pending",
   "screens": ["home", "flight", "pause", "results"],
   "features": [
@@ -75,8 +75,8 @@ The JSON block is consumed by tests/test_store_claims.py; valid states are visib
 | Spend coins, use shield/magnet | Previous HR store listing / Terms | Endless run does not expose economy/shop or power-up UI | Removed from active description |
 | Manual JSON import/export in Settings | Old Play guide, privacy text | No Settings or import/export UI route | Explicitly marked legacy/non-accessible; no marketing claim |
 | Physical QA of eight worlds & nine skins | Old release checklist | Only one playable Bopi/biome | Replaced with reachable-screen verification |
-| Version 0.1.x and build 36/83 | Old publishing guide/checklist | Current Android versionName 0.2.21, versionCode 126; latest published tag v0.2.21 | Updated to verified baseline |
+| Version 0.1.x and build 36/83 | Old publishing guide/checklist | Current Android versionName 0.2.21, versionCode 128; latest published tag v0.2.23 | Updated to verified baseline |
 
 ## Confidence and gates
 
-Static code navigation, manifests, changelog, current release assets and last green native CI are evidence for this snapshot. CI screenshots from v0.2.21 exist for Home, Flight Preview, Flight Active and Results; **no dedicated Pause screenshot is listed in the release assets**, so pause needs a separately captured same-build image before advertising a pause image. Static evidence plus emulator/simulator CI is not proof of flawless behavior on all physical devices. Review ADR-0001 before any restoration of removed UI.
+Static code navigation, manifests, changelog, current release assets and last green native CI are evidence for this snapshot. CI screenshots from v0.2.23 exist for Home, Flight Preview, Flight Active and Results; **no dedicated Pause screenshot is listed in the release assets**, so pause needs a separately captured same-build image before advertising a pause image. Static evidence plus emulator/simulator CI is not proof of flawless behavior on all physical devices. Review ADR-0001 before any restoration of removed UI.
