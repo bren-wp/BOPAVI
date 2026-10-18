@@ -3,6 +3,10 @@ package com.brendigo.bopavi
 fun main() {
     val numbers = listOf(1,2,3,4,30,60,61,360,361,1001,100000,524289,1048576)
     var checked = 0
+    val berryVectors=listOf(floatArrayOf(40f,0f,-40f,0f,31f),floatArrayOf(40f,31f,-40f,31f,31f),floatArrayOf(40f,31.02f,-40f,31.02f,31f),floatArrayOf(0f,0f,0f,0f,31f),floatArrayOf(32f,0f,32f,0f,31f),floatArrayOf(400f,0f,-400f,0f,31f),floatArrayOf(400f,32f,-400f,32f,31f))
+    for((index,v) in berryVectors.withIndex())
+        println("B|$index|${BerryCollision.touched(v[0],v[1],v[2],v[3],v[4])}")
+
     for (w in 0 until 8) {
         val seen=HashSet<String>()
         for (n in 1..6000 step 2) {
@@ -198,5 +202,24 @@ fun main() {
         println("R|${hzList[index]}|${fmt(flight.time)}|${fmt(flight.y)}|${fmt(flight.velocity)}|${fmt(flight.distance)}|${flight.score()}|${flight.foodCollected}|${flight.finished}")
     }
 
+    val movingRock=LevelEngine.Opening(228f,450f)
+    val movingRockEnd=LevelEngine.Opening(228.2f,450.2f)
+    val sweepCases=listOf(
+        PillarCollision.sweptBodyHitsPillar(126f,192.2966f,190.42694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRock),
+        PillarCollision.sweptBodyHitsPillar(126f,192.1766f,190.30694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRock),
+        PillarCollision.sweptBodyHitsPillar(126f,192.2966f,190.62694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRockEnd))
+    check(sweepCases==listOf(true,false,true))
+    for((idx,value) in sweepCases.withIndex())println("T|$idx|$value")
+    val cap=LevelEngine.Opening(228f,450f)
+    for((x,y) in listOf(88f to 188f,88f to 190f,88f to 192f,88f to 489f,88f to 484f,
+                         82f to 214f,83f to 214f,80f to 214f,82f to 463.5f,83f to 463.5f)) {
+        val hit=PillarCollision.bodyHitsPillar(x,y,18f,107f,76f,cap)
+        val expected=(y==192f || y==484f || (x==83f && (y==214f || y==463.5f)))
+        check(hit==expected) {"Rounded cap collision at $x,$y expected $expected"}
+        println("C|${x.toInt()}|${y.toInt()}|$hit")
+    }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
