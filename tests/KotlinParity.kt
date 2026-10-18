@@ -221,5 +221,10 @@ fun main() {
         check(hit==expected) {"Rounded cap collision at $x,$y expected $expected"}
         println("C|${x.toInt()}|${y.toInt()}|$hit")
     }
+    val tangent=LevelEngine.Opening(228f,450f)
+    check(!PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+        107f,107f,76f,tangent,tangent))
+    check(PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+        107f,106f,76f,tangent,tangent))
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }
