@@ -7,7 +7,7 @@ spec=importlib.util.spec_from_file_location("gate",root/"tests/release_publish_g
 m=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 assert m.is_metadata_only([])
-assert m.is_metadata_only(["README.md","docs/qa/CRASH-TRIAGE.md","tests/test_release_contract.py",".github/workflows/native-ci.yml"])
+assert m.is_metadata_only(["README.md","docs/qa/CRASH-TRIAGE.md","tests/test_release_contract.py","android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt",".github/workflows/native-ci.yml"])
 for entries in (
     ["android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt"],
     ["ios/BOPAVI/BopaviCore.swift"],

@@ -175,7 +175,7 @@ jobs:
           # Keep the version-bump gate for every product/runtime/asset edit.
           pr="$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")"
           changed="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr/files" --paginate --jq '.[].filename')"
-          if ! printf '%s\n' "$changed" | grep -Ev '^(docs/|tests/|README\.md$|\.github/workflows/native-ci\.yml$)' | grep -q .; then
+          if ! printf '%s\n' "$changed" | grep -Ev '^(docs/|tests/|android/app/src/test/|README\.md$|\.github/workflows/native-ci\.yml$)' | grep -q .; then
             echo "Metadata/tests-only PR: release version remains unchanged"
             exit 0
           fi
