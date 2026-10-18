@@ -1,6 +1,6 @@
 # BOPAVI — Google Play / App Store release checklist
 
-**Audited baseline:** GitHub Release v0.2.21, Android versionName 0.2.21, versionCode 126, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39085140513. No checklist item is automatically proof of a Play/App Store submission.
+**Audited baseline:** GitHub Release v0.2.23, Android versionName 0.2.23, versionCode 128, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39173719556. No checklist item is automatically proof of a Play/App Store submission.
 
 ## Product and metadata
 
