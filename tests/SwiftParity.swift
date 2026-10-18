@@ -445,6 +445,13 @@ struct SwiftParity {
             precondition(hit==expected,"Rounded cap collision at \(x),\(y)")
             print("C|\(Int(x))|\(Int(y))|\(hit)")
         }
+        let tangent=BopaviCore.Opening(top:228,bottom:450)
+        precondition(!PillarCollision.sweptBodyHitsPillar(birdX:82,fromY:214,toY:214,
+            radius:18,fromGateX:107,toGateX:107,gateWidth:76,
+            fromOpening:tangent,toOpening:tangent))
+        precondition(PillarCollision.sweptBodyHitsPillar(birdX:82,fromY:214,toY:214,
+            radius:18,fromGateX:107,toGateX:106,gateWidth:76,
+            fromOpening:tangent,toOpening:tangent))
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
