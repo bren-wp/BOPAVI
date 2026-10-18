@@ -330,6 +330,17 @@ class LevelEngineTest {
             PillarCollision.bodyHitsPillar(88f,489f,18f,107f,76f,opening))
         assertTrue("Real lower rounded lip must register",
             PillarCollision.bodyHitsPillar(88f,484f,18f,107f,76f,opening))
+        // Upper/lower straight outer lip edge tangency, 1px inside, 2px outside.
+        assertFalse("Exact visible lip tangency is not penetration",
+            PillarCollision.bodyHitsPillar(82f,214f,18f,107f,76f,opening))
+        assertTrue("1px physical overlap is a real hit",
+            PillarCollision.bodyHitsPillar(83f,214f,18f,107f,76f,opening))
+        assertFalse("2px margin from cap must remain safe",
+            PillarCollision.bodyHitsPillar(80f,214f,18f,107f,76f,opening))
+        assertFalse("Lower cap tangency is also safe",
+            PillarCollision.bodyHitsPillar(82f,463.5f,18f,107f,76f,opening))
+        assertTrue("Lower cap 1px penetration is a hit",
+            PillarCollision.bodyHitsPillar(83f,463.5f,18f,107f,76f,opening))
         assertFalse("Transparent wing/aura outside body circle cannot hit",
             PillarCollision.bodyHitsPillar(70f,338f,18f,107f,76f,opening))
         assertFalse("Invalid body geometry cannot be a hit",

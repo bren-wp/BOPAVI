@@ -420,10 +420,11 @@ struct SwiftParity {
         precondition(cases == [true,false,true],"120Hz moving-rock tunneling")
         for (index,value) in cases.enumerated(){print("T|\(index)|\(value)")}
         let cap=BopaviCore.Opening(top:228,bottom:450)
-        for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484)] {
+        for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484),
+                       (82,214),(83,214),(80,214),(82,463.5),(83,463.5)] {
             let hit=PillarCollision.bodyHitsPillar(birdX:x,birdY:y,radius:18,
                                                   gateX:107,gateWidth:76,opening:cap)
-            let expected=(y==192 || y==484)
+            let expected=(y==192 || y==484 || (x==83 && (y==214 || y==463.5)))
             precondition(hit==expected,"Rounded cap collision at \(x),\(y)")
             print("C|\(Int(x))|\(Int(y))|\(hit)")
         }

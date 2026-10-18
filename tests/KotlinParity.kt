@@ -198,9 +198,10 @@ fun main() {
         println("R|${hzList[index]}|${fmt(flight.time)}|${fmt(flight.y)}|${fmt(flight.velocity)}|${fmt(flight.distance)}|${flight.score()}|${flight.foodCollected}|${flight.finished}")
     }
     val cap=LevelEngine.Opening(228f,450f)
-    for((x,y) in listOf(88f to 188f,88f to 190f,88f to 192f,88f to 489f,88f to 484f)) {
+    for((x,y) in listOf(88f to 188f,88f to 190f,88f to 192f,88f to 489f,88f to 484f,
+                         82f to 214f,83f to 214f,80f to 214f,82f to 463.5f,83f to 463.5f)) {
         val hit=PillarCollision.bodyHitsPillar(x,y,18f,107f,76f,cap)
-        val expected=(y==192f || y==484f)
+        val expected=(y==192f || y==484f || (x==83f && (y==214f || y==463.5f)))
         check(hit==expected) {"Rounded cap collision at $x,$y expected $expected"}
         println("C|${x.toInt()}|${y.toInt()}|$hit")
     }
