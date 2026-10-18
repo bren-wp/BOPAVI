@@ -337,6 +337,35 @@ struct SwiftParity {
         let longRunOrigin=33_554_432.0
         precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin,travelled:longRunOrigin+0.25)-559.75)<0.0001)
         precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin+250,travelled:longRunOrigin+0.25)-809.75)<0.0001)
+        // Deterministic native trace. Release code does not record interactions.
+        // The 30Hz integration drift test intentionally fails before the fix.
+        let frameRates=[30,60,90,120]
+        var snapshots:[GameSimulation]=[]
+        for hz in frameRates {
+            let run=GameSimulation(BopaviCore.create(0,2))
+            run.flap()
+            for _ in 0..<(hz*3/5) {run.step(1/Float(hz))}
+            snapshots.append(run)
+        }
+        let baseline=snapshots[3]
+        for (idx,run) in snapshots.enumerated() {
+            precondition(!run.finished && abs(run.time-0.6)<0.0005)
+            precondition(abs(run.velocity-156)<0.05)
+            precondition(abs(run.y-baseline.y)<=0.75,"30/60/90/120Hz integration drift")
+            precondition(abs(run.distance-baseline.distance)<0.03)
+            precondition(run.score()==0)
+            let y=String(format:"%.4f",run.y)
+            let v=String(format:"%.4f",run.velocity)
+            let t=String(format:"%.4f",run.time)
+            let d=String(format:"%.4f",run.distance)
+            print("R|\(frameRates[idx])|\(t)|\(y)|\(v)|\(d)|\(run.score())|\(run.foodCollected)|\(run.finished)")
+        }
+        let doubleTap=GameSimulation(BopaviCore.create(0,2))
+        doubleTap.flap();doubleTap.step(1/120);doubleTap.flap()
+        precondition(doubleTap.flaps==2 && doubleTap.velocity == -255)
+        let impossible=GameSimulation(BopaviCore.create(0,2))
+        impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
+        precondition(impossible.time==0)
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }
