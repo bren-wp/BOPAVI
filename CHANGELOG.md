@@ -1,3 +1,10 @@
+## v0.2.24 — frame allocation and save consistency hardening (build 129)
+- Cache immutable opaque Core Graphics colors per iOS GameCanvas to reduce repeated allocation in its 30–120 Hz drawing path without changing palette or dynamic alpha. CPU, memory, FPS and battery differences must be measured on devices; no percentage is claimed.
+- Stage Android end-of-run counters, local food best and leaderboard in a single SharedPreferences Editor, retaining original keys and JSON score format. One in-memory atomic apply is not a guarantee of disk durability under sudden power loss; hardware interruption tests remain required.
+- Preserve collision radius 18, 120Hz physics, original Bopi/first biome, four reachable UX states, local user progress and no-network/no-ads policy.
+- Remove two unreferenced 49,545-byte runtime Hero PNG **file paths** that were left after their live assets were replaced (the iOS copy generated an Xcode unassigned-child warning). Preserve the SVG used by the Bopi art generator. Harden the dead-asset audit so it detects bare orphan PNGs even without an asset Contents.json.
+- Add source regression contract and candidate-only metadata; native Android/iOS CI, visual rendering validation and physical low-memory tests remain acceptance gates. GitHub artifacts are unsigned or debug and not an approved Play/App Store release.
+
 ## v0.2.23 — rounded rock lip collision fidelity (build 128)
 - Fix Android/iOS false hits at transparent rounded rock-lip corners and shallow moving-cap tunneling by conservative substep sweep without increasing Bopi's r18 body collider, changing gravity, impulse, display time, save schema or shafts.
 - Opt-in collision QA overlay uses the exact 480x800 logical camera; Android requires both debuggable APK and bopavi_qa_collision_overlay launch extra, iOS draws only in DEBUG with -BOPAVICollisionDebug launch argument.

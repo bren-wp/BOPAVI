@@ -99,10 +99,15 @@ def audit_resource_reachability():
     generator = (ROOT / "tools/generate_images.py").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/native-ci.yml").read_text(encoding="utf-8")
     hero_catalog = ROOT / "ios/BOPAVI/Assets.xcassets/Hero.imageset/Contents.json"
-    if (hero_catalog.exists() or "Hero.imageset" in generator or
-            "drawable-nodpi/hero.png" in generator or
+    # The old check missed bare orphan PNGs after Contents.json was removed.
+    # Xcode still warns about an unassigned Hero.imageset/hero.png, and an
+    # unreferenced Android resource can still inflate an unsigned bundle.
+    orphan_android = ROOT / "android/app/src/main/res/drawable-nodpi/hero.png"
+    orphan_ios = ROOT / "ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png"
+    if (hero_catalog.exists() or orphan_android.exists() or orphan_ios.exists() or
+            "Hero.imageset" in generator or "drawable-nodpi/hero.png" in generator or
             "drawable-nodpi/hero.png" in workflow or "Hero.imageset" in workflow):
-        issues.append("Dead Hero PNG/catalog still packaged; keep docs/assets/hero.svg as sprite source")
+        issues.append("Unreferenced runtime Hero PNG/catalog still packaged; retain docs/assets/hero.svg")
     # Logo, HomeArt and LaunchArt are real runtime or OS launch resources.
     ios_source = "\n".join(path.read_text(encoding="utf-8") for path in IOS_SOURCES)
     ios_plist = (IOS / "Info.plist").read_text(encoding="utf-8")

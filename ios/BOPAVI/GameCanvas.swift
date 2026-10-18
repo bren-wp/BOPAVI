@@ -191,7 +191,18 @@ final class GameCanvas: UIView {
         triggerFlap()
         return true
     }
-    private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {CGColor(red:CGFloat((rgb>>16)&255)/255,green:CGFloat((rgb>>8)&255)/255,blue:CGFloat(rgb&255)/255,alpha:alpha)}
+    // All rendering happens on the main thread. The same opaque palette colors
+    // were previously reallocated many times during every CADisplayLink frame.
+    // Cache only fully opaque immutable CGColors; animated alpha remains exact.
+    private var opaqueColors:[UInt32:CGColor]=[:]
+    private func color(_ rgb:UInt32,_ alpha:CGFloat=1)->CGColor {
+        if alpha == 1, let cached=opaqueColors[rgb] {return cached}
+        let result=CGColor(red:CGFloat((rgb>>16)&255)/255,
+                           green:CGFloat((rgb>>8)&255)/255,
+                           blue:CGFloat(rgb&255)/255,alpha:alpha)
+        if alpha == 1 {opaqueColors[rgb]=result}
+        return result
+    }
     /// Rounded panels share one CGContext path; avoid allocating a CGPath
     /// every time a gate, rim, status badge or HUD control is drawn.
     /// Four quarter arcs preserve the same radius as Android drawRoundRect.

@@ -6,6 +6,8 @@ substitute artwork for a screenshot. Play-safe 9:16 crops preserve actual pixels
 """
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
+import io
+import cairosvg
 import argparse
 import shutil
 import zipfile
@@ -30,7 +32,13 @@ draw = ImageDraw.Draw(feature)
 for y in range(500):
     t = y / 499
     draw.line((0, y, 1024, y), fill=(int(9+24*t), int(49+74*t), int(112+92*t)))
-hero = Image.open(art / "drawable-nodpi/hero.png").convert("RGB")
+# Preserve the original store feature illustration directly from its SVG source.
+# The obsolete packaged hero.png was deliberately removed as a dead runtime
+# asset; Play graphics must not depend on that nonexistent Android resource.
+hero_svg = Path("docs/assets/hero.svg")
+if not hero_svg.is_file():
+    raise SystemExit(f"Missing original BOPAVI artwork: {hero_svg}")
+hero = Image.open(io.BytesIO(cairosvg.svg2png(url=str(hero_svg), output_width=900))).convert("RGB")
 hero = ImageOps.fit(hero, (590, 500), method=Image.Resampling.LANCZOS, centering=(0.56,0.50))
 feature.paste(hero, (434, 0))
 # Smooth fade into the graphic on the left, without obstructing the actual art.

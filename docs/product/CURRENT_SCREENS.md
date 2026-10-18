@@ -1,4 +1,4 @@
-# BOPAVI — reachable screens (v0.2.23 / build 128)
+# BOPAVI — reachable screens (candidate v0.2.24 / build 129; release evidence v0.2.23 / build 128)
 
 Native launch entry points: Android MainActivity.onCreate() → showHome(); iOS BopaviApp → GameController.viewDidLoad() → showHome(). Four reachable UX states; Pause is a modal overlay, not a separate standalone menu.
 

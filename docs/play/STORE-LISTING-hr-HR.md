@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR), verified UX v0.2.23 / build 128
+# Google Play — BOPAVI (hr-HR), verified reachable UX, candidate v0.2.24 / build 129 (latest published v0.2.23 / build 128)
 
 <!-- verified-feature-ids: home,flight,tap_to_flap,procedural_obstacles,pause,results,score,berries,local_best,retry,offline,no_ads,no_account -->
 

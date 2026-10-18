@@ -80,8 +80,10 @@ class ProgressStore(context: Context) {
         }
         if(game.won)edit.putInt("wins",wins().coerceIn(0,99_999_999)+1)
         else edit.putInt("deaths",deaths().coerceIn(0,99_999_999)+1)
+        // Counters, earned food record and local leaderboard now enter one
+        // in-memory preferences transaction; avoid a partially updated run.
+        saveLocalScore(game,edit)
         edit.apply()
-        saveLocalScore(game)
     }
     // The concept screenshots use Croatian. New installs follow the phone's
     // language; existing user selections are never overwritten.
@@ -184,14 +186,14 @@ class ProgressStore(context: Context) {
             LocalScore(playerName(),score,world,mode,gates)
         }.sortedWith(compareByDescending<LocalScore>{it.score}.thenByDescending{it.gates}).take(10)
     }
-    private fun saveLocalScore(game:GameSimulation) {
+    private fun saveLocalScore(game:GameSimulation,editor:android.content.SharedPreferences.Editor) {
         if(game.score()<=0) return
         val records=(leaderboard()+LocalScore(playerName(),game.score(),game.level.world,game.difficulty,game.totalPassed))
             .sortedWith(compareByDescending<LocalScore>{it.score}.thenByDescending{it.gates}).take(10)
         val entries=JSONArray()
         for(entry in records) entries.put(JSONObject().put("name",entry.name).put("score",entry.score)
             .put("world",entry.world).put("difficulty",entry.difficulty).put("gates",entry.gates))
-        prefs.edit().putString("local_leaderboard",entries.toString()).apply()
+        editor.putString("local_leaderboard",entries.toString())
     }
     fun hapticEnabled():Boolean = prefs.getBoolean("haptic_enabled",true)
     fun setHapticEnabled(value:Boolean) {prefs.edit().putBoolean("haptic_enabled",value).apply()}
