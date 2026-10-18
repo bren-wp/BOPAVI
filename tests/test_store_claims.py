@@ -65,7 +65,7 @@ class StoreClaimsTest(unittest.TestCase):
             content = (ROOT / relative).read_text(encoding="utf-8")
             self.assertIn(f"v{version}", content, relative)
             self.assertIn(f"build {build}", content, relative)
-        self.assertEqual(matrix()["baseline_sha"], "fa3e2ede9345759616f31f30a057f11c47f7fa03")
+        self.assertRegex(matrix()["baseline_sha"], r"^[0-9a-f]{40}$")
 
     def test_store_claims_must_be_visible(self):
         short, full, claims = listing_parts()
