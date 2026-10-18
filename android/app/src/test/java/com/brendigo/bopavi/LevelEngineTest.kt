@@ -341,6 +341,8 @@ class LevelEngineTest {
             }
         }
         val reference=runs.last()
+        assertEquals("Shared 120Hz replay y after 600ms",338f,reference.y,0.5f)
+        assertEquals("Shared body hitbox",18f,reference.radius,0f)
         for ((i,sim) in runs.withIndex()) {
             assertFalse("Premature death at ${listOf(30,60,90,120)[i]}Hz",sim.finished)
             assertEquals("Time must be 600ms",0.6f,sim.time,0.0005f)
