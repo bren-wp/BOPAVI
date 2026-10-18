@@ -163,6 +163,7 @@ jobs:
       - run: python tests/test_store_claims.py
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_crash_triage_contract.py
+      - run: python tests/test_release_publish_guard.py
       - name: Require a new version for every pull request
         if: github.event_name == 'pull_request'
         env:
@@ -584,7 +585,13 @@ jobs:
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             existing="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)"
             if [ "$existing" != "$GITHUB_SHA" ]; then
-              echo "::error::Release $tag targets $existing, not this commit $GITHUB_SHA. Increase version."
+              # Never rewrite a released tag for documentation-only merges.
+              git fetch --no-tags --depth=1 origin "$existing"
+              if git diff --name-only "$existing" "$GITHUB_SHA" | python3 tests/release_publish_guard.py; then
+                echo "Skipping duplicate $tag publication after metadata-only changes."
+                exit 0
+              fi
+              echo "::error::Release $tag targets $existing, not this product commit $GITHUB_SHA. Increase version."
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
