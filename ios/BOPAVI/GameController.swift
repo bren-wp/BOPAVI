@@ -90,6 +90,7 @@ final class GameController: UIViewController {
     private let collectHaptic=UISelectionFeedbackGenerator()
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
+    private weak var gamePauseButton:UIButton?
     private weak var pauseFitViewport:UIScrollView?
     private weak var pauseFitPanel:UIStackView?
     private weak var resultFitViewport:UIScrollView?
@@ -119,7 +120,12 @@ final class GameController: UIViewController {
         // Keep an active flight exactly where the user left it on call, lock or app switch.
         // Never auto-resume physics or audio in the background.
         guard let activeCanvas=canvas else {return}
-        if activeCanvas.game.active {activeCanvas.paused=true}
+        if activeCanvas.game.active {
+            activeCanvas.paused=true
+            gamePauseButton?.setTitle("▶",for:.normal)
+            gamePauseButton?.accessibilityLabel=progress.languageCode=="hr" ?
+                "Otvori kontrole pauzirane igre" : "Open paused game controls"
+        }
         sound.pause()
     }
     @objc private func resumeIdlePreview(_ note:Notification) {
@@ -129,7 +135,7 @@ final class GameController: UIViewController {
         }
     }
     private func clear() {
-        canvas?.stop();canvas=nil;sound.stop()
+        canvas?.stop();canvas=nil;gamePauseButton=nil;sound.stop()
         setNeedsStatusBarAppearanceUpdate()
         backgroundGradient=nil
         view.subviews.forEach{$0.removeFromSuperview()}
@@ -328,7 +334,13 @@ final class GameController: UIViewController {
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
-            if resume {canvas?.paused=false;self?.sound.resume()}
+            if resume {
+                canvas?.paused=false
+                self?.gamePauseButton?.setTitle("Ⅱ",for:.normal)
+                self?.gamePauseButton?.accessibilityLabel=self?.progress.languageCode=="hr" ?
+                    "Pauziraj igru" : "Pause game"
+                self?.sound.resume()
+            }
         }
         func command(_ caption:String,style:Int,handler:@escaping()->Void){
             let control:UIButton
@@ -393,6 +405,7 @@ final class GameController: UIViewController {
         pause.layer.cornerRadius=16;pause.layer.borderWidth=1
         pause.layer.borderColor=UIColor.white.withAlphaComponent(0.3).cgColor
         pause.accessibilityLabel=progress.languageCode=="hr" ? "Pauziraj igru" : "Pause game"
+        gamePauseButton=pause
         // Keep pause out of the idle flight preview and VoiceOver tree.
         pause.isHidden=true
         pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
