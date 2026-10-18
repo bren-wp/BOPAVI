@@ -707,6 +707,14 @@ enum PillarCollision {
               toOpening.top.isFinite && toOpening.bottom.isFinite &&
               radius>0 && gateWidth>0 && fromOpening.top<fromOpening.bottom &&
               toOpening.top<toOpening.bottom else{return false}
+        // A completely stationary tangent remains a near miss; short-circuit
+        // rather than visiting ~2^20 indistinguishable zero-clearance intervals.
+        if fromY == toY && fromGateX == toGateX &&
+           fromOpening.top == toOpening.top &&
+           fromOpening.bottom == toOpening.bottom {
+            return bodyHitsPillar(birdX:birdX,birdY:fromY,radius:radius,
+                                  gateX:fromGateX,gateWidth:gateWidth,opening:fromOpening)
+        }
         if birdX < min(fromGateX,toGateX)-7-radius ||
            birdX > max(fromGateX,toGateX)+gateWidth+5+radius {return false}
         let motionBound = abs(toGateX-fromGateX) + abs(toY-fromY)
