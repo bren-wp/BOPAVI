@@ -315,6 +315,93 @@ class LevelEngineTest {
             PillarCollision.bodyHitsPillar(126f,300f,18f,144f,73f,LevelEngine.Opening(376f,536f)))
     }
 
+    @Test fun roundedRockLipRejectsTransparentCornerButAcceptsOnePixelPenetration() {
+        // Drawn upper lip: roundRect(left=100, top=200, right=188, bottom=228, corner=7).
+        // Previous cap AABB considers (88,188) a hit (16.97px from rectangle),
+        // whereas the actual rounded corner is 19.87px away (> Bopi radius 18).
+        val opening=LevelEngine.Opening(228f,450f)
+        assertFalse("Transparent upper roundRect corner must not kill Bopi",
+            PillarCollision.bodyHitsPillar(88f,188f,18f,107f,76f,opening))
+        assertFalse("1-2px outside actual upper rounded corner is safe",
+            PillarCollision.bodyHitsPillar(88f,190f,18f,107f,76f,opening))
+        assertTrue("Real penetration into rounded upper lip must register",
+            PillarCollision.bodyHitsPillar(88f,192f,18f,107f,76f,opening))
+        assertFalse("Transparent lower rounded corner must be safe",
+            PillarCollision.bodyHitsPillar(88f,489f,18f,107f,76f,opening))
+        assertTrue("Real lower rounded lip must register",
+            PillarCollision.bodyHitsPillar(88f,484f,18f,107f,76f,opening))
+        // Upper/lower straight outer lip edge tangency, 1px inside, 2px outside.
+        assertFalse("Exact visible lip tangency is not penetration",
+            PillarCollision.bodyHitsPillar(82f,214f,18f,107f,76f,opening))
+        assertTrue("1px physical overlap is a real hit",
+            PillarCollision.bodyHitsPillar(83f,214f,18f,107f,76f,opening))
+        assertFalse("2px margin from cap must remain safe",
+            PillarCollision.bodyHitsPillar(80f,214f,18f,107f,76f,opening))
+        assertFalse("Lower cap tangency is also safe",
+            PillarCollision.bodyHitsPillar(82f,463.5f,18f,107f,76f,opening))
+        assertTrue("Lower cap 1px penetration is a hit",
+            PillarCollision.bodyHitsPillar(83f,463.5f,18f,107f,76f,opening))
+        assertFalse("Transparent wing/aura outside body circle cannot hit",
+            PillarCollision.bodyHitsPillar(70f,338f,18f,107f,76f,opening))
+        assertFalse("Invalid body geometry cannot be a hit",
+            PillarCollision.bodyHitsPillar(Float.NaN,188f,18f,107f,76f,opening))
+        assertFalse(PillarCollision.bodyHitsPillar(88f,188f,0f,107f,76f,opening))
+    }
+
+    @Test fun movingRockOpeningIsFiniteAndBoundsAgreeAcrossFrameRates() {
+        for(world in 0 until LevelEngine.WORLD_COUNT)
+            for(difficulty in 0..2) {
+                val gate=LevelEngine.create(world,120).gates[5]
+                for(hz in listOf(30,60,90,120)) {
+                    var previous=LevelEngine.opening(gate,0f,difficulty)
+                    for(frame in 1..hz*2) {
+                        val next=LevelEngine.opening(gate,frame.toFloat()/hz,difficulty)
+                        assertTrue(next.top.isFinite() && next.bottom.isFinite())
+                        assertTrue(next.bottom-next.top >= 144.9f)
+                        assertTrue("Moving mouth may not teleport",
+                            kotlin.math.abs(next.top-previous.top) < 2f &&
+                            kotlin.math.abs(next.bottom-previous.bottom) < 2f)
+                        previous=next
+                    }
+                }
+            }
+    }
+    @Test fun conservativeRockSweepCatchesSingleSliceRoundedCornerTunneling() {
+        val o=LevelEngine.Opening(228f,450f)
+        // At 120Hz the real-moving rock can shift 1.5px horizontally while a
+        // flap shifts Bopi 1.87px vertically: both endpoints are safe, middle
+        // of the relative segment intersects the 7px rounded lip by 0.01px.
+        val startX=146.2422f;val endX=144.7422f
+        val startY=192.2966f;val endY=190.42694f
+        assertFalse(PillarCollision.bodyHitsPillar(126f,startY,18f,startX,76f,o))
+        assertFalse(PillarCollision.bodyHitsPillar(126f,endY,18f,endX,76f,o))
+        assertTrue("Missing the moving rock inside the physics slice is tunneling",
+            PillarCollision.sweptBodyHitsPillar(126f,startY,endY,18f,
+                startX,endX,76f,o,o))
+        assertFalse("A parallel genuinely clear near-miss must stay safe",
+            PillarCollision.sweptBodyHitsPillar(126f,startY-.12f,endY-.12f,18f,
+                startX,endX,76f,o,o))
+        // Mouth motion is accounted for in the *same relative coordinates*.
+        val moved=LevelEngine.Opening(228.2f,450.2f)
+        assertTrue(PillarCollision.sweptBodyHitsPillar(126f,startY,endY+.2f,18f,
+            startX,endX,76f,o,moved))
+        assertFalse(PillarCollision.sweptBodyHitsPillar(Float.NaN,startY,endY,18f,
+            startX,endX,76f,o,moved))
+    }
+
+    @Test fun stationaryLipTangencyIsNotAnUnboundedCcdSearch() {
+        val mouth=LevelEngine.Opening(228f,450f)
+        // Bird x=82 is exactly r18 away from the leftmost cap edge x=100.
+        // An unchanged 120Hz sweep must use the exact static predicate rather
+        // than exploring ~2^20 zero-clearance intervals.
+        assertFalse(PillarCollision.bodyHitsPillar(82f,214f,18f,107f,76f,mouth))
+        assertFalse(PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+            107f,107f,76f,mouth,mouth))
+        // One real pixel of inward rock motion still becomes a true contact.
+        assertTrue(PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+            107f,106f,76f,mouth,mouth))
+    }
+
     @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
         val level=LevelEngine.create(0,2)
         val lipTooHigh=level.gates[0].copy(x=148f,center=490f,gap=160f,

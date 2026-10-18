@@ -399,6 +399,59 @@ struct SwiftParity {
         let impossible=GameSimulation(BopaviCore.create(0,2))
         impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
         precondition(impossible.time==0)
+        // Moving gate mouths remain finite and continuous at every display rate.
+        for world in 0..<8 {
+            for difficulty in 0...2 {
+                let gate=BopaviCore.create(world,120).gates[5]
+                for hz in [30,60,90,120] {
+                    var previous=BopaviCore.opening(gate,0,difficulty:difficulty)
+                    for frame in 1...(hz*2) {
+                        let next=BopaviCore.opening(gate,Float(frame)/Float(hz),
+                                                   difficulty:difficulty)
+                        precondition(next.top.isFinite && next.bottom.isFinite)
+                        precondition(next.bottom-next.top>=144.9)
+                        precondition(abs(next.top-previous.top)<2 && abs(next.bottom-previous.bottom)<2)
+                        previous=next
+                    }
+                }
+            }
+        }
+        let movingRock=BopaviCore.Opening(top:228,bottom:450)
+        let movingRockEnd=BopaviCore.Opening(top:228.2,bottom:450.2)
+        let fromX:Float=146.2422, toX:Float=144.7422
+        let fromY:Float=192.2966, toY:Float=190.42694
+        precondition(!PillarCollision.bodyHitsPillar(birdX:126,birdY:fromY,radius:18,
+                      gateX:fromX,gateWidth:76,opening:movingRock))
+        precondition(!PillarCollision.bodyHitsPillar(birdX:126,birdY:toY,radius:18,
+                      gateX:toX,gateWidth:76,opening:movingRock))
+        let cases=[
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY,toY:toY,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRock),
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY-0.12,toY:toY-0.12,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRock),
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY,toY:toY+0.2,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRockEnd)]
+        precondition(cases == [true,false,true],"120Hz moving-rock tunneling")
+        for (index,value) in cases.enumerated(){print("T|\(index)|\(value)")}
+        let cap=BopaviCore.Opening(top:228,bottom:450)
+        for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484),
+                       (82,214),(83,214),(80,214),(82,463.5),(83,463.5)] {
+            let hit=PillarCollision.bodyHitsPillar(birdX:x,birdY:y,radius:18,
+                                                  gateX:107,gateWidth:76,opening:cap)
+            let expected=(y==192 || y==484 || (x==83 && (y==214 || y==463.5)))
+            precondition(hit==expected,"Rounded cap collision at \(x),\(y)")
+            print("C|\(Int(x))|\(Int(y))|\(hit)")
+        }
+        let tangent=BopaviCore.Opening(top:228,bottom:450)
+        precondition(!PillarCollision.sweptBodyHitsPillar(birdX:82,fromY:214,toY:214,
+            radius:18,fromGateX:107,toGateX:107,gateWidth:76,
+            fromOpening:tangent,toOpening:tangent))
+        precondition(PillarCollision.sweptBodyHitsPillar(birdX:82,fromY:214,toY:214,
+            radius:18,fromGateX:107,toGateX:106,gateWidth:76,
+            fromOpening:tangent,toOpening:tangent))
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

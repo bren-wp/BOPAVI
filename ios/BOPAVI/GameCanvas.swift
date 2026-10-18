@@ -276,6 +276,9 @@ final class GameCanvas: UIView {
             gate(c,g,x,i)
         }
         bird(c)
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-BOPAVICollisionDebug") { drawCollisionDebugOverlay(c) }
+        #endif
         // Matches Android idle hint in the 480x800 logical game coordinates.
         if !game.active && !game.finished {
             rect(c,87,671,306,75,0x092559,22,0.85)
@@ -301,6 +304,35 @@ final class GameCanvas: UIView {
         // a legacy opaque ground-colored stripe covered the bottom artwork.
         // The full-window sky is already filled before the 480x800 canvas.
     }
+    #if DEBUG
+    /// Opt-in Xcode launch argument only; absent in Release builds.
+    private func drawCollisionDebugOverlay(_ c:CGContext){
+        c.saveGState()
+        c.setLineWidth(2)
+        c.setStrokeColor(UIColor.yellow.cgColor)
+        let r=CGFloat(game.radius)
+        c.strokeEllipse(in:CGRect(x:CGFloat(game.birdX)-r,y:CGFloat(game.y)-r,width:2*r,height:2*r))
+        for (index,g) in game.level.gates.enumerated(){
+            let x=CGFloat(game.gateX(g)),w=CGFloat(g.width)
+            if x < -100 || x > 550 {continue}
+            let opening=BopaviCore.opening(g,game.time,difficulty:game.difficulty)
+            let top=CGFloat(opening.top),bottom=CGFloat(opening.bottom)
+            c.setLineWidth(1.5);c.setStrokeColor(UIColor.magenta.cgColor)
+            c.stroke(CGRect(x:x,y:-25,width:w,height:top+25))
+            c.stroke(CGRect(x:x,y:bottom,width:w,height:825-bottom))
+            c.setStrokeColor(UIColor.cyan.cgColor)
+            c.addPath(UIBezierPath(roundedRect:CGRect(x:x-7,y:top-28,width:w+12,height:28),cornerRadius:7).cgPath)
+            c.strokePath()
+            c.addPath(UIBezierPath(roundedRect:CGRect(x:x-7,y:bottom,width:w+12,height:27),cornerRadius:7).cgPath)
+            c.strokePath()
+            if game.endless && g.coin && game.foodVisible(index){
+                c.setStrokeColor(UIColor.green.cgColor)
+                c.strokeEllipse(in:CGRect(x:x+w*0.5-13,y:(top+bottom)*0.5-13,width:26,height:26))
+            }
+        }
+        c.restoreGState()
+    }
+    #endif
     /// Single UIKit-free illustrated HUD: the separately clickable Pause
     /// button remains a real UIButton above the scene, not a painted sprite.
     /// All values are live simulation data. The bar is explicitly progress
