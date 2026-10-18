@@ -22,7 +22,7 @@ final class Soundscape {
     }
     init() {
         try? AVAudioSession.sharedInstance().setCategory(.ambient,mode:.default,options:[.mixWithOthers])
-        for name in ["tap","collect","level","hit","purchase","click"] {
+        for name in ["tap","collect","level","hit","click"] {
             if let url=Bundle.main.url(forResource:name,withExtension:"wav",subdirectory:"Audio"),
                let sound=try? AVAudioPlayer(contentsOf:url) {
                 sound.volume=0.42*effectsVolume;sound.prepareToPlay();fx[name]=sound
