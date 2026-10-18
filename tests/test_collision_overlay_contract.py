@@ -17,4 +17,14 @@ for f in (android,ios):
     for marker in ("drawCircle(game.birdX,game.y,game.radius,p)", "c.strokeEllipse(in:CGRect(x:CGFloat(game.birdX)-r"):
         if marker in f: break
     else: raise AssertionError("No body-circle overlay")
+# This used to compile even on Debug without an active DEBUG condition:
+# compiling a Debug simulator alone does not prove that #if DEBUG runs.
+project=(r/"ios/BOPAVI.xcodeproj/project.pbxproj").read_text()
+debug_targets=[line for line in project.splitlines() if "/* target_debug */" in line]
+release_targets=[line for line in project.splitlines() if "/* target_release */" in line]
+assert len(debug_targets)==1 and len(release_targets)==1
+assert "SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;" in debug_targets[0], (
+    "Target Debug must explicitly define DEBUG for the collision overlay")
+assert "SWIFT_ACTIVE_COMPILATION_CONDITIONS" not in release_targets[0], (
+    "Release must not inherit the diagnostic overlay compilation condition")
 print("PASS: only debuggable/test-opt-in collision debug artwork, with iOS DEBUG compile")
