@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR), verified UX v0.2.21 / build 126
+# Google Play — BOPAVI (hr-HR), verified UX v0.2.23 / build 128
 
 <!-- verified-feature-ids: home,flight,tap_to_flap,procedural_obstacles,pause,results,score,berries,local_best,retry,offline,no_ads,no_account -->
 
@@ -22,7 +22,7 @@ Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unuta
 
 ## Autentične slike — ugovor
 
-Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Izvor: https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.21.
+Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Izvor: https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.23.
 
 - Home: jedan gumb IGRAJ.
 - Flight Preview: prikaz prije prvog zamaha; **ne** predstavljati ga kao aktivni gameplay.
