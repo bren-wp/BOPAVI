@@ -563,6 +563,20 @@ class LevelEngineTest {
         assertTrue(missed.foodVisible(0))
     }
 
+
+    @Test fun sweptBerryContactCatchesFrameBoundaryGrazesWithoutMagnet() {
+        assertTrue("The berry crosses Bopi between physics slices",
+            BerryCollision.touched(40f,0f,-40f,0f,31f))
+        assertFalse("Close pass outside Bopi's actual body remains missed",
+            BerryCollision.touched(40f,32f,-40f,32f,31f))
+        assertTrue("Exact tangent contact counts",
+            BerryCollision.touched(40f,31f,-40f,31f,31f))
+        assertTrue("Already overlapping fruit counts without movement",
+            BerryCollision.touched(0f,0f,0f,0f,31f))
+        assertFalse("Invalid motion cannot grant any food",
+            BerryCollision.touched(Float.NaN,0f,0f,0f,31f))
+    }
+
     @Test fun beginnerObstaclesFormGentleRhythmIncludingNextStream() {
         for(world in 0 until LevelEngine.WORLD_COUNT)for(n in listOf(1,2,35,61,360)) {
             val l=LevelEngine.create(world,n)

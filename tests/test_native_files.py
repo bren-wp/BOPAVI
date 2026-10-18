@@ -72,3 +72,17 @@ assert "g.foodCollected" in a_result and "g.foodCollected" in i_result
 assert "if(!endless && gate.power" in AC and "if !endless && gate.power" in IC
 assert "source-audit:" in WORKFLOW and "python tools/audit_native_dead_code.py" in WORKFLOW
 print("PASS: native four-view gameplay, original Bopi, non-reward endless score and safe persistence")
+
+# V6 improvements: food records and screen readers must use genuine saved data.
+for progress in ("android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt",
+                 "ios/BOPAVI/ProgressStore.swift"):
+    code=(ROOT/progress).read_text()
+    assert "endless_food_best" in code and "bestFood()" in code
+for source in (A,I):
+    assert "progress.bestFood()" in source and "NAJVIŠE HRANE" in source
+for path in ("android/app/src/main/java/com/brendigo/bopavi/GameView.kt",
+             "ios/BOPAVI/GameCanvas.swift"):
+    gameview=(ROOT/path).read_text()
+    assert "cachedScore" in gameview and "cachedFood" in gameview
+    assert "lastAccessibilityScore" in gameview and "lastAccessibilityFood" in gameview
+print("PASS: berry personal best, two-line result record and cached in-flight HUD")

@@ -64,17 +64,22 @@ class ProgressStore(context: Context) {
         return true
     }
     fun endlessBest(): Int = prefs.getInt("endless_best",0)
+    /** Personal record for actual berries physically collected in one run. */
+    fun bestFood():Int = prefs.getInt("endless_food_best",0).coerceIn(0,100_000_000)
     fun wins(): Int = prefs.getInt("wins",0)
     fun deaths(): Int = prefs.getInt("deaths",0)
     fun recordRun(game: GameSimulation) {
         val edit=prefs.edit()
         edit.putInt("collectibles_${game.level.world}", (prefs.getInt("collectibles_${game.level.world}",0).toLong()+game.coins+game.stars).coerceAtMost(100000000L).toInt())
-        edit.putLong("flaps",(prefs.getLong("flaps",0)+game.flaps).coerceAtMost(100000000L))
+        edit.putLong("flaps",(prefs.getLong("flaps",0).coerceIn(0L,100_000_000L)+
+            game.flaps.coerceIn(0,100_000_000).toLong()).coerceAtMost(100_000_000L))
         if(game.endless) {
             edit.putInt("endless_best",maxOf(endlessBest(),game.totalPassed))
-            edit.putInt("endless_runs",prefs.getInt("endless_runs",0)+1)
+            edit.putInt("endless_food_best",maxOf(bestFood(),game.foodCollected.coerceIn(0,100_000_000)))
+            edit.putInt("endless_runs",prefs.getInt("endless_runs",0).coerceIn(0,99_999_999)+1)
         }
-        if(game.won)edit.putInt("wins",wins()+1) else edit.putInt("deaths",deaths()+1)
+        if(game.won)edit.putInt("wins",wins().coerceIn(0,99_999_999)+1)
+        else edit.putInt("deaths",deaths().coerceIn(0,99_999_999)+1)
         edit.apply()
         saveLocalScore(game)
     }
@@ -223,7 +228,8 @@ class ProgressStore(context: Context) {
         s.put("owned",JSONArray((0..8).filter{owned(it)}.map{skins[it]}))
         s.put("skin",skins[skin()]);s.put("lastDaily",prefs.getString("last_daily", ""))
         s.put("wins",wins());s.put("deaths",deaths());s.put("flaps",prefs.getLong("flaps",0L))
-        s.put("endlessBest",endlessBest());s.put("endlessRuns",prefs.getInt("endless_runs",0))
+        s.put("endlessBest",endlessBest());s.put("bestFood",bestFood())
+        s.put("endlessRuns",prefs.getInt("endless_runs",0))
         s.put("perks",JSONArray((0..5).map{perkCount(it)}))
         s.put("collectibles",JSONArray((0..7).map{collectibles(it)})); s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
         s.put("musicVolume",musicVolume());s.put("effectsVolume",effectsVolume())
@@ -301,6 +307,8 @@ class ProgressStore(context: Context) {
         e.putInt("deaths",s.optInt("deaths",0).coerceIn(0,100000000))
         e.putLong("flaps",s.optLong("flaps",0).coerceIn(0L,100000000L))
         e.putInt("endless_best",s.optInt("endlessBest",0).coerceIn(0,100000000))
+        // Importing an older backup cannot erase newly earned berry records.
+        e.putInt("endless_food_best",maxOf(bestFood(),s.optInt("bestFood",0).coerceIn(0,100_000_000)))
         e.putInt("endless_runs",s.optInt("endlessRuns",0).coerceIn(0,100000000))
         val daily=s.optString("lastDaily","")
         if(daily.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))e.putString("last_daily",daily)

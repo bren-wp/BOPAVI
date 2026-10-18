@@ -60,6 +60,12 @@ final class GameCanvas: UIView {
     var onShieldImpact:(()->Void)?
     private var completedSeen=0
     private var pickupSeen=0
+    private var cachedScore = -1
+    private var cachedScoreText = "0"
+    private var cachedFood = -1
+    private var cachedFoodText = "0"
+    private var lastAccessibilityScore = -1
+    private var lastAccessibilityFood = -1
     private var shieldImpactNotified=false
     private var link: CADisplayLink?
     private var previous: CFTimeInterval = 0
@@ -340,15 +346,24 @@ final class GameCanvas: UIView {
     }
     private let hudCountFont=UIFont.monospacedDigitSystemFont(ofSize:26,weight:.heavy)
     private func drawBoostHUD(_ c:CGContext) {
+        // Cache digit strings and accessibility metadata on *value* changes,
+        // not once per 60/90/120 Hz scene redraw.
+        let score=game.score()
+        let food=game.foodCollected
+        if score != cachedScore {cachedScore=score;cachedScoreText=String(score)}
+        if food != cachedFood {cachedFood=food;cachedFoodText=String(food)}
         // Two high-contrast live score lines. The game has no economy or stages.
         hudGlass(c,18,20,194,68)
         hudText(word("SCORE","BODOVI"),36,31,hudWalletFont,0xbceeff)
-        hudText(String(game.score()),36,50,hudCountFont,0xffffff)
+        hudText(cachedScoreText,36,50,hudCountFont,0xffffff)
         hudGlass(c,228,20,148,68)
         berry(c,250,58,11)
         hudText(language=="hr" ? "HRANA" : "FOOD",274,31,hudWalletFont,0xbceeff)
-        hudText(String(game.foodCollected),274,50,hudCountFont,0xffffff)
-        accessibilityLabel="\(word("SCORE","BODOVI")): \(game.score()); \(language=="hr" ? "Hrana" : "Food"): \(game.foodCollected)"
+        hudText(cachedFoodText,274,50,hudCountFont,0xffffff)
+        if score != lastAccessibilityScore || food != lastAccessibilityFood {
+            lastAccessibilityScore=score;lastAccessibilityFood=food
+            accessibilityLabel="\(word("SCORE","BODOVI")): \(score); \(language=="hr" ? "Hrana" : "Food"): \(food)"
+        }
     }
     /// Procedural scenery over the illustration and behind real collision geometry.
     /// 12 atmosphere motes and 9 near-field stems, bounded work per frame.

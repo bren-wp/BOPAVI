@@ -106,6 +106,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         }
     }
     private fun advance(dt: Float) {
+        val previousY=y
+        val previousTime=time
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
         // All eight worlds use the same tap impulse, gravity and terminal speed.
         velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
@@ -125,10 +127,16 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             }
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
-            // Body-to-berry overlap, not a free reward for avoiding the pillar.
+            // Sweep the real fruit/body relative motion across this physics
+            // slice. Endpoint-only contact missed fast edge grazes on 30Hz
+            // devices; the collider and safe gate opening stay unchanged.
             if(endless && gate.coin && !collectedFood[i]) {
-                val dx=cx-birdX;val dy=cy-y
-                if(dx*dx+dy*dy <= (radius+13f)*(radius+13f)) {
+                val oldOpening=LevelEngine.opening(gate,previousTime,difficulty)
+                val oldCy=(oldOpening.top+oldOpening.bottom)*.5f
+                val travel=level.speed*speedFactor*dt
+                if(BerryCollision.touched(
+                    cx+travel-birdX,oldCy-previousY,
+                    cx-birdX,cy-y,radius+13f)) {
                     collectedFood[i]=true;foodCollected++;collectPulse=.36f
                 }
             }
@@ -198,5 +206,22 @@ internal object PillarCollision {
         val dx=maxOf(0f,left-cx,cx-right)
         val dy=maxOf(0f,top-cy,cy-bottom)
         return dx*dx+dy*dy < r*r
+    }
+}
+
+/** Segment-to-point contact of a moving berry relative to Bopi's body.
+ * No heap allocations, sprite bounds, magnetic pickup or virtual currency.
+ */
+internal object BerryCollision {
+    fun touched(startX:Float,startY:Float,endX:Float,endY:Float,contactRadius:Float):Boolean {
+        if(!startX.isFinite() || !startY.isFinite() || !endX.isFinite() ||
+            !endY.isFinite() || !contactRadius.isFinite() || contactRadius<=0f) return false
+        val dx=endX-startX
+        val dy=endY-startY
+        val lengthSquared=dx*dx+dy*dy
+        val t=if(lengthSquared>0f) ((-startX*dx-startY*dy)/lengthSquared).coerceIn(0f,1f) else 0f
+        val nearestX=startX+dx*t
+        val nearestY=startY+dy*t
+        return nearestX*nearestX+nearestY*nearestY<=contactRadius*contactRadius
     }
 }

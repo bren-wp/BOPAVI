@@ -482,7 +482,6 @@ final class GameController: UIViewController {
         ])
         // Same live visual composition as Android: real selected pilot and
         // world image, not a mocked result screenshot or static generic hero.
-        let pilotIndex=0
         let header=UIView()
         header.clipsToBounds=true
         header.layer.cornerRadius=22
@@ -490,7 +489,8 @@ final class GameController: UIViewController {
         header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
         header.heightAnchor.constraint(equalToConstant:174).isActive=true
         header.isAccessibilityElement=true
-        header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[0])"
+        header.accessibilityLabel=progress.languageCode=="hr" ?
+            "Bopi u svijetu Zeleni otoci" : "Bopi in Green Islands"
         stack.addArrangedSubview(header)
         let scene=UIImageView(image:UIImage(named:"World0"))
         scene.translatesAutoresizingMaskIntoConstraints=false
@@ -503,7 +503,7 @@ final class GameController: UIViewController {
         fade.backgroundColor=UIColor(red:0.02,green:0.09,blue:0.26,alpha:0.32)
         fade.isAccessibilityElement=false
         header.addSubview(fade)
-        let pilot=UIImageView(image:UIImage(named:"BopiPortrait\(pilotIndex)"))
+        let pilot=UIImageView(image:UIImage(named:"BopiPortrait0"))
         pilot.translatesAutoresizingMaskIntoConstraints=false
         pilot.contentMode = .scaleAspectFit
         pilot.isAccessibilityElement=false
@@ -574,8 +574,11 @@ final class GameController: UIViewController {
         _=resultCard(progress.languageCode=="hr" ? "HRANA" : "FOOD",
             icon:"🍓",value:String(g.foodCollected),highlight:sky)
         let best=label(progress.languageCode=="hr" ?
-            "★  NAJBOLJI REZULTAT: \(progress.bestPoints())" :
-            "★  BEST SCORE: \(progress.bestPoints())",18,.white,stack)
+            "★  NAJBOLJI REZULTAT: \(progress.bestPoints())\n🍓  NAJVIŠE HRANE: \(progress.bestFood())" :
+            "★  BEST SCORE: \(progress.bestPoints())\n🍓  MOST FOOD: \(progress.bestFood())",16,.white,stack)
+        best.numberOfLines=2
+        best.minimumScaleFactor=0.82
+        best.adjustsFontSizeToFitWidth=true
         best.backgroundColor=UIColor(red:0.025,green:0.16,blue:0.37,alpha:0.98)
         best.layer.cornerRadius=20
         best.layer.borderWidth=2

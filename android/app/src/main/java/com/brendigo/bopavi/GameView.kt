@@ -35,6 +35,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Update point totals on change and the real distance readout at 10 Hz,
     // rather than allocating formatted text on every animation frame.
     private var lastHudAccessibility = ""
+    private var lastAccessibilityScore = -1
+    private var lastAccessibilityFood = -1
+    private var cachedScore = -1
+    private var cachedScoreLabel = "0"
+    private var cachedFood = -1
+    private var cachedFoodLabel = "0"
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,8) // The player's save-backed pilot; same body collider for all nine.
@@ -987,16 +993,26 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
     private fun drawHud(c:Canvas){
+        // Only the changed counters allocate their numeric strings. At 120 Hz
+        // most frames simply reuse the last score and berry-count labels.
+        val score=game.score()
+        val food=game.foodCollected
+        if(score!=cachedScore){cachedScore=score;cachedScoreLabel=score.toString()}
+        if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
         // Accessible current score; no wallets, level meters or power-ups.
         hudGlass(c,18f,20f,212f,88f)
         text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
-        text(c,game.score().toString(),36f,76f,26f,Color.WHITE)
+        text(c,cachedScoreLabel,36f,76f,26f,Color.WHITE)
         hudGlass(c,228f,20f,376f,88f)
         drawBerry(c,250f,58f,11f)
         text(c,if(language=="hr")"HRANA" else "FOOD",274f,46f,12f,0xffbceeff.toInt())
-        text(c,game.foodCollected.toString(),274f,76f,26f,Color.WHITE)
-        val status="${word("SCORE","BODOVI")}: ${game.score()}; ${if(language=="hr")"Hrana" else "Food"}: ${game.foodCollected}"
-        if(status!=lastHudAccessibility){lastHudAccessibility=status;contentDescription=status}
+        text(c,cachedFoodLabel,274f,76f,26f,Color.WHITE)
+        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood) {
+            lastAccessibilityScore=score
+            lastAccessibilityFood=food
+            lastHudAccessibility="${word("SCORE","BODOVI")}: $score; ${if(language=="hr")"Hrana" else "Food"}: $food"
+            contentDescription=lastHudAccessibility
+        }
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
     override fun onTouchEvent(event:MotionEvent):Boolean {

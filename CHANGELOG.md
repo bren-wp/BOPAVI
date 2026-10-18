@@ -1,3 +1,13 @@
+## v0.2.21 — swept berry collection, saved food best and lighter UI (build 126)
+- Android + iOS: physics-slice swept berry pickup collision catches honest body-to-fruit touches that fall between frames, including dynamic gate motion; near misses still never count, and food never buys anything or increases score.
+- Reduce Android Canvas and iOS Core Graphics HUD churn by reusing score/berry-count strings; update VoiceOver/TalkBack accessibility text only when live values change, not at 60/90/120 Hz.
+- Add a separate local personal berry record, shown beside the existing points record in the same compact Results panel (no new menu/screens). Preserve both records and support optional `bestFood` in existing backward-compatible v6 save export/import; old backups do not clear berry records.
+- Saturate saved Android/iOS run/flap/death/win counters before addition, so malformed or extremely large saved values cannot wrap negative or crash from integer overflow.
+- Remove unused per-result arrays of eight world images and nine pilot portraits. The four-view app always uses the original Bopi and first world; assets for legacy save compatibility remain archived.
+- New Kotlin JUnit and Swift parity tests cover swept fruit contact/tangency/miss/NaN, with static checks for actual stored berry records and HUD allocation limits.
+- Privacy/offline-first unchanged: no ads, tracking, network permission, shop, currency HUD or in-game purchasing.
+- Android / iOS v0.2.21 (build 126); public APK/AAB/iOS archives require green device/simulator CI and verified GitHub release publication.
+
 ## v0.2.20 — lifecycle stability, audio hardening and frame efficiency (build 125)
 - Consolidate native redraw guards after a redundant nested condition was identified during review; retain the already-existing idle/pause frame suppression while avoiding unnecessary checks. Live gameplay stays frame matched, with touch and pause triggering redraws.
 - Drop heavy bitmap references when the Android gameplay view is detached; reload only when a window reattaches, without unsafe Bitmap.recycle() calls during GPU RenderThread playback. Reduce memory pressure after repeated Retry/Home navigation.

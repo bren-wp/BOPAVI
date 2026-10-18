@@ -261,6 +261,8 @@ final class GameSimulation {
         }
     }
     private func advance(_ dt: Float) {
+        let previousY=y
+        let previousTime=time
         time += dt; levelTransition=max(0,levelTransition-dt); invulnerable = max(0, invulnerable-dt); magnetTime = max(0, magnetTime-dt); collectPulse = max(0,collectPulse-dt); impactPulse = max(0,impactPulse-dt); flapPulse = max(0,flapPulse-dt)
         // Same physics and flap control as the Android simulation in every world.
         velocity = min(365, velocity+(685*gravityFactor+level.wind)*dt)
@@ -281,10 +283,15 @@ final class GameSimulation {
             }
             let cx=x+gate.width*0.5
             let cy=(bounds.top+bounds.bottom)*0.5
-            // Berry collection uses the same opening midpoint as native artwork.
+            // The berry may cross Bopi between two display frames:
+            // sweep relative body/fruit motion across the 34 ms physics slice.
             if endless && gate.coin && !collectedFood[i] {
-                let dx=cx-birdX,dy=cy-y
-                if dx*dx+dy*dy <= (radius+13)*(radius+13) {
+                let oldOpening=BopaviCore.opening(gate,previousTime,difficulty:difficulty)
+                let oldCy=(oldOpening.top+oldOpening.bottom)*0.5
+                let travel=level.speed*speedFactor*dt
+                if BerryCollision.touched(
+                    startX:cx+travel-birdX,startY:oldCy-previousY,
+                    endX:cx-birdX,endY:cy-y,radius:radius+13) {
                     collectedFood[i]=true;foodCollected+=1;collectPulse=0.36
                 }
             }
@@ -686,5 +693,19 @@ enum PillarCollision {
         let dx=max(0,max(left-cx,cx-right))
         let dy=max(0,max(top-cy,cy-bottom))
         return dx*dx+dy*dy < r*r
+    }
+}
+
+/** Exact closest point on the relative fruit/body motion segment (Kotlin parity). */
+enum BerryCollision {
+    static func touched(startX:Float,startY:Float,endX:Float,endY:Float,radius:Float)->Bool {
+        guard startX.isFinite && startY.isFinite && endX.isFinite &&
+              endY.isFinite && radius.isFinite && radius>0 else{return false}
+        let dx=endX-startX,dy=endY-startY
+        let lengthSquared=dx*dx+dy*dy
+        let t:Float=lengthSquared>0 ?
+            min(1,max(0,(-startX*dx-startY*dy)/lengthSquared)) : 0
+        let nearestX=startX+dx*t,nearestY=startY+dy*t
+        return nearestX*nearestX+nearestY*nearestY<=radius*radius
     }
 }
