@@ -18,6 +18,9 @@
 
 ## Jednostavna premium igra
 
+**Stvarni opseg izdanja:** [FEATURE-MATRIX](docs/product/FEATURE-MATRIX.md) · [Aktivni zasloni](docs/product/CURRENT_SCREENS.md) · [ADR — odluka na čekanju](docs/product/ADR-0001-product-scope.md). Opisuje se samo dostupno sučelje v0.2.21 (build 126).
+
+
 BOPAVI je lagana, offline arkadna igra u kojoj vodiš Bopija kroz šarene nebeske prepreke. **Dodirni zaslon za zamah krila, leti što dulje i pokušaj nadmašiti vlastiti rekord.**
 
 Cijelo korisničko iskustvo sada ima samo tri koraka:

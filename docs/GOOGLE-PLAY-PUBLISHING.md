@@ -1,80 +1,28 @@
-# BOPAVI — detaljne upute za Google Play (v0.1.33)
+# BOPAVI — Google Play publishing guide (v0.2.21 / build 126)
 
-Ažurirano 11.10.2026. Repozitorij: https://github.com/bren-wp/BOPAVI. Paket: **com.brendigo.bopavi**. Android versionName **0.1.32**, versionCode **36**, minSdk **26**, compileSdk/targetSdk **36**.
+Verified source on 2026-10-18: Android applicationId com.brendigo.bopavi, minSdk 26, targetSdk/compileSdk 36, versionName 0.2.21, versionCode 126. Latest tag https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.21. GitHub main CI: https://github.com/bren-wp/BOPAVI/actions/runs/39085140513 (success). These facts **do not** prove Play Console approval or real-device crash freedom.
 
-## 1. Što izdanje uključuje
+## Actual product for metadata
 
-- Izvorni Kotlin/Android projekt koji cilja API 36, uz novu Android 13–16 obradu geste Natrag i podršku za starije uređaje.
-- Automatizirane sigurnosne i funkcionalne provjere, Android APK, **nepotpisani** Android AAB, iOS simulator/device ZIP (iOS uređajni ZIP također nije potpisan za App Store).
-- ZIP BOPAVI-Google-Play-listing-v0.1.33.zip: stvarna 512×512 aplikacijska ikona, promotivna grafika 1024×500 i 4 stvarne Android emulator snimke, izrezane s 1080×2400 na 1080×1920. Snimka 03 prikazuje mirujuću igru prije prvog zamaha, ne aktivan gameplay.
-- GitHub Actions izrađuje **nepotpisani** AAB za preuzimanje. Potpisivanje putem GitHuba je isključeno; izdavač privatno potpisuje paket izvan GitHuba tek prije slanja na Google Play.
-- Hrvatski opis trgovine, politika privatnosti, Data safety analiza i kontrolni popis.
+Accessible Android/iOS navigation: Home → one-button endless Flight → Pause (Continue / Retry / Exit) or Results (Retry / Home). One original Bopi, first biome, score, contact-collected red berries and local best records. There are **no navigable** character/world/level pickers, shop, profile, settings screen or user-accessible JSON import/export. Some old graphics, saved counters and backup code remain internally for compatibility. See docs/product/FEATURE-MATRIX.md and docs/product/CURRENT_SCREENS.md.
 
-**Izdanje nije automatska objava na Google Playu.** Prije objave potrebni su račun izdavača, upload ključ, Play App Signing, sadržajni obrasci, testeri, provjera fizičkih uređaja i odobrenje trgovine.
+Use **only** docs/play/STORE-LISTING-hr-HR.md for the current Croatian Play listing. Keep screenshots truthful. No feature may be inferred from source assets alone.
 
-## 2. Play Console — kreiranje aplikacije
+## Required publisher steps
 
-1. Otvori https://play.google.com/console i potvrdi da je izdavački račun verificiran. Ako je izdavač organizacija, provjeri korisnička prava i odgovornu osobu.
-2. Klikni Create app / Izradi aplikaciju. Naziv: **BOPAVI**, zadani jezik: hrvatski (hr-HR), vrsta: **Game / Igra**. Status besplatno/plaćeno izdavač mora potvrditi prije prvog izdanja. Trenutačni kod nema reklama ni kupnji stvarnim novcem.
-3. AAB identifikator trajno je **com.brendigo.bopavi**. Provjeri da nije zauzet ili već objavljen pod drugim računom. Nakon objave ne mijenjaj identifikator.
-4. Od 31. kolovoza 2026. Google Play za nove standardne Android aplikacije i ažuriranja traži target API 36 ili više. BOPAVI v0.1.29 je API 35 i **ne smije** biti Play kandidat. Službeno: https://support.google.com/googleplay/android-developer/answer/11926878
-5. Android API36 utječe na edge-to-edge, velike zaslone i predictive Back; testirati ponašanje na fizičkim uređajima: https://developer.android.com/about/versions/16/behavior-changes-16
+1. In https://play.google.com/console check authorized ownership, app ID, country availability, audience, category and currently uploaded versions.
+2. Confirm current Google Play target API and developer policies (https://support.google.com/googleplay/android-developer/answer/11926878). Current code targets API 36; that does not waive any other compatibility or form requirement.
+3. Obtain the **unsigned** release AAB from the matching GitHub release; the public APK is a debug build. Validate the matching version, release SHA, artifact hash and the full dependency/merged manifest.
+4. On a trusted local machine sign with the **preexisting publisher-verified upload key** and check signing certificate and SHA-256. Do not create/replace a Play signing identity casually. Never put keystores, passwords or signed artifacts in public GitHub.
+5. Upload the signed bundle to the chosen Play test track, verify there is no reused versionCode, complete app access, Ads, Content rating, Target audience, Data safety, and a working public HTTPS privacy-policy URL. Complete account-specific testing if required before applying for production.
+6. Prepare real store icon (512×512), feature graphic (1024×500) and actual same-build screenshots. For v0.2.21 the release provides Android Home, Flight Preview, Flight Active and Results; preview is not active flight. No dedicated Pause screenshot is in the release manifest. Validate images on the real device/Play-delivered artifact before using them; do not use legacy premium screens.
+7. Test first launch, hitboxes, contact-only berry collection, Pause/Results actions, orientation, inset/layout, audio, offline startup, crashes/ANRs and stored best records on supported devices. Read Pre-launch reports and fix blockers.
+8. Submit and await independent Google review; verify the actual Play listing and install after approval. Neither GitHub Actions nor the public unsigned bundle is evidence of approval.
 
-## 3. Upload key i Play App Signing
+## Privacy and disclosure
 
-Google Play koristi **dva različita ključa**: upload key (čuva izdavač i njime potpisuje AAB) te app-signing key (Google Play za isporuku korisnicima). Preporučuje se Google-generated app-signing key i odvojeni RSA upload key. Službena dokumentacija: https://support.google.com/googleplay/android-developer/answer/9842756
+Current AndroidManifest.xml has no INTERNET permission, and the build lists no analytics/ad SDK. Local score, berry record, preferences and compatible legacy save data are present; old export/import serialization in the code **does not imply a visible export/import button**. Confirm actual final Play package, all versions distributed, all libraries and any external data flows before declaring no collection or sharing. See docs/play/GOOGLE-PLAY-DATA-SAFETY.md. A public privacy policy and complete Data safety form are required even if no data is collected (except Google’s specific internal-only testing exemption).
 
-Na **vlastitom sigurnom računalu**, jednom, pokreni:
+Rules: https://support.google.com/googleplay/android-developer/answer/9898842 ; https://support.google.com/googleplay/android-developer/answer/10787469 ; https://support.google.com/googleplay/android-developer/answer/15191715.
 
-    keytool -genkeypair -v -keystore bopavi-play-upload.jks -alias bopavi-upload -keyalg RSA -keysize 4096 -validity 10000
-
-Čuvaj datoteku, lozinke i sigurnosnu kopiju u privatnom spremištu izvan GitHub repozitorija. Nikada ih ne šalji u chat, issue, PR, commit, screenshot ili GitHub Release. Potpisani bundle bez trajnog upload ključa nije spreman za dugoročno održavanje aplikacije.
-
-## 4. Nepotpisani AAB i privatno potpisivanje
-
-1. GitHub Actions izrađuje `app-release.aab` bez upload ključa. Gradle nema konfiguraciju upload potpisa, a CI prije GitHub Releasea odbija svaku datoteku koja sadrži JAR signing blokove ili nije potvrđeno nepotpisana.
-2. Preuzmi nepotpisani AAB iz provjerenog GitHub Actions artefakta ili iz javnog GitHub izdanja. Provjeri izvornu verziju, SHA-256, package name i neiskorišteni `versionCode`.
-3. Ako izdavač kasnije želi objaviti igru u Play Consoleu, potpisivanje izvodi **lokalno i privatno**, koristeći postojeći, odobreni upload ključ, bez slanja ključa, JKS datoteka ili lozinki na GitHub.
-4. Potpis i SHA-256 provjeri lokalnim alatima prije predaje u Play Console. Nepotpisani `app-release.aab` **nije** prihvatljiv za Play upload.
-5. U slučaju prethodno iskorištenog `versionCode`, pripremi novo pravo izdanje. Nemoj prepisivati tag ili mijenjati upload identitet bez potvrde u Play Consoleu.
-
-## 5. Store listing i marketinški materijali
-
-1. Preuzmi iz GitHub Releasea ZIP **BOPAVI-Google-Play-listing-v0.1.33.zip** i raspakiraj ga.
-2. U Play Console idi na **Grow users → Store presence → Main store listing**. Unesi hrvatski opis iz dokumenta **docs/play/STORE-LISTING-hr-HR.md**.
-3. Prenesi store icon 512×512 RGB i feature graphic 1024×500 RGB. Slike su izvedene iz postojećih izvornika aplikacije; nema izmišljenih screenshotova.
-4. Prenesi valjane **stvarne** Android snimke iz ZIP-a. Provjeri da 9:16 izrez ne skriva gumb, da nema sistemskih dijaloga, pogrešnih imena ni obavijesti. Za kvalitetnije predstavljene igre preporučuju se najmanje **3 stvarna screenshota aktivnog gameplaya** veličine 1080×1920; postojeći ZIP je početni skup, a prikaz mirujućeg leta **nije** stvarni aktivni gameplay.
-5. Dodatne snimke iz aktivne igre pribavi sa stvarnog Android telefona ili legitimnog Android emulatora s **istom verzijom** i bez umjetničkog precrtavanja sučelja.
-6. Pravila o 1024×500 grafici, 512×512 ikoni i snimkama: https://support.google.com/googleplay/android-developer/answer/9866151
-
-## 6. Javna politika privatnosti i obrasci
-
-1. Pripremljena dvojezična javna stranica je **docs/play/privacy-policy.html**. Mora biti dostupna preko stvarnog, javnog HTTPS URL-a bez prijave. Primjer konfiguracije: GitHub repo **Settings → Pages → Deploy from a branch → main /docs**, pa provjeri je li URL **https://bren-wp.github.io/BOPAVI/play/privacy-policy.html** stvarno aktivan. Adresa je samo očekivana nakon aktivacije, ne potvrda da je već objavljena. Može se postaviti i na provjerenu vlastitu domenu.
-2. U **App content** popuni Privacy policy URL, Data safety, Ads, App access, Content rating, Target audience & content i sva dodatna pitanja koje konzola prikaže. Izdavač mora potvrditi dobne skupine; ako se cilja djecu, potrebno je provjeriti posebna Families pravila.
-3. Trenutačno BOPAVI nema INTERNET dozvolu, analitiku, račune, oglase ni prave kupnje. Nadimak igrača, napredak, kovanice i postavke čuvaju se lokalno. Ručni JSON export koristeći odabrani pružatelj dokumenata ne znači da BOPAVI šalje podatke na svoj poslužitelj. Detaljno: **docs/play/GOOGLE-PLAY-DATA-SAFETY.md**.
-4. **Čak i aplikacije bez prikupljanja podataka moraju imati javni privacy policy i popuniti Data safety obrazac.** Potvrdi tvrdnje s konačnim potpisanim bundleom: https://support.google.com/googleplay/android-developer/answer/10787469
-
-## 7. Interni test, zatvoreni test i produkcija
-
-1. Prenesi signed AAB u **Internal testing**; aktiviraj Play App Signing, po potrebi odaberi Googleov app-signing ključ. Testiraj baš Playom isporučenu verziju.
-2. Fizički QA: Android 8/12/13/15/16; 60/90/120 Hz, male i velike zaslone, izreze, edge-to-edge, novi Back, odabir svih 9 likova, svih 8 svjetova, neprekinuti level, zvuk, prekide, pozadinu, nagrade, magnet, štit, JSON import/export i offline rad. Provjeri crash/ANR i Play Pre-launch report.
-3. **Ako je primjenjiv novi osobni račun kreiran nakon 13.11.2023.**, potreban je Closed testing s najmanje **12 kontinuirano prijavljenih testera tijekom 14 dana** prije zahtjeva za pristup produkciji. Ne može se zamijeniti GitHub CI testovima. https://support.google.com/googleplay/android-developer/answer/14151465
-4. Riješi sva blokirajuća upozorenja i dopuni podatke, tek tada odaberi **Production → Create new release → Review release**. Po potrebi postepena distribucija.
-5. Pričekaj Play odobrenje, a zatim ručno potvrdi javnu stranicu, instalaciju i rad paketa s Google Play. GitHub Release **nije** dokaz objave u trgovini.
-
-## 8. Kvarovi — brza dijagnostika
-
-| Poruka / stanje | Postupak |
-|---|---|
-| Unsigned app | Pogrešan AAB. Izradi i prenesi artifact potpisan privatno vlastitim trajnim upload ključem izvan GitHub Actionsa. |
-| Wrong signing key | Provjeri izvorni .jks i Play App Signing upload certifikat; ne izmišljaj drugi ključ. |
-| versionCode already used | U novom izdanju povećaj versionCode; broj 36 mora biti slobodan i potvrđen u Play Consoleu. |
-| Target SDK | Provjeri da je cilj 36 i uploadana v0.1.33, ne stara v0.1.29. |
-| Privacy Policy URL invalid | Stranica mora biti anonimno dostupna HTTPS lokaciji. |
-| Images rejected | Provjeri 512×512, 1024×500, minimalno 2 stvarna screenshota i najveći dopušteni omjer. |
-| Closed testing gate | Dovrši 12/14-dnevni test ako pravilo vrijedi za račun. |
-| Unsigned AAB verification failure | GitHub Release je namjerno blokiran. Provjeri da bundle nema upload potpis i da `jarsigner -verify` potvrđuje nepotpisani AAB; ne dodavaj tajne ili signing job. |
-
-## 9. Završni kontrolni popis
-
-Vidi **docs/play/RELEASE-CHECKLIST.md**. Ne označavati aplikaciju kao odobrenu ili objavljenu bez dokaza iz stvarnog Play Console računa.
+See docs/play/RELEASE-CHECKLIST.md for evidence-based sign-off. No Play Console edits, certificates or signing keys are handled in this repository audit.

@@ -1,39 +1,31 @@
-# BOPAVI — kontrolni popis objave za Google Play i App Store
+# BOPAVI — Google Play / App Store release checklist
 
-NIJEDNA stavka nije unaprijed označena obavljenom. Svaki korak traži dokaz.
+**Audited baseline:** GitHub Release v0.2.21, Android versionName 0.2.21, versionCode 126, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39085140513. No checklist item is automatically proof of a Play/App Store submission.
 
-- [ ] PR za v0.1.80: obavezni Android/iOS buildovi, privatnost, Android emulator 15/16 i iOS simulator/device su uspješni i spojeni.
-- [ ] GitHub Release v0.1.80 je stvarno objavljen na ispravnom SHA commitu, sa svih 14 javnih artefakata, uključujući SHA-256 manifest.
-- [ ] Application ID com.brendigo.bopavi, versionCode 83, targetSdk 36.
-- [ ] Verificiran Play Console račun i prava izdavača.
-- [ ] Kreirana Play Console aplikacija BOPAVI i potvrđen besplatni/plaćeni status.
-- [ ] Aktiviran Play App Signing i izrađen trajni lokalni upload-key.
-- [ ] Siguran backup JKS-a i lozinki izvan GitHub repozitorija.
-- [ ] Privatno, izvan GitHuba potpisan AAB vlastitim, već verificiranim upload ključem.
-- [ ] Lokalno provjeren potpis i SHA-256 zbroj AAB-a prije Play Console uploada.
-- [ ] Signed AAB prenesen u Play Console; nikad javni unsigned AAB.
-- [ ] Store listing HR, originalna 512x512 ikona i 1024x500 feature grafika.
-- [ ] Najmanje 2 stvarna screenshotova; za preporuke 3 screenshotova aktivne igre.
-- [ ] Privacy policy javno objavljen i otvoren anonimnim preglednikom na stvarno verificiranom HTTPS URL-u; poveznica unesena u Play Console i App Store Connect.
-- [ ] Potvrđena dostupnost Politike privatnosti i Uvjeta korištenja unutar Android i iOS Postavki.
-- [ ] Pregledani uvjeti korištenja i politika privatnosti od odgovorne osobe / pravnog savjetnika prije distribucije.
-- [ ] Data safety, Ads, App access, IARC Content rating, Target audience popunjeni.
-- [ ] Provjerena sva pravila usmjerena djeci ako aplikacija stvarno cilja djecu.
-- [ ] Fizički QA Android 8/12/13/15/16, Bopija, 8 svjetova, zvuk, pauza, Back.
-- [ ] Spremljeni podaci, JSON import/export, virtualne kovanice i oprema provjereni.
-- [ ] Interna Play distribucija i Pre-launch report bez blokirajućih problema.
-- [ ] Ako je primjenjivo: najmanje 12 testera 14 dana, produkcijski pristup odobren.
-- [ ] Play release predan na odobrenje i odobren; stranica radi i instalacija potvrđena.
-- [ ] Nakon objave prati crash/ANR i povratne informacije u Play Console.
+## Product and metadata
 
-## Apple App Store — zasebna provjera
+- [ ] Approve decision A or B in docs/product/ADR-0001-product-scope.md; while pending, market only the reachable four-state UX in FEATURE-MATRIX.md.
+- [ ] Confirm final release commit, Android/iOS version parity and native CI checks; obtain actual log links for both platform builds and emulator flows.
+- [ ] Verify store title, short/long descriptions, images and privacy disclosures against the **same installed build**; run python tests/test_store_claims.py.
+- [ ] Use genuine Home / Flight Preview / Flight Active / Results screenshots from the correct version; preview is not active gameplay. Capture Pause separately if presented.
+- [ ] Confirm no reachable skin/world/shop/Settings/import UI; do not advertise historical assets or serialization as user-facing options.
+- [ ] Verify on physical supported Android devices: launch, first tap, score, one-shot berry pickup, Pause → Continue/Retry/Exit, Results → Replay/Home, back/gesture, screen sizes, audio and app interruption.
+- [ ] Check crashes, ANR, battery, accessibility and RTL/language labels; confirm emulator/iOS simulator/device testing without asserting pixel-perfect reference parity.
 
-- [ ] Apple Developer članstvo, legal entity i prava izdavača potvrđeni.
-- [ ] iOS Bundle ID `com.brendigo.bopavi` odgovara trajnom identitetu u App Store Connectu.
-- [ ] Apple signing certificates/profiles i Apple distribucijski potpis pripremljeni privatno, bez učitavanja privatnih ključeva na GitHub.
-- [ ] Arhivirani Release build testiran na stvarnom iPhoneu, a po potrebi i iPadu (projekt uključuje iPad target).
-- [ ] Dovršeni App Privacy podaci, dobna ocjena i ciljana publika, podaci o podršci i potpuno dostupan Privacy Policy URL.
-- [ ] Dostavljene stvarne snimke zaslona odgovarajućih iPhone/iPad uređaja, metapodaci, opis igre i licence.
-- [ ] TestFlight i App Review provedeni, bez blokirajućih problema; objava potvrđena u App Store Connectu.
+## Google Play distribution (publisher-owned)
 
-**Status:** nijedna vanjska radnja potpisivanja ili objave nije unaprijed označena uspješnom. Automatizirani GitHub Release ne podrazumijeva odobrenje trgovina.
+- [ ] Verify Play Console app, account permissions, age/target audience, IARC, Ads, app access, Data safety and privacy policy HTTPS address.
+- [ ] Reconcile Data safety across **all currently distributed Play versions**, third-party SDKs and final merged manifest; closed-test tracks also require the form.
+- [ ] Confirm Play App Signing and **existing** upload key certificate; make secure offline backups; never commit/share JKS or passwords.
+- [ ] Sign the release AAB privately with the verified upload key and verify SHA-256, package, versionCode and certificate. GitHub's app-release.aab is UNSIGNED; app-debug.apk is not the release candidate.
+- [ ] Check Play Console for used versionCodes, target API policy, device exclusions and required test access; do not invent current account entitlement.
+- [ ] Upload to the authorized test track, review Pre-launch report and all metadata-policy warnings; complete any required production eligibility testing.
+- [ ] Submit only after manual publisher authorization. Separately confirm Google review approval and installability. GitHub Release is not Play publication.
+
+## iOS distribution (independent)
+
+- [ ] Verify iOS signing/provisioning and Store Connect rights privately.
+- [ ] Validate the same four-state navigation on real iPhone and supported simulators; capture authentic iOS screenshots, data disclosures and age ratings.
+- [ ] Review/TestFlight/App Store approval separately; unsigned iOS device ZIP is not an App Store build.
+
+Status: **publishing not verified**. Existing CI success does not verify upload signing, physical device behavior or Google/Apple store acceptance.

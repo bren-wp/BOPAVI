@@ -1,28 +1,24 @@
-# BOPAVI — radna provjera Data safety
+# BOPAVI — Google Play Data safety assessment (v0.2.21 / build 126)
 
-**Status:** analiza izvornog koda za v0.1.30. Play Console obrazac i konačnu izjavu mora potvrditi odgovorni izdavač iz stvarnog potpisanog AAB-a.
+**Status: source-based draft, publisher verification pending.** Baseline main 952d2139 (2026-10-18). Google Play Data safety is a declaration about **all applicable Play-distributed versions**, not only a single GitHub build.
 
-## Utvrđeno u projektu
+| Question | Audited source | Final publisher action |
+|---|---|---|
+| Network/user-data collection | AndroidManifest.xml has no INTERNET permission; app/build.gradle.kts has no ad or analytics dependencies | Inspect final merged manifest, bundle, runtime SDKs and all currently distributed Play builds |
+| Ads and in-app purchases | No reachable advertising, store or payment SDK in current native flow | Declare accurately in Play Console after final review |
+| Accounts | Home launches offline game without sign-in UI | Check dependencies and actual installed Play build |
+| Stored local data | Score, best score/food, progress preferences and retained legacy records in native ProgressStore | Describe local storage and deletion accurately; do not equate device-local records with off-device collection |
+| Backup / import / export | Legacy JSON encode/decode code remains for compatibility; **no user-reachable Settings/export/import UI** in this build | Never advertise a live backup feature or claim that a system picker is currently accessible |
+| Deletion | Android locally stored data can be cleared in system Settings → Apps → BOPAVI → Storage / Clear storage, or by uninstalling | Verify per-OS backups and other copies independently |
+| Policy | docs/play/privacy-policy.html and PRIVACY_POLICY.md | Verify public working HTTPS URL, consistent disclosures, version and publisher identity |
 
-- Android manifest **nema INTERNET dozvolu**. Nisu ugrađeni oglašavanje, Google Analytics/Firebase Analytics, udaljena autentikacija niti kupnje pravim novcem.
-- Ime/nadimak igrača, bodovi, osvojene virtualne kovanice, otključani likovi, oprema, napredak i postavke ostaju u lokalnom SharedPreferences spremištu.
-- Igrač može ručno izvesti JSON datoteku putem Android sustavnog odabira dokumenta (Storage Access Framework). Sam bira lokalnu/cloud lokaciju. Ako odabere trećeg pružatelja pohrane, na kopiju se primjenjuju njegova pravila. BOPAVI ne šalje podatke na svoje poslužitelje.
-- Android dopušta ručni izvoz JSON-a, ali ima **allowBackup=false** za automatsku OS sigurnosnu kopiju podataka aplikacije.
-- Brisanje lokalnih podataka: Android Settings → Apps → BOPAVI → Storage → Clear storage ili deinstalacija. Ručno spremljene kopije na drugim mjestima korisnik uklanja samostalno.
+## Proposed answers (not submitted)
 
-## Radni odgovori za izdavača
+Current Android source supports *no app-initiated collection/sharing*, advertising or monetization; this is not yet an independently inspected Play-distributed binary or Play Console questionnaire. Publisher must confirm third-party libraries, other active Play versions, crash analytics, OS/integration behavior, transfer channels and applicable categories before setting the final declarations.
 
-| Pitanje | Analizirano stanje |
-|---|---|
-| Podaci koji se prikupljaju na developerov server | Nema prema trenutnom kodu. |
-| Dijeljenje podataka s trećima | Nema prema trenutnom kodu; objasniti dobrovoljni izvoz. |
-| Oglasi | Nema. |
-| Kupnje stvarnim novcem | Nema. |
-| Korisnički računi | Nema. |
-| Lokalni podaci | Da: nadimak, rezultati, virtualna valuta, postavke i napredak. |
-| Brisanje | Lokalno brisanjem storagea ili deinstalacijom. |
-| Javni Privacy Policy URL | Obavezan, čak i bez prikupljanja podataka. |
+## Google requirements checked 2026-10-18
 
-**Obavezna provjera:** svi SDK-ovi, manifest, dopuštenja, podatkovni tokovi i distribucijski uvjeti u konačnoj Play verziji. Ako se dodaju mrežne funkcije, oglasi, praćenje ili crash analytics, revidirati Data safety i politiku prije objave.
+- https://support.google.com/googleplay/android-developer/answer/10787469 — Data safety form and public privacy policy are required even when no data is collected; closed testing is included, internal-only testing has a narrow exemption.
+- https://support.google.com/googleplay/android-developer/answer/9898842 — Store metadata must describe real functionality and images must match the app.
 
-Službeni izvor: https://support.google.com/googleplay/android-developer/answer/10787469
+Do not claim uploaded or approved metadata, and do not enter forms without publisher credentials and explicit authorization.

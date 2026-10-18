@@ -160,6 +160,7 @@ jobs:
       - run: python tests/test_android_emulator_transport_gate.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
+      - run: python tests/test_store_claims.py
       - run: python tests/test_native_lifecycle.py
       - name: Require a new version for every pull request
         if: github.event_name == 'pull_request'
@@ -167,6 +168,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # Documentation/tests-only PRs do not change a distributed binary.
+          # Keep the version-bump gate for every product/runtime/asset edit.
+          pr="$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")"
+          changed="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr/files" --paginate --jq '.[].filename')"
+          if ! printf '%s\n' "$changed" | grep -Ev '^(docs/|tests/|README\.md$|\.github/workflows/native-ci\.yml$)' | grep -q .; then
+            echo "Metadata/tests-only PR: release version remains unchanged"
+            exit 0
+          fi
           latest="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq '.tag_name')"
           python3 - "$latest" <<'PY'
           import re,sys
