@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Fail-closed checks for the v0.2.21 reachable UX versus Croatian store claims."""
+"""Fail-closed checks for current reachable UX and version-aligned store claims."""
 import json
 import re
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from release_metadata import release_metadata
 MATRIX = ROOT / "docs/product/FEATURE-MATRIX.md"
 LISTING = ROOT / "docs/play/STORE-LISTING-hr-HR.md"
 ANDROID = ROOT / "android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt"
@@ -49,6 +52,21 @@ class StoreClaimsTest(unittest.TestCase):
         adr = (ROOT / "docs/product/ADR-0001-product-scope.md").read_text()
         self.assertIn("PENDING PRODUCT OWNER APPROVAL", adr)
 
+    def test_public_release_docs_match_native_build(self):
+        version, build = release_metadata()
+        self.assertEqual(matrix()["release"], f"v{version}")
+        self.assertEqual(matrix()["build"], build)
+        for relative in (
+            "README.md",
+            "docs/product/CURRENT_SCREENS.md",
+            "docs/play/STORE-LISTING-hr-HR.md",
+            "docs/play/RELEASE-CHECKLIST.md",
+        ):
+            content = (ROOT / relative).read_text(encoding="utf-8")
+            self.assertIn(f"v{version}", content, relative)
+            self.assertIn(f"build {build}", content, relative)
+        self.assertEqual(matrix()["baseline_sha"], "fa3e2ede9345759616f31f30a057f11c47f7fa03")
+
     def test_store_claims_must_be_visible(self):
         short, full, claims = listing_parts()
         catalog = {f["id"]: f["status"] for f in matrix()["features"]}
@@ -77,8 +95,9 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertIn("BopiPortrait0", i)
         self.assertNotIn('android.permission.INTERNET', MANIFEST.read_text())
         gradle = GRADLE.read_text()
-        self.assertIn('versionName = "0.2.23"', gradle)
-        self.assertIn('versionCode = 128', gradle)
+        version, build = release_metadata()
+        self.assertIn(f'versionName = "{version}"', gradle)
+        self.assertIn(f'versionCode = {build}', gradle)
 
     def test_current_public_terms_are_not_legacy_promotion(self):
         # Negated historical notes in privacy/terms are deliberate disclosures,
