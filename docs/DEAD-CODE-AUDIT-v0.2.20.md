@@ -6,11 +6,14 @@ SoundPool/MediaPlayer lifecycle, Swift/AVAudioPlayer, CI build and emulator
 validation, release assets, and source-level navigation contracts.
 
 ## Removed
-- Android MainActivity's unused `menuBackAction` callback/fallback and unused
-  `small()` title helper after old submenus were deleted.
+- Android MainActivity's unused `menuBackAction` callback/fallback, unused
+  `small()` title helper, constant-valued world/level launch state and inactive
+  pilot portrait resource references after old submenus were deleted.
+- iOS GameController's stale world/level start parameters and saved view-state
+  fields; both platforms now explicitly start only the first endless world.
 - Double Home PLAY click sound (the native action wrapper already plays one).
 - Purchase sound preload in Android and iOS active runtime (Shop no longer exists).
-- Unbounded Android idle/pause renderer scheduling (GPU/CPU work without a live flight).
+- A redundant draw scheduling guard (the existing inactive-flight suppression was already present; this audit preserves it and tests it).
 
 ## Retained intentionally; **not all legacy code is dead**
 - Older encrypted? **No**: legacy save data is local non-sensitive preferences,

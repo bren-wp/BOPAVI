@@ -20,8 +20,6 @@ import android.widget.TextView
 class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
     private lateinit var sound: Soundscape
-    private var currentWorld = 0
-    private var currentLevel = 1L
     private var gameView: GameView? = null
     private var gamePauseButton: Button? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
@@ -32,10 +30,7 @@ class MainActivity : Activity() {
     private val electric = 0xff00d9ff.toInt()
     // Share the nine saved-pilot resource IDs between native screens.
     // All nine are playable; the chosen pilot must remain consistent in UI.
-    private val portraitDrawableIds=intArrayOf(
-        R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-        R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
-        R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8)
+    private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0)
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
     @Suppress("DEPRECATION")
@@ -228,7 +223,7 @@ class MainActivity : Activity() {
         title(content,if(progress.languageCode()=="hr")"MALI LETOVI · VELIKE PRIČE"
             else "SMALL FLIGHTS · BIG STORIES",16,Color.WHITE)
         action(content,if(progress.languageCode()=="hr")"▶  IGRAJ" else "▶  PLAY"){
-            startGame(0,1L)
+            startGame()
         }
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
@@ -294,7 +289,7 @@ class MainActivity : Activity() {
             gamePauseButton?.contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
             sound.resume()
         }
-        command("↻  PONOVO",1){startGame(currentWorld,currentLevel)}
+        command("↻  PONOVO",1){startGame()}
         command("↪  IZLAZ",2){showHome()}
         // The streamlined Pause contains only Continue, Retry and Exit.
         // Changes to saved audio/accessibility preferences are preserved.
@@ -316,7 +311,7 @@ class MainActivity : Activity() {
             (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
             (resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1))
     }
-    private fun startGame(world:Int,number:Long){
+    private fun startGame(){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
         // triggers Android's full-screen onboarding popup on the first game.
         // Keep the gesture navigation strip dark (theme sets its color) instead.
@@ -324,10 +319,10 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        currentWorld=world;currentLevel=number;selectedScreen="game"
+        selectedScreen="game"
         val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,1,1L)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
-        sound.startWorld(world)
+        sound.startWorld(0)
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
@@ -383,7 +378,6 @@ class MainActivity : Activity() {
         sound.effect(if(g.won)"level" else "hit")
         val headline=if(progress.languageCode()=="hr") "REZULTAT" else "RESULT"
         progress.recordRun(g)
-        currentLevel=g.displayLevel
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
@@ -391,7 +385,7 @@ class MainActivity : Activity() {
         val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
             R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
         val backdrop=ImageView(this).apply{
-            setImageResource(scenes[currentWorld]);scaleType=ImageView.ScaleType.CENTER_CROP
+            setImageResource(scenes[0]);scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
@@ -427,10 +421,10 @@ class MainActivity : Activity() {
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
             contentDescription="Odabrani letač: ${progress.skinNames[pilotIndex]}, " +
-                "svijet ${LevelEngine.names[currentWorld]}"
+                "svijet ${LevelEngine.names[0]}"
         }
         artwork.addView(ImageView(this).apply{
-            setImageResource(scenes[currentWorld])
+            setImageResource(scenes[0])
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
@@ -520,7 +514,7 @@ class MainActivity : Activity() {
             background=gradient(0xf0063978.toInt(),0xf0041a3c.toInt(),21)
         },LinearLayout.LayoutParams(-1,d(60)).apply{topMargin=d(12)})
         action(panel,if(progress.languageCode()=="hr")"▶  PONOVO" else "▶  RETRY"){
-            startGame(0,1L)
+            startGame()
         }
         action(panel,if(progress.languageCode()=="hr")"⌂  POČETNA" else "⌂  HOME",false){
             showHome()

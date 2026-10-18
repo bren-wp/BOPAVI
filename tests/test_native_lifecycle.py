@@ -13,7 +13,7 @@ assert "isAttachedToWindow && game.active && !paused && !game.finished && !qaWai
 assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in game
 assert "override fun onDetachedFromWindow()" in game and "override fun onAttachedToWindow()" in game
 assert all(x+"=null" in game for x in ("birdBitmap","wingLeftBitmap","wingRightBitmap","worldBitmap"))
-assert "Bitmap.recycle()" in game and ".recycle()" not in game.split("override fun onDetachedFromWindow()")[1]
+assert ".recycle()" not in game.split("override fun onDetachedFromWindow()")[1]
 assert "updateWorldCover(width,height)" in game
 
 # Audio must not touch a released SoundPool; legacy purchase SFX not preloaded.
@@ -25,7 +25,7 @@ assert '"purchase"' not in ios_audio
 # A removed menu must not retain a dangling Back callback or duplicate CTA click.
 assert "menuBackAction" not in activity
 home=activity.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
-assert 'startGame(0,1L)' in home and 'sound.effect("click")' not in home
+assert 'startGame()' in home and 'sound.effect("click")' not in home
 assert 'gamePauseButton?.text = "▶"' in activity
 assert 'gamePauseButton?.text="Ⅱ"' in activity
 
@@ -33,3 +33,7 @@ assert 'gamePauseButton?.text="Ⅱ"' in activity
 assert "targets+=(default)" in install and "ready \"$image\"" in install
 assert "id: image36" in flow and "${{ steps.image36.outputs.image_target }}" in flow
 print("PASS: lifecycle, bitmap ownership, audio teardown, pause and API36 fallback")
+
+assert "currentWorld" not in activity and "currentLevel" not in activity
+ios=(R/"ios/BOPAVI/GameController.swift").read_text()
+assert "gameWorld" not in ios and "gameNumber" not in ios

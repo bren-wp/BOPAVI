@@ -289,11 +289,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // A former opaque ground stripe hid the lower floating-island scenery,
         // including on narrow and notched phones. Letterboxing is filled above.
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && !qaWaitingForCapture && game.active && !game.finished && isAttachedToWindow) {
-            // Idle, paused and detached views must not burn 60/120 FPS.
+        // One clear gate prevents redundant 60/120Hz frames after Pause,
+        // Exit, backgrounding, QA capture or a finished/idle flight.
         if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
-        }
         }
     }
 
