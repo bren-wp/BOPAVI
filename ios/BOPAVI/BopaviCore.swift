@@ -277,10 +277,13 @@ final class GameSimulation {
             let gate = level.gates[i]; let x = gateX(gate)
             if x > birdX+radius+115 { break }
             let bounds = BopaviCore.opening(gate, time,difficulty:difficulty)
-            // Circular body vs the actual cap bands and solid shafts.
-            // No phantom impacts beside an overhang's empty vertical space.
-            if PillarCollision.bodyHitsPillar(birdX:birdX,birdY:y,radius:radius,
-                                            gateX:x,gateWidth:gate.width,opening:bounds) {
+            // Moving rounded corners require a continuous relative sweep:
+            // start/end at 120Hz may both be clear despite interior contact.
+            let oldBounds=BopaviCore.opening(gate,previousTime,difficulty:difficulty)
+            let travel=level.speed*speedFactor*dt
+            if PillarCollision.sweptBodyHitsPillar(birdX:birdX,fromY:previousY,toY:y,
+                radius:radius,fromGateX:x+travel,toGateX:x,gateWidth:gate.width,
+                fromOpening:oldBounds,toOpening:bounds) {
                 damage()
                 if finished { return }
             }
@@ -289,9 +292,7 @@ final class GameSimulation {
             // The berry may cross Bopi between two display frames:
             // sweep relative body/fruit motion across the 34 ms physics slice.
             if endless && gate.coin && !collectedFood[i] {
-                let oldOpening=BopaviCore.opening(gate,previousTime,difficulty:difficulty)
-                let oldCy=(oldOpening.top+oldOpening.bottom)*0.5
-                let travel=level.speed*speedFactor*dt
+                let oldCy=(oldBounds.top+oldBounds.bottom)*0.5
                 if BerryCollision.touched(
                     startX:cx+travel-birdX,startY:oldCy-previousY,
                     endX:cx-birdX,endY:cy-y,radius:radius+13) {
@@ -692,6 +693,58 @@ enum PillarCollision {
             touchesRoundedBand(birdX,birdY,radius,gateX-7,opening.top-28,right+5,opening.top) ||
             touchesRectangle(birdX,birdY,radius,gateX,opening.bottom,right,825) ||
             touchesRoundedBand(birdX,birdY,radius,gateX-7,opening.bottom,right+5,opening.bottom+27)
+    }
+    /// Continuous circle/rock overlap within one <=120Hz physics slice.
+    /// The mouth translates between both sampled opening states; conservative
+    /// Lipschitz interval pruning prevents shallow corner tunneling.
+    static func sweptBodyHitsPillar(birdX:Float,fromY:Float,toY:Float,radius:Float,
+                                    fromGateX:Float,toGateX:Float,gateWidth:Float,
+                                    fromOpening:BopaviCore.Opening,
+                                    toOpening:BopaviCore.Opening)->Bool {
+        guard birdX.isFinite && fromY.isFinite && toY.isFinite && radius.isFinite &&
+              fromGateX.isFinite && toGateX.isFinite && gateWidth.isFinite &&
+              fromOpening.top.isFinite && fromOpening.bottom.isFinite &&
+              toOpening.top.isFinite && toOpening.bottom.isFinite &&
+              radius>0 && gateWidth>0 && fromOpening.top<fromOpening.bottom &&
+              toOpening.top<toOpening.bottom else{return false}
+        if birdX < min(fromGateX,toGateX)-7-radius ||
+           birdX > max(fromGateX,toGateX)+gateWidth+5+radius {return false}
+        let motionBound=abs(toGateX-fromGateX)+abs(toY-fromY)+
+            max(abs(toOpening.top-fromOpening.top),
+                abs(toOpening.bottom-fromOpening.bottom))+0.0001
+        func clear(_ t:Float)->Float {
+            let x=fromGateX+(toGateX-fromGateX)*t
+            let y=fromY+(toY-fromY)*t
+            let top=fromOpening.top+(toOpening.top-fromOpening.top)*t
+            let bottom=fromOpening.bottom+(toOpening.bottom-fromOpening.bottom)*t
+            let right=x+gateWidth
+            return min(min(signedRect(birdX,y,x,-25,right,top),
+                           signedRound(birdX,y,x-7,top-28,right+5,top)),
+                       min(signedRect(birdX,y,x,bottom,right,825),
+                           signedRound(birdX,y,x-7,bottom,right+5,bottom+27))) - radius
+        }
+        func search(_ a:Float,_ da:Float,_ b:Float,_ db:Float,_ depth:Int)->Bool {
+            if da<0 || db<0 {return true}
+            if da+db>motionBound*(b-a) {return false}
+            if depth>=20 {return false}
+            let mid=(a+b)*0.5, dm=clear(mid)
+            if dm<0 {return true}
+            return search(a,da,mid,dm,depth+1) ||
+                   search(mid,dm,b,db,depth+1)
+        }
+        return search(0,clear(0),1,clear(1),0)
+    }
+    private static func signedRect(_ cx:Float,_ cy:Float,_ left:Float,_ top:Float,
+                                   _ right:Float,_ bottom:Float)->Float {
+        let dx=abs(cx-(left+right)*0.5)-(right-left)*0.5
+        let dy=abs(cy-(top+bottom)*0.5)-(bottom-top)*0.5
+        return hypot(max(0,dx),max(0,dy))+min(max(dx,dy),0)
+    }
+    private static func signedRound(_ cx:Float,_ cy:Float,_ left:Float,_ top:Float,
+                                    _ right:Float,_ bottom:Float)->Float {
+        let qx=abs(cx-(left+right)*0.5)-((right-left)*0.5-7)
+        let qy=abs(cy-(top+bottom)*0.5)-((bottom-top)*0.5-7)
+        return hypot(max(0,qx),max(0,qy))+min(max(qx,qy),0)-7
     }
     /// Matched Android signed-distance collision with the painted 7pt cap.
     private static func touchesRoundedBand(_ cx:Float,_ cy:Float,_ r:Float,
