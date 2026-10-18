@@ -363,6 +363,20 @@ struct SwiftParity {
         let doubleTap=GameSimulation(BopaviCore.create(0,2))
         doubleTap.flap();doubleTap.step(1/120);doubleTap.flap()
         precondition(doubleTap.flaps==2 && doubleTap.velocity == -255)
+        // Sustained 120Hz stress: finite state, monotonic score and frozen death.
+        let longFlight=GameSimulation(BopaviCore.create(0,2))
+        longFlight.flap()
+        for _ in 0..<720 {
+            let previousScore=longFlight.score()
+            longFlight.step(1/120)
+            precondition(longFlight.score()>=previousScore)
+            precondition(longFlight.y.isFinite && longFlight.velocity.isFinite)
+        }
+        if longFlight.finished {
+            let atDeath=longFlight.time
+            longFlight.step(0.1)
+            precondition(longFlight.time==atDeath)
+        }
         let impossible=GameSimulation(BopaviCore.create(0,2))
         impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
         precondition(impossible.time==0)
