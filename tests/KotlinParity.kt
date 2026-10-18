@@ -197,5 +197,8 @@ fun main() {
         val fmt={n:Float->java.lang.String.format(java.util.Locale.US,"%.4f",n)}
         println("R|${hzList[index]}|${fmt(flight.time)}|${fmt(flight.y)}|${fmt(flight.velocity)}|${fmt(flight.distance)}|${flight.score()}|${flight.foodCollected}|${flight.finished}")
     }
+    val berryVectors=listOf(floatArrayOf(40f,0f,-40f,0f,31f),floatArrayOf(40f,31f,-40f,31f,31f),floatArrayOf(40f,31.02f,-40f,31.02f,31f),floatArrayOf(0f,0f,0f,0f,31f),floatArrayOf(32f,0f,32f,0f,31f),floatArrayOf(400f,0f,-400f,0f,31f),floatArrayOf(400f,32f,-400f,32f,31f))
+    for((index,v) in berryVectors.withIndex())
+        println("B|$index|${BerryCollision.touched(v[0],v[1],v[2],v[3],v[4])}")
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

@@ -214,6 +214,39 @@ struct SwiftSaves {
                      store.leaderboard()[0].score==890)
         let exportedPersonal=String(data:try store.exportData(),encoding:.utf8)!
         precondition(!exportedPersonal.contains("Legacy Alias"))
+        // End-to-end real contact → recordRun → export → older import → rejection.
+        let foodKey="endless_food_best"
+        let berry=BopaviCore.Gate(x:94,center:366,gap:240,width:64,movement:0,
+                                   phase:0,kind:0,coin:true,star:false,power:0)
+        let foodStage=BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
+                                      gates:[berry],type:0)
+        let foodRun=GameSimulation(foodStage,endless:true)
+        UserDefaults.standard.set(0,forKey:foodKey)
+        foodRun.flap();foodRun.step(1/60)
+        precondition(foodRun.foodCollected==1 && foodRun.coins==0 && foodRun.score()==0)
+        for _ in 0..<720 {foodRun.step(1/120)}
+        precondition(foodRun.finished)
+        store.recordRun(foodRun)
+        precondition(store.bestFood()==1)
+        let exportedFood=try store.exportData()
+        var document=try JSONSerialization.jsonObject(with:exportedFood) as! [String:Any]
+        var save=document["save"] as! [String:Any]
+        precondition(save["bestFood"] as? Int == 1)
+        UserDefaults.standard.set(47,forKey:foodKey)
+        save["bestFood"]=0
+        document["save"]=save
+        try store.importData(JSONSerialization.data(withJSONObject:document))
+        precondition(store.bestFood()==47,"Rollback erased fruit record")
+        let prior=try store.exportData()
+        save["bestFood"]=99
+        save["levelStars"]=[[0,5,4]]
+        document["save"]=save
+        var rejected=false
+        do {try store.importData(JSONSerialization.data(withJSONObject:document))}
+        catch {rejected=true}
+        let after=try store.exportData()
+        precondition(rejected && store.bestFood()==47 && after==prior,
+                     "Malformed backup altered saved fruit record")
         print("PASS: personal top-ten ownership, nickname rotation, privacy-safe legacy backup import")
         print("PASS: Swift v0.2-v0.6 migration, earned rating monotonicity, v6 backup integrity and invalid save rejection")
     }
