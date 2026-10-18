@@ -64,6 +64,14 @@ struct SwiftParity {
         precondition(BerryCollision.touched(startX:40,startY:31,endX:-40,endY:31,radius:31))
         precondition(BerryCollision.touched(startX:0,startY:0,endX:0,endY:0,radius:31))
         precondition(!BerryCollision.touched(startX:.nan,startY:0,endX:0,endY:0,radius:31))
+        let berryVectors:[[Float]]=[[40,0,-40,0,31],[40,31,-40,31,31],[40,31.02,-40,31.02,31],[0,0,0,0,31],[32,0,32,0,31],[400,0,-400,0,31],[400,32,-400,32,31]]
+        for (index,v) in berryVectors.enumerated() {
+            print("B|\(index)|\(BerryCollision.touched(startX:v[0],startY:v[1],endX:v[2],endY:v[3],radius:v[4]))")
+        }
+        for invalid in [Float.nan,Float.infinity,-Float.infinity] {
+            precondition(!BerryCollision.touched(startX:invalid,startY:0,endX:0,endY:0,radius:31))
+            precondition(!BerryCollision.touched(startX:0,startY:0,endX:0,endY:0,radius:invalid))
+        }
         // V5 fruit is an actual body/contact pickup, not old spendable currency.
         let berry=BopaviCore.Gate(x:94,center:366,gap:240,width:64,movement:0,phase:0,
             kind:0,coin:true,star:false,power:0)
@@ -75,6 +83,15 @@ struct SwiftParity {
         precondition(berryGame.coins==0 && berryGame.score()==0)
         berryGame.step(1/60)
         precondition(berryGame.foodCollected==1, "Fruit collected more than once")
+        for _ in 0..<2 {
+            let replay=GameSimulation(berryStage,endless:true)
+            replay.flap();replay.step(0);replay.step(Float.nan)
+            precondition(replay.foodCollected==0)
+            replay.step(1/120)
+            precondition(replay.foodCollected==1 && replay.coins==0 && replay.score()==0)
+            for _ in 0..<40 {replay.step(1/120)}
+            precondition(replay.foodCollected==1)
+        }
         let distant=BopaviCore.Gate(x:94,center:260,gap:340,width:64,movement:0,phase:0,
             kind:0,coin:true,star:false,power:0)
         let missed=GameSimulation(BopaviCore.Level(world:0,number:1,zone:1,speed:140,wind:0,
