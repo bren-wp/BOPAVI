@@ -389,6 +389,19 @@ class LevelEngineTest {
             startX,endX,76f,o,moved))
     }
 
+    @Test fun stationaryLipTangencyIsNotAnUnboundedCcdSearch() {
+        val mouth=LevelEngine.Opening(228f,450f)
+        // Bird x=82 is exactly r18 away from the leftmost cap edge x=100.
+        // An unchanged 120Hz sweep must use the exact static predicate rather
+        // than exploring ~2^20 zero-clearance intervals.
+        assertFalse(PillarCollision.bodyHitsPillar(82f,214f,18f,107f,76f,mouth))
+        assertFalse(PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+            107f,107f,76f,mouth,mouth))
+        // One real pixel of inward rock motion still becomes a true contact.
+        assertTrue(PillarCollision.sweptBodyHitsPillar(82f,214f,214f,18f,
+            107f,106f,76f,mouth,mouth))
+    }
+
     @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
         val level=LevelEngine.create(0,2)
         val lipTooHigh=level.gates[0].copy(x=148f,center=490f,gap=160f,
