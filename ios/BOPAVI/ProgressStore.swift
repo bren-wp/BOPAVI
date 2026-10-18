@@ -57,9 +57,14 @@ final class ProgressStore {
     func wins()->Int{defaults.integer(forKey:"wins")}
     func deaths()->Int{defaults.integer(forKey:"deaths")}
     func recordRun(_ game:GameSimulation){
-        defaults.set(min(100_000_000,defaults.integer(forKey:"collectibles_\(game.level.world)")+game.coins+game.stars),forKey:"collectibles_\(game.level.world)")
-        defaults.set(min(100_000_000,min(100_000_000,max(0,defaults.integer(forKey:"flaps")))+
-            min(100_000_000,max(0,game.flaps))),forKey:"flaps")
+        let collectibleKey="collectibles_\(game.level.world)"
+        let previousCollectibles=min(100_000_000,max(0,defaults.integer(forKey:collectibleKey)))
+        let newCollectibles=min(100_000_000,max(0,game.coins)) +
+            min(100_000_000,max(0,game.stars))
+        defaults.set(min(100_000_000,previousCollectibles+newCollectibles),forKey:collectibleKey)
+        let previousFlaps=min(100_000_000,max(0,defaults.integer(forKey:"flaps")))
+        let newFlaps=min(100_000_000,max(0,game.flaps))
+        defaults.set(min(100_000_000,previousFlaps+newFlaps),forKey:"flaps")
         if game.endless {
             defaults.set(max(endlessBest(),game.totalPassed),forKey:"endless_best")
             defaults.set(max(bestFood(),min(100_000_000,max(0,game.foodCollected))),forKey:"endless_food_best")
