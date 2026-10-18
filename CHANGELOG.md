@@ -1,5 +1,5 @@
 ## v0.2.23 — rounded rock lip collision fidelity (build 128)
-- Fix Android/iOS false hits at transparent rounded rock-lip corners without increasing Bopi's r18 body collider, changing gravity, impulse, display time, save schema or shafts.
+- Fix Android/iOS false hits at transparent rounded rock-lip corners and shallow moving-cap tunneling by conservative substep sweep without increasing Bopi's r18 body collider, changing gravity, impulse, display time, save schema or shafts.
 - Opt-in collision QA overlay uses the exact 480x800 logical camera; Android requires both debuggable APK and bopavi_qa_collision_overlay launch extra, iOS draws only in DEBUG with -BOPAVICollisionDebug launch argument.
 - Regression checks: rounded corner safe/overlap, nonfinite values, moving openings, 30–120Hz native parity and previous hitbox contracts. Pixel-overpaint verification and user-device video remain open acceptance gates.
 - Offline, no ads, no user account and no purchases remain unchanged. GitHub CI does not certify Play approval or a user-device crash fix.

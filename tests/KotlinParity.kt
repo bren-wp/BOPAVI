@@ -204,5 +204,16 @@ fun main() {
         check(hit==expected) {"Rounded cap collision at $x,$y expected $expected"}
         println("C|${x.toInt()}|${y.toInt()}|$hit")
     }
+    val movingRock=LevelEngine.Opening(228f,450f)
+    val movingRockEnd=LevelEngine.Opening(228.2f,450.2f)
+    val sweepCases=listOf(
+        PillarCollision.sweptBodyHitsPillar(126f,192.2966f,190.42694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRock),
+        PillarCollision.sweptBodyHitsPillar(126f,192.1766f,190.30694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRock),
+        PillarCollision.sweptBodyHitsPillar(126f,192.2966f,190.62694f,18f,
+            146.2422f,144.7422f,76f,movingRock,movingRockEnd))
+    check(sweepCases==listOf(true,false,true))
+    for((idx,value) in sweepCases.withIndex())println("T|$idx|$value")
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

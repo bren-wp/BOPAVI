@@ -355,6 +355,29 @@ class LevelEngineTest {
                 }
             }
     }
+    @Test fun conservativeRockSweepCatchesSingleSliceRoundedCornerTunneling() {
+        val o=LevelEngine.Opening(228f,450f)
+        // At 120Hz the real-moving rock can shift 1.5px horizontally while a
+        // flap shifts Bopi 1.87px vertically: both endpoints are safe, middle
+        // of the relative segment intersects the 7px rounded lip by 0.01px.
+        val startX=146.2422f;val endX=144.7422f
+        val startY=192.2966f;val endY=190.42694f
+        assertFalse(PillarCollision.bodyHitsPillar(126f,startY,18f,startX,76f,o))
+        assertFalse(PillarCollision.bodyHitsPillar(126f,endY,18f,endX,76f,o))
+        assertTrue("Missing the moving rock inside the physics slice is tunneling",
+            PillarCollision.sweptBodyHitsPillar(126f,startY,endY,18f,
+                startX,endX,76f,o,o))
+        assertFalse("A parallel genuinely clear near-miss must stay safe",
+            PillarCollision.sweptBodyHitsPillar(126f,startY-.12f,endY-.12f,18f,
+                startX,endX,76f,o,o))
+        // Mouth motion is accounted for in the *same relative coordinates*.
+        val moved=LevelEngine.Opening(228.2f,450.2f)
+        assertTrue(PillarCollision.sweptBodyHitsPillar(126f,startY,endY+.2f,18f,
+            startX,endX,76f,o,moved))
+        assertFalse(PillarCollision.sweptBodyHitsPillar(Float.NaN,startY,endY,18f,
+            startX,endX,76f,o,moved))
+    }
+
     @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
         val level=LevelEngine.create(0,2)
         val lipTooHigh=level.gates[0].copy(x=148f,center=490f,gap=160f,

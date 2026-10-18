@@ -399,6 +399,26 @@ struct SwiftParity {
                 }
             }
         }
+        let movingRock=BopaviCore.Opening(top:228,bottom:450)
+        let movingRockEnd=BopaviCore.Opening(top:228.2,bottom:450.2)
+        let fromX:Float=146.2422, toX:Float=144.7422
+        let fromY:Float=192.2966, toY:Float=190.42694
+        precondition(!PillarCollision.bodyHitsPillar(birdX:126,birdY:fromY,radius:18,
+                      gateX:fromX,gateWidth:76,opening:movingRock))
+        precondition(!PillarCollision.bodyHitsPillar(birdX:126,birdY:toY,radius:18,
+                      gateX:toX,gateWidth:76,opening:movingRock))
+        let cases=[
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY,toY:toY,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRock),
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY-0.12,toY:toY-0.12,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRock),
+            PillarCollision.sweptBodyHitsPillar(birdX:126,fromY:fromY,toY:toY+0.2,
+                radius:18,fromGateX:fromX,toGateX:toX,gateWidth:76,
+                fromOpening:movingRock,toOpening:movingRockEnd)]
+        precondition(cases == [true,false,true],"120Hz moving-rock tunneling")
+        for (index,value) in cases.enumerated(){print("T|\(index)|\(value)")}
         let cap=BopaviCore.Opening(top:228,bottom:450)
         for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484)] {
             let hit=PillarCollision.bodyHitsPillar(birdX:x,birdY:y,radius:18,

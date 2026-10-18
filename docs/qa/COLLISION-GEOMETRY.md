@@ -43,3 +43,11 @@ xcrun simctl io booted recordVideo qa/collision-actual/ios-collision-qa.mp4
 ```
 
 Inspect the **magenta solid shaft**, **cyan rounded band**, **yellow body r18**, and **green fruit r13** in unscaled native pixels. Overlay is evidence for geometry, not a rendering replacement. Physical-device 30–120Hz hit/no-hit video is still needed for final DoD.
+
+## Confirmed substep tunneling counterexample and mitigation (P04)
+
+A second, independent numeric counterexample was found after the initial endpoint collision test. Bopi r18 at fixed X=126, upper lip roundRect with radius7, moving from gate X **146.2422 → 144.7422** (1.5px in one 120Hz physics slice) while Bopi moves vertically **192.29660 → 190.42694** (1.87px) at top opening 228. The signed distance from Bopi's body edge to the rounded lip is **+0.01872px at the start**, **−0.01000px at the midpoint**, **+0.01872px at the end**. Thus checking only endpoints incorrectly returns safe, even though there is an actual *interior* geometric intersection.
+
+The new `PillarCollision.sweptBodyHitsPillar` (also in Swift) interpolates **bird position, pillar world X, and upper/lower opening boundaries** within a <=120Hz physics slice, computes signed distance to all four authentic solid collision shapes, and uses adaptive Lipschitz-bounded interval subdivision to detect an interior intersection. The bound includes |gate Δx| + |bird Δy| + max(|opening Δtop|,|opening Δbottom|). Conservative interval pruning tests both endpoints before recursing. Depth20 leaves only a very small numerical grazing tolerance; this is not an enlargement of Bopi's collider. Native vectors include the true tunnel, an offset genuinely-safe trajectory, a moved-mouth equivalent and invalid input rejection.
+
+**Limitations:** opening(t) is linearly interpolated between source opening samples inside each <=8.33ms slice; the actual sinusoidal opening's curvature between endpoints is approximated, not an analytic trigonometric TOI. A proof of exact rendered polygon-to-physics agreement for shaft fractures and anti-aliased pixels still requires same-build real device overlay/video, so final perceptual DoD is pending.
