@@ -348,6 +348,8 @@ struct SwiftParity {
             snapshots.append(run)
         }
         let baseline=snapshots[3]
+        precondition(abs(baseline.y-338)<0.5,"Shared 120Hz vertical replay reference")
+        precondition(baseline.radius==18)
         for (idx,run) in snapshots.enumerated() {
             precondition(!run.finished && abs(run.time-0.6)<0.0005)
             precondition(abs(run.velocity-156)<0.05)

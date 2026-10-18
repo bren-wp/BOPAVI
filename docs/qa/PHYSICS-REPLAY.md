@@ -25,6 +25,8 @@ cd android && ./gradlew :app:testDebugUnitTest
 bash tests/run_native_core_tests.sh
 ```
 
+The shared 120Hz reference for a 600ms untouched flap is ~338 logical y units (±0.5 in both native test suites), with the same 18-unit collision radius. This anchors Android and iOS independently, even where a cross-compiler host is unavailable.
+
 Test conditions: first flap, 600ms neutral trajectory (no close pillars), rapid double-tap, invalid NaN/Infinity frame time, long 120Hz simulation, monotonic score, death freeze, existing 100ms stall cap and deterministic seam/gate collision checks. Production builds do **not** add telemetry, touch recording, debug traces, or a user-visible control. Renderer, hitbox, gravity and tap impulse remain unchanged in the proposed physics fix.
 
 ## Boundaries of verification / acceptance

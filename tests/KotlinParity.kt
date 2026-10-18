@@ -188,6 +188,7 @@ fun main() {
             repeat(hz*3/5){step(1f/hz)}
         }
     }
+    check(kotlin.math.abs(rates.last().y-338f)<.5f) {"Shared 120Hz vertical replay reference"}
     for((index,flight) in rates.withIndex()) {
         check(!flight.finished && kotlin.math.abs(flight.time-.6f)<.0005f)
         check(kotlin.math.abs(flight.velocity-156f)<.05f)
