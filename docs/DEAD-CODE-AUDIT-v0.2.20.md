@@ -12,7 +12,7 @@ validation, release assets, and source-level navigation contracts.
 - iOS GameController's stale world/level start parameters and saved view-state
   fields; both platforms now explicitly start only the first endless world.
 - Double Home PLAY click sound (the native action wrapper already plays one).
-- Purchase sound preload in Android and iOS active runtime (Shop no longer exists).
+- Dead `purchase.wav` asset and generator/validator entry in Android and iOS (Shop no longer exists).
 - A redundant draw scheduling guard (the existing inactive-flight suppression was already present; this audit preserves it and tests it).
 
 ## Retained intentionally; **not all legacy code is dead**

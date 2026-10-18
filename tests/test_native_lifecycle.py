@@ -37,3 +37,7 @@ print("PASS: lifecycle, bitmap ownership, audio teardown, pause and API36 fallba
 assert "currentWorld" not in activity and "currentLevel" not in activity
 ios=(R/"ios/BOPAVI/GameController.swift").read_text()
 assert "gameWorld" not in ios and "gameNumber" not in ios
+
+assert '"purchase":' not in (R/"tools/generate_audio.py").read_text()
+assert '"purchase"' not in (R/"tools/verify_audio.py").read_text()
+assert '"purchase"' not in (R/"tools/audit_native_dead_code.py").read_text()

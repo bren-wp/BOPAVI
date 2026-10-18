@@ -34,9 +34,9 @@ for name in [f"world_{n}" for n in range(8)]:
     assert seam_step <= 1.5*local_step+32,(name,"audible loop click",seam_step,local_step)
     rms=math.sqrt(sum(v*v for v in data[::113])/len(data[::113]))/32768.0
     assert 0.005<rms<0.18,(name,rms)
-for name in ("tap","collect","level","hit","purchase","click"):
+for name in ("tap","collect","level","hit","click"):
     left=A/(name+".wav");right=I/(name+".wav")
     assert left.read_bytes()==right.read_bytes(),name
     with wave.open(str(left)) as sound:
         assert 0<sound.getnframes()<RATE*2, name
-print("PASS: eight 48-second low-volume seam-safe native music loops, matching 6 short SFX and iOS/Android assets")
+print("PASS: eight 48-second low-volume seam-safe native music loops, matching 5 short SFX and iOS/Android assets")
