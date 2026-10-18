@@ -26,7 +26,7 @@ Cijelo korisničko iskustvo sada ima samo tri koraka:
 2. **LET** — tapkaj za letenje, izbjegavaj bogato oslikane stijene, skupljaj crvene bobice i osvajaj bodove prolaskom.
 3. **REZULTAT** — nakon sudara vidiš bodove, koliko si hrane prikupio i svoj najbolji rezultat, uz **PONOVO** i **POČETNA**.
 
-Bobice nisu valuta ni nagrade za kupnju: Bopi ih mora stvarno dotaknuti, a brojač **HRANA / FOOD** prikazuje se u gameplayu i na rezultatu. Raspored prolaza prati prirodan val penjanja i spuštanja, bez naglih uzastopnih promjena visine. Stijene su dodatno obogaćene raslinjem i detaljima.
+Bobice nisu valuta ni nagrade za kupnju: Bopi ih mora stvarno dotaknuti, a brojač **HRANA / FOOD** prikazuje se u gameplayu i na rezultatu. Kontakt se provjerava i između dva fizička koraka, tako da kratki kontakt ne nestane samo zbog različite frekvencije zaslona. **Osobni rekord skupljene hrane** ostaje spremljen lokalno i prikazuje se uz najbolji rezultat. Raspored prolaza prati prirodan val penjanja i spuštanja, bez naglih uzastopnih promjena visine. Stijene su dodatno obogaćene raslinjem i detaljima.
 
 U letu postoji samo jednostavna pauza s **NASTAVI**, **PONOVO** i **IZLAZ**.
 
