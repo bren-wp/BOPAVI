@@ -80,10 +80,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         BitmapFactory.Options().apply{inScaled=false})
     private var wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
-    private var worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
+    private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
         R.drawable.world6,R.drawable.world7)
-    private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
+    private var worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
         BitmapFactory.Options().apply{inScaled=false})
     // Cover the ENTIRE screen with the actual biome illustration on tall phones.
     // Unlike stretching the gameplay simulation, aspect-fill only crops distant
