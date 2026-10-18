@@ -254,8 +254,11 @@ final class GameSimulation {
         // Keep parity with Android: replay up to 100 ms after short frame stalls.
         guard delta.isFinite && delta > 0 else { return }
         var remaining = min(delta, 0.10)
+        // Shared with Kotlin: integrate in at most 1/120s slices rather
+        // than using a different Euler step at 30, 60, 90 and 120Hz.
+        // Physics constants and the body collision radius do not change.
         while remaining > 0.000001 && !finished {
-            let slice = min(remaining, 0.034)
+            let slice = min(remaining, 1.0 / 120.0)
             advance(slice)
             remaining -= slice
         }

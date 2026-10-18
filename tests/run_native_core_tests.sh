@@ -15,6 +15,12 @@ sw=Path('tests/.build/swift-vectors.txt').read_text().splitlines()
 assert len(ka)==len(sw)
 for a,b in zip(ka[:-1],sw[:-1]):
     x=a.split('|');y=b.split('|')
+    if x[0]=='R':
+        assert x[1]==y[1],(x,y)
+        for pos in range(2,6):
+            assert abs(float(x[pos])-float(y[pos]))<0.12,(x,y)
+        assert x[6:]==y[6:],(x,y)
+        continue
     if x[0]=='S':
         assert x[1:3]==y[1:3],(x,y)
         # Allow small floating point differences in remixed phases, but not center signature differences.

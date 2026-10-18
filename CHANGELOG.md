@@ -1,3 +1,10 @@
+## v0.2.22 — frame-time independent flight physics candidate (build 127)
+- Keep the existing -255 tap impulse, 685 gravity, 365 terminal falling speed and physical 18px body hitbox on Android and iOS.
+- Refine physics substeps to at most 1/120 second to reduce 30/60/90/120 Hz flight trajectory discrepancies without altering renderer or gesture callbacks.
+- Add deterministic test-only Kotlin/Swift replay vectors and 30Hz/120Hz Android JUnit + native Swift regression, including double tap, invalid delta and monotonic scoring.
+- Crash triage remains UNCONFIRMED until a real Android stack trace or iOS .ips is supplied. Do not claim the user's device crash is fixed.
+- Device input-to-visual flap latency, actual video flight feel and low-memory crash analysis require independent manual QA; this PR is not automatic Play/App Store approval.
+
 ## v0.2.21 — swept berry collection, saved food best and lighter UI (build 126)
 - Android + iOS: physics-slice swept berry pickup collision catches honest body-to-fruit touches that fall between frames, including dynamic gate motion; near misses still never count, and food never buys anything or increases score.
 - Reduce Android Canvas and iOS Core Graphics HUD churn by reusing score/berry-count strings; update VoiceOver/TalkBack accessibility text only when live values change, not at 60/90/120 Hz.

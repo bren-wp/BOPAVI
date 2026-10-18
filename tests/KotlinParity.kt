@@ -91,7 +91,7 @@ fun main() {
         val previewX=game.upcomingGateX(game.upcomingGates().first())
         game.flap();game.step(1f/60f)
         check(game.completionCount==1 && game.displayLevel==3L)
-        check(game.levelTransition==.85f) {"Level badge must acknowledge real completion"}
+        check(game.levelTransition in .83f.. .85f) {"Level badge must acknowledge real completion"}
         check(game.distance>0 && kotlin.math.abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01f)
         check(game.active && !game.finished)
         check(game.totalPassed==1 && game.passed==0) {"Global pass count reset across levels"}
@@ -179,6 +179,22 @@ fun main() {
         val origin=33_554_432.0
         check(kotlin.math.abs(WorldCoordinates.screenX(560f,origin,origin+.25)-559.75f)<.0001f)
         check(kotlin.math.abs(WorldCoordinates.screenX(560f,origin+250,origin+.25)-809.75f)<.0001f)
+    }
+    // Replay vectors stay in the TEST executable only (not production logs).
+    val hzList=listOf(30,60,90,120)
+    val rates=hzList.map{ hz ->
+        GameSimulation(LevelEngine.create(0,2)).apply {
+            flap()
+            repeat(hz*3/5){step(1f/hz)}
+        }
+    }
+    for((index,flight) in rates.withIndex()) {
+        check(!flight.finished && kotlin.math.abs(flight.time-.6f)<.0005f)
+        check(kotlin.math.abs(flight.velocity-156f)<.05f)
+        check(kotlin.math.abs(flight.y-rates.last().y)<=.75f) {"Frame-rate drift at ${hzList[index]}Hz"}
+        check(kotlin.math.abs(flight.distance-rates.last().distance)<.03f)
+        val fmt={n:Float->java.lang.String.format(java.util.Locale.US,"%.4f",n)}
+        println("R|${hzList[index]}|${fmt(flight.time)}|${fmt(flight.y)}|${fmt(flight.velocity)}|${fmt(flight.distance)}|${flight.score()}|${flight.foodCollected}|${flight.finished}")
     }
     println("TEST|KOTLIN|OK|$checked|${numbers.size*8}")
 }

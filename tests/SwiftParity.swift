@@ -238,7 +238,7 @@ struct SwiftParity {
             let previewX=game.upcomingGateX(game.upcomingGates[0])
             game.flap();game.step(1/60)
             precondition(game.completionCount==1 && game.displayLevel==3)
-            precondition(abs(game.levelTransition-0.85)<0.001,"Real level entry must trigger transient gauge highlight")
+            precondition(game.levelTransition>=0.83 && game.levelTransition<=0.85,"Real level entry must trigger transient gauge highlight")
             precondition(game.passed==0,"Seamless next level should reset only the gate counter")
             precondition(game.distance>0 && abs(game.gateX(game.level.gates[0])-(previewX-game.distance))<0.01)
             precondition(game.active && !game.finished)
@@ -337,6 +337,49 @@ struct SwiftParity {
         let longRunOrigin=33_554_432.0
         precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin,travelled:longRunOrigin+0.25)-559.75)<0.0001)
         precondition(abs(WorldCoordinates.screenX(560,origin:longRunOrigin+250,travelled:longRunOrigin+0.25)-809.75)<0.0001)
+        // Deterministic native trace. Release code does not record interactions.
+        // The 30Hz integration drift test intentionally fails before the fix.
+        let frameRates=[30,60,90,120]
+        var snapshots:[GameSimulation]=[]
+        for hz in frameRates {
+            let run=GameSimulation(BopaviCore.create(0,2))
+            run.flap()
+            for _ in 0..<(hz*3/5) {run.step(1/Float(hz))}
+            snapshots.append(run)
+        }
+        let baseline=snapshots[3]
+        for (idx,run) in snapshots.enumerated() {
+            precondition(!run.finished && abs(run.time-0.6)<0.0005)
+            precondition(abs(run.velocity-156)<0.05)
+            precondition(abs(run.y-baseline.y)<=0.75,"30/60/90/120Hz integration drift")
+            precondition(abs(run.distance-baseline.distance)<0.03)
+            precondition(run.score()==0)
+            let y=String(format:"%.4f",run.y)
+            let v=String(format:"%.4f",run.velocity)
+            let t=String(format:"%.4f",run.time)
+            let d=String(format:"%.4f",run.distance)
+            print("R|\(frameRates[idx])|\(t)|\(y)|\(v)|\(d)|\(run.score())|\(run.foodCollected)|\(run.finished)")
+        }
+        let doubleTap=GameSimulation(BopaviCore.create(0,2))
+        doubleTap.flap();doubleTap.step(1/120);doubleTap.flap()
+        precondition(doubleTap.flaps==2 && doubleTap.velocity == -255)
+        // Sustained 120Hz stress: finite state, monotonic score and frozen death.
+        let longFlight=GameSimulation(BopaviCore.create(0,2))
+        longFlight.flap()
+        for _ in 0..<720 {
+            let previousScore=longFlight.score()
+            longFlight.step(1/120)
+            precondition(longFlight.score()>=previousScore)
+            precondition(longFlight.y.isFinite && longFlight.velocity.isFinite)
+        }
+        if longFlight.finished {
+            let atDeath=longFlight.time
+            longFlight.step(0.1)
+            precondition(longFlight.time==atDeath)
+        }
+        let impossible=GameSimulation(BopaviCore.create(0,2))
+        impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
+        precondition(impossible.time==0)
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

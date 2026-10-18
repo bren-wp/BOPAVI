@@ -332,6 +332,45 @@ class LevelEngineTest {
         run.flap();run.step(1f/60f)
         assertFalse("Do not kill bird when its body remains inside visible opening",run.finished)
     }
+    @Test fun physicsReplayAgreesAt30_60_90_120Hz() {
+        // First 600ms are free of gates/bounds; test the integrator, not rendering.
+        val runs = listOf(30,60,90,120).map { hz ->
+            GameSimulation(LevelEngine.create(0,2)).apply {
+                flap()
+                repeat(hz*3/5) { step(1f/hz) }
+            }
+        }
+        val reference=runs.last()
+        for ((i,sim) in runs.withIndex()) {
+            assertFalse("Premature death at ${listOf(30,60,90,120)[i]}Hz",sim.finished)
+            assertEquals("Time must be 600ms",0.6f,sim.time,0.0005f)
+            assertEquals("Impulse/gravity unchanged",156f,sim.velocity,0.05f)
+            assertEquals("Frame-rate flight drift",reference.y,sim.y,0.75f)
+            assertEquals("Frame-rate scroll drift",reference.distance,sim.distance,0.03f)
+            assertEquals(0,sim.score())
+        }
+        val rapid=GameSimulation(LevelEngine.create(0,2))
+        rapid.flap(); rapid.step(1f/120f); rapid.flap()
+        assertEquals(2,rapid.flaps)
+        assertEquals(-255f,rapid.velocity,0f)
+        val dead=GameSimulation(LevelEngine.create(0,2))
+        dead.flap()
+        repeat(720) {
+            val scoreBefore=dead.score()
+            dead.step(1f/120f)
+            assertTrue(dead.score()>=scoreBefore)
+            assertTrue(dead.y.isFinite() && dead.velocity.isFinite())
+        }
+        val last=dead.time
+        if (dead.finished) {
+            dead.step(.1f)
+            assertEquals("Dead flights do not advance",last,dead.time,0f)
+        }
+        val invalid=GameSimulation(LevelEngine.create(0,2))
+        invalid.flap(); invalid.step(Float.NaN); invalid.step(Float.POSITIVE_INFINITY)
+        assertEquals(0f,invalid.time,0f)
+    }
+
     @Test fun sameMotionAcross60_90_120HzFrames() {
         val level=LevelEngine.create(0,2)
         val at60=GameSimulation(level)
@@ -415,7 +454,8 @@ class LevelEngineTest {
         assertEquals("Global completed gates must never reset between levels",1,game.totalPassed)
         assertTrue("Global distance must remain monotonic",game.distance>0f)
         assertEquals("Upcoming obstacle must never jump at the boundary",previewX-game.distance,game.gateX(game.level.gates[0]),0.01f)
-        assertEquals(.85f,game.levelTransition,.001f)
+        assertTrue("The completion pulse can decay within the remaining 120Hz substep",
+            game.levelTransition in .83f.. .85f)
         game.step(.05f)
         assertTrue("The brief level badge fades while flight remains live",game.levelTransition>0f && game.levelTransition<.85f)
         assertTrue(game.active)

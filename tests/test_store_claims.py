@@ -77,8 +77,8 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertIn("BopiPortrait0", i)
         self.assertNotIn('android.permission.INTERNET', MANIFEST.read_text())
         gradle = GRADLE.read_text()
-        self.assertIn('versionName = "0.2.21"', gradle)
-        self.assertIn('versionCode = 126', gradle)
+        self.assertIn('versionName = "0.2.22"', gradle)
+        self.assertIn('versionCode = 127', gradle)
 
     def test_current_public_terms_are_not_legacy_promotion(self):
         # Negated historical notes in privacy/terms are deliberate disclosures,
