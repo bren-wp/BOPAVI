@@ -59,8 +59,7 @@ final class ProgressStore {
     func recordRun(_ game:GameSimulation){
         let collectibleKey="collectibles_\(game.level.world)"
         let previousCollectibles=min(100_000_000,max(0,defaults.integer(forKey:collectibleKey)))
-        let newCollectibles=min(100_000_000,max(0,game.coins)) +
-            min(100_000_000,max(0,game.stars))
+        let newCollectibles=min(100_000_000,max(0,game.coins)) + min(100_000_000,max(0,game.stars))
         defaults.set(min(100_000_000,previousCollectibles+newCollectibles),forKey:collectibleKey)
         let previousFlaps=min(100_000_000,max(0,defaults.integer(forKey:"flaps")))
         let newFlaps=min(100_000_000,max(0,game.flaps))
