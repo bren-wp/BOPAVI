@@ -23,7 +23,7 @@ ROOTS = (48, 50, 53, 45, 55, 46, 51, 48)
 PROGRESSION = (0, 5, 3, 7, 0, 5, 2, 7)
 EFFECTS = {
     "tap": [72], "collect": [79, 84], "level": [72, 76, 79, 84],
-    "hit": [46, 39], "purchase": [67, 74, 79], "click": [65],
+    "hit": [46, 39], "click": [65],
 }
 
 def midi(note):
@@ -93,7 +93,7 @@ def main():
         save(name, ambient(world))
     for name, notes in EFFECTS.items():
         save(name, effect_notes(name, notes))
-    print("Generated 28 local audio files; eight 48-second seamless calm loops per platform")
+    print("Generated 26 local audio files; eight 48-second seamless calm loops per platform")
 
 if __name__ == "__main__":
     main()

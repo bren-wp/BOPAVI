@@ -83,13 +83,14 @@ def audit_resource_reachability():
                   "bopavi_startup"})
     issues = [f"Unrecognized drawable reference: {name}"
               for name in sorted(referenced["drawable"] - names)]
-    # Every exported runtime sprite/portrait/world used by dynamic skin/world
-    # indexing must remain available on both OSes. Do not remove by grep.
+    # Keep dynamically indexed playable sprites and world art. The simplified
+    # Home uses only the original Bopi portrait; other portrait assets remain
+    # generated for archival compatibility but have no runtime references.
     expected_dynamic = {
         *(f"bopi{i}" for i in range(9)),
         *(f"bopileft{i}" for i in range(9)),
         *(f"bopiright{i}" for i in range(9)),
-        *(f"bopiportrait{i}" for i in range(9)),
+        "bopiportrait0",
         *(f"world{i}" for i in range(8)),
         "logo", "homeback",
     }
@@ -124,7 +125,7 @@ def audit_audio_pairing():
     ios_audio = IOS / "Audio"
     android_names = {p.stem for p in android_raw.glob("*.wav")}
     ios_names = {p.stem for p in ios_audio.glob("*.wav")}
-    expected = {"click", "collect", "hit", "level", "purchase", "tap"}
+    expected = {"click", "collect", "hit", "level", "tap"}
     expected.update(f"world_{i}" for i in range(8))
     sources = "\n".join(path.read_text(encoding="utf-8") for path in ANDROID_SOURCES)
     declared = {name for kind, name in RESOURCE.findall(sources) if kind == "raw"}
@@ -141,7 +142,7 @@ def audit_audio_pairing():
         if a != b:
             issues.append(f"Cross-platform audio differs: {name}")
     fail(issues)
-    print("PASS: 14 paired runtime audio resources; no orphan WAV and byte-identical platforms")
+    print("PASS: 13 paired runtime audio resources; no orphan WAV and byte-identical platforms")
 
 
 def audit_project_integration():

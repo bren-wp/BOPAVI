@@ -40,7 +40,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val selectedSkin=skinIndex.coerceIn(0,8) // The player's save-backed pilot; same body collider for all nine.
     private val pilotName=listOf("Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion")[selectedSkin]
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
-    private val birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
+    private var birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
     // Reference pilot is only enabled after build-time manifest and checksum
     // validation. This optional art never alters the same 18px body collider.
@@ -76,14 +76,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
         R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,R.drawable.bopiright8)
-    private val wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],
+    private var wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
-    private val wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],
+    private var wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
     private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
         R.drawable.world6,R.drawable.world7)
-    private val worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
+    private var worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
         BitmapFactory.Options().apply{inScaled=false})
     // Cover the ENTIRE screen with the actual biome illustration on tall phones.
     // Unlike stretching the gameplay simulation, aspect-fill only crops distant
@@ -142,6 +142,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         super.onSizeChanged(w,h,oldw,oldh)
         viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+        updateWorldCover(w,h)
+    }
+    private fun updateWorldCover(w:Int,h:Int){
         worldBitmap?.let { bmp ->
             if(w>0 && h>0 && bmp.width>0 && bmp.height>0){
                 val cover=max(w.toFloat()/bmp.width,h.toFloat()/bmp.height)*
@@ -286,7 +289,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // A former opaque ground stripe hid the lower floating-island scenery,
         // including on narrow and notched phones. Letterboxing is filled above.
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        if(!paused && !qaWaitingForCapture && game.active && !game.finished && isAttachedToWindow) {
+        // One clear gate prevents redundant 60/120Hz frames after Pause,
+        // Exit, backgrounding, QA capture or a finished/idle flight.
+        if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
             if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
         }
     }
@@ -1021,5 +1026,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         return true
     }
-    override fun onDetachedFromWindow(){paused=true;super.onDetachedFromWindow()}
+    override fun onAttachedToWindow(){
+        super.onAttachedToWindow()
+        // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
+        val opts=BitmapFactory.Options().apply { inScaled=false }
+        if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
+        if(wingLeftBitmap==null) wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],opts)
+        if(wingRightBitmap==null) wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],opts)
+        if(worldBitmap==null) worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],opts)
+        updateWorldCover(width,height)
+        invalidate()
+    }
+    override fun onDetachedFromWindow(){
+        // Release native pixel buffer references after each Retry/Exit.
+        // Avoid explicit recycle(): RenderThread may still own display lists.
+        paused=true
+        birdBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
+        super.onDetachedFromWindow()
+    }
 }

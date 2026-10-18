@@ -90,12 +90,11 @@ final class GameController: UIViewController {
     private let collectHaptic=UISelectionFeedbackGenerator()
     private let shieldHaptic=UIImpactFeedbackGenerator(style:.medium)
     private var canvas:GameCanvas?
+    private weak var gamePauseButton:UIButton?
     private weak var pauseFitViewport:UIScrollView?
     private weak var pauseFitPanel:UIStackView?
     private weak var resultFitViewport:UIScrollView?
     private weak var resultFitPanel:UIStackView?
-    private var gameWorld=0
-    private var gameNumber=1
     private var backgroundGradient:CAGradientLayer?
     override var preferredStatusBarStyle:UIStatusBarStyle {.lightContent}
     // Full-bleed menus retain UIKit safe-area protection for device cutouts.
@@ -121,7 +120,12 @@ final class GameController: UIViewController {
         // Keep an active flight exactly where the user left it on call, lock or app switch.
         // Never auto-resume physics or audio in the background.
         guard let activeCanvas=canvas else {return}
-        if activeCanvas.game.active {activeCanvas.paused=true}
+        if activeCanvas.game.active {
+            activeCanvas.paused=true
+            gamePauseButton?.setTitle("▶",for:.normal)
+            gamePauseButton?.accessibilityLabel=progress.languageCode=="hr" ?
+                "Otvori kontrole pauzirane igre" : "Open paused game controls"
+        }
         sound.pause()
     }
     @objc private func resumeIdlePreview(_ note:Notification) {
@@ -131,7 +135,7 @@ final class GameController: UIViewController {
         }
     }
     private func clear() {
-        canvas?.stop();canvas=nil;sound.stop()
+        canvas?.stop();canvas=nil;gamePauseButton=nil;sound.stop()
         setNeedsStatusBarAppearanceUpdate()
         backgroundGradient=nil
         view.subviews.forEach{$0.removeFromSuperview()}
@@ -272,7 +276,7 @@ final class GameController: UIViewController {
         subtitle.accessibilityLabel=subtitle.text
         button(progress.languageCode=="hr" ? "▶  IGRAJ" : "▶  PLAY",in:stack){
             self.sound.effect("click")
-            self.startGame(0,1)
+            self.startGame()
         }
     }
 
@@ -330,7 +334,13 @@ final class GameController: UIViewController {
               UIColor(red:0.75,green:0.90,blue:1,alpha:1),panel)
         let close:(Bool)->Void = {[weak overlay,weak canvas,weak self] resume in
             overlay?.removeFromSuperview()
-            if resume {canvas?.paused=false;self?.sound.resume()}
+            if resume {
+                canvas?.paused=false
+                self?.gamePauseButton?.setTitle("Ⅱ",for:.normal)
+                self?.gamePauseButton?.accessibilityLabel=self?.progress.languageCode=="hr" ?
+                    "Pauziraj igru" : "Pause game"
+                self?.sound.resume()
+            }
         }
         func command(_ caption:String,style:Int,handler:@escaping()->Void){
             let control:UIButton
@@ -356,17 +366,17 @@ final class GameController: UIViewController {
         }
         command(progress.languageCode=="hr" ? "▶  NASTAVI" : "▶  CONTINUE",style:0){close(true)}
         command(progress.languageCode=="hr" ? "↻  PONOVO" : "↻  RETRY",style:1){
-            close(false);self.startGame(self.gameWorld,self.gameNumber)
+            close(false);self.startGame()
         }
         command(progress.languageCode=="hr" ? "↪  IZLAZ" : "↪  EXIT",style:2){close(false);self.showHome()}
         // No separate settings panel in the streamlined experience.
         // Pause only exposes Continue, Retry and Exit.
         UIAccessibility.post(notification:.screenChanged,argument:panel)
     }
-    private func startGame(_ world:Int,_ number:Int){
-        clear();gameWorld=world;gameNumber=number
+    private func startGame(){
+        clear()
         let game=GameSimulation(BopaviCore.createStream(0,1),endless:true,initialShield:0,initialMagnet:0,difficulty:1,initialOrdinal:1)
-        sound.startWorld(world)
+        sound.startWorld(0)
         let gameCanvas=GameCanvas(game:game,reducedMotion:progress.lessMotion,skinIndex:0,
             languageCode:progress.languageCode)
         canvas=gameCanvas
@@ -394,7 +404,8 @@ final class GameController: UIViewController {
         pause.backgroundColor=UIColor(red:0.11,green:0.24,blue:0.41,alpha:0.96);pause.setTitleColor(.white,for:.normal)
         pause.layer.cornerRadius=16;pause.layer.borderWidth=1
         pause.layer.borderColor=UIColor.white.withAlphaComponent(0.3).cgColor
-        pause.accessibilityLabel="Izbornik tijekom igre"
+        pause.accessibilityLabel=progress.languageCode=="hr" ? "Pauziraj igru" : "Pause game"
+        gamePauseButton=pause
         // Keep pause out of the idle flight preview and VoiceOver tree.
         pause.isHidden=true
         pause.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(pause)
@@ -418,10 +429,9 @@ final class GameController: UIViewController {
         sound.effect(g.won ? "level" : "hit")
         let headline=progress.languageCode == "hr" ? "REZULTAT" : "RESULT"
         progress.recordRun(g)
-        gameNumber=g.displayLevel
         clear()
         view.backgroundColor=UIColor(red:0.09,green:0.39,blue:0.73,alpha:1)
-        if let image=UIImage(named:"World\(gameWorld)") {
+        if let image=UIImage(named:"World0") {
             let backdrop=UIImageView(image:image)
             backdrop.contentMode = .scaleAspectFill
             backdrop.clipsToBounds=true;backdrop.translatesAutoresizingMaskIntoConstraints=false
@@ -480,9 +490,9 @@ final class GameController: UIViewController {
         header.layer.borderColor=UIColor(red:0.34,green:0.81,blue:1,alpha:1).cgColor
         header.heightAnchor.constraint(equalToConstant:174).isActive=true
         header.isAccessibilityElement=true
-        header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[gameWorld])"
+        header.accessibilityLabel="Odabrani letač: \(progress.skinNames[pilotIndex]), svijet \(BopaviCore.names[0])"
         stack.addArrangedSubview(header)
-        let scene=UIImageView(image:UIImage(named:"World\(gameWorld)"))
+        let scene=UIImageView(image:UIImage(named:"World0"))
         scene.translatesAutoresizingMaskIntoConstraints=false
         scene.contentMode = .scaleAspectFill
         scene.clipsToBounds=true
@@ -572,7 +582,7 @@ final class GameController: UIViewController {
         best.layer.borderColor=UIColor(red:0.22,green:0.80,blue:1,alpha:1).cgColor
         best.heightAnchor.constraint(equalToConstant:60).isActive=true
         button(progress.languageCode=="hr" ? "▶  PONOVO" : "▶  RETRY",in:stack){
-            self.startGame(0,1)
+            self.startGame()
         }
         button(progress.languageCode=="hr" ? "⌂  POČETNA" : "⌂  HOME",
                in:stack,primary:false){self.showHome()}

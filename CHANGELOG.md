@@ -1,3 +1,13 @@
+## v0.2.20 — lifecycle stability, audio hardening and frame efficiency (build 125)
+- Consolidate native redraw guards after a redundant nested condition was identified during review; retain the already-existing idle/pause frame suppression while avoiding unnecessary checks. Live gameplay stays frame matched, with touch and pause triggering redraws.
+- Drop heavy bitmap references when the Android gameplay view is detached; reload only when a window reattaches, without unsafe Bitmap.recycle() calls during GPU RenderThread playback. Reduce memory pressure after repeated Retry/Home navigation.
+- Harden Android SoundPool against effect calls during Activity teardown; make close idempotent. Remove the dead purchase WAV from Android, iOS, synthesis pipeline and pairing checks (5 active SFX remain), while keeping older local save records intact.
+- Improve interruption UX on Android and iOS: the native pause control visibly switches to ▶ when returning from background and back/continue restores the same flight, with localized accessibility labels. Remove a duplicate Home click sound.
+- Delete orphaned Android MainActivity dead helpers, obsolete menuBackAction routing, stale world/level launch parameters and duplicate Home click audio. Apply the same fixed first-world endless flight entry point to iOS; retain older save records without data loss.
+- Reinforce native lifecycle source regression tests and switch Android 16 system-image CI to verified Google APIs → AOSP fallback when SDK archives are corrupt. Fail closed if no usable image exists; a passing Android 16 emulator is still required to publish.
+- Android/iOS **v0.2.20 / build 125**; release artifacts depend on all Android/iOS compilation, real-device simulation smoke, privacy audits and release gates passing.
+- User-reported runtime crash needs reproduction or a device stack trace to prove the exact failure mechanism; these fixes target confirmed lifecycle/performance risks, not an unverified root cause.
+
 ## v0.2.19 — smoother cliffs, collectible berries and premium gameplay polish (build 124)
 - Richer forest-stone pillars: layered grass, mossy caps, climbing foliage and small flowers rendered as native geometry on Android and iOS. Berry fruit uses separate live native graphics, never painted buttons or coin icons.
 - A gentle, deterministic rise-and-fall obstacle rhythm replaces abrupt alternation. Per-chunk height changes and seamless procedural course boundaries remain bounded. Keep original collision geometry and progressive difficulty.
