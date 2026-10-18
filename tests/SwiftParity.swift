@@ -382,6 +382,14 @@ struct SwiftParity {
         let impossible=GameSimulation(BopaviCore.create(0,2))
         impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
         precondition(impossible.time==0)
+        let cap=BopaviCore.Opening(top:228,bottom:450)
+        for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484)] {
+            let hit=PillarCollision.bodyHitsPillar(birdX:x,birdY:y,radius:18,
+                                                  gateX:107,gateWidth:76,opening:cap)
+            let expected=(y==192 || y==484)
+            precondition(hit==expected,"Rounded cap collision at \(x),\(y)")
+            print("C|\(Int(x))|\(Int(y))|\(hit)")
+        }
         print("TEST|SWIFT|OK|\(checked)|\(numbers.count*8)")
     }
 }

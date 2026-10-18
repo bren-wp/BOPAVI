@@ -315,6 +315,46 @@ class LevelEngineTest {
             PillarCollision.bodyHitsPillar(126f,300f,18f,144f,73f,LevelEngine.Opening(376f,536f)))
     }
 
+    @Test fun roundedRockLipRejectsTransparentCornerButAcceptsOnePixelPenetration() {
+        // Drawn upper lip: roundRect(left=100, top=200, right=188, bottom=228, corner=7).
+        // Previous cap AABB considers (88,188) a hit (16.97px from rectangle),
+        // whereas the actual rounded corner is 19.87px away (> Bopi radius 18).
+        val opening=LevelEngine.Opening(228f,450f)
+        assertFalse("Transparent upper roundRect corner must not kill Bopi",
+            PillarCollision.bodyHitsPillar(88f,188f,18f,107f,76f,opening))
+        assertFalse("1-2px outside actual upper rounded corner is safe",
+            PillarCollision.bodyHitsPillar(88f,190f,18f,107f,76f,opening))
+        assertTrue("Real penetration into rounded upper lip must register",
+            PillarCollision.bodyHitsPillar(88f,192f,18f,107f,76f,opening))
+        assertFalse("Transparent lower rounded corner must be safe",
+            PillarCollision.bodyHitsPillar(88f,489f,18f,107f,76f,opening))
+        assertTrue("Real lower rounded lip must register",
+            PillarCollision.bodyHitsPillar(88f,484f,18f,107f,76f,opening))
+        assertFalse("Transparent wing/aura outside body circle cannot hit",
+            PillarCollision.bodyHitsPillar(70f,338f,18f,107f,76f,opening))
+        assertFalse("Invalid body geometry cannot be a hit",
+            PillarCollision.bodyHitsPillar(Float.NaN,188f,18f,107f,76f,opening))
+        assertFalse(PillarCollision.bodyHitsPillar(88f,188f,0f,107f,76f,opening))
+    }
+
+    @Test fun movingRockOpeningIsFiniteAndBoundsAgreeAcrossFrameRates() {
+        for(world in 0 until LevelEngine.WORLD_COUNT)
+            for(difficulty in 0..2) {
+                val gate=LevelEngine.create(world,120).gates[5]
+                for(hz in listOf(30,60,90,120)) {
+                    var previous=LevelEngine.opening(gate,0f,difficulty)
+                    for(frame in 1..hz*2) {
+                        val next=LevelEngine.opening(gate,frame.toFloat()/hz,difficulty)
+                        assertTrue(next.top.isFinite() && next.bottom.isFinite())
+                        assertTrue(next.bottom-next.top >= 144.9f)
+                        assertTrue("Moving mouth may not teleport",
+                            kotlin.math.abs(next.top-previous.top) < 2f &&
+                            kotlin.math.abs(next.bottom-previous.bottom) < 2f)
+                        previous=next
+                    }
+                }
+            }
+    }
     @Test fun flightDoesNotDieBesideCapOutsideItsPaintedHeight() {
         val level=LevelEngine.create(0,2)
         val lipTooHigh=level.gates[0].copy(x=148f,center=490f,gap=160f,
