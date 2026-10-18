@@ -20,3 +20,26 @@ The current simulation clamps one display gap to 100ms, processes each in at mos
 Native tests: upper/lower 1–2px near miss, roundRect penetration, shaft/lip tangency, near miss under wings/aura, invalid values, frame time and moving mouths at 30/60/90/120Hz, and old world seam and score tests. Debug overlay should outline exact **rounded bands**, both shafts, body circle and fruit radius in **the same world transform**; opt-in only on non-release builds. Use authentic same-build screenshot/video from the running Android debug APK and Xcode DEBUG app, examine 1:1 overpaint vs actual rock lip pixels at tangent/1px margin and on moving mouths. Pixel-level anti-aliasing can create a ~1px visually soft edge; do not compensate by making the hitbox larger.
 
 Missing for final DoD: real phone video with contact/no contact & frame timestamps for both platforms (30–120Hz where supported); manual screenshot inspection of overlay against actual painted pixels, and confirm no regression in native CI. No false crash/Play approval claims.
+
+## Optional actual debug captures (NOT performed in this source-only PR)
+
+Android — install this PR's **debuggable APK** on an authorized QA device. Start Home with debug flag, tap the real IGRAJ control, flap and pause, then record the same installed build:
+
+```bash
+mkdir -p qa/collision-actual
+adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_collision_overlay true
+# Use the actual UI IGRAJ and flap; avoid guessed screen coordinates.
+adb exec-out screencap -p > qa/collision-actual/android-rock-overlay.png
+adb shell screenrecord --time-limit 20 /sdcard/bopavi-collision-qa.mp4
+adb pull /sdcard/bopavi-collision-qa.mp4 qa/collision-actual/android-collision-qa.mp4
+```
+
+iOS — in Xcode Scheme → Run → Arguments, add `-BOPAVICollisionDebug` for Debug **only**; attach simulator/real iPhone, run Home→Flight and record with Xcode/QuickTime device recording. Alternatively, for an installed simulator Debug app:
+
+```bash
+xcrun simctl launch booted com.brendigo.bopavi -BOPAVICollisionDebug
+xcrun simctl io booted screenshot qa/collision-actual/ios-rock-overlay.png
+xcrun simctl io booted recordVideo qa/collision-actual/ios-collision-qa.mp4
+```
+
+Inspect the **magenta solid shaft**, **cyan rounded band**, **yellow body r18**, and **green fruit r13** in unscaled native pixels. Overlay is evidence for geometry, not a rendering replacement. Physical-device 30–120Hz hit/no-hit video is still needed for final DoD.

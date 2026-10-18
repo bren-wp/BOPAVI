@@ -382,6 +382,23 @@ struct SwiftParity {
         let impossible=GameSimulation(BopaviCore.create(0,2))
         impossible.flap();impossible.step(Float.nan);impossible.step(Float.infinity)
         precondition(impossible.time==0)
+        // Moving gate mouths remain finite and continuous at every display rate.
+        for world in 0..<8 {
+            for difficulty in 0...2 {
+                let gate=BopaviCore.create(world,120).gates[5]
+                for hz in [30,60,90,120] {
+                    var previous=BopaviCore.opening(gate,0,difficulty:difficulty)
+                    for frame in 1...(hz*2) {
+                        let next=BopaviCore.opening(gate,Float(frame)/Float(hz),
+                                                   difficulty:difficulty)
+                        precondition(next.top.isFinite && next.bottom.isFinite)
+                        precondition(next.bottom-next.top>=144.9)
+                        precondition(abs(next.top-previous.top)<2 && abs(next.bottom-previous.bottom)<2)
+                        previous=next
+                    }
+                }
+            }
+        }
         let cap=BopaviCore.Opening(top:228,bottom:450)
         for (x,y) in [(Float(88),Float(188)),(88,190),(88,192),(88,489),(88,484)] {
             let hit=PillarCollision.bodyHitsPillar(birdX:x,birdY:y,radius:18,
