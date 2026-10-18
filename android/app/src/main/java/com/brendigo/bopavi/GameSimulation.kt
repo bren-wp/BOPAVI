@@ -99,8 +99,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         // Preserve short frame stalls; a long background interruption is bounded.
         if (!delta.isFinite() || delta <= 0f) return
         var remaining = min(delta, 0.10f)
+        // Bound semi-implicit Euler integration to 120Hz on every display.
+        // 30Hz used to jump ~5px relative to 120Hz within 600ms because
+        // frame time itself was the physics slice; preserve impulse/gravity.
         while (remaining > 0.000001f && !finished) {
-            val slice = min(remaining, 0.034f)
+            val slice = min(remaining, 1f / 120f)
             advance(slice)
             remaining -= slice
         }
