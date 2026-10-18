@@ -58,6 +58,12 @@ struct SwiftParity {
         precondition(GameLanguages.text("UKUPNO\nPROLAZA","en")=="TOTAL\nGATES")
         precondition(GameLanguages.text("MOJI REKORDI","en")=="MY RECORDS")
         precondition(GameLanguages.text("TVOJI REZULTATI","en")=="YOUR RESULTS")
+        // V6 contact tests: fruit swept past Bopi must count on both OSes.
+        precondition(BerryCollision.touched(startX:40,startY:0,endX:-40,endY:0,radius:31))
+        precondition(!BerryCollision.touched(startX:40,startY:32,endX:-40,endY:32,radius:31))
+        precondition(BerryCollision.touched(startX:40,startY:31,endX:-40,endY:31,radius:31))
+        precondition(BerryCollision.touched(startX:0,startY:0,endX:0,endY:0,radius:31))
+        precondition(!BerryCollision.touched(startX:.nan,startY:0,endX:0,endY:0,radius:31))
         // V5 fruit is an actual body/contact pickup, not old spendable currency.
         let berry=BopaviCore.Gate(x:94,center:366,gap:240,width:64,movement:0,phase:0,
             kind:0,coin:true,star:false,power:0)
