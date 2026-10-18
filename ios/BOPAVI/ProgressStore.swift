@@ -53,17 +53,20 @@ final class ProgressStore {
         defaults.set(index,forKey:"skin_index");return true
     }
     func endlessBest()->Int{defaults.integer(forKey:"endless_best")}
+    func bestFood()->Int { min(100_000_000,max(0,defaults.integer(forKey:"endless_food_best"))) }
     func wins()->Int{defaults.integer(forKey:"wins")}
     func deaths()->Int{defaults.integer(forKey:"deaths")}
     func recordRun(_ game:GameSimulation){
         defaults.set(min(100_000_000,defaults.integer(forKey:"collectibles_\(game.level.world)")+game.coins+game.stars),forKey:"collectibles_\(game.level.world)")
-        defaults.set(min(100_000_000,defaults.integer(forKey:"flaps")+game.flaps),forKey:"flaps")
+        defaults.set(min(100_000_000,min(100_000_000,max(0,defaults.integer(forKey:"flaps")))+
+            min(100_000_000,max(0,game.flaps))),forKey:"flaps")
         if game.endless {
             defaults.set(max(endlessBest(),game.totalPassed),forKey:"endless_best")
-            defaults.set(defaults.integer(forKey:"endless_runs")+1,forKey:"endless_runs")
+            defaults.set(max(bestFood(),min(100_000_000,max(0,game.foodCollected))),forKey:"endless_food_best")
+            defaults.set(min(99_999_999,max(0,defaults.integer(forKey:"endless_runs")))+1,forKey:"endless_runs")
         }
-        defaults.set(game.won ? wins()+1 : wins(),forKey:"wins")
-        defaults.set(game.won ? deaths() : deaths()+1,forKey:"deaths")
+        defaults.set(game.won ? min(99_999_999,max(0,wins()))+1 : wins(),forKey:"wins")
+        defaults.set(game.won ? deaths() : min(99_999_999,max(0,deaths()))+1,forKey:"deaths")
         saveLocalScore(game)
     }
     var lessMotion: Bool {
@@ -232,7 +235,7 @@ final class ProgressStore {
                                  "owned":(0..<9).filter{owned($0)}.map{skins[$0]},"skin":skins[skinIndex()],
                                  "lastDaily":defaults.string(forKey:"last_daily") ?? "",
                                  "wins":wins(),"deaths":deaths(),"flaps":defaults.integer(forKey:"flaps"),
-                                 "endlessBest":endlessBest(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
+                                 "endlessBest":endlessBest(),"bestFood":bestFood(),"endlessRuns":defaults.integer(forKey:"endless_runs"),
                                  "perks":(0..<6).map{perkCount($0)},"collectibles":(0..<8).map{collectibles($0)},"soundEnabled":soundEnabled,"hapticEnabled":hapticEnabled,
                                   "musicVolume":musicVolume,"effectsVolume":effectsVolume]
         return try JSONSerialization.data(withJSONObject:["format":"bopavi-save","exportVersion":6,"save":save],options:[.prettyPrinted,.sortedKeys])
@@ -309,6 +312,9 @@ final class ProgressStore {
         defaults.set(mask,forKey:"owned_mask")
         let selected=skinIndexForSlug(s["skin"] as? String ?? "bopi") ?? 0
         defaults.set((selected == 6 || (mask & (1 << selected)) != 0) ? selected : 0,forKey:"skin_index")
+        // An imported v1-v6 backup cannot erase an already achieved fruit record.
+        defaults.set(max(bestFood(),min(100_000_000,max(0,s["bestFood"] as? Int ?? 0))),
+                     forKey:"endless_food_best")
         for stat in ["wins","deaths","flaps","endlessBest","endlessRuns"] {
             let value=min(100_000_000,max(0,s[stat] as? Int ?? 0))
             defaults.set(value,forKey:stat == "endlessBest" ? "endless_best" : stat == "endlessRuns" ? "endless_runs" : stat)

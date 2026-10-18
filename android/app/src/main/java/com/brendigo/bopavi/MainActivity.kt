@@ -382,10 +382,8 @@ class MainActivity : Activity() {
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
-        val scenes=intArrayOf(R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
-            R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
         val backdrop=ImageView(this).apply{
-            setImageResource(scenes[0]);scaleType=ImageView.ScaleType.CENTER_CROP
+            setImageResource(R.drawable.world0);scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
@@ -411,20 +409,14 @@ class MainActivity : Activity() {
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
-        val pilotIndex=0
-        val pilotPortraits=intArrayOf(
-            R.drawable.bopiportrait0,R.drawable.bopiportrait1,R.drawable.bopiportrait2,
-            R.drawable.bopiportrait3,R.drawable.bopiportrait4,R.drawable.bopiportrait5,
-            R.drawable.bopiportrait6,R.drawable.bopiportrait7,R.drawable.bopiportrait8
-        )
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription="Odabrani letač: ${progress.skinNames[pilotIndex]}, " +
-                "svijet ${LevelEngine.names[0]}"
+            contentDescription=if(progress.languageCode()=="hr")
+                "Bopi u svijetu Zeleni otoci" else "Bopi in Green Islands"
         }
         artwork.addView(ImageView(this).apply{
-            setImageResource(scenes[0])
+            setImageResource(R.drawable.world0)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
@@ -434,7 +426,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         artwork.addView(ImageView(this).apply{
-            setImageResource(pilotPortraits[pilotIndex])
+            setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
@@ -505,9 +497,12 @@ class MainActivity : Activity() {
             "🍓",g.foodCollected.toString(),0xffffd5d7.toInt())
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
-            text=if(progress.languageCode()=="hr")"★  NAJBOLJI REZULTAT: $best"
-                else "★  BEST SCORE: $best"
-            textSize=18f;gravity=Gravity.CENTER;setTextColor(Color.WHITE)
+            text=if(progress.languageCode()=="hr")
+                "★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
+                else "★  BEST SCORE: $best\n🍓  MOST FOOD: ${progress.bestFood()}"
+            textSize=16f;gravity=Gravity.CENTER;setTextColor(Color.WHITE)
+            setAutoSizeTextTypeUniformWithConfiguration(13,16,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             contentDescription=text
             setPadding(d(10),d(11),d(10),d(11))
