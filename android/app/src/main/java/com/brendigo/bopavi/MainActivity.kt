@@ -255,7 +255,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
         title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
-        small(content,if(progress.languageCode()=="hr")"Let je pauziran" else "Flight paused")
+        title(content,if(progress.languageCode()=="hr")"Let je pauziran" else "Flight paused",16,0xffbce6ff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
