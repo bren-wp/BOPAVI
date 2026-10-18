@@ -709,9 +709,9 @@ enum PillarCollision {
               toOpening.top<toOpening.bottom else{return false}
         if birdX < min(fromGateX,toGateX)-7-radius ||
            birdX > max(fromGateX,toGateX)+gateWidth+5+radius {return false}
-        let motionBound=abs(toGateX-fromGateX)+abs(toY-fromY)+
-            max(abs(toOpening.top-fromOpening.top),
-                abs(toOpening.bottom-fromOpening.bottom))+0.0001
+        let motionBound = abs(toGateX-fromGateX) + abs(toY-fromY)
+            + max(abs(toOpening.top-fromOpening.top),
+                  abs(toOpening.bottom-fromOpening.bottom)) + 0.0001
         func clear(_ t:Float)->Float {
             let x=fromGateX+(toGateX-fromGateX)*t
             let y=fromY+(toY-fromY)*t
