@@ -41,3 +41,6 @@ assert "gameWorld" not in ios and "gameNumber" not in ios
 assert '"purchase":' not in (R/"tools/generate_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/verify_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/audit_native_dead_code.py").read_text()
+
+assert "gamePauseButton?.setTitle(\"▶\",for:.normal)" in ios
+assert "gamePauseButton?.setTitle(\"Ⅱ\",for:.normal)" in ios
