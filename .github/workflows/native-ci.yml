@@ -164,6 +164,7 @@ jobs:
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_food_save_contract.py
       - run: python tests/test_native_perf_save_contract.py
+      - run: python tests/test_play_listing_asset_source.py
       - run: python tests/test_collision_overlay_contract.py
       - run: python tests/test_crash_triage_contract.py
       - run: python tests/test_release_publish_guard.py
