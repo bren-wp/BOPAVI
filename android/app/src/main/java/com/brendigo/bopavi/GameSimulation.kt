@@ -222,6 +222,13 @@ internal object PillarCollision {
             !fromOpening.top.isFinite() || !fromOpening.bottom.isFinite() ||
             !toOpening.top.isFinite() || !toOpening.bottom.isFinite() ||
             fromOpening.top>=fromOpening.bottom || toOpening.top>=toOpening.bottom) return false
+        // A stationary tangency must not recursively subdivide 2^20+ times.
+        // With no relative movement, the single-frame predicate is exact.
+        if (fromY == toY && fromGateX == toGateX &&
+            fromOpening.top == toOpening.top &&
+            fromOpening.bottom == toOpening.bottom) {
+            return bodyHitsPillar(birdX, fromY, radius, fromGateX, gateWidth, fromOpening)
+        }
         // All four actual shapes lie in this swept horizontal extent.
         if(birdX<min(fromGateX,toGateX)-7f-radius ||
            birdX>max(fromGateX,toGateX)+gateWidth+5f+radius)return false
