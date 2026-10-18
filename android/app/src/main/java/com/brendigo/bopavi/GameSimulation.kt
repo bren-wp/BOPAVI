@@ -197,12 +197,23 @@ internal object WorldCoordinates {
 internal object PillarCollision {
     fun bodyHitsPillar(birdX:Float,birdY:Float,radius:Float,gateX:Float,
                        gateWidth:Float,opening:LevelEngine.Opening):Boolean {
-        if (radius <= 0f) return false
+        if (!birdX.isFinite() || !birdY.isFinite() || !radius.isFinite() ||
+            !gateX.isFinite() || !gateWidth.isFinite() || !opening.top.isFinite() ||
+            !opening.bottom.isFinite() || radius<=0f || gateWidth<=0f || opening.top>=opening.bottom) return false
         val right=gateX+gateWidth
         return touchesRectangle(birdX,birdY,radius,gateX,-25f,right,opening.top) ||
-            touchesRectangle(birdX,birdY,radius,gateX-7f,opening.top-28f,right+5f,opening.top) ||
+            touchesRoundedBand(birdX,birdY,radius,gateX-7f,opening.top-28f,right+5f,opening.top) ||
             touchesRectangle(birdX,birdY,radius,gateX,opening.bottom,right,825f) ||
-            touchesRectangle(birdX,birdY,radius,gateX-7f,opening.bottom,right+5f,opening.bottom+27f)
+            touchesRoundedBand(birdX,birdY,radius,gateX-7f,opening.bottom,right+5f,opening.bottom+27f)
+    }
+    /** Exact circle vs 7px-radius painted lip, not its transparent AABB corners. */
+    private fun touchesRoundedBand(cx:Float,cy:Float,r:Float,left:Float,top:Float,
+                                   right:Float,bottom:Float):Boolean {
+        val corner=7f
+        val hw=(right-left)*.5f; val hh=(bottom-top)*.5f
+        val qx=abs(cx-(left+right)*.5f)-(hw-corner)
+        val qy=abs(cy-(top+bottom)*.5f)-(hh-corner)
+        return kotlin.math.hypot(max(0f,qx),max(0f,qy))+min(max(qx,qy),0f)-corner<r
     }
     private fun touchesRectangle(cx:Float,cy:Float,r:Float,left:Float,top:Float,
                                  right:Float,bottom:Float):Boolean {

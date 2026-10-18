@@ -683,12 +683,25 @@ enum GameLanguages {
 enum PillarCollision {
     static func bodyHitsPillar(birdX:Float,birdY:Float,radius:Float,gateX:Float,
                                gateWidth:Float,opening:BopaviCore.Opening) -> Bool {
-        guard radius > 0 else { return false }
+        guard birdX.isFinite && birdY.isFinite && radius.isFinite &&
+              gateX.isFinite && gateWidth.isFinite && opening.top.isFinite &&
+              opening.bottom.isFinite && radius>0 && gateWidth>0 &&
+              opening.top<opening.bottom else{return false}
         let right=gateX+gateWidth
         return touchesRectangle(birdX,birdY,radius,gateX,-25,right,opening.top) ||
-            touchesRectangle(birdX,birdY,radius,gateX-7,opening.top-28,right+5,opening.top) ||
+            touchesRoundedBand(birdX,birdY,radius,gateX-7,opening.top-28,right+5,opening.top) ||
             touchesRectangle(birdX,birdY,radius,gateX,opening.bottom,right,825) ||
-            touchesRectangle(birdX,birdY,radius,gateX-7,opening.bottom,right+5,opening.bottom+27)
+            touchesRoundedBand(birdX,birdY,radius,gateX-7,opening.bottom,right+5,opening.bottom+27)
+    }
+    /// Matched Android signed-distance collision with the painted 7pt cap.
+    private static func touchesRoundedBand(_ cx:Float,_ cy:Float,_ r:Float,
+                                           _ left:Float,_ top:Float,
+                                           _ right:Float,_ bottom:Float)->Bool {
+        let corner:Float=7
+        let hw=(right-left)*0.5,hh=(bottom-top)*0.5
+        let qx=abs(cx-(left+right)*0.5)-(hw-corner)
+        let qy=abs(cy-(top+bottom)*0.5)-(hh-corner)
+        return hypot(max(0,qx),max(0,qy))+min(max(qx,qy),0)-corner<r
     }
     private static func touchesRectangle(_ cx:Float,_ cy:Float,_ r:Float,
                                          _ left:Float,_ top:Float,

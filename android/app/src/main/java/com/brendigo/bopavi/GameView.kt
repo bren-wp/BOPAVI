@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, languageCode:String = "en") : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, languageCode:String = "en", qaCollisionOverlay:Boolean = false) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -162,6 +162,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
     }
+    private val collisionOverlayEnabled=qaCollisionOverlay &&
+        (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0
     private var lastFrame = 0L
     private var sent = false
     private var completedSeen=0
@@ -269,6 +271,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawGate(canvas,g,x,i)
         }
         drawBird(canvas)
+        if(collisionOverlayEnabled) drawCollisionDebugOverlay(canvas)
         // The gameplay camera and HUD are different coordinate spaces. On tall
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
@@ -1013,6 +1016,27 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastHudAccessibility="${word("SCORE","BODOVI")}: $score; ${if(language=="hr")"Hrana" else "Food"}: $food"
             contentDescription=lastHudAccessibility
         }
+    }
+    /** Developer QA outlines in the shared logical 480x800 world; no gameplay effect. */
+    private fun drawCollisionDebugOverlay(c:Canvas){
+        fill(0xffffd54f.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=2f
+        c.drawCircle(game.birdX,game.y,game.radius,p)
+        for(i in game.level.gates.indices){
+            val g=game.level.gates[i];val x=game.gateX(g)
+            if(x< -100f || x>550f)continue
+            val o=LevelEngine.opening(g,game.time,game.difficulty)
+            fill(0xffef61d9.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
+            c.drawRect(x,-25f,x+g.width,o.top,p)
+            c.drawRect(x,o.bottom,x+g.width,825f,p)
+            fill(0xff28e6ff.toInt());p.style=Paint.Style.STROKE
+            c.drawRoundRect(x-7f,o.top-28f,x+g.width+5f,o.top,7f,7f,p)
+            c.drawRoundRect(x-7f,o.bottom,x+g.width+5f,o.bottom+27f,7f,7f,p)
+            if(game.endless && g.coin && game.foodVisible(i)){
+                fill(0xff67f78d.toInt());p.style=Paint.Style.STROKE
+                c.drawCircle(x+g.width*.5f,(o.top+o.bottom)*.5f,13f,p)
+            }
+        }
+        p.style=Paint.Style.FILL;p.strokeWidth=1f
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
     override fun onTouchEvent(event:MotionEvent):Boolean {
