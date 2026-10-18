@@ -15,10 +15,6 @@ sw=Path('tests/.build/swift-vectors.txt').read_text().splitlines()
 assert len(ka)==len(sw)
 for a,b in zip(ka[:-1],sw[:-1]):
     x=a.split('|');y=b.split('|')
-    if x[0]=='T':
-        assert x==y,(x,y)
-        continue
-    if x[0]=='C':
         assert x==y,(x,y)
         continue
     if x[0]=='R':

@@ -693,6 +693,30 @@ class LevelEngineTest {
             BerryCollision.touched(Float.NaN,0f,0f,0f,31f))
     }
 
+    @Test fun foodIsPhysicalOneShotAndSafeUnderInvalidFrameTimes() {
+        val cases=listOf(floatArrayOf(40f,0f,-40f,0f,31f),floatArrayOf(40f,31f,-40f,31f,31f),floatArrayOf(40f,31.02f,-40f,31.02f,31f),floatArrayOf(0f,0f,0f,0f,31f),floatArrayOf(32f,0f,32f,0f,31f),floatArrayOf(400f,0f,-400f,0f,31f),floatArrayOf(400f,32f,-400f,32f,31f))
+        val expected=listOf(true,true,false,true,false,true,false)
+        for((i,values) in cases.withIndex()) assertEquals(expected[i],
+            BerryCollision.touched(values[0],values[1],values[2],values[3],values[4]))
+        for(value in listOf(Float.NaN,Float.POSITIVE_INFINITY,Float.NEGATIVE_INFINITY)) {
+            assertFalse(BerryCollision.touched(value,0f,0f,0f,31f))
+            assertFalse(BerryCollision.touched(0f,0f,0f,0f,value))
+        }
+        val level=LevelEngine.create(0,1)
+        val berry=level.gates.first().copy(x=94f,center=366f,gap=240f,
+            width=64f,movement=0f,coin=true,star=false,power=0)
+        repeat(2) {
+            val game=GameSimulation(level.copy(gates=listOf(berry),speed=140f,wind=0f),endless=true)
+            game.flap();game.step(0f);game.step(Float.NaN)
+            assertEquals(0,game.foodCollected)
+            game.step(1f/120f)
+            assertEquals(1,game.foodCollected)
+            assertEquals(0,game.coins);assertEquals(0,game.score())
+            repeat(40){game.step(1f/120f)}
+            assertEquals(1,game.foodCollected)
+        }
+    }
+
     @Test fun beginnerObstaclesFormGentleRhythmIncludingNextStream() {
         for(world in 0 until LevelEngine.WORLD_COUNT)for(n in listOf(1,2,35,61,360)) {
             val l=LevelEngine.create(world,n)

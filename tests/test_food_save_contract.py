@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Regression guard: fruit only from physical contact, independent of currency."""
+from pathlib import Path
+p=Path(__file__).resolve().parents[1]
+a=(p/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_text()
+s=(p/"ios/BOPAVI/BopaviCore.swift").read_text()
+for code in (a,s):
+    assert "BerryCollision.touched(" in code and "collectedFood[i]=true" in code
+    assert "foodCollected" in code and "score()" in code
+    assert "if(endless && gate.coin && !collectedFood[i])" in code or "if endless && gate.coin && !collectedFood[i]" in code
+for renderer in ("android/app/src/main/java/com/brendigo/bopavi/GameView.kt","ios/BOPAVI/GameCanvas.swift"):
+    code=(p/renderer).read_text()
+    assert "cachedFood" in code and "lastAccessibilityFood" in code
+    assert "game.foodCollected" in code
+for store in ("android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt","ios/BOPAVI/ProgressStore.swift"):
+    code=(p/store).read_text()
+    assert "endless_food_best" in code and "bestFood()" in code and "recordRun" in code
+    assert "maxOf(bestFood()" in code or "max(bestFood()" in code
+print("PASS: fruit contact, HUD, score/currency isolation and bestFood monotonicity source guard")
