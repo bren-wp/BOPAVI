@@ -1,43 +1,34 @@
-# Google Play listing — BOPAVI (hr-HR)
+# Google Play — BOPAVI (hr-HR), verified UX v0.2.21 / build 126
+
+<!-- verified-feature-ids: home,flight,tap_to_flap,procedural_obstacles,pause,results,score,berries,local_best,retry,offline,no_ads,no_account -->
 
 **Naziv (do 30 znakova):** BOPAVI
 
-**Kratki opis (do 80 znakova):** Leti kroz osam čarobnih svjetova, skupljaj kovanice i otključaj likove
+**Kratki opis (do 80 znakova):** Pomozi Bopiju letjeti, izbjegni prepreke i nadmaši vlastiti rekord.
 
 **Puni opis:**
 
-BOPAVI donosi šarenu arkadnu avanturu letenja! Jednim dodirom zamahni krilima, izbjegni prepreke i kreni na put kroz osam različitih svjetova.
+BOPAVI je jednostavna arkadna igra letenja. Pomozi Bopiju ostati u zraku: dodirom zaslona zamahni krilima i prolazi između stijena. Svaki uspješan prolaz donosi bodove.
 
-Odaberi svog letača prije svakog pokušaja. Igraj s Bopijem, upoznaj Portantina koji nosi malog suputnika ili osvojenim kovanicama otključaj Sunny, Berry, Lunu, Mint, Shadow, Nou i Any.
+Tijekom leta možeš skupljati crvene bobice. One se broje zasebno od bodova i nisu sredstvo plaćanja. Kad let završi, vidi rezultat, prikupljene bobice i vlastite najbolje rezultate te odaberi novi pokušaj ili povratak na početak.
 
-Svaki svijet ima vlastitu atmosferu, prepreke i predmete za skupljanje. Istraži zelene livade, sunčanu plažu, ledene vrhove, vulkan, nebeski hram, mračnu noć, kristalnu šumu i svemirski let.
+Aktivni let možeš pauzirati te nastaviti, ponoviti ili napustiti pokušaj.
 
-Što te očekuje:
-- Jednostavne dodirne kontrole i precizno upravljanje letom
-- Devet likova s vlastitim prepoznatljivim izgledom
-- Osam različitih svjetova
-- Leveli koji se nastavljaju bez prekidanja leta
-- Normalni, izazovni, bonus i elitni izazovi
-- Lokalni rezultati i napredak spremljen na uređaju
-- Virtualne kovanice za likove i opremu
-- Početni štit i magnet koji pomažu tijekom igre
-- Zvuk, vibracije i prilagodba animacija
-- Ručni izvoz i uvoz sigurnosne kopije napretka
+Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unutar aplikacije. Rezultati se spremaju lokalno na uređaj.
 
-BOPAVI radi bez internetske veze. Nema oglasa, korisničkih računa, praćenja ni kupnji stvarnim novcem.
+**Kategorija:** Igra → Arkadne (potvrditi u Play Consoleu).
 
-Odaberi lik, poleti i otkrij koliko daleko možeš stići.
+**Oglasi:** Ne. **Kupnje u aplikaciji:** Ne. Stvarno stanje paketa mora biti ponovno provjereno prije objave.
 
-BOPAVI — Mali let, velika avantura.
+## Autentične slike — ugovor
 
-**Kategorija:** Game → Arcade (potvrditi Play Console)
+Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Izvor: https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.21.
 
-**Ads:** No (prema trenutnom kodu). **In-app purchases:** No. Virtualne kovanice nisu prava valuta i ne kupuju se stvarnim novcem.
+- Home: jedan gumb IGRAJ.
+- Flight Preview: prikaz prije prvog zamaha; **ne** predstavljati ga kao aktivni gameplay.
+- Flight Active: stvarni aktivni let s HUD-om bodova/hrane.
+- Results: rezultat, najbolji bodovi i najbolja hrana.
 
-**Alt opisi slika (po potrebi):**
-- Naslovnica BOPAVI igre s ilustriranim svijetom.
-- Izbor devet ilustriranih likova prije leta.
-- Bopi u mirujućem prikazu između prepreka prije prvog dodira.
-- Rezultati i ukupan broj prolaza u arkadnoj igri.
+Nema verificiranog release screenshota Pause dijaloga. Ne upotrebljavaj arhivirane mockupove, skin/world/shop zaslone ili slike druge verzije. Svaku sliku i izrez vizualno provjeri prema instaliranom istom buildu. Provjera sa stvarnog uređaja i finalnog Play AAB-a još je otvorena; ništa ovdje nije Play odobrenje.
 
-**Važno:** Priloženi emulator screenshotovi stvarni su prikazi, ne makete. Prije objave ručno pregledati izrezane tipke i snimiti tri aktivna gameplay kadra radi najboljeg predstavljanja igre.
+Pravila: https://support.google.com/googleplay/android-developer/answer/9898842 i https://support.google.com/googleplay/android-developer/answer/15191715.

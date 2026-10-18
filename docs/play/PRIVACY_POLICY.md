@@ -1,33 +1,23 @@
 # BOPAVI — Politika privatnosti / Privacy Policy
 
-**Na snazi / Effective:** 10.10.2026.
-**Izdavač / Publisher:** Brendigo / BOPAVI.
-**Kontakt / Contact:** https://github.com/bren-wp/BOPAVI/issues
+**Updated / Ažurirano:** 18.10.2026. **Publisher / Izdavač:** Brendigo. **Kontakt:** https://github.com/bren-wp/BOPAVI/issues
 
 ## Hrvatski
 
-BOPAVI je arkadna igra bez potrebe za internetom. Ne nudi korisničke račune, oglase, analitiku, praćenje ni kupnje stvarnim novcem. Aplikacija ne prikuplja i ne šalje osobne podatke na naše poslužitelje.
+BOPAVI je igra letenja koju je moguće igrati bez interneta. Trenutačno korisničko sučelje ne nudi račune, oglase, analitiku ni kupnje unutar aplikacije. Prema provjerenom izvornom kodu Android aplikacija nema INTERNET dozvolu niti šalje podatke na poslužitelje izdavača.
 
-Odabrano ime ili nadimak igrača, bodovi, virtualne kovanice, likovi, napredak i postavke spremaju se lokalno na uređaju.
+Bodovi, rezultati skupljanja bobica, osobni rekordi i postavke/ranije spremljeni podaci ostaju na uređaju. Stariji formati pohrane mogu sadržavati podatke povijesnih funkcija, ali to **ne znači** da su izbornici za odabir likova, trgovinu ili ručni uvoz/izvoz dostupni u aktualnom izdanju.
 
-Ručni izvoz napretka: ako korisnik odabere izvoz, aplikacija zapisuje JSON datoteku na lokaciju koju je korisnik sam izabrao u sustavnom odabiru dokumenta. Ako izabere cloud pohranu ili vanjskog pružatelja, na datoteku se primjenjuju pravila tog pružatelja, a ne mrežni prijenos BOPAVI aplikacije.
+Lokalne podatke na Androidu možete obrisati putem sustavnih postavki aplikacije (Pohrana → Obriši podatke) ili deinstaliranjem. Kopije podataka ranije spremljene izvan aplikacije ne brišu se nužno ovim postupkom.
 
-Brisanje: lokalne podatke moguće je obrisati brisanjem pohrane BOPAVI aplikacije kroz postavke uređaja ili deinstalacijom. Ručno izvezene kopije na drugim lokacijama treba obrisati zasebno.
-
-Djeca: igra ne sadrži oglase niti prijavu. Konačna dobna skupina i eventualna primjena dodatnih Google Families pravila provjerava se prilikom distribucije.
-
-Ako se obrada podataka promijeni, politika će biti ažurirana. Kontakt za pitanja: https://github.com/bren-wp/BOPAVI/issues
+Igra ne zahtijeva prijavu. Dobna publika i posebna pravila za djecu određuju se prema stvarnoj distribuciji. Prakse o podacima ponovno se provjeravaju za svaki novi paket te će ova politika biti ažurirana ako se promijene.
 
 ## English
 
-BOPAVI is an offline arcade game. It does not offer user accounts, ads, analytics, tracking, or purchases with real money. The app does not collect or transmit personal information to our servers.
+BOPAVI is an offline-playable arcade flight game. The current user interface does not offer accounts, advertisements, analytics or in-app purchases. As inspected in the Android source, the app declares no INTERNET permission and does not transmit information to the publisher's servers.
 
-Your chosen player name or nickname, scores, virtual coins, characters, progress, and settings are stored locally on your device.
+Scores, collected-berry records, personal bests, preferences and retained data from older versions are saved locally. Older save formats may hold historic feature data; this does **not** imply current access to character selection, a shop or manual backup import/export screens.
 
-Voluntary export: You may export your progress to a JSON file using the system document picker. You choose its location. If you select a cloud or external document provider, that provider's policies apply to the file. BOPAVI does not upload this file to our servers.
+On Android you can clear app storage in system settings or uninstall the app. Copies previously stored outside the application are not necessarily erased. The intended audience and applicable children's requirements must be reviewed for distribution. This policy will be updated when data practices change.
 
-Deletion: Clear BOPAVI storage in device settings or uninstall the app to delete local game data. Exported backups stored elsewhere must be deleted separately.
-
-Children: There are no advertisements or accounts. The intended audience and any applicable children's policy requirements must be assessed during Google Play submission.
-
-The policy will be updated if data practices change. Contact: https://github.com/bren-wp/BOPAVI/issues
+**Questions / Pitanja:** https://github.com/bren-wp/BOPAVI/issues.

@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Fail-closed checks for the v0.2.21 reachable UX versus Croatian store claims."""
+import json
+import re
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+MATRIX = ROOT / "docs/product/FEATURE-MATRIX.md"
+LISTING = ROOT / "docs/play/STORE-LISTING-hr-HR.md"
+ANDROID = ROOT / "android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt"
+IOS = ROOT / "ios/BOPAVI/GameController.swift"
+MANIFEST = ROOT / "android/app/src/main/AndroidManifest.xml"
+GRADLE = ROOT / "android/app/build.gradle.kts"
+BANNED_PUBLIC = re.compile(
+    r"\b(?:devet|osam|nine|eight|skin(?:s|ovi)?|svjetov\w*|"
+    r"kovanic\w*|shop|trgovin\w*|otklju\w*|magnet\w*|"
+    r"\b(?:level|levels|profil|profile|import|export|uvoz|izvoz|"
+    r"štit(?:ovi|ova)?|shield(?:s)?|postavk\w*|settings))\b",
+    re.I,
+)
+
+def matrix():
+    content = MATRIX.read_text(encoding="utf-8")
+    match = re.search(r"~~~json\s*(\{.*?\})\s*~~~", content, re.S)
+    if not match:
+        raise AssertionError("Missing JSON feature matrix")
+    return json.loads(match.group(1))
+
+def listing_parts():
+    content = LISTING.read_text(encoding="utf-8")
+    short = re.search(r"\*\*Kratki opis[^\n]*:\*\*\s*(.*)", content)
+    full = re.search(r"\*\*Puni opis:\*\*\s*(.*?)(?=\n\*\*Kategorija:)", content, re.S)
+    ids = re.search(r"<!-- verified-feature-ids: ([a-z0-9_,]+) -->", content)
+    if not (short and full and ids):
+        raise AssertionError("Store listing headers or declared feature IDs missing")
+    return short.group(1), full.group(1), ids.group(1).split(",")
+
+class StoreClaimsTest(unittest.TestCase):
+    def test_schema_and_explicit_pending_adr(self):
+        data = matrix()
+        self.assertEqual(data["schema"], 1)
+        self.assertEqual(data["scope_decision"], "pending")
+        self.assertEqual(data["screens"], ["home", "flight", "pause", "results"])
+        states = [f["status"] for f in data["features"]]
+        self.assertTrue(set(states) <= {"visible", "internal-legacy", "planned", "removed"})
+        ids = [f["id"] for f in data["features"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        adr = (ROOT / "docs/product/ADR-0001-product-scope.md").read_text()
+        self.assertIn("PENDING PRODUCT OWNER APPROVAL", adr)
+
+    def test_store_claims_must_be_visible(self):
+        short, full, claims = listing_parts()
+        catalog = {f["id"]: f["status"] for f in matrix()["features"]}
+        self.assertEqual(len(claims), len(set(claims)))
+        self.assertTrue(claims)
+        self.assertTrue(all(catalog.get(claim) == "visible" for claim in claims), claims)
+        self.assertLessEqual(len("BOPAVI"), 30)
+        self.assertLessEqual(len(short), 80)
+        self.assertIsNone(BANNED_PUBLIC.search(short + "\n" + full))
+        self.assertIn("Bopiju", short)
+        self.assertIn("bobice", full)
+        self.assertIn("pauzirati", full)
+        self.assertIn("lokalno", full)
+
+    def test_native_nav_and_source_evidence(self):
+        a = ANDROID.read_text(encoding="utf-8")
+        i = IOS.read_text(encoding="utf-8")
+        for source, prefix in ((a, "fun"), (i, "func")):
+            for fn in ("showHome", "startGame", "showPremiumPause", "showResult"):
+                self.assertRegex(source, rf"private\s+{prefix}\s+{fn}\(")
+            for obsolete in ("showShop(", "showWorlds(", "showLevels(",
+                             "showSettings(", "showProfile(", "showPilotPicker("):
+                self.assertNotIn(obsolete, source)
+            self.assertIn("progress.recordRun(g)", source)
+        self.assertIn("LevelEngine.createStream(0,1L)", a)
+        self.assertIn("BopiPortrait0", i)
+        self.assertNotIn('android.permission.INTERNET', MANIFEST.read_text())
+        gradle = GRADLE.read_text()
+        self.assertIn('versionName = "0.2.21"', gradle)
+        self.assertIn('versionCode = 126', gradle)
+
+    def test_current_public_terms_are_not_legacy_promotion(self):
+        # Negated historical notes in privacy/terms are deliberate disclosures,
+        # not features; commercial copy is restricted in the listing above.
+        for p in ("docs/play/PRIVACY_POLICY.md", "docs/play/TERMS_OF_USE.md",
+                  "docs/play/GOOGLE-PLAY-DATA-SAFETY.md"):
+            content = (ROOT / p).read_text(encoding="utf-8")
+            self.assertNotIn("može ručno izvesti", content)
+            self.assertNotIn("optional JSON backup", content)
+            self.assertNotIn("osam igrivih svjetova", content)
+        screen = (ROOT / "docs/product/CURRENT_SCREENS.md").read_text()
+        for name in matrix()["screens"]:
+            self.assertIn(name.capitalize(), screen)
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
