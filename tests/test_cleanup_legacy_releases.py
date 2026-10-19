@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Regression tests: legacy-release retention can never delete v1+ releases."""
 import importlib.util
+import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 PATH = Path(__file__).resolve().parents[1] / "tools/cleanup_legacy_releases.py"
 spec = importlib.util.spec_from_file_location("cleanup_legacy_releases", PATH)
@@ -16,6 +18,23 @@ def release(tag, published="2026-10-19T00:00:00Z", **flags):
 
 
 class RetentionTests(unittest.TestCase):
+    def test_paginates_all_api_results(self):
+        first = [release("v0.2.0"), release("v0.2.1")]
+        second = [release("v0.2.2"), release("v0.2.3"), release("v1.0.0")]
+        payload = json.dumps(first, indent=2) + "\n" + json.dumps(second)
+        with patch.object(cleanup, "gh", return_value=payload) as mocked:
+            records = cleanup.list_releases("bren-wp/BOPAVI")
+        self.assertEqual(len(records), 5)
+        mocked.assert_called_once()
+        kept, removed = cleanup.plan_cleanup(records)
+        self.assertEqual(removed, ["v0.2.0"])
+        self.assertEqual(set(kept), {"v0.2.1", "v0.2.2", "v0.2.3"})
+
+    def test_rejects_malformed_api_page(self):
+        with patch.object(cleanup, "gh", return_value='{"unexpected": true}'):
+            with self.assertRaisesRegex(ValueError, "array"):
+                cleanup.list_releases("bren-wp/BOPAVI")
+
     def test_zero_through_four_legacy_releases(self):
         for count in range(10):
             records = [release(f"v0.2.{n}", f"2026-10-{n+1:02d}T00:00:00Z") for n in range(count)]
