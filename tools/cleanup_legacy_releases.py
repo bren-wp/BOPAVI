@@ -130,7 +130,7 @@ def github_resource_exists(repository: str, path: str) -> bool:
         gh("api", f"repos/{repository}/{path}")
         return True
     except subprocess.CalledProcessError as exc:
-        if re.search(r"\\bHTTP 404\\b", exc.stderr or ""):
+        if "HTTP 404" in (exc.stderr or ""):
             return False
         raise
 
