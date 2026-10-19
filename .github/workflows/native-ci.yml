@@ -161,6 +161,7 @@ jobs:
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_store_claims.py
+      - run: python tests/test_marketing_readme.py
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_food_save_contract.py
       - run: python tests/test_native_perf_save_contract.py

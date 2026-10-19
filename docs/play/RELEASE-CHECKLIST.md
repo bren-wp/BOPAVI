@@ -1,8 +1,8 @@
 # BOPAVI — Google Play / App Store release checklist
 
-**Audited baseline:** GitHub Release v0.2.23, Android versionName 0.2.23 (build 128), versionCode 128, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39173719556. No checklist item is automatically proof of a Play/App Store submission.
+**Audited baseline:** GitHub Release v0.2.24, Android versionName 0.2.24 (build 129), versionCode 129, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39178173489. No checklist item is automatically proof of a Play/App Store submission.
 
-**Unpublished candidate:** v0.2.24 (build 129), under source review and full native CI. Do not use unsigned GitHub build outputs as Play/App Store submissions.\n\n## Product and metadata
+**Unpublished candidate:** v1.0.0 (build 130), under source review and full native CI. Do not use unsigned GitHub build outputs as Play/App Store submissions.\n\n## Product and metadata
 
 - [ ] Approve decision A or B in docs/product/ADR-0001-product-scope.md; while pending, market only the reachable four-state UX in FEATURE-MATRIX.md.
 - [ ] Confirm final release commit, Android/iOS version parity and native CI checks; obtain actual log links for both platform builds and emulator flows.

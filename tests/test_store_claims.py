@@ -57,7 +57,6 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertEqual(matrix()["release"], f"v{version}")
         self.assertEqual(matrix()["build"], build)
         for relative in (
-            "README.md",
             "docs/product/CURRENT_SCREENS.md",
             "docs/play/STORE-LISTING-hr-HR.md",
             "docs/play/RELEASE-CHECKLIST.md",
