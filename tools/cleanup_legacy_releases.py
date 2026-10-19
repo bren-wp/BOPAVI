@@ -118,6 +118,40 @@ def verify_current_release(repository: str, tag: str, releases: list[dict]) -> N
             raise ValueError("SHA256SUMS does not list all release assets")
 
 
+# A past interrupted cleanup removed this release but left its version tag.
+# Its provenance is verified in Actions run 39180548022; unlike arbitrary
+# orphan tags it is safe to reconcile under the original retention policy.
+CONFIRMED_ORPHAN_TAGS = frozenset({"v0.1.85"})
+
+
+def github_resource_exists(repository: str, path: str) -> bool:
+    """Distinguish a genuine 404 from authentication, transport or API failures."""
+    try:
+        gh("api", f"repos/{repository}/{path}")
+        return True
+    except subprocess.CalledProcessError as exc:
+        if re.search(r"\\bHTTP 404\\b", exc.stderr or ""):
+            return False
+        raise
+
+
+def prune_orphan_tag(repository: str, tag: str) -> None:
+    """Remove only an audited obsolete v0.x tag after confirming no release."""
+    if not LEGACY.fullmatch(tag):
+        raise ValueError(f"Never delete a non-legacy Git tag: {tag}")
+    if github_resource_exists(repository, f"releases/tags/{tag}"):
+        raise ValueError(f"Release {tag} still exists: refusing orphan tag cleanup")
+    if not github_resource_exists(repository, f"git/ref/tags/{tag}"):
+        print(f"ALREADY REMOVED {tag}: neither release nor tag remains")
+        return
+    # Re-check immediately before the destructive request. Other API failures
+    # raise instead of being misinterpreted as a missing release.
+    if github_resource_exists(repository, f"releases/tags/{tag}"):
+        raise ValueError(f"Release {tag} reappeared; refusing tag deletion")
+    gh("api", "-X", "DELETE", f"repos/{repository}/git/refs/tags/{tag}")
+    print(f"REMOVED verified orphan version tag {tag}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", ""))
@@ -145,12 +179,28 @@ def main() -> None:
         # A fresh remote read aborts if the release has disappeared or was changed.
         updated = list_releases(args.repo)
         now_kept, now_candidates = plan_cleanup(updated)
-        if tag not in now_candidates or any(k not in [r["tag_name"] for r in updated] for k in kept):
-            raise ValueError(f"Release inventory changed; aborting before deleting {tag}")
-        if now_kept != kept:
+        if now_kept != kept or any(k not in [r["tag_name"] for r in updated] for k in kept):
             raise ValueError("Protected release set changed during cleanup")
+        if tag not in now_candidates:
+            # GitHub's release inventory can change while many old releases
+            # are deleted. Treat disappearance as idempotent ONLY after
+            # confirming the specific release is truly absent.
+            if any(r["tag_name"] == tag for r in updated):
+                raise ValueError(f"Release {tag} changed eligibility; refusing deletion")
+            prune_orphan_tag(args.repo, tag)
+            continue
         gh("release", "delete", tag, "--repo", args.repo, "--yes", "--cleanup-tag")
         print(f"REMOVED {tag} and its version tag")
+    # A previous run ended between release removal and cleanup-tag completion.
+    # Reconcile only specifically audited tags, not arbitrary repository tags.
+    for tag in sorted(CONFIRMED_ORPHAN_TAGS):
+        updated = list_releases(args.repo)
+        now_kept, now_candidates = plan_cleanup(updated)
+        if now_kept != kept:
+            raise ValueError("Protected release set changed during orphan reconciliation")
+        if tag in kept or tag in now_candidates or any(r["tag_name"] == tag for r in updated):
+            continue
+        prune_orphan_tag(args.repo, tag)
     print("PASS: legacy cleanup complete; all v1+ releases preserved")
 
 
