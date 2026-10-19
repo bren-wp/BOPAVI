@@ -2,6 +2,7 @@
 """Regression tests: legacy-release retention can never delete v1+ releases."""
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -72,6 +73,74 @@ class RetentionTests(unittest.TestCase):
     def test_minimum_three_legacy_releases(self):
         with self.assertRaises(ValueError):
             cleanup.plan_cleanup([release("v0.2.0")], keep_legacy=2)
+
+
+    def test_missing_release_removes_only_confirmed_legacy_orphan_tag(self):
+        missing = subprocess.CalledProcessError(
+            1, ["gh", "api"], stderr="gh: Not Found (HTTP 404)"
+        )
+        with patch.object(cleanup, "gh", side_effect=[missing, "tag exists", missing, "deleted"]) as api:
+            cleanup.prune_orphan_tag("bren-wp/BOPAVI", "v0.1.85")
+        self.assertEqual(api.call_count, 4)
+        self.assertEqual(
+            api.call_args.args,
+            ("api", "-X", "DELETE", "repos/bren-wp/BOPAVI/git/refs/tags/v0.1.85"),
+        )
+
+    def test_never_delete_stable_or_unknown_tags(self):
+        with patch.object(cleanup, "gh") as api:
+            for tag in ("v1.0.0", "v1.0.1", "v2.0.0", "nightly"):
+                with self.assertRaisesRegex(ValueError, "non-legacy"):
+                    cleanup.prune_orphan_tag("bren-wp/BOPAVI", tag)
+            api.assert_not_called()
+
+    def test_api_errors_other_than_404_abort_without_deletion(self):
+        forbidden = subprocess.CalledProcessError(
+            1, ["gh", "api"], stderr="gh: Resource not accessible (HTTP 403)"
+        )
+        with patch.object(cleanup, "gh", side_effect=forbidden) as api:
+            with self.assertRaises(subprocess.CalledProcessError):
+                cleanup.prune_orphan_tag("bren-wp/BOPAVI", "v0.1.85")
+            api.assert_called_once()
+
+    def test_existing_release_blocks_orphan_tag_removal(self):
+        with patch.object(cleanup, "gh", return_value="existing release") as api:
+            with self.assertRaisesRegex(ValueError, "still exists"):
+                cleanup.prune_orphan_tag("bren-wp/BOPAVI", "v0.1.85")
+            api.assert_called_once()
+
+    def test_interrupted_inventory_is_idempotent_and_continues(self):
+        initial = [release(f"v0.2.{n}", f"2026-10-{n+1:02d}T00:00:00Z") for n in range(5)]
+        after_missing = initial[1:]
+        with patch("sys.argv", ["cleanup", "--repo", "bren-wp/BOPAVI",
+                                "--new-tag", "v1.0.0", "--apply"]), \
+             patch.object(cleanup, "verify_current_release") as verify, \
+             patch.object(cleanup, "list_releases",
+                          side_effect=[initial, after_missing, after_missing, after_missing]), \
+             patch.object(cleanup, "prune_orphan_tag") as orphan, \
+             patch.object(cleanup, "gh") as api:
+            cleanup.main()
+            verify.assert_called_once()
+            orphan.assert_any_call("bren-wp/BOPAVI", "v0.2.0")
+            orphan.assert_any_call("bren-wp/BOPAVI", "v0.1.85")
+            api.assert_called_once_with(
+                "release", "delete", "v0.2.1",
+                "--repo", "bren-wp/BOPAVI", "--yes", "--cleanup-tag"
+            )
+
+    def test_protected_legacy_versions_changing_fail_closed(self):
+        initial = [release(f"v0.2.{n}", f"2026-10-{n+1:02d}T00:00:00Z") for n in range(5)]
+        changed = initial[:-1]
+        with patch("sys.argv", ["cleanup", "--repo", "bren-wp/BOPAVI",
+                                "--new-tag", "v1.0.0", "--apply"]), \
+             patch.object(cleanup, "verify_current_release"), \
+             patch.object(cleanup, "list_releases", side_effect=[initial, changed]), \
+             patch.object(cleanup, "prune_orphan_tag") as orphan, \
+             patch.object(cleanup, "gh") as api:
+            with self.assertRaisesRegex(ValueError, "Protected"):
+                cleanup.main()
+            orphan.assert_not_called()
+            api.assert_not_called()
 
 
 if __name__ == "__main__":

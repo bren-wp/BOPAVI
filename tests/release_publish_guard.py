@@ -3,7 +3,7 @@
 import sys
 from pathlib import PurePosixPath
 
-SAFE_FILES = {"README.md", ".github/workflows/native-ci.yml"}
+SAFE_FILES = {"README.md", ".github/workflows/native-ci.yml", "tools/cleanup_legacy_releases.py"}
 SAFE_PREFIXES = ("docs/", "tests/", "android/app/src/test/")
 UNSAFE_PREFIXES = ("docs/assets/",)
 
