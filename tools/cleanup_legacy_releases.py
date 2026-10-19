@@ -51,11 +51,34 @@ def gh(*args: str) -> str:
 
 
 def list_releases(repository: str) -> list[dict]:
-    raw = gh(
-        "api", "--paginate", f"repos/{repository}/releases?per_page=100",
-        "--jq", '.[] | {tag_name, published_at, draft, prerelease, assets: [.assets[].name]}',
-    )
-    return [json.loads(line) for line in raw.splitlines() if line.strip()]
+    raw = gh("api", "--paginate", f"repos/{repository}/releases?per_page=100")
+    # gh outputs one JSON array per page. Decode all pages, even when pretty-
+    # printed or concatenated without separators; never silently stop at 100.
+    decoder = json.JSONDecoder()
+    offset = 0
+    releases: list[dict] = []
+    while offset < len(raw):
+        while offset < len(raw) and raw[offset].isspace():
+            offset += 1
+        if offset == len(raw):
+            break
+        page, offset = decoder.raw_decode(raw, offset)
+        if not isinstance(page, list):
+            raise ValueError("GitHub releases API did not return an array")
+        for release in page:
+            if not isinstance(release, dict):
+                raise ValueError("Invalid release in GitHub API response")
+            assets = release.get("assets", [])
+            if not isinstance(assets, list):
+                raise ValueError("Invalid release assets in GitHub API response")
+            releases.append({
+                "tag_name": release.get("tag_name"),
+                "published_at": release.get("published_at"),
+                "draft": release.get("draft"),
+                "prerelease": release.get("prerelease"),
+                "assets": [a.get("name") for a in assets],
+            })
+    return releases
 
 
 def verify_current_release(repository: str, tag: str, releases: list[dict]) -> None:
