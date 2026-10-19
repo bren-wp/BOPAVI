@@ -1,67 +1,86 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" alt="BOPAVI — blue-and-gold winged crown" width="520">
+<img src="docs/assets/logo.svg" alt="BOPAVI — službeni logotip" width="480">
 
-### MALI LETOVI • VELIKE PRIČE
+### MALI LETOVI. VELIKE PRIČE.
 
-**Jedan Bopi. Jedan dodir. Beskrajni let.**
+**Jedan Bopi. Jedan dodir. Beskrajna avantura.**
 
-<img src="docs/assets/hero.svg" alt="Bopi, plava ptica s naočalama, leti među nebeskim otocima" width="850">
+<img src="docs/assets/hero.svg" alt="Bopi leti kroz čarobni nebeski svijet" width="820">
 
-[**Preuzmi BOPAVI**](https://github.com/bren-wp/BOPAVI/releases/latest)
+**[Preuzmi BOPAVI za Android](https://github.com/bren-wp/BOPAVI/releases/latest)**
 
-**Android i iOS · Igra bez interneta · Bez oglasa · Bez registracije**
+*Besplatna igra za zabavu bez internetske veze, oglasa i registracije.*
 
 </div>
 
 ---
 
-## Jednostavna premium igra
+## Upoznaj Bopija
 
-**Stvarni opseg izdanja:** [FEATURE-MATRIX](docs/product/FEATURE-MATRIX.md) · [Aktivni zasloni](docs/product/CURRENT_SCREENS.md) · [ADR — odluka na čekanju](docs/product/ADR-0001-product-scope.md). Opisuje se stvarno dostupno sučelje, bez dodatnih zaslona. Pregledava se kandidat v0.2.24 (build 129); posljednje potvrđeno javno GitHub izdanje je v0.2.23 (build 128). Kandidat nije odobren ni potpisan za trgovine.
+Mala plava ptica. Veliki nebeski izazov.
 
+Poleti s Bopijem, klizi između stijena i pokušaj ostati u zraku što dulje. Svaki dodir zaslona donosi novi zamah krila, a svaki uspješan prolaz vodi te bliže novom osobnom rekordu.
 
-BOPAVI je lagana, offline arkadna igra u kojoj vodiš Bopija kroz šarene nebeske prepreke. **Dodirni zaslon za zamah krila, leti što dulje i pokušaj nadmašiti vlastiti rekord.**
+Ne zaboravi crvene bobice koje se skrivaju duž puta!
 
-Cijelo korisničko iskustvo sada ima samo tri koraka:
+## Zašto ćeš voljeti BOPAVI?
 
-1. **IGRAJ** — jedan veliki gumb na početnom ekranu odmah otvara let.
-2. **LET** — tapkaj za letenje, izbjegavaj bogato oslikane stijene, skupljaj crvene bobice i osvajaj bodove prolaskom.
-3. **REZULTAT** — nakon sudara vidiš bodove, koliko si hrane prikupio i svoj najbolji rezultat, uz **PONOVO** i **POČETNA**.
+| | |
+|:---|:---|
+| 🪽 **Jedan dodir, potpuna kontrola** — zamahni krilima kad god poželiš. | ☁️ **Beskrajni let** — svaki pokušaj novi je izazov. |
+| 🪨 **Spremi se za prepreke** — pronađi pravi trenutak za prolaz. | 🍓 **Skupljaj crvene bobice** — koliko ih možeš uhvatiti? |
+| 🏆 **Nadmaši vlastiti rekord** — prati najbolje rezultate na uređaju. | 💙 **Igraj slobodno** — bez interneta, oglasa i računa. |
 
-Bobice nisu valuta ni nagrade za kupnju: Bopi ih mora stvarno dotaknuti, a brojač **HRANA / FOOD** prikazuje se u gameplayu i na rezultatu. Kontakt se provjerava i između dva fizička koraka, tako da kratki kontakt ne nestane samo zbog različite frekvencije zaslona. **Osobni rekord skupljene hrane** ostaje spremljen lokalno i prikazuje se uz najbolji rezultat. Raspored prolaza prati prirodan val penjanja i spuštanja, bez naglih uzastopnih promjena visine. Stijene su dodatno obogaćene raslinjem i detaljima.
-
-U letu postoji samo jednostavna pauza s **NASTAVI**, **PONOVO** i **IZLAZ**.
-
-Više nema korisničkog odabira svjetova i levela, zasebne trgovine, profila, postavki, kartica postignuća ili zasebnih rekorda. Interni prethodno spremljeni podaci ostaju netaknuti kako starijim instalacijama ne bismo izbrisali napredak.
-
-## Stvarne snimke aplikacije
+## Pogledaj igru
 
 <div align="center">
 <table>
-<tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarni Android Home" width="210"><br><b>Početna</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarni početak leta" width="210"><br><b>Početak leta</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarni aktivni let" width="210"><br><b>Let</b></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarni rezultat nakon leta" width="210"><br><b>Rezultat</b></td>
-</tr>
+  <tr>
+    <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarna snimka početnog zaslona igre BOPAVI" width="196"></td>
+    <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarna snimka Bopija na početku leta" width="196"></td>
+    <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna snimka aktivnog leta između prepreka" width="196"></td>
+    <td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarna snimka rezultata leta" width="196"></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Početna</strong></td>
+    <td align="center"><strong>Spreman za let</strong></td>
+    <td align="center"><strong>U letu</strong></td>
+    <td align="center"><strong>Tvoj rezultat</strong></td>
+  </tr>
 </table>
 </div>
 
-<sub>Snimke nastaju iz stvarnog Android emulatora u CI-ju; nisu marketinški mockupovi. Izdanje se objavljuje samo nakon prolaska testova.</sub>
+*Prikazane su stvarne snimke Android igre, a ne konceptni prikazi.*
 
-## Privatnost i tehnička osnova
+## Kako igrati?
 
-- Android: Kotlin, nativni UI i 2D gameplay
-- iOS: Swift, UIKit i nativni 2D gameplay
-- Offline-first: bez računa, oglasa ili praćenja korisnika
-- Lokalno spremljen osobni rekord i postojeći podaci kompatibilni sa starijim izdanjima
-- Zasebni izvorni testovi simulacije, sudara, migracija i pokretanja aplikacije
+**1.** Pritisni **IGRAJ**.
 
-**Napomena o grafici:** 3D fantasy reference određuju željeni vizualni standard. Trenutni grafički resursi ne smiju se opisivati kao 100% 1:1 dok se usporedba stvarnih snimaka uređaja s izvornim referencama ne dovrši.
+**2.** Dodiruj zaslon kako bi Bopi zamahivao krilima.
 
-## Preuzimanje i razvoj
+**3.** Proleti između stijena bez sudara.
 
-[Posljednje GitHub izdanje](https://github.com/bren-wp/BOPAVI/releases/latest) · [Automatizirani buildovi](https://github.com/bren-wp/BOPAVI/actions) · [Izvorni kod](https://github.com/bren-wp/BOPAVI)
+**4.** Dodirni crvene bobice da ih prikupiš.
 
-© Brendigo
+**5.** Pokušaj nadmašiti svoj najbolji rezultat!
+
+Tijekom leta možeš odabrati pauzu, nastaviti ili započeti novi pokušaj.
+
+## Igra koja poštuje privatnost
+
+**Bez oglasa. Bez praćenja. Bez registracije. Bez obveznog interneta.**
+
+Rezultati se čuvaju lokalno na tvom uređaju.
+
+[Pročitaj pravila privatnosti](docs/play/PRIVACY_POLICY.md)
+
+---
+
+<div align="center">
+
+**BOPAVI** · Stvorio **[Brendigo](https://brendigo.com)**
+
+© 2026 Brendigo. Sva prava pridržana.
+
+</div>

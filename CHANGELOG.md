@@ -1,3 +1,9 @@
+## v1.0.0 — first stable version and verified public presentation (build 130)
+- Establish the first stable Semantic Versioning release candidate while retaining com.brendigo.bopavi, Android/iOS bundle identity, existing save data and all gameplay behavior.
+- Increase both Android and iOS build numbers monotonically from 129 to 130; do not retroactively rename or replace older release binaries.
+- Replace the public-facing README with a player-focused homepage, licensed project art and links to real release captures. Developer-specific status remains in dedicated project documentation.
+- Add regression checks for marketing claims and stable releases. Releasing is conditional on complete native CI and authentic screenshots; unsigned GitHub outputs are not Play/App Store publication.
+
 ## v0.2.24 — frame allocation and save consistency hardening (build 129)
 - Cache immutable opaque Core Graphics colors per iOS GameCanvas to reduce repeated allocation in its 30–120 Hz drawing path without changing palette or dynamic alpha. CPU, memory, FPS and battery differences must be measured on devices; no percentage is claimed.
 - Stage Android end-of-run counters, local food best and leaderboard in a single SharedPreferences Editor, retaining original keys and JSON score format. One in-memory atomic apply is not a guarantee of disk durability under sudden power loss; hardware interruption tests remain required.

@@ -161,6 +161,8 @@ jobs:
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_store_claims.py
+      - run: python tests/test_marketing_readme.py
+      - run: python tests/test_cleanup_legacy_releases.py
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_food_save_contract.py
       - run: python tests/test_native_perf_save_contract.py
@@ -627,3 +629,24 @@ jobs:
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "BOPAVI $tag — Android / iOS" \
             --notes-file dist/release-notes.md
+
+  legacy-retention:
+    name: Preserve every stable release, prune only old v0.x
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: bopavi-legacy-release-retention
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - run: python tests/test_cleanup_legacy_releases.py
+      - name: Verify published release, SHA-256 checksums and prune old pre-v1 releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$(python tools/release_metadata.py --tag)"
+          python tools/cleanup_legacy_releases.py --repo "$GITHUB_REPOSITORY" --new-tag "$tag" --apply
