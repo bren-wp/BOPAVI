@@ -113,11 +113,11 @@ class RetentionTests(unittest.TestCase):
         initial = [release(f"v0.2.{n}", f"2026-10-{n+1:02d}T00:00:00Z") for n in range(5)]
         after_missing = initial[1:]
         with patch("sys.argv", ["cleanup", "--repo", "bren-wp/BOPAVI",
-                                "--new-tag", "v1.0.0", "--apply"]), \\
-             patch.object(cleanup, "verify_current_release") as verify, \\
+                                "--new-tag", "v1.0.0", "--apply"]), \
+             patch.object(cleanup, "verify_current_release") as verify, \
              patch.object(cleanup, "list_releases",
-                          side_effect=[initial, after_missing, after_missing, after_missing]), \\
-             patch.object(cleanup, "prune_orphan_tag") as orphan, \\
+                          side_effect=[initial, after_missing, after_missing, after_missing]), \
+             patch.object(cleanup, "prune_orphan_tag") as orphan, \
              patch.object(cleanup, "gh") as api:
             cleanup.main()
             verify.assert_called_once()
@@ -132,10 +132,10 @@ class RetentionTests(unittest.TestCase):
         initial = [release(f"v0.2.{n}", f"2026-10-{n+1:02d}T00:00:00Z") for n in range(5)]
         changed = initial[:-1]
         with patch("sys.argv", ["cleanup", "--repo", "bren-wp/BOPAVI",
-                                "--new-tag", "v1.0.0", "--apply"]), \\
-             patch.object(cleanup, "verify_current_release"), \\
-             patch.object(cleanup, "list_releases", side_effect=[initial, changed]), \\
-             patch.object(cleanup, "prune_orphan_tag") as orphan, \\
+                                "--new-tag", "v1.0.0", "--apply"]), \
+             patch.object(cleanup, "verify_current_release"), \
+             patch.object(cleanup, "list_releases", side_effect=[initial, changed]), \
+             patch.object(cleanup, "prune_orphan_tag") as orphan, \
              patch.object(cleanup, "gh") as api:
             with self.assertRaisesRegex(ValueError, "Protected"):
                 cleanup.main()
