@@ -26,7 +26,7 @@ assert "game.paused=false" in pause
 play=section(a,"    private fun startGame(","    private fun showResult(")
 assert "GameSimulation(" in play and "onFinished" in play
 result=section(a,"    private fun showResult(","    override fun onBackPressed()")
-assert all(label in result for label in ("progress.recordRun(g)","bestPoints()","g.score()","g.foodCollected","PONOVO","POČETNA"))
+assert all(label in result for label in ("progress.recordRun(g)","bestPoints()","g.score()","g.foodCollected","PONOVO","POČETNA","backAction(panel"))
 for removed in ("showWorlds(","showLevels(","showShop(","showProfile(","showPerks(","showCollection(","showAchievements(","showLeaderboard(","showSettings(","showPilotPicker("):
     assert removed not in a,removed
 assert "BerryCollision.touched(" in simulation and "collectedFood[i]=true" in simulation

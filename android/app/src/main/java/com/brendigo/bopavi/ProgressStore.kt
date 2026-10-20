@@ -85,12 +85,10 @@ class ProgressStore(context: Context) {
         saveLocalScore(game,edit)
         edit.apply()
     }
-    // The concept screenshots use Croatian. New installs follow the phone's
-    // language; existing user selections are never overwritten.
-    fun languageCode():String {
-        val defaultLanguage=java.util.Locale.getDefault().language.lowercase(java.util.Locale.ROOT)
-        return GameLanguages.normalized(prefs.getString("ui_language",null) ?: defaultLanguage)
-    }
+    // Product language is Croatian on all devices. Keep the historical
+    // ui_language preference untouched so old saves/backups stay compatible.
+    // The removed language picker cannot silently switch visible UI to English.
+    fun languageCode():String = "hr"
     fun setLanguageCode(code:String) {
         prefs.edit().putString("ui_language",GameLanguages.normalized(code)).apply()
     }

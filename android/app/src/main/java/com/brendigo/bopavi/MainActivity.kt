@@ -24,12 +24,10 @@ class MainActivity : Activity() {
     private var gamePauseButton: Button? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
-    private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     private val electric = 0xff00d9ff.toInt()
-    // Share the nine saved-pilot resource IDs between native screens.
-    // All nine are playable; the chosen pilot must remain consistent in UI.
+    // Only original Bopi is reachable in the current game; retain old skin saves.
     private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0)
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -74,7 +72,7 @@ class MainActivity : Activity() {
             gameView?.paused = true
             gamePauseButton?.text = "▶"
             gamePauseButton?.contentDescription =
-                if(progress.languageCode()=="hr")"Nastavi ili izađi iz pauze" else "Open paused game controls"
+                "Nastavi ili izađi iz pauze"
         }
         if(::sound.isInitialized) sound.pause()
         super.onPause()
@@ -180,7 +178,32 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
-    /** One shared, compact 48dp upper-left Back affordance for every native menu. */
+    /** Distinct native, high-contrast Back affordance; never a painted, inert icon. */
+    private fun backAction(parent:LinearLayout,caption:String,onClick:()->Unit) {
+        val face=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(0xff246fba.toInt(),0xff0a376d.toInt())).apply {
+            cornerRadius=d(29).toFloat()
+            setStroke(d(2),0xffa3eaff.toInt())
+        }
+        val back=Button(this).apply {
+            text="←  $caption"
+            contentDescription="Povratak na početnu"
+            isAllCaps=false
+            textSize=18f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            letterSpacing=.025f
+            setTextColor(Color.WHITE)
+            setAutoSizeTextTypeUniformWithConfiguration(14,18,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
+            minHeight=d(56)
+            elevation=d(3).toFloat()
+            setOnClickListener { sound.effect("click"); onClick() }
+        }
+        parent.addView(back,LinearLayout.LayoutParams(-1,d(58)).apply {
+            setMargins(0,d(5),0,d(5))
+        })
+    }
     private fun showHome(){
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null
@@ -220,9 +243,8 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(325)).apply{topMargin=d(14)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        title(content,if(progress.languageCode()=="hr")"MALI LETOVI · VELIKE PRIČE"
-            else "SMALL FLIGHTS · BIG STORIES",16,Color.WHITE)
-        action(content,if(progress.languageCode()=="hr")"▶  IGRAJ" else "▶  PLAY"){
+        title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
+        action(content,"▶  IGRAJ"){
             startGame()
         }
         showNativeView(root)
@@ -254,8 +276,8 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
-        title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
-        title(content,if(progress.languageCode()=="hr")"Let je pauziran" else "Flight paused",16,0xffbce6ff.toInt())
+        title(content,"♛  PAUZA",32,Color.WHITE)
+        title(content,"Let je pauziran",16,0xffbce6ff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -283,14 +305,14 @@ class MainActivity : Activity() {
                 setMargins(d(8),d(4),d(8),d(4))
             })
         }
-        command(if(progress.languageCode()=="hr")"▶  NASTAVI" else "▶  CONTINUE",0){
+        command("▶  NASTAVI",0){
             game.paused=false
             gamePauseButton?.text="Ⅱ"
-            gamePauseButton?.contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+            gamePauseButton?.contentDescription="Pauziraj igru"
             sound.resume()
         }
         command("↻  PONOVO",1){startGame()}
-        command("↪  IZLAZ",2){showHome()}
+        command("←  IZLAZ",2){showHome()}
         // The streamlined Pause contains only Continue, Retry and Exit.
         // Changes to saved audio/accessibility preferences are preserved.
         val fitted=FitViewportColumn(this).apply{addView(content)}
@@ -300,7 +322,7 @@ class MainActivity : Activity() {
             if(gameView===game && selectedScreen=="game") {
                 game.paused=false
                 gamePauseButton?.text="Ⅱ"
-                gamePauseButton?.contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+                gamePauseButton?.contentDescription="Pauziraj igru"
                 sound.resume()
             }
         }
@@ -345,7 +367,7 @@ class MainActivity : Activity() {
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
             elevation=d(5).toFloat()
-            contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+            contentDescription="Pauziraj igru"
             visibility=View.INVISIBLE
             setOnClickListener{
                 if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
@@ -377,7 +399,7 @@ class MainActivity : Activity() {
         val previousRecord=progress.bestPoints()
         val newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(if(g.won)"level" else "hit")
-        val headline=if(progress.languageCode()=="hr") "REZULTAT" else "RESULT"
+        val headline="REZULTAT"
         progress.recordRun(g)
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
@@ -413,8 +435,7 @@ class MainActivity : Activity() {
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription=if(progress.languageCode()=="hr")
-                "Bopi u svijetu Zeleni otoci" else "Bopi in Green Islands"
+            contentDescription="Bopi u svijetu Zeleni otoci"
         }
         artwork.addView(ImageView(this).apply{
             setImageResource(R.drawable.world0)
@@ -450,7 +471,7 @@ class MainActivity : Activity() {
                 topMargin=d(3);bottomMargin=d(5)
             })
         }
-        // Three genuine values from this completed run, never screenshot text.
+        // Genuine values from this completed run, never screenshot text.
         val summary=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -494,13 +515,11 @@ class MainActivity : Activity() {
             return stat
         }
         resultCard("REZULTAT","★",g.score().toString(),gold)
-        resultCard(if(progress.languageCode()=="hr")"HRANA" else "FOOD",
+        resultCard("HRANA",
             "🍓",g.foodCollected.toString(),0xffffd5d7.toInt())
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
-            text=if(progress.languageCode()=="hr")
-                "★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
-                else "★  BEST SCORE: $best\n🍓  MOST FOOD: ${progress.bestFood()}"
+            text="★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
             textSize=16f;gravity=Gravity.CENTER;setTextColor(Color.WHITE)
             setAutoSizeTextTypeUniformWithConfiguration(13,16,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -509,10 +528,10 @@ class MainActivity : Activity() {
             setPadding(d(10),d(11),d(10),d(11))
             background=gradient(0xf0063978.toInt(),0xf0041a3c.toInt(),21)
         },LinearLayout.LayoutParams(-1,d(60)).apply{topMargin=d(12)})
-        action(panel,if(progress.languageCode()=="hr")"▶  PONOVO" else "▶  RETRY"){
+        action(panel,"▶  PONOVO"){
             startGame()
         }
-        action(panel,if(progress.languageCode()=="hr")"⌂  POČETNA" else "⌂  HOME",false){
+        backAction(panel,"POČETNA"){
             showHome()
         }
         showNativeView(root)
