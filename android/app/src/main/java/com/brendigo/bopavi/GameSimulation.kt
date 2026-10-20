@@ -87,22 +87,24 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     init { prepareNext() }
     private var collectedFood = BooleanArray(level.gates.size)
     private var collectedHearts = BooleanArray(level.gates.size)
-    /** Rare heart on every 17th obstacle of the continuous flight.
-     * The entire heart remains in the safe opening and is never paywalled.
+    /** Every seventeenth gate in the uninterrupted stream has a rare heart.
+     * Derive the global ordinal from completed gates, never from a segment
+     * number or its variable length; preview and promoted coordinates agree.
      */
-    private fun heartAt(ordinal:Long,index:Int):Boolean =
-        endless && (((ordinal-1L)%17L)*11L+index+1L)%17L==0L
+    private fun heartAt(index:Int,incoming:Boolean=false):Boolean {
+        val base=(totalPassed-passed).toLong()
+        val extra=if(incoming)level.gates.size.toLong() else 0L
+        return endless && (base+extra+index+1L)%17L==0L
+    }
     fun isHeartPosition(index:Int,incoming:Boolean=false):Boolean {
         val segment=if(incoming)nextLevel else level
-        val number=if(incoming)displayLevel+1 else displayLevel
-        return segment!=null && index in segment.gates.indices && heartAt(number,index)
+        return segment!=null && index in segment.gates.indices && heartAt(index,incoming)
     }
     fun heartVisible(index:Int,incoming:Boolean=false):Boolean {
         if(lives>=maxLives)return false
         val segment=if(incoming)nextLevel else level
-        val number=if(incoming)displayLevel+1 else displayLevel
         return segment!=null && index in segment.gates.indices &&
-            heartAt(number,index) && (incoming || !collectedHearts[index])
+            heartAt(index,incoming) && (incoming || !collectedHearts[index])
     }
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
@@ -175,7 +177,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             // Sweep the real fruit/body relative motion across this physics
             // slice. Endpoint-only contact missed fast edge grazes on 30Hz
             // devices; the collider and safe gate opening stay unchanged.
-            if(endless && heartAt(displayLevel,i) && !collectedHearts[i] && lives<maxLives) {
+            if(endless && heartAt(i) && !collectedHearts[i] && lives<maxLives) {
                 val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
                 if(BerryCollision.touched(cx+travel-birdX,oldCy-previousY,
                         cx-birdX,cy-y,radius+13f)) {
@@ -185,7 +187,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                     collectPulse=.36f
                 }
             }
-            if(endless && gate.coin && !heartAt(displayLevel,i) && !collectedFood[i]) {
+            if(endless && gate.coin && !heartAt(i) && !collectedFood[i]) {
                 val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
                 if(BerryCollision.touched(
                     cx+travel-birdX,oldCy-previousY,

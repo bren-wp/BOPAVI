@@ -6,7 +6,7 @@ a=(p/"android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt").read_tex
 for code in (a,):
     assert "BerryCollision.touched(" in code and "collectedFood[i]=true" in code
     assert "foodCollected" in code and "score()" in code
-    assert "if(endless && gate.coin && !heartAt(displayLevel,i) && !collectedFood[i])" in code
+    assert "if(endless && gate.coin && !heartAt(i) && !collectedFood[i])" in code
 for renderer in ("android/app/src/main/java/com/brendigo/bopavi/GameView.kt",):
     code=(p/renderer).read_text()
     assert "cachedFood" in code and "lastAccessibilityFood" in code
