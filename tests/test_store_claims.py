@@ -54,7 +54,7 @@ class StoreClaimsTest(unittest.TestCase):
     def test_public_release_docs_match_native_build(self):
         # Public docs name only the last published release, not the current candidate.
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-        published = re.search(r"^## v(\\d+\\.\\d+\\.\\d+).*?\\(build (\\d+)\\)", changelog, re.M)
+        published = re.search(r"^## v(\d+\.\d+\.\d+).*?\(build (\d+)\)", changelog, re.M)
         self.assertIsNotNone(published)
         version, build = published.group(1), int(published.group(2))
         self.assertEqual(matrix()["release"], f"v{version}")
