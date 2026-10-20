@@ -414,7 +414,8 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)145 else 230))
                 .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
+        // The original logo already contains this slogan. A duplicate title
+        // consumed ~40dp and shrank native privacy/terms hitboxes below 48dp.
         action(content,"▶  IGRAJ"){startGame()}
         content.addView(TextView(this).apply{
             text="ODABERI LIKA"

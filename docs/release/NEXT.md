@@ -2,7 +2,7 @@
 
 ## v1.0.6 — Quick options and local records (build 136)
 
-- Home has two small native 48dp actions **OPCIJE** and **REKORDI**, without a fifth navigation screen, external SDK or extra full-screen menu.
+- Avoid redundant Home slogan (already present inside the branded logo) so the 48dp legal and secondary hit targets remain fully sized on compact phones.\n- Home has two small native 48dp actions **OPCIJE** and **REKORDI**, without a fifth navigation screen, external SDK or extra full-screen menu.
 - Options allow choosing one of three difficulty levels for the next run. The selected difficulty now actually reaches GameSimulation (speed, gravity and passage opening), while the preexisting save key and fixed 18px hitbox are preserved.
 - Existing offline preferences are reachable: sound on/off, haptic on/off, reduced-motion rendering (33ms active vs 14ms default), independent 0–100% music/effects volumes.
 - Volume slider changes apply live to the native audio engine; persistent writes occur once on release to avoid excess disk operations. Gameplay options that need a new GameView apply on the next flight.

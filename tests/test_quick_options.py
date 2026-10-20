@@ -48,3 +48,7 @@ for contract in (
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
 assert 'd(if(tinyDisplay)110 else if(compactDisplay)145 else 230)' in main
+
+# The approved home logo already paints the slogan: do not waste another
+# full-height native row and scale the 48dp legal hitboxes on compact phones.
+assert 'title(content,"MALI LETOVI · VELIKE PRIČE"' not in home
