@@ -3,6 +3,21 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.7 — Forest arcade: 3 lives, rare hearts and smaller HUD (build 137)
+
+**Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.7)
+
+- Endless mode starts with three lives and shows small hearts beside a reduced score/food HUD; legacy non-endless unit-level behavior stays unchanged.
+- One collision consumes at most one heart, with a bounded 1.6-second invulnerability interval; the third unshielded impact ends the run. Existing legacy shields remain independent.
+- Every 17th streaming gate offers an optional collectible heart if any life was lost, capped at 3. The rare heart replaces a berry at that gate so it never overlaps a berry and does not alter saved food scores or earnings.
+- Native foliage and soft moss added to the first forest biome stone caps; visuals remain confined to already-solid collision geometry, without changing gameplay gaps or generating bitmaps each frame.
+- Reduced top HUD dimensions leave more of the flight visible while preserving real score/food values and pause-button clearance.
+- Live option/record overlays use dark navy, blue and mint styling consistent with the native Home/Results palette, preserving offline storage and 48dp actions.
+- Preserve all legacy save keys, all three playable pilots, original artwork, unchanged legal files, no network, analytics, ads, or sign-in.
+- Full Android lint, JVM/physics tests, API35/36 emulator QA, privacy/security/dead-code audit and authentic store screenshots required before merging/publishing.
+- Near the halfway point of a procedural obstacle segment, pre-generate the next cached segment. Do not regenerate it inside the precise boundary frame; all original world coordinates, visible obstacle cadence and saved scores remain unchanged.
+- Marketing README and current-screen documentation have been synchronized with published v1.0.6 features only; pending v1.0.7 mechanics remain in this candidate changelog until release.
+
 ## v1.0.6 — Quick options and local records (build 136)
 
 **Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.6)
@@ -16,14 +31,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Original three pilots, uninterrupted endless flight, collision geometry, original art, complete offline legal/privacy texts and previous progress remain intact.
 - Add source regression tests for clickable controls, stored option persistence, difficulty wiring and absence of network permissions.
 - Native CI Android Lint, unit tests, emulator API35 and API36, gameplay visual QA and Play screenshots must pass before merging/release. Physical battery measurements and Play approval are not implied.
-
-## v1.0.5 — Uninterrupted speed and consistent character artwork (build 135)
-
-**Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.5)
-
-- Smooth horizontal flight speed across invisible procedural challenge-batch boundaries instead of instantly snapping to the next group's speed. Gate and berry collision sweeps now use the exact scroll displacement.
-- Keep original 120 Hz semi-implicit physics substeps, fixed body collision circle, obstacle cadence, food collection, saved high scores and continuous incoming obstacles unchanged.
-- Show the selected player (Bopi, Sova or Lisac) in Pause, matching Home, Flight and Results. No new menu, login, network permission, tracking or paid feature.
-- Add focused JVM and source-level regression checks for boundary speed continuity, pause art selection and save compatibility. Make publisher-only e-mail/HTTPS links inside the complete offline legal notices interactive and enforce an exact legal-link allowlist.
-- Carry forward complete, offline legal texts sourced verbatim from the owner's index.html (11 privacy / 12 terms sections with publisher contact); existing MIT licensing history remains preserved.
-- CI and emulator tests must pass before publication. Physical battery profiling and Google Play store approval are not implied.
