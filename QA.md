@@ -13,6 +13,7 @@ and [Android release checklist](docs/play/RELEASE-CHECKLIST.md).
 - Exercise near-miss/cap contact, one-time berry collection, scoring and retry.
 - Verify Home → Flight → Pause/Resume → Results → Replay/Home on Android emulators.
 - Inspect real screenshots for clipped text, spacing, display cutouts and touch targets.
+- Require native accessibility/state evidence that Flight Preview is idle GameView and Flight Active is genuine first-flap HUD; a changed screenshot hash is insufficient.
 - Confirm background/foreground playback, audio-focus interruptions, rapid retries.
 - Check SDK 35/36 emulators, then representative physical phones, tablets only if supported.
 - Measure real hardware memory use, frame pacing, battery and crashes before certification.
