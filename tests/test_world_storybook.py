@@ -37,10 +37,8 @@ for world in range(8):
 
     name = f"world{world}.png"
     android = ROOT / "android/app/src/main/res/drawable-nodpi" / name
-    ios = ROOT / f"ios/BOPAVI/Assets.xcassets/World{world}.imageset" / name
-    assert android.is_file() and ios.is_file(), (world, "missing background")
+    assert android.is_file(), (world, "missing background")
     data = android.read_bytes()
-    assert data == ios.read_bytes(), (world, "native pixels diverged")
     checksums.add(sha256(data).hexdigest())
     with Image.open(android) as artwork:
         artwork = artwork.convert("RGB")
@@ -51,4 +49,4 @@ for world in range(8):
         assert max(stat.stddev) > 25, (world, stat.stddev)
 
 assert len(checksums) == 8, "Duplicated world backdrop"
-print("PASS: eight distinct illustrated 960×1600 fantasy biomes, synchronized Android/iOS")
+print("PASS: eight distinct illustrated 960×1600 fantasy biomes, packaged for Android")

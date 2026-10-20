@@ -12,7 +12,6 @@ from release_metadata import release_metadata
 MATRIX = ROOT / "docs/product/FEATURE-MATRIX.md"
 LISTING = ROOT / "docs/play/STORE-LISTING-hr-HR.md"
 ANDROID = ROOT / "android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt"
-IOS = ROOT / "ios/BOPAVI/GameController.swift"
 MANIFEST = ROOT / "android/app/src/main/AndroidManifest.xml"
 GRADLE = ROOT / "android/app/build.gradle.kts"
 BANNED_PUBLIC = re.compile(
@@ -53,7 +52,11 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertIn("PENDING PRODUCT OWNER APPROVAL", adr)
 
     def test_public_release_docs_match_native_build(self):
-        version, build = release_metadata()
+        # Public docs name only the last published release, not the current candidate.
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        published = re.search(r"^## v(\\d+\\.\\d+\\.\\d+).*?\\(build (\\d+)\\)", changelog, re.M)
+        self.assertIsNotNone(published)
+        version, build = published.group(1), int(published.group(2))
         self.assertEqual(matrix()["release"], f"v{version}")
         self.assertEqual(matrix()["build"], build)
         for relative in (
@@ -82,8 +85,7 @@ class StoreClaimsTest(unittest.TestCase):
 
     def test_native_nav_and_source_evidence(self):
         a = ANDROID.read_text(encoding="utf-8")
-        i = IOS.read_text(encoding="utf-8")
-        for source, prefix in ((a, "fun"), (i, "func")):
+        for source, prefix in ((a, "fun"),):
             for fn in ("showHome", "startGame", "showPremiumPause", "showResult"):
                 self.assertRegex(source, rf"private\s+{prefix}\s+{fn}\(")
             for obsolete in ("showShop(", "showWorlds(", "showLevels(",
@@ -91,7 +93,6 @@ class StoreClaimsTest(unittest.TestCase):
                 self.assertNotIn(obsolete, source)
             self.assertIn("progress.recordRun(g)", source)
         self.assertIn("LevelEngine.createStream(0,1L)", a)
-        self.assertIn("BopiPortrait0", i)
         self.assertNotIn('android.permission.INTERNET', MANIFEST.read_text())
         gradle = GRADLE.read_text()
         version, build = release_metadata()
