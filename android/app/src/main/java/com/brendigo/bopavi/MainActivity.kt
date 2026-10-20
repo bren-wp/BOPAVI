@@ -27,8 +27,11 @@ class MainActivity : Activity() {
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     private val electric = 0xff00d9ff.toInt()
-    // Only original Bopi is reachable in the current game; retain old skin saves.
-    private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0)
+    // Three arcade pilots preserve all historical save-backed skin identifiers.
+    private val pilotNames=arrayOf("Bopi","Sova","Lisac")
+    private val pilotSpriteIds=intArrayOf(0,9,10)
+    private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait9,R.drawable.bopiportrait10)
+    private var selectedPilotChoice=0
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
     @Suppress("DEPRECATION")
@@ -47,6 +50,7 @@ class MainActivity : Activity() {
         // A single OS-managed launch transition, followed directly by Home.
         // No second BOPAVI splash and no artificial loading percentage.
         progress=ProgressStore(this)
+        selectedPilotChoice=progress.arcadePilot()
         sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
         sound.musicVolume=progress.musicVolume()/100f
@@ -96,24 +100,6 @@ class MainActivity : Activity() {
             cornerRadius=d(rad).toFloat()
             setStroke(d(1),0x9959d6ff.toInt())
         }
-    private fun startSceneryDrift(scene:ImageView){
-        if(progress.lessMotion() || !android.animation.ValueAnimator.areAnimatorsEnabled()) return
-        val drift=android.animation.ObjectAnimator.ofPropertyValuesHolder(
-            scene,
-            android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X,1.015f,1.045f),
-            android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y,1.015f,1.045f)
-        ).apply{
-            duration=12500L
-            repeatMode=android.animation.ValueAnimator.REVERSE
-            repeatCount=android.animation.ValueAnimator.INFINITE
-            interpolator=android.view.animation.AccelerateDecelerateInterpolator()
-        }
-        scene.addOnAttachStateChangeListener(object:View.OnAttachStateChangeListener{
-            override fun onViewAttachedToWindow(v:View){drift.start()}
-            override fun onViewDetachedFromWindow(v:View){drift.cancel()}
-        })
-    }
-
     /**
      * Four short 2×4 pages rather than Android's 26-row scrolling list.
      * Native clickable, minimum-48dp targets and a persistent selected state.
@@ -203,24 +189,35 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
-    /** Offline, discoverable policy text: no WebView, browser or network needed. */
-    private fun showPrivacyNotice() {
+    /** Full legal documents are bundled offline and are not abbreviated.
+     * Native text rendering needs no WebView, JavaScript or network access.
+     */
+    private fun showLegalNotice(title:String,file:String) {
+        val markup=assets.open("legal/$file").bufferedReader(Charsets.UTF_8).use {
+            it.readText()
+        }
+        val body=TextView(this).apply {
+            text=android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)
+            textSize=15f
+            setTextColor(0xff173451.toInt())
+            setPadding(d(18),d(10),d(18),d(12))
+        }
+        val scrolling=android.widget.ScrollView(this).apply {
+            isFillViewport=false
+            setBackgroundColor(0xfff7fbff.toInt())
+            addView(body)
+        }
         android.app.AlertDialog.Builder(this)
-            .setTitle("Politika privatnosti")
-            .setMessage(
-                "Izdavač: Brendigo · https://brendigo.com\n\n" +
-                "BOPAVI je igra koja radi bez internetske veze, prijave, oglasa " +
-                "i kupnji unutar aplikacije. Aplikacija ne šalje rezultate " +
-                "niti druge osobne podatke na poslužitelje izdavača.\n\n" +
-                "Bodovi, bobice, rekordi i ranije spremljene postavke čuvaju " +
-                "se lokalno na uređaju. Podatke možete obrisati u postavkama " +
-                "uređaja (Aplikacije → BOPAVI → Pohrana → Obriši podatke) " +
-                "ili deinstalacijom. Ranije stvorene kopije izvan aplikacije " +
-                "time se ne brišu automatski.\n\n" +
-                "Pitanja o privatnosti: https://github.com/bren-wp/BOPAVI/issues"
-            )
+            .setTitle(title)
+            .setView(scrolling)
             .setPositiveButton("Zatvori",null)
             .show()
+    }
+    private fun showPrivacyNotice() {
+        showLegalNotice("Politika privatnosti","privacy.html")
+    }
+    private fun showTermsNotice() {
+        showLegalNotice("Uvjeti korištenja","terms.html")
     }
     private fun showHome(){
         applyPremiumSystemBars()
@@ -231,7 +228,6 @@ class MainActivity : Activity() {
             setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            startSceneryDrift(this)
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
@@ -246,44 +242,108 @@ class MainActivity : Activity() {
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(23),d(18),d(23),d(24))
+            setPadding(d(23),d(10),d(23),d(10))
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
         val compactDisplay=resources.configuration.screenHeightDp<700
+        val tinyDisplay=resources.configuration.screenHeightDp<610
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)128 else 156)))
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)104 else 134)))
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[0])
+            setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)270 else 325))
-            .apply{topMargin=d(if(compactDisplay)8 else 14)})
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)167 else 230))
+            .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
-        action(content,"▶  IGRAJ"){
-            startGame()
-        }
-        val privacy=TextView(this).apply{
-            text="POLITIKA PRIVATNOSTI"
+        action(content,"▶  IGRAJ"){startGame()}
+        content.addView(TextView(this).apply{
+            text="ODABERI LIKA"
             textSize=13f
-            letterSpacing=.025f
+            letterSpacing=.07f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            setTextColor(0xffe7f8ff.toInt())
             gravity=Gravity.CENTER
-            setTextColor(0xffd5efff.toInt())
-            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
-            contentDescription="Pročitaj politiku privatnosti"
-            isClickable=true
-            isFocusable=true
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                gradient(0x550a427b,0x44021f44,20),null)
-            setOnClickListener { showPrivacyNotice() }
+        },LinearLayout.LayoutParams(-1,d(25)))
+        val pilots=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
         }
-        content.addView(privacy,LinearLayout.LayoutParams(-1,d(58)).apply{
-            topMargin=d(4)
+        for(index in pilotNames.indices){
+            val selected=index==selectedPilotChoice
+            val item=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
+                gravity=Gravity.CENTER
+                val plate=gradient(
+                    if(selected)0xff246f94.toInt() else 0xb5093765.toInt(),
+                    if(selected)0xff0a3b69.toInt() else 0xaa061f45.toInt(),16)
+                plate.setStroke(d(if(selected)2 else 1),
+                    if(selected)0xffffdd72.toInt() else 0x8859d6ff.toInt())
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
+                isClickable=true
+                isFocusable=true
+                isSelected=selected
+                contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+pilotNames[index]
+                setOnClickListener {
+                    if(selectedPilotChoice!=index) {
+                        selectedPilotChoice=index
+                        progress.chooseArcadePilot(index)
+                        sound.effect("click")
+                        showHome()
+                    }
+                }
+            }
+            item.addView(ImageView(this).apply{
+                setImageResource(portraitDrawableIds[index])
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(if(compactDisplay)57 else 69)))
+            item.addView(TextView(this).apply{
+                text=pilotNames[index]
+                gravity=Gravity.CENTER
+                textSize=13f
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(if(selected)0xffffe7a1.toInt() else Color.WHITE)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(23)))
+            pilots.addView(item,LinearLayout.LayoutParams(0,d(if(compactDisplay)87 else 99),1f).apply{
+                setMargins(d(3),0,d(3),0)
+            })
+        }
+        content.addView(pilots,LinearLayout.LayoutParams(-1,-2).apply{
+            topMargin=d(5);bottomMargin=d(4)
         })
+        val legal=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+        }
+        fun legalLink(label:String,description:String,click:()->Unit):TextView =
+            TextView(this).apply {
+                text=label
+                textSize=12f
+                gravity=Gravity.CENTER
+                setTextColor(0xffe4f7ff.toInt())
+                paintFlags=paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
+                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
+                contentDescription=description
+                isClickable=true
+                isFocusable=true
+                setOnClickListener{click()}
+            }
+        val privacy=legalLink("Politika privatnosti","Pročitaj politiku privatnosti"){
+            showPrivacyNotice()
+        }
+        legal.addView(privacy,LinearLayout.LayoutParams(0,d(48),1f))
+        val terms=legalLink("Uvjeti korištenja","Pročitaj uvjete korištenja"){
+            showTermsNotice()
+        }
+        legal.addView(terms,LinearLayout.LayoutParams(0,d(48),1f))
+        content.addView(legal,LinearLayout.LayoutParams(-1,d(48)))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             if(Build.VERSION.SDK_INT>=30){
@@ -385,7 +445,7 @@ class MainActivity : Activity() {
         // The idle flight preview is not gameplay. Do not expose pause until
         // the first actual flap; never reuse a pause control across screens.
         var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),0,progress.hapticEnabled(),
+        val game=GameView(this,simulation,progress.lessMotion(),pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onFlap={sound.effect("tap")},
             onFlightStarted={
@@ -471,7 +531,7 @@ class MainActivity : Activity() {
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription="Bopi u svijetu Zeleni otoci"
+            contentDescription=pilotNames[selectedPilotChoice]+" u svijetu Zeleni otoci"
         }
         artwork.addView(ImageView(this).apply{
             setImageResource(R.drawable.world0)
@@ -484,7 +544,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         artwork.addView(ImageView(this).apply{
-            setImageResource(R.drawable.bopiportrait0)
+            setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))

@@ -172,6 +172,37 @@ print("PASS: Croatian privacy dialog accessible, offline and dismissible",flush=
 PY
 sleep 1
 dump_ui
+# Terms must work offline from the second bottom link on the same Home screen.
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+terms=[n for n in nodes if n.get("clickable")=="true" and
+    "UVJETI KORIŠTENJA" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
+if len(terms)!=1:raise SystemExit("FAIL: accessible native Terms link missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",terms[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Terms link bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+alltext=" ".join(label(n) for n in nodes)
+for required in ("UVJETI KORIŠTENJA","BRENDIGO","OGRANIČENU"):
+    if required not in alltext:raise SystemExit("FAIL: native terms missing "+required)
+close=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
+if len(close)!=1:raise SystemExit("FAIL: terms dialog Close missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: terms close bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+print("PASS: native terms dialog accessible, offline and dismissible",flush=True)
+PY
+sleep 1
+dump_ui
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()

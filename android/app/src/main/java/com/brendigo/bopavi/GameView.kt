@@ -40,9 +40,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var cachedFoodLabel = "0"
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
-    private val selectedSkin=skinIndex.coerceIn(0,8) // The player's save-backed pilot; same body collider for all nine.
-    private val pilotName=listOf("Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion")[selectedSkin]
-    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8)
+    private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
+    private val pilotName=listOf("Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion","Sova","Lisac")[selectedSkin]
+    private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8,R.drawable.bopi9,R.drawable.bopi10)
     private var birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
     // Reference pilot is only enabled after build-time manifest and checksum
@@ -76,9 +76,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         else -> -4f*birdSize/100f
     }
     private val leftWings=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
-        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8)
+        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,R.drawable.bopileft8,R.drawable.bopileft9,R.drawable.bopileft10)
     private val rightWings=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
-        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,R.drawable.bopiright8)
+        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
     private var wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
     private var wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],
@@ -123,8 +123,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
-    private val pillars = intArrayOf(0xff20b96c.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
-    private val pillarDark = intArrayOf(0xff096c46.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
+    private val pillars = intArrayOf(0xff4c9165.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
+    private val pillarDark = intArrayOf(0xff1f533c.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
 
     // Material palettes are immutable flight-scoped data, not two new arrays
     // allocated for every obstacle on every animation frame.
@@ -310,7 +310,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // One clear gate prevents redundant 60/120Hz frames after Pause,
         // Exit, backgrounding, QA capture or a finished/idle flight.
         if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
-            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
+            postInvalidateDelayed(if(reducedMotion) 33L else 14L)
         }
     }
 
@@ -714,8 +714,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
-        val color=if(g.kind==0)0xffad8c71.toInt() else pillars[g.kind]
-        val shade=if(g.kind==0)0xff6e5c63.toInt() else pillarDark[g.kind]
+        val color=pillars[g.kind]
+        val shade=pillarDark[g.kind]
         val cap=if(g.kind==0)0xff55ce6c.toInt() else color
         val top=a.top;val bottom=a.bottom
         val cliffSeed=(g.phase*1024f).toInt()+index*31+g.kind*59+1
@@ -994,14 +994,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      */
     /** Use one cached caption-width policy on score and distance updates. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
-        rect(c,l,t,r,b,0xed062755.toInt(),24f)
-        fill(0xff43d8ff.toInt())
+        rect(c,l,t,r,b,0xf0072344.toInt(),24f)
+        fill(0xff75e2c8.toInt())
         p.style=Paint.Style.STROKE
         p.strokeWidth=2.2f
         p.alpha=196
         c.drawRoundRect(l+1.5f,t+1.5f,r-1.5f,b-1.5f,22f,22f,p)
         p.style=Paint.Style.FILL
-        rect(c,l+14f,t+5f,r-14f,t+8f,0x98d3faff.toInt(),2f)
+        rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
     private fun drawHud(c:Canvas){

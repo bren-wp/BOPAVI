@@ -1,35 +1,97 @@
 <!doctype html>
 <html lang="hr">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>BOPAVI — Uvjeti korištenja / Terms of Use</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Brendigo">
+<title>BOPAVI — Uvjeti korištenja</title>
+<link rel="canonical" href="https://bopavi.com.hr/">
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65;color-scheme:light dark}
-body{margin:0 auto;padding:clamp(1rem,4vw,3rem);max-width:780px}
-h1,h2{line-height:1.2}a{color:#168cdb}header{border-bottom:2px solid #229acb;padding-bottom:1rem}
-footer{margin-top:3rem;border-top:1px solid #789;padding-top:1rem;font-size:.9rem}
+:root{color-scheme:light;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.7;background:#f3f8ff;color:#172c47}
+*{box-sizing:border-box}
+body{max-width:830px;margin:0 auto;padding:24px clamp(14px,4vw,36px) 60px}
+article{padding:clamp(18px,5vw,40px);background:white;border:1px solid #dce7f4;border-radius:18px;box-shadow:0 6px 28px #0d315315}
+h2,h3{line-height:1.3}h2{color:#104a9a;font-size:clamp(1.6rem,4vw,2.3rem)}h3{margin-top:1.5em;color:#193a60}
+a{color:#104a9a}a:focus-visible{outline:2px solid #eaa647;outline-offset:2px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.fact{padding:12px;background:#eaf3ff;border-radius:12px}.fact strong,.fact span{display:block}
+.notice{background:#eaf3ff;border-left:4px solid #1763c8;padding:14px;border-radius:6px}
+.section-label{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:#4d637b}
+nav,footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:14px 2px}
 </style>
 </head>
 <body>
-<header><h1>BOPAVI — Uvjeti korištenja / Terms of Use</h1><p>Na snazi / Effective: 18.10.2026. · Izdavač / Publisher: Brendigo</p></header>
-<section lang="hr">
-<h2>Hrvatski</h2>
-<h3>Igra i pristup</h3><p>BOPAVI je arkadna igra za Android i iOS koja radi bez računa i interneta. Primjenjuju se također odgovarajuća pravila distribucijske platforme i obvezni propisi.</p>
-<h3>Virtualni predmeti</h3><p>Bobice su predmeti za skupljanje tijekom leta, nisu valuta i nemaju novčanu vrijednost. Nema kupnji stvarnim novcem ni oglasa.</p>
-<h3>Lokalni napredak</h3><p>Rekordi i stariji spremljeni podaci ostaju na uređaju. Aktualni izbornik nema ručni uvoz/izvoz. Brisanje aplikacije možda neće ukloniti kopije od ranije spremljene izvan nje.</p>
-<h3>Prikladnost i sigurnost</h3><p>Preporučujemo roditeljsko vodstvo za mlađe igrače i odgovorno korištenje bez odvraćanja pozornosti u sigurnosno osjetljivim situacijama.</p>
-<h3>Prava i odgovornost</h3><p>Brendiranje i ilustracije zaštićeni su pravima njihovih nositelja. Licenca izvornog koda, ako postoji, zasebno je određena LICENSE dokumentom. Niti jedna odredba ne ograničava obvezna prava potrošača.</p>
-<h3>Privatnost i kontakt</h3><p>Vidi <a href="privacy-policy.html">Politiku privatnosti</a>. Za pitanja koristi <a href="https://github.com/bren-wp/BOPAVI/issues">BOPAVI podršku</a>. Uvjeti se mogu izmijeniti ako se funkcionalnosti promijene.</p>
-</section>
-<section lang="en">
-<h2>English</h2>
-<h3>Game and access</h3><p>BOPAVI is an offline-friendly mobile arcade game for Android and iOS, with no accounts. Applicable distribution-platform terms and mandatory law also apply.</p>
-<h3>Virtual items</h3><p>Berries collected during flight are not currency and cannot be redeemed for goods or money. There are no real-money purchases or ads.</p>
-<h3>Local progress</h3><p>Records and retained historic data remain on your device. Manual import/export is not accessible in the current interface. Uninstalling may not delete older files previously saved elsewhere.</p>
-<h3>Age suitability and safety</h3><p>Parental guidance is recommended for younger players. Avoid gaming where distraction can compromise safety.</p>
-<h3>Rights and responsibilities</h3><p>Branding and artwork belong to their respective rights holders. Source-code licensing, if applicable, is covered by a separate LICENSE file. Mandatory consumer rights remain unaffected.</p>
-<h3>Privacy, support, changes</h3><p>See the <a href="privacy-policy.html">Privacy Policy</a>. For questions visit <a href="https://github.com/bren-wp/BOPAVI/issues">BOPAVI support</a>. Terms may be updated when the game changes.</p>
-</section>
-<footer>© Brendigo · BOPAVI</footer>
-</body></html>
+<nav><a href="https://bopavi.com.hr/">BOPAVI</a><a href="privacy-policy.html">Politika privatnosti</a></nav>
+<article id="uvjeti" class="document" aria-labelledby="naslov-uvjeta">
+        <span class="section-label">Dokument 02</span>
+        <h2 id="naslov-uvjeta">Uvjeti korištenja</h2>
+        <p class="small">Za mobilnu igru BOPAVI, koju objavljuje Brendigo. Datum stupanja na snagu: 20. listopada 2026.</p>
+
+        <h3>1. Predmet i prihvaćanje uvjeta</h3>
+        <p>Ovi Uvjeti uređuju preuzimanje, instalaciju i korištenje igre <strong>BOPAVI</strong> (u nastavku: „igra”) koju razvija i objavljuje Brendigo, obrt za programiranje, Rijeka, Republika Hrvatska. Instaliranjem ili korištenjem igre prihvaćate ove uvjete u mjeri dopuštenoj primjenjivim pravom. Ako se ne slažete s uvjetima, možete prestati koristiti igru i deinstalirati je.</p>
+        <p>Ovi Uvjeti uređuju službena izdanja igre koja Brendigo zakonito distribuira pod vlasničkom licencom. Ne isključuju obvezna prava potrošača, zakonska ograničenja autorskog prava niti prava koja su za određeni kod ili ranije objavljena izdanja valjano dodijeljena zasebnim licencama.</p>
+
+        <h3>2. Opis igre i dostupnost</h3>
+        <p>BOPAVI je besplatna arkadna igra za Android. Igrač upravlja letom ptice Bopi dodirivanjem zaslona, izbjegava prepreke, prikuplja bobice i pokušava ostvariti što bolji rezultat. Igra se može igrati bez internetske veze. Nije potrebna registracija i u trenutačnoj verziji nema oglasa, kupnji unutar aplikacije, novčanih nagrada ni isplate stvarnog novca.</p>
+        <p>Pojedine mogućnosti, izgled, kompatibilnost i ponašanje mogu se razlikovati među verzijama igre i Android uređajima. Brendigo može izdavati ispravke pogrešaka, sigurnosna i funkcionalna ažuriranja.</p>
+
+        <h3>3. Dopušteno korištenje</h3>
+        <p>Brendigo vam, pod uvjetom zakonitog pribavljanja službenog izdanja igre i poštovanja ovih Uvjeta, daje <strong>ograničenu, neisključivu, osobnu i neprenosivu licencu</strong> za instalaciju i korištenje igre na vašim kompatibilnim uređajima u svrhu igranja. Igra se trenutačno distribuira bez naknade, ali licenca ostaje vlasnička i komercijalna po svojoj pravnoj naravi. Ne stječete vlasništvo nad igrom ni pravo gospodarskog iskorištavanja njezinih zaštićenih dijelova.</p>
+        <p>Nije dopušteno upotrebljavati igru za nezakonite svrhe, namjerno ometati njezin rad ni zaobilaziti zaštitne mjere radi povrede prava ili sigurnosti. Ako igru preuzmete putem trgovine aplikacija, primjenjuju se i njezini relevantni uvjeti. Licenca ne ograničava korištenja koja su izričito dopuštena prisilnim propisima ili važećom zasebnom licencom za određeni materijal.</p>
+
+        <h3 id="licenca">4. Autorska prava i vlasnička komercijalna licenca</h3>
+        <p><strong>BOPAVI je autorsko djelo koje izdaje Brendigo.</strong> Naziv BOPAVI, naziv i lik Bopi, programski kod, mehanike izvedene u kodu, korisničko sučelje, originalna grafika, animacije, zvukovi, glazba, logotipi, tekstovi i drugi zaštićeni dijelovi igre pripadaju Brendigu odnosno njihovim zakonitim nositeljima prava, u opsegu priznatome važećim propisima. Sva prava koja nisu izričito dana korisniku ostaju pridržana njihovim nositeljima.</p>
+        <p><strong>Vlasnička licenca, a ne slobodna licenca:</strong> za službena izdanja distribuirana pod ovim Uvjetima dozvoljena je uporaba igre za igranje prema članku 3.; nije dodijeljena opća dozvola za kopiranje izvornog koda, preradu igre, izradu i objavu izvedenih verzija ni daljnju distribuciju ili komercijalno iskorištavanje njezinih zaštićenih materijala. Činjenica da je igra besplatna za krajnjeg korisnika ne znači da je njezin kod slobodan za uporabu u drugim projektima.</p>
+        <p>Bez prethodnoga pisanog odobrenja nositelja odgovarajućih prava, osim u opsegu koji dopuštaju zakon ili posebna valjana licenca, osobito nije dopušteno:</p>
+        <ul>
+          <li>umnožavati, objavljivati, prodavati, ustupati, sublicencirati ili dalje distribuirati igru, njezine prerađene verzije ili zaštićene sastavne dijelove izvan zakonito dopuštenog opsega;</li>
+          <li>mijenjati programski kod i stvarati ili javno distribuirati neovlaštene izvedenice koje koriste zaštićeni sadržaj BOPAVI;</li>
+          <li>izdvajati ili ponovno koristiti grafiku, likove, zvukove, glazbu, logotipe ili naziv igre radi predstavljanja druge igre ili proizvoda kao službenog ili povezanog s Brendigom;</li>
+          <li>uklanjati ili krivotvoriti obavijesti o autorskim pravima, autorstvu i oznakama prava, odnosno neovlašteno predstavljati se kao izdavač igre;</li>
+          <li>provoditi povratni inženjering ili dekompilaciju izvan granica koje dopuštaju obvezni propisi ili zasebno dodijeljena prava.</li>
+        </ul>
+        <p>Zakonski dopuštena sigurnosna istraživanja, interoperabilnost, nužne sigurnosne kopije te druga korištenja koja se ne mogu ugovorom zabraniti ostaju dopuštena u granicama propisanim pravom. Uobičajene snimke igranja, recenzije i dijeljenje vlastitih rezultata nisu zabranjeni ovim Uvjetima, pod uvjetom da se ne krše prava trećih osoba i ne stvara lažan dojam službenog odobrenja.</p>
+        <div class="notice"><strong>Ranije objavljene licence.</strong> Ako je određena ranija verzija programskog koda ili drugi dio igre već zakonito objavljen pod posebnom licencom, prava koja su valjano dodijeljena tom licencom ostaju na snazi za taj materijal. Ova vlasnička licenca ne opoziva niti sužava takva ranije stečena prava.</div>
+
+        <h3>5. Rezultati i napredak</h3>
+        <p>Rezultati, osobni rekordi i postavke pohranjuju se lokalno na uređaju. Brendigo ne osigurava udaljenu sinkronizaciju rezultata ni oporavak napretka nakon brisanja podataka, promjene uređaja ili deinstalacije. Bodovi i prikupljene bobice služe samo kao elementi igre i nemaju novčanu vrijednost.</p>
+
+        <h3>6. Maloljetni korisnici</h3>
+        <p>Roditelji i skrbnici trebaju nadzirati korištenje uređaja i procijeniti prikladnost igre za dijete u skladu s objavljenom dobnom oznakom i individualnim potrebama. Za igranje nije potrebno unositi osobne podatke ni stvarati račun. Ako nam se maloljetnik javlja radi podrške, preporučujemo da to učini uz pomoć roditelja ili skrbnika.</p>
+
+        <h3>7. Funkcionalnost, održavanje i ažuriranja</h3>
+        <p>Trudimo se osigurati stabilan i pristupačan rad igre na podržanim Android uređajima. Ipak, zbog tehničkih ograničenja, proizvođačkih prilagodbi i različitih verzija operativnog sustava nije moguće jamčiti da će igra uvijek raditi bez prekida ili pogrešaka. Možemo izmijeniti, poboljšati ili prestati pružati određenu funkcionalnost, uz poštovanje prava korisnika koja su zajamčena zakonom.</p>
+
+        <h3>8. Jamstva i odgovornost</h3>
+        <p>Igra se pruža bez posebnog ugovornog jamstva za neprekidnu dostupnost ili potpunu odsutnost grešaka, u granicama koje dopušta mjerodavno pravo. Brendigo ne odgovara za štetu nastalu okolnostima izvan svoje razumne kontrole niti za neizravne gubitke kada je takvo ograničenje zakonito.</p>
+        <p><strong>Ništa u ovim Uvjetima ne isključuje niti ograničava odgovornost ili obvezna prava korisnika koja se prema primjenjivim zakonima ne mogu isključiti ili ograničiti.</strong> Primjenjive odredbe o sukladnosti digitalnog sadržaja i zaštiti potrošača imaju prednost pred eventualno suprotnom odredbom ovih Uvjeta.</p>
+
+        <h3>9. Trgovine aplikacija i vanjske usluge</h3>
+        <p>Preuzimanje ili ažuriranje igre putem trgovine aplikacija može biti podložno posebnim uvjetima te trgovine. Brendigo ne upravlja pravilima obrade podataka ili dostupnošću takvih vanjskih usluga. Ova stranica i igra ne traže otvaranje korisničkog računa kod Brendiga.</p>
+
+        <h3>10. Izmjene uvjeta i prestanak korištenja</h3>
+        <p>Ove Uvjete možemo mijenjati radi usklađivanja s pravom, promjenama igre ili poslovanja. Važeća verzija s datumom objave bit će dostupna na službenoj stranici BOPAVI. Izmjene ne oduzimaju retroaktivno valjano stečena licencna ili potrošačka prava. Igru u svakom trenutku možete prestati koristiti i ukloniti je s uređaja. U slučaju bitne povrede licencnih obveza Brendigo može raskinuti pravo korištenja u mjeri dopuštenoj zakonom, uz poštovanje prava korisnika i pravila distribucijske platforme.</p>
+
+        <h3>11. Mjerodavno pravo i sporovi</h3>
+        <p>Na ove Uvjete primjenjuje se pravo Republike Hrvatske, uz poštovanje prisilnih propisa Europske unije, potrošačkog prava i drugih odredaba koje se obvezno primjenjuju na konkretnog korisnika. Za sporove su nadležna tijela i sudovi prema primjenjivim zakonskim pravilima; ovim se Uvjetima potrošaču ne oduzima zakonska zaštita koja mu pripada.</p>
+
+        <h3>12. Kontakt</h3>
+        <p>Pitanja, prijedloge i prijave problema možete poslati izdavaču putem kontakta navedenog u nastavku.</p>
+      </article>
+<section id="kontakt" class="document" aria-labelledby="kontakt-naslov">
+        <span class="section-label">Službeni kontakt</span>
+        <h2 id="kontakt-naslov">Kontakt i podaci izdavača</h2>
+        <div class="contact">
+          <p><strong>Izdavač i autor:</strong> Brendigo — obrt za programiranje</p>
+          <p><strong>Sjedište:</strong> Škurinjskih žrtava 2, 51000 Rijeka, Republika Hrvatska</p>
+          <p><strong>E-mail:</strong> <a href="mailto:info@brendigo.com">info@brendigo.com</a></p>
+          <p><strong>Službena stranica igre:</strong> <a href="https://bopavi.com.hr/">bopavi.com.hr</a></p>
+          <p><strong>Web izdavača:</strong> <a href="https://brendigo.com/">brendigo.com</a></p>
+        </div>
+        <p class="doc-note">Ova pravna dokumentacija opisuje trenutačnu verziju igre. Prije objave izmijenjene verzije provjerite odgovaraju li izjave o podacima stvarnom Android paketu i konfiguraciji web-hostinga.</p>
+      </section>
+<footer><span>© 2026 Brendigo · <a href="mailto:info@brendigo.com">info@brendigo.com</a></span><span><a href="https://brendigo.com/">brendigo.com</a></span></footer>
+</body>
+</html>

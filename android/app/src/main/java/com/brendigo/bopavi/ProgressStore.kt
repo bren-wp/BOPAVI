@@ -54,6 +54,11 @@ class ProgressStore(context: Context) {
         return skins.indexOf(normalized)
     }
     val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)
+    // Saved arcade choice is independent of legacy skin purchases and imports.
+    fun arcadePilot():Int = prefs.getInt("arcade_pilot",0).coerceIn(0,2)
+    fun chooseArcadePilot(index:Int) {
+        if(index in 0..2) prefs.edit().putInt("arcade_pilot",index).apply()
+    }
     fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
     fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
     fun selectOrBuy(index: Int): Boolean {

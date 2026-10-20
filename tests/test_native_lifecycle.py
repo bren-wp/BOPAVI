@@ -9,7 +9,8 @@ install=(R/"tools/prepare_android_emulator_image.sh").read_text()
 
 # No render scheduling on Home preview, paused flights, or background windows.
 assert "isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture" in game
-assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in game
+assert "postInvalidateDelayed(if(reducedMotion) 33L else 14L)" in game
+assert "startSceneryDrift(" not in activity
 assert "override fun onDetachedFromWindow()" in game and "override fun onAttachedToWindow()" in game
 assert all(x+"=null" in game for x in ("birdBitmap","wingLeftBitmap","wingRightBitmap","worldBitmap"))
 assert ".recycle()" not in game.split("override fun onDetachedFromWindow()")[1]
@@ -23,7 +24,9 @@ assert '"purchase" to pool.load(' not in audio
 # A removed menu must not retain a dangling Back callback or duplicate CTA click.
 assert "menuBackAction" not in activity
 home=activity.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
-assert 'startGame()' in home and 'sound.effect("click")' not in home
+assert 'action(content,"▶  IGRAJ"){startGame()}' in home
+# Pilot-choice feedback uses click SFX; the shared CTA action handles its own sound.
+assert 'progress.chooseArcadePilot(index)' in home
 assert 'gamePauseButton?.text = "▶"' in activity
 assert 'gamePauseButton?.text="Ⅱ"' in activity
 
