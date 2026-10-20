@@ -315,8 +315,8 @@ class MainActivity : Activity() {
                     override fun onStopTrackingTouch(bar:android.widget.SeekBar?){
                         val value=bar?.progress ?: return
                         // One local preference write per finished gesture.
-                        if(music) progress.setMusicVolume(value)
-                        else progress.setEffectsVolume(value)
+                        if(music) this@MainActivity.progress.setMusicVolume(value)
+                        else this@MainActivity.progress.setEffectsVolume(value)
                     }
                 })
             },LinearLayout.LayoutParams(-1,d(48)))
