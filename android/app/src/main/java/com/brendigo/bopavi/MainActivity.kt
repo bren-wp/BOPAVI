@@ -253,22 +253,23 @@ class MainActivity : Activity() {
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(23),d(18),d(23),d(24))
+            setPadding(d(23),d(10),d(23),d(10))
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
         val compactDisplay=resources.configuration.screenHeightDp<700
+        val tinyDisplay=resources.configuration.screenHeightDp<610
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)104 else 134)))
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)104 else 134)))
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)167 else 230))
-            .apply{topMargin=d(if(compactDisplay)3 else 10)})
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)167 else 230))
+            .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
         action(content,"▶  IGRAJ"){startGame()}
