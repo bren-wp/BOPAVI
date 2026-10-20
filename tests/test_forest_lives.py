@@ -24,3 +24,7 @@ assert "0xff154c8d.toInt(),0xff061d42.toInt()" in activity
 
 assert "if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext()" in sim
 assert "nextLevel=null" in sim
+
+assert "premiumDialogHeader(" in activity
+assert 'setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))' in activity
+assert 'setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))' in activity

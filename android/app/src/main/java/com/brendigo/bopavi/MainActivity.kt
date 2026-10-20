@@ -330,16 +330,31 @@ class MainActivity : Activity() {
         }
         android.app.AlertDialog.Builder(this)
             .setTitle("⚙  OPCIJE IGRE")
+            .setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))
             .setView(scroll)
             .setPositiveButton("GOTOVO",null)
             .show().also { polishGameDialog(it) }
     }
 
     /** Match both in-game overlays to the midnight-blue/cyan Home palette. */
+    private fun premiumDialogHeader(text:String):TextView = TextView(this).apply {
+        this.text=text
+        textSize=21f
+        gravity=Gravity.CENTER
+        typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+        setTextColor(Color.WHITE)
+        setPadding(d(18),d(18),d(18),d(14))
+        background=gradient(0xff17558b.toInt(),0xff103466.toInt(),22).apply {
+            setStroke(d(1),0xff60dafe.toInt())
+        }
+    }
     private fun polishGameDialog(dialog:android.app.AlertDialog) {
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setBackgroundDrawable(
+            gradient(0xff103d71.toInt(),0xff051a36.toInt(),25).apply {
+                setStroke(d(2),0xff65ddf9.toInt())
+            })
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
-            ?.setTextColor(0xff23aee8.toInt())
+            ?.setTextColor(0xff9be8ff.toInt())
     }
     /** Read-only on-device records: no network, accounts or score submissions. */
     private fun showLocalRecords(){
@@ -374,6 +389,7 @@ class MainActivity : Activity() {
         })
         android.app.AlertDialog.Builder(this)
             .setTitle("★  MOJI REKORDI")
+            .setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))
             .setView(android.widget.ScrollView(this).apply{addView(stats)})
             .setPositiveButton("ZATVORI",null)
             .show().also { polishGameDialog(it) }
