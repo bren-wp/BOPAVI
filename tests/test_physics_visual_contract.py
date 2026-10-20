@@ -12,8 +12,8 @@ for needle in (
     "drawCliffShaft(c,x,w,bottom,pillarRenderBottom",
     "drawRockStrata(c,x,w,pillarRenderTop+11f",
     "courses(pillarRenderTop+36f",
-    "hudGlass(c,18f,20f,212f,88f)",
-    "hudGlass(c,228f,20f,376f,88f)",
+    "hudGlass(c,18f,16f,178f,68f)",
+    "hudGlass(c,185f,16f,310f,68f)",
     'text(c,"BODOVI"', 'text(c,"HRANA"'):
     assert needle in view,needle
 assert "val safeTop=max(fromOpening.top,toOpening.top)+radius" in sim
