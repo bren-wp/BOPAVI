@@ -9,7 +9,7 @@ l=(r/"LevelEngine.kt").read_text()
 for forbidden in ("GameLanguages", "hudVocabulary", "languageCode=", "Tap to fly with",
                   "▶  PLAY", "▶  RETRY", "BEST SCORE:"):
     assert forbidden not in a+v+l, forbidden
-for term in ('"▶  IGRAJ"', '"REZULTAT"', '"HRANA"', '"PONOVO"',
+for term in ('"▶  IGRAJ"', '"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
              'contentDescription="Povratak na početnu"'):
     assert term in a,term
