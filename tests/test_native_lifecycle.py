@@ -24,7 +24,9 @@ assert '"purchase" to pool.load(' not in audio
 # A removed menu must not retain a dangling Back callback or duplicate CTA click.
 assert "menuBackAction" not in activity
 home=activity.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
-assert 'startGame()' in home and 'sound.effect("click")' not in home
+assert 'action(content,"▶  IGRAJ"){startGame()}' in home
+# Pilot-choice feedback uses click SFX; the shared CTA action handles its own sound.
+assert 'progress.chooseArcadePilot(index)' in home
 assert 'gamePauseButton?.text = "▶"' in activity
 assert 'gamePauseButton?.text="Ⅱ"' in activity
 
