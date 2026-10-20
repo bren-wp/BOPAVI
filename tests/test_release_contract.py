@@ -14,7 +14,7 @@ from verify_play_release import signature_entries
 class ReleaseContractTests(unittest.TestCase):
     def test_android_only_metadata(self):
         version,build=release_metadata()
-        self.assertRegex(version,r"^\\d+\\.\\d+\\.\\d+$")
+        self.assertRegex(version,r"^\d+\.\d+\.\d+$")
         self.assertGreater(build,130)
         self.assertFalse((ROOT/"ios").exists())
 
@@ -33,7 +33,7 @@ class ReleaseContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             a=root/"android/app";a.mkdir(parents=True)
-            (a/"build.gradle.kts").write_text('versionName = "1.0.1"\\nversionCode = 131\\nversionCode = 132')
+            (a/"build.gradle.kts").write_text('versionName = "1.0.1"\nversionCode = 131\nversionCode = 132')
             with self.assertRaisesRegex(ValueError,"missing or ambiguous"):
                 release_metadata(root)
 
@@ -41,13 +41,13 @@ class ReleaseContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);(root/"android/app").mkdir(parents=True)
             (root/"docs/release").mkdir(parents=True)
-            (root/"android/app/build.gradle.kts").write_text('versionName = "1.0.1"\\nversionCode = 131')
-            (root/"CHANGELOG.md").write_text("## v1.0.0 — Published (build 130)\\n- Historical.\\n")
-            (root/"docs/release/NEXT.md").write_text("## v1.0.1 — Pending (build 131)\\n- Android only.\\n")
+            (root/"android/app/build.gradle.kts").write_text('versionName = "1.0.1"\nversionCode = 131')
+            (root/"CHANGELOG.md").write_text("## v1.0.0 — Published (build 130)\n- Historical.\n")
+            (root/"docs/release/NEXT.md").write_text("## v1.0.1 — Pending (build 131)\n- Android only.\n")
             notes=release_notes(root)
             self.assertIn("Android only.",notes)
             self.assertNotIn("Historical.",notes)
-            (root/"docs/release/NEXT.md").write_text("## v1.0.2 — Wrong (build 132)\\n")
+            (root/"docs/release/NEXT.md").write_text("## v1.0.2 — Wrong (build 132)\n")
             with self.assertRaisesRegex(ValueError,"missing"):
                 release_notes(root)
 
