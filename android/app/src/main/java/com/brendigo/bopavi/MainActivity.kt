@@ -189,46 +189,35 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
-    /** Both legal notices work without WebView, internet or runtime permissions. */
-    private fun showPrivacyNotice() {
+    /** Full legal documents are bundled offline and are not abbreviated.
+     * Native text rendering needs no WebView, JavaScript or network access.
+     */
+    private fun showLegalNotice(title:String,file:String) {
+        val markup=assets.open("legal/$file").bufferedReader(Charsets.UTF_8).use {
+            it.readText()
+        }
+        val body=TextView(this).apply {
+            text=android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)
+            textSize=15f
+            setTextColor(0xff173451.toInt())
+            setPadding(d(18),d(10),d(18),d(12))
+        }
+        val scrolling=android.widget.ScrollView(this).apply {
+            isFillViewport=false
+            setBackgroundColor(0xfff7fbff.toInt())
+            addView(body)
+        }
         android.app.AlertDialog.Builder(this)
-            .setTitle("Politika privatnosti")
-            .setMessage(
-                "Izdavač: Brendigo · https://brendigo.com\n" +
-                "Službena stranica: https://bopavi.com.hr\n\n" +
-                "BOPAVI radi bez internetske veze, prijave, oglasa i kupnji unutar " +
-                "aplikacije. Ne koristi analitiku i ne šalje rezultate niti druge " +
-                "osobne podatke na poslužitelje izdavača.\n\n" +
-                "Bodovi, prikupljene bobice, odabrani lik, rekordi i ranije " +
-                "spremljene postavke ostaju lokalno na uređaju. Nisu potrebne " +
-                "dozvole za internet, kontakte ni lokaciju.\n\n" +
-                "Podatke možete obrisati u postavkama uređaja: Aplikacije → " +
-                "BOPAVI → Pohrana → Obriši podatke; ili deinstalacijom. " +
-                "Kopije ranije spremljene izvan aplikacije ne brišu se automatski.\n\n" +
-                "Pitanja: https://brendigo.com"
-            )
+            .setTitle(title)
+            .setView(scrolling)
             .setPositiveButton("Zatvori",null)
             .show()
     }
+    private fun showPrivacyNotice() {
+        showLegalNotice("Politika privatnosti","privacy.html")
+    }
     private fun showTermsNotice() {
-        android.app.AlertDialog.Builder(this)
-            .setTitle("Uvjeti korištenja")
-            .setMessage(
-                "BOPAVI · Brendigo · https://bopavi.com.hr\n" +
-                "Ažurirano: 20. 10. 2026.\n\n" +
-                "BOPAVI je besplatna offline Android arkadna igra. Odaberite " +
-                "Bopija, Sovu ili Lisca, letite kroz prepreke, skupljajte " +
-                "bobice i bilježite rezultate na uređaju.\n\n" +
-                "Igra ne nudi račune, oglase, plaćanja ni kupnje unutar " +
-                "aplikacije. Bobice i bodovi nemaju novčanu vrijednost i " +
-                "ne mogu se zamijeniti za novac ili robu.\n\n" +
-                "Igru koristite odgovorno. Autorska prava na originalne " +
-                "likove i grafiku pripadaju njihovim nositeljima. Odredbe " +
-                "ovih uvjeta ne ograničavaju obvezna zakonska prava korisnika.\n\n" +
-                "Podrška i pitanja: https://brendigo.com"
-            )
-            .setPositiveButton("Zatvori",null)
-            .show()
+        showLegalNotice("Uvjeti korištenja","terms.html")
     }
     private fun showHome(){
         applyPremiumSystemBars()
