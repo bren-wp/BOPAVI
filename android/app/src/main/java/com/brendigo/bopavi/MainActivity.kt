@@ -219,6 +219,157 @@ class MainActivity : Activity() {
     private fun showTermsNotice() {
         showLegalNotice("Uvjeti korištenja","terms.html")
     }
+
+    /**
+     * Native Home overlay, not a new navigation route. Existing preferences
+     * keep their historical keys and stay local; all changes are opt-in.
+     */
+    private fun showQuickOptions(){
+        val column=LinearLayout(this).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(20),d(8),d(20),d(16))
+            setBackgroundColor(0xfff4f9ff.toInt())
+        }
+        fun heading(value:String){
+            column.addView(TextView(this).apply{
+                text=value
+                textSize=16f
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(0xff174976.toInt())
+                setPadding(0,d(14),0,d(7))
+            })
+        }
+        fun toggle(caption:String,enabled:Boolean,onChange:(Boolean)->Unit){
+            column.addView(android.widget.Switch(this).apply {
+                text=caption
+                textSize=15f
+                setTextColor(0xff203a5a.toInt())
+                isChecked=enabled
+                minHeight=d(48)
+                setOnCheckedChangeListener{_,value->onChange(value)}
+            },LinearLayout.LayoutParams(-1,d(48)))
+        }
+        heading("Težina leta")
+        val difficulties=android.widget.RadioGroup(this).apply {
+            orientation=LinearLayout.VERTICAL
+        }
+        val labels=progress.difficultyNames
+        val radioIds=IntArray(labels.size){View.generateViewId()}
+        for(index in labels.indices) {
+            difficulties.addView(android.widget.RadioButton(this).apply {
+                id=radioIds[index]
+                text=labels[index]
+                textSize=15f
+                setTextColor(0xff203a5a.toInt())
+                minHeight=d(45)
+                contentDescription="Težina: "+labels[index]
+            },android.widget.RadioGroup.LayoutParams(-1,d(45)))
+        }
+        difficulties.check(radioIds[progress.difficulty()])
+        difficulties.setOnCheckedChangeListener{_,id->
+            val index=radioIds.indexOf(id)
+            if(index>=0){
+                progress.setDifficulty(index)
+                sound.effect("click")
+            }
+        }
+        column.addView(difficulties)
+        column.addView(TextView(this).apply{
+            text="Težina i smanjeni pokret primjenjuju se od sljedećeg leta."
+            textSize=12f
+            setTextColor(0xff54708a.toInt())
+        })
+        heading("Zvuk i pristupačnost")
+        toggle("Zvuk uključen",progress.soundEnabled()){enabled->
+            progress.setSoundEnabled(enabled)
+            sound.enabled=enabled
+        }
+        toggle("Vibracija pri igranju",progress.hapticEnabled()){enabled->
+            progress.setHapticEnabled(enabled)
+        }
+        toggle("Smanjeni pokret i manje osvježavanja",progress.lessMotion()){enabled->
+            progress.setLessMotion(enabled)
+        }
+        fun volumeSlider(caption:String,initial:Int,music:Boolean){
+            val label=TextView(this).apply {
+                text=caption+": "+initial+" %"
+                textSize=14f
+                setTextColor(0xff203a5a.toInt())
+                setPadding(0,d(8),0,0)
+            }
+            column.addView(label)
+            column.addView(android.widget.SeekBar(this).apply {
+                max=100
+                progress=initial
+                contentDescription=caption
+                minHeight=d(48)
+                setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(bar:android.widget.SeekBar?,value:Int,fromUser:Boolean){
+                        label.text=caption+": "+value+" %"
+                        if(fromUser) {
+                            if(music) sound.musicVolume=value/100f
+                            else sound.effectsVolume=value/100f
+                        }
+                    }
+                    override fun onStartTrackingTouch(bar:android.widget.SeekBar?){}
+                    override fun onStopTrackingTouch(bar:android.widget.SeekBar?){
+                        val value=bar?.progress ?: return
+                        // One local preference write per finished gesture.
+                        if(music) progress.setMusicVolume(value)
+                        else progress.setEffectsVolume(value)
+                    }
+                })
+            },LinearLayout.LayoutParams(-1,d(48)))
+        }
+        volumeSlider("Glazba",progress.musicVolume(),true)
+        volumeSlider("Zvučni efekti",progress.effectsVolume(),false)
+        val scroll=android.widget.ScrollView(this).apply{
+            isFillViewport=false
+            addView(column)
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("⚙  OPCIJE IGRE")
+            .setView(scroll)
+            .setPositiveButton("GOTOVO",null)
+            .show()
+    }
+
+    /** Read-only on-device records: no network, accounts or score submissions. */
+    private fun showLocalRecords(){
+        val stats=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(20),d(16),d(20),d(18))
+            setBackgroundColor(0xfff4f9ff.toInt())
+        }
+        val rows=listOf(
+            "★  Najbolji rezultat" to progress.bestPoints().toString(),
+            "🍓  Najviše hrane u jednom letu" to progress.bestFood().toString(),
+            "▥  Najviše prođenih prepreka" to progress.endlessBest().toString(),
+            "↗  Odigrani letovi" to progress.totalRuns().toString(),
+            "♧  Ukupni zamasi krilima" to progress.totalFlaps().toString()
+        )
+        for((caption,value) in rows){
+            stats.addView(TextView(this).apply{
+                text=caption+"\n"+value
+                textSize=17f
+                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
+                setTextColor(0xff173c65.toInt())
+                setPadding(d(6),d(7),d(6),d(7))
+            },LinearLayout.LayoutParams(-1,-2))
+        }
+        stats.addView(TextView(this).apply{
+            text="Rekordi se čuvaju samo na ovom uređaju. Brisanje podataka aplikacije briše i rekorde."
+            textSize=12f
+            setTextColor(0xff55718b.toInt())
+            setPadding(0,d(12),0,0)
+        })
+        android.app.AlertDialog.Builder(this)
+            .setTitle("★  MOJI REKORDI")
+            .setView(android.widget.ScrollView(this).apply{addView(stats)})
+            .setPositiveButton("ZATVORI",null)
+            .show()
+    }
+
     private fun showHome(){
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null
@@ -338,6 +489,35 @@ class MainActivity : Activity() {
         }
         content.addView(pilots,LinearLayout.LayoutParams(-1,-2).apply{
             topMargin=d(5);bottomMargin=d(4)
+        })
+        // Two compact secondary actions; IGRAJ stays the single main CTA.
+        val extras=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+        }
+        fun secondaryChoice(text:String,description:String,onTap:()->Unit){
+            val face=gradient(0xff286f9e.toInt(),0xff103b70.toInt(),16).apply{
+                setStroke(d(1),0xff80dfff.toInt())
+            }
+            extras.addView(TextView(this).apply{
+                this.text=text
+                textSize=14f
+                gravity=Gravity.CENTER
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                contentDescription=description
+                background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),face,null)
+                isClickable=true
+                isFocusable=true
+                setOnClickListener{sound.effect("click");onTap()}
+            },LinearLayout.LayoutParams(0,d(48),1f).apply{
+                setMargins(d(3),0,d(3),0)
+            })
+        }
+        secondaryChoice("⚙  OPCIJE","Otvori opcije igre"){showQuickOptions()}
+        secondaryChoice("★  REKORDI","Pogledaj svoje rekorde"){showLocalRecords()}
+        content.addView(extras,LinearLayout.LayoutParams(-1,d(48)).apply {
+            topMargin=d(3);bottomMargin=d(2)
         })
         val legal=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -461,7 +641,7 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         selectedScreen="game"
-        val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,1,1L)
+        val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,progress.difficulty(),1L)
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(0)
         // The idle flight preview is not gameplay. Do not expose pause until

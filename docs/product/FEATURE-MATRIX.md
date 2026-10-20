@@ -79,6 +79,14 @@ is the source for the automated public-claims gate.
       "status": "visible"
     },
     {
+      "id": "quick_options_overlay",
+      "status": "visible"
+    },
+    {
+      "id": "local_records_overlay",
+      "status": "visible"
+    },
+    {
       "id": "legacy_save_models",
       "status": "internal-legacy"
     },
@@ -150,7 +158,7 @@ is the source for the automated public-claims gate.
 
 | Live state | Android implementation | What players can do |
 |---|---|---|
-| Home | MainActivity.showHome | Choose Bopi, Sova or Lisac, read both offline legal links and start an endless flight |
+| Home | MainActivity.showHome | Choose Bopi, Sova or Lisac, open native quick-options or read-only local-records dialogs, read both offline legal links and start an endless flight |
 | Flight | MainActivity.startGame, GameView, GameSimulation | Tap to flap, pass pillars and collect berries |
 | Pause | MainActivity.showPremiumPause | Resume, restart or exit |
 | Results | MainActivity.showResult, ProgressStore.recordRun | Read score/berries/best and retry or return Home |
