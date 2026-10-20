@@ -5,11 +5,11 @@ repo=Path(__file__).resolve().parents[1]
 qa=(repo/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 for label in (
     "STATE: flight-idle confirmed by native GameView",
-    "STATE: flight-active confirmed by native GameView and Pause control",
+    "STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pause control",
     "FAIL: tapping PLAY did not reach Flight",
     "FAIL: first flap never reached active HUD/PAUSE state",
     "FAIL: RETRY did not reach idle Flight",
-    "BOPI IS FLYING", "TAP TO FLY WITH", "PAUSE GAME",
+    "SCORE:", "FOOD:", "BODOVI:", "HRANA:", "TAP TO FLY WITH", "PAUSE GAME",
 ):
     assert label in qa,label
 assert "capture android-gameplay-ready" in qa
