@@ -10,3 +10,4 @@
 - Add a discoverable Croatian in-app privacy notice (offline native dialog) and minimum 58dp legal tap area on Home; compact-screen art scales independently to retain readable primary buttons.
 - Preserve the actively used ParallaxScenery helper and its Kotlin tests after runtime-reachability verification; it is not dead code.
 - Refresh Google Play metadata, signing/privacy rules, Android 16 API 36 checks and current v1.0.2 publication evidence.
+- Validate that the actual in-app Croatian privacy policy opens and closes on Android 15/16, and that its touch target remains at least 48dp on compact and tall emulator displays.

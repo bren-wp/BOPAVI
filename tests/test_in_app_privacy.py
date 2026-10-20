@@ -16,3 +16,8 @@ assert "compactDisplay=resources.configuration.screenHeightDp<700" in main
 assert "android.permission.INTERNET" not in manifest
 assert "targetSdk = 36" in gradle
 print("PASS: native Croatian privacy dialog, responsive legal action, offline API36")
+
+# The emulator must verify the real dialog, not merely assert a source string.
+qa=(r/"tools/qa_android_emulator.sh").read_text()
+assert "Croatian privacy dialog accessible, offline and dismissible" in qa
+assert "privacy button below 48dp" in qa
