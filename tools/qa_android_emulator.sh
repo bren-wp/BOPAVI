@@ -141,18 +141,49 @@ if recover_launcher_anr; then
   dump_ui
 fi
 capture android-home
-# Read the ACTUAL native policy dialog before entering flight, not static copy.
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+# A freshly recovered hosted Launcher can swallow one tap. Recheck the
+# ACTUAL legal dialog and owner body text rather than counting a tap as success.
+# Retry a native Home link at most three times while the game remains reachable;
+# missing content, crashes or a non-home screen must still fail closed.
+open_legal_dialog(){
+  legal_link="$1"
+  legal_title="$2"
+  legal_owner_text="$3"
+  legal_opened=0
+  for legal_attempt in 1 2 3; do
+    dump_ui
+    if ! python3 - "$legal_link" <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-p=[n for n in nodes if n.get("clickable")=="true"
-   and "POLITIKA PRIVATNOSTI" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
-if len(p)!=1:raise SystemExit("FAIL: native Home privacy action missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",p[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: privacy button bounds invalid")
+links=[n for n in nodes if n.get("clickable")=="true"
+       and n.get("content-desc","")==sys.argv[1]]
+if len(links)!=1:raise SystemExit("FAIL: expected native Home legal link missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",links[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: native legal tap bounds missing")
 a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
+    then
+      echo 'FAIL: legal link not present on actual Home' >&2
+      return 1
+    fi
+    sleep 2
+    dump_ui
+    if python3 - "$legal_title" "$legal_owner_text" <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+alltext=" ".join(label(n) for n in nodes)
+closing=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
+assert sys.argv[1] in alltext and sys.argv[2] in alltext and len(closing)==1
+PY
+    then legal_opened=1;break; fi
+    echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
+  done
+  test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
+}
+# Read the ACTUAL native policy dialog before entering flight, not static copy.
+open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO"
 sleep 1
 dump_ui
 python3 - <<'PY'
@@ -173,17 +204,7 @@ PY
 sleep 1
 dump_ui
 # Terms must work offline from the second bottom link on the same Home screen.
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-terms=[n for n in nodes if n.get("clickable")=="true" and
-    "UVJETI KORIŠTENJA" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
-if len(terms)!=1:raise SystemExit("FAIL: accessible native Terms link missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",terms[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: Terms link bounds missing")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
+open_legal_dialog "Pročitaj uvjete korištenja" "UVJETI KORIŠTENJA" "BRENDIGO"
 sleep 1
 dump_ui
 python3 - <<'PY'

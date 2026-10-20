@@ -28,3 +28,9 @@ assert "nextLevel=null" in sim
 assert "premiumDialogHeader(" in activity
 assert 'setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))' in activity
 assert 'setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))' in activity
+
+qa=(root/"tools/qa_android_emulator.sh").read_text()
+assert "open_legal_dialog()" in qa
+assert 'open_legal_dialog "Pročitaj politiku privatnosti"' in qa
+assert 'open_legal_dialog "Pročitaj uvjete korištenja"' in qa
+assert "FAIL: native legal dialog did not open with owner text" in qa
