@@ -203,6 +203,25 @@ class MainActivity : Activity() {
             setMargins(0,d(5),0,d(5))
         })
     }
+    /** Offline, discoverable policy text: no WebView, browser or network needed. */
+    private fun showPrivacyNotice() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Politika privatnosti")
+            .setMessage(
+                "Izdavač: Brendigo · https://brendigo.com\n\n" +
+                "BOPAVI je igra koja radi bez internetske veze, prijave, oglasa " +
+                "i kupnji unutar aplikacije. Aplikacija ne šalje rezultate " +
+                "niti druge osobne podatke na poslužitelje izdavača.\n\n" +
+                "Bodovi, bobice, rekordi i ranije spremljene postavke čuvaju " +
+                "se lokalno na uređaju. Podatke možete obrisati u postavkama " +
+                "uređaja (Aplikacije → BOPAVI → Pohrana → Obriši podatke) " +
+                "ili deinstalacijom. Ranije stvorene kopije izvan aplikacije " +
+                "time se ne brišu automatski.\n\n" +
+                "Pitanja o privatnosti: https://github.com/bren-wp/BOPAVI/issues"
+            )
+            .setPositiveButton("Zatvori",null)
+            .show()
+    }
     private fun showHome(){
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null
@@ -219,8 +238,8 @@ class MainActivity : Activity() {
                 intArrayOf(0x12011c52,0x001b84c8,0xbb031536.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        // The simplified premium experience has ONE accessible action: fly.
-        // Keep the logo and selected pilot independent of scenery artwork.
+        // One main gameplay action plus a smaller, accessible privacy notice.
+        // Keep original logo and Bopi art independent of backdrop artwork.
         val viewport=FitViewportColumn(this).apply{
             clipChildren=false;clipToPadding=false
         }
@@ -231,21 +250,40 @@ class MainActivity : Activity() {
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
+        val compactDisplay=resources.configuration.screenHeightDp<700
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(156)))
+        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)128 else 156)))
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(325)).apply{topMargin=d(14)})
+        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)270 else 325))
+            .apply{topMargin=d(if(compactDisplay)8 else 14)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
         action(content,"▶  IGRAJ"){
             startGame()
         }
+        val privacy=TextView(this).apply{
+            text="POLITIKA PRIVATNOSTI"
+            textSize=13f
+            letterSpacing=.025f
+            gravity=Gravity.CENTER
+            setTextColor(0xffd5efff.toInt())
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+            contentDescription="Pročitaj politiku privatnosti"
+            isClickable=true
+            isFocusable=true
+            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                gradient(0x550a427b,0x44021f44,20),null)
+            setOnClickListener { showPrivacyNotice() }
+        }
+        content.addView(privacy,LinearLayout.LayoutParams(-1,d(58)).apply{
+            topMargin=d(4)
+        })
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             if(Build.VERSION.SDK_INT>=30){
