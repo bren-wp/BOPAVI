@@ -159,24 +159,64 @@ if c-a<130 or d-b<40:raise SystemExit("FAIL: PLAY hit target too small")
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 print("PASS: accessible Home Play and no extra menus",flush=True)
 PY
-sleep 2
-adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI process exited before gameplay" >&2; exit 1; }
+# A successful tap on the Home PLAY button is not proof that the Flight view
+# has appeared. Wait for the *actual native GameView accessibility state*.
+# The earlier flow sometimes captured a second Home animation as Flight Preview.
+ready=0
+for attempt in $(seq 1 15); do
+  adb shell pidof com.brendigo.bopavi >/dev/null || {
+    echo "FAIL: BOPAVI process exited before gameplay" >&2; exit 1;
+  }
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
+game=[n for n in nodes if "TAP TO FLY WITH" in label(n) or "DODIRNI ZA LET" in label(n)]
+play=[n for n in nodes if n.get("clickable")=="true"
+      and ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
+sys.exit(0 if len(game)==1 and not play else 1)
+PY
+  then
+    ready=1; break
+  fi
+  echo "Waiting for actual Flight idle GameView, attempt $attempt/15" >&2
+  sleep 2
+done
+test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight" >&2; exit 1; }
 capture android-gameplay-ready
+printf 'STATE: flight-idle confirmed by native GameView\n' >> qa/screenshots/state-evidence.txt
+
 screen_size="$(adb shell wm size | tail -1 | sed 's/.*: //' | tr -d '\r')"
 width="$(printf '%s' "$screen_size" | cut -dx -f1)"
 height="$(printf '%s' "$screen_size" | cut -dx -f2)"
 center=$((width/2))
-adb shell "input tap $center $((height/2)); sleep 0.27; screencap -p /sdcard/flight-a.png; sleep 0.22; screencap -p /sdcard/flight-b.png"
-adb exec-out cat /sdcard/flight-a.png > qa/screenshots/flight-a.png
-adb exec-out cat /sdcard/flight-b.png > qa/screenshots/flight-b.png
-for name in a b; do
-  if [ -s "qa/screenshots/flight-$name.png" ] &&
-     ! cmp -s qa/screenshots/android-gameplay-ready.png "qa/screenshots/flight-$name.png"; then
-    cp "qa/screenshots/flight-$name.png" qa/screenshots/android-gameplay-active.png
-    break
+adb shell input tap "$center" "$((height/2))"
+# The debug-only first-flap capture gate holds the real active GameSimulation
+# until the *second* tap. Require the accessible flying state AND native pause
+# control instead of treating any changed frame as active gameplay.
+flying=0
+for attempt in $(seq 1 15); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
+flight=[n for n in nodes if "BOPI IS FLYING" in label(n) or "BOPI LETI" in label(n)]
+pause=[n for n in nodes if n.get("clickable")=="true"
+       and ("PAUSE GAME" in label(n) or "PAUZIRAJ IGRU" in label(n))]
+sys.exit(0 if len(flight)==1 and len(pause)==1 else 1)
+PY
+  then
+    flying=1; break
   fi
+  echo "Waiting for actual first active flap, attempt $attempt/15" >&2
+  sleep 1
 done
-test -s qa/screenshots/android-gameplay-active.png || { echo "FAIL: active flight frame missing" >&2; exit 1; }
+test "$flying" -eq 1 || { echo "FAIL: first flap never reached active HUD/PAUSE state" >&2; exit 1; }
+capture android-gameplay-active
+printf 'STATE: flight-active confirmed by native GameView and Pause control\n' >> qa/screenshots/state-evidence.txt
+if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
+  echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
+fi
 adb shell input tap "$center" "$((height/2))"
 result_ready=0
 for attempt in $(seq 1 18); do
@@ -219,7 +259,21 @@ a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 print("PASS: genuine loss result and Retry/Home controls",flush=True)
 PY
-sleep 1
+# Verify that RETRY returns to the *new idle GameView*, not a second
+# screenshot of the Results screen or Home, before accepting the image.
+retry_ready=0
+for attempt in $(seq 1 12); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+labels=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
+sys.exit(0 if ("TAP TO FLY WITH" in labels or "DODIRNI ZA LET" in labels)
+         and "▶  RETRY" not in labels and "▶  PONOVO" not in labels else 1)
+PY
+  then retry_ready=1; break; fi
+  sleep 1
+done
+test "$retry_ready" -eq 1 || { echo "FAIL: RETRY did not reach idle Flight" >&2; exit 1; }
 capture android-gameplay-retry
 if cmp -s qa/screenshots/android-gameplay-retry.png qa/screenshots/android-result.png; then
   echo "FAIL: Retry did not launch another flight" >&2; exit 1
