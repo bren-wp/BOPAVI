@@ -1,25 +1,18 @@
 #!/usr/bin/env python3
 """Verify installer icons from the actual approved Bopi art, not concept screens."""
 from pathlib import Path
-from PIL import Image, ImageChops
+from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[1]
 ANDROID=ROOT/"android/app/src/main/res"
-IOS=ROOT/"ios/BOPAVI/Assets.xcassets"
 with Image.open(ANDROID/"drawable/app_icon.png") as im:
     legacy=im.convert("RGB")
-with Image.open(IOS/"AppIcon.appiconset/icon-1024.png") as im:
-    ios=im.convert("RGB")
 with Image.open(ANDROID/"drawable/app_icon_foreground.png") as im:
     adaptive=im.convert("RGBA")
 with Image.open(ANDROID/"drawable-nodpi/bopiportrait0.png") as im:
     mascot=im.convert("RGBA")
-assert legacy.size==(512,512) and ios.size==(1024,1024)
+assert legacy.size==(512,512)
 assert adaptive.size==(512,512) and mascot.size==(512,512)
-assert ImageChops.difference(
-    ios.resize((512,512),Image.Resampling.LANCZOS),legacy).getbbox() is None, (
-        "Play and iOS launcher illustrations are inconsistent"
-    )
 assert adaptive.getpixel((0,0))[3] == 0, "Adaptive foreground has an opaque square"
 assert adaptive.getpixel((511,511))[3] == 0
 assert adaptive.getchannel("A").getextrema()[1] == 255, (
@@ -38,4 +31,4 @@ assert '@drawable/app_icon_foreground' in xml
 assert '@drawable/app_icon_background' in xml
 with Image.open(ANDROID/"drawable/app_icon_background.png") as im:
     assert im.size == (512,512) and im.convert('RGB').getpixel((0,0)) != (255,255,255)
-print("PASS: actual reference mascot, full-bleed icon, no white launcher padding, transparent adaptive layer and identical Android/iOS base pixels")
+print("PASS: actual reference mascot, full-bleed icon, no white launcher padding, transparent adaptive layer for Android")

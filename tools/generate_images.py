@@ -3,16 +3,14 @@ from pathlib import Path
 from PIL import Image
 import io, json, cairosvg
 r=Path(__file__).resolve().parents[1]
-a=r/'android/app/src/main/res';b=r/'ios/BOPAVI/Assets.xcassets'
-for p in [a/'drawable',a/'drawable-nodpi',b/'AppIcon.appiconset',b/'Logo.imageset',b/'LaunchArt.imageset',b/'HomeArt.imageset']:p.mkdir(parents=True,exist_ok=True)
+a=r/'android/app/src/main/res'
+for p in [a/'drawable',a/'drawable-nodpi']:p.mkdir(parents=True,exist_ok=True)
 icon=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/icon.svg'),output_width=1024,output_height=1024))).convert('RGB')
-icon.save(b/'AppIcon.appiconset/icon-1024.png',optimize=True)
 icon.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
 brand=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/logo.svg'),output_width=780))).convert('RGBA')
 brand.save(a/'drawable-nodpi/logo.png',optimize=True)
-brand.save(b/'Logo.imageset/logo.png',optimize=True)
 # This in-memory scene is required for launch composition and bird sprite extraction.
-# It is NOT a standalone packaged runtime PNG or iOS Hero catalog.
+# It is NOT a standalone packaged runtime PNG or unreferenced runtime Hero asset.
 hero=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/hero.svg'),output_width=900))).convert('RGB')
 # Continuous bright sky below the floating islands instead of a flat navy band.
 launch=Image.new('RGB',(900,1600),(18,110,201))
@@ -41,7 +39,7 @@ for y in range(hero.height):
     for x in range(hero.width): mask_pixels[x,y]=value
 launch.paste(hero,(0,340),mask)
 # Atmospheric perspective: layered mountains and distant sky islands.
-# All effects are rendered at build time into the same portrait raster for both platforms.
+# All effects are rendered at build time into the same portrait raster for the game.
 from math import sin, pi
 atmosphere=ImageDraw.Draw(launch, 'RGBA')
 for band, baseline, amplitude, tint in [
@@ -121,7 +119,6 @@ if scene_only.size != hero.size:
 home_art=launch.copy()
 home_art.paste(scene_only,(0,340),mask)
 home_art.save(a/'drawable-nodpi/homeback.png',optimize=True)
-home_art.save(b/'HomeArt.imageset/home.png',optimize=True)
 # The approved SPLASH / LOADING reference stacks the original winged logo
 # ABOVE Bopi, who is already centered in the shared illustrated landscape.
 # The lower foreground stays unprinted for an honest NATIVE loading indicator.
@@ -135,15 +132,9 @@ launch_art.alpha_composite(launch_halo,((900-logoCrop.width)//2,205))
 launch_art.alpha_composite(logoCrop,((900-logoCrop.width)//2,215))
 launch_art=launch_art.convert('RGB')
 launch_art.save(a/'drawable-nodpi/splash.png',optimize=True)
-launch_art.save(b/'LaunchArt.imageset/launch.png',optimize=True)
-(b/'Contents.json').write_text(json.dumps({'info':{'author':'xcode','version':1}}))
-(b/'AppIcon.appiconset/Contents.json').write_text(json.dumps({'images':[{'filename':'icon-1024.png','idiom':'universal','platform':'ios','size':'1024x1024'}],'info':{'author':'xcode','version':1}}))
-(b/'Logo.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'logo.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-(b/'LaunchArt.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'launch.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
-(b/'HomeArt.imageset/Contents.json').write_text(json.dumps({'images':[{'filename':'home.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 
 # Extract Bopi from the approved hero artwork, without external assets or sprite licenses.
-# Keep the same body, scarf and goggles on both native platforms.
+# Keep the same body, scarf and goggles on Android.
 import re, colorsys
 hero_markup=(r/'docs/assets/hero.svg').read_text()
 bird=re.search(r'<g transform="translate\(454 336\) rotate\(-12\)">([\s\S]*?)</g>',hero_markup)
@@ -198,18 +189,10 @@ for skin,hue in enumerate(palette):
     variant=recolor(original,hue)
     name=f'bopi{skin}'
     variant.save(a/'drawable-nodpi'/f'{name}.png',optimize=True)
-    skinset=b/(f'Bopi{skin}.imageset')
-    skinset.mkdir(exist_ok=True)
-    variant.save(skinset/(name+'.png'),optimize=True)
-    (skinset/'Contents.json').write_text(json.dumps({'images':[{'filename':name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
     for label,original_wing in zip(('Left','Right'),original_wings):
         wing_name=f'bopi{label.lower()}{skin}'
         wing=recolor(original_wing,hue)
         wing.save(a/'drawable-nodpi'/(wing_name+'.png'),optimize=True)
-        catalog=b/(f'Bopi{label}{skin}.imageset')
-        catalog.mkdir(exist_ok=True)
-        wing.save(catalog/(wing_name+'.png'),optimize=True)
-        (catalog/'Contents.json').write_text(json.dumps({'images':[{'filename':wing_name+'.png','idiom':'universal'}],'info':{'author':'xcode','version':1}}))
 # Three original bird pilots now retain every feather tip in the same full 160-unit raster viewport.
 # IMPORTANT: keep saved skin indices 6/7/8 and generated Bopi6..8 sprite
 # names stable, so owned masks, picked pilot and offline v1..v6 backups survive.
@@ -235,13 +218,6 @@ for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
         if sprite.getbbox() is None:
             raise RuntimeError(f'{character}: empty native flight sprite {name}')
         sprite.save(a/'drawable-nodpi'/(name+'.png'),optimize=True)
-        assetset=b/(catalog+'.imageset')
-        assetset.mkdir(exist_ok=True)
-        sprite.save(assetset/(name+'.png'),optimize=True)
-        (assetset/'Contents.json').write_text(json.dumps({
-            'images':[{'filename':name+'.png','idiom':'universal'}],
-            'info':{'author':'xcode','version':1}
-        }))
 # Selection, settings, pause and results need a COMPLETE character portrait.
 # In-flight layers remain independent for real flap animation. Earlier menus
 # used only 'bopiN' (the torso), accidentally hiding BOTH wings for every skin.
@@ -269,28 +245,14 @@ for skin in range(9):
     portrait=Image.alpha_composite(halo,combined)
     name=f'bopiportrait{skin}.png'
     portrait.save(src/name,optimize=True)
-    setdir=b/f'BopiPortrait{skin}.imageset'
-    setdir.mkdir(parents=True,exist_ok=True)
-    portrait.save(setdir/name,optimize=True)
-    (setdir/'Contents.json').write_text(json.dumps({
-        'images':[{'filename':name,'idiom':'universal'}],
-        'info':{'author':'xcode','version':1}
-    }))
-# Four shared illustrated footer symbols, rendered once for both apps.
+# Four shared illustrated footer symbols, rendered once for Android.
 for key in ('profile','tasks','collection','shop'):
     name=f'nav_{key}.png'
     icon=Image.open(io.BytesIO(cairosvg.svg2png(
         url=str(r/'docs/assets'/f'nav-{key}.svg'),output_width=128,output_height=128))).convert('RGBA')
     icon.save(a/'drawable-nodpi'/name,optimize=True)
-    catalog=b/f'Nav{key.capitalize()}.imageset'
-    catalog.mkdir(parents=True,exist_ok=True)
-    icon.save(catalog/name,optimize=True)
-    (catalog/'Contents.json').write_text(json.dumps({
-        'images':[{'filename':name,'idiom':'universal'}],
-        'info':{'author':'xcode','version':1}
-    }))
 from generate_worlds import generate_worlds
-generate_worlds(a,b)
+generate_worlds(a)
 # Owner-reference photos are optional, but if supplied must be approved
 # SHA-256-verified three-layer assets. No runtime network or fake game controls.
 from reference_bopi_import import install_reference_bopi
@@ -330,6 +292,5 @@ if photo_bopi:
     foreground.resize((512,512),Image.Resampling.LANCZOS).save(
         a/'drawable/app_icon_foreground.png',optimize=True)
     final=Image.alpha_composite(background,foreground).convert('RGB')
-    final.save(b/'AppIcon.appiconset/icon-1024.png',optimize=True)
     final.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
 print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)

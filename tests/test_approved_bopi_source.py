@@ -15,7 +15,6 @@ from PIL import Image, ImageChops
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "art/reference-approved/bopi"
 ANDROID = ROOT / "android/app/src/main/res/drawable-nodpi"
-IOS = ROOT / "ios/BOPAVI/Assets.xcassets"
 EXPECTED = {
     "bopi0_body.webp": "b9872a4750392b8ec99851c5fc656751f05e1714ed5edeb26ab45d055443df74",
     "bopi0_left.webp": "f61be45fa1c08c54199b17b14e148cd79a944cda255a9527ac74b98c30f8f8ae",
@@ -54,9 +53,7 @@ pairs = (
 images = {}
 for name, catalog, size in pairs:
     android = ANDROID / (name + ".png")
-    ios = IOS / (catalog + ".imageset") / (name + ".png")
-    assert android.is_file() and ios.is_file(), name
-    assert android.read_bytes() == ios.read_bytes(), (name, "Android/iOS must share pixels")
+    assert android.is_file(), name
     with Image.open(android) as native:
         assert native.format == "PNG" and native.size == size, name
         images[name] = native.convert("RGBA")
@@ -73,4 +70,4 @@ assert ImageChops.difference(images["bopiportrait0"], images["bopi0"]).getbbox()
     "Profile portrait must include both wings"
 )
 print("PASS: three real approved photo layers, frozen SHA-256, two native animated wing assets, "
-      "true winged portrait and identical Android/iOS PNG bytes")
+      "true winged portrait and verified Android PNG integrity")

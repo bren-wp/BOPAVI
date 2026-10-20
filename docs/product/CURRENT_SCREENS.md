@@ -1,22 +1,22 @@
-# BOPAVI — reachable screens (candidate v1.0.0 / build 130; release evidence v0.2.24 / build 129)
+# BOPAVI — Current Android screens
 
-Native launch entry points: Android MainActivity.onCreate() → showHome(); iOS BopaviApp → GameController.viewDidLoad() → showHome(). Four reachable UX states; Pause is a modal overlay, not a separate standalone menu.
+**Published release baseline:** v1.0.0 (build 130). New candidate version
+metadata belongs in Gradle and docs/release/NEXT.md until publication.
 
-| State | Entry | Actions / destination | Screenshot evidence |
-|---|---|---|---|
-| Home | Cold launch; Results → POČETNA; Pause → IZLAZ | IGRAJ → Flight (idle preview) | v0.2.24 release: BOPAVI-Android-Home.png |
-| Flight (idle / active) | Home → IGRAJ; retry | Tap/flap activates flight; active Pause button → Pause; collision/end → Results | BOPAVI-Android-Flight-Preview.png; BOPAVI-Android-Flight-Active.png |
-| Pause modal | Pause button during active flight; back handling | NASTAVI → same Flight; PONOVO → new Flight; IZLAZ → Home; interruption can pause simulation without opening separate menu | No dedicated v0.2.24 release screenshot; capture and verify separately |
-| Results | onFinished after actual run | PONOVO → Flight; POČETNA → Home; actual score, collected berries and stored best records | BOPAVI-Android-Results.png |
+The Android entry point is MainActivity.onCreate → showHome. There are four
+reachable states: Home, Flight, Pause (overlay) and Results. No shop, worlds
+selector, skin picker, account page or monetization screen is reachable.
 
-## Reachability proofs
+| State | Action | Genuine Android screenshot |
+|---|---|---|
+| Home | Start the game using IGRAJ | BOPAVI-Android-Home.png |
+| Flight (preview) | First flap begins live simulation | BOPAVI-Android-Flight-Preview.png |
+| Flight (active) | Fly past pillars and collect red berries | BOPAVI-Android-Flight-Active.png |
+| Pause (overlay) | Continue, restart or exit | Must be separately captured and verified |
+| Results | Show saved best, food and retry/home | BOPAVI-Android-Results.png |
 
-- Android: android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt contains showHome / startGame / showPremiumPause / showResult and initial showHome.
-- iOS: ios/BOPAVI/GameController.swift contains the parallel four handlers; ios/BOPAVI/BopaviApp.swift launches GameController.
-- Existing source tests: tests/test_native_files.py and tests/test_reference_navigation.py check that removed showWorlds, showLevels, showShop, showSettings and other menu routes are absent.
-- Runtime fixed to original Bopi and first world. An art asset or a legacy save field does **not** make a screen reachable.
-- Release screenshots: https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.24 (build 129). Android screenshots are emulator captures, not proof of physical-device parity. iOS Home capture also exists; other iOS flow screenshots must be captured and reviewed separately.
-
-## Paths requiring next manual QA
-
-Cold launch → IGRAJ → first flap → berry pickup → pause/continue → collision → results → replay/home, on both native platforms. Verify device back/gesture, interruption pause, notch/safe areas, 60/90/120 Hz and no scrolling or inert controls. An interactive test on a simulator/device is still needed for each flow; these checks must not be represented as completed solely from source inspection.
+Actual release assets: https://github.com/bren-wp/BOPAVI/releases/latest.
+Emulator screenshots are real captured frames from the application, not reference
+renders and not substitutes for physical-device QA. Gameplay, camera, HUD and
+collision all use the original 480×800 logical coordinate system; layout
+and system insets require independent validation across supported screens.

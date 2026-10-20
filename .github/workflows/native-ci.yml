@@ -1,4 +1,4 @@
-name: BOPAVI — Android / iOS
+name: BOPAVI — Android
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   graphics:
-    name: Render premium game art
+    name: Render and verify Android art
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,120 +23,30 @@ jobs:
       - run: python -m pip install --quiet pillow cairosvg
       - run: python tools/generate_images.py
       - run: python tests/test_launcher_premium.py
-      - name: Verify committed owner reference Bopi and native animation sprites
-        run: python tests/test_approved_bopi_source.py
+      - run: python tests/test_approved_bopi_source.py
+      - run: python tools/verify_pilot_sprite_anatomy.py
       - run: python tests/test_world_storybook.py
-      - name: Verify beaks, uncut wing silhouettes and actual Android/iOS sprite pixels
-        run: python tools/verify_pilot_sprite_anatomy.py
-      - name: Verify transparent sprite sizes, biomes and nine unique looks
+      - name: Verify nine pilots and eight Android worlds
         run: |
           python - <<'PY'
-          from PIL import Image
           from pathlib import Path
-          sprites=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{i}.png').convert('RGBA') for i in range(9)]
-          assert all(im.size==(512,512) and im.getextrema()[3][0]==0 and im.getextrema()[3][1]==255 for im in sprites)
-          assert len({im.tobytes() for im in sprites})==9
-          # A background shadow must never be painted onto a moving bird:
-          # this pixel was nonzero in v0.1.49's static body artwork.
-          assert sprites[0].getpixel((255,430))[3]==0, 'menu ground shadow leaked into flight torso'
-          worlds=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'world{i}.png').convert('RGB') for i in range(8)]
-          assert all(im.size==(960,1600) for im in worlds)
-          assert len({im.resize((80,120)).tobytes() for im in worlds})==8
-          # Guaranteed Android/iOS art identity includes all eight scenery
-          # backdrops, not only bird bodies and detached animation wings.
-          # Reject missing assets and accidental compression/size divergence.
-          for world, android_image in enumerate(worlds):
-              name=f'world{world}.png'
-              android_path=Path('android/app/src/main/res/drawable-nodpi')/name
-              ios_path=Path('ios/BOPAVI/Assets.xcassets')/f'World{world}.imageset'/name
-              assert android_path.is_file() and ios_path.is_file(), (world,'missing biome')
-              ios_image=Image.open(ios_path).convert('RGB')
-              assert ios_image.size==(960,1600), (world,'wrong iOS canvas size')
-              assert android_image.tobytes()==ios_image.tobytes(), (world,'mismatched pixels')
-              assert android_path.read_bytes()==ios_path.read_bytes(), (world,'mismatched PNG')
-          # Both fullscreen scenes must be present in the build artifact
-          # and be byte-identical on Android and iOS.
-          for android_name, ios_name, ios_folder in (
-              ('splash.png','launch.png','LaunchArt'),
-              ('homeback.png','home.png','HomeArt'),
-          ):
-              android_path=Path('android/app/src/main/res/drawable-nodpi')/android_name
-              ios_path=Path('ios/BOPAVI/Assets.xcassets')/f'{ios_folder}.imageset'/ios_name
-              assert android_path.is_file() and ios_path.is_file(), (android_name,ios_name)
-              assert android_path.read_bytes()==ios_path.read_bytes(), (android_name,'mismatched scene')
-          assert (Path('android/app/src/main/res/drawable-nodpi/splash.png').read_bytes()
-                  != Path('android/app/src/main/res/drawable-nodpi/homeback.png').read_bytes()), 'startup/home not distinct'
-          # Four decorative icons must have exactly matching Android/iOS pixels.
-          for key in ('profile','tasks','collection','shop'):
-              android=Path('android/app/src/main/res/drawable-nodpi')/f'nav_{key}.png'
-              ios=Path('ios/BOPAVI/Assets.xcassets')/f'Nav{key.capitalize()}.imageset'/f'nav_{key}.png'
-              assert android.is_file() and ios.is_file(), key
-              icon=Image.open(android).convert('RGBA')
-              assert icon.size==(128,128) and icon.getbbox(), key
-              assert android.read_bytes()==ios.read_bytes(), key
-          # Guard against the previous pale-yellow logo rasterization bug.
-          logo=Image.open('android/app/src/main/res/drawable-nodpi/logo.png').convert('RGBA')
-          pixels=logo.getdata()
-          orange=sum(1 for r,g,b,a in pixels if a>180 and r>205 and 80<=g<200 and b<90)
-          assert orange>400, f'BOPAVI orange lettering vanished: {orange} pixels'
-          wings=[Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA') for skin in range(9) for side in ('left','right')]
-          assert len(wings)==18 and all(im.size==(512,512) and im.getbbox() for im in wings)
-          # Both operating systems must ship the exact same pixels for every
-          # character's body and each wing, not only the same resource names.
-          for skin in range(9):
-              for side in ('','left','right'):
-                  name=f'bopi{side}{skin}.png'
-                  android=Path('android/app/src/main/res/drawable-nodpi')/name
-                  ios=Path('ios/BOPAVI/Assets.xcassets')/f'Bopi{side.capitalize()}{skin}.imageset'/name
-                  assert android.is_file() and ios.is_file(), (skin,side,'missing asset')
-                  assert Image.open(android).convert('RGBA').tobytes()==Image.open(ios).convert('RGBA').tobytes(), (skin,side,'different pixels')
-          # Menu art must be complete bodies WITH wings, not the old torso-only
-          # assets. Both native platforms must receive byte-identical PNGs.
-          portraits=[]
-          for skin in range(9):
-              name=f'bopiportrait{skin}.png'
-              android=Path('android/app/src/main/res/drawable-nodpi')/name
-              ios=Path('ios/BOPAVI/Assets.xcassets')/f'BopiPortrait{skin}.imageset'/name
-              assert android.is_file() and ios.is_file(), (skin,'missing full portrait')
-              portrait=Image.open(android).convert('RGBA')
-              torso=sprites[skin]
-              assert portrait.size==(512,512) and portrait.getbbox(), (skin,'invalid canvas')
-              assert portrait.getchannel('A').getextrema()==(0,255), (skin,'no transparency')
-              assert portrait.tobytes()!=torso.tobytes(), (skin,'wings not composited')
-              assert Image.open(ios).convert('RGBA').tobytes()==portrait.tobytes(), (skin,'different pixels')
-              assert android.read_bytes()==ios.read_bytes(), (skin,'different encoded PNGs')
-              portraits.append(portrait.tobytes())
-          assert len(set(portraits))==9, 'duplicate premium portraits'
-          # Premium characters must have genuinely unique wings, not merely
-          # different labels attached to Portantin's wing asset.
-          for side in ('left','right'):
-              portantin=Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}6.png').convert('RGBA').tobytes()
-              for skin in (7,8):
-                  premium=Image.open(Path('android/app/src/main/res/drawable-nodpi')/f'bopi{side}{skin}.png').convert('RGBA').tobytes()
-                  assert premium!=portantin, (skin,side,'duplicated Portantin wing')
-          print('PASS: 9 unique full-wing portraits, 9 bodies, 18 Android/iOS pixel-identical animated wings and 8 biomes')
+          from PIL import Image
+          root=Path('android/app/src/main/res/drawable-nodpi')
+          for i in range(9):
+              for name in (f'bopi{i}',f'bopileft{i}',f'bopiright{i}',f'bopiportrait{i}'):
+                  with Image.open(root/f'{name}.png') as im:
+                      assert im.size==(512,512) and im.convert('RGBA').getbbox(),name
+          unique=set()
+          for i in range(8):
+              with Image.open(root/f'world{i}.png') as im:
+                  assert im.size==(960,1600),i
+                  unique.add(im.resize((80,120)).convert('RGB').tobytes())
+          assert len(unique)==8
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: rendered-graphics
-          path: |
-            android/app/src/main/res/drawable/app_icon.png
-            android/app/src/main/res/drawable/app_icon_foreground.png
-            android/app/src/main/res/drawable/app_icon_background.png
-            android/app/src/main/res/drawable-nodpi/logo.png
-            android/app/src/main/res/drawable-nodpi/splash.png
-            android/app/src/main/res/drawable-nodpi/homeback.png
-            android/app/src/main/res/drawable-nodpi/nav_*.png
-            ios/BOPAVI/Assets.xcassets/Nav*.imageset/
-            ios/BOPAVI/Assets.xcassets/Logo.imageset/
-            ios/BOPAVI/Assets.xcassets/LaunchArt.imageset/
-            ios/BOPAVI/Assets.xcassets/HomeArt.imageset/
-            android/app/src/main/res/drawable-nodpi/bopi*.png
-            ios/BOPAVI/Assets.xcassets/BopiLeft*.imageset/
-            ios/BOPAVI/Assets.xcassets/BopiRight*.imageset/
-            android/app/src/main/res/drawable-nodpi/world*.png
-            ios/BOPAVI/Assets.xcassets/World*.imageset/
-            ios/BOPAVI/Assets.xcassets/Bopi*.imageset/
+          path: android/app/src/main/res/
           if-no-files-found: error
   source-audit:
     name: Privacy and asset audit
@@ -160,6 +70,7 @@ jobs:
       - run: python tests/test_android_emulator_transport_gate.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
+      - run: python tests/test_sync_release_docs.py
       - run: python tests/test_store_claims.py
       - run: python tests/test_marketing_readme.py
       - run: python tests/test_cleanup_legacy_releases.py
@@ -200,7 +111,7 @@ jobs:
       - run: python -m compileall -q tools tests
       - name: Check no paywall or network permissions
         run: |
-          ! grep -R -E '^[[:space:]]*(import (android.webkit|WebKit|StoreKit)|<uses-permission[^>]*INTERNET)' android/app/src/main ios/BOPAVI --include='*.kt' --include='*.swift' --include='*.xml'
+          ! grep -R -E '^[[:space:]]*(import (android.webkit|WebKit|StoreKit)|<uses-permission[^>]*INTERNET)' android/app/src/main --include='*.kt' --include='*.swift' --include='*.xml'
   android:
     name: Android APK + AAB
     needs: [graphics]
@@ -210,7 +121,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: rendered-graphics
-          path: .
+          path: android/app/src/main/res
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -354,7 +265,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: rendered-graphics
-          path: .
+          path: android/app/src/main/res
       - name: Require one unambiguous Android QA screenshot archive
         env:
           GH_TOKEN: ${{ github.token }}
@@ -418,82 +329,10 @@ jobs:
             qa/screenshots/*.txt
           if-no-files-found: warn
           overwrite: true
-  ios:
-    name: iOS simulator + unsigned device build
-    needs: [graphics]
-    runs-on: macos-15
-    timeout-minutes: 18
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: rendered-graphics
-          path: .
-      - name: Generate and validate identical calm soundtrack for iOS bundle
-        run: |
-          python3 tools/generate_audio.py
-          python3 tools/verify_audio.py
-      - name: Build simulator release
-        run: |
-          xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-sim" CODE_SIGNING_ALLOWED=NO build
-          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app" BOPAVI-iOS-Simulator.zip
-      - name: Compile DEBUG-only collision QA overlay
-        run: |
-          xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/BOPAVI-debug" CODE_SIGNING_ALLOWED=NO build
-      - name: iOS simulator launch smoke and screenshot
-        run: |
-          UDID="$(xcrun simctl list -j devices available | python3 -c 'import json,sys;d=json.load(sys.stdin);print(next(x["udid"] for ds in d["devices"].values() for x in ds if "iPhone" in x["name"] and x.get("isAvailable",True)))')"
-          xcrun simctl boot "$UDID"
-          xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl install "$UDID" "$RUNNER_TEMP/BOPAVI-sim/Build/Products/Release-iphonesimulator/BOPAVI.app"
-          xcrun simctl launch "$UDID" com.brendigo.bopavi
-          # v0.1.80 captured a system launch image without any clickable Home
-          # controls. Retry boundedly and verify ACTUAL play/nav pixels instead
-          # of accepting any non-empty PNG after a hardcoded 4-second sleep.
-          swiftc -O tools/verify_ios_home_screenshot.swift -o "$RUNNER_TEMP/bopavi-ios-home-check"
-          home_ready=0
-          for attempt in $(seq 1 12); do
-            sleep 3
-            xcrun simctl io "$UDID" screenshot BOPAVI-iOS-home.png
-            if "$RUNNER_TEMP/bopavi-ios-home-check" BOPAVI-iOS-home.png; then
-              home_ready=1
-              break
-            fi
-            echo "iOS Home controls not visible on capture $attempt; retrying"
-          done
-          if [ "$home_ready" -ne 1 ]; then
-            echo "::error::iOS screenshot is not the interactive Home; refusing to publish a misleading capture"
-            exit 1
-          fi
-          xcrun simctl shutdown "$UDID"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: QA-iOS-home-screenshot
-          path: BOPAVI-iOS-home.png
-          if-no-files-found: error
-      - name: Core physics collision regression on iOS
-        run: |
-          swiftc -O ios/BOPAVI/BopaviCore.swift ios/BOPAVI/ProgressStore.swift tests/SwiftParity.swift -o "$RUNNER_TEMP/bopavi-core-tests"
-          "$RUNNER_TEMP/bopavi-core-tests" | tail -n 1
-      - name: Verify legacy save migration and haptics round-trip
-        run: |
-          swiftc -O ios/BOPAVI/BopaviCore.swift ios/BOPAVI/ProgressStore.swift tests/SwiftSaves.swift -o "$RUNNER_TEMP/bopavi-save-tests"
-          "$RUNNER_TEMP/bopavi-save-tests" | tail -n 1
-      - name: Compile unsigned iPhone device target
-        run: |
-          xcodebuild -project ios/BOPAVI.xcodeproj -scheme BOPAVI -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/BOPAVI-device" CODE_SIGNING_ALLOWED=NO build
-          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/BOPAVI-device/Build/Products/Release-iphoneos/BOPAVI.app" BOPAVI-iOS-unsigned-device.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: BOPAVI-iOS-builds
-          path: |
-            BOPAVI-iOS-Simulator.zip
-            BOPAVI-iOS-unsigned-device.zip
-          if-no-files-found: error
   publish:
     name: Publish versioned GitHub Release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, android-smoke, android16-smoke, ios, play-listing]
+    needs: [graphics, source-audit, android, android-smoke, android16-smoke, play-listing]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -510,11 +349,7 @@ jobs:
         with:
           name: QA-Android-visual-flow
           path: dist/real-screenshots/android
-      - uses: actions/download-artifact@v4
-        with:
-          name: QA-iOS-home-screenshot
-          path: dist/real-screenshots/ios
-      - name: Stage authentic Android and iOS screenshots for README gallery
+      - name: Stage authentic Android screenshots for README gallery
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -524,8 +359,7 @@ jobs:
               'dist/real-screenshots/android/android-home.png':'BOPAVI-Android-Home.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
-              'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
-              'dist/real-screenshots/ios/BOPAVI-iOS-home.png':'BOPAVI-iOS-Home.png'
+              'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png'
           }
           for src, dest in captures.items():
               source=Path(src)
@@ -564,8 +398,6 @@ jobs:
           test -s dist/app-debug.apk
           test -s dist/app-release.aab
           test -s "dist/$play_archive"
-          test -s dist/BOPAVI-iOS-Simulator.zip
-          test -s dist/BOPAVI-iOS-unsigned-device.zip
           python tools/verify_play_release.py --aab dist/app-release.aab
           echo "BOPAVI_TAG=$tag" >> "$GITHUB_ENV"
           echo "BOPAVI_PLAY_ARCHIVE=$play_archive" >> "$GITHUB_ENV"
@@ -577,14 +409,11 @@ jobs:
             app-debug.apk \
             app-release.aab \
             "$BOPAVI_PLAY_ARCHIVE" \
-            BOPAVI-iOS-Simulator.zip \
-            BOPAVI-iOS-unsigned-device.zip \
             BOPAVI-Android-Home.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
-            BOPAVI-Android-Results.png \
-            BOPAVI-iOS-Home.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 10
+            BOPAVI-Android-Results.png > SHA256SUMS.txt
+          test "$(wc -l < SHA256SUMS.txt)" -eq 7
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -604,13 +433,13 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-iOS-Simulator.zip BOPAVI-iOS-unsigned-device.zip BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png BOPAVI-iOS-Home.png SHA256SUMS.txt; do
+            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
               fi
             done
-            echo "Verified previous publication of $tag at the tested commit with all eleven genuine distribution artifacts."
+            echo "Verified previous publication of $tag at the tested commit with all eight Android distribution artifacts."
             exit 0
           fi
           python tools/release_notes.py > dist/release-notes.md
@@ -618,16 +447,13 @@ jobs:
             dist/app-debug.apk \
             dist/app-release.aab \
             "dist/$BOPAVI_PLAY_ARCHIVE" \
-            dist/BOPAVI-iOS-Simulator.zip \
-            dist/BOPAVI-iOS-unsigned-device.zip \
             dist/BOPAVI-Android-Home.png \
             dist/BOPAVI-Android-Flight-Preview.png \
             dist/BOPAVI-Android-Flight-Active.png \
             dist/BOPAVI-Android-Results.png \
-            dist/BOPAVI-iOS-Home.png \
             dist/SHA256SUMS.txt \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "BOPAVI $tag — Android / iOS" \
+            --title "BOPAVI $tag — Android" \
             --notes-file dist/release-notes.md
 
   legacy-retention:
@@ -650,3 +476,36 @@ jobs:
           set -euo pipefail
           tag="$(python tools/release_metadata.py --tag)"
           python tools/cleanup_legacy_releases.py --repo "$GITHUB_REPOSITORY" --new-tag "$tag" --apply
+
+  release-docs:
+    name: Sync only verified stable Android release documentation
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refresh published versions after successful release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$(python tools/release_metadata.py --tag)"
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" > "$RUNNER_TEMP/bopavi-release-pages.json"
+          python tools/sync_release_docs.py --releases "$RUNNER_TEMP/bopavi-release-pages.json" --expected-tag "$tag"
+          if ! git diff --quiet -- CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md docs/release/NEXT.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md docs/release/NEXT.md
+            git commit -m "docs(release): sync published $tag [skip ci]"
+            git push origin HEAD:main
+          else
+            echo 'Published release documentation is already current'
+          fi

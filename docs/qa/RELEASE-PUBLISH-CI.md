@@ -1,7 +1,26 @@
-# GitHub Release CI: documentation-only merge guard
+# BOPAVI — Android-only CI, release integrity and retention
 
-On 2026-10-18, the main push at `96cb160` completed every native Android/iOS job but the final publishing job failed: `v0.2.21` already targets released commit `952d213`. Evidence: https://github.com/bren-wp/BOPAVI/actions/runs/39161110161. This is **not** a BOPAVI application crash.
+GitHub Actions lives in .github/workflows/native-ci.yml. Active pipeline:
 
-The existing release and binary assets remain immutable. If a main push changes only documentation (excluding graphics under docs/assets), tests, README or the audited CI workflow, the publisher fetches the existing release commit, compares file paths and **skips creating a new release**. App sources, build configuration, art/generators or other paths still fail closed and require a genuinely new tested version. Test: `python3 tests/test_release_publish_guard.py`.
+- Android source, privacy, asset and dead-code regression checks
+- Original approved Bopi image/audio production, provenance and integrity tests
+- Kotlin compilation, Android Lint and JVM gameplay/physics/collision tests
+- Android debug APK and unsigned Android release AAB
+- Android 15 gameplay/emulator UI/collision screenshot QA
+- Android 16 emulator smoke QA and screenshot-based Play preview packaging
+- Android-only SHA-256 manifest, release asset verification and publishing
+- Published-release documentation sync and guarded pre-v1 legacy retention
 
-This prevents repeat version/tag publication from metadata-only merges; it does not establish physical-device crash-free operation or Play approval. A future workflow-only edit that impacts binary compilation requires tightening this allowlist or a version bump.
+PRs **never publish releases**; all required Android checks must pass before
+merging. On successful main publication, the documentation updater reads
+actual published GitHub release records and regenerates the two newest stable
+versions; a subsequent docs-only commit does not trigger another release.
+Publishing a product commit under an existing version tag is blocked.
+
+Public GitHub v1.0.0 and later releases are immutable and never candidates
+for cleanup. A separate v0.x legacy-retention script is fail-closed and
+requires checksums and an existing successful newly published version.
+
+Release binaries are unsigned by default. Play Console signing, approval,
+physical-device testing and source-reference pixel parity are distinct gates
+that the build workflow does not certify.

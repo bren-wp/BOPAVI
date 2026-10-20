@@ -20,10 +20,9 @@ STABLE = re.compile(r"^v([1-9][0-9]*)\.[0-9]+\.[0-9]+$")
 REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 EXPECTED = {
     "app-debug.apk", "app-release.aab",
-    "BOPAVI-iOS-Simulator.zip", "BOPAVI-iOS-unsigned-device.zip",
     "BOPAVI-Android-Home.png", "BOPAVI-Android-Flight-Preview.png",
     "BOPAVI-Android-Flight-Active.png", "BOPAVI-Android-Results.png",
-    "BOPAVI-iOS-Home.png", "SHA256SUMS.txt",
+    "SHA256SUMS.txt",
 }
 
 

@@ -10,7 +10,7 @@ assert m.is_metadata_only([])
 assert m.is_metadata_only(["README.md","docs/qa/CRASH-TRIAGE.md","tests/test_release_contract.py","android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt",".github/workflows/native-ci.yml","tools/cleanup_legacy_releases.py"])
 for entries in (
     ["android/app/src/main/java/com/brendigo/bopavi/GameSimulation.kt"],
-    ["ios/BOPAVI/BopaviCore.swift"],
+    ["tools/generate_audio.py"],
     ["android/app/build.gradle.kts"],
     ["design/ART-DIRECTION.md"],
     ["tools/generate_images.py"],

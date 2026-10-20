@@ -42,13 +42,10 @@ with TemporaryDirectory() as tmp:
     (source/"manifest.json").write_text(json.dumps(manifest))
     assert install_reference_bopi(root) is True
 
-    pairs=(("bopi0","Bopi0"),("bopileft0","BopiLeft0"),
-           ("bopiright0","BopiRight0"),("bopiportrait0","BopiPortrait0"),
-           ("bopireference0","BopiReference0"))
-    for name,catalog in pairs:
+    names=("bopi0","bopileft0","bopiright0","bopiportrait0","bopireference0")
+    for name in names:
         a=root/"android/app/src/main/res/drawable-nodpi"/f"{name}.png"
-        i=root/"ios/BOPAVI/Assets.xcassets"/f"{catalog}.imageset"/f"{name}.png"
-        assert a.is_file() and a.read_bytes()==i.read_bytes(),name
+        assert a.is_file(), name
         with Image.open(a) as rendered:
             assert rendered.size==((2,2) if name=="bopireference0" else (512,512))
             assert rendered.convert("RGBA").getchannel("A").getbbox()
@@ -70,16 +67,14 @@ with TemporaryDirectory() as tmp:
         assert "Missing required" in str(exc)
 
 android=(ROOT/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
-ios=(ROOT/"ios/BOPAVI/GameCanvas.swift").read_text()
 images=(ROOT/"tools/generate_images.py").read_text()
-for source in (android,ios):
+for source in (android,):
     assert "142" in source
     assert "bopireference0" in source.lower()
     assert "game.flap()" in source
     assert "game.score()" in source  # Minimal V5 HUD; shield status is intentionally absent
     assert "bird" in source
-assert "referenceBopi0" in android and "referenceBopi0" in ios
+assert "referenceBopi0" in android
 assert "install_reference_bopi(r)" in images
 assert "getIdentifier(" in android
-assert 'UIImage(named:"BopiReference0")' in ios
-print("PASS: checksum-verified owner Bopi source, independent wing layers, Android/iOS PNG parity and unchanged gameplay")
+print("PASS: checksum-verified owner Bopi source, independent wing layers, Android asset integrity and unchanged gameplay")

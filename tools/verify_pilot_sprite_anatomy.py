@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify real generated pilot anatomy, uncut wings and shared art on both OSes.
+"""Verify real generated pilot anatomy, uncut wings in Android resources.
 
 The tests read produced transparent PNG resources. They intentionally do not
 compare with reference mockups and do not claim photographic/pixel-perfect 1:1.
@@ -9,18 +9,15 @@ from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID = ROOT / "android/app/src/main/res/drawable-nodpi"
-IOS = ROOT / "ios/BOPAVI/Assets.xcassets"
 
 
 def open_sprite(name: str, catalog: str):
     android = ANDROID / f"{name}.png"
-    ios = IOS / f"{catalog}.imageset/{name}.png"
-    if not android.exists() or not ios.exists():
-        raise AssertionError(f"Missing shared pilot asset: {name}")
-    left, right = Image.open(android).convert("RGBA"), Image.open(ios).convert("RGBA")
-    assert left.size == right.size == (512, 512), (name, "sprite resolution")
-    assert left.tobytes() == right.tobytes(), (name, "platforms render different art")
-    return left
+    if not android.is_file():
+        raise AssertionError(f"Missing Android pilot asset: {name}")
+    picture = Image.open(android).convert("RGBA")
+    assert picture.size == (512, 512), (name, "sprite resolution")
+    return picture
 
 
 def anatomy_pixels(picture: Image.Image, skin: int):
@@ -71,7 +68,7 @@ def main():
             if wing >= 160 and torso < 32
         )
         assert visible_feathers >= 150, (skin, "wings hidden behind torso")
-    print("PASS: nine cross-platform pilots have shaded attached bills, "
+    print("PASS: nine Android pilots have shaded attached bills, "
           "nine uncut left/right wing pairs and full portraits")
 
 

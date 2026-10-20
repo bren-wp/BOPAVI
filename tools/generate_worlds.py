@@ -649,7 +649,7 @@ def enchanted_forest_overlay() -> str:
     return "".join(artwork)
 
 
-def generate_worlds(android_res:Path, ios_assets:Path):
+def generate_worlds(android_res:Path):
     android=android_res/"drawable-nodpi"
     android.mkdir(parents=True,exist_ok=True)
     for world in range(8):
@@ -661,11 +661,4 @@ def generate_worlds(android_res:Path, ios_assets:Path):
         im=Image.open(io.BytesIO(png)).convert("RGB")
         name=f"world{world}"
         im.save(android/(name+".png"),optimize=True)
-        assets=ios_assets/(f"World{world}.imageset")
-        assets.mkdir(exist_ok=True)
-        im.save(assets/(name+".png"),optimize=True)
-        (assets/"Contents.json").write_text(json.dumps({
-          "images":[{"filename":name+".png","idiom":"universal"}],
-          "info":{"author":"xcode","version":1}
-        }))
-    print("PASS: 8 reference-ordered world backdrops shared by Android and iOS")
+    print("PASS: 8 reference-ordered world backdrops for Android")
