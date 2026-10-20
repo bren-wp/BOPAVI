@@ -35,3 +35,13 @@ for name in ('difficulty','sound_enabled','haptic_enabled','less_motion','music_
     assert '"'+name+'"' in store,name
 assert 'android.permission.INTERNET' not in manifest
 print("PASS: reachable quick options and records, real difficulty, no new routes or permissions")
+
+qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
+for contract in (
+    "FAIL: Home quick options inaccessible",
+    "FAIL: relaxed flight difficulty not selected",
+    "FAIL: restored standard difficulty not selected",
+    "FAIL: Home records action missing",
+    "PASS: local records visible and dismissible",
+):
+    assert contract in qa,contract

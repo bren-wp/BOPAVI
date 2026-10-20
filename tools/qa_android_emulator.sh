@@ -203,6 +203,101 @@ print("PASS: native terms dialog accessible, offline and dismissible",flush=True
 PY
 sleep 1
 dump_ui
+# Exercise both newly reachable Home overlays before tapping IGRAJ.
+# The real dialog and radio selection must survive a native UI dump.
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+options=[n for n in nodes if n.get("clickable")=="true" and
+    n.get("content-desc")=="Otvori opcije igre"]
+if len(options)!=1:raise SystemExit("FAIL: Home quick options inaccessible")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",options[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: quick options hitbox invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+alltext=" ".join(label(n) for n in nodes)
+for expected in ("OPCIJE IGRE","OPUŠTENO","STANDARDNO","IZAZOVNO","GOTOVO"):
+    if expected not in alltext:raise SystemExit("FAIL: options dialog missing "+expected)
+choice=[n for n in nodes if n.get("clickable")=="true" and
+    n.get("text","").upper()=="OPUŠTENO"]
+if len(choice)!=1:raise SystemExit("FAIL: relaxed difficulty not selectable")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",choice[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: difficulty tap bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+relaxed=[n for n in nodes if n.get("text","").upper()=="OPUŠTENO"]
+if len(relaxed)!=1 or relaxed[0].get("checked")!="true":
+    raise SystemExit("FAIL: relaxed flight difficulty not selected")
+# Restore standard difficulty so later gameplay and physics QA are comparable.
+standard=[n for n in nodes if n.get("clickable")=="true" and
+    n.get("text","").upper()=="STANDARDNO"]
+if len(standard)!=1:raise SystemExit("FAIL: standard flight difficulty missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",standard[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: standard option bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+standard=[n for n in nodes if n.get("text","").upper()=="STANDARDNO"]
+if len(standard)!=1 or standard[0].get("checked")!="true":
+    raise SystemExit("FAIL: restored standard difficulty not selected")
+done=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="GOTOVO"]
+if len(done)!=1:raise SystemExit("FAIL: options close action missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: options close bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+print("PASS: native options dialog and difficulty selection",flush=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+records=[n for n in nodes if n.get("clickable")=="true" and
+    n.get("content-desc")=="Pogledaj svoje rekorde"]
+if len(records)!=1:raise SystemExit("FAIL: Home records action missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",records[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: records action bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+alltext=" ".join(label(n) for n in nodes)
+for expected in ("MOJI REKORDI","NAJBOLJI REZULTAT","ZATVORI"):
+    if expected not in alltext:raise SystemExit("FAIL: native records dialog missing "+expected)
+close=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="ZATVORI"]
+if len(close)!=1:raise SystemExit("FAIL: records dialog close missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: records dialog close bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+print("PASS: local records visible and dismissible",flush=True)
+PY
+sleep 1
+dump_ui
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
