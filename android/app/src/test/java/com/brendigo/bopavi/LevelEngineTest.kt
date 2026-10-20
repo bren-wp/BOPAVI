@@ -68,7 +68,9 @@ class LevelEngineTest {
         val flight=GameSimulation(template.copy(gates=listOf(last)),endless=true)
         val xBefore=flight.upcomingGateX(flight.upcomingGates().first())
         flight.flap()
-        flight.step(1f/60f)
+        // A variable-width cap must actually clear birdX-radius before
+        // promotion; one 60Hz frame is too short for this synthetic gate.
+        flight.step(.1f)
         assertEquals(4L,flight.displayLevel)
         assertEquals(xBefore-flight.distance,flight.gateX(flight.level.gates.first()),.01f)
         assertEquals(0,flight.upcomingGates().size)
