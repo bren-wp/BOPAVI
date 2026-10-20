@@ -19,9 +19,11 @@ boot=section(a,"    override fun onCreate(state: Bundle?) {","    private fun sh
 assert "showHome()" in boot and "showSplash()" not in a
 home=section(a,"    private fun showHome(){","    private fun showPremiumPause(")
 assert "IGRAJ" in home and "FitViewportColumn(this)" in home
-assert "POLITIKA PRIVATNOSTI" in home and "showPrivacyNotice()" in home
+assert "Politika privatnosti" in home and "showPrivacyNotice()" in home
+assert "Uvjeti korištenja" in home and "showTermsNotice()" in home
 assert 'contentDescription="Pročitaj politiku privatnosti"' in home
-assert "portraitDrawableIds[0]" in home
+assert "portraitDrawableIds[selectedPilotChoice]" in home
+assert "pilotSpriteIds[selectedPilotChoice]" in a
 pause=section(a,"    private fun showPremiumPause(","    private fun startGame(")
 assert all(label in pause for label in ("NASTAVI","PONOVO","IZLAZ"))
 assert "game.paused=false" in pause
