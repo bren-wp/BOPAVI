@@ -7,7 +7,6 @@ Platform callbacks, dynamic names, persisted field IDs and accessibility
 entry points are never automatically removed by token-count heuristics.
 """
 from pathlib import Path
-import hashlib
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,11 +89,11 @@ def audit_resource_reachability():
     generator = (ROOT / "tools/generate_images.py").read_text(encoding="utf-8")
     workflow = (ROOT / ".github/workflows/native-ci.yml").read_text(encoding="utf-8")
     # The old check missed bare orphan PNGs after Contents.json was removed.
-    # Xcode still warns about an unassigned Hero.imageset/hero.png, and an
+    # Android still warns about an unassigned LegacyHero/hero.png, and an
     # unreferenced Android resource can still inflate an unsigned bundle.
     orphan_android = ROOT / "android/app/src/main/res/drawable-nodpi/hero.png"
     if (orphan_android.exists() or
-            "Hero.imageset" in generator or "drawable-nodpi/hero.png" in generator or
+            "LegacyHero" in generator or "drawable-nodpi/hero.png" in generator or
             "drawable-nodpi/hero.png" in workflow ):
         issues.append("Unreferenced runtime Hero PNG/catalog still packaged; retain docs/assets/hero.svg")
     # Logo, HomeArt and LaunchArt are real runtime or OS launch resources.
@@ -125,7 +124,7 @@ def audit_project_integration():
     manifest = (ROOT / "android/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
     issues = []
     if (ROOT / "ios").exists():
-        issues.append("iOS project remains in Android-only working tree")
+        issues.append("Android project remains in Android-only working tree")
     if "android.permission.INTERNET" in manifest:
         issues.append("Unexpected network permission in offline single-player game")
     if 'android:allowBackup="false"' not in manifest:

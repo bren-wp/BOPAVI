@@ -1,10 +1,9 @@
-"""Source-level lifecycle regressions for BOPAVI's minimal Android/iOS game."""
+"""Source-level lifecycle regressions for BOPAVI's minimal Android game."""
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 game=(R/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
 activity=(R/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
 audio=(R/"android/app/src/main/java/com/brendigo/bopavi/Soundscape.kt").read_text()
-ios_audio=(R/"ios/BOPAVI/Soundscape.swift").read_text()
 flow=(R/".github/workflows/native-ci.yml").read_text()
 install=(R/"tools/prepare_android_emulator_image.sh").read_text()
 
@@ -20,7 +19,6 @@ assert "updateWorldCover(width,height)" in game
 assert "private var closed = false" in audio and "if(closed)return" in audio
 assert "if(closed || !enabled || effectsVolume<=0f)return" in audio
 assert '"purchase" to pool.load(' not in audio
-assert '"purchase"' not in ios_audio
 
 # A removed menu must not retain a dangling Back callback or duplicate CTA click.
 assert "menuBackAction" not in activity
@@ -35,12 +33,8 @@ assert "id: image36" in flow and "${{ steps.image36.outputs.image_target }}" in 
 print("PASS: lifecycle, bitmap ownership, audio teardown, pause and API36 fallback")
 
 assert "currentWorld" not in activity and "currentLevel" not in activity
-ios=(R/"ios/BOPAVI/GameController.swift").read_text()
-assert "gameWorld" not in ios and "gameNumber" not in ios
 
 assert '"purchase":' not in (R/"tools/generate_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/verify_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/audit_native_dead_code.py").read_text()
 
-assert "gamePauseButton?.setTitle(\"▶\",for:.normal)" in ios
-assert "gamePauseButton?.setTitle(\"Ⅱ\",for:.normal)" in ios

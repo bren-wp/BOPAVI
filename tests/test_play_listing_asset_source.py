@@ -13,8 +13,7 @@ assert 'hero_svg = Path("docs/assets/hero.svg")' in listing
 assert "cairosvg.svg2png(url=str(hero_svg), output_width=900)" in listing
 assert 'ImageOps.fit(hero, (590, 500)' in listing
 assert 'Image.open(art / "drawable-nodpi/hero.png")' not in listing
-assert (not (ROOT / "android/app/src/main/res/drawable-nodpi/hero.png").exists()
-        and not (ROOT / "ios/BOPAVI/Assets.xcassets/Hero.imageset/hero.png").exists())
+assert not (ROOT / "android/app/src/main/res/drawable-nodpi/hero.png").exists()
 assert "python -m pip install --quiet pillow cairosvg" in flow
 assert "python tools/create_play_listing_assets.py" in flow
 assert "python tests/test_play_listing_asset_source.py" in flow

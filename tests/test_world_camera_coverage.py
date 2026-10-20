@@ -8,23 +8,18 @@ import math
 
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID = (ROOT / "android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
-IOS = (ROOT / "ios/BOPAVI/GameCanvas.swift").read_text()
 
-# Both native implementations must use identical values.
+# Verify native Android source constants for all supported aspect ratios.
 assert "private val worldOverscan=1.06f" in ANDROID
 assert "private val worldHorizontalDrift=.018f" in ANDROID
 assert "private val worldVerticalDrift=.008f" in ANDROID
 assert "worldOverscan" in ANDROID.split("override fun onSizeChanged(", 1)[1]
-assert "scaleToCover=max(bound.width/world.size.width," in IOS
-assert "bound.height/world.size.height)*1.06" in IOS
-assert "bound.width*0.018" in IOS and "bound.height*0.008" in IOS
-for code in (ANDROID, IOS):
+for code in (ANDROID,):
     assert ".0011" in code and ".00045" in code
     assert "reducedMotion" in code
     assert "game.active" in code and "game.finished" in code
 # Source image movement must be isolated before game coordinate transform.
 assert ANDROID.index("canvas.drawBitmap(worldBitmap,null,worldDriftRect,p)") < ANDROID.index("canvas.scale(scale,scale)")
-assert IOS.index("world.draw(in:CGRect(x:(bound.width-backdropWidth)") < IOS.index("c.scaleBy(x:s,y:s)")
 
 for width,height in [
     (320,568),(360,640),(360,800),(393,852),(412,915),(480,800),
