@@ -21,7 +21,9 @@ for section,filename,count in (("privatnost","privacy.html",11),("uvjeti","terms
     match=re.search(r'<article\s+id="'+section+r'"[\s\S]*?</article>',canonical)
     assert match,section
     data=(root/"android/app/src/main/assets/legal"/filename).read_text(encoding="utf-8")
-    assert data==match.group()
+    contact=re.search(r'<section\\s+id="kontakt"[\\s\\S]*?</section>',canonical) if section=="uvjeti" else None
+    expected=match.group()+("\\n"+contact.group() if contact else "")
+    assert data==expected
     parsed=Structure();parsed.feed(data);parsed.close()
     assert len(parsed.headers)==count
     assert all(h.startswith(("mailto:","https://")) for h in parsed.anchors)

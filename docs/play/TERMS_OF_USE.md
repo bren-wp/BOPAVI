@@ -75,3 +75,15 @@ Na ove Uvjete primjenjuje se pravo Republike Hrvatske, uz poštovanje prisilnih 
 ## 12. Kontakt
 
 Pitanja, prijedloge i prijave problema možete poslati izdavaču putem kontakta navedenog u nastavku.
+
+## Kontakt i podaci izdavača
+
+**Izdavač i autor:** Brendigo — obrt za programiranje
+
+**Sjedište:** Škurinjskih žrtava 2, 51000 Rijeka, Republika Hrvatska
+
+**E-mail:** info@brendigo.com
+
+**Službena stranica igre:** bopavi.com.hr
+
+**Web izdavača:** brendigo.com

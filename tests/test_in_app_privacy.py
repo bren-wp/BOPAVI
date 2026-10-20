@@ -14,7 +14,9 @@ for source_id,asset,sections in (("privatnost","privacy.html",11),("uvjeti","ter
     match=re.search(r'<article\s+id="'+source_id+r'"[\s\S]*?</article>',html)
     assert match,source_id
     bundled=(legal/asset).read_text(encoding="utf-8")
-    assert bundled==match.group(0),f"{asset}: legal text differs from owner source"
+    contact=re.search(r'<section\\s+id="kontakt"[\\s\\S]*?</section>',html) if source_id=="uvjeti" else None
+    expected=match.group(0)+("\\n"+contact.group(0) if contact else "")
+    assert bundled==expected,f"{asset}: legal text differs from owner source"
     assert len(re.findall(r"<h3(?:\s[^>]*)?>",bundled))==sections,(asset,"missing section")
     assert "<script" not in bundled.lower()
     assert "info@brendigo.com" in bundled
