@@ -5,12 +5,12 @@ metadata belongs in Gradle and docs/release/NEXT.md until publication.
 
 The Android entry point is MainActivity.onCreate → showHome. There are four
 reachable states: Home, Flight, Pause (overlay) and Results. Home includes three direct
-character cards (Bopi, Sova, Lisac) and two offline legal links. No shop,
+character cards (Bopi, Sova, Lisac), two small options/records dialogs and two offline legal links. No shop,
 world selection, account page or monetization screen is reachable.
 
 | State | Action | Genuine Android screenshot |
 |---|---|---|
-| Home | Choose one of three pilots, open legal notices or press IGRAJ | BOPAVI-Android-Home.png |
+| Home | Choose one of three pilots, adjust native options, view local records, read legal notices or press IGRAJ | BOPAVI-Android-Home.png |
 | Flight (preview) | First flap begins live simulation | BOPAVI-Android-Flight-Preview.png |
 | Flight (active) | Fly past pillars and collect red berries | BOPAVI-Android-Flight-Active.png |
 | Pause (overlay) | Continue, restart or exit | Must be separately captured and verified |

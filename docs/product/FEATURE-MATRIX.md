@@ -171,7 +171,7 @@ they are not advertised as player-accessible options.
 ## Release and QA limitations
 
 - Public release details come from CHANGELOG.md, not an unmerged PR.
-- The pending v1.0.3 (build 133) candidate is documented in docs/release/NEXT.md; published metadata above remains v1.0.2 (build 132) until actual GitHub publication.
+- **Published baseline:** v1.0.6 (build 136). The v1.0.7 candidate is recorded only in Gradle and docs/release/NEXT.md until GitHub release verification. Do not pre-announce unreleased features as shipped.
 - Android API 35/36 emulator screenshots are useful evidence, not guarantees of
   pixel-perfect reference matching, physical-device stability or Play approval.
 - Product-scope decision ADR-0001 is still pending; do not restore removed UI.

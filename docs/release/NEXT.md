@@ -10,3 +10,5 @@
 - Live option/record overlays use dark navy, blue and mint styling consistent with the native Home/Results palette, preserving offline storage and 48dp actions.
 - Preserve all legacy save keys, all three playable pilots, original artwork, unchanged legal files, no network, analytics, ads, or sign-in.
 - Full Android lint, JVM/physics tests, API35/36 emulator QA, privacy/security/dead-code audit and authentic store screenshots required before merging/publishing.
+- Near the halfway point of a procedural obstacle segment, pre-generate the next cached segment. Do not regenerate it inside the precise boundary frame; all original world coordinates, visible obstacle cadence and saved scores remain unchanged.
+- Marketing README and current-screen documentation have been synchronized with published v1.0.6 features only; pending v1.0.7 mechanics remain in this candidate changelog until release.
