@@ -31,7 +31,7 @@ assert 'gamePauseButton?.text = "▶"' in activity
 assert 'gamePauseButton?.text="Ⅱ"' in activity
 assert 'if(game.paused) {' in activity and 'return@setOnClickListener' in activity
 assert 'if(view!=null && view.paused) showPremiumPause(view)' in activity
-assert 'selectedScreen=="game" && hasWindowFocus()' in activity
+assert 'selectedScreen=="game" && window.decorView.hasWindowFocus()' in activity
 assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert "drawStoneCourses(" in game and "fun courses(yStart" not in game

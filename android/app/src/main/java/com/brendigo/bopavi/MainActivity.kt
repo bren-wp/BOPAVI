@@ -652,7 +652,7 @@ class MainActivity : Activity() {
         dialog.setView(fitted)
         dialog.setOnCancelListener{
             // Cancelling Pause resumes only the still-current game.
-            if(gameView===game && selectedScreen=="game" && hasWindowFocus()) {
+            if(gameView===game && selectedScreen=="game" && window.decorView.hasWindowFocus()) {
                 game.paused=false
                 gamePauseButton?.text="Ⅱ"
                 gamePauseButton?.contentDescription="Pauziraj igru"
