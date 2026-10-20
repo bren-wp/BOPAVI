@@ -57,6 +57,14 @@ def sync(root,items,tag):
     for name in ACTIVE:
         old=(root/name).read_text(encoding="utf-8")
         updates[name]=old.replace(previous,tag).replace("build "+str(old_build),"build "+str(build))
+    # The publication has finished: it is no longer an unreleased candidate.
+    pending=(root/"docs/release/NEXT.md").read_text(encoding="utf-8")
+    if re.search(rf"(?m)^## {re.escape(tag)}\s+[—-]",pending):
+        updates["docs/release/NEXT.md"]=(
+            "# Next Android release\n\nNo unreleased changes are staged.\n"
+            "Increase the Android versionName/versionCode and review a new NEXT.md "
+            "entry before publishing another release.\n"
+        )
     modified=[]
     for name,value in updates.items():
         dest=root/name

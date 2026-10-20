@@ -500,10 +500,10 @@ jobs:
           gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null
           gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" > "$RUNNER_TEMP/bopavi-release-pages.json"
           python tools/sync_release_docs.py --releases "$RUNNER_TEMP/bopavi-release-pages.json" --expected-tag "$tag"
-          if ! git diff --quiet -- CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md; then
+          if ! git diff --quiet -- CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md docs/release/NEXT.md; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md
+            git add CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md docs/release/NEXT.md
             git commit -m "docs(release): sync published $tag [skip ci]"
             git push origin HEAD:main
           else

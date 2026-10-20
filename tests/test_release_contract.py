@@ -21,8 +21,9 @@ class ReleaseContractTests(unittest.TestCase):
     def test_pending_release_notes_and_published_changelog_are_separate(self):
         version,build=release_metadata()
         published=(ROOT/"CHANGELOG.md").read_text(encoding="utf-8")
-        self.assertIn("## v1.0.0",published)
-        self.assertNotIn(f"## v{version} —",published)
+        self.assertTrue(1 <= published.count("## v") <= 2)
+        # The current Gradle version can be staged or already published; only
+        # GitHub's public release inventory may promote it into CHANGELOG.
         notes=release_notes()
         self.assertIn(f"## v{version} —",notes)
         self.assertIn(f"(build {build})",notes)
@@ -50,6 +51,10 @@ class ReleaseContractTests(unittest.TestCase):
             (root/"docs/release/NEXT.md").write_text("## v1.0.2 — Wrong (build 132)\n")
             with self.assertRaisesRegex(ValueError,"missing"):
                 release_notes(root)
+            (root/"CHANGELOG.md").write_text("## v1.0.1 — Published (build 131)\n- Already published.\n")
+            published_notes=release_notes(root)
+            self.assertIn("Already published.",published_notes)
+            self.assertNotIn("Historical.",published_notes)
 
     def test_unsigned_bundle_has_no_signing_entries(self):
         with tempfile.TemporaryDirectory() as tmp:
