@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Create BOPAVI's original, calm, seamless 48-second offline music loops and FX.
 
-All notes and samples are synthesized, not imported. Both Android and iOS get
-bit-identical mono PCM. Every oscillator is quantized to the 48-second loop
+All notes and samples are synthesized for Android, without imported music. Every oscillator is quantized to the 48-second loop
 period; adjacent chords crossfade, including the wrap from chord 8 to chord 1.
 No short repeating lead melody, beat or startling percussive loop.
 """
@@ -13,7 +12,7 @@ import sys
 import wave
 
 ROOT = Path(__file__).resolve().parents[1]
-DSTS = [ROOT / "android/app/src/main/res/raw", ROOT / "ios/BOPAVI/Audio"]
+DSTS = [ROOT / "android/app/src/main/res/raw"]
 SR = 11025
 LOOP_SECONDS = 48
 FRAMES = SR * LOOP_SECONDS
@@ -93,7 +92,7 @@ def main():
         save(name, ambient(world))
     for name, notes in EFFECTS.items():
         save(name, effect_notes(name, notes))
-    print("Generated 26 local audio files; eight 48-second seamless calm loops per platform")
+    print("Generated 13 Android audio files; eight 48-second seamless calm loops")
 
 if __name__ == "__main__":
     main()

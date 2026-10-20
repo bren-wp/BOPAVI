@@ -18,7 +18,7 @@ def release_notes(root: Path = ROOT) -> str:
     return (
         entry.group(0).strip()
         + f"\n\n**Build {build} distribution:** the APK is a debug build; "
-        "the Android AAB and iOS device archive are unsigned. "
+        "the Android release AAB is unsigned. "
         "Store signing, hardware testing and 1:1 reference artwork parity "
         "are not claimed.\n"
     )

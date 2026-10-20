@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install owner-approved, layered Bopi art into both native asset catalogs.
+"""Install owner-approved, layered Bopi art into Android resources.
 
 Optional and offline: never download screenshots, scrape external art, or bake
 HUD/buttons/coins into the sprite. Without an approved bundle existing art is
@@ -64,42 +64,28 @@ def install_reference_bopi(root: Path) -> bool:
         native[part] = frame
 
     android = root / "android/app/src/main/res/drawable-nodpi"
-    ios = root / "ios/BOPAVI/Assets.xcassets"
-    for part, name, catalog in (
-        ("body", "bopi0", "Bopi0"),
-        ("left", "bopileft0", "BopiLeft0"),
-        ("right", "bopiright0", "BopiRight0"),
+    for part, name in (
+        ("body", "bopi0"),
+        ("left", "bopileft0"),
+        ("right", "bopiright0"),
     ):
         content = _png(native[part])
         target = android / f"{name}.png"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
-        folder = ios / f"{catalog}.imageset"
-        folder.mkdir(parents=True, exist_ok=True)
-        (folder / f"{name}.png").write_bytes(content)
 
     portrait = Image.alpha_composite(
         Image.alpha_composite(native["left"], native["right"]), native["body"]
     )
     bytes_portrait = _png(portrait)
     (android / "bopiportrait0.png").write_bytes(bytes_portrait)
-    portrait_folder = ios / "BopiPortrait0.imageset"
-    portrait_folder.mkdir(parents=True, exist_ok=True)
-    (portrait_folder / "bopiportrait0.png").write_bytes(bytes_portrait)
 
     # Runtime marker is emitted only for an actual validated photo bundle.
-    # The marker lets Android / iOS choose reference shoulder joints without
+    # The marker lets Android choose reference shoulder joints without
     # ever changing the collider, gameplay state or save-file schema.
     marker = _png(Image.new("RGBA", (2, 2), (255, 255, 255, 255)))
     (android / "bopireference0.png").write_bytes(marker)
-    marker_folder = ios / "BopiReference0.imageset"
-    marker_folder.mkdir(parents=True, exist_ok=True)
-    (marker_folder / "bopireference0.png").write_bytes(marker)
-    (marker_folder / "Contents.json").write_text(json.dumps({
-        "images": [{"filename": "bopireference0.png", "idiom": "universal"}],
-        "info": {"author": "xcode", "version": 1},
-    }))
-    print("PASS: approved reference Bopi body, moving wings and portrait share native pixels")
+    print("PASS: approved reference Bopi body, moving wings and portrait are verified Android assets")
     return True
 
 
