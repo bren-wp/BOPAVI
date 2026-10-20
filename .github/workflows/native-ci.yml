@@ -70,6 +70,7 @@ jobs:
       - run: python tests/test_android_emulator_transport_gate.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
+      - run: python tests/test_sync_release_docs.py
       - run: python tests/test_store_claims.py
       - run: python tests/test_marketing_readme.py
       - run: python tests/test_cleanup_legacy_releases.py
@@ -475,3 +476,36 @@ jobs:
           set -euo pipefail
           tag="$(python tools/release_metadata.py --tag)"
           python tools/cleanup_legacy_releases.py --repo "$GITHUB_REPOSITORY" --new-tag "$tag" --apply
+
+  release-docs:
+    name: Sync only verified stable Android release documentation
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refresh published versions after successful release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$(python tools/release_metadata.py --tag)"
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" > "$RUNNER_TEMP/bopavi-release-pages.json"
+          python tools/sync_release_docs.py --releases "$RUNNER_TEMP/bopavi-release-pages.json" --expected-tag "$tag"
+          if ! git diff --quiet -- CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add CHANGELOG.md docs/product/FEATURE-MATRIX.md docs/product/CURRENT_SCREENS.md docs/play/STORE-LISTING-hr-HR.md docs/play/RELEASE-CHECKLIST.md
+            git commit -m "docs(release): sync published $tag [skip ci]"
+            git push origin HEAD:main
+          else
+            echo 'Published release documentation is already current'
+          fi
