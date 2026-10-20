@@ -520,6 +520,39 @@ class LevelEngineTest {
         assertFalse(game.finished)
     }
 
+
+    @Test fun proceduralSpeedChangesNeverSnapAcrossInvisibleBatchBoundaries() {
+        // A single safe gate lets us cross an internal boundary in one real step.
+        // Incoming obstacle positions remain precomputed in continuous world space.
+        val template=LevelEngine.create(0,2)
+        val safe=template.gates.first().copy(
+            x=20f,center=366f,gap=300f,movement=0f,coin=false,star=false,power=0)
+        val slow=template.copy(gates=listOf(safe),speed=70f,wind=0f)
+        val run=GameSimulation(slow,endless=true)
+        val nextBefore=run.upcomingGateX(run.upcomingGates().first())
+        assertEquals(70f,run.currentScrollSpeed,0.001f)
+        run.flap()
+        run.step(1f/60f)
+        assertEquals(3L,run.displayLevel)
+        // Promotion is completed during the first of two 120Hz slices.
+        // The next slice already begins a bounded ~0.71px/s acceleration.
+        val speedAfterBoundary=run.currentScrollSpeed
+        assertTrue(speedAfterBoundary>=70f && speedAfterBoundary<71f)
+        assertEquals(nextBefore-run.distance,run.gateX(run.level.gates.first()),0.01f)
+        // The following slice must advance by at most 85px/s², not snap
+        // immediately from 70px/s to the next 140px/s batch target.
+        val travelledBefore=run.distance
+        run.step(1f/120f)
+        val nextSpeed=run.currentScrollSpeed
+        assertTrue(nextSpeed>speedAfterBoundary)
+        assertTrue(nextSpeed-speedAfterBoundary<0.72f)
+        assertTrue("Moving obstacles must follow the exact smoothed displacement",
+            run.distance-travelledBefore in 0.55f..0.61f)
+        run.step(1f/120f)
+        assertTrue(run.currentScrollSpeed>nextSpeed)
+        assertTrue(run.active && !run.finished)
+    }
+
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
         assertEquals(8, LevelEngine.WORLD_COUNT)
         assertEquals(8, LevelEngine.names.toSet().size)

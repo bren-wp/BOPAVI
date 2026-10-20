@@ -11,6 +11,11 @@ generator=(ROOT/"tools/generate_images.py").read_text()
 assert 'pilotNames=arrayOf("Bopi","Sova","Lisac")' in main
 assert "pilotSpriteIds=intArrayOf(0,9,10)" in main
 assert "progress.chooseArcadePilot(index)" in main
+assert "fun refreshPilotCards()" in main
+home=main.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
+assert "refreshPilotCards()" in home
+assert "showHome()" not in home
+assert "heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])" in home
 assert "GameView(this,simulation,progress.lessMotion(),pilotSpriteIds[selectedPilotChoice]" in main
 assert "arcade_pilot" in store and 'prefs.getInt("skin_index", 0)' in store
 assert "bopiportrait9" in main and "bopiportrait10" in main

@@ -11,6 +11,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private val gravityFactor = when(this.difficulty) { 0 -> .84f; 2 -> 1.15f; else -> 1f }
     var level = initialLevel
         private set
+    // Keep world scrolling continuous when procedural obstacle batches switch
+    // challenge zones. This affects only horizontal travel, never tap impulse,
+    // gravity, collider size or the precomputed positions of incoming gates.
+    private var scrollSpeed = initialLevel.speed * speedFactor
+    internal val currentScrollSpeed:Float get() = scrollSpeed
     var totalPassed = 0
         private set
     var y = 366f; private set
@@ -115,7 +120,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         // All eight worlds use the same tap impulse, gravity and terminal speed.
         velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
-        preciseDistance += (level.speed * speedFactor * dt).toDouble()
+        // Old batches could change their speed by a visible jump at promotion.
+        // Accelerate gently toward the next batch's target, using the same
+        // 120 Hz physics slices so 30/60/120 Hz devices agree on the movement.
+        val targetSpeed=level.speed*speedFactor
+        val maxStep=85f*dt
+        scrollSpeed+=(targetSpeed-scrollSpeed).coerceIn(-maxStep,maxStep)
+        preciseDistance += (scrollSpeed * dt).toDouble()
         distance = preciseDistance.toFloat()
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
         for (i in passed until level.gates.size) {
@@ -126,7 +137,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             // cap even when both 120Hz endpoints are clear. Moving lip bounds
             // are weighted with Bopi/gate motion, not a larger hitbox.
             val oldBounds=LevelEngine.opening(gate,previousTime,difficulty)
-            val travel=level.speed*speedFactor*dt
+            // Match the swept collider to the exact distance applied above.
+            val travel=scrollSpeed*dt
             if (PillarCollision.sweptBodyHitsPillar(birdX,previousY,y,radius,
                     x+travel,x,gate.width,oldBounds,bounds)) {
                 damage()

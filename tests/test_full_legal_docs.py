@@ -26,7 +26,8 @@ for section,filename,count in (("privatnost","privacy.html",11),("uvjeti","terms
     assert data==expected
     parsed=Structure();parsed.feed(data);parsed.close()
     assert len(parsed.headers)==count
-    assert all(h.startswith(("mailto:","https://")) for h in parsed.anchors)
+    allowed={"mailto:info@brendigo.com","https://bopavi.com.hr/","https://brendigo.com/"}
+    assert all(h in allowed for h in parsed.anchors),parsed.anchors
     assert "info@brendigo.com" in data
     assert "20. listopada 2026." in data
     assert data in (root/"docs/play"/("privacy-policy.html" if section=="privatnost" else "terms-of-use.html")).read_text(encoding="utf-8")

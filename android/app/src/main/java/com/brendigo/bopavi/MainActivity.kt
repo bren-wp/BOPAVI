@@ -100,11 +100,7 @@ class MainActivity : Activity() {
             cornerRadius=d(rad).toFloat()
             setStroke(d(1),0x9959d6ff.toInt())
         }
-    /**
-     * Four short 2×4 pages rather than Android's 26-row scrolling list.
-     * Native clickable, minimum-48dp targets and a persistent selected state.
-     * Everything fits inside even a compact phone without scroll gestures.
-     */
+    /** Native accessible text treatment shared by Home, Pause and Results. */
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
             text=s
@@ -198,6 +194,10 @@ class MainActivity : Activity() {
         }
         val body=TextView(this).apply {
             text=android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)
+            // Enable official links and support e-mail inside the full policy.
+            // Source HTML is bundled and validated by the CI URL allowlist.
+            movementMethod=android.text.method.LinkMovementMethod.getInstance()
+            linksClickable=true
             textSize=15f
             setTextColor(0xff173451.toInt())
             setPadding(d(18),d(10),d(18),d(12))
@@ -253,12 +253,14 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)104 else 134)))
-        content.addView(ImageView(this).apply{
+        val heroPortrait=ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)167 else 230))
-            .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
+        }
+        content.addView(heroPortrait,
+            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)167 else 230))
+                .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
         action(content,"▶  IGRAJ"){startGame()}
@@ -273,6 +275,25 @@ class MainActivity : Activity() {
         val pilots=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
+        }
+        // Rebind three existing cards in place. Rebuilding Home on every choice
+        // caused image decoding, extra view allocations and visual flashes.
+        fun refreshPilotCards(){
+            heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])
+            for(i in 0 until pilots.childCount) {
+                val selected=i==selectedPilotChoice
+                val item=pilots.getChildAt(i) as LinearLayout
+                val plate=gradient(
+                    if(selected)0xff246f94.toInt() else 0xb5093765.toInt(),
+                    if(selected)0xff0a3b69.toInt() else 0xaa061f45.toInt(),16)
+                plate.setStroke(d(if(selected)2 else 1),
+                    if(selected)0xffffdd72.toInt() else 0x8859d6ff.toInt())
+                item.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
+                item.isSelected=selected
+                item.contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+pilotNames[i]
+                (item.getChildAt(1) as TextView).setTextColor(
+                    if(selected)0xffffe7a1.toInt() else Color.WHITE)
+            }
         }
         for(index in pilotNames.indices){
             val selected=index==selectedPilotChoice
@@ -294,7 +315,7 @@ class MainActivity : Activity() {
                         selectedPilotChoice=index
                         progress.chooseArcadePilot(index)
                         sound.effect("click")
-                        showHome()
+                        refreshPilotCards()
                     }
                 }
             }
@@ -369,7 +390,8 @@ class MainActivity : Activity() {
 
 
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[0])
+            // Keep the actual player visible when pausing Sova or Lisac.
+            setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
