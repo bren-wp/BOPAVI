@@ -29,6 +29,59 @@ class LevelEngineTest {
             pickupFlight.magnetTime>17f)
     }
 
+
+    @Test fun endlessLivesAreCappedAndSingleContactCannotDrainTwoLives() {
+        val base=LevelEngine.create(0,2)
+        val danger=base.gates.first().copy(x=110f,center=260f,gap=164f,movement=0f,coin=false,star=false,power=0)
+        val run=GameSimulation(base.copy(gates=listOf(danger),speed=140f,wind=0f),endless=true)
+        assertEquals(3,run.lives)
+        run.flap()
+        run.step(1f/60f)
+        assertEquals(2,run.lives)
+        assertFalse(run.finished)
+        assertTrue(run.invulnerable>1f)
+        run.step(.1f)
+        assertEquals("Invulnerability prevents double damage within the same cliff",2,run.lives)
+        val legacy=GameSimulation(base.copy(gates=listOf(danger),speed=140f,wind=0f),endless=false)
+        legacy.flap();legacy.step(1f/60f)
+        assertTrue("Non-endless legacy mode retains one-hit failure",legacy.finished)
+    }
+
+    @Test fun heartsAreRareAndHiddenWhenLivesFull() {
+        val run=GameSimulation(LevelEngine.create(0,1),endless=true)
+        assertEquals(3,run.maxLives)
+        assertEquals(0,run.heartsCollected)
+        assertFalse(run.heartVisible(16))
+        val heartIndex=(0 until run.level.gates.size).firstOrNull { run.isHeartPosition(it) }
+        if(heartIndex!=null) assertFalse(run.heartVisible(heartIndex))
+        val upcoming=(0 until run.upcomingGates().size).filter { run.isHeartPosition(it,true) }
+        assertTrue("Procedural heart rhythm must be sparse",upcoming.size<=2)
+    }
+
+
+    @Test fun streamingRegenerationIsMovedAwayFromExactBoundary() {
+        val template=LevelEngine.create(0,3)
+        val last=template.gates.first().copy(x=25f,center=366f,gap=290f,
+            coin=false,star=false,power=0,movement=0f)
+        // A single-gate deterministic test still promotes the cached
+        // upcoming world without resetting distance, speed or active state.
+        val flight=GameSimulation(template.copy(gates=listOf(last)),endless=true)
+        val xBefore=flight.upcomingGateX(flight.upcomingGates().first())
+        flight.flap()
+        // A variable-width cap must actually clear birdX-radius before
+        // promotion; one 60Hz frame is too short for this synthetic gate.
+        flight.step(.1f)
+        assertEquals(4L,flight.displayLevel)
+        assertEquals(xBefore-flight.distance,flight.gateX(flight.level.gates.first()),.01f)
+        assertEquals(0,flight.upcomingGates().size)
+        // Regeneration is deliberately deferred until halfway through
+        // the next segment, not the first frame after promotion.
+        flight.step(1f/60f)
+        assertTrue("Preloading the subsequent batch must not interrupt the flight",
+            flight.active && !flight.finished)
+        assertEquals(0,flight.upcomingGates().size)
+    }
+
     @Test fun originalCroatianWorldNamesRemainAvailable() {
         assertEquals(8,LevelEngine.names.size)
         assertEquals("Zeleni otoci",LevelEngine.names.first())

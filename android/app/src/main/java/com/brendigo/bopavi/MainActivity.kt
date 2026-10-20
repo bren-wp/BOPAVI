@@ -228,14 +228,16 @@ class MainActivity : Activity() {
         val column=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL
             setPadding(d(20),d(8),d(20),d(16))
-            setBackgroundColor(0xfff4f9ff.toInt())
+            background=gradient(0xff154c8d.toInt(),0xff061d42.toInt(),23).apply {
+                setStroke(d(2),0xff60dafe.toInt())
+            }
         }
         fun heading(value:String){
             column.addView(TextView(this).apply{
                 text=value
                 textSize=16f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(0xff174976.toInt())
+                setTextColor(0xffe6f7ff.toInt())
                 setPadding(0,d(14),0,d(7))
             })
         }
@@ -243,7 +245,7 @@ class MainActivity : Activity() {
             column.addView(android.widget.Switch(this).apply {
                 text=caption
                 textSize=15f
-                setTextColor(0xff203a5a.toInt())
+                setTextColor(0xffe6f7ff.toInt())
                 isChecked=enabled
                 setOnCheckedChangeListener{_,value->onChange(value)}
             },LinearLayout.LayoutParams(-1,d(48)))
@@ -259,7 +261,7 @@ class MainActivity : Activity() {
                 id=radioIds[index]
                 text=labels[index]
                 textSize=15f
-                setTextColor(0xff203a5a.toInt())
+                setTextColor(0xffe6f7ff.toInt())
                 contentDescription="Težina: "+labels[index]
             },android.widget.RadioGroup.LayoutParams(-1,d(45)))
         }
@@ -275,7 +277,7 @@ class MainActivity : Activity() {
         column.addView(TextView(this).apply{
             text="Težina i smanjeni pokret primjenjuju se od sljedećeg leta."
             textSize=12f
-            setTextColor(0xff54708a.toInt())
+            setTextColor(0xffe6f7ff.toInt())
         })
         heading("Zvuk i pristupačnost")
         toggle("Zvuk uključen",progress.soundEnabled()){enabled->
@@ -292,7 +294,7 @@ class MainActivity : Activity() {
             val label=TextView(this).apply {
                 text=caption+": "+initial+" %"
                 textSize=14f
-                setTextColor(0xff203a5a.toInt())
+                setTextColor(0xffe6f7ff.toInt())
                 setPadding(0,d(8),0,0)
             }
             column.addView(label)
@@ -328,17 +330,40 @@ class MainActivity : Activity() {
         }
         android.app.AlertDialog.Builder(this)
             .setTitle("⚙  OPCIJE IGRE")
+            .setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))
             .setView(scroll)
             .setPositiveButton("GOTOVO",null)
-            .show()
+            .show().also { polishGameDialog(it) }
     }
 
+    /** Match both in-game overlays to the midnight-blue/cyan Home palette. */
+    private fun premiumDialogHeader(text:String):TextView = TextView(this).apply {
+        this.text=text
+        textSize=21f
+        gravity=Gravity.CENTER
+        typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+        setTextColor(Color.WHITE)
+        setPadding(d(18),d(18),d(18),d(14))
+        background=gradient(0xff17558b.toInt(),0xff103466.toInt(),22).apply {
+            setStroke(d(1),0xff60dafe.toInt())
+        }
+    }
+    private fun polishGameDialog(dialog:android.app.AlertDialog) {
+        dialog.window?.setBackgroundDrawable(
+            gradient(0xff103d71.toInt(),0xff051a36.toInt(),25).apply {
+                setStroke(d(2),0xff65ddf9.toInt())
+            })
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+            ?.setTextColor(0xff9be8ff.toInt())
+    }
     /** Read-only on-device records: no network, accounts or score submissions. */
     private fun showLocalRecords(){
         val stats=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(d(20),d(16),d(20),d(18))
-            setBackgroundColor(0xfff4f9ff.toInt())
+            background=gradient(0xff154c8d.toInt(),0xff061d42.toInt(),23).apply {
+                setStroke(d(2),0xff60dafe.toInt())
+            }
         }
         val rows=listOf(
             "★  Najbolji rezultat" to progress.bestPoints().toString(),
@@ -352,21 +377,22 @@ class MainActivity : Activity() {
                 text=caption+"\n"+value
                 textSize=17f
                 typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
-                setTextColor(0xff173c65.toInt())
+                setTextColor(0xffe6f7ff.toInt())
                 setPadding(d(6),d(7),d(6),d(7))
             },LinearLayout.LayoutParams(-1,-2))
         }
         stats.addView(TextView(this).apply{
             text="Rekordi se čuvaju samo na ovom uređaju. Brisanje podataka aplikacije briše i rekorde."
             textSize=12f
-            setTextColor(0xff55718b.toInt())
+            setTextColor(0xffe6f7ff.toInt())
             setPadding(0,d(12),0,0)
         })
         android.app.AlertDialog.Builder(this)
             .setTitle("★  MOJI REKORDI")
+            .setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))
             .setView(android.widget.ScrollView(this).apply{addView(stats)})
             .setPositiveButton("ZATVORI",null)
-            .show()
+            .show().also { polishGameDialog(it) }
     }
 
     private fun showHome(){

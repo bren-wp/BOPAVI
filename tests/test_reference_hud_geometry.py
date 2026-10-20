@@ -13,6 +13,6 @@ for hud in (a_hud,):
     assert "BODOVI" in hud
     assert "game.coins" not in hud and "game.stars" not in hud
     assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
-assert "hudGlass(c,18f,20f,212f,88f)" in a_hud
-assert "hudGlass(c,228f,20f,376f,88f)" in a_hud
+assert "hudGlass(c,18f,16f,178f,68f)" in a_hud
+assert "hudGlass(c,185f,16f,310f,68f)" in a_hud
 print("PASS: Android safe-area gameplay scoreboard only")

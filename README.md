@@ -31,6 +31,7 @@ Ne zaboravi crvene bobice koje se skrivaju duž puta!
 | 🪽 **Jedan dodir, potpuna kontrola** — zamahni krilima kad god poželiš. | ☁️ **Beskrajni let** — svaki pokušaj novi je izazov. |
 | 🪨 **Spremi se za prepreke** — pronađi pravi trenutak za prolaz. | 🍓 **Skupljaj crvene bobice** — koliko ih možeš uhvatiti? |
 | 🏆 **Nadmaši vlastiti rekord** — prati najbolje rezultate na uređaju. | 💙 **Igraj slobodno** — bez interneta, oglasa i računa. |
+| ⚙️ **Postavke po tvojoj mjeri** — tri težine, glasnoća, vibracija i smanjeni pokret. | 📊 **Tvoji rekordi** — rezultati, najbolji letovi i prikupljena hrana samo na uređaju. |
 
 ## Pogledaj igru
 
@@ -57,15 +58,15 @@ Ne zaboravi crvene bobice koje se skrivaju duž puta!
 
 **1.** Odaberi Bopija, Sovu ili Lisca pa pritisni **IGRAJ**.
 
-**2.** Dodiruj zaslon kako bi Bopi zamahivao krilima.
+**2.** Dodiruj zaslon kako bi odabrani junak zamahivao krilima.
 
-**3.** Proleti između stijena bez sudara.
+**3.** Prati prirodni ritam prepreka i pronađi siguran prolaz.
 
 **4.** Dodirni crvene bobice da ih prikupiš.
 
 **5.** Pokušaj nadmašiti svoj najbolji rezultat!
 
-Tijekom leta možeš odabrati pauzu, nastaviti ili započeti novi pokušaj.
+Tijekom leta možeš odabrati pauzu, nastaviti ili započeti novi pokušaj. Na početnom zaslonu otvori **Opcije** za prilagodbu igre ili **Rekorde** za pregled osobnog napretka.
 
 ## Igra koja poštuje privatnost
 
@@ -73,7 +74,7 @@ Tijekom leta možeš odabrati pauzu, nastaviti ili započeti novi pokušaj.
 
 Rezultati se čuvaju lokalno na tvom uređaju.
 
-[Pročitaj pravila privatnosti](docs/play/PRIVACY_POLICY.md)
+[Politika privatnosti](docs/play/PRIVACY_POLICY.md) · [Uvjeti korištenja](docs/play/TERMS_OF_USE.md)
 
 ---
 

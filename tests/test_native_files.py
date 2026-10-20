@@ -34,7 +34,7 @@ assert all(label in result for label in ("progress.recordRun(g)","bestPoints()",
 for removed in ("showWorlds(","showLevels(","showShop(","showProfile(","showPerks(","showCollection(","showAchievements(","showLeaderboard(","showSettings(","showPilotPicker("):
     assert removed not in a,removed
 assert "BerryCollision.touched(" in simulation and "collectedFood[i]=true" in simulation
-assert "if(endless && gate.coin && !collectedFood[i])" in simulation
+assert "if(endless && gate.coin && !heartAt(i) && !collectedFood[i])" in simulation
 assert "if(!endless && gate.coin" in simulation
 assert "foodCollected" in simulation and "sweptBodyHitsPillar" in simulation
 assert "scrollSpeed+=(targetSpeed-scrollSpeed).coerceIn(-maxStep,maxStep)" in simulation
