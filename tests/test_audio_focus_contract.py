@@ -10,7 +10,8 @@ activity=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").
 for symbol in ("AudioFocusRequest.Builder(", "requestAudioFocus(focusRequest)",
                "abandonAudioFocusRequest(focusRequest)", "AUDIOFOCUS_LOSS_TRANSIENT",
                "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK", "AUDIOFOCUS_LOSS",
-               "AUDIOFOCUS_GAIN", "playbackRequested=false", "appContext",
+               "AUDIOFOCUS_GAIN", "AUDIOFOCUS_REQUEST_DELAYED", "focusRequested",
+               "setAcceptsDelayedFocusGain(true)", "playbackRequested=false", "appContext",
                "player?.release()", "pool.release()"):
     assert symbol in audio, symbol
 assert "catch(_:Exception)" not in audio and "catch (_:Exception)" not in audio

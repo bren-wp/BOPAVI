@@ -31,6 +31,9 @@ class Soundscape(context: Context) {
     private var player: MediaPlayer? = null
     private var closed = false
     private var focusHeld = false
+    // A delayed or transiently lost request must still be explicitly abandoned
+    // when the Activity pauses, even though it does not currently own focus.
+    private var focusRequested = false
     private var playbackRequested = false
     private var world = -1
 
@@ -44,6 +47,7 @@ class Soundscape(context: Context) {
                 focusHeld = false
                 playbackRequested = false // Never restart after a permanent interruption.
                 pausePlayer()
+                abandonFocus()
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
@@ -54,6 +58,7 @@ class Soundscape(context: Context) {
     }
     private val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
         .setAudioAttributes(musicAttributes)
+        .setAcceptsDelayedFocusGain(true)
         .setOnAudioFocusChangeListener(focusListener)
         .build()
 
@@ -76,13 +81,15 @@ class Soundscape(context: Context) {
 
     private fun acquireFocus(): Boolean {
         if (closed || !enabled) return false
-        if (focusHeld) return true
+        if (focusRequested) return focusHeld
         val status = audioManager.requestAudioFocus(focusRequest)
         focusHeld = status == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        focusRequested = focusHeld || status == AudioManager.AUDIOFOCUS_REQUEST_DELAYED
         return focusHeld
     }
     private fun abandonFocus() {
-        if (focusHeld) {
+        if (focusRequested) {
+            focusRequested = false
             focusHeld = false
             audioManager.abandonAudioFocusRequest(focusRequest)
         }
