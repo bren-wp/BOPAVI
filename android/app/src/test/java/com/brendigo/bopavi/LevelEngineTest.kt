@@ -72,9 +72,12 @@ class LevelEngineTest {
         assertEquals(4L,flight.displayLevel)
         assertEquals(xBefore-flight.distance,flight.gateX(flight.level.gates.first()),.01f)
         assertEquals(0,flight.upcomingGates().size)
+        // Regeneration is deliberately deferred until halfway through
+        // the next segment, not the first frame after promotion.
         flight.step(1f/60f)
-        assertTrue("Next-next group is prepared outside the boundary frame",
-            flight.upcomingGates().isNotEmpty())
+        assertTrue("Preloading the subsequent batch must not interrupt the flight",
+            flight.active && !flight.finished)
+        assertEquals(0,flight.upcomingGates().size)
     }
 
     @Test fun originalCroatianWorldNamesRemainAvailable() {
