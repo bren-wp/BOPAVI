@@ -91,7 +91,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
      * The entire heart remains in the safe opening and is never paywalled.
      */
     private fun heartAt(ordinal:Long,index:Int):Boolean =
-        endless && ((ordinal-1L)*level.gates.size.toLong()+index+1L)%17L==0L
+        endless && ((ordinal-1L)*11L+index+1L)%17L==0L
     fun isHeartPosition(index:Int,incoming:Boolean=false):Boolean {
         val segment=if(incoming)nextLevel else level
         val number=if(incoming)displayLevel+1 else displayLevel

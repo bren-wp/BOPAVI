@@ -17,3 +17,7 @@ assert "postInvalidateDelayed(if(reducedMotion) 33L else 14L)" in view
 manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text()
 assert "android.permission.INTERNET" not in manifest
 print("PASS: three lives, rare collectible hearts, mossy pillars and compact native HUD")
+
+activity=(src/"MainActivity.kt").read_text()
+assert "private fun polishGameDialog(" in activity
+assert "0xff154c8d.toInt(),0xff061d42.toInt()" in activity

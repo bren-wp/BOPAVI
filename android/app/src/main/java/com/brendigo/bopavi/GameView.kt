@@ -178,6 +178,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var completedSeen=0
     private var pickupSeen=0
     private var shieldImpactNotified=false
+    private var lastAccessibilityLives=-1
     var paused = false
         set(v) { field = v; lastFrame = 0L; postInvalidateOnAnimation() }
     init {
@@ -1063,9 +1064,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 drawHudHeart(c,hx,36f,healthy)
             }
         }
-        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood) {
+        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood || game.lives!=lastAccessibilityLives) {
             lastAccessibilityScore=score
             lastAccessibilityFood=food
+            lastAccessibilityLives=game.lives
             lastHudAccessibility="${"BODOVI"}: $score; ${"Hrana"}: $food; Životi: ${game.lives}"
             contentDescription=lastHudAccessibility
         }
