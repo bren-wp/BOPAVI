@@ -219,7 +219,7 @@ PY
 done
 test "$flying" -eq 1 || { echo "FAIL: first flap never reached active HUD/PAUSE state" >&2; exit 1; }
 capture android-gameplay-active
-printf 'STATE: flight-active confirmed by native GameView and Pause control\n' >> qa/screenshots/state-evidence.txt
+printf 'STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pause control\n' >> qa/screenshots/state-evidence.txt
 if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
 fi
