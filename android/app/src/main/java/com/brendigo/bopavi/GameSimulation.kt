@@ -123,9 +123,6 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
     fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
-    fun coinVisible(index: Int) = !collectedCoins[index]
-    fun starVisible(index: Int) = !collectedStars[index]
-    fun powerVisible(index: Int) = !collectedPowers[index]
     val birdX = 126f
     // Tight body-only hitbox; wings and transparent sprite padding never collide.
     val radius = 18f

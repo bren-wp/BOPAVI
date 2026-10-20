@@ -29,6 +29,12 @@ assert 'action(content,"▶  IGRAJ"){startGame()}' in home
 assert 'progress.chooseArcadePilot(index)' in home
 assert 'gamePauseButton?.text = "▶"' in activity
 assert 'gamePauseButton?.text="Ⅱ"' in activity
+assert 'if(game.paused) {' in activity and 'return@setOnClickListener' in activity
+assert 'if(view!=null && view.paused) showPremiumPause(view)' in activity
+assert 'selectedScreen=="game" && window.decorView.hasWindowFocus()' in activity
+assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
+assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity
+assert "drawStoneCourses(" in game and "fun courses(yStart" not in game
 
 # API36 only falls back to an image that is verified before emulator boot.
 assert "targets+=(default)" in install and "ready \"$image\"" in install
