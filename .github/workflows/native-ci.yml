@@ -26,13 +26,13 @@ jobs:
       - run: python tests/test_approved_bopi_source.py
       - run: python tools/verify_pilot_sprite_anatomy.py
       - run: python tests/test_world_storybook.py
-      - name: Verify eleven pilots and eight Android worlds
+      - name: Verify nine pilots and eight Android worlds
         run: |
           python - <<'PY'
           from pathlib import Path
           from PIL import Image
           root=Path('android/app/src/main/res/drawable-nodpi')
-          for i in range(11):
+          for i in range(9):
               for name in (f'bopi{i}',f'bopileft{i}',f'bopiright{i}',f'bopiportrait{i}'):
                   with Image.open(root/f'{name}.png') as im:
                       assert im.size==(512,512) and im.convert('RGBA').getbbox(),name
@@ -62,6 +62,7 @@ jobs:
           python tools/generate_audio.py
           python tools/verify_audio.py
       - run: python tests/test_native_files.py
+      - run: python tests/test_three_pilots.py
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_reference_navigation.py

@@ -1,15 +1,16 @@
 # ADR-0001 — BOPAVI Android product scope
 
-**Status: PENDING PRODUCT OWNER APPROVAL.** This document does not
-silently restore removed features or imply a new approval.
+**Status: PENDING PRODUCT OWNER APPROVAL for further legacy feature expansion.**
+**Limited owner-approved change, 20 October 2026:** Bopi, Sova (owl) and
+Lisac (fox) are selectable directly on Home. This does not authorize shops,
+world selection, payments, inventory, or any old unreachable screens.
 
 ## Current executable baseline
 
-Native Android has one Bopi, a continuous flight, scoring and
+Native Android has three immediately playable pilots, continuous flight, scoring and
 contact-collected berries, Home, Pause and Results with Retry/Home.
 The package is `com.brendigo.bopavi`; offline local data and old
-save-key compatibility are mandatory. No shop, worlds selector, skins
-picker, monetization or settings menu is currently reachable.
+save-key compatibility are mandatory. No shop, worlds selector, separate skin-inventory screen, monetization or settings menu is currently reachable.
 
 ## Decision A — Focused endless arcade
 
@@ -27,6 +28,6 @@ authorize a change to current player-visible features.
 ## Approval gate
 
 Record `Decision: A` or `Decision: B`, date and owner approval
-separately. Until approval, follow the **existing reachable UX** and
-do not reintroduce previously removed functions. All public copy must
+separately. Only the explicitly approved inline Home pilot choice may expand the UX;
+all other previously removed features remain disabled. All public copy must
 describe current installed Android behaviour.

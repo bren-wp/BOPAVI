@@ -75,6 +75,10 @@ is the source for the automated public-claims gate.
       "status": "visible"
     },
     {
+      "id": "inline_pilot_selection",
+      "status": "visible"
+    },
+    {
       "id": "legacy_save_models",
       "status": "internal-legacy"
     },
@@ -146,14 +150,14 @@ is the source for the automated public-claims gate.
 
 | Live state | Android implementation | What players can do |
 |---|---|---|
-| Home | MainActivity.showHome | Start an endless Bopi flight |
+| Home | MainActivity.showHome | Choose Bopi, Sova or Lisac, read both offline legal links and start an endless flight |
 | Flight | MainActivity.startGame, GameView, GameSimulation | Tap to flap, pass pillars and collect berries |
 | Pause | MainActivity.showPremiumPause | Resume, restart or exit |
 | Results | MainActivity.showResult, ProgressStore.recordRun | Read score/berries/best and retry or return Home |
 
 The original approved Bopi art, level engine and eight generated biome asset
-sources remain preserved even where the player can only reach the first Bopi
-and first biome. Other stored fields are retained for backward compatibility;
+sources remain preserved. Sova and Lisac are new selectable animal companions
+on Home, while only the first biome is presently accessible. Other stored fields are retained for backward compatibility;
 they are not advertised as player-accessible options.
 
 ## Release and QA limitations

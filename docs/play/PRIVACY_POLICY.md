@@ -1,23 +1,14 @@
-# BOPAVI — Politika privatnosti / Privacy Policy
+# BOPAVI — Politika privatnosti
 
-**Updated / Ažurirano:** 18.10.2026. **Publisher / Izdavač:** Brendigo. **Kontakt:** https://github.com/bren-wp/BOPAVI/issues
+**Ažurirano:** 20. 10. 2026. · **Izdavač:** Brendigo · https://brendigo.com
+**Službena stranica:** https://bopavi.com.hr
 
-## Hrvatski
+BOPAVI je nativna Android arkadna igra koja može raditi bez interneta. Prema aktualnom izvornom kodu ne traži INTERNET dozvolu i ne koristi račune, oglase, analitiku, praćenje, kupnje u aplikaciji ili udaljeni poslužitelj. Izdavač ne prima bodove ni druge osobne podatke tijekom igre.
 
-BOPAVI je igra letenja koju je moguće igrati bez interneta. Trenutačno korisničko sučelje ne nudi račune, oglase, analitiku ni kupnje unutar aplikacije. Prema provjerenom izvornom kodu Android aplikacija nema INTERNET dozvolu niti šalje podatke na poslužitelje izdavača.
+Bodovi, bobice, osobni rekordi, odabrani lik (Bopi, Sova ili Lisac), postavke i kompatibilni povijesni podaci ostaju na uređaju. Stari formati spremljenih podataka sačuvani su radi nadogradnje; to ne znači da je dostupan ručni uvoz, izvoz, trgovina ili prijava.
 
-Bodovi, rezultati skupljanja bobica, osobni rekordi i postavke/ranije spremljeni podaci ostaju na uređaju. Stariji formati pohrane mogu sadržavati podatke povijesnih funkcija, ali to **ne znači** da su izbornici za odabir likova, trgovinu ili ručni uvoz/izvoz dostupni u aktualnom izdanju.
+Lokalnu pohranu možete obrisati putem Android postavki **Aplikacije → BOPAVI → Pohrana → Obriši podatke** ili deinstalacijom. Prethodno napravljene vanjske kopije ne brišu se automatski tim postupkom.
 
-Lokalne podatke na Androidu možete obrisati putem sustavnih postavki aplikacije (Pohrana → Obriši podatke) ili deinstaliranjem. Kopije podataka ranije spremljene izvan aplikacije ne brišu se nužno ovim postupkom.
+Javnu HTTPS politiku potrebno je objaviti na domeni igre i provjeriti dostupnost prije Google Play objave. Obradu podataka i pravila za djecu treba ponovno procijeniti pri svakoj nadogradnji.
 
-Igra ne zahtijeva prijavu. Dobna publika i posebna pravila za djecu određuju se prema stvarnoj distribuciji. Prakse o podacima ponovno se provjeravaju za svaki novi paket te će ova politika biti ažurirana ako se promijene.
-
-## English
-
-BOPAVI is an offline-playable arcade flight game. The current user interface does not offer accounts, advertisements, analytics or in-app purchases. As inspected in the Android source, the app declares no INTERNET permission and does not transmit information to the publisher's servers.
-
-Scores, collected-berry records, personal bests, preferences and retained data from older versions are saved locally. Older save formats may hold historic feature data; this does **not** imply current access to character selection, a shop or manual backup import/export screens.
-
-On Android you can clear app storage in system settings or uninstall the app. Copies previously stored outside the application are not necessarily erased. The intended audience and applicable children's requirements must be reviewed for distribution. This policy will be updated when data practices change.
-
-**Questions / Pitanja:** https://github.com/bren-wp/BOPAVI/issues.
+**Kontakt:** https://brendigo.com

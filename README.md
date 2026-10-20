@@ -4,7 +4,7 @@
 
 ### MALI LETOVI. VELIKE PRIČE.
 
-**Jedan Bopi. Jedan dodir. Beskrajna avantura.**
+**Tri junaka. Jedan dodir. Beskrajna avantura.**
 
 <img src="docs/assets/hero.svg" alt="Bopi leti kroz čarobni nebeski svijet" width="820">
 
@@ -18,7 +18,7 @@
 
 ## Upoznaj Bopija
 
-Mala plava ptica. Veliki nebeski izazov.
+Bopi, mudra Sova ili krilati Lisac. Tri različita junaka, jedna beskrajna avantura.
 
 Poleti s Bopijem, klizi između stijena i pokušaj ostati u zraku što dulje. Svaki dodir zaslona donosi novi zamah krila, a svaki uspješan prolaz vodi te bliže novom osobnom rekordu.
 
@@ -55,7 +55,7 @@ Ne zaboravi crvene bobice koje se skrivaju duž puta!
 
 ## Kako igrati?
 
-**1.** Pritisni **IGRAJ**.
+**1.** Odaberi Bopija, Sovu ili Lisca pa pritisni **IGRAJ**.
 
 **2.** Dodiruj zaslon kako bi Bopi zamahivao krilima.
 

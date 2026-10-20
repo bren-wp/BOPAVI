@@ -1,12 +1,14 @@
 # BOPAVI — Uvjeti korištenja
 
-**Ažurirano:** 20. 10. 2026. **Izdavač:** Brendigo · https://brendigo.com  
-**Podrška:** https://github.com/bren-wp/BOPAVI/issues
+**Ažurirano:** 20. 10. 2026. · **Izdavač:** Brendigo · https://brendigo.com
+**Službena stranica igre:** https://bopavi.com.hr
 
-BOPAVI je nativna Android arkadna igra koja se može igrati bez računa i interneta. Dostupne funkcije uključuju let Bopija, izbjegavanje prepreka, skupljanje bobica, bodovanje, pauzu i pregled rezultata. Bobice nisu stvarna ni virtualna sredstva plaćanja i ne mogu se zamijeniti za novac ili robu. Igra nema oglasa niti kupnji unutar aplikacije.
+BOPAVI je besplatna nativna Android arkadna igra. Odaberi Bopija, Sovu ili Lisca, upravljaj letom dodirom zaslona, izbjegavaj prirodne prepreke i skupljaj bobice. Sva tri lika imaju iste uvjete bodovanja, fiziku i geometriju sudara.
 
-Rezultati i rekordi pohranjuju se lokalno na uređaju; povijesni podaci ostaju sačuvani radi kompatibilnosti. Trenutna verzija **nema** zaslone trgovine, odabira svjetova i likova, profila, korisničkih postavki ili ručnog uvoza/izvoza. Brisanje aplikacije ne uklanja nužno kopije koje su nekad zasebno spremljene drugdje.
+Igra radi bez korisničkog računa, oglasa i kupnji. Bobice i bodovi nemaju novčanu vrijednost te nisu sredstvo plaćanja ni predmet zamjene za novac ili robu. Rekordi i odabir lika čuvaju se lokalno, a povijesni saveovi ostaju radi kompatibilnosti; ručni uvoz/izvoz i trgovina nisu dostupni.
 
-Igru ne koristite kada bi mogla ometati sigurnost. Dobnu oznaku i zahtjeve za djecu odredit će izdavač pri objavi u Google Play Consoleu. Naziv, ilustracije i originalni resursi zaštićeni su pravima nositelja, a pravila izvornog koda navedena su u licenci repozitorija. Ovi uvjeti ne ograničavaju obvezna prava korisnika prema primjenjivom zakonodavstvu.
+Igru koristi odgovorno i ne igraj u situacijama kada ometanje pažnje može ugroziti sigurnost. Primjenjuju se uvjeti distribucijske platforme, relevantna autorska prava i obvezno zakonodavstvo. Nijedna odredba ovih uvjeta ne umanjuje zakonska prava korisnika.
+
+**Kontakt:** https://brendigo.com
 
 [Politika privatnosti](PRIVACY_POLICY.md)
