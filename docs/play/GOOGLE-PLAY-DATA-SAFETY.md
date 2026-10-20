@@ -1,24 +1,18 @@
-# BOPAVI — Google Play Data safety assessment (v0.2.21 / build 126)
+# BOPAVI — procjena sigurnosti podataka za Google Play (v1.0.3 kandidat)
 
-**Status: source-based draft, publisher verification pending.** Baseline main 952d2139 (2026-10-18). Google Play Data safety is a declaration about **all applicable Play-distributed versions**, not only a single GitHub build.
+**Status:** izvorni kod pregledan; završna Play Console potvrda ostaje odgovornost izdavača.
 
-| Question | Audited source | Final publisher action |
+| Područje | Stanje nativne Android aplikacije | Konačna provjera |
 |---|---|---|
-| Network/user-data collection | AndroidManifest.xml has no INTERNET permission; app/build.gradle.kts has no ad or analytics dependencies | Inspect final merged manifest, bundle, runtime SDKs and all currently distributed Play builds |
-| Ads and in-app purchases | No reachable advertising, store or payment SDK in current native flow | Declare accurately in Play Console after final review |
-| Accounts | Home launches offline game without sign-in UI | Check dependencies and actual installed Play build |
-| Stored local data | Score, best score/food, progress preferences and retained legacy records in native ProgressStore | Describe local storage and deletion accurately; do not equate device-local records with off-device collection |
-| Backup / import / export | Legacy JSON encode/decode code remains for compatibility; **no user-reachable Settings/export/import UI** in this build | Never advertise a live backup feature or claim that a system picker is currently accessible |
-| Deletion | Android locally stored data can be cleared in system Settings → Apps → BOPAVI → Storage / Clear storage, or by uninstalling | Verify per-OS backups and other copies independently |
-| Policy | docs/play/privacy-policy.html and PRIVACY_POLICY.md | Verify public working HTTPS URL, consistent disclosures, version and publisher identity |
+| Internetske dozvole i SDK-ovi | Bez INTERNET dopuštenja, bez oglasnog ili analitičkog SDK-a | Pregledati manifest i ovisnosti konačnog AAB-a |
+| Podaci | Bodovi, bobice, osobni rekordi i povijesne postavke lokalno su spremljeni na uređaju | Provjeriti sve verzije koje se još distribuiraju na Playu |
+| Račun ili prodaja | Nema registracije, oglasa ni kupnje unutar aplikacije | Potvrditi stvarni instalirani paket |
+| Ručni uvoz/izvoz | Samo stari parser/serializer zbog kompatibilnosti podataka; nema korisnički dostupne tipke | Ne oglašavati ručni backup |
+| Privatnost | U aplikaciji postoji hrvatski lokalni dijalog o privatnosti; javni HTML/Markdown dokument | Provjeriti javni HTTPS URL u anonimnom pregledniku |
+| Brisanje | Sustavne Android postavke → BOPAVI → Pohrana → Obriši podatke, odnosno deinstalacija | Ne tvrditi da se time brišu ranije izvezene vanjske kopije |
+| Ciljana dob i sadržaj | Jednostavna offline arkadna igra | Ispuniti stvarni Play IARC i ciljanu dob |
 
-## Proposed answers (not submitted)
+Google Play pravila: https://support.google.com/googleplay/android-developer/answer/18258653 i https://support.google.com/googleplay/android-developer/answer/9898842.
 
-Current Android source supports *no app-initiated collection/sharing*, advertising or monetization; this is not yet an independently inspected Play-distributed binary or Play Console questionnaire. Publisher must confirm third-party libraries, other active Play versions, crash analytics, OS/integration behavior, transfer channels and applicable categories before setting the final declarations.
-
-## Google requirements checked 2026-10-18
-
-- https://support.google.com/googleplay/android-developer/answer/10787469 — Data safety form and public privacy policy are required even when no data is collected; closed testing is included, internal-only testing has a narrow exemption.
-- https://support.google.com/googleplay/android-developer/answer/9898842 — Store metadata must describe real functionality and images must match the app.
-
-Do not claim uploaded or approved metadata, and do not enter forms without publisher credentials and explicit authorization.
+**Ne tvrdimo da je Play Console obrazac predan, da je produkcijski AAB potpisan ili da je trgovina odobrila aplikaciju.**  
+Kontrolirati i postojeće objavljene verzije prije izjave „ne prikuplja podatke”.

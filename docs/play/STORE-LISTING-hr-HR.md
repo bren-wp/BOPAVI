@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR), verified reachable UX, candidate v1.0.2 / build 132 (latest published v0.2.24 / build 129)
+# Google Play — BOPAVI (hr-HR) · kandidat v1.0.3 / build 133 · posljednje objavljeno izdanje v1.0.2 (build 132)
 
 <!-- verified-feature-ids: home,flight,tap_to_flap,procedural_obstacles,pause,results,score,berries,local_best,retry,offline,no_ads,no_account -->
 
@@ -14,7 +14,7 @@ Tijekom leta možeš skupljati crvene bobice. One se broje zasebno od bodova i n
 
 Aktivni let možeš pauzirati te nastaviti, ponoviti ili napustiti pokušaj.
 
-Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unutar aplikacije. Rezultati se spremaju lokalno na uređaj.
+Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unutar aplikacije. Rezultati se spremaju lokalno na uređaj. Politiku privatnosti možete pročitati unutar igre.
 
 **Kategorija:** Igra → Arkadne (potvrditi u Play Consoleu).
 
@@ -22,9 +22,9 @@ Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unuta
 
 ## Autentične slike — ugovor
 
-Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Izvor: https://github.com/bren-wp/BOPAVI/releases/tag/v0.2.24.
+Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Referentni izvori javno objavljenog izdanja v1.0.2: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.2. Za v1.0.3 koristiti isključivo nove, stvarne screenshotove snimljene na istom buildu nakon uspješnog QA; stari screenshotovi nisu kandidati za novo izdanje.
 
-- Home: jedan gumb IGRAJ.
+- Home: jedan glavni gumb IGRAJ i sekundarna tipka POLITIKA PRIVATNOSTI.
 - Flight Preview: prikaz prije prvog zamaha; **ne** predstavljati ga kao aktivni gameplay.
 - Flight Active: stvarni aktivni let s HUD-om bodova/hrane.
 - Results: rezultat, najbolji bodovi i najbolja hrana.

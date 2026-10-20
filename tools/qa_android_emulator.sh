@@ -141,6 +141,37 @@ if recover_launcher_anr; then
   dump_ui
 fi
 capture android-home
+# Read the ACTUAL native policy dialog before entering flight, not static copy.
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+p=[n for n in nodes if n.get("clickable")=="true"
+   and "POLITIKA PRIVATNOSTI" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
+if len(p)!=1:raise SystemExit("FAIL: native Home privacy action missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",p[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: privacy button bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+sleep 1
+dump_ui
+python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+alltext=" ".join(label(n) for n in nodes)
+for required in ("POLITIKA PRIVATNOSTI","BRENDIGO","OBRIŠI PODATKE"):
+    if required not in alltext:raise SystemExit("FAIL: in-app privacy dialog lacks "+required)
+close=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
+if len(close)!=1:raise SystemExit("FAIL: native privacy dialog Close missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: native policy dialog Close bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+print("PASS: Croatian privacy dialog accessible, offline and dismissible",flush=True)
+PY
+sleep 1
+dump_ui
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
@@ -320,6 +351,14 @@ play=[n for n in nodes if n.get("clickable")=="true"
       and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
               for x in ("PLAY","IGRAJ"))]
 assert len(play)==1,(label,"missing or duplicate accessible PLAY")
+privacy=[n for n in nodes if n.get("clickable")=="true" and
+         "POLITIKA PRIVATNOSTI" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
+assert len(privacy)==1,(label,"missing accessible privacy link")
+pm=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",privacy[0].get("bounds",""))
+assert pm,(label,"missing privacy bounds")
+pl,pt,pr,pb=map(int,pm.groups())
+assert 0<=pl<pr<=width and 0<=pt<pb<=height,(label,"privacy button clipped")
+assert pb-pt>=48*int(density)/160,(label,"privacy button below 48dp")
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
 assert m,(label,"PLAY bounds absent")
 l,t,r,b=map(int,m.groups())

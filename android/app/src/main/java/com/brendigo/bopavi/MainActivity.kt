@@ -24,12 +24,10 @@ class MainActivity : Activity() {
     private var gamePauseButton: Button? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
-    private val blue = 0xff0f3570.toInt()
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     private val electric = 0xff00d9ff.toInt()
-    // Share the nine saved-pilot resource IDs between native screens.
-    // All nine are playable; the chosen pilot must remain consistent in UI.
+    // Only original Bopi is reachable in the current game; retain old skin saves.
     private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0)
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -74,7 +72,7 @@ class MainActivity : Activity() {
             gameView?.paused = true
             gamePauseButton?.text = "▶"
             gamePauseButton?.contentDescription =
-                if(progress.languageCode()=="hr")"Nastavi ili izađi iz pauze" else "Open paused game controls"
+                "Nastavi ili izađi iz pauze"
         }
         if(::sound.isInitialized) sound.pause()
         super.onPause()
@@ -116,7 +114,6 @@ class MainActivity : Activity() {
         })
     }
 
-    private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
     /**
      * Four short 2×4 pages rather than Android's 26-row scrolling list.
      * Native clickable, minimum-48dp targets and a persistent selected state.
@@ -124,7 +121,7 @@ class MainActivity : Activity() {
      */
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
-            text=ui(s)
+            text=s
             textSize=size.toFloat()
             setTextColor(color)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -149,7 +146,7 @@ class MainActivity : Activity() {
     }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,muted:Boolean=false,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=ui(text);setTextColor(Color.WHITE)
+            this.text=text;setTextColor(Color.WHITE)
             textSize=18f;isAllCaps=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.03f
@@ -173,14 +170,58 @@ class MainActivity : Activity() {
                 }
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
             elevation=d(7).toFloat()
-            contentDescription=ui(text)
+            contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
         }
         parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)68 else 58)).apply{
             setMargins(0,d(5),0,d(5))
         })
     }
-    /** One shared, compact 48dp upper-left Back affordance for every native menu. */
+    /** Distinct native, high-contrast Back affordance; never a painted, inert icon. */
+    private fun backAction(parent:LinearLayout,caption:String,onClick:()->Unit) {
+        val face=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(0xff246fba.toInt(),0xff0a376d.toInt())).apply {
+            cornerRadius=d(29).toFloat()
+            setStroke(d(2),0xffa3eaff.toInt())
+        }
+        val back=Button(this).apply {
+            text="←  $caption"
+            contentDescription="Povratak na početnu"
+            isAllCaps=false
+            textSize=18f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            letterSpacing=.025f
+            setTextColor(Color.WHITE)
+            setAutoSizeTextTypeUniformWithConfiguration(14,18,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
+            minHeight=d(56)
+            elevation=d(3).toFloat()
+            setOnClickListener { sound.effect("click"); onClick() }
+        }
+        parent.addView(back,LinearLayout.LayoutParams(-1,d(58)).apply {
+            setMargins(0,d(5),0,d(5))
+        })
+    }
+    /** Offline, discoverable policy text: no WebView, browser or network needed. */
+    private fun showPrivacyNotice() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Politika privatnosti")
+            .setMessage(
+                "Izdavač: Brendigo · https://brendigo.com\n\n" +
+                "BOPAVI je igra koja radi bez internetske veze, prijave, oglasa " +
+                "i kupnji unutar aplikacije. Aplikacija ne šalje rezultate " +
+                "niti druge osobne podatke na poslužitelje izdavača.\n\n" +
+                "Bodovi, bobice, rekordi i ranije spremljene postavke čuvaju " +
+                "se lokalno na uređaju. Podatke možete obrisati u postavkama " +
+                "uređaja (Aplikacije → BOPAVI → Pohrana → Obriši podatke) " +
+                "ili deinstalacijom. Ranije stvorene kopije izvan aplikacije " +
+                "time se ne brišu automatski.\n\n" +
+                "Pitanja o privatnosti: https://github.com/bren-wp/BOPAVI/issues"
+            )
+            .setPositiveButton("Zatvori",null)
+            .show()
+    }
     private fun showHome(){
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null;gamePauseButton=null
@@ -197,8 +238,8 @@ class MainActivity : Activity() {
                 intArrayOf(0x12011c52,0x001b84c8,0xbb031536.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        // The simplified premium experience has ONE accessible action: fly.
-        // Keep the logo and selected pilot independent of scenery artwork.
+        // One main gameplay action plus a smaller, accessible privacy notice.
+        // Keep original logo and Bopi art independent of backdrop artwork.
         val viewport=FitViewportColumn(this).apply{
             clipChildren=false;clipToPadding=false
         }
@@ -209,22 +250,40 @@ class MainActivity : Activity() {
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
+        val compactDisplay=resources.configuration.screenHeightDp<700
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(156)))
+        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)128 else 156)))
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[0])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(325)).apply{topMargin=d(14)})
+        },LinearLayout.LayoutParams(-1,d(if(compactDisplay)270 else 325))
+            .apply{topMargin=d(if(compactDisplay)8 else 14)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        title(content,if(progress.languageCode()=="hr")"MALI LETOVI · VELIKE PRIČE"
-            else "SMALL FLIGHTS · BIG STORIES",16,Color.WHITE)
-        action(content,if(progress.languageCode()=="hr")"▶  IGRAJ" else "▶  PLAY"){
+        title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)
+        action(content,"▶  IGRAJ"){
             startGame()
         }
+        val privacy=TextView(this).apply{
+            text="POLITIKA PRIVATNOSTI"
+            textSize=13f
+            letterSpacing=.025f
+            gravity=Gravity.CENTER
+            setTextColor(0xffd5efff.toInt())
+            typeface=Typeface.create("sans-serif-medium",Typeface.BOLD)
+            contentDescription="Pročitaj politiku privatnosti"
+            isClickable=true
+            isFocusable=true
+            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                gradient(0x550a427b,0x44021f44,20),null)
+            setOnClickListener { showPrivacyNotice() }
+        }
+        content.addView(privacy,LinearLayout.LayoutParams(-1,d(58)).apply{
+            topMargin=d(4)
+        })
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             if(Build.VERSION.SDK_INT>=30){
@@ -254,8 +313,8 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
-        title(content,if(progress.languageCode()=="hr")"♛  PAUZA" else "♛  PAUSE",32,Color.WHITE)
-        title(content,if(progress.languageCode()=="hr")"Let je pauziran" else "Flight paused",16,0xffbce6ff.toInt())
+        title(content,"♛  PAUZA",32,Color.WHITE)
+        title(content,"Let je pauziran",16,0xffbce6ff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -269,28 +328,28 @@ class MainActivity : Activity() {
                 }
             }
             val b=Button(this).apply {
-                this.text=ui(text);isAllCaps=false;textSize=18f
+                this.text=text;isAllCaps=false;textSize=18f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
                 elevation=d(5).toFloat()
-                contentDescription=ui(text)
+                contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
             content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
                 setMargins(d(8),d(4),d(8),d(4))
             })
         }
-        command(if(progress.languageCode()=="hr")"▶  NASTAVI" else "▶  CONTINUE",0){
+        command("▶  NASTAVI",0){
             game.paused=false
             gamePauseButton?.text="Ⅱ"
-            gamePauseButton?.contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+            gamePauseButton?.contentDescription="Pauziraj igru"
             sound.resume()
         }
         command("↻  PONOVO",1){startGame()}
-        command("↪  IZLAZ",2){showHome()}
+        command("←  IZLAZ",2){showHome()}
         // The streamlined Pause contains only Continue, Retry and Exit.
         // Changes to saved audio/accessibility preferences are preserved.
         val fitted=FitViewportColumn(this).apply{addView(content)}
@@ -300,7 +359,7 @@ class MainActivity : Activity() {
             if(gameView===game && selectedScreen=="game") {
                 game.paused=false
                 gamePauseButton?.text="Ⅱ"
-                gamePauseButton?.contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+                gamePauseButton?.contentDescription="Pauziraj igru"
                 sound.resume()
             }
         }
@@ -338,14 +397,13 @@ class MainActivity : Activity() {
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")},
             qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
-            languageCode=progress.languageCode(),
             qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
             text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
             elevation=d(5).toFloat()
-            contentDescription=if(progress.languageCode()=="hr")"Pauziraj igru" else "Pause game"
+            contentDescription="Pauziraj igru"
             visibility=View.INVISIBLE
             setOnClickListener{
                 if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
@@ -377,7 +435,7 @@ class MainActivity : Activity() {
         val previousRecord=progress.bestPoints()
         val newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(if(g.won)"level" else "hit")
-        val headline=if(progress.languageCode()=="hr") "REZULTAT" else "RESULT"
+        val headline="REZULTAT"
         progress.recordRun(g)
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
@@ -413,8 +471,7 @@ class MainActivity : Activity() {
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription=if(progress.languageCode()=="hr")
-                "Bopi u svijetu Zeleni otoci" else "Bopi in Green Islands"
+            contentDescription="Bopi u svijetu Zeleni otoci"
         }
         artwork.addView(ImageView(this).apply{
             setImageResource(R.drawable.world0)
@@ -435,7 +492,7 @@ class MainActivity : Activity() {
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
-                text=ui("♛  NOVI REKORD!")
+                text="♛  NOVI REKORD!"
                 textSize=19f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 setTextColor(0xffffecaa.toInt())
@@ -444,13 +501,13 @@ class MainActivity : Activity() {
                 background=gradient(0xffb55b09.toInt(),0xff542c06.toInt(),20).apply{
                     setStroke(d(2),0xffffca46.toInt())
                 }
-                contentDescription=ui("Novi osobni rekord: ${g.score()} bodova")
+                contentDescription="Novi osobni rekord: ${g.score()} bodova"
             }
             panel.addView(recordBanner,LinearLayout.LayoutParams(-1,d(46)).apply{
                 topMargin=d(3);bottomMargin=d(5)
             })
         }
-        // Three genuine values from this completed run, never screenshot text.
+        // Genuine values from this completed run, never screenshot text.
         val summary=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -473,7 +530,7 @@ class MainActivity : Activity() {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(37)))
             card.addView(TextView(this).apply{
-                text=ui(heading);textSize=11f;gravity=Gravity.CENTER
+                text=heading;textSize=11f;gravity=Gravity.CENTER
                 typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -485,7 +542,7 @@ class MainActivity : Activity() {
                 setTextColor(color)
                 setAutoSizeTextTypeUniformWithConfiguration(16,23,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                contentDescription=ui("$heading $value")
+                contentDescription="$heading $value"
             }
             card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
             summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
@@ -494,13 +551,11 @@ class MainActivity : Activity() {
             return stat
         }
         resultCard("REZULTAT","★",g.score().toString(),gold)
-        resultCard(if(progress.languageCode()=="hr")"HRANA" else "FOOD",
+        resultCard("HRANA",
             "🍓",g.foodCollected.toString(),0xffffd5d7.toInt())
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
-            text=if(progress.languageCode()=="hr")
-                "★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
-                else "★  BEST SCORE: $best\n🍓  MOST FOOD: ${progress.bestFood()}"
+            text="★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
             textSize=16f;gravity=Gravity.CENTER;setTextColor(Color.WHITE)
             setAutoSizeTextTypeUniformWithConfiguration(13,16,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -509,10 +564,10 @@ class MainActivity : Activity() {
             setPadding(d(10),d(11),d(10),d(11))
             background=gradient(0xf0063978.toInt(),0xf0041a3c.toInt(),21)
         },LinearLayout.LayoutParams(-1,d(60)).apply{topMargin=d(12)})
-        action(panel,if(progress.languageCode()=="hr")"▶  PONOVO" else "▶  RETRY"){
+        action(panel,"▶  PONOVO"){
             startGame()
         }
-        action(panel,if(progress.languageCode()=="hr")"⌂  POČETNA" else "⌂  HOME",false){
+        backAction(panel,"POČETNA"){
             showHome()
         }
         showNativeView(root)

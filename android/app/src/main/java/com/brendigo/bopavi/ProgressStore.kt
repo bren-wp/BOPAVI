@@ -85,15 +85,8 @@ class ProgressStore(context: Context) {
         saveLocalScore(game,edit)
         edit.apply()
     }
-    // The concept screenshots use Croatian. New installs follow the phone's
-    // language; existing user selections are never overwritten.
-    fun languageCode():String {
-        val defaultLanguage=java.util.Locale.getDefault().language.lowercase(java.util.Locale.ROOT)
-        return GameLanguages.normalized(prefs.getString("ui_language",null) ?: defaultLanguage)
-    }
-    fun setLanguageCode(code:String) {
-        prefs.edit().putString("ui_language",GameLanguages.normalized(code)).apply()
-    }
+    // Keep historical ui_language and backup fields untouched for migrations.
+    // The live game now renders only Croatian without a language picker.
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */

@@ -11,7 +11,7 @@ android = (root / "android/app/src/main/java/com/brendigo/bopavi/ProgressStore.k
 # One SharedPreferences.Editor publishes both the run counters and leaderboard.
 # Previously the second apply could leave an inconsistent snapshot if the app
 # was interrupted between writes. Keep every existing key and serialization.
-run = android.split("    fun recordRun(game: GameSimulation) {",1)[1].split("    fun languageCode():String",1)[0]
+run = android.split("    fun recordRun(game: GameSimulation) {",1)[1].split("    fun lessMotion(): Boolean",1)[0]
 assert "val edit=prefs.edit()" in run
 assert "saveLocalScore(game,edit)" in run
 assert run.count("edit.apply()") == 1

@@ -37,14 +37,19 @@ def main():
     manifest=(ROOT/"android/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
     require('android:allowBackup="false"' in manifest,"Backup policy changed")
     require("android.permission.INTERNET" not in manifest,"Offline contract breached")
-    code=(CODE/"LevelEngine.kt").read_text(encoding="utf-8")
-    begin='private val flightRows=listOf(';end='    ).map { it.split("|") }'
-    require(begin in code and end in code,"HUD language inventory missing")
-    text=code.split(begin,1)[1].split(end,1)[0]
-    rows=[s.split("|") for s in re.findall(r'(?m)^\s*"([^"\r\n]+)"\s*,?\s*$',text)]
-    require(len(rows)==26 and len({r[0] for r in rows})==26,"HUD locales missing")
-    require(all(len(r)==9 and all(v.strip() for v in r) for r in rows),"Incomplete HUD translation")
-    require("GameLanguages.hudPack" in joined and "drawRootedCliffBases(" in joined,
-            "HUD or visual dependency not reached")
-    print(f"PASS: {len(SOURCES)} Kotlin sources, 13 offline sounds, 26 HUD locales, Android-only")
+    # Retired language picker and full 26-locale runtime catalog have no
+    # reachable UI. Do not delete legacy save, score or import/export contracts.
+    require("GameLanguages" not in joined,"Dead language picker catalog still compiled")
+    game=(CODE/"GameView.kt").read_text(encoding="utf-8")
+    activity=(CODE/"MainActivity.kt").read_text(encoding="utf-8")
+    store=(CODE/"ProgressStore.kt").read_text(encoding="utf-8")
+    require('"BODOVI"' in game and '"HRANA"' in game,
+            "Croatian gameplay HUD missing")
+    require('contentDescription="Povratak na početnu"' in activity,
+            "Accessible native Back button missing")
+    require('fun importJson(contents: String)' in store and
+            'fun exportJson()' in store and
+            'endless_food_best' in store, "Historic save/record migration damaged")
+    require('drawRootedCliffBases(' in joined,"Terrain renderer disconnected")
+    print(f"PASS: {len(SOURCES)} Kotlin sources, 13 offline sounds, Croatian-only UI, Android-only")
 if __name__=="__main__":main()

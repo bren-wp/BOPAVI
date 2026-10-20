@@ -10,7 +10,7 @@ assert "drawLevelProgress(canvas)" not in a_draw
 a_hud=get(a,"    private fun drawHud(c:Canvas){","    override fun onTouchEvent(")
 for hud in (a_hud,):
     assert "game.score()" in hud and "game.foodCollected" in hud
-    assert "SCORE" in hud
+    assert "BODOVI" in hud
     assert "game.coins" not in hud and "game.stars" not in hud
     assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
 assert "hudGlass(c,18f,20f,212f,88f)" in a_hud

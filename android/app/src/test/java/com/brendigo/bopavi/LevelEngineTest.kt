@@ -29,53 +29,10 @@ class LevelEngineTest {
             pickupFlight.magnetTime>17f)
     }
 
-    @Test fun languageCatalogDefaultsToEnglishAndPreservesCroatian() {
-        assertEquals(26,GameLanguages.codes.size)
-        assertEquals(GameLanguages.codes.size,GameLanguages.codes.toSet().size)
-        assertEquals("English",GameLanguages.name("en"))
-        assertEquals("en",GameLanguages.normalized("not-supported"))
-        assertEquals("⚙  SETTINGS",GameLanguages.text("⚙  POSTAVKE","en"))
-        assertEquals("⚙  POSTAVKE",GameLanguages.text("⚙  POSTAVKE","hr"))
-        assertEquals("▶  PLAY",GameLanguages.text("▶  IGRAJ","en"))
-        assertEquals("ADVANCED SETTINGS",GameLanguages.text("NAPREDNE POSTAVKE","en"))
-        assertEquals("ADVANCED SETTINGS",GameLanguages.text("NAPREDNE POSTAVKE","unknown"))
-        for (code in GameLanguages.codes) {
-            assertFalse("Empty UI label for $code",GameLanguages.text("▶  IGRAJ",code).isBlank())
-            assertFalse("Empty settings name $code",GameLanguages.name(code).isBlank())
-        }
-    }
-
-    @Test fun englishWorldsResultsAndCtaDoNotCorruptPartialKeys() {
-        val expectedWorlds=listOf("Green Islands","Crystal Sky","Lava Peaks",
-            "Night Castles","Pearl Sea","Sky Towers","Enchanted Forest","Star Abyss")
-        assertEquals(expectedWorlds,LevelEngine.names.map { GameLanguages.text(it,"en") })
-        assertEquals("Zeleni otoci",GameLanguages.text(LevelEngine.names[0],"hr"))
-        assertEquals("FLIGHT OVER!",GameLanguages.text("LET ZAVRŠEN!","en"))
-        assertEquals("LEVEL COMPLETE!",GameLanguages.text("LEVEL DOVRŠEN!","en"))
-        assertEquals("COLLECTED\nCOINS",GameLanguages.text("PRIKUPLJENE\nKOVANICE","en"))
-        assertEquals("TOTAL\nGATES",GameLanguages.text("UKUPNO\nPROLAZA","en"))
-        assertEquals("MY RECORDS",GameLanguages.text("MOJI REKORDI","en"))
-        assertEquals("YOUR RESULTS",GameLanguages.text("TVOJI REZULTATI","en"))
-        assertEquals("MOJI REKORDI",GameLanguages.text("MOJI REKORDI","hr"))
-    }
-
-    @Test fun everyPickerLanguageProvidesCompleteNonemptyGameplayVocabulary() {
-        val labels=listOf("SCORE","DIST","LEVEL","NEW STAGE","GATES",
-            "FLIGHT","TAP TO FLY","Bopi is flying")
-        assertEquals(26,GameLanguages.codes.size)
-        for(code in GameLanguages.codes) {
-            val hud=GameLanguages.hudPack(code)
-            assertEquals("Missing HUD keys: $code",labels.toSet(),hud.keys)
-            for(key in labels) {
-                assertFalse("Blank HUD key $code/$key",hud[key].isNullOrBlank())
-                assertFalse("Leftover machine token $code/$key",hud[key]!!.contains("|"))
-            }
-        }
-        assertEquals("SCORE",GameLanguages.hudPack("en")["SCORE"])
-        assertEquals("BODOVI",GameLanguages.hudPack("hr")["SCORE"])
-        assertEquals("スコア",GameLanguages.hudPack("ja")["SCORE"])
-        assertEquals("점수",GameLanguages.hudPack("ko")["SCORE"])
-        assertEquals(GameLanguages.hudPack("en"),GameLanguages.hudPack("invalid"))
+    @Test fun originalCroatianWorldNamesRemainAvailable() {
+        assertEquals(8,LevelEngine.names.size)
+        assertEquals("Zeleni otoci",LevelEngine.names.first())
+        assertEquals("Zvjezdani bezdani",LevelEngine.names.last())
     }
 
     @Test fun everyWorldUsesTapImpulseWithoutDragSteering() {
@@ -236,28 +193,11 @@ class LevelEngineTest {
         assertEquals(2,flight.flaps)
     }
 
-    @Test fun resultHeadlinesUseOnlyRealEarlierLocalRecords() {
-        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(0,0,false))
-        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(120,120,false))
-        assertEquals("LET ZAVRŠEN!",ResultHeadline.label(80,120,false))
-        assertEquals("NOVI REKORD!",ResultHeadline.label(121,120,false))
-        assertEquals("LEVEL DOVRŠEN!",ResultHeadline.label(121,120,true))
-        assertEquals("LEVEL DOVRŠEN!",ResultHeadline.label(0,0,true))
-    }
-
-    @Test fun namedLevelTypesMatchTheActualProceduralGenerator() {
-        val cases=listOf(1 to 0, 14 to 0, 15 to 1, 29 to 0,
-            30 to 2, 45 to 1, 59 to 0, 60 to 3,
-            61 to 0, 75 to 1, 90 to 2, 120 to 3, 360 to 3)
-        val titles=listOf("Normalni","Izazovni","Bonus","Elitni")
-        val icons=listOf("●","⚡","✦","♛")
-        for (world in 0 until LevelEngine.WORLD_COUNT) {
-            for ((number,type) in cases) {
-                assertEquals("world=$world level=$number",type,LevelEngine.create(world,number).type)
-                assertEquals(titles[type],LevelKind.name(type))
-                assertEquals(icons[type],LevelKind.icon(type))
-            }
-        }
+    @Test fun levelTypeGenerationIsStableWithoutRemovedMenuHelpers() {
+        val cases=listOf(1 to 0,15 to 1,30 to 2,60 to 3,61 to 0)
+        for(world in 0 until LevelEngine.WORLD_COUNT)
+            for((number,type) in cases)
+                assertEquals(type,LevelEngine.create(world,number).type)
     }
 
     @Test fun initialFlightRemainsInactiveUntilFirstTap() {
@@ -366,6 +306,20 @@ class LevelEngineTest {
                 }
             }
     }
+    @Test fun interiorSweptFlightCorridorStaysFreeWithoutExpensiveCapSearch() {
+        val from=LevelEngine.Opening(245f,453f)
+        val to=LevelEngine.Opening(253f,445f)
+        for(x in listOf(100f,125f,149f)) {
+            assertFalse("A swept body wholly in the open mouth never touches rock",
+                PillarCollision.sweptBodyHitsPillar(126f,336f,345f,18f,
+                    x+2f,x,76f,from,to))
+        }
+        // A moving body entering the upper lip is still a true collision.
+        val fixed=LevelEngine.Opening(245f,453f)
+        assertTrue(PillarCollision.sweptBodyHitsPillar(126f,265f,244f,18f,
+            110f,108f,76f,fixed,fixed))
+    }
+
     @Test fun conservativeRockSweepCatchesSingleSliceRoundedCornerTunneling() {
         val o=LevelEngine.Opening(228f,450f)
         // At 120Hz the real-moving rock can shift 1.5px horizontally while a
@@ -519,6 +473,21 @@ class LevelEngineTest {
     }
 
 
+    @Test fun threeDepthSceneryIsDeterministicAndSafeForReducedMotion() {
+        val expected=floatArrayOf(70f,150f,240f)
+        for (layer in 0..2) {
+            assertEquals(expected[layer],ParallaxScenery.offset(1000f,layer,false),0.001f)
+            assertEquals(0f,ParallaxScenery.offset(1000f,layer,true),0f)
+            assertEquals(0f,ParallaxScenery.offset(Float.NaN,layer,false),0f)
+            assertEquals(0f,ParallaxScenery.offset(Float.POSITIVE_INFINITY,layer,false),0f)
+            for (distance in listOf(0f,10f,12345f,999999f)) {
+                val d=ParallaxScenery.offset(distance,layer,false)
+                assertTrue("Parallax wrap must remain bounded",d>=0f && d<696f)
+                assertEquals(d,ParallaxScenery.offset(distance,layer,false),0f)
+            }
+        }
+    }
+
     @Test fun marathonGatesKeepSubpixelCollisionPrecisionBeyondFloatRange() {
         val origin=33_554_432.0 // 2^25: Float cannot represent a 0.25px change.
         assertEquals(559.75f,WorldCoordinates.screenX(560f,origin,origin+.25),.0001f)
@@ -549,21 +518,6 @@ class LevelEngineTest {
         assertTrue("The brief level badge fades while flight remains live",game.levelTransition>0f && game.levelTransition<.85f)
         assertTrue(game.active)
         assertFalse(game.finished)
-    }
-
-    @Test fun threeDepthSceneryIsDeterministicAndSafeForReducedMotion() {
-        val expected=floatArrayOf(70f,150f,240f)
-        for (layer in 0..2) {
-            assertEquals(expected[layer],ParallaxScenery.offset(1000f,layer,false),0.001f)
-            assertEquals(0f,ParallaxScenery.offset(1000f,layer,true),0f)
-            assertEquals(0f,ParallaxScenery.offset(Float.NaN,layer,false),0f)
-            assertEquals(0f,ParallaxScenery.offset(Float.POSITIVE_INFINITY,layer,false),0f)
-            for (distance in listOf(0f,10f,12345f,999999f)) {
-                val d=ParallaxScenery.offset(distance,layer,false)
-                assertTrue("Parallax wrap must remain bounded",d>=0f && d<696f)
-                assertEquals(d,ParallaxScenery.offset(distance,layer,false),0f)
-            }
-        }
     }
 
     @Test fun worldsStayIndependentAndHaveSafeGaps() {
