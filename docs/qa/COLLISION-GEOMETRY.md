@@ -1,53 +1,34 @@
-# P04 — Geometry audit / acceptance evidence (pre-fix finding)
+# BOPAVI — Android collision geometry and near-miss QA
 
-Baseline main `d6e25b3dc34a5a4b46a487ab02f5121f93b1b4bf` (2026-10-18), public binary v0.2.22/build127. **No physical-device video or exact pixel overlay has yet been captured.**
+**Current Kotlin sources:** GameSimulation.kt, LevelEngine.kt and GameView.kt.
+**World:** 480×800 logical units. Bopi's *physical body* is a circle centered
+at (126, y), radius 18. Transparent sprite pixels, moving wing art, scarves
+and glow halos do **not** collide.
 
-## Exact native hit representation
+## Painted rock correspondence
 
-- All coordinates use BOPAVI's **480×800 logical world**; Bopi center is (126, y), physical body is a radius-18 circle; visible wings, aura and feathers are **not part of the hitbox**. Android GameView uses centered scale `min(viewWidth/480, viewHeight/800)`; iOS GameCanvas uses the same scale and centered translation; neither scales the physical hitbox independently. Background art is drawn via a separate aspect-cover + gentle parallax and does not affect collision. HUD has a separate device-safe-area transform.
-- The painted collision approximation for each pillar: **upper shaft** [x, -25, x+w, top], **upper rounded band** [x-7, top-28, x+w+5, top] with 7-unit corner radius; **lower shaft** [x, bottom, x+w, 825], **lower rounded band** [x-7, bottom, x+w+5, bottom+27] with radius 7. For actual visual fidelity, the shaft is polygonally fractured within this axis-aligned solid region and biome relief is layered inside. The external rock shoulders also remain outside the traversable central corridor.
-- At simulation time `t`, the *same* Android `LevelEngine.opening(g,t,difficulty)` and Swift `BopaviCore.opening(g,t,difficulty)` feed painting/collision. Center = nominal center + moving sine (world-specific angular frequency × time + phase)×movement + beach/sky tide if applicable. Half-gap = max(72.5, (nominal gap + difficulty padding)/2 − optional challenge pulse). Easy +54, normal +0, hard −30. Upper=middle−half, lower=middle+half.
-- World X is computed in double precision: `Float(Double(gate.x)+origin−travelled)`, which is shared with renderer; no separate sprite offset.
-- **Existing bug hypothesis with numeric counterexample:** upper cap left=100, top=200, radius=7, bird center=(88,188), radius=18. Box distance to bird is sqrt(12²+12²)=16.97 (<18), falsely colliding; distance to *rounded* corner is sqrt(19²+19²)−7=19.87 (>18). The current rect-only cap predicate is demonstrably more aggressive than drawn geometry. The same issue occurs at lower band corners. The new Kotlin JUnit and Swift parity vectors should fail before a corrected rounded geometry test; do not claim test pass yet.
-- **Shaft limitation:** existing collision shaft is a solid axis-aligned rectangle even though dark mineral facets are tapered. This is a coarse conservative hit area and requires pixel overlay evidence and any future geometry change to both platforms together; a sprite-visible wing may still be outside the body circle without counting a hit.
+Each procedural gate has a top and bottom shaft, with 7-unit-radius rounded
+bands at the opening lips. The shaft uses its real X/width and opening top/bottom;
+the lip adds 7 logical units of limited overhang, only within its painted band.
+An infinite vertical rectangle for the overhang would cause false collisions.
+Render and collision use the same LevelEngine.opening(gate, time, difficulty).
 
-## Continuous collision / freeze evaluation
+The swept predicate, PillarCollision.sweptBodyHitsPillar, interpolates the bird
+Y, moving gate X and moving lip positions within a bounded <=120Hz physics
+slice. It rejects disjoint broad-phase geometry without allocating new sprites.
+Signed-distance subdivision detects shallow mid-slice contact that an
+endpoint-only test could miss. A static tangency is not treated as a hit.
 
-The current simulation clamps one display gap to 100ms, processes each in at most 1/120sec substeps, and uses generated world speeds 140–212 logical px/s (hard multiplier up to 1.30): no generated gate advances > 2.30 logical units in one substep. The vertical terminal falling speed is 365px/s (≤3.05 units per substep) and a moving gate lip shifts by <~0.25 units per substep for normal amplitudes. Upper/lower bands themselves are 28/27 units thick; **full passage through an entire band between checks is not established for generated levels**. Thin glancing intersection of a moving rounded corner is still possible in principle; actual device/video and trajectory-replay tests must decide whether continuous TOI is necessary. Do not enlarge Bopi's body or corridor as an approximation.
+Berries use an independent swept segment-to-circle contact check. A pickup
+must not alter pillar collision or double-count collected food.
 
-## Regression matrix and visual gate
+## Regression evidence and limits
 
-Native tests: upper/lower 1–2px near miss, roundRect penetration, shaft/lip tangency, near miss under wings/aura, invalid values, frame time and moving mouths at 30/60/90/120Hz, and old world seam and score tests. Debug overlay should outline exact **rounded bands**, both shafts, body circle and fruit radius in **the same world transform**; opt-in only on non-release builds. Use authentic same-build screenshot/video from the running Android debug APK and Xcode DEBUG app, examine 1:1 overpaint vs actual rock lip pixels at tangent/1px margin and on moving mouths. Pixel-level anti-aliasing can create a ~1px visually soft edge; do not compensate by making the hitbox larger.
+LevelEngineTest checks rounded lip misses and penetrations, tangent edges,
+moving-corner sweeps, finite opening bounds, 30/60/90/120Hz replay, and
+long-distance world coordinate precision. Debug collision outlines must only
+render when the app is debuggable and explicitly opted in.
 
-Missing for final DoD: real phone video with contact/no contact & frame timestamps for both platforms (30–120Hz where supported); manual screenshot inspection of overlay against actual painted pixels, and confirm no regression in native CI. No false crash/Play approval claims.
-
-## Optional actual debug captures (NOT performed in this source-only PR)
-
-Android — install this PR's **debuggable APK** on an authorized QA device. Start Home with debug flag, tap the real IGRAJ control, flap and pause, then record the same installed build:
-
-```bash
-mkdir -p qa/collision-actual
-adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_collision_overlay true
-# Use the actual UI IGRAJ and flap; avoid guessed screen coordinates.
-adb exec-out screencap -p > qa/collision-actual/android-rock-overlay.png
-adb shell screenrecord --time-limit 20 /sdcard/bopavi-collision-qa.mp4
-adb pull /sdcard/bopavi-collision-qa.mp4 qa/collision-actual/android-collision-qa.mp4
-```
-
-iOS — in Xcode Scheme → Run → Arguments, add `-BOPAVICollisionDebug` for Debug **only**; attach simulator/real iPhone, run Home→Flight and record with Xcode/QuickTime device recording. Alternatively, for an installed simulator Debug app:
-
-```bash
-xcrun simctl launch booted com.brendigo.bopavi -BOPAVICollisionDebug
-xcrun simctl io booted screenshot qa/collision-actual/ios-rock-overlay.png
-xcrun simctl io booted recordVideo qa/collision-actual/ios-collision-qa.mp4
-```
-
-Inspect the **magenta solid shaft**, **cyan rounded band**, **yellow body r18**, and **green fruit r13** in unscaled native pixels. Overlay is evidence for geometry, not a rendering replacement. Physical-device 30–120Hz hit/no-hit video is still needed for final DoD.
-
-## Confirmed substep tunneling counterexample and mitigation (P04)
-
-A second, independent numeric counterexample was found after the initial endpoint collision test. Bopi r18 at fixed X=126, upper lip roundRect with radius7, moving from gate X **146.2422 → 144.7422** (1.5px in one 120Hz physics slice) while Bopi moves vertically **192.29660 → 190.42694** (1.87px) at top opening 228. The signed distance from Bopi's body edge to the rounded lip is **+0.01872px at the start**, **−0.01000px at the midpoint**, **+0.01872px at the end**. Thus checking only endpoints incorrectly returns safe, even though there is an actual *interior* geometric intersection.
-
-The new `PillarCollision.sweptBodyHitsPillar` (also in Swift) interpolates **bird position, pillar world X, and upper/lower opening boundaries** within a <=120Hz physics slice, computes signed distance to all four authentic solid collision shapes, and uses adaptive Lipschitz-bounded interval subdivision to detect an interior intersection. The bound includes |gate Δx| + |bird Δy| + max(|opening Δtop|,|opening Δbottom|). Conservative interval pruning tests both endpoints before recursing. Depth20 leaves only a very small numerical grazing tolerance; this is not an enlargement of Bopi's collider. Native vectors include the true tunnel, an offset genuinely-safe trajectory, a moved-mouth equivalent and invalid input rejection.
-
-**Limitations:** opening(t) is linearly interpolated between source opening samples inside each <=8.33ms slice; the actual sinusoidal opening's curvature between endpoints is approximated, not an analytic trigonometric TOI. A proof of exact rendered polygon-to-physics agreement for shaft fractures and anti-aliased pixels still requires same-build real device overlay/video, so final perceptual DoD is pending.
+**Outstanding visual sign-off:** capture real Android overlay/contact and
+near-miss frames and compare the outline with the actually painted rock pixels.
+CI passing does not prove screenshot-level 1:1 fidelity on every device.

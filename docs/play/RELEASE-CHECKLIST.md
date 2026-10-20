@@ -1,31 +1,29 @@
-# BOPAVI — Google Play / App Store release checklist
+# BOPAVI — Android release acceptance checklist
 
-**Audited baseline:** GitHub Release v0.2.24, Android versionName 0.2.24 (build 129), versionCode 129, targetSdk 36, applicationId com.brendigo.bopavi. The latest main native CI finished green at https://github.com/bren-wp/BOPAVI/actions/runs/39178173489. No checklist item is automatically proof of a Play/App Store submission.
+**Last published release evidence:** v1.0.0 (build 130).
+**Application:** `com.brendigo.bopavi` · Brendigo · https://brendigo.com.
 
-**Unpublished candidate:** v1.0.0 (build 130), under source review and full native CI. Do not use unsigned GitHub build outputs as Play/App Store submissions.\n\n## Product and metadata
+## Product and Android QA
 
-- [ ] Approve decision A or B in docs/product/ADR-0001-product-scope.md; while pending, market only the reachable four-state UX in FEATURE-MATRIX.md.
-- [ ] Confirm final release commit, Android/iOS version parity and native CI checks; obtain actual log links for both platform builds and emulator flows.
-- [ ] Verify store title, short/long descriptions, images and privacy disclosures against the **same installed build**; run python tests/test_store_claims.py.
-- [ ] Use genuine Home / Flight Preview / Flight Active / Results screenshots from the correct version; preview is not active gameplay. Capture Pause separately if presented.
-- [ ] Confirm no reachable skin/world/shop/Settings/import UI; do not advertise historical assets or serialization as user-facing options.
-- [ ] Verify on physical supported Android devices: launch, first tap, score, one-shot berry pickup, Pause → Continue/Retry/Exit, Results → Replay/Home, back/gesture, screen sizes, audio and app interruption.
-- [ ] Check crashes, ANR, battery, accessibility and RTL/language labels; confirm emulator/iOS simulator/device testing without asserting pixel-perfect reference parity.
+- [ ] Confirm latest intended Gradle versionName/versionCode and no versionCode reuse.
+- [ ] Review all changes in the only development PR and confirm Android-only files.
+- [ ] Pass Android Lint, Kotlin/JVM physics/collision tests and stable Android builds.
+- [ ] Pass emulator API 35/36 smoke and real gameplay flows, including back/pause.
+- [ ] Verify near misses, true body/rock contacts, food pickup, score and save restores.
+- [ ] Compare Home/Flight/Pause/Results against actual approved user references.
+- [ ] Validate short/tall/wide screen layouts, cutouts, text clipping and touch targets.
+- [ ] Run a physical-device regression for crashes, ANRs, battery and audio focus.
+- [ ] Confirm no advertised UI feature lacks an accessible route.
+- [ ] Verify genuine same-build screenshots and separate Play listing asset archive.
 
-## Google Play distribution (publisher-owned)
+## Privacy, signing and release
 
-- [ ] Verify Play Console app, account permissions, age/target audience, IARC, Ads, app access, Data safety and privacy policy HTTPS address.
-- [ ] Reconcile Data safety across **all currently distributed Play versions**, third-party SDKs and final merged manifest; closed-test tracks also require the form.
-- [ ] Confirm Play App Signing and **existing** upload key certificate; make secure offline backups; never commit/share JKS or passwords.
-- [ ] Sign the release AAB privately with the verified upload key and verify SHA-256, package, versionCode and certificate. GitHub's app-release.aab is UNSIGNED; app-debug.apk is not the release candidate.
-- [ ] Check Play Console for used versionCodes, target API policy, device exclusions and required test access; do not invent current account entitlement.
-- [ ] Upload to the authorized test track, review Pre-launch report and all metadata-policy warnings; complete any required production eligibility testing.
-- [ ] Submit only after manual publisher authorization. Separately confirm Google review approval and installability. GitHub Release is not Play publication.
-
-## iOS distribution (independent)
-
-- [ ] Verify iOS signing/provisioning and Store Connect rights privately.
-- [ ] Validate the same four-state navigation on real iPhone and supported simulators; capture authentic iOS screenshots, data disclosures and age ratings.
-- [ ] Review/TestFlight/App Store approval separately; unsigned iOS device ZIP is not an App Store build.
-
-Status: **publishing not verified**. Existing CI success does not verify upload signing, physical device behavior or Google/Apple store acceptance.
+- [ ] Confirm no IN​TERNET permission, tracking, ads, purchases or unnecessary SDKs.
+- [ ] Preserve app ID, all local save keys and compatibility with installed builds.
+- [ ] Ensure release AAB/QA artefact checksums pass; GitHub AAB remains unsigned.
+- [ ] Sign privately with the approved Google Play upload key.
+- [ ] Complete Data safety, privacy, content, age and target SDK declarations.
+- [ ] Confirm current Play track versionCode and publisher authorization.
+- [ ] Only after a **successful public stable release**, synchronize CHANGELOG
+      and current release docs from the GitHub published-release inventory.
+- [ ] Preserve every historical stable v1+ GitHub release without rewriting assets.
