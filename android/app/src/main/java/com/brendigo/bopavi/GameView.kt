@@ -173,14 +173,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     private val collisionOverlayEnabled=qaCollisionOverlay &&
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0
-    private var lastFrame = 0L
+    // First frame of a flight is a baseline; idle waiting is never physics time.
+    private val frameClock=FlightFrameClock()
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
     private var shieldImpactNotified=false
     private var lastAccessibilityLives=-1
     var paused = false
-        set(v) { field = v; lastFrame = 0L; postInvalidateOnAnimation() }
+        set(v) { field = v; frameClock.reset(); postInvalidateOnAnimation() }
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -199,13 +200,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val now=System.nanoTime()
         // Use actual vsync-to-vsync elapsed time at 60/90/120 Hz. The previous
         // 3/4-of-60Hz threshold updated physics at only ~45 Hz on 90 Hz phones.
-        if(!paused && !qaWaitingForCapture && !game.finished) {
-            if(lastFrame==0L) lastFrame=now
-            val elapsed=(now-lastFrame).coerceAtLeast(0L)
-            if(elapsed>=1_000_000L) {
-                game.step((elapsed/1_000_000_000.0).toFloat())
-                lastFrame=now
-            }
+        if(game.active && !paused && !qaWaitingForCapture && !game.finished) {
+            // System.nanoTime() elapsed while the preview was idle is NOT
+            // a physics delta. Likewise the first frame after a pause or
+            // QA still capture just establishes a fresh clock baseline.
+            frameClock.tick(now,running=true)?.let { game.step(it) }
             if(game.completionCount>completedSeen) {
                 completedSeen=game.completionCount
                 onLevelCompleted(game.completedOrdinal)
@@ -227,7 +226,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             } else if(game.impactPulse<=0f) {
                 shieldImpactNotified=false
             }
-        } else lastFrame=0L
+        } else frameClock.reset()
         // Background extends through the display's letterbox regions. World physics
         // remains in the unchanged 480x800 coordinate system without stretching.
         canvas.drawColor(skyA[game.level.world])
@@ -274,7 +273,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawWorldAtmosphere(canvas)
         // Upcoming gates enter from the right BEFORE the previous level ends.
         // Cache is produced by the simulation; no per-frame level generation.
-        for((i,g) in game.upcomingGates().withIndex()) {
+        // The hot drawing path needs no iterator/IndexedValue wrappers.
+        val upcoming=game.upcomingGates()
+        for(i in upcoming.indices) {
+            val g=upcoming[i]
             val x=game.upcomingGateX(g)
             if(x >= -100f && x<=550f)drawGate(canvas,g,x,i,true)
         }
@@ -1131,10 +1133,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 // A second genuine touch resumes the *same* run, not a replay.
                 // No synthetic score, forced collision, or screenshot is used.
                 qaWaitingForCapture=false
-                lastFrame=0L
+                frameClock.reset()
                 game.flap()
             } else {
                 val firstFlap=!game.active
+                if(firstFlap) frameClock.reset()
                 game.flap()
                 if(firstFlap && game.active) {
                     onFlightStarted()
@@ -1162,6 +1165,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Release native pixel buffer references after each Retry/Exit.
         // Avoid explicit recycle(): RenderThread may still own display lists.
         paused=true
+        frameClock.reset()
         birdBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
         super.onDetachedFromWindow()
     }
