@@ -100,11 +100,7 @@ class MainActivity : Activity() {
             cornerRadius=d(rad).toFloat()
             setStroke(d(1),0x9959d6ff.toInt())
         }
-    /**
-     * Four short 2×4 pages rather than Android's 26-row scrolling list.
-     * Native clickable, minimum-48dp targets and a persistent selected state.
-     * Everything fits inside even a compact phone without scroll gestures.
-     */
+    /** Native accessible text treatment shared by Home, Pause and Results. */
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
             text=s
@@ -369,7 +365,8 @@ class MainActivity : Activity() {
 
 
         content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[0])
+            // Keep the actual player visible when pausing Sova or Lisac.
+            setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))

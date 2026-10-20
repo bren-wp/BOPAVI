@@ -37,6 +37,9 @@ assert "BerryCollision.touched(" in simulation and "collectedFood[i]=true" in si
 assert "if(endless && gate.coin && !collectedFood[i])" in simulation
 assert "if(!endless && gate.coin" in simulation
 assert "foodCollected" in simulation and "sweptBodyHitsPillar" in simulation
+assert "scrollSpeed+=(targetSpeed-scrollSpeed).coerceIn(-maxStep,maxStep)" in simulation
+assert "val travel=scrollSpeed*dt" in simulation
+assert "currentScrollSpeed" in simulation
 assert all(symbol in store for symbol in ("endless_food_best","bestFood()","recordRun"))
 assert "progress.bestFood()" in a and "NAJVIŠE HRANE" in a
 assert all(symbol in view for symbol in ("cachedScore","cachedFood","lastAccessibilityScore","lastAccessibilityFood"))
