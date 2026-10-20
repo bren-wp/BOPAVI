@@ -245,7 +245,6 @@ class MainActivity : Activity() {
                 textSize=15f
                 setTextColor(0xff203a5a.toInt())
                 isChecked=enabled
-                minHeight=d(48)
                 setOnCheckedChangeListener{_,value->onChange(value)}
             },LinearLayout.LayoutParams(-1,d(48)))
         }
@@ -261,7 +260,6 @@ class MainActivity : Activity() {
                 text=labels[index]
                 textSize=15f
                 setTextColor(0xff203a5a.toInt())
-                minHeight=d(45)
                 contentDescription="Težina: "+labels[index]
             },android.widget.RadioGroup.LayoutParams(-1,d(45)))
         }
