@@ -397,20 +397,22 @@ class MainActivity : Activity() {
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
-        val compactDisplay=resources.configuration.screenHeightDp<700
+        // Reserve a full-size 48dp hit target for both secondary actions and
+        // both legal links, including the 640dp compact emulator viewport.
+        val compactDisplay=resources.configuration.screenHeightDp<770
         val tinyDisplay=resources.configuration.screenHeightDp<610
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)104 else 134)))
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)94 else 134)))
         val heroPortrait=ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         content.addView(heroPortrait,
-            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)167 else 230))
+            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)110 else if(compactDisplay)145 else 230))
                 .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         title(content,"MALI LETOVI · VELIKE PRIČE",16,Color.WHITE)

@@ -45,3 +45,6 @@ for contract in (
     "PASS: local records visible and dismissible",
 ):
     assert contract in qa,contract
+
+assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
+assert 'd(if(tinyDisplay)110 else if(compactDisplay)145 else 230)' in main
