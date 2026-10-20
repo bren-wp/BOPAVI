@@ -149,6 +149,7 @@ open_legal_dialog(){
   legal_link="$1"
   legal_title="$2"
   legal_owner_text="$3"
+  legal_required_text="$4"
   legal_opened=0
   for legal_attempt in 1 2 3; do
     dump_ui
@@ -169,13 +170,22 @@ PY
     fi
     sleep 2
     dump_ui
-    if python3 - "$legal_title" "$legal_owner_text" <<'PY'
-import sys,xml.etree.ElementTree as ET
+    # Verify the owner/title/required section and dismiss from the SAME
+    # hierarchy. On slow API35 uiautomator, an additional dump can show the
+    # resumed Home instead of the already-verified modal.
+    if python3 - "$legal_title" "$legal_owner_text" "$legal_required_text" <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 alltext=" ".join(label(n) for n in nodes)
+for required in sys.argv[1:]:
+    if required not in alltext:raise SystemExit("FAIL: in-app legal dialog lacks "+required)
 closing=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
-assert sys.argv[1] in alltext and sys.argv[2] in alltext and len(closing)==1
+if len(closing)!=1:raise SystemExit("FAIL: native legal dialog Close missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",closing[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: native legal Close bounds missing")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
     then legal_opened=1;break; fi
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
@@ -183,45 +193,13 @@ PY
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
-open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO"
-sleep 1
-dump_ui
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-alltext=" ".join(label(n) for n in nodes)
-for required in ("POLITIKA PRIVATNOSTI","BRENDIGO","OBRIŠI PODATKE"):
-    if required not in alltext:raise SystemExit("FAIL: in-app privacy dialog lacks "+required)
-close=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
-if len(close)!=1:raise SystemExit("FAIL: native privacy dialog Close missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: native policy dialog Close bounds missing")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: Croatian privacy dialog accessible, offline and dismissible",flush=True)
-PY
+open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO" "OBRIŠI PODATKE"
+echo "PASS: Croatian privacy dialog accessible, offline and dismissible"
 sleep 1
 dump_ui
 # Terms must work offline from the second bottom link on the same Home screen.
-open_legal_dialog "Pročitaj uvjete korištenja" "UVJETI KORIŠTENJA" "BRENDIGO"
-sleep 1
-dump_ui
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-alltext=" ".join(label(n) for n in nodes)
-for required in ("UVJETI KORIŠTENJA","BRENDIGO","OGRANIČENU"):
-    if required not in alltext:raise SystemExit("FAIL: native terms missing "+required)
-close=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
-if len(close)!=1:raise SystemExit("FAIL: terms dialog Close missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: terms close bounds invalid")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: native terms dialog accessible, offline and dismissible",flush=True)
-PY
+open_legal_dialog "Pročitaj uvjete korištenja" "UVJETI KORIŠTENJA" "BRENDIGO" "OGRANIČENU"
+echo "PASS: native terms dialog accessible, offline and dismissible"
 sleep 1
 dump_ui
 # Exercise both newly reachable Home overlays before tapping IGRAJ.
