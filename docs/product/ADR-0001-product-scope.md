@@ -1,16 +1,32 @@
-# ADR-0001 — BOPAVI product scope
+# ADR-0001 — BOPAVI Android product scope
 
-**Status: PENDING PRODUCT OWNER APPROVAL** (2026-10-18). This PR **does not** choose a product direction or restore UI. A default descriptive baseline is not approval.
+**Status: PENDING PRODUCT OWNER APPROVAL.** This document does not
+silently restore removed features or imply a new approval.
 
-## Decision A — Focused endless arcade flight
-One Bopi, one endless procedural flight, score/food collection, pause, results, retry. Keep legacy saves readable, but no shop or hidden settings UI. Advantages: smaller test matrix, clearer Play description, faster stable shipping. Costs: reduced premium breadth versus historical art references.
+## Current executable baseline
 
-## Decision B — Full premium product
-Restore accessible selection of characters, worlds/levels, shop, profiles, settings, achievements, record screens and a well-defined save import/export flow **only after explicit approval and staged technical plan**. Advantages: broader game progression, reference parity opportunity. Costs: significant additional product, economy, localization, compatibility, accessibility and QA obligations; artwork existing in the repo is not a shipped feature.
+Native Android has one Bopi, a continuous flight, scoring and
+contact-collected berries, Home, Pause and Results with Retry/Home.
+The package is `com.brendigo.bopavi`; offline local data and old
+save-key compatibility are mandatory. No shop, worlds selector, skins
+picker, monetization or settings menu is currently reachable.
 
-## Required explicit approval and implementation gate
+## Decision A — Focused endless arcade
 
-Product owner records: `Decision: A` or `Decision: B`, date, approver and scope acceptance criteria. Until then, **PENDING**. No removed screen should be implemented because this document exists. If B approved: new feature-specs and staged PRs, precise gameplay/economy/save semantics, Android/iOS parity tests, real screenshots and synchronized public metadata **before** claiming features. If A approved: remove stale internal assets only after migration audit and preserve saved records.
+Keep the small visible feature set, optimize graphics, collisions,
+stability, accessibility, battery and Google Play honesty. Preserve
+historical source art / save fields unless audited safe to remove.
 
-## Non-negotiable
-Google Play statements describe the *currently shipped reachable UX*, irrespective of any future roadmap. Build/signature and Play approval remain separate independently verified steps.
+## Decision B — Expanded premium game
+
+Restore more player-facing features only on explicit owner approval,
+after feature scope, design references, save migration and QA acceptance
+are specified. Historical prototypes and generated art do not
+authorize a change to current player-visible features.
+
+## Approval gate
+
+Record `Decision: A` or `Decision: B`, date and owner approval
+separately. Until approval, follow the **existing reachable UX** and
+do not reintroduce previously removed functions. All public copy must
+describe current installed Android behaviour.

@@ -11,6 +11,11 @@ mkdir -p qa/screenshots
 qa_exit_diagnostic() {
   qa_exit_code="$1"
   trap - 0
+  # Restore the emulator display even after a failed compact/tall layout test.
+  if [ "${BOPAVI_RESIZE_IN_PROGRESS:-0}" = 1 ]; then
+    adb shell wm size reset >/dev/null 2>&1 || true
+    adb shell wm density reset >/dev/null 2>&1 || true
+  fi
   if [ "$qa_exit_code" -ne 0 ]; then
     qa_adb_state="$(adb get-state 2>&1 || true)"
     if [ "$qa_adb_state" != "device" ]; then
@@ -154,24 +159,70 @@ if c-a<130 or d-b<40:raise SystemExit("FAIL: PLAY hit target too small")
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 print("PASS: accessible Home Play and no extra menus",flush=True)
 PY
-sleep 2
-adb shell pidof com.brendigo.bopavi >/dev/null || { echo "FAIL: BOPAVI process exited before gameplay" >&2; exit 1; }
+# A successful tap on the Home PLAY button is not proof that the Flight view
+# has appeared. Wait for the *actual native GameView accessibility state*.
+# The earlier flow sometimes captured a second Home animation as Flight Preview.
+ready=0
+for attempt in $(seq 1 15); do
+  adb shell pidof com.brendigo.bopavi >/dev/null || {
+    echo "FAIL: BOPAVI process exited before gameplay" >&2; exit 1;
+  }
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
+game=[n for n in nodes if "TAP TO FLY WITH" in label(n) or "DODIRNI ZA LET" in label(n)]
+play=[n for n in nodes if n.get("clickable")=="true"
+      and ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
+sys.exit(0 if len(game)==1 and not play else 1)
+PY
+  then
+    ready=1; break
+  fi
+  echo "Waiting for actual Flight idle GameView, attempt $attempt/15" >&2
+  sleep 2
+done
+test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight" >&2; exit 1; }
 capture android-gameplay-ready
+printf 'STATE: flight-idle confirmed by native GameView\n' >> qa/screenshots/state-evidence.txt
+
 screen_size="$(adb shell wm size | tail -1 | sed 's/.*: //' | tr -d '\r')"
 width="$(printf '%s' "$screen_size" | cut -dx -f1)"
 height="$(printf '%s' "$screen_size" | cut -dx -f2)"
 center=$((width/2))
-adb shell "input tap $center $((height/2)); sleep 0.27; screencap -p /sdcard/flight-a.png; sleep 0.22; screencap -p /sdcard/flight-b.png"
-adb exec-out cat /sdcard/flight-a.png > qa/screenshots/flight-a.png
-adb exec-out cat /sdcard/flight-b.png > qa/screenshots/flight-b.png
-for name in a b; do
-  if [ -s "qa/screenshots/flight-$name.png" ] &&
-     ! cmp -s qa/screenshots/android-gameplay-ready.png "qa/screenshots/flight-$name.png"; then
-    cp "qa/screenshots/flight-$name.png" qa/screenshots/android-gameplay-active.png
-    break
+adb shell input tap "$center" "$((height/2))"
+# The debug-only first-flap capture gate holds the real active GameSimulation
+# until the *second* tap. Require the accessible flying state AND native pause
+# control instead of treating any changed frame as active gameplay.
+flying=0
+for attempt in $(seq 1 15); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
+# GameView.onDraw updates its accessibility label with live SCORE/FOOD.
+# Thus the first-flap description is intentionally replaced, even though
+# the simulation is active; requiring "Bopi is flying" was a false-negative.
+flight=[n for n in nodes if n.get("class")=="android.view.View"
+        and n.get("clickable")=="true"
+        and (("SCORE:" in label(n) and "FOOD:" in label(n))
+             or ("BODOVI:" in label(n) and "HRANA:" in label(n)))]
+pause=[n for n in nodes if n.get("clickable")=="true"
+       and ("PAUSE GAME" in label(n) or "PAUZIRAJ IGRU" in label(n))]
+sys.exit(0 if len(flight)==1 and len(pause)==1 else 1)
+PY
+  then
+    flying=1; break
   fi
+  echo "Waiting for actual first active flap, attempt $attempt/15" >&2
+  sleep 1
 done
-test -s qa/screenshots/android-gameplay-active.png || { echo "FAIL: active flight frame missing" >&2; exit 1; }
+test "$flying" -eq 1 || { echo "FAIL: first flap never reached active HUD/PAUSE state" >&2; exit 1; }
+capture android-gameplay-active
+printf 'STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pause control\n' >> qa/screenshots/state-evidence.txt
+if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
+  echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
+fi
 adb shell input tap "$center" "$((height/2))"
 result_ready=0
 for attempt in $(seq 1 18); do
@@ -214,9 +265,73 @@ a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 print("PASS: genuine loss result and Retry/Home controls",flush=True)
 PY
-sleep 1
+# Verify that RETRY returns to the *new idle GameView*, not a second
+# screenshot of the Results screen or Home, before accepting the image.
+retry_ready=0
+for attempt in $(seq 1 12); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+labels=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
+sys.exit(0 if ("TAP TO FLY WITH" in labels or "DODIRNI ZA LET" in labels)
+         and "▶  RETRY" not in labels and "▶  PONOVO" not in labels else 1)
+PY
+  then retry_ready=1; break; fi
+  sleep 1
+done
+test "$retry_ready" -eq 1 || { echo "FAIL: RETRY did not reach idle Flight" >&2; exit 1; }
 capture android-gameplay-retry
 if cmp -s qa/screenshots/android-gameplay-retry.png qa/screenshots/android-result.png; then
   echo "FAIL: Retry did not launch another flight" >&2; exit 1
 fi
 echo "PASS: simplified real-device Home, game, result and Retry"
+
+# Optional second-stage responsive verification. These are real emulator
+# window-size/density overrides after the unchanged screenshot-release flow.
+# Every assertion runs against actual native clickable controls, not mock art.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  BOPAVI_RESIZE_IN_PROGRESS=1
+  for spec in 720x1280:320:compact 1080x2400:420:tall; do
+    dims="$(printf '%s' "$spec" | cut -d: -f1)"
+    density="$(printf '%s' "$spec" | cut -d: -f2)"
+    label="$(printf '%s' "$spec" | cut -d: -f3)"
+    adb shell wm size "$dims"
+    adb shell wm density "$density"
+    adb shell am force-stop com.brendigo.bopavi
+    adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+    sleep 4
+    adb shell pidof com.brendigo.bopavi >/dev/null || {
+      echo "FAIL: BOPAVI exited at $dims/$density" >&2; exit 1;
+    }
+    dump_ui
+    capture "android-home-$label"
+    python3 - "$dims" "$density" "$label" <<'PY'
+import re,sys,struct,xml.etree.ElementTree as ET
+from pathlib import Path
+dims,density,label=sys.argv[1:]
+width,height=map(int,dims.split("x"))
+source=Path("qa/screenshots/android-home-"+label+".png").read_bytes()
+assert source[:8]==bytes.fromhex("89504e470d0a1a0a")
+actual=struct.unpack(">II",source[16:24])
+assert actual==(width,height),(label,actual)
+root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
+nodes=list(root.iter("node"))
+play=[n for n in nodes if n.get("clickable")=="true"
+      and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
+              for x in ("PLAY","IGRAJ"))]
+assert len(play)==1,(label,"missing or duplicate accessible PLAY")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
+assert m,(label,"PLAY bounds absent")
+l,t,r,b=map(int,m.groups())
+assert 0<=l<r<=width and 0<=t<b<=height,(label,"clipped PLAY control")
+min48=48*int(density)/160
+assert r-l>=min48 and b-t>=min48,(label,"PLAY target smaller than 48dp")
+assert not any(n.get("scrollable")=="true" and
+               n.get("package")=="com.brendigo.bopavi" for n in nodes),(label,"unwanted scroll")
+print("PASS: native",label,"PLAY hit target, screen insets and no scrolling")
+PY
+  done
+  adb shell wm size reset
+  adb shell wm density reset
+  BOPAVI_RESIZE_IN_PROGRESS=0
+fi

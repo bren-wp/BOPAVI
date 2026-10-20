@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
-"""Source and evidence-collection contract; a passing test cannot certify crash-free hardware."""
+"""Android evidence contract; neither static checks nor CI prove zero crashes."""
 from pathlib import Path
 import subprocess
-
-R = Path(__file__).resolve().parents[1]
-triage = (R / "docs/qa/CRASH-TRIAGE.md").read_text(encoding="utf-8")
-script = R / "tests/qa_capture_android_crash.sh"
-source = script.read_text(encoding="utf-8")
+R=Path(__file__).resolve().parents[1]
+triage=(R/"docs/qa/CRASH-TRIAGE.md").read_text(encoding="utf-8")
+source=(R/"tests/qa_capture_android_crash.sh").read_text(encoding="utf-8")
 assert "VERDICT: UNCONFIRMED" in triage
-for required in (
-    "adb logcat -b crash -v threadtime", "dumpsys meminfo",
-    "adb bugreport", "Devices and Simulators", ".ips", "dwarfdump",
-    "xcrun atos", "30/60/90/120 Hz", "process-death",
-    "FATAL EXCEPTION", "ANR", "SIGSEGV",
-):
-    assert required in triage, required
+for required in ("adb logcat -b crash -v threadtime", "dumpsys meminfo",
+                 "adb bugreport", "30/60/90/120 Hz", "process-death",
+                 "FATAL EXCEPTION", "ANR", "SIGSEGV", "low RAM"):
+    assert required in triage,required
 assert "adb logcat -b crash -v threadtime -d" in source
-assert "am force-stop" in source
-assert "pidof" in source
+assert "am force-stop" in source and "pidof" in source
 for unsafe in ("logcat -c", "pm clear", "kill -9", "catch (_:Exception)"):
-    assert unsafe not in source, unsafe
-subprocess.run(["bash", "-n", str(script)], check=True)
-print("PASS: crash-triage evidence contract, Android shell syntax, no destructive data/log wiping")
+    assert unsafe not in source,unsafe
+subprocess.run(["bash","-n",str(R/"tests/qa_capture_android_crash.sh")],check=True)
+print("PASS: Android-only crash evidence and non-destructive recovery contract")

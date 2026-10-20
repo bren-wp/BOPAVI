@@ -68,6 +68,10 @@ jobs:
       - run: python tests/test_reference_flight_left_rail.py
       - run: python tests/test_reference_bopi_import.py
       - run: python tests/test_android_emulator_transport_gate.py
+      - run: python tests/test_responsive_smoke_contract.py
+      - run: python tests/test_premium_result_layout.py
+      - run: python tests/test_release_screenshot_states.py
+      - run: sh -n tools/qa_android_emulator.sh
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_sync_release_docs.py
@@ -75,6 +79,7 @@ jobs:
       - run: python tests/test_marketing_readme.py
       - run: python tests/test_cleanup_legacy_releases.py
       - run: python tests/test_native_lifecycle.py
+      - run: python tests/test_audio_focus_contract.py
       - run: python tests/test_food_save_contract.py
       - run: python tests/test_native_perf_save_contract.py
       - run: python tests/test_play_listing_asset_source.py
@@ -191,7 +196,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: sh tools/qa_android_emulator.sh
+          script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh
       - name: Save first emulator diagnostic and reset disconnected device
         if: ${{ steps.api35_primary.outcome == 'failure' && hashFiles('qa/screenshots/adb-transport-offline.retry') != '' }}
         run: |
@@ -211,7 +216,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: sh tools/qa_android_emulator.sh
+          script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh
       - name: Require a complete passing Android 15 gameplay suite
         if: ${{ always() }}
         env:
