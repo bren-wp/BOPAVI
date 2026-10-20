@@ -738,6 +738,25 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xfff45477.toInt());c.drawPath(path,p)
         oval(c,cx-9f,cy-10f,cx-3f,cy-5f,0x99ffffff.toInt())
     }
+    /** Stateless course strokes: no per-gate lambda or array allocation. */
+    private fun drawStoneCourses(c:Canvas,x:Float,yStart:Float,yEnd:Float,
+                                 shade:Int,seam:Int,forest:Boolean) {
+        var row=yStart
+        var n=0
+        while(row+16f<yEnd && n<12){
+            rect(c,x+8f+(n%3)*4f,row,x+42f+(n%2)*6f,row+3f,seam,2f)
+            if(n%2==0){
+                path.reset();path.moveTo(x+25f,row+5f)
+                path.lineTo(x+18f,row+18f);path.lineTo(x+34f,row+29f)
+                fill(shade);p.style=Paint.Style.STROKE;p.strokeWidth=2.5f
+                p.alpha=125;c.drawPath(path,p);p.style=Paint.Style.FILL;p.alpha=255
+            }
+            if(forest && n%3==0){
+                oval(c,x+34f,row+5f,x+44f,row+18f,0xff67d87d.toInt())
+            }
+            row+=57f;n++
+        }
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -815,24 +834,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             4->0xffffe9ab.toInt();5->0xffa693ed.toInt()
             6->0xff89fff0.toInt();else->0xffb7b2ff.toInt()
         }
-        fun courses(yStart:Float,yEnd:Float){
-            var row=yStart
-            var n=0
-            while(row+16f<yEnd && n<12){
-                rect(c,x+8f+(n%3)*4f,row,x+42f+(n%2)*6f,row+3f,seam,2f)
-                if(n%2==0){
-                    path.reset();path.moveTo(x+25f,row+5f)
-                    path.lineTo(x+18f,row+18f);path.lineTo(x+34f,row+29f)
-                    fill(shade);p.style=Paint.Style.STROKE;p.strokeWidth=2.5f
-                    p.alpha=125;c.drawPath(path,p);p.style=Paint.Style.FILL;p.alpha=255
-                }
-                if(g.kind==0 && n%3==0){
-                    oval(c,x+34f,row+5f,x+44f,row+18f,0xff67d87d.toInt())
-                }
-                row+=57f;n++
-            }
-        }
-        courses(pillarRenderTop+36f,top-34f);courses(bottom+34f,pillarRenderBottom-16f)
+        // Avoid creating a closure for every on-screen pillar, every frame.
+        // Exact same seeded relief and coordinates as the previous renderer.
+        drawStoneCourses(c,x,pillarRenderTop+36f,top-34f,shade,seam,g.kind==0)
+        drawStoneCourses(c,x,bottom+34f,pillarRenderBottom-16f,shade,seam,g.kind==0)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
         // Vegetated stone relief in the collision-solid lip/shaft, never in the gap.
@@ -1053,8 +1058,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
-        fill(if(active)0xffff6987.toInt() else 0x775b7e91)
+        fill(if(active)0xffff6987.toInt() else 0x777396ba)
         c.drawPath(path,p)
+        if(!active) {
+            fill(0xffbdcee8.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=1.5f
+            c.drawPath(path,p)
+            p.style=Paint.Style.FILL
+        }
     }
     private fun drawHud(c:Canvas){
         // Only the changed counters allocate their numeric strings. At 120 Hz

@@ -43,6 +43,12 @@ def main():
     game=(CODE/"GameView.kt").read_text(encoding="utf-8")
     activity=(CODE/"MainActivity.kt").read_text(encoding="utf-8")
     store=(CODE/"ProgressStore.kt").read_text(encoding="utf-8")
+    # These old one-off item visibility accessors had no callers anywhere in
+    # the production app or unit tests. Keep the backed save state intact.
+    for obsolete in ("coinVisible(", "starVisible(", "powerVisible("):
+        require(obsolete not in joined,f"Unused gameplay helper restored: {obsolete}")
+    require('drawStoneCourses(' in game and 'fun courses(yStart' not in game,
+            "Per-obstacle renderer closure was reintroduced")
     require('"BODOVI"' in game and '"HRANA"' in game,
             "Croatian gameplay HUD missing")
     require('contentDescription="Povratak na početnu"' in activity,

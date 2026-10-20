@@ -247,6 +247,8 @@ class MainActivity : Activity() {
                 textSize=15f
                 setTextColor(0xffe6f7ff.toInt())
                 isChecked=enabled
+                thumbTintList=ColorStateList.valueOf(0xff9ff6df.toInt())
+                trackTintList=ColorStateList.valueOf(0xff286d95.toInt())
                 setOnCheckedChangeListener{_,value->onChange(value)}
             },LinearLayout.LayoutParams(-1,d(48)))
         }
@@ -263,6 +265,7 @@ class MainActivity : Activity() {
                 textSize=15f
                 setTextColor(0xffe6f7ff.toInt())
                 contentDescription="Težina: "+labels[index]
+                buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())
             },android.widget.RadioGroup.LayoutParams(-1,d(45)))
         }
         difficulties.check(radioIds[progress.difficulty()])
@@ -302,6 +305,9 @@ class MainActivity : Activity() {
                 max=100
                 progress=initial
                 contentDescription=caption
+                progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())
+                thumbTintList=ColorStateList.valueOf(0xffffde76.toInt())
+                progressBackgroundTintList=ColorStateList.valueOf(0xff395d7d.toInt())
                 // The 48dp LayoutParams size below works on API26+. ProgressBar's
                 // minHeight setter is API29-only and was rejected by Android Lint.
                 setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener {
@@ -646,7 +652,7 @@ class MainActivity : Activity() {
         dialog.setView(fitted)
         dialog.setOnCancelListener{
             // Cancelling Pause resumes only the still-current game.
-            if(gameView===game && selectedScreen=="game") {
+            if(gameView===game && selectedScreen=="game" && hasWindowFocus()) {
                 game.paused=false
                 gamePauseButton?.text="Ⅱ"
                 gamePauseButton?.contentDescription="Pauziraj igru"
@@ -697,6 +703,15 @@ class MainActivity : Activity() {
             visibility=View.INVISIBLE
             setOnClickListener{
                 if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
+                if(game.paused) {
+                    // The OS backgrounded this run. ▶ resumes in one action,
+                    // without opening an extra pause dialog over a paused game.
+                    game.paused=false
+                    pauseButton?.text="Ⅱ"
+                    pauseButton?.contentDescription="Pauziraj igru"
+                    sound.resume()
+                    return@setOnClickListener
+                }
                 game.paused=true;sound.pause()
                 showPremiumPause(game)
 
@@ -871,7 +886,13 @@ class MainActivity : Activity() {
             when {
                 current == null -> showHome()
                 current.finished -> showResult(current)
-                current.active -> gamePauseButton?.performClick() // Do not discard live runs.
+                current.active -> {
+                    // Back always offers NASTAVI / PONOVO / IZLAZ, even when
+                    // the foreground pause button now resumes in one touch.
+                    val view=gameView
+                    if(view!=null && view.paused) showPremiumPause(view)
+                    else gamePauseButton?.performClick()
+                } // Do not discard live runs.
                 else -> showHome() // No extra character or level selection
             }
         } else if(selectedScreen=="home") {
