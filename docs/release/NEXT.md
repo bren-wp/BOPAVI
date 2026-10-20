@@ -1,6 +1,6 @@
-# Next Android release — BOPAVI v1.0.9 (build 139)
+# Next Android release — BOPAVI
 
-## Scope: stability, fast renderer, and native control consistency
+## v1.0.9 — Stability, renderer and control polish (build 139)
 
 - Optimize the frequent per-frame stone pillar texture draw path by eliminating a captured local function created for every pillar. Retain all course geometry, visuals, foliage, seeded appearance and fixed collision geometry.
 - Remove exactly three verified unreferenced gameplay visibility helpers (coinVisible, starVisible, powerVisible). Preserve their collection state, offline saves and all historical migration/test interfaces, including ParallaxScenery, levelProgress, and legacy levelTransition.
