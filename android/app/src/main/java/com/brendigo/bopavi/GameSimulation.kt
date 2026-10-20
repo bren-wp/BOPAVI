@@ -67,6 +67,10 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var levelStars = 0; private set
     var completedLevelStars = 0; private set
     var shield = initialShield.coerceIn(0,3); private set
+    /** Endless-only forgiving arcade lives, never spendable currency. */
+    var lives = if(endless)3 else 1; private set
+    val maxLives = if(endless)3 else 1
+    var heartsCollected = 0; private set
     var magnetTime = initialMagnet.coerceIn(0f,18f); private set
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
@@ -82,6 +86,24 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var won = false; private set
     init { prepareNext() }
     private var collectedFood = BooleanArray(level.gates.size)
+    private var collectedHearts = BooleanArray(level.gates.size)
+    /** Rare heart on every 17th obstacle of the continuous flight.
+     * The entire heart remains in the safe opening and is never paywalled.
+     */
+    private fun heartAt(ordinal:Long,index:Int):Boolean =
+        endless && ((ordinal-1L)*level.gates.size.toLong()+index+1L)%17L==0L
+    fun isHeartPosition(index:Int,incoming:Boolean=false):Boolean {
+        val segment=if(incoming)nextLevel else level
+        val number=if(incoming)displayLevel+1 else displayLevel
+        return segment!=null && index in segment.gates.indices && heartAt(number,index)
+    }
+    fun heartVisible(index:Int,incoming:Boolean=false):Boolean {
+        if(lives>=maxLives)return false
+        val segment=if(incoming)nextLevel else level
+        val number=if(incoming)displayLevel+1 else displayLevel
+        return segment!=null && index in segment.gates.indices &&
+            heartAt(number,index) && (incoming || !collectedHearts[index])
+    }
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
@@ -149,7 +171,17 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             // Sweep the real fruit/body relative motion across this physics
             // slice. Endpoint-only contact missed fast edge grazes on 30Hz
             // devices; the collider and safe gate opening stay unchanged.
-            if(endless && gate.coin && !collectedFood[i]) {
+            if(endless && heartAt(displayLevel,i) && !collectedHearts[i] && lives<maxLives) {
+                val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
+                if(BerryCollision.touched(cx+travel-birdX,oldCy-previousY,
+                        cx-birdX,cy-y,radius+13f)) {
+                    collectedHearts[i]=true
+                    lives=min(maxLives,lives+1)
+                    heartsCollected++
+                    collectPulse=.36f
+                }
+            }
+            if(endless && gate.coin && !heartAt(displayLevel,i) && !collectedFood[i]) {
                 val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
                 if(BerryCollision.touched(
                     cx+travel-birdX,oldCy-previousY,
@@ -181,6 +213,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         passed = 0
                         levelStars = 0
                         collectedFood = BooleanArray(level.gates.size)
+                        collectedHearts = BooleanArray(level.gates.size)
                         collectedCoins = BooleanArray(level.gates.size)
                         collectedStars = BooleanArray(level.gates.size)
                         collectedPowers = BooleanArray(level.gates.size)
@@ -193,7 +226,15 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private fun damage() {
         if (invulnerable > 0f) return
         if (shield > 0) { shield--; invulnerable = 1.25f; impactPulse = .65f; velocity = -90f }
-        else { finished = true; active = false; won = false }
+        else {
+            lives--
+            if(lives>0) {
+                // A contact is one lost heart even during many physics slices.
+                invulnerable=1.6f
+                impactPulse=.65f
+                velocity=-90f
+            } else { finished = true; active = false; won = false }
+        }
     }
     fun score(): Int = (totalPassed.toLong() * 100L + (if(endless) 0L else coins.toLong() * 10L + stars.toLong() * 25L)).coerceIn(0L,100_000_000L).toInt()
 }

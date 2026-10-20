@@ -711,6 +711,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.quadTo(cx+r*.44f,cy-r*.50f,cx,cy-r*.86f)
         fill(0xff5de18b.toInt());c.drawPath(path,p)
     }
+    /** Grassy cap foliage is constrained to the solid stone lip.
+     * Collision still uses the original identical rounded 7px cap geometry.
+     */
+    private fun drawMossLedge(c:Canvas,x:Float,w:Float,y:Float,top:Boolean,seed:Int) {
+        rect(c,x-5f,y+6f,x+w+3f,y+14f,0xff286d41.toInt(),5f)
+        rect(c,x-4f,y+4f,x+w+2f,y+9f,0xff75cf69.toInt(),4f)
+        for(i in 0..5){
+            val gx=x+3f+(w-6f)*i/6f
+            val rise=(seed+i*7)%5
+            // Little round blades read as lush turf at both 60 and 120Hz.
+            oval(c,gx,y+2f+rise,gx+11f,y+10f+rise,0xff42ab5d.toInt())
+            if(i%2==0) oval(c,gx+3f,y+4f+rise,gx+9f,y+8f+rise,0xffb2ed7a.toInt())
+        }
+    }
+    /** Small native heart sprite, with no extra bitmap allocations. */
+    private fun drawHeartPickup(c:Canvas,cx:Float,cy:Float){
+        path.reset()
+        path.moveTo(cx,cy+11f)
+        path.cubicTo(cx-23f,cy-3f,cx-14f,cy-18f,cx,cy-9f)
+        path.cubicTo(cx+14f,cy-18f,cx+23f,cy-3f,cx,cy+11f)
+        fill(0xfff45477.toInt());c.drawPath(path,p)
+        oval(c,cx-9f,cy-10f,cx-3f,cy-5f,0x99ffffff.toInt())
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -722,8 +745,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
+        if(g.kind==0) drawMossLedge(c,x,w,top-28f,true,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
+        if(g.kind==0) drawMossLedge(c,x,w,bottom,false,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
         // Rock strata follow each world's material, not a generic flat
@@ -825,9 +850,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 }
             }
         }
-        if(game.endless && g.coin && (incoming || game.foodVisible(index))) {
+        if(game.endless) {
             val mid=x+w*.5f
-            drawBerry(c,mid,(a.top+a.bottom)*.5f,13f)
+            val cy=(a.top+a.bottom)*.5f
+            if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
+            else if(g.coin && !game.heartVisible(index,incoming) &&
+                (incoming || game.foodVisible(index)) &&
+                !game.isHeartPosition(index,incoming)) drawBerry(c,mid,cy,13f)
         }
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
@@ -1004,6 +1033,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
+    private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
+        path.reset()
+        path.moveTo(x,y+7f)
+        path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
+        path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
+        fill(if(active)0xffff6987.toInt() else 0x775b7e91)
+        c.drawPath(path,p)
+    }
     private fun drawHud(c:Canvas){
         // Only the changed counters allocate their numeric strings. At 120 Hz
         // most frames simply reuse the last score and berry-count labels.
@@ -1012,17 +1049,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(score!=cachedScore){cachedScore=score;cachedScoreLabel=score.toString()}
         if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
         // Accessible current score; no wallets, level meters or power-ups.
-        hudGlass(c,18f,20f,212f,88f)
-        text(c,"BODOVI",36f,46f,14f,0xffd4f4ff.toInt())
-        text(c,cachedScoreLabel,36f,78f,29f,Color.WHITE)
-        hudGlass(c,228f,20f,376f,88f)
-        drawBerry(c,250f,58f,11f)
-        text(c,"HRANA",274f,46f,13.5f,0xffd4f4ff.toInt())
-        text(c,cachedFoodLabel,274f,78f,29f,Color.WHITE)
+        hudGlass(c,18f,16f,178f,68f)
+        text(c,"BODOVI",30f,36f,11f,0xffd4f4ff.toInt())
+        text(c,cachedScoreLabel,30f,60f,23f,Color.WHITE)
+        hudGlass(c,185f,16f,310f,68f)
+        drawBerry(c,203f,45f,8f)
+        text(c,"HRANA",222f,36f,11f,0xffd4f4ff.toInt())
+        text(c,cachedFoodLabel,222f,60f,23f,Color.WHITE)
+        if(game.endless) {
+            for(i in 0 until game.maxLives) {
+                val hx=334f+i*22f
+                val healthy=i<game.lives
+                drawHudHeart(c,hx,36f,healthy)
+            }
+        }
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood) {
             lastAccessibilityScore=score
             lastAccessibilityFood=food
-            lastHudAccessibility="${"BODOVI"}: $score; ${"Hrana"}: $food"
+            lastHudAccessibility="${"BODOVI"}: $score; ${"Hrana"}: $food; Životi: ${game.lives}"
             contentDescription=lastHudAccessibility
         }
     }

@@ -29,6 +29,35 @@ class LevelEngineTest {
             pickupFlight.magnetTime>17f)
     }
 
+
+    @Test fun endlessLivesAreCappedAndSingleContactCannotDrainTwoLives() {
+        val base=LevelEngine.create(0,2)
+        val danger=base.gates.first().copy(x=110f,center=260f,gap=164f,movement=0f,coin=false,star=false,power=0)
+        val run=GameSimulation(base.copy(gates=listOf(danger),speed=140f,wind=0f),endless=true)
+        assertEquals(3,run.lives)
+        run.flap()
+        run.step(1f/60f)
+        assertEquals(2,run.lives)
+        assertFalse(run.finished)
+        assertTrue(run.invulnerable>1f)
+        run.step(.1f)
+        assertEquals("Invulnerability prevents double damage within the same cliff",2,run.lives)
+        val legacy=GameSimulation(base.copy(gates=listOf(danger),speed=140f,wind=0f),endless=false)
+        legacy.flap();legacy.step(1f/60f)
+        assertTrue("Non-endless legacy mode retains one-hit failure",legacy.finished)
+    }
+
+    @Test fun heartsAreRareAndHiddenWhenLivesFull() {
+        val run=GameSimulation(LevelEngine.create(0,1),endless=true)
+        assertEquals(3,run.maxLives)
+        assertEquals(0,run.heartsCollected)
+        assertFalse(run.heartVisible(16))
+        val heartIndex=(0 until run.level.gates.size).firstOrNull { run.isHeartPosition(it) }
+        if(heartIndex!=null) assertFalse(run.heartVisible(heartIndex))
+        val upcoming=(0 until run.upcomingGates().size).filter { run.isHeartPosition(it,true) }
+        assertTrue("Procedural heart rhythm must be sparse",upcoming.size<=2)
+    }
+
     @Test fun originalCroatianWorldNamesRemainAvailable() {
         assertEquals(8,LevelEngine.names.size)
         assertEquals("Zeleni otoci",LevelEngine.names.first())
