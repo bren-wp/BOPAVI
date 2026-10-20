@@ -5,7 +5,7 @@
 ## Provjereno i uklonjeno
 
 - Iz produkcijskog `LevelEngine.kt` uklonjen je neaktivan opsežan katalog prijevoda na 26 jezika, `ResultHeadline` i `LevelKind` (pomoćne klase starih uklonjenih izbornika).
-- Uklonjena je stara klasa `ParallaxScenery` koju je koristio samo naslijeđeni unit test. Živi `GameView.drawParallaxIslands` ostao je nepromijenjen.
+- Nakon provjere stvarnog poziva u `GameView.drawParallaxIslands` klasa `ParallaxScenery` **zadržana je** i vraćen je njezin Kotlin regresijski test; riječ je o aktivnoj logici, a ne mrtvom kodu.
 - Iz `GameView` i `MainActivity` uklonjeni su prevoditeljski pozivi. Sve dostupne komande, HUD i pristupačni opisi postali su izravno hrvatski.
 - Ne brišu se stari bitmapi ni datoteke bez potpunog inventara generatora jer artwork kontrolira trenutni renderer i potpisani reproducibilni build.
 
