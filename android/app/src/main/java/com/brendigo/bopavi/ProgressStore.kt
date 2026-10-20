@@ -85,13 +85,8 @@ class ProgressStore(context: Context) {
         saveLocalScore(game,edit)
         edit.apply()
     }
-    // Product language is Croatian on all devices. Keep the historical
-    // ui_language preference untouched so old saves/backups stay compatible.
-    // The removed language picker cannot silently switch visible UI to English.
-    fun languageCode():String = "hr"
-    fun setLanguageCode(code:String) {
-        prefs.edit().putString("ui_language",GameLanguages.normalized(code)).apply()
-    }
+    // Keep historical ui_language and backup fields untouched for migrations.
+    // The live game now renders only Croatian without a language picker.
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */

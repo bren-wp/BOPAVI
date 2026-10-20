@@ -20,16 +20,13 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, languageCode:String = "hr", qaCollisionOverlay:Boolean = false) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
     private val qaCaptureEnabled = qaCaptureFirstFlap &&
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
     private var qaWaitingForCapture = false
-    private val language=GameLanguages.normalized(languageCode)
-    private val hudVocabulary=GameLanguages.hudPack(language)
-    private fun word(en:String,hr:String):String=hudVocabulary[en] ?: if(language=="hr")hr else en
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     // Update point totals on change and the real distance readout at 10 Hz,
@@ -174,7 +171,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = if(language=="hr")"Dodirni za let: "+pilotName else "Tap to fly with "+pilotName
+        contentDescription = "Dodirni za let: "+pilotName
         p.isFilterBitmap = true
     }
     private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
@@ -278,8 +275,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(!game.active && !game.finished) {
             rect(canvas,87f,671f,393f,746f,0xd9092559.toInt(),22f)
             rect(canvas,98f,677f,382f,681f,0xff36d7ff.toInt(),2f)
-            text(canvas,word("TAP TO FLY","DODIRNI ZA LET"),240f,708f,20f,Color.WHITE,true)
-            text(canvas,word("TAP = WING FLAP","DODIR = ZAMAH KRILIMA"),240f,729f,11f,0xffbceeff.toInt(),true)
+            text(canvas,"DODIRNI ZA LET",240f,708f,20f,Color.WHITE,true)
+            text(canvas,"DODIR = ZAMAH KRILIMA",240f,729f,11f,0xffbceeff.toInt(),true)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
@@ -1004,16 +1001,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
         // Accessible current score; no wallets, level meters or power-ups.
         hudGlass(c,18f,20f,212f,88f)
-        text(c,word("SCORE","BODOVI"),36f,46f,13f,0xffbceeff.toInt())
+        text(c,"BODOVI",36f,46f,13f,0xffbceeff.toInt())
         text(c,cachedScoreLabel,36f,76f,26f,Color.WHITE)
         hudGlass(c,228f,20f,376f,88f)
         drawBerry(c,250f,58f,11f)
-        text(c,if(language=="hr")"HRANA" else "FOOD",274f,46f,12f,0xffbceeff.toInt())
+        text(c,"HRANA",274f,46f,12f,0xffbceeff.toInt())
         text(c,cachedFoodLabel,274f,76f,26f,Color.WHITE)
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood) {
             lastAccessibilityScore=score
             lastAccessibilityFood=food
-            lastHudAccessibility="${word("SCORE","BODOVI")}: $score; ${if(language=="hr")"Hrana" else "Food"}: $food"
+            lastHudAccessibility="${"BODOVI"}: $score; ${"Hrana"}: $food"
             contentDescription=lastHudAccessibility
         }
     }
@@ -1060,7 +1057,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            contentDescription=if(selectedSkin==0)word("Bopi is flying","Bopi leti") else pilotName+" is flying"
+            contentDescription=if(selectedSkin==0)"Bopi leti" else pilotName+" leti"
             onFlap()
             invalidate()
         }

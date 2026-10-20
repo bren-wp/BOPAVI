@@ -114,7 +114,6 @@ class MainActivity : Activity() {
         })
     }
 
-    private fun ui(value:String):String=GameLanguages.text(value,progress.languageCode())
     /**
      * Four short 2×4 pages rather than Android's 26-row scrolling list.
      * Native clickable, minimum-48dp targets and a persistent selected state.
@@ -122,7 +121,7 @@ class MainActivity : Activity() {
      */
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
-            text=ui(s)
+            text=s
             textSize=size.toFloat()
             setTextColor(color)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -147,7 +146,7 @@ class MainActivity : Activity() {
     }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,muted:Boolean=false,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=ui(text);setTextColor(Color.WHITE)
+            this.text=text;setTextColor(Color.WHITE)
             textSize=18f;isAllCaps=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.03f
@@ -171,7 +170,7 @@ class MainActivity : Activity() {
                 }
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
             elevation=d(7).toFloat()
-            contentDescription=ui(text)
+            contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
         }
         parent.addView(button,LinearLayout.LayoutParams(-1,d(if(primary)68 else 58)).apply{
@@ -291,14 +290,14 @@ class MainActivity : Activity() {
                 }
             }
             val b=Button(this).apply {
-                this.text=ui(text);isAllCaps=false;textSize=18f
+                this.text=text;isAllCaps=false;textSize=18f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
                 elevation=d(5).toFloat()
-                contentDescription=ui(text)
+                contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
             content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
@@ -360,7 +359,6 @@ class MainActivity : Activity() {
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")},
             qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
-            languageCode=progress.languageCode(),
             qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
@@ -456,7 +454,7 @@ class MainActivity : Activity() {
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
-                text=ui("♛  NOVI REKORD!")
+                text="♛  NOVI REKORD!"
                 textSize=19f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 setTextColor(0xffffecaa.toInt())
@@ -465,7 +463,7 @@ class MainActivity : Activity() {
                 background=gradient(0xffb55b09.toInt(),0xff542c06.toInt(),20).apply{
                     setStroke(d(2),0xffffca46.toInt())
                 }
-                contentDescription=ui("Novi osobni rekord: ${g.score()} bodova")
+                contentDescription="Novi osobni rekord: ${g.score()} bodova"
             }
             panel.addView(recordBanner,LinearLayout.LayoutParams(-1,d(46)).apply{
                 topMargin=d(3);bottomMargin=d(5)
@@ -494,7 +492,7 @@ class MainActivity : Activity() {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(37)))
             card.addView(TextView(this).apply{
-                text=ui(heading);textSize=11f;gravity=Gravity.CENTER
+                text=heading;textSize=11f;gravity=Gravity.CENTER
                 typeface=Typeface.DEFAULT_BOLD;setTextColor(Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(9,12,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
@@ -506,7 +504,7 @@ class MainActivity : Activity() {
                 setTextColor(color)
                 setAutoSizeTextTypeUniformWithConfiguration(16,23,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                contentDescription=ui("$heading $value")
+                contentDescription="$heading $value"
             }
             card.addView(stat,LinearLayout.LayoutParams(-1,d(34)))
             summary.addView(card,LinearLayout.LayoutParams(0,d(116),1f).apply{
