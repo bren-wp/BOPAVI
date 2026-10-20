@@ -11,6 +11,11 @@ mkdir -p qa/screenshots
 qa_exit_diagnostic() {
   qa_exit_code="$1"
   trap - 0
+  # Restore the emulator display even after a failed compact/tall layout test.
+  if [ "${BOPAVI_RESIZE_IN_PROGRESS:-0}" = 1 ]; then
+    adb shell wm size reset >/dev/null 2>&1 || true
+    adb shell wm density reset >/dev/null 2>&1 || true
+  fi
   if [ "$qa_exit_code" -ne 0 ]; then
     qa_adb_state="$(adb get-state 2>&1 || true)"
     if [ "$qa_adb_state" != "device" ]; then
@@ -220,3 +225,53 @@ if cmp -s qa/screenshots/android-gameplay-retry.png qa/screenshots/android-resul
   echo "FAIL: Retry did not launch another flight" >&2; exit 1
 fi
 echo "PASS: simplified real-device Home, game, result and Retry"
+
+# Optional second-stage responsive verification. These are real emulator
+# window-size/density overrides after the unchanged screenshot-release flow.
+# Every assertion runs against actual native clickable controls, not mock art.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  BOPAVI_RESIZE_IN_PROGRESS=1
+  for spec in 720x1280:320:compact 1080x2400:420:tall; do
+    dims="$(printf '%s' "$spec" | cut -d: -f1)"
+    density="$(printf '%s' "$spec" | cut -d: -f2)"
+    label="$(printf '%s' "$spec" | cut -d: -f3)"
+    adb shell wm size "$dims"
+    adb shell wm density "$density"
+    adb shell am force-stop com.brendigo.bopavi
+    adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+    sleep 4
+    adb shell pidof com.brendigo.bopavi >/dev/null || {
+      echo "FAIL: BOPAVI exited at $dims/$density" >&2; exit 1;
+    }
+    dump_ui
+    capture "android-home-$label"
+    python3 - "$dims" "$density" "$label" <<'PY'
+import re,sys,struct,xml.etree.ElementTree as ET
+from pathlib import Path
+dims,density,label=sys.argv[1:]
+width,height=map(int,dims.split("x"))
+source=Path("qa/screenshots/android-home-"+label+".png").read_bytes()
+assert source[:8]==bytes.fromhex("89504e470d0a1a0a")
+actual=struct.unpack(">II",source[16:24])
+assert actual==(width,height),(label,actual)
+root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
+nodes=list(root.iter("node"))
+play=[n for n in nodes if n.get("clickable")=="true"
+      and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
+              for x in ("PLAY","IGRAJ"))]
+assert len(play)==1,(label,"missing or duplicate accessible PLAY")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
+assert m,(label,"PLAY bounds absent")
+l,t,r,b=map(int,m.groups())
+assert 0<=l<r<=width and 0<=t<b<=height,(label,"clipped PLAY control")
+min48=48*int(density)/160
+assert r-l>=min48 and b-t>=min48,(label,"PLAY target smaller than 48dp")
+assert not any(n.get("scrollable")=="true" and
+               n.get("package")=="com.brendigo.bopavi" for n in nodes),(label,"unwanted scroll")
+print("PASS: native",label,"PLAY hit target, screen insets and no scrolling")
+PY
+  done
+  adb shell wm size reset
+  adb shell wm density reset
+  BOPAVI_RESIZE_IN_PROGRESS=0
+fi

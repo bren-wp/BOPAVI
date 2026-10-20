@@ -14,8 +14,8 @@ assert "id: api35_primary" in job
 assert "continue-on-error: true" in job
 assert "id: api35_transport_retry" in job
 assert "id: api35_primary" in job.split("continue-on-error: true")[0]
-assert "script: sh tools/qa_android_emulator.sh" in job
-assert job.count("script: sh tools/qa_android_emulator.sh")==2
+assert "script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in job
+assert job.count("script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh")==2
 assert "hashFiles('qa/screenshots/adb-transport-offline.retry')" in job
 assert "hashFiles('qa/first-emulator-attempt/adb-transport-offline.retry')" in job
 assert 'if: ${{ always() }}' in job

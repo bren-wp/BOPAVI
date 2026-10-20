@@ -68,6 +68,7 @@ jobs:
       - run: python tests/test_reference_flight_left_rail.py
       - run: python tests/test_reference_bopi_import.py
       - run: python tests/test_android_emulator_transport_gate.py
+      - run: python tests/test_responsive_smoke_contract.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_sync_release_docs.py
@@ -192,7 +193,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: sh tools/qa_android_emulator.sh
+          script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh
       - name: Save first emulator diagnostic and reset disconnected device
         if: ${{ steps.api35_primary.outcome == 'failure' && hashFiles('qa/screenshots/adb-transport-offline.retry') != '' }}
         run: |
@@ -212,7 +213,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: sh tools/qa_android_emulator.sh
+          script: BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh
       - name: Require a complete passing Android 15 gameplay suite
         if: ${{ always() }}
         env:
