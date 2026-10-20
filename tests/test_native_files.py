@@ -21,7 +21,7 @@ home=section(a,"    private fun showHome(){","    private fun showPremiumPause("
 assert "IGRAJ" in home and "FitViewportColumn(this)" in home
 assert "Politika privatnosti" in home and "showPrivacyNotice()" in home
 assert "Uvjeti korištenja" in home and "showTermsNotice()" in home
-assert 'contentDescription="Pročitaj politiku privatnosti"' in home
+assert 'legalLink("Politika privatnosti","Pročitaj politiku privatnosti")' in home
 assert "portraitDrawableIds[selectedPilotChoice]" in home
 assert "pilotSpriteIds[selectedPilotChoice]" in a
 pause=section(a,"    private fun showPremiumPause(","    private fun startGame(")
