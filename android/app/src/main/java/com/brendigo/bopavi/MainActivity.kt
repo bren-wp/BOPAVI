@@ -302,7 +302,8 @@ class MainActivity : Activity() {
                 max=100
                 progress=initial
                 contentDescription=caption
-                minHeight=d(48)
+                // The 48dp LayoutParams size below works on API26+. ProgressBar's
+                // minHeight setter is API29-only and was rejected by Android Lint.
                 setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(bar:android.widget.SeekBar?,value:Int,fromUser:Boolean){
                         label.text=caption+": "+value+" %"
