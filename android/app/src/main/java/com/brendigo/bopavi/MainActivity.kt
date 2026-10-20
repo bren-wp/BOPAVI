@@ -194,6 +194,10 @@ class MainActivity : Activity() {
         }
         val body=TextView(this).apply {
             text=android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)
+            // Enable official links and support e-mail inside the full policy.
+            // Source HTML is bundled and validated by the CI URL allowlist.
+            movementMethod=android.text.method.LinkMovementMethod.getInstance()
+            linksClickable=true
             textSize=15f
             setTextColor(0xff173451.toInt())
             setPadding(d(18),d(10),d(18),d(12))

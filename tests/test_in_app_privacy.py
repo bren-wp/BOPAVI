@@ -36,6 +36,7 @@ for term in ('private fun showPrivacyNotice()', 'private fun showTermsNotice()',
              'showLegalNotice("Uvjeti korištenja","terms.html")',
              'android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)',
              'android.widget.ScrollView(this)','assets.open("legal/$file")',
+             'movementMethod=android.text.method.LinkMovementMethod.getInstance()',
              "Pročitaj politiku privatnosti","Pročitaj uvjete korištenja",
              "paintFlags=paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG",
              "LinearLayout.LayoutParams(0,d(48),1f)"):
