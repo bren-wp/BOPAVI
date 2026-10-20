@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160">
+<defs>
+<linearGradient id="owlBody" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#d9b9ff"/><stop offset=".52" stop-color="#8859b7"/><stop offset="1" stop-color="#4a3288"/></linearGradient>
+<linearGradient id="owlWing" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a17ee4"/><stop offset="1" stop-color="#30477c"/></linearGradient>
+<radialGradient id="owlFace"><stop stop-color="#fffbe2"/><stop offset="1" stop-color="#e7c4dc"/></radialGradient>
+</defs>
+<g id="wing-left"><path d="M-12 -3 Q-40 -49 -74 -40 Q-72 -8 -57 9 Q-64 5 -73 7 Q-58 27 -37 20 Q-43 29 -52 32 Q-27 36 -13 14Z" fill="url(#owlWing)" stroke="#3a4279" stroke-width="3" stroke-linejoin="round"/><path d="M-57 -28 Q-43 -20 -29 -3 M-57 -3 Q-44 3 -30 10" fill="none" stroke="#cdbbff" opacity=".65" stroke-width="3" stroke-linecap="round"/></g>
+<g id="wing-right"><path d="M13 -3 Q39 -49 73 -40 Q73 -8 56 9 Q63 5 73 7 Q58 27 36 20 Q43 29 52 32 Q27 36 13 14Z" fill="url(#owlWing)" stroke="#3a4279" stroke-width="3" stroke-linejoin="round"/><path d="M57 -28 Q43 -20 29 -3 M57 -3 Q44 3 30 10" fill="none" stroke="#cdbbff" opacity=".65" stroke-width="3" stroke-linecap="round"/></g>
+<path d="M-34 -27 Q-44 -64 -21 -57 L-4 -36 Q0 -39 4 -36 L21 -57 Q44 -64 34 -27" fill="#55417f" stroke="#30295d" stroke-width="3"/>
+<path d="M-26 -35 L-20 -49 L-9 -34 M26 -35 L20 -49 L9 -34" fill="#e5bc8a"/>
+<ellipse cx="0" cy="11" rx="35" ry="43" fill="url(#owlBody)" stroke="#3b2d64" stroke-width="3"/>
+<ellipse cx="0" cy="27" rx="23" ry="22" fill="#e8d9dc" opacity=".86"/>
+<path d="M-31 -20 Q-15 -38 0 -23 Q15 -38 31 -20 L32 4 Q19 26 0 19 Q-19 26 -32 4Z" fill="url(#owlFace)"/>
+<ellipse cx="-16" cy="-3" rx="13" ry="15" fill="#fdfdf6"/><ellipse cx="16" cy="-3" rx="13" ry="15" fill="#fdfdf6"/>
+<circle cx="-15" cy="-2" r="8" fill="#edaa36"/><circle cx="16" cy="-2" r="8" fill="#edaa36"/>
+<circle cx="-14" cy="-2" r="4.6" fill="#171b30"/><circle cx="17" cy="-2" r="4.6" fill="#171b30"/>
+<circle cx="-12" cy="-5" r="2.2" fill="white"/><circle cx="19" cy="-5" r="2.2" fill="white"/>
+<path d="M-5 13 L0 25 L6 13 Z" fill="#ffb547" stroke="#ab6434" stroke-width="1.5"/>
+<path d="M-15 46 Q-19 54 -26 53 M15 46 Q19 54 26 53" stroke="#edaf64" stroke-width="5" stroke-linecap="round" fill="none"/>
+<path d="M-20 -39 Q-8 -48 0 -46 Q8 -48 20 -39" fill="none" stroke="#d8b9f7" stroke-width="3" opacity=".65"/>
+</svg>
