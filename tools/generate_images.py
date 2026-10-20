@@ -193,7 +193,7 @@ for skin,hue in enumerate(palette):
         wing_name=f'bopi{label.lower()}{skin}'
         wing=recolor(original_wing,hue)
         wing.save(a/'drawable-nodpi'/(wing_name+'.png'),optimize=True)
-# Three original bird pilots now retain every feather tip in the same full 160-unit raster viewport.
+# Existing bird pilots and two new animal companions share the 160-unit raster viewport.
 # IMPORTANT: keep saved skin indices 6/7/8 and generated Bopi6..8 sprite
 # names stable, so owned masks, picked pilot and offline v1..v6 backups survive.
 # The legacy backup slugs ("portantin", "noa", "any") remain internal aliases.
@@ -202,7 +202,7 @@ def render_bird_pilot(part):
     part=re.sub(r'</svg>.*','',part,flags=re.S)
     xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="512" height="512">'+part+'</svg>'
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
-for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
+for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion'),(9,'sova'),(10,'lisac')):
     source=(r/'docs/assets'/f'{character}.svg').read_text()
     defs=re.search(r'<defs>(.*?)</defs>',source,re.S)
     left=re.search(r'<g id="wing-left">.*?</g>',source,re.S)
@@ -224,7 +224,7 @@ for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion')):
 # Composite the already-approved body/left/right layers once during the build.
 # This adds no scene decoding or per-frame allocations to the game loop.
 from PIL import ImageFilter
-for skin in range(9):
+for skin in range(11):
     src=a/'drawable-nodpi'
     body=Image.open(src/f'bopi{skin}.png').convert('RGBA')
     left=Image.open(src/f'bopileft{skin}.png').convert('RGBA')
@@ -293,4 +293,4 @@ if photo_bopi:
         a/'drawable/app_icon_foreground.png',optimize=True)
     final=Image.alpha_composite(background,foreground).convert('RGB')
     final.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
-print('Generated native art: 9 complete glowing portraits, 9 bodies, 18 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)
+print('Generated native art: 11 complete glowing portraits, 11 bodies, 22 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)
