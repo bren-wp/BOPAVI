@@ -19,7 +19,7 @@
 ## Privacy, signing and release
 
 - [ ] Confirm no INTERNET permission, tracking, ads, purchases or unnecessary SDKs.
-- [ ] Verify discoverable native Croatian privacy notice, its accessible 48dp+ touch target, and a separately accessible public privacy-policy URL.
+- [ ] Verify both 48dp+ native legal footer links, complete 11-section privacy and 12-section terms text matched to the owner index.html, plus public HTTPS policy URL.
 - [ ] Ensure current Croatian-only screenshots and store listing truly depict the signed candidate build.
 - [ ] Preserve app ID, all local save keys and compatibility with installed builds.
 - [ ] Ensure release AAB/QA artefact checksums pass; GitHub AAB remains unsigned.

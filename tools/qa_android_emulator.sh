@@ -191,7 +191,7 @@ import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 alltext=" ".join(label(n) for n in nodes)
-for required in ("UVJETI KORIŠTENJA","BRENDIGO","ZAKONSKA PRAVA"):
+for required in ("UVJETI KORIŠTENJA","BRENDIGO","OGRANIČENU"):
     if required not in alltext:raise SystemExit("FAIL: native terms missing "+required)
 close=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
 if len(close)!=1:raise SystemExit("FAIL: terms dialog Close missing")

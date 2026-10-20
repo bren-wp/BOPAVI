@@ -65,6 +65,7 @@ jobs:
       - run: python tests/test_three_pilots.py
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_in_app_privacy.py
+      - run: python tests/test_full_legal_docs.py
       - run: python tests/test_reference_navigation.py
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
