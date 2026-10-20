@@ -5,3 +5,4 @@
 - Preserve all published stable GitHub v1+ releases and stage v1.0.2 as an unpublished Android-only candidate until the full CI and review gates pass.
 - Extend deterministic Android generator regression coverage across world families, extreme level ordinals, animated mouth clearance and conservative hard-mode ascent budgets.
 - Reject mislabeled Android release previews: a real GameView idle state, first active flight with visible pause control, and retry-to-idle are now verified before captures; image hash differences alone are insufficient.
+- Centre the Results content vertically on tall screens and cap the Pause modal height to avoid oversized empty panels, retaining inset-safe scaling and native accessible controls.

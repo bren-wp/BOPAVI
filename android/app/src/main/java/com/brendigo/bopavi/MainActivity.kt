@@ -241,7 +241,7 @@ class MainActivity : Activity() {
         val dialog=android.app.AlertDialog.Builder(this).create()
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
-            gravity=Gravity.CENTER_HORIZONTAL
+            gravity=Gravity.CENTER
             setPadding(d(18),d(15),d(18),d(19))
             background=gradient(0xff106bd2.toInt(),0xff031936.toInt(),26).apply{
                 setStroke(d(3),electric)
@@ -309,7 +309,7 @@ class MainActivity : Activity() {
         // Measured live buttons, no scroll even when inline pause options open.
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
-            (resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1))
+            minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600)))
     }
     private fun startGame(){
         // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
@@ -394,7 +394,7 @@ class MainActivity : Activity() {
         },FrameLayout.LayoutParams(-1,-1))
         val fitted=FitViewportColumn(this)
         val panel=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER_HORIZONTAL
+            orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
             setPadding(d(18),d(12),d(18),d(18))
         }
         fitted.addView(panel)
