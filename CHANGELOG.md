@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.4 — Three animal pilots, refined terrain, legal links and power usage (build 134)
+
+**Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.4)
+
+- Add original Bopi, Sova (owl) and Lisac (winged fox) as immediately selectable Home characters with unique body, animated wing and portrait sprites; retain historical saves.
+- Replace the prominent privacy button with two compact, independently accessible offline native footer links for Privacy Policy and Terms of Use.
+- Improve the natural forest green obstacle material and HUD contrast without widening or changing any collision geometry.
+- Stop the Home screen's endless decorative animation and pace automatic gameplay redraws at approximately 60fps-class or 30fps with reduced-motion preference; keep immediate touch response and fixed-substep physics.
+- Keep procedural hazards flowing continuously across internal generation boundaries; no level menus, artificial completion overlays or restart between obstacle groups.
+- Expand CI source, legal/character and emulator contract checks. On-device battery consumption, physical crash-free operation, public HTTPS hosting and Play publication require separate verification.
+
 ## v1.0.3 — Croatian UI, polished navigation and Play policy hardening (build 133)
 
 **Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.3)
@@ -18,16 +29,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Preserve the actively used ParallaxScenery helper and its Kotlin tests after runtime-reachability verification; it is not dead code.
 - Refresh Google Play metadata, signing/privacy rules, Android 16 API 36 checks and current v1.0.2 publication evidence.
 - Validate that the actual in-app Croatian privacy policy opens and closes on Android 15/16, and that its touch target remains at least 48dp on compact and tall emulator displays.
-
-## v1.0.2 — Android audio focus, stability contracts and documentation cleanup (build 132)
-
-**Published:** 2026-10-20 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.2)
-
-- Safely handle Android soundtrack focus loss, interruptions, resume and resource teardown with no external audio SDK and no additional app permissions.
-- Expand source and regression audits for Android audio lifecycle while retaining original gameplay physics, collision geometry, artwork and offline local save keys.
-- Clean up active Android crash, QA, release, artwork and accessibility guidance; archive historically useful retired iOS/old UI evidence outside active documentation.
-- Preserve all published stable GitHub v1+ releases and stage v1.0.2 as an unpublished Android-only candidate until the full CI and review gates pass.
-- Extend deterministic Android generator regression coverage across world families, extreme level ordinals, animated mouth clearance and conservative hard-mode ascent budgets.
-- Reject mislabeled Android release previews: a real GameView idle state, first active flight with visible pause control, and retry-to-idle are now verified before captures; image hash differences alone are insufficient.
-- Centre the Results content vertically on tall screens and cap the Pause modal height to avoid oversized empty panels, retaining inset-safe scaling and native accessible controls.
-- Fix active-flight screenshot QA false negative using real Android UIAutomator evidence: GameView replaces its initial 'Bopi is flying' label with the accessible live SCORE/FOOD HUD during rendering. Require actual HUD plus Pause, not the transient initial label.
