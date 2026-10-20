@@ -74,6 +74,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var magnetTime = initialMagnet.coerceIn(0f,18f); private set
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
+    /** Distinguishes lost-life feedback from a consumed legacy shield. */
+    var lastImpactLostLife = false; private set
     // Presentation-only impulse: responsive wing beat, no effect on collision or score.
     var flapPulse = 0f; private set
     var completionCount = 0; private set
@@ -104,7 +106,18 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if(lives>=maxLives)return false
         val segment=if(incoming)nextLevel else level
         return segment!=null && index in segment.gates.indices &&
-            heartAt(index,incoming) && (incoming || !collectedHearts[index])
+            heartAt(index,incoming) &&
+            (incoming || (!collectedHearts[index] && !collectedFood[index]))
+    }
+    /** One visible reward per gate. Full-life heart gates give normal berries;
+     * once any reward is collected this gate cannot award a second item.
+     */
+    fun berryVisible(index:Int,incoming:Boolean=false):Boolean {
+        val segment=if(incoming)nextLevel else level
+        if(segment==null || index !in segment.gates.indices ||
+            !segment.gates[index].coin)return false
+        if(!incoming && (collectedFood[index] || collectedHearts[index]))return false
+        return !heartAt(index,incoming) || lives>=maxLives
     }
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
@@ -177,7 +190,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             // Sweep the real fruit/body relative motion across this physics
             // slice. Endpoint-only contact missed fast edge grazes on 30Hz
             // devices; the collider and safe gate opening stay unchanged.
-            if(endless && heartAt(i) && !collectedHearts[i] && lives<maxLives) {
+            if(endless && heartAt(i) && !collectedHearts[i] &&
+                    !collectedFood[i] && lives<maxLives) {
                 val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
                 if(BerryCollision.touched(cx+travel-birdX,oldCy-previousY,
                         cx-birdX,cy-y,radius+13f)) {
@@ -187,7 +201,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                     collectPulse=.36f
                 }
             }
-            if(endless && gate.coin && !heartAt(i) && !collectedFood[i]) {
+            if(endless && gate.coin && !collectedFood[i] &&
+                    !collectedHearts[i] && (!heartAt(i) || lives>=maxLives)) {
                 val oldCy=(oldBounds.top+oldBounds.bottom)*.5f
                 if(BerryCollision.touched(
                     cx+travel-birdX,oldCy-previousY,
@@ -234,9 +249,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     private fun damage() {
         if (invulnerable > 0f) return
-        if (shield > 0) { shield--; invulnerable = 1.25f; impactPulse = .65f; velocity = -90f }
-        else {
+        if (shield > 0) {
+            shield--
+            lastImpactLostLife=false
+            invulnerable = 1.25f; impactPulse = .65f; velocity = -90f
+        } else {
             lives--
+            lastImpactLostLife=true
             if(lives>0) {
                 // A contact is one lost heart even during many physics slices.
                 invulnerable=1.6f

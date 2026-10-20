@@ -9,6 +9,9 @@ assert "var lives = if(endless)3 else 1" in sim
 assert "invulnerable=1.6f" in sim and "lives--" in sim
 assert "heartsCollected++" in sim and "lives=min(maxLives,lives+1)" in sim
 assert "private var collectedHearts" in sim and "heartVisible(" in sim
+assert "fun berryVisible(" in sim
+assert "game.foodCollected+game.coins+game.stars+game.heartsCollected" in view
+assert "if(game.lastImpactLostLife)" in view
 assert "private fun drawMossLedge(" in view and "private fun drawHeartPickup(" in view
 assert "private fun drawHudHeart(" in view
 assert "hudGlass(c,18f,16f,178f,68f)" in view

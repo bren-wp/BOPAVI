@@ -30,6 +30,59 @@ class LevelEngineTest {
     }
 
 
+
+    @Test fun rareHeartAtFullLifeIsBerryAndCannotBeCollectedTwice() {
+        val original=LevelEngine.create(0,1)
+        val safe=original.gates.first().copy(
+            center=366f,gap=340f,width=64f,movement=0f,
+            coin=true,star=false,power=0)
+        val gates=(0 until 17).map { index ->
+            safe.copy(x=if(index==16) 102f else -200f-index,
+                coin=true)
+        }
+        val level=original.copy(gates=gates,speed=140f,wind=0f)
+        val full=GameSimulation(level,endless=true)
+        assertEquals(3,full.lives)
+        assertTrue(full.isHeartPosition(16))
+        assertFalse("A full-life player should not see an unusable heart",full.heartVisible(16))
+        assertTrue("An otherwise empty heart slot should show an ordinary berry",full.berryVisible(16))
+        full.flap()
+        full.step(1f/120f)
+        assertEquals(1,full.foodCollected)
+        assertEquals(0,full.heartsCollected)
+        assertFalse("Berry is consumed exactly once",full.berryVisible(16))
+        // Losing health after collecting a berry must NOT resurrect the same
+        // gate's heart or allow a second score for the same coordinate.
+        val livesField=GameSimulation::class.java.getDeclaredField("lives")
+        livesField.isAccessible=true
+        livesField.setInt(full,2)
+        assertFalse("Already collected berry cannot respawn as a heart",full.heartVisible(16))
+        assertFalse(full.berryVisible(16))
+    }
+
+    @Test fun heartCollectionRestoresOnlyOneLifeAndNeverRespawnsBerry() {
+        val original=LevelEngine.create(0,1)
+        val safe=original.gates.first().copy(
+            center=366f,gap=340f,width=64f,movement=0f,
+            coin=true,star=false,power=0)
+        val gates=(0 until 17).map { index ->
+            safe.copy(x=if(index==16) 102f else -200f-index)
+        }
+        val run=GameSimulation(original.copy(gates=gates,speed=140f,wind=0f),endless=true)
+        val livesField=GameSimulation::class.java.getDeclaredField("lives")
+        livesField.isAccessible=true
+        livesField.setInt(run,2)
+        assertTrue(run.heartVisible(16))
+        assertFalse(run.berryVisible(16))
+        run.flap()
+        run.step(1f/120f)
+        assertEquals(3,run.lives)
+        assertEquals(1,run.heartsCollected)
+        assertEquals(0,run.foodCollected)
+        assertFalse("Heart cannot reappear after collection",run.heartVisible(16))
+        assertFalse("A spent heart cannot turn into a second berry",run.berryVisible(16))
+    }
+
     @Test fun endlessLivesAreCappedAndSingleContactCannotDrainTwoLives() {
         val base=LevelEngine.create(0,2)
         val danger=base.gates.first().copy(x=110f,center=260f,gap=164f,movement=0f,coin=false,star=false,power=0)

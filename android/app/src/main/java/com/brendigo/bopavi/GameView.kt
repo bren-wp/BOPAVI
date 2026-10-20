@@ -210,8 +210,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 completedSeen=game.completionCount
                 onLevelCompleted(game.completedOrdinal)
             }
-            if(game.foodCollected+game.coins+game.stars>pickupSeen) {
-                pickupSeen=game.foodCollected+game.coins+game.stars
+            // Restored hearts are full collectibles, with the same sound and
+            // haptic event as berries; no event when merely drawing an item.
+            val pickups=game.foodCollected+game.coins+game.stars+game.heartsCollected
+            if(pickups>pickupSeen) {
+                pickupSeen=pickups
                 if(hapticEnabled)performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 onCollect()
             }
@@ -855,9 +858,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             val mid=x+w*.5f
             val cy=(a.top+a.bottom)*.5f
             if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
-            else if(g.coin && !game.heartVisible(index,incoming) &&
-                (incoming || game.foodVisible(index)) &&
-                !game.isHeartPosition(index,incoming)) drawBerry(c,mid,cy,13f)
+            else if(game.berryVisible(index,incoming)) drawBerry(c,mid,cy,13f)
         }
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
@@ -933,13 +934,26 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         if(game.impactPulse>0f){
             val portion=game.impactPulse/.65f
-            fill(0xffb8efff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=5f
+            fill(if(game.lastImpactLostLife)0xffffa1b2.toInt() else 0xffb8efff.toInt())
+            p.style=Paint.Style.STROKE;p.strokeWidth=5f
             p.alpha=(210f*portion).toInt().coerceIn(0,210)
             c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
         drawFeedbackSparkles(c)
         drawFlapWake(c)
+        // Keep a calm, unmistakable grace-period outline when a heart is
+        // lost. Continuous light replaces unpleasant full-sprite blinking.
+        if(game.invulnerable>0f && game.lastImpactLostLife) {
+            fill(0xfffa7797.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=2.3f
+            p.alpha=if(reducedMotion)105 else (65f+35f*
+                kotlin.math.sin(game.time*3.5f)).toInt().coerceIn(30,130)
+            c.drawCircle(126f,game.y,49f,p)
+            p.style=Paint.Style.FILL
+            p.alpha=255
+        }
         // Flight ribbons keep the sprite visually connected to the wind and world.
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
@@ -1086,7 +1100,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(0xff28e6ff.toInt());p.style=Paint.Style.STROKE
             c.drawRoundRect(x-7f,o.top-28f,x+g.width+5f,o.top,7f,7f,p)
             c.drawRoundRect(x-7f,o.bottom,x+g.width+5f,o.bottom+27f,7f,7f,p)
-            if(game.endless && g.coin && game.foodVisible(i)){
+            if(game.endless && game.berryVisible(i)){
                 fill(0xff67f78d.toInt());p.style=Paint.Style.STROKE
                 c.drawCircle(x+g.width*.5f,(o.top+o.bottom)*.5f,13f,p)
             }
