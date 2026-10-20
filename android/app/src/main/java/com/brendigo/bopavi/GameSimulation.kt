@@ -136,6 +136,10 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         }
     }
     private fun advance(dt: Float) {
+        // Prepare the next obstacle batch near the MIDPOINT of a level,
+        // far before it enters the screen. Procedural work and new boolean
+        // arrays must not happen in the precise frame a level is passed.
+        if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext()
         val previousY=y
         val previousTime=time
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
@@ -208,7 +212,10 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         val incoming=nextLevel ?: LevelEngine.createStream(level.world,displayLevel)
                         levelOrigin=nextOrigin
                         level=incoming
-                        prepareNext()
+                        // The successor was cached ahead of time. Postpone
+                        // generating the next-next batch until midway through
+                        // this new segment to avoid a one-frame seam stall.
+                        nextLevel=null
                         levelTransition=.85f
                         passed = 0
                         levelStars = 0

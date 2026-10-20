@@ -21,3 +21,6 @@ print("PASS: three lives, rare collectible hearts, mossy pillars and compact nat
 activity=(src/"MainActivity.kt").read_text()
 assert "private fun polishGameDialog(" in activity
 assert "0xff154c8d.toInt(),0xff061d42.toInt()" in activity
+
+assert "if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext()" in sim
+assert "nextLevel=null" in sim

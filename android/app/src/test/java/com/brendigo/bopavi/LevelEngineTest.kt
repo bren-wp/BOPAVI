@@ -58,6 +58,25 @@ class LevelEngineTest {
         assertTrue("Procedural heart rhythm must be sparse",upcoming.size<=2)
     }
 
+
+    @Test fun streamingRegenerationIsMovedAwayFromExactBoundary() {
+        val template=LevelEngine.create(0,3)
+        val last=template.gates.first().copy(x=25f,center=366f,gap=290f,
+            coin=false,star=false,power=0,movement=0f)
+        // A single-gate deterministic test still promotes the cached
+        // upcoming world without resetting distance, speed or active state.
+        val flight=GameSimulation(template.copy(gates=listOf(last)),endless=true)
+        val xBefore=flight.upcomingGateX(flight.upcomingGates().first())
+        flight.flap()
+        flight.step(1f/60f)
+        assertEquals(4L,flight.displayLevel)
+        assertEquals(xBefore-flight.distance,flight.gateX(flight.level.gates.first()),.01f)
+        assertEquals(0,flight.upcomingGates().size)
+        flight.step(1f/60f)
+        assertTrue("Next-next group is prepared outside the boundary frame",
+            flight.upcomingGates().isNotEmpty())
+    }
+
     @Test fun originalCroatianWorldNamesRemainAvailable() {
         assertEquals(8,LevelEngine.names.size)
         assertEquals("Zeleni otoci",LevelEngine.names.first())

@@ -715,7 +715,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** Grassy cap foliage is constrained to the solid stone lip.
      * Collision still uses the original identical rounded 7px cap geometry.
      */
-    private fun drawMossLedge(c:Canvas,x:Float,w:Float,y:Float,top:Boolean,seed:Int) {
+    private fun drawMossLedge(c:Canvas,x:Float,w:Float,y:Float,seed:Int) {
         rect(c,x-5f,y+6f,x+w+3f,y+14f,0xff286d41.toInt(),5f)
         rect(c,x-4f,y+4f,x+w+2f,y+9f,0xff75cf69.toInt(),4f)
         for(i in 0..5){
@@ -746,10 +746,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
-        if(g.kind==0) drawMossLedge(c,x,w,top-28f,true,cliffSeed)
+        if(g.kind==0) drawMossLedge(c,x,w,top-28f,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
-        if(g.kind==0) drawMossLedge(c,x,w,bottom,false,cliffSeed)
+        if(g.kind==0) drawMossLedge(c,x,w,bottom,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
         // Rock strata follow each world's material, not a generic flat
