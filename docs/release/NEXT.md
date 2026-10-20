@@ -8,3 +8,5 @@
 - Remove unreachable 26-language UI catalog and dead helper logic from the shipped Kotlin code. Save migration and historic records stay intact.
 - Extend decorative obstacle shafts into tall-screen camera overflow, eliminating disconnected/floating-looking rock ends without widening collision geometry. Refine Croatian scoreboard typography and skip safe-corridor rock CCD work.
 - Add a discoverable Croatian in-app privacy notice (offline native dialog) and minimum 58dp legal tap area on Home; compact-screen art scales independently to retain readable primary buttons.
+- Remove the unused ParallaxScenery helper and its tests (the runtime renderer has an independent parallax implementation); retain gameplay art and dynamic save keys.
+- Refresh Google Play metadata, signing/privacy rules, Android 16 API 36 checks and current v1.0.2 publication evidence.
