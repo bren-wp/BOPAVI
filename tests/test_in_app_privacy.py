@@ -44,7 +44,7 @@ for term in ('private fun showPrivacyNotice()', 'private fun showTermsNotice()',
 assert 'legalLink("Politika privatnosti"' in main
 assert 'legalLink("Uvjeti korištenja"' in main
 assert "setOnClickListener{click()}" in main
-assert "compactDisplay=resources.configuration.screenHeightDp<700" in main
+assert "compactDisplay=resources.configuration.screenHeightDp<770" in main
 assert "tinyDisplay=resources.configuration.screenHeightDp<610" in main
 assert "github.com" not in main.split("private fun showLegalNotice(",1)[1].split("private fun showHome()",1)[0]
 assert "android.permission.INTERNET" not in manifest

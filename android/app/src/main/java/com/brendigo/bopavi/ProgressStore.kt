@@ -69,6 +69,9 @@ class ProgressStore(context: Context) {
         return true
     }
     fun endlessBest(): Int = prefs.getInt("endless_best",0)
+    /** Existing local counters exposed read-only; historic save format unchanged. */
+    fun totalRuns():Int = prefs.getInt("endless_runs",0).coerceIn(0,100_000_000)
+    fun totalFlaps():Long = prefs.getLong("flaps",0L).coerceIn(0L,100_000_000L)
     /** Personal record for actual berries physically collected in one run. */
     fun bestFood():Int = prefs.getInt("endless_food_best",0).coerceIn(0,100_000_000)
     fun wins(): Int = prefs.getInt("wins",0)
