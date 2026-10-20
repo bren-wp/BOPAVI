@@ -306,6 +306,20 @@ class LevelEngineTest {
                 }
             }
     }
+    @Test fun interiorSweptFlightCorridorStaysFreeWithoutExpensiveCapSearch() {
+        val from=LevelEngine.Opening(245f,453f)
+        val to=LevelEngine.Opening(253f,445f)
+        for(x in listOf(100f,125f,149f)) {
+            assertFalse("A swept body wholly in the open mouth never touches rock",
+                PillarCollision.sweptBodyHitsPillar(126f,336f,345f,18f,
+                    x+2f,x,76f,from,to))
+        }
+        // A moving body entering the upper lip is still a true collision.
+        val fixed=LevelEngine.Opening(245f,453f)
+        assertTrue(PillarCollision.sweptBodyHitsPillar(126f,265f,244f,18f,
+            110f,108f,76f,fixed,fixed))
+    }
+
     @Test fun conservativeRockSweepCatchesSingleSliceRoundedCornerTunneling() {
         val o=LevelEngine.Opening(228f,450f)
         // At 120Hz the real-moving rock can shift 1.5px horizontally while a

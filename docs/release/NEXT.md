@@ -6,3 +6,4 @@
 - Revalidate current Google Play API 36, truthful Croatian listing, privacy and real same-build artwork.
 - Expand dead-code/resource audits and prevent orphan resources while retaining old public releases and backup migration behaviour.
 - Remove unreachable 26-language UI catalog and dead helper logic from the shipped Kotlin code. Save migration and historic records stay intact.
+- Extend decorative obstacle shafts into tall-screen camera overflow, eliminating disconnected/floating-looking rock ends without widening collision geometry. Refine Croatian scoreboard typography and skip safe-corridor rock CCD work.

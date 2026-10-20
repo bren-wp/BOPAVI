@@ -232,6 +232,14 @@ internal object PillarCollision {
         // All four actual shapes lie in this swept horizontal extent.
         if(birdX<min(fromGateX,toGateX)-7f-radius ||
            birdX>max(fromGateX,toGateX)+gateWidth+5f+radius)return false
+        // Conservative swept vertical broad phase: interpolation of both
+        // bird centre and animated mouth stays inside this intersection.
+        // Neither rounded lip nor shaft can touch the radius-r body here.
+        // Improves CPU/frame pacing without changing near-miss/hit semantics.
+        val safeTop=max(fromOpening.top,toOpening.top)+radius
+        val safeBottom=min(fromOpening.bottom,toOpening.bottom)-radius
+        if(fromY>=safeTop && fromY<=safeBottom &&
+           toY>=safeTop && toY<=safeBottom)return false
         val motionBound=abs(toGateX-fromGateX)+abs(toY-fromY)+
             max(abs(toOpening.top-fromOpening.top),abs(toOpening.bottom-fromOpening.bottom))+.0001f
         fun clear(t:Float):Float {

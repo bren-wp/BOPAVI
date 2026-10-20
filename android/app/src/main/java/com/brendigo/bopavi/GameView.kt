@@ -140,11 +140,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         0xffffbd67.toInt(),0xffd3fff1.toInt(),0xffcab7ff.toInt(),0xff8dfff1.toInt(),0xffc5d1ff.toInt())
     private val foregroundHues=intArrayOf(0xff63e1a1.toInt(),0xffffce81.toInt(),0xffa6e8ff.toInt(),
         0xffff834f.toInt(),0xffe0fff0.toInt(),0xffa395ec.toInt(),0xff6ef0da.toInt(),0xff8fa5f1.toInt())
+    // Extend visual rock shafts through the camera letterbox on tall displays.
+    // The physical 480x800 simulation/collision bounds never change.
+    private var pillarRenderTop=-25f
+    private var pillarRenderBottom=825f
     private var viewportSky: LinearGradient? = null
     override fun onSizeChanged(w:Int,h:Int,oldw:Int,oldh:Int){
         super.onSizeChanged(w,h,oldw,oldh)
         viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
+        // The camera is uniformly fitted, but tall displays show additional
+        // scenery above/below that 800-unit canvas. Rock shafts must continue
+        // through those regions rather than visibly float in open sky.
+        val cameraScale=min(w/480f,h/800f)
+        val overflow=if(cameraScale>0f)
+            ((h/cameraScale-800f)*.5f).coerceAtLeast(0f) else 0f
+        pillarRenderTop=-25f-overflow
+        pillarRenderBottom=825f+overflow
         updateWorldCover(w,h)
     }
     private fun updateWorldCover(w:Int,h:Int){
@@ -708,17 +720,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val top=a.top;val bottom=a.bottom
         val cliffSeed=(g.phase*1024f).toInt()+index*31+g.kind*59+1
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
-        drawCliffShaft(c,x,w,-25f,top,shade,color,-cliffSeed)
+        drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
-        drawCliffShaft(c,x,w,bottom,825f,shade,color,cliffSeed)
+        drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
-        drawRockFacets(c,x,w,-18f,top-30f)
-        drawRockFacets(c,x,w,bottom+28f,811f)
+        drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
+        drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
         // Rock strata follow each world's material, not a generic flat
         // white column. They never project into the traversable gap.
         val stratumGlint=biomeReliefGlints[g.kind]
-        drawRockStrata(c,x,w,-14f,top-29f,cliffSeed,shade,stratumGlint)
-        drawRockStrata(c,x,w,bottom+28f,813f,-cliffSeed,shade,stratumGlint)
+        drawRockStrata(c,x,w,pillarRenderTop+11f,top-29f,cliffSeed,shade,stratumGlint)
+        drawRockStrata(c,x,w,bottom+28f,pillarRenderBottom-12f,-cliffSeed,shade,stratumGlint)
         // Width-aware material flecks make both narrow and wide pillars look
         // finished; every speck stays strictly inside the collision cap.
         val fleck=when(g.kind){
@@ -734,8 +746,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
         }
         val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
-        rect(c,x+6f,-12f,x+13f,top-30f,highlight,3f)
-        rect(c,x+6f,bottom+28f,x+13f,809f,highlight,3f)
+        rect(c,x+6f,pillarRenderTop+13f,x+13f,top-30f,highlight,3f)
+        rect(c,x+6f,bottom+28f,x+13f,pillarRenderBottom-16f,highlight,3f)
         when(g.kind){
             0->{
                 // Layered rock with grassy ledges. Textures stay within the shaft/cap collider.
@@ -791,7 +803,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 row+=57f;n++
             }
         }
-        courses(16f,top-34f);courses(bottom+34f,809f)
+        courses(pillarRenderTop+36f,top-34f);courses(bottom+34f,pillarRenderBottom-16f)
         rect(c,x-3f,top-27f,x+w+2f,top-23f,0x88ffffff.toInt(),2f)
         rect(c,x-3f,bottom+3f,x+w+2f,bottom+8f,0x66ffffff,2f)
         // Vegetated stone relief in the collision-solid lip/shaft, never in the gap.
@@ -1001,12 +1013,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
         // Accessible current score; no wallets, level meters or power-ups.
         hudGlass(c,18f,20f,212f,88f)
-        text(c,"BODOVI",36f,46f,13f,0xffbceeff.toInt())
-        text(c,cachedScoreLabel,36f,76f,26f,Color.WHITE)
+        text(c,"BODOVI",36f,46f,14f,0xffd4f4ff.toInt())
+        text(c,cachedScoreLabel,36f,78f,29f,Color.WHITE)
         hudGlass(c,228f,20f,376f,88f)
         drawBerry(c,250f,58f,11f)
-        text(c,"HRANA",274f,46f,12f,0xffbceeff.toInt())
-        text(c,cachedFoodLabel,274f,76f,26f,Color.WHITE)
+        text(c,"HRANA",274f,46f,13.5f,0xffd4f4ff.toInt())
+        text(c,cachedFoodLabel,274f,78f,29f,Color.WHITE)
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood) {
             lastAccessibilityScore=score
             lastAccessibilityFood=food
