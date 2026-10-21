@@ -16,7 +16,7 @@ assert "private fun drawMossLedge(" in view and "private fun drawHeartPickup(" i
 assert "private fun drawHudHeart(" in view
 assert "hudGlass(c,18f,16f,178f,68f)" in view
 assert "Životi:" in view
-assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in view
+assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text()
 assert "android.permission.INTERNET" not in manifest
 print("PASS: three lives, rare collectible hearts, mossy pillars and compact native HUD")

@@ -14,7 +14,7 @@ assert "if(firstFlap) frameClock.reset()" in view
 assert "frameClock.reset()" in view.split("if(qaWaitingForCapture) {",1)[1].split("} else {",1)[0]
 assert "for(i in upcoming.indices)" in view
 assert "game.upcomingGates().withIndex()" not in view
-assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in view
+assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 assert "nanos<1_000_000L" in clock
 assert "if(!running)" in clock and "reset()" in clock
 assert "if(previous==null || nowNanos<previous)" in clock

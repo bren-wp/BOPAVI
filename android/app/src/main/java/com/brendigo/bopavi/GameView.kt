@@ -1,6 +1,10 @@
 package com.brendigo.bopavi
 
 import android.content.Context
+import android.content.BroadcastReceiver
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.PowerManager
 import android.graphics.Canvas
 import android.graphics.BitmapFactory
 import android.graphics.RectF
@@ -175,13 +179,34 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0
     // First frame of a flight is a baseline; idle waiting is never physics time.
     private val frameClock=FlightFrameClock()
+    // Refresh only on window/lifecycle transitions, never through a binder call
+    // inside the 60/90/120 Hz rendering hot path.
+    private val powerManager=context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    private var powerSaveMode=false
+    private var powerSaveReceiverRegistered=false
+    private val powerSaveReceiver=object:BroadcastReceiver(){
+        override fun onReceive(context:Context?,intent:Intent?) {
+            if(intent?.action==PowerManager.ACTION_POWER_SAVE_MODE_CHANGED){
+                // The system may toggle saver without hiding the Activity.
+                // Never poll the PowerManager from inside onDraw().
+                refreshPowerSaveMode()
+                if(isAttachedToWindow && game.active && !paused)postInvalidateOnAnimation()
+            }
+        }
+    }
+    private fun refreshPowerSaveMode(){ powerSaveMode=powerManager?.isPowerSaveMode==true }
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
     private var shieldImpactNotified=false
     private var lastAccessibilityLives=-1
     var paused = false
-        set(v) { field = v; frameClock.reset(); postInvalidateOnAnimation() }
+        set(v) {
+            if(field==v)return
+            field = v
+            frameClock.reset()
+            postInvalidateOnAnimation()
+        }
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -317,7 +342,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // 14ms throttle. Reduced motion stays at roughly 30fps to save work.
         // Pause, exit, background and QA still capture schedule no new frames.
         if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
-            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
+            val delay=GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)
+            if(delay!=null) postInvalidateDelayed(delay) else postInvalidateOnAnimation()
         }
     }
 
@@ -1093,10 +1119,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,"HRANA",222f,36f,11f,0xffd4f4ff.toInt())
         text(c,cachedFoodLabel,222f,60f,23f,Color.WHITE)
         if(game.endless) {
+            // Third, visually grouped compact HUD card instead of loose hearts.
+            // The hitbox, life capacity and collectible rules are unchanged.
+            hudGlass(c,317f,16f,462f,68f)
+            text(c,"ŽIVOTI",329f,35f,11f,0xffd4f4ff.toInt())
             for(i in 0 until game.maxLives) {
-                val hx=334f+i*22f
+                val hx=342f+i*38f
                 val healthy=i<game.lives
-                drawHudHeart(c,hx,36f,healthy)
+                drawHudHeart(c,hx,54f,healthy)
             }
         }
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood || game.lives!=lastAccessibilityLives) {
@@ -1159,6 +1189,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     override fun onAttachedToWindow(){
         super.onAttachedToWindow()
+        refreshPowerSaveMode()
+        if(!powerSaveReceiverRegistered){
+            // This is an exclusively system-owned protected broadcast.
+            context.registerReceiver(powerSaveReceiver,
+                IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED))
+            powerSaveReceiverRegistered=true
+        }
         // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
         val opts=BitmapFactory.Options().apply { inScaled=false }
         if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
@@ -1168,7 +1205,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         updateWorldCover(width,height)
         invalidate()
     }
+    override fun onWindowVisibilityChanged(visibility:Int){
+        super.onWindowVisibilityChanged(visibility)
+        if(visibility==VISIBLE){
+            // Returning from background also refreshes any battery-saver change.
+            refreshPowerSaveMode()
+            frameClock.reset()
+        }
+    }
     override fun onDetachedFromWindow(){
+        if(powerSaveReceiverRegistered){
+            context.unregisterReceiver(powerSaveReceiver)
+            powerSaveReceiverRegistered=false
+        }
         // Release native pixel buffer references after each Retry/Exit.
         // Avoid explicit recycle(): RenderThread may still own display lists.
         paused=true
