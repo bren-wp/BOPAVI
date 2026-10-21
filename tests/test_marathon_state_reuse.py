@@ -15,7 +15,7 @@ for name in ("collectedFood","collectedHearts","collectedCoins",
              "collectedStars","collectedPowers"):
     assert f"{name} = clearOrResize({name},gateCount)" in simulation,name
 assert "marathonBatchReusesPickupStateWithoutLeakingCollectedRewards" in unit
-assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in view
+assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 assert "private val frameClock=FlightFrameClock()" in view
 assert "frameClock.tick(now,running=true)?.let { game.step(it) }" in view
 print("PASS: pickup-state reuse, no reward leakage and adaptive vsync scheduling")
