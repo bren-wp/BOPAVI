@@ -1,6 +1,6 @@
 # BOPAVI — Current Android screens
 
-**Published release baseline:** v1.0.12 (build 142). New candidate version
+**Published release baseline:** v1.0.13 (build 143). New candidate version
 metadata belongs in Gradle and docs/release/NEXT.md until publication.
 
 The Android entry point is MainActivity.onCreate → showHome. There are four

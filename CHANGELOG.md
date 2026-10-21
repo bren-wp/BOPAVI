@@ -3,6 +3,18 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.13 — Premium HUD, smarter battery saving and physics parity (build 143)
+
+**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.13)
+
+- **Battery and frame pacing:** native Android OS power-saving mode now requests approximately 30 redraws per second, as does the existing Reduced motion preference, while normal motion remains synchronized to display 60/90/120Hz refresh. Battery saving is inspected during View attachment and visibility/lifecycle transitions, not through binder calls in the render loop.
+- **Smooth physics:** retain 120Hz substep integration, the same -255f tap impulse, gravity, 18px body hitbox, swept obstacle collision, score rules and continuous cross-level parallax. Added deterministic tests comparing 30/60/120Hz one-second trajectories across all three difficulties.
+- **Premium in-flight HUD:** lives now share a compact blue glass card aligned to the score and berries with the Croatian label **ŽIVOTI**. No wallets, development indicators or fake controls were added.
+- **Truthful results:** the results hero and backdrop use the actual completed flight world's illustration and Croatian biome name instead of always showing the first world.
+- **Maintainability:** the battery-aware native frame policy has been isolated in `GameFramePacing.kt` with Android-independent JVM unit tests and source audit contracts. No disruptive full rewrite or removal of compatibility code.
+- **Distribution:** continue publishing the verified unsigned Google Play AAB, separately signable release APK, debug QA APK, original screenshot evidence, SHA-256 manifest and F-Droid source submission archive. Official F-Droid listing still requires fdroiddata acceptance.
+- **Release gate:** Android Lint, Kotlin/JVM and Python regression tests, privacy/dead-code checks, Android 15 and 16 emulator QA, Play screenshots, verified unsigned AAB/APK, checksums and publication must pass before v1.0.13 is considered released. No measured battery or device FPS improvement is claimed.
+
 ## v1.0.12 — Seam allocations and adaptive frame pacing (build 142)
 
 **Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.12)
@@ -15,14 +27,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Distribution now includes the existing QA debug APK, a separate **unsigned release APK** for signing, an **unsigned Google Play AAB** for the existing upload key, and a Git-commit-pinned **F-Droid submission ZIP** with Croatian metadata and real screenshots.
 - All release files are listed in SHA256SUMS.txt. The MIT project license is present; official F-Droid dependency/resource licensing review and build validation remain required.
 - **Release gate:** pass Android Lint, Kotlin/JVM tests, privacy/security and dead-code audits, Android 15/16 emulator checks, genuine screenshot review, APK/AAB structure and checksum verification before publishing. Device-level frame pacing and battery improvements require measurements; no percentage or Google Play availability claims are implied.
-
-## v1.0.11 — Endless visual precision and smooth scenery (build 141)
-
-**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.11)
-
-- Fix long-distance scenery freeze/jitter: collision/world positioning already used precise Double distance, but dynamic parallax, sky camera oscillation, mist, foreground leaves and fallback landscape were still using a Float rounded after every physics step. Beyond large marathon distances the Float value stopped changing on small steps, creating visible discontinuity.
-- Compute scenery phases using the existing Double monotonic distance, wrapping at each small visual tile period before conversion to Float. No new animation timers, allocations, resources, SDKs or permissions.
-- Preserve the original multi-layer landscape speeds and subtle drift: 3-depth islands, background camera sway, clouds, particles, foreground vegetation, ridge and fallback biome silhouettes. Reduced-motion mode also freezes ridges in the rare fallback renderer.
-- Dedicated JVM and Python regression tests cover movement at 2^25 world units plus a 0.25px step, invalid phases, all three parallax layers and zero new changes to the swept collision, r18 body or 120Hz physics.
-- Existing three playable pilots, local storage, privacy/terms, hearts/berries, HUD, pause and Play imagery retained.
-- **Release gate:** full source/privacy/dead-code audit, sound/art verification, Android Lint/JVM/APK/AAB, Android 15 gameplay/collision screenshots, Android 16 navigation and versioned GitHub Release. Hardware battery tests and Google Play approval remain external.
