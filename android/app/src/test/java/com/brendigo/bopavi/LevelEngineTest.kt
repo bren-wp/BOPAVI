@@ -112,6 +112,42 @@ class LevelEngineTest {
     }
 
 
+    @Test fun marathonBatchReusesPickupStateWithoutLeakingCollectedRewards() {
+        val original=LevelEngine.create(0,2)
+        // Both ordinals 2 and 3 contain 11 gates: simulate a complete safe
+        // stream in one step to verify the exact same arrays can be cleared.
+        val safe=original.gates.mapIndexed { index, gate ->
+            val nearX=when(index) {
+                original.gates.lastIndex -> 20f
+                original.gates.lastIndex-1 -> -204f
+                else -> -1000f+index*72f
+            }
+            gate.copy(x=nearX,center=366f,gap=340f,width=64f,
+                movement=0f,coin=false,star=false,power=0)
+        }
+        val run=GameSimulation(original.copy(gates=safe,speed=140f,wind=0f),endless=true)
+        assertEquals(safe.size,run.upcomingGates().size)
+        val fields=listOf("collectedFood","collectedHearts","collectedCoins",
+            "collectedStars","collectedPowers").map { key ->
+            GameSimulation::class.java.getDeclaredField(key).apply { isAccessible=true }
+        }
+        val originals=fields.map { it.get(run) as BooleanArray }
+        originals.forEach { it.fill(true) }
+        run.flap()
+        run.step(1f/60f)
+        assertEquals(1,run.completionCount)
+        assertEquals(3L,run.displayLevel)
+        fields.forEachIndexed { index, field ->
+            val current=field.get(run) as BooleanArray
+            assertSame("Do not allocate the same-sized $field at the seam",
+                originals[index],current)
+            assertEquals(safe.size,current.size)
+            assertTrue("New gates may not inherit already-collected flags",
+                current.all { !it })
+        }
+        assertTrue(run.active && !run.finished)
+    }
+
     @Test fun streamingRegenerationIsMovedAwayFromExactBoundary() {
         val template=LevelEngine.create(0,3)
         val last=template.gates.first().copy(x=25f,center=366f,gap=290f,
