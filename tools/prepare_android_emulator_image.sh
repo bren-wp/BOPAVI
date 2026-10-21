@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Validate simulator images *before* Android-emulator-runner starts. Retry clean
-# installs, then prefer the smaller AOSP image if Google's API36 zip is broken.
+# installs, then fall back to the smaller AOSP image when Google APIs
+# archives for Android 15/16 are corrupt or unavailable.
 # Never silently pass without a real bootable system.img.
 set -euo pipefail
 api="${1:?Android API level required}"
@@ -26,10 +27,9 @@ announce() {
   fi
 }
 
-# API35 keeps the tested Google APIs image; API36 can use stock AOSP if the
-# hosted runner temporarily serves an invalid Google APIs archive.
-targets=(google_apis)
-if [ "$api" = 36 ]; then targets+=(default); fi
+# Both API35 and API36 can use verified stock AOSP if Google's hosted
+# Google APIs download is broken. Never accept a partial system image.
+targets=(google_apis default)
 for target in "${targets[@]}"; do
   image="$sdk_root/system-images/android-$api/$target/x86_64"
   package="system-images;android-$api;$target;x86_64"
