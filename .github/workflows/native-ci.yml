@@ -201,6 +201,7 @@ jobs:
             echo "::warning::KVM is unavailable; emulator may boot slowly."
           fi
       - name: Verify and repair API35 system image before emulator boot
+        id: image35
         run: bash tools/prepare_android_emulator_image.sh 35
       - name: Set up native Android emulator
         id: api35_primary
@@ -208,10 +209,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
-          # Google APIs Android 35 is known to install on hosted runners.
-          # Restart only a confirmed hung Pixel Launcher, then verify real pilot cards:
-          # the AOSP default system image failed to unpack on GitHub hosts.
-          target: google_apis
+          # Use the exact Google APIs or verified AOSP image selected above.
+          # Never boot from a missing/corrupt package.
+          target: ${{ steps.image35.outputs.image_target }}
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -231,7 +231,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
-          target: google_apis
+          target: ${{ steps.image35.outputs.image_target }}
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
