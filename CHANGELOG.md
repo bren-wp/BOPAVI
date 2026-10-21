@@ -3,6 +3,18 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.14 — Safe-area premium flight controls and efficient rock physics (build 144)
+
+**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.14)
+
+- **Premium HUD usability:** dynamically position the native pause button below the score, fruit and three-heart cards using the identical 480×800/480×640 viewport scale applied by the HUD. Respect physical display-cutout and status-bar safe insets on Android 28+ and recalculate margins after split-screen/viewport resizing.
+- **Accessible controls:** the existing 56dp native pause button retains its touch target, visible labels and one-touch resume behavior. Its position no longer hides or blocks the lives card on compact phones and tablets.
+- **Physics efficiency:** for the endless game, avoid computing dynamic gate openings and continuous swept-collision geometry when the obstacle's painted lip is still beyond the bird's 18px contact radius. The original 115px look-ahead remains for legacy finite levels with a larger magnet pickup range.
+- **Gameplay fidelity:** retain unchanged flap impulse, gravity, swept cap collision, real berry pickup radius, three lives, scoring, inter-level cadence, 120Hz physics slices and battery-aware redraw behavior.
+- **Maintainability:** put Android-independent overlay placement rules into `FlightOverlayLayout.kt` and add deterministic JVM tests for sizes 320–840dp and real cutout safe insets, plus rock/berry/magnet gameplay regression tests and a CI source contract.
+- **Distribution:** stage Play-ready unsigned AAB (publisher signs offline), separately signable unsigned APK, QA debug APK, Croatian F-Droid submission archive with pinned commit, original screenshots and SHA256SUMS.txt. Published F-Droid inclusion requires external approval; never publish signing secrets.
+- **Release gate:** pass privacy/dead-code audits, Android Lint and Kotlin/JVM tests, Android 15/16 emulator QA and Play listing screenshot checks before merging and letting the main branch create/tag the new GitHub Release. No device-measured frame-rate or battery gain is claimed.
+
 ## v1.0.13 — Premium HUD, smarter battery saving and physics parity (build 143)
 
 **Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.13)
@@ -14,16 +26,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Maintainability:** the battery-aware native frame policy has been isolated in `GameFramePacing.kt` with Android-independent JVM unit tests and source audit contracts. No disruptive full rewrite or removal of compatibility code.
 - **Distribution:** continue publishing the verified unsigned Google Play AAB, separately signable release APK, debug QA APK, original screenshot evidence, SHA-256 manifest and F-Droid source submission archive. Official F-Droid listing still requires fdroiddata acceptance.
 - **Release gate:** Android Lint, Kotlin/JVM and Python regression tests, privacy/dead-code checks, Android 15 and 16 emulator QA, Play screenshots, verified unsigned AAB/APK, checksums and publication must pass before v1.0.13 is considered released. No measured battery or device FPS improvement is claimed.
-
-## v1.0.12 — Seam allocations and adaptive frame pacing (build 142)
-
-**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.12)
-
-- Endless obstacle transitions reuse all five pickup-flag arrays when the next segment has the same gate count, resetting every boolean to prevent carrying berries, hearts, coins, stars or powers into the new group.
-- When adjacent procedural groups have different gate counts, create correctly sized fresh arrays as before; preserve pickup rules, saved progress and the existing 18px bird hitbox.
-- The active Android Canvas schedules redraws on the system's next vsync rather than an artificial 14ms delay. This allows 60/90/120Hz displays to use their real refresh rhythm; reduced-motion mode retains its roughly 30fps cap.
-- Maintain existing FlightFrameClock behavior: the first flap, pause, backgrounding, QA capture and resumed flight never accumulate idle physics time.
-- Add a deterministic Kotlin/JVM seam regression for all five pickup arrays and adapt the Python clock/render contracts. Keep the marathon parallax precision fixes from v1.0.11.
-- Distribution now includes the existing QA debug APK, a separate **unsigned release APK** for signing, an **unsigned Google Play AAB** for the existing upload key, and a Git-commit-pinned **F-Droid submission ZIP** with Croatian metadata and real screenshots.
-- All release files are listed in SHA256SUMS.txt. The MIT project license is present; official F-Droid dependency/resource licensing review and build validation remain required.
-- **Release gate:** pass Android Lint, Kotlin/JVM tests, privacy/security and dead-code audits, Android 15/16 emulator checks, genuine screenshot review, APK/AAB structure and checksum verification before publishing. Device-level frame pacing and battery improvements require measurements; no percentage or Google Play availability claims are implied.
