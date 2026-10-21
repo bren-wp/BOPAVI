@@ -3,6 +3,19 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.15 — True music mute, audio-focus recovery and lower resource use (build 145)
+
+**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.15)
+
+- **Real 0% background-music mute:** muting the music slider pauses the soundtrack and promptly releases any held or pending Android audio-focus request. BOPAVI never plays a silent looping soundtrack or retains music focus just because the game is open.
+- **Lazy audio decoding:** starting a world while music is muted no longer allocates a MediaPlayer. The local soundtrack decoder is initialized only when that active world actually needs audible music; independently enabled game sound effects continue to work.
+- **Reliable unmute:** increasing volume from 0% in the same active game reuses the selected world and requests audio focus again before resuming. If focus is delayed, playback waits for a genuine gain event. Paused/backgrounded games do not restart sound merely because the slider changes.
+- **Interruption safety:** delayed focus callbacks cannot revive music after the user muted it or the Activity released its focus. The existing permanent/transient loss handling and teardown remain intact.
+- **Defensive mixer state:** unsupported NaN/Infinity input is normalized to silence; playable music and effects volumes remain clamped to 0–100% without changing saved user settings, the nine skins or game physics.
+- **Maintainability:** extract Android-independent `MusicPlaybackPolicy.kt`, add focused Kotlin/JVM tests and a CI contract on the actual AudioManager/MediaPlayer integration. Keep the original eight offline soundtracks and sound-effect resources.
+- **Distribution:** publish the existing ten-file Android release bundle: QA debug APK, privately signable unsigned release APK, unsigned Google Play AAB, four genuine screenshots, commit-pinned F-Droid submission ZIP, Play listing ZIP and SHA256SUMS.txt. No signing secrets are introduced.
+- **Release gate:** require source/security/dead-code audit, Android Lint/JVM, Android 15 gameplay and Android 16 navigation emulator checks, authentic screenshots, APK/AAB signature checks, F-Droid source package and published SHA-256 integrity. Actual battery improvement and official F-Droid publication remain unverified until independently measured/approved.
+
 ## v1.0.14 — Safe-area premium flight controls and efficient rock physics (build 144)
 
 **Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.14)
@@ -14,15 +27,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Maintainability:** put Android-independent overlay placement rules into `FlightOverlayLayout.kt` and add deterministic JVM tests for sizes 320–840dp and real cutout safe insets, plus rock/berry/magnet gameplay regression tests and a CI source contract.
 - **Distribution:** stage Play-ready unsigned AAB (publisher signs offline), separately signable unsigned APK, QA debug APK, Croatian F-Droid submission archive with pinned commit, original screenshots and SHA256SUMS.txt. Published F-Droid inclusion requires external approval; never publish signing secrets.
 - **Release gate:** pass privacy/dead-code audits, Android Lint and Kotlin/JVM tests, Android 15/16 emulator QA and Play listing screenshot checks before merging and letting the main branch create/tag the new GitHub Release. No device-measured frame-rate or battery gain is claimed.
-
-## v1.0.13 — Premium HUD, smarter battery saving and physics parity (build 143)
-
-**Published:** 2026-10-21 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.13)
-
-- **Battery and frame pacing:** native Android OS power-saving mode now requests approximately 30 redraws per second, as does the existing Reduced motion preference, while normal motion remains synchronized to display 60/90/120Hz refresh. Battery saving is inspected during View attachment and visibility/lifecycle transitions, not through binder calls in the render loop.
-- **Smooth physics:** retain 120Hz substep integration, the same -255f tap impulse, gravity, 18px body hitbox, swept obstacle collision, score rules and continuous cross-level parallax. Added deterministic tests comparing 30/60/120Hz one-second trajectories across all three difficulties.
-- **Premium in-flight HUD:** lives now share a compact blue glass card aligned to the score and berries with the Croatian label **ŽIVOTI**. No wallets, development indicators or fake controls were added.
-- **Truthful results:** the results hero and backdrop use the actual completed flight world's illustration and Croatian biome name instead of always showing the first world.
-- **Maintainability:** the battery-aware native frame policy has been isolated in `GameFramePacing.kt` with Android-independent JVM unit tests and source audit contracts. No disruptive full rewrite or removal of compatibility code.
-- **Distribution:** continue publishing the verified unsigned Google Play AAB, separately signable release APK, debug QA APK, original screenshot evidence, SHA-256 manifest and F-Droid source submission archive. Official F-Droid listing still requires fdroiddata acceptance.
-- **Release gate:** Android Lint, Kotlin/JVM and Python regression tests, privacy/dead-code checks, Android 15 and 16 emulator QA, Play screenshots, verified unsigned AAB/APK, checksums and publication must pass before v1.0.13 is considered released. No measured battery or device FPS improvement is claimed.
