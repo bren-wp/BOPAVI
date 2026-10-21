@@ -724,22 +724,48 @@ class MainActivity : Activity() {
         }
         pauseButton=pause
         gamePauseButton=pause
-        frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT).apply{setMargins(0,d(24),d(15),0)})
-        // Keep the pause button clear of notches/cutouts on edge-to-edge phones.
-        if (Build.VERSION.SDK_INT >= 35) {
+        frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT))
+        // The upper-right third HUD panel contains real lives. A pause button
+        // positioned at 24dp covers those hearts on some aspect ratios.
+        // Compute margins from the SAME HUD scale and status/cutout inset as
+        // GameView, rather than guessing a phone-specific fixed margin.
+        var flightSafeTop=0
+        var flightSafeRight=0
+        fun fitPauseButton() {
+            val w=frame.width.takeIf{it>0} ?: resources.displayMetrics.widthPixels
+            val h=frame.height.takeIf{it>0} ?: resources.displayMetrics.heightPixels
+            val lp=pause.layoutParams as FrameLayout.LayoutParams
+            val top=FlightOverlayLayout.pauseTopPx(
+                w,h,resources.displayMetrics.density,flightSafeTop)
+            val right=FlightOverlayLayout.pauseRightPx(
+                resources.displayMetrics.density,flightSafeRight)
+            if(lp.topMargin!=top || lp.rightMargin!=right) {
+                lp.topMargin=top;lp.rightMargin=right
+                pause.layoutParams=lp
+            }
+        }
+        fitPauseButton()
+        // Re-evaluate if the window is resized (including split-screen).
+        frame.addOnLayoutChangeListener { _,_,_,_,_,_,_,_,_->fitPauseButton() }
+        if (Build.VERSION.SDK_INT >= 28) {
             frame.setOnApplyWindowInsetsListener { _, insets ->
-                val cutout = insets.getInsets(android.view.WindowInsets.Type.displayCutout())
-                val params = pause.layoutParams as FrameLayout.LayoutParams
-                val top = maxOf(d(24),cutout.top+d(8))
-                val right = maxOf(d(15),cutout.right+d(10))
-                if (params.topMargin!=top || params.rightMargin!=right) {
-                    params.topMargin=top;params.rightMargin=right
-                    pause.layoutParams=params
+                if (Build.VERSION.SDK_INT >= 30) {
+                    val safe=insets.getInsets(android.view.WindowInsets.Type.statusBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    flightSafeTop=safe.top
+                    flightSafeRight=safe.right
+                } else {
+                    @Suppress("DEPRECATION")
+                    val statusTop=insets.systemWindowInsetTop
+                    flightSafeTop=maxOf(statusTop,insets.displayCutout?.safeInsetTop ?: 0)
+                    flightSafeRight=insets.displayCutout?.safeInsetRight ?: 0
                 }
+                fitPauseButton()
                 insets
             }
         }
         showNativeView(frame)
+        frame.requestApplyInsets()
     }
     private fun showResult(g:GameSimulation){
         val previousRecord=progress.bestPoints()

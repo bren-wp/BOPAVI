@@ -38,7 +38,8 @@ assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert "drawStoneCourses(" in game and "fun courses(yStart" not in game
 
 # API36 only falls back to an image that is verified before emulator boot.
-assert "targets+=(default)" in install and "ready \"$image\"" in install
+assert "targets=(google_apis default)" in install and "ready \"$image\"" in install
+assert "id: image35" in flow and flow.count("${{ steps.image35.outputs.image_target }}")==2
 assert "id: image36" in flow and "${{ steps.image36.outputs.image_target }}" in flow
 print("PASS: lifecycle, bitmap ownership, audio teardown, pause and API36 fallback")
 

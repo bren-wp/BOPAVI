@@ -177,7 +177,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
         for (i in passed until level.gates.size) {
             val gate = level.gates[i]; val x = gateX(gate)
-            if (x > birdX + radius + 115f) break
+            // Endless berries are picked up only by actual body contact.
+            // Gates farther than their painted 7px lip overhang plus the 18px
+            // bird radius cannot collide during this 120Hz slice; neither can
+            // their centre-mounted berries (minimum gate width is 64px).
+            // Legacy finite levels keep the wider 115px magnet look-ahead.
+            // Avoid two Opening objects and swept-CCD work on distant gates.
+            if (x > birdX + radius + (if(endless) 7f else 115f)) break
             val bounds = LevelEngine.opening(gate, time, difficulty)
             // Relative continuous collision sees a shallow pass through a rounded
             // cap even when both 120Hz endpoints are clear. Moving lip bounds

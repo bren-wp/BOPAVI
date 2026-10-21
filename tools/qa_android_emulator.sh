@@ -374,6 +374,24 @@ PY
   sleep 1
 done
 test "$flying" -eq 1 || { echo "FAIL: first flap never reached active HUD/PAUSE state" >&2; exit 1; }
+# The pause control is a *real* native Button overlaying the Canvas HUD.
+# Verify its measured bounds start below the BODOVI / HRANA / ŽIVOTI cards;
+# rendering a correct screenshot alone cannot prove its tap target is clear.
+python3 - qa/screenshots/android-current-ui.xml "$width" "$height" <<'PY'
+import math,re,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+labels=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+pause=[n for n in nodes if n.get("clickable")=="true" and
+       ("PAUZIRAJ IGRU" in labels(n) or "PAUSE GAME" in labels(n))]
+assert len(pause)==1,"FAIL: native pause control not uniquely exposed"
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",pause[0].get("bounds",""))
+assert m,"FAIL: native pause bounds invalid"
+left,top,right,bottom=map(int,m.groups())
+width,height=map(int,sys.argv[2:4])
+hud_bottom=math.ceil(72*min(width/480,height/640))
+assert top>=hud_bottom,(f"FAIL: pause tap target overlaps lives HUD at y={top}, HUD bottom={hud_bottom}")
+assert 0<=left<right<=width and top<bottom<=height,"FAIL: pause control is clipped"
+PY
 capture android-gameplay-active
 printf 'STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pause control\n' >> qa/screenshots/state-evidence.txt
 if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
