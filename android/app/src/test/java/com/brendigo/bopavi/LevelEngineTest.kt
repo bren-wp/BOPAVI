@@ -9,7 +9,7 @@ class LevelEngineTest {
     @Test fun optimizedGateBroadphaseStillDetectsFirstPaintedLipContact() {
         val template=LevelEngine.create(0,1)
         val lip=template.gates[0].copy(
-            x=154f,center=600f,gap=164f,width=64f,
+            x=154f,center=450f,gap=164f,width=64f,
             movement=0f,coin=false,star=false,power=0)
         val run=GameSimulation(template.copy(gates=listOf(lip),
             speed=140f,wind=0f),endless=true)
