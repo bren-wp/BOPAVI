@@ -17,7 +17,11 @@ class MarketingReadmeTests(unittest.TestCase):
         for name in ("Home", "Flight-Preview", "Flight-Active", "Results"):
             self.assertIn(f"releases/latest/download/BOPAVI-Android-{name}.png", content)
         self.assertIn("https://brendigo.com", content)
-        self.assertNotIn("play.google.com/store/apps/details", content)
+        # Public store URL is a requested navigation link, not a claim
+        # that a particular Android release has reached production.
+        self.assertIn('href="https://play.google.com/store/apps/details?id=com.brendigo.bopavi&hl=hr"', content)
+        self.assertIn('alt="Preuzmi BOPAVI na Google Playu"', content)
+        self.assertIn('play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png', content)
         self.assertNotIn("apps.apple.com/", content)
 
     def test_readme_is_not_a_development_report(self):

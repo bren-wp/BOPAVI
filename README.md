@@ -8,7 +8,9 @@
 
 <img src="docs/assets/hero.svg" alt="Bopi leti kroz čarobni nebeski svijet" width="820">
 
-**[Preuzmi BOPAVI za Android](https://github.com/bren-wp/BOPAVI/releases/latest)**
+<a href="https://play.google.com/store/apps/details?id=com.brendigo.bopavi&hl=hr"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Preuzmi BOPAVI na Google Playu" width="220"></a>
+
+**[Preuzmi Android APK s GitHub izdanja](https://github.com/bren-wp/BOPAVI/releases/latest)**
 
 *Besplatna igra za zabavu bez internetske veze, oglasa i registracije.*
 
