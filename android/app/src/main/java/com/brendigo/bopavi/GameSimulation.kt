@@ -124,6 +124,12 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
+    /** No new pickup arrays on identical-size marathon batches. */
+    private fun clearOrResize(flags:BooleanArray,size:Int):BooleanArray {
+        if(flags.size!=size)return BooleanArray(size)
+        flags.fill(false)
+        return flags
+    }
     fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
     val birdX = 126f
     // Tight body-only hitbox; wings and transparent sprite padding never collide.
@@ -235,11 +241,15 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         levelTransition=.85f
                         passed = 0
                         levelStars = 0
-                        collectedFood = BooleanArray(level.gates.size)
-                        collectedHearts = BooleanArray(level.gates.size)
-                        collectedCoins = BooleanArray(level.gates.size)
-                        collectedStars = BooleanArray(level.gates.size)
-                        collectedPowers = BooleanArray(level.gates.size)
+                        // Reuse same-sized arrays on every marathon batch.
+                        // Reset *all* pickup flags so rewards cannot leak to
+                        // the next gate stream; resize only if gate count changes.
+                        val gateCount=level.gates.size
+                        collectedFood = clearOrResize(collectedFood,gateCount)
+                        collectedHearts = clearOrResize(collectedHearts,gateCount)
+                        collectedCoins = clearOrResize(collectedCoins,gateCount)
+                        collectedStars = clearOrResize(collectedStars,gateCount)
+                        collectedPowers = clearOrResize(collectedPowers,gateCount)
                     } else { won = true; finished = true; active = false }
                     return
                 }

@@ -1,0 +1,24 @@
+# Upstream F-Droid metadata template. A release-specific Builds entry with a
+# verified immutable Git commit is generated in the GitHub Release package.
+Categories:
+  - Games
+License: MIT
+AuthorName: Brendigo
+AuthorWebSite: https://brendigo.com
+WebSite: https://brendigo.com
+SourceCode: https://github.com/bren-wp/BOPAVI
+IssueTracker: https://github.com/bren-wp/BOPAVI/issues
+Name: BOPAVI
+Summary: Jednostavna arkadna igra letenja s jednim dodirom
+Description: |
+  BOPAVI je offline arkadna igra letenja. Odaberi Bopija, Sovu ili
+  Lisca, dodiruj zaslon za zamah krilima i izbjegavaj kamene prepreke.
+
+  Prolazi kroz prepreke, skupljaj bobice i poboljšavaj vlastiti
+  rezultat. Dostupne su tri težine, pauza i prilagodba pokreta.
+  Rezultati se pohranjuju lokalno. Bez oglasa, korisničkih računa,
+  analitike i potrebe za internetskom vezom.
+RepoType: git
+Repo: https://github.com/bren-wp/BOPAVI.git
+AutoUpdateMode: None
+UpdateCheckMode: None

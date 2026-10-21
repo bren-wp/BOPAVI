@@ -9,7 +9,7 @@ install=(R/"tools/prepare_android_emulator_image.sh").read_text()
 
 # No render scheduling on Home preview, paused flights, or background windows.
 assert "isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture" in game
-assert "postInvalidateDelayed(if(reducedMotion) 33L else 14L)" in game
+assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in game
 assert "FlightFrameClock()" in game and "frameClock.tick(now,running=true)" in game
 assert "startSceneryDrift(" not in activity
 assert "override fun onDetachedFromWindow()" in game and "override fun onAttachedToWindow()" in game

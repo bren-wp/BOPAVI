@@ -1,0 +1,9 @@
+BOPAVI je jednostavna arkadna igra letenja za Android.
+
+Odaberi Bopija, Sovu ili Lisca i jednim dodirom zaslona zamahuj krilima. Prolazi između kamenih prepreka, skupljaj crvene bobice i pokušaj oboriti vlastiti rekord.
+
+Odaberi jednu od tri razine težine. Za vrijeme leta možeš pauzirati igru, a nakon završetka ponoviti pokušaj ili se vratiti na početni zaslon.
+
+BOPAVI radi bez interneta, oglasa, analitike, korisničkog računa i kupnji unutar aplikacije. Tvoji rezultati ostaju spremljeni lokalno na uređaju.
+
+Igra je dostupna na hrvatskom jeziku i razvijena pod brendom Brendigo.

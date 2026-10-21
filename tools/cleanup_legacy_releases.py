@@ -91,6 +91,13 @@ def verify_current_release(repository: str, tag: str, releases: list[dict]) -> N
     if len(published) != 1:
         raise ValueError(f"New release {tag} is not uniquely published")
     expected = EXPECTED | {f"BOPAVI-Google-Play-listing-{tag}.zip"}
+    # v1.0.12 and newer include private-signing-ready release APK and an
+    # exact-source-commit F-Droid submission recipe as separate release assets.
+    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 12):
+        expected |= {
+            "app-release-unsigned.apk",
+            f"BOPAVI-FDroid-submission-{tag}.zip",
+        }
     assets = published[0].get("assets")
     if not isinstance(assets, list) or set(assets) != expected or len(assets) != len(expected):
         raise ValueError(f"New release {tag} has missing or unexpected assets")
@@ -155,11 +162,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--new-tag", help="Verified new public stable tag (required for --apply)")
-    parser.add_argument("--apply", action="store_true", help="Actually delete obsolete v0.x releases/tags")
+    parser.add_argument("--apply", action="store_true", help="Manually delete obsolete v0.x releases/tags; never used by release CI")
+    parser.add_argument("--verify-only", action="store_true", help="Non-destructive verification of published assets, SHA-256 and stable release")
     args = parser.parse_args()
     if not REPO.fullmatch(args.repo):
         parser.error("--repo must be an owner/name repository")
+    if args.apply and args.verify_only:
+        parser.error("--apply and --verify-only are mutually exclusive")
     releases = list_releases(args.repo)
+    if args.verify_only:
+        if not args.new_tag:
+            parser.error("--new-tag is required for --verify-only")
+        verify_current_release(args.repo, args.new_tag, releases)
+        print(f"PASS: {args.new_tag} published assets verified; release history was not modified")
+        return
     kept, candidates = plan_cleanup(releases)
     print(f"KEEP legacy releases: {', '.join(kept) or '(none)'}")
     print(f"KEEP all v1+ releases, drafts, prereleases and other tags (never delete)")

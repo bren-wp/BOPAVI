@@ -143,5 +143,20 @@ class RetentionTests(unittest.TestCase):
             api.assert_not_called()
 
 
+    def test_non_destructive_publish_verification_leaves_releases_untouched(self):
+        with patch("sys.argv", ["retention", "--repo", "bren-wp/BOPAVI",
+                                "--new-tag", "v1.0.12", "--verify-only"]), \
+             patch.object(cleanup, "list_releases",
+                          return_value=[release("v1.0.12")]), \
+             patch.object(cleanup, "verify_current_release") as verify, \
+             patch.object(cleanup, "gh") as api, \
+             patch.object(cleanup, "prune_orphan_tag") as prune:
+            cleanup.main()
+            verify.assert_called_once()
+            self.assertEqual(verify.call_args.args[1], "v1.0.12")
+            api.assert_not_called()
+            prune.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
