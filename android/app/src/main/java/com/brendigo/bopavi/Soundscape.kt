@@ -40,8 +40,12 @@ class Soundscape(context: Context) {
     private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
         when (change) {
             AudioManager.AUDIOFOCUS_GAIN -> {
-                focusHeld = true
-                if (!closed && enabled && playbackRequested) startPlayback()
+                // Focus gains can race with a slider mute / focus abandon.
+                // Never resume a stale request after the user selects 0%.
+                if (focusRequested) {
+                    focusHeld = true
+                    if (canPlayMusic()) startPlayback()
+                }
             }
             AudioManager.AUDIOFOCUS_LOSS -> {
                 focusHeld = false
@@ -64,23 +68,36 @@ class Soundscape(context: Context) {
 
     var musicVolume: Float = 0.80f
         set(value) {
-            field = value.coerceIn(0f,1f)
+            val wasAudible=field>0f
+            field=MusicPlaybackPolicy.normalizedVolume(value)
             try {
                 player?.setVolume(.25f*field,.25f*field)
             } catch (e: IllegalStateException) {
                 Log.w("BOPAVI-Audio","Audio volume update skipped during player teardown",e)
             }
+            if (field<=0f) {
+                // A 0% slider truly pauses silent decoding and releases the
+                // audio focus. Keep playbackRequested: restoring a volume in
+                // the same active session may resume with a NEW focus grant.
+                pausePlayer()
+                abandonFocus()
+            } else if (!wasAudible && canPlayMusic()) {
+                if (acquireFocus()) startPlayback()
+            }
         }
     var effectsVolume: Float = 0.70f
-        set(value) { field=value.coerceIn(0f,1f) }
+        set(value) { field=MusicPlaybackPolicy.normalizedVolume(value) }
     var enabled = true
         set(value) {
             field=value
             if (!value) pause() else resume()
         }
 
+    private fun canPlayMusic():Boolean = MusicPlaybackPolicy.shouldPlay(
+        enabled,closed,playbackRequested,player!=null,musicVolume)
+
     private fun acquireFocus(): Boolean {
-        if (closed || !enabled) return false
+        if (!canPlayMusic()) return false
         if (focusRequested) return focusHeld
         val status = audioManager.requestAudioFocus(focusRequest)
         focusHeld = status == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
@@ -95,6 +112,7 @@ class Soundscape(context: Context) {
         }
     }
     private fun startPlayback() {
+        if (!canPlayMusic() || !focusHeld) return
         try {
             val current=player
             if (current!=null && !current.isPlaying) current.start()
@@ -150,6 +168,12 @@ class Soundscape(context: Context) {
     fun resume() {
         if (closed || !enabled || player==null) return
         playbackRequested=true
+        if (!canPlayMusic()) {
+            // A muted session never claims audio focus from another app.
+            pausePlayer()
+            abandonFocus()
+            return
+        }
         if (acquireFocus()) startPlayback()
     }
     fun stop() {
