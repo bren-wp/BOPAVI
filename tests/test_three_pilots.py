@@ -27,7 +27,7 @@ for animal in ("sova","lisac"):
     assert '<g id="wing-left">' in source and '<g id="wing-right">' in source
     assert re.search(r'<defs>.*?</defs>',source,re.S)
     assert f"'{animal}'" in generator
-assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in view
+assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 assert "startSceneryDrift(" not in main
 assert "val radius = 18f" in (K/"GameSimulation.kt").read_text()
 print("PASS: 3 offline characters, 2 original animal sources, old save compatibility, adaptive vsync pacing")
