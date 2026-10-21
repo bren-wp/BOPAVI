@@ -1,6 +1,9 @@
 package com.brendigo.bopavi
 
 import android.content.Context
+import android.content.BroadcastReceiver
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.PowerManager
 import android.graphics.Canvas
 import android.graphics.BitmapFactory
@@ -180,6 +183,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // inside the 60/90/120 Hz rendering hot path.
     private val powerManager=context.getSystemService(Context.POWER_SERVICE) as? PowerManager
     private var powerSaveMode=false
+    private var powerSaveReceiverRegistered=false
+    private val powerSaveReceiver=object:BroadcastReceiver(){
+        override fun onReceive(context:Context?,intent:Intent?) {
+            if(intent?.action==PowerManager.ACTION_POWER_SAVE_MODE_CHANGED){
+                // The system may toggle saver without hiding the Activity.
+                // Never poll the PowerManager from inside onDraw().
+                refreshPowerSaveMode()
+                if(isAttachedToWindow && game.active && !paused)postInvalidateOnAnimation()
+            }
+        }
+    }
     private fun refreshPowerSaveMode(){ powerSaveMode=powerManager?.isPowerSaveMode==true }
     private var sent = false
     private var completedSeen=0
@@ -1176,6 +1190,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     override fun onAttachedToWindow(){
         super.onAttachedToWindow()
         refreshPowerSaveMode()
+        if(!powerSaveReceiverRegistered){
+            // This is an exclusively system-owned protected broadcast.
+            context.registerReceiver(powerSaveReceiver,
+                IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED))
+            powerSaveReceiverRegistered=true
+        }
         // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
         val opts=BitmapFactory.Options().apply { inScaled=false }
         if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
@@ -1194,6 +1214,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
     }
     override fun onDetachedFromWindow(){
+        if(powerSaveReceiverRegistered){
+            context.unregisterReceiver(powerSaveReceiver)
+            powerSaveReceiverRegistered=false
+        }
         // Release native pixel buffer references after each Retry/Exit.
         // Avoid explicit recycle(): RenderThread may still own display lists.
         paused=true
