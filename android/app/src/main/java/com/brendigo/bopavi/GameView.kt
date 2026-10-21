@@ -244,9 +244,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(worldBitmap!=null && !worldCoverRect.isEmpty()) {
             worldDriftRect.set(worldCoverRect)
             if(!reducedMotion && game.active && !game.finished) {
-                val horizontal=kotlin.math.sin(game.distance*.0011f)*
+                val horizontal=ParallaxScenery.wave(game.preciseTravel,.0011)*
                     width*worldHorizontalDrift
-                val vertical=kotlin.math.sin(game.distance*.00045f)*
+                val vertical=ParallaxScenery.wave(game.preciseTravel,.00045)*
                     height*worldVerticalDrift
                 worldDriftRect.offset(horizontal,vertical)
             }
@@ -262,7 +262,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawParallaxIslands(canvas)
         // Light atmospheric layer moves independently of the static painted backdrop.
         // Reuses one Paint and generates no bitmaps or sprite allocations per frame.
-        val drift=if(reducedMotion)0f else (game.distance*.075f)%580f
+        val drift=if(reducedMotion)0f else ParallaxScenery.wrapped(game.preciseTravel,.075,580f)
         val mist=if(game.level.world==5 || game.level.world==7)0x228cbbff else 0x38ffffff
         for(i in 0..3) {
             val x=((i*174f+75f-drift+580f)%580f)-95f
@@ -348,7 +348,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private fun drawParallaxIslands(c:Canvas) {
         val world = game.level.world
         for(layer in 0..2) {
-            val drift=ParallaxScenery.offset(game.distance,layer,reducedMotion)
+            val drift=ParallaxScenery.offset(game.preciseTravel,layer,reducedMotion)
             val width=83f-layer*9f
             val height=38f+layer*13f
             val alpha=if(layer==0)78 else if(layer==1)105 else 132
@@ -378,11 +378,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     private fun drawWorldAtmosphere(c:Canvas) {
         val world=game.level.world
-        val distance=if(reducedMotion)0f else game.distance
+        val dustDrift=if(reducedMotion)0f else
+            ParallaxScenery.wrapped(game.preciseTravel,.11,560f)
+        val nearDrift=if(reducedMotion)0f else
+            ParallaxScenery.wrapped(game.preciseTravel,.31,680f)
         val t=if(reducedMotion)0f else game.time
         val dust=atmosphereHues[world]
         for(i in 0 until 12) {
-            val x=((i*113f+29f-distance*.11f)%560f+560f)%560f-45f
+            val x=((i*113f+29f-dustDrift)%560f+560f)%560f-45f
             val shimmer=if(reducedMotion)0f else sin(t*(1.45f+(i%3)*.19f)+i*.87f)
             val y=175f+((i*83)%430).toFloat()+shimmer*4f
             fill(dust)
@@ -395,7 +398,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         val near=foregroundHues[world]
         for(i in 0 until 9) {
-            val x=((i*85f+32f-distance*.31f)%680f+680f)%680f-60f
+            val x=((i*85f+32f-nearDrift)%680f+680f)%680f-60f
             val y=700f+(i%3)*12f
             val sway=if(reducedMotion)0f else sin(t*1.75f+i.toFloat())*3f
             fill(near)
@@ -415,17 +418,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val night=w==5||w==7
         // Parallax: three very cheap shape layers; no bitmaps allocated while drawing.
         for(layer in 0..2){
-            val par=if(reducedMotion)0f else game.distance*(.08f+layer*.12f)
+            val par=if(reducedMotion)0f else
+                ParallaxScenery.wrapped(game.preciseTravel,(.08+layer*.12),154f)
             for(i in -1..(if(reducedMotion)2 else 4)){
-                val x=(i*154f+layer*67f-par%154f)
+                val x=(i*154f+layer*67f-par)
                 val y=70f+layer*108f+(i and 1)*27f
                 val a=if(night)0x667d9fcf else 0xccebfaff.toInt()
                 oval(c,x,y,x+91f,y+28f,a);oval(c,x+19f,y-17f,x+67f,y+29f,a)
             }
         }
         val ridge=if(night)0xff22265e.toInt() else if(w==3)0xffa35455.toInt() else 0xff83bfbb.toInt()
+        val ridgeDrift=if(reducedMotion)0f else
+            ParallaxScenery.wrapped(game.preciseTravel,.055,127f)
         for(i in -1..5){
-            val x=i*127f-game.distance*.055f%127f
+            val x=i*127f-ridgeDrift
             path.reset();path.moveTo(x,753f);path.lineTo(x+55f,619f);path.lineTo(x+108f,753f);path.close();fill(ridge);c.drawPath(path,p)
             if(w==2) { path.reset();path.moveTo(x+39f,650f);path.lineTo(x+55f,619f);path.lineTo(x+73f,650f);path.close();fill(Color.WHITE);c.drawPath(path,p) }
         }
@@ -436,8 +442,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     /** Separate low-cost silhouettes for all eight worlds; no bitmap allocations per frame. */
     private fun drawWorldDetails(c:Canvas,w:Int){
-        val offset=if(reducedMotion)0f else game.distance*.035f
-        val shift=offset%180f
+        val shift=if(reducedMotion)0f else
+            ParallaxScenery.wrapped(game.preciseTravel,.035,180f)
         when(w){
             0 -> for(i in 0..3){
                 val x=i*166f-shift

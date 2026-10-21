@@ -594,6 +594,45 @@ class LevelEngineTest {
         }
     }
 
+
+    @Test fun endlessSceneryKeepsSubpixelMotionPastFloatLimit() {
+        val far=33_554_432.0 // 2^25 units, Float already loses 0.25px.
+        for(layer in 0..2) {
+            val left=ParallaxScenery.offset(far,layer,false)
+            val right=ParallaxScenery.offset(far+.25,layer,false)
+            val speed=when(layer) {0->.07f;1->.15f;else->.24f}
+            assertEquals("Marathon visual phase must retain actual travel",
+                .25f*speed,right-left,.0001f)
+            assertTrue(left>=0f && left<696f)
+            assertEquals(0f,ParallaxScenery.offset(far+.25,layer,true),0f)
+        }
+        val slow=ParallaxScenery.wrapped(far,.075,580f)
+        val advanced=ParallaxScenery.wrapped(far+.25,.075,580f)
+        assertEquals(.01875f,advanced-slow,.0001f)
+        val waveA=ParallaxScenery.wave(far,.0011)
+        val waveB=ParallaxScenery.wave(far+.25,.0011)
+        assertEquals(kotlin.math.sin((far+.25)*.0011).toFloat(),waveB,.00001f)
+        assertTrue("Camera motion must not freeze at float precision limit",
+            kotlin.math.abs(waveB-waveA)>.00001f)
+        assertEquals(0f,ParallaxScenery.wrapped(Double.NaN,.2,580f),0f)
+        assertEquals(0f,ParallaxScenery.wrapped(far,Double.POSITIVE_INFINITY,580f),0f)
+        assertEquals(0f,ParallaxScenery.wrapped(far,.2,0f),0f)
+        assertEquals(0f,ParallaxScenery.wave(Double.NEGATIVE_INFINITY,.0011),0f)
+    }
+
+    @Test fun longFlightSceneryPhasesAreBoundedAndMotionOnly() {
+        val game=GameSimulation(LevelEngine.create(0,2),endless=true)
+        assertEquals(0.0,game.preciseTravel,0.0)
+        game.flap();game.step(.05f)
+        assertEquals(game.distance.toDouble(),game.preciseTravel,.001)
+        val preserved=game.score()
+        val before=game.levelProgress
+        val sky=ParallaxScenery.offset(game.preciseTravel,1,false)
+        assertTrue(sky>=0f && sky<696f)
+        assertEquals(preserved,game.score())
+        assertEquals(before,game.levelProgress,0f)
+    }
+
     @Test fun marathonGatesKeepSubpixelCollisionPrecisionBeyondFloatRange() {
         val origin=33_554_432.0 // 2^25: Float cannot represent a 0.25px change.
         assertEquals(559.75f,WorldCoordinates.screenX(560f,origin,origin+.25),.0001f)
