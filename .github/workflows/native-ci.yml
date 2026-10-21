@@ -80,6 +80,7 @@ jobs:
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
+      - run: python tests/test_fdroid_distribution.py
       - run: python tests/test_sync_release_docs.py
       - run: python tests/test_store_claims.py
       - run: python tests/test_marketing_readme.py
@@ -157,13 +158,20 @@ jobs:
           python3 tools/verify_audio.py
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
-        run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:bundleRelease --no-daemon --stacktrace
+        run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
       - name: Verify Play API 36 and unsigned bundle structure
         run: python tools/verify_play_release.py --aab android/app/build/outputs/bundle/release/app-release.aab
+      - name: Verify signable release-mode APK is unsigned
+        run: python tools/verify_unsigned_apk.py --apk android/app/build/outputs/apk/release/app-release-unsigned.apk
       - uses: actions/upload-artifact@v4
         with:
           name: BOPAVI-Android-APK
           path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-Android-Release-APK-unsigned
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
@@ -405,6 +413,8 @@ jobs:
                   raise SystemExit(f'Results screenshot duplicates gameplay screenshot: {earlier.name}; release blocked')
           print('PASS: results UI screenshot distinct from both idle and active gameplay')
           PY
+      - name: Assemble F-Droid source-build submission materials
+        run: python3 tools/package_fdroid_submission.py --commit "$GITHUB_SHA" --screenshots-dir dist --output-dir dist
       - name: Verify exact-version assets and explicitly unsigned Android bundle
         run: |
           set -euo pipefail
@@ -412,6 +422,8 @@ jobs:
           play_archive="$(python tools/release_metadata.py --play-archive)"
           test -s dist/app-debug.apk
           test -s dist/app-release.aab
+          test -s dist/app-release-unsigned.apk
+          test -s "dist/BOPAVI-FDroid-submission-${tag}.zip"
           test -s "dist/$play_archive"
           python tools/verify_play_release.py --aab dist/app-release.aab
           echo "BOPAVI_TAG=$tag" >> "$GITHUB_ENV"
@@ -423,12 +435,14 @@ jobs:
           sha256sum \
             app-debug.apk \
             app-release.aab \
+            app-release-unsigned.apk \
+            "BOPAVI-FDroid-submission-${BOPAVI_TAG}.zip" \
             "$BOPAVI_PLAY_ARCHIVE" \
             BOPAVI-Android-Home.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
             BOPAVI-Android-Results.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 7
+          test "$(wc -l < SHA256SUMS.txt)" -eq 9
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -448,19 +462,21 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab "$BOPAVI_PLAY_ARCHIVE" BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png SHA256SUMS.txt; do
+            for file in app-debug.apk app-release.aab app-release-unsigned.apk "BOPAVI-FDroid-submission-${tag}.zip" "$BOPAVI_PLAY_ARCHIVE" BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
               fi
             done
-            echo "Verified previous publication of $tag at the tested commit with all eight Android distribution artifacts."
+            echo "Verified previous publication of $tag at the tested commit with all ten Android distribution artifacts."
             exit 0
           fi
           python tools/release_notes.py > dist/release-notes.md
           gh release create "$tag" \
             dist/app-debug.apk \
             dist/app-release.aab \
+            dist/app-release-unsigned.apk \
+            "dist/BOPAVI-FDroid-submission-${tag}.zip" \
             "dist/$BOPAVI_PLAY_ARCHIVE" \
             dist/BOPAVI-Android-Home.png \
             dist/BOPAVI-Android-Flight-Preview.png \
