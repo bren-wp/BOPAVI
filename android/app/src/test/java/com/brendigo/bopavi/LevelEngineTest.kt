@@ -19,7 +19,11 @@ class LevelEngineTest {
         repeat(2) { run.step(1f/120f) }
         assertFalse("No phantom collision before the actual painted lip",run.finished)
         run.step(1f/120f)
-        assertTrue("Real lip contact cannot be culled by the fast path",run.finished)
+        // Endless mode has three lives: collision removes exactly one and
+        // enables brief invulnerability, rather than ending the run.
+        assertEquals("Painted-lip contact must still remove one life",2,run.lives)
+        assertTrue("First impact must protect subsequent physics slices",run.invulnerable>1f)
+        assertFalse("First hit must not end a three-life endless run",run.finished)
     }
 
     @Test fun optimizedBroadphasePreservesBerryTouchAndLegacyMagnetRange() {
