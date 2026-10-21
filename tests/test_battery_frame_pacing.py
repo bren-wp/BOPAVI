@@ -13,6 +13,10 @@ assert "if(reducedMotion || powerSaveMode) POWER_SAVER_DELAY_MS else null" in po
 assert "const val POWER_SAVER_DELAY_MS = 33L" in policy
 assert "getSystemService(Context.POWER_SERVICE)" in view
 assert "private fun refreshPowerSaveMode()" in view
+assert "PowerManager.ACTION_POWER_SAVE_MODE_CHANGED" in view
+assert "context.registerReceiver(powerSaveReceiver," in view
+assert "context.unregisterReceiver(powerSaveReceiver)" in view
+assert "powerSaveReceiverRegistered=false" in view
 assert "override fun onWindowVisibilityChanged(visibility:Int)" in view
 assert "refreshPowerSaveMode()" in view.split("override fun onAttachedToWindow()",1)[1]
 assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
