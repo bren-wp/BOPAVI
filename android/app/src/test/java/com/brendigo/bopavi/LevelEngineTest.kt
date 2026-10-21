@@ -6,6 +6,42 @@ import org.junit.Test
 /** Deterministic gameplay contract, independent of Android framework or rendering. */
 class LevelEngineTest {
 
+    @Test fun optimizedGateBroadphaseStillDetectsFirstPaintedLipContact() {
+        val template=LevelEngine.create(0,1)
+        val lip=template.gates[0].copy(
+            x=154f,center=600f,gap=164f,width=64f,
+            movement=0f,coin=false,star=false,power=0)
+        val run=GameSimulation(template.copy(gates=listOf(lip),
+            speed=140f,wind=0f),endless=true)
+        run.flap()
+        // Until x+width is within the painted cap's 7px overhang and r18
+        // body, the gate must remain harmless.
+        repeat(2) { run.step(1f/120f) }
+        assertFalse("No phantom collision before the actual painted lip",run.finished)
+        run.step(1f/120f)
+        assertTrue("Real lip contact cannot be culled by the fast path",run.finished)
+    }
+
+    @Test fun optimizedBroadphasePreservesBerryTouchAndLegacyMagnetRange() {
+        val template=LevelEngine.create(0,1)
+        val berry=template.gates[0].copy(
+            x=120f,center=366f,gap=340f,width=64f,
+            movement=0f,coin=true,star=false,power=0)
+        val arcade=GameSimulation(template.copy(gates=listOf(berry),
+            speed=140f,wind=0f),endless=true)
+        arcade.flap()
+        arcade.step(1f/120f)
+        assertEquals("Near-contact berry stays collectible",1,arcade.foodCollected)
+        assertFalse(arcade.finished)
+
+        val distant=berry.copy(x=190f)
+        val legacy=GameSimulation(template.copy(gates=listOf(distant),
+            speed=140f,wind=0f),endless=false,initialMagnet=8f)
+        legacy.flap()
+        legacy.step(1f/120f)
+        assertEquals("Finite-level 108px magnet look-ahead must stay intact",1,legacy.coins)
+    }
+
     @Test fun premiumShopBoostsHaveRealThreeHitAndEighteenSecondCapacity() {
         val stage=LevelEngine.create(0,1)
         val premium=GameSimulation(stage,initialShield=3,initialMagnet=18f)
