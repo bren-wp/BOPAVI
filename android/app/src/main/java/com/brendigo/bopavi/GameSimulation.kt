@@ -25,6 +25,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     // World coordinates grow beyond Float's pixel precision during marathon runs.
     // Retain public Float distance for scenery, but resolve collision geometry in Double.
     private var preciseDistance = 0.0
+    /** Draw-only scenery clock: keeps subpixel motion in marathon sessions. */
+    internal val preciseTravel:Double get() = preciseDistance
     private var levelOrigin = 0.0
     private var nextLevel:LevelEngine.Level? = null
     private var nextOrigin = 0.0

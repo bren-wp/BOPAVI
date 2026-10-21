@@ -120,11 +120,33 @@ object LevelEngine {
 /** Presentation-only deterministic drift used by the Android Canvas renderer. Never modifies collisions. */
 internal object ParallaxScenery {
     private const val PERIOD = 696f // Four tiles of 174 logical pixels.
-    fun offset(distance: Float, layer: Int, reducedMotion: Boolean): Float {
-        if (reducedMotion || !distance.isFinite()) return 0f
-        val speed = when(layer) { 0 -> .07f; 1 -> .15f; else -> .24f }
-        val travelled = (distance * speed) % PERIOD
-        return ((travelled + PERIOD) % PERIOD)
+    /** Float entry point retained for historic tests and UI parity. */
+    fun offset(distance: Float, layer: Int, reducedMotion: Boolean): Float =
+        offset(distance.toDouble(),layer,reducedMotion)
+
+    /** Project from the Double world clock before rounding to drawing pixels. */
+    fun offset(distance: Double, layer: Int, reducedMotion: Boolean): Float {
+        if(reducedMotion)return 0f
+        val speed = when(layer) { 0 -> .07; 1 -> .15; else -> .24 }
+        return wrapped(distance,speed,PERIOD)
+    }
+
+    /** Wrap in Double, then round the small bounded phase to Float.
+     * Avoids the 2^24-unit loss of fractional motion in endless flights.
+     */
+    fun wrapped(distance:Double,speed:Double,period:Float):Float {
+        if(!distance.isFinite() || !speed.isFinite() ||
+            !period.isFinite() || period<=0f)return 0f
+        val periodD=period.toDouble()
+        val phase=(distance*speed)%periodD
+        return ((phase+periodD)%periodD).toFloat()
+    }
+
+    /** Camera sway uses radians from Double rather than a huge Float phase. */
+    fun wave(distance:Double,frequency:Double):Float {
+        if(!distance.isFinite() || !frequency.isFinite())return 0f
+        val phase=(distance*frequency)%(2.0*kotlin.math.PI)
+        return kotlin.math.sin(phase).toFloat()
     }
 }
 
