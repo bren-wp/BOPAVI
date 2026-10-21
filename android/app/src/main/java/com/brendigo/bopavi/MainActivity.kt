@@ -31,6 +31,11 @@ class MainActivity : Activity() {
     private val pilotNames=arrayOf("Bopi","Sova","Lisac")
     private val pilotSpriteIds=intArrayOf(0,9,10)
     private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait9,R.drawable.bopiportrait10)
+    // Results show the world from the actual completed flight, not a fixed
+    // forest image if gameplay is later started in a different biome.
+    private val resultWorldDrawableIds=intArrayOf(
+        R.drawable.world0,R.drawable.world1,R.drawable.world2,R.drawable.world3,
+        R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
     private var selectedPilotChoice=0
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
@@ -741,13 +746,15 @@ class MainActivity : Activity() {
         val newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(if(g.won)"level" else "hit")
         val headline="REZULTAT"
+        val resultWorld=g.level.world.coerceIn(0,LevelEngine.WORLD_COUNT-1)
+        val resultBackdrop=resultWorldDrawableIds[resultWorld]
         progress.recordRun(g)
         gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
         val backdrop=ImageView(this).apply{
-            setImageResource(R.drawable.world0);scaleType=ImageView.ScaleType.CENTER_CROP
+            setImageResource(resultBackdrop);scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         root.addView(backdrop,FrameLayout.LayoutParams(-1,-1))
@@ -776,10 +783,10 @@ class MainActivity : Activity() {
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription=pilotNames[selectedPilotChoice]+" u svijetu Zeleni otoci"
+            contentDescription=pilotNames[selectedPilotChoice]+" u svijetu "+LevelEngine.names[resultWorld]
         }
         artwork.addView(ImageView(this).apply{
-            setImageResource(R.drawable.world0)
+            setImageResource(resultBackdrop)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
