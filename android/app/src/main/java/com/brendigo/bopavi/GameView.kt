@@ -313,10 +313,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // A former opaque ground stripe hid the lower floating-island scenery,
         // including on narrow and notched phones. Letterboxing is filled above.
         if(game.finished && !sent){sent=true;post{if(isAttachedToWindow)onFinished(game)}}
-        // One clear gate prevents redundant 60/120Hz frames after Pause,
-        // Exit, backgrounding, QA capture or a finished/idle flight.
+        // The OS vsync callback supports 60/90/120Hz without an arbitrary
+        // 14ms throttle. Reduced motion stays at roughly 30fps to save work.
+        // Pause, exit, background and QA still capture schedule no new frames.
         if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
-            postInvalidateDelayed(if(reducedMotion) 33L else 14L)
+            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
         }
     }
 
