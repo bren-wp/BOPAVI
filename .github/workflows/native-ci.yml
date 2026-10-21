@@ -87,6 +87,7 @@ jobs:
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_flight_frame_clock.py
       - run: python tests/test_marathon_parallax.py
+      - run: python tests/test_marathon_state_reuse.py
       - run: python tests/test_render_lifecycle_contract.py
       - run: python tests/test_audio_focus_contract.py
       - run: python tests/test_food_save_contract.py
