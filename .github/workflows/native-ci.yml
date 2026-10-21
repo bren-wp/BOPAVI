@@ -487,26 +487,26 @@ jobs:
             --title "BOPAVI $tag — Android" \
             --notes-file dist/release-notes.md
 
-  legacy-retention:
-    name: Preserve every stable release, prune only old v0.x
+  release-integrity:
+    name: Verify release artifacts without removing any previous edition
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [publish]
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     concurrency:
-      group: bopavi-legacy-release-retention
+      group: bopavi-release-integrity
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - run: python tests/test_cleanup_legacy_releases.py
-      - name: Verify published release, SHA-256 checksums and prune old pre-v1 releases
+      - name: Verify published release and every SHA-256 checksum without deleting anything
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           tag="$(python tools/release_metadata.py --tag)"
-          python tools/cleanup_legacy_releases.py --repo "$GITHUB_REPOSITORY" --new-tag "$tag" --apply
+          python tools/cleanup_legacy_releases.py --repo "$GITHUB_REPOSITORY" --new-tag "$tag" --verify-only
 
   release-docs:
     name: Sync only verified stable Android release documentation
