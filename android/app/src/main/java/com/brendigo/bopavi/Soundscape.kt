@@ -40,8 +40,12 @@ class Soundscape(context: Context) {
     private val focusListener = AudioManager.OnAudioFocusChangeListener { change ->
         when (change) {
             AudioManager.AUDIOFOCUS_GAIN -> {
-                focusHeld = true
-                if (!closed && enabled && playbackRequested) startPlayback()
+                // Focus gains can race with a slider mute / focus abandon.
+                // Never resume a stale request after the user selects 0%.
+                if (focusRequested) {
+                    focusHeld = true
+                    if (canPlayMusic()) startPlayback()
+                }
             }
             AudioManager.AUDIOFOCUS_LOSS -> {
                 focusHeld = false
@@ -64,23 +68,37 @@ class Soundscape(context: Context) {
 
     var musicVolume: Float = 0.80f
         set(value) {
-            field = value.coerceIn(0f,1f)
+            val wasAudible=field>0f
+            field=MusicPlaybackPolicy.normalizedVolume(value)
             try {
                 player?.setVolume(.25f*field,.25f*field)
             } catch (e: IllegalStateException) {
                 Log.w("BOPAVI-Audio","Audio volume update skipped during player teardown",e)
             }
+            if (field<=0f) {
+                // A 0% slider truly pauses silent decoding and releases the
+                // audio focus. Keep playbackRequested: restoring a volume in
+                // the same active session may resume with a NEW focus grant.
+                pausePlayer()
+                abandonFocus()
+            } else if (!wasAudible && playbackRequested && enabled && !closed) {
+                // First unmute may lazily create the world music decoder.
+                if(ensureWorldPlayer() && acquireFocus()) startPlayback()
+            }
         }
     var effectsVolume: Float = 0.70f
-        set(value) { field=value.coerceIn(0f,1f) }
+        set(value) { field=MusicPlaybackPolicy.normalizedVolume(value) }
     var enabled = true
         set(value) {
             field=value
             if (!value) pause() else resume()
         }
 
+    private fun canPlayMusic():Boolean = MusicPlaybackPolicy.shouldPlay(
+        enabled,closed,playbackRequested,player!=null,musicVolume)
+
     private fun acquireFocus(): Boolean {
-        if (closed || !enabled) return false
+        if (!canPlayMusic()) return false
         if (focusRequested) return focusHeld
         val status = audioManager.requestAudioFocus(focusRequest)
         focusHeld = status == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
@@ -95,6 +113,7 @@ class Soundscape(context: Context) {
         }
     }
     private fun startPlayback() {
+        if (!canPlayMusic() || !focusHeld) return
         try {
             val current=player
             if (current!=null && !current.isPlaying) current.start()
@@ -110,26 +129,37 @@ class Soundscape(context: Context) {
             Log.w("BOPAVI-Audio","World music already stopped",e)
         }
     }
-    fun startWorld(index: Int) {
-        if (closed || index !in worlds.indices) return
-        if (world==index && player!=null) { resume(); return }
-        stop()
-        world=index
+    /**
+     * Create the decoder only for an audible session. Entering a world at
+     * 0% music volume must not allocate a silent looping MediaPlayer.
+     */
+    private fun ensureWorldPlayer():Boolean {
+        if(player!=null)return true
+        if(closed || !enabled || musicVolume<=0f || world !in worlds.indices)return false
         try {
-            player=MediaPlayer.create(appContext,worlds[index])?.apply {
+            player=MediaPlayer.create(appContext,worlds[world])?.apply {
                 isLooping=true
                 setVolume(.25f*musicVolume,.25f*musicVolume)
             }
         } catch (e: RuntimeException) {
             Log.w("BOPAVI-Audio","Unable to initialize local world music",e)
             stop()
-            return
+            return false
         }
-        if (player==null) {
+        if(player==null) {
             Log.w("BOPAVI-Audio","Missing decodable local soundtrack")
             stop()
-            return
+            return false
         }
+        return true
+    }
+    fun startWorld(index: Int) {
+        if(closed || index !in worlds.indices)return
+        if(world!=index) {
+            stop()
+            world=index
+        }
+        // Resume skips decoder and focus allocation at zero volume.
         resume()
     }
     fun effect(name: String) {
@@ -148,9 +178,15 @@ class Soundscape(context: Context) {
         abandonFocus()
     }
     fun resume() {
-        if (closed || !enabled || player==null) return
+        if(closed || !enabled || world !in worlds.indices)return
         playbackRequested=true
-        if (acquireFocus()) startPlayback()
+        if(musicVolume<=0f) {
+            // Muted sessions do not even create a decoder at game start.
+            pausePlayer()
+            abandonFocus()
+            return
+        }
+        if(ensureWorldPlayer() && acquireFocus()) startPlayback()
     }
     fun stop() {
         playbackRequested=false
