@@ -14,10 +14,10 @@ assert "if(firstFlap) frameClock.reset()" in view
 assert "frameClock.reset()" in view.split("if(qaWaitingForCapture) {",1)[1].split("} else {",1)[0]
 assert "for(i in upcoming.indices)" in view
 assert "game.upcomingGates().withIndex()" not in view
-assert "postInvalidateDelayed(if(reducedMotion) 33L else 14L)" in view
+assert "if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()" in view
 assert "nanos<1_000_000L" in clock
 assert "if(!running)" in clock and "reset()" in clock
 assert "if(previous==null || nowNanos<previous)" in clock
 for case in ("idlePreviewWaitingDoesNotAdvanceFirstFlap","pauseBackgroundAndQaCaptureEachDiscardElapsedTime","subMillisecondRepaintsAndClockRewindsStaySafe"):
     assert case in tests,case
-print("PASS: no first-tap idle-time catch-up, monotonic frame deltas and no indexed draw allocations")
+print("PASS: no first-tap idle-time catch-up, monotonic frame deltas, vsync redraw and no indexed draw allocations")
