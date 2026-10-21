@@ -88,6 +88,7 @@ jobs:
       - run: python tests/test_native_lifecycle.py
       - run: python tests/test_flight_frame_clock.py
       - run: python tests/test_battery_frame_pacing.py
+      - run: python tests/test_flight_overlay_qa.py
       - run: python tests/test_marathon_parallax.py
       - run: python tests/test_marathon_state_reuse.py
       - run: python tests/test_render_lifecycle_contract.py
