@@ -1105,10 +1105,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,"HRANA",222f,36f,11f,0xffd4f4ff.toInt())
         text(c,cachedFoodLabel,222f,60f,23f,Color.WHITE)
         if(game.endless) {
+            // Third, visually grouped compact HUD card instead of loose hearts.
+            // The hitbox, life capacity and collectible rules are unchanged.
+            hudGlass(c,317f,16f,462f,68f)
+            text(c,"ŽIVOTI",329f,35f,11f,0xffd4f4ff.toInt())
             for(i in 0 until game.maxLives) {
-                val hx=334f+i*22f
+                val hx=342f+i*38f
                 val healthy=i<game.lives
-                drawHudHeart(c,hx,36f,healthy)
+                drawHudHeart(c,hx,54f,healthy)
             }
         }
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood || game.lives!=lastAccessibilityLives) {
