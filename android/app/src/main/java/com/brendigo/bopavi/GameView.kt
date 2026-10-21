@@ -1,6 +1,7 @@
 package com.brendigo.bopavi
 
 import android.content.Context
+import android.os.PowerManager
 import android.graphics.Canvas
 import android.graphics.BitmapFactory
 import android.graphics.RectF
@@ -175,13 +176,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)!=0
     // First frame of a flight is a baseline; idle waiting is never physics time.
     private val frameClock=FlightFrameClock()
+    // Refresh only on window/lifecycle transitions, never through a binder call
+    // inside the 60/90/120 Hz rendering hot path.
+    private val powerManager=context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+    private var powerSaveMode=false
+    private fun refreshPowerSaveMode(){ powerSaveMode=powerManager?.isPowerSaveMode==true }
     private var sent = false
     private var completedSeen=0
     private var pickupSeen=0
     private var shieldImpactNotified=false
     private var lastAccessibilityLives=-1
     var paused = false
-        set(v) { field = v; frameClock.reset(); postInvalidateOnAnimation() }
+        set(v) {
+            if(field==v)return
+            field = v
+            frameClock.reset()
+            postInvalidateOnAnimation()
+        }
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -317,7 +328,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // 14ms throttle. Reduced motion stays at roughly 30fps to save work.
         // Pause, exit, background and QA still capture schedule no new frames.
         if(isAttachedToWindow && game.active && !paused && !game.finished && !qaWaitingForCapture) {
-            if(reducedMotion) postInvalidateDelayed(33L) else postInvalidateOnAnimation()
+            val delay=GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)
+            if(delay!=null) postInvalidateDelayed(delay) else postInvalidateOnAnimation()
         }
     }
 
@@ -1159,6 +1171,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     override fun onAttachedToWindow(){
         super.onAttachedToWindow()
+        refreshPowerSaveMode()
         // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
         val opts=BitmapFactory.Options().apply { inScaled=false }
         if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
@@ -1167,6 +1180,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(worldBitmap==null) worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],opts)
         updateWorldCover(width,height)
         invalidate()
+    }
+    override fun onWindowVisibilityChanged(visibility:Int){
+        super.onWindowVisibilityChanged(visibility)
+        if(visibility==VISIBLE){
+            // Returning from background also refreshes any battery-saver change.
+            refreshPowerSaveMode()
+            frameClock.reset()
+        }
     }
     override fun onDetachedFromWindow(){
         // Release native pixel buffer references after each Retry/Exit.
