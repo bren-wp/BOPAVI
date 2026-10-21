@@ -631,6 +631,36 @@ class LevelEngineTest {
     }
 
 
+    @Test fun flightPhysicsRemainConsistentAcross30_60_120HzFrameRates() {
+        // No visible gate: compare the same one-second flap trajectory at
+        // different real device frame cadences. Physics still resolves at
+        // 120Hz, so power saving must not change gravity or travel.
+        val template=LevelEngine.create(0,1)
+        val distant=template.gates.first().copy(
+            x=10_000f,center=366f,gap=340f,movement=0f,coin=false,star=false,power=0)
+        val safe=template.copy(gates=listOf(distant),speed=140f,wind=0f)
+        for(difficulty in 0..2) {
+            val runs=listOf(30,60,120).map { hz ->
+                GameSimulation(safe,endless=true,difficulty=difficulty).apply {
+                    flap()
+                    repeat(hz) { step(1f/hz) }
+                }
+            }
+            val baseline=runs.last()
+            for(run in runs) {
+                assertFalse(run.finished)
+                assertTrue(run.active)
+                assertEquals(1f,run.time,.0001f)
+                assertEquals("Vertical physics drift on difficulty $difficulty",
+                    baseline.y,run.y,.25f)
+                assertEquals("Scroll drift on difficulty $difficulty",
+                    baseline.distance,run.distance,.25f)
+                assertEquals("Frame cadence cannot change collision radius",
+                    18f,run.radius,0f)
+            }
+        }
+    }
+
     @Test fun endlessSceneryKeepsSubpixelMotionPastFloatLimit() {
         val far=33_554_432.0 // 2^25 units, Float already loses 0.25px.
         for(layer in 0..2) {
