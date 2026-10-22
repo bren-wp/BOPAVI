@@ -5,10 +5,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** Fixed-coordinate game simulation; Android Canvas is presentation only. */
-class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = false, initialShield: Int = 0, initialMagnet: Float = 0f, difficulty: Int = 1, initialOrdinal:Long = initialLevel.number.toLong()) {
+class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = false, initialShield: Int = 0, initialMagnet: Float = 0f, difficulty: Int = 1, initialOrdinal:Long = initialLevel.number.toLong(), val pilotAbility:PilotAbility = PilotAbility.CLASSIC) {
     val difficulty = difficulty.coerceIn(0,2)
-    private val speedFactor = when(this.difficulty) { 0 -> .73f; 2 -> 1.30f; else -> 1f }
-    private val gravityFactor = when(this.difficulty) { 0 -> .84f; 2 -> 1.15f; else -> 1f }
+    private val speedFactor = (when(this.difficulty) { 0 -> .73f; 2 -> 1.30f; else -> 1f }) * pilotAbility.speedMultiplier
+    private val gravityFactor = (when(this.difficulty) { 0 -> .84f; 2 -> 1.15f; else -> 1f }) * pilotAbility.gravityMultiplier
     var level = initialLevel
         private set
     // Keep world scrolling continuous when procedural obstacle batches switch
@@ -73,6 +73,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     var lives = if(endless)3 else 1; private set
     val maxLives = if(endless)3 else 1
     var heartsCollected = 0; private set
+    // Lisac's one-shot pilot skill is local to this endless run, never saved
+    // or restored at the next launch. All pilots retain the same 18px hitbox.
+    var pilotGuardReady = endless && pilotAbility == PilotAbility.LISAC; private set
     var magnetTime = initialMagnet.coerceIn(0f,18f); private set
     var collectPulse = 0f; private set
     var impactPulse = 0f; private set
@@ -264,7 +267,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     }
     private fun damage() {
         if (invulnerable > 0f) return
-        if (shield > 0) {
+        if (pilotGuardReady) {
+            pilotGuardReady=false
+            lastImpactLostLife=false
+            invulnerable=1.25f
+            impactPulse=.65f
+            velocity=-90f
+        } else if (shield > 0) {
             shield--
             lastImpactLostLife=false
             invulnerable = 1.25f; impactPulse = .65f; velocity = -90f
