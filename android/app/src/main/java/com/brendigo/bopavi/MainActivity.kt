@@ -474,14 +474,15 @@ class MainActivity : Activity() {
         // The original logo already contains this slogan. A duplicate title
         // consumed ~40dp and shrank native privacy/terms hitboxes below 48dp.
         action(content,"▶  IGRAJ"){startGame()}
-        content.addView(TextView(this).apply{
-            text="ODABERI LIKA"
+        val pilotHeading=TextView(this).apply{
+            text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
             textSize=13f
-            letterSpacing=.07f
+            letterSpacing=.03f
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(0xffe7f8ff.toInt())
             gravity=Gravity.CENTER
-        },LinearLayout.LayoutParams(-1,d(25)))
+        }
+        content.addView(pilotHeading,LinearLayout.LayoutParams(-1,d(25)))
         val pilots=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -490,6 +491,7 @@ class MainActivity : Activity() {
         // caused image decoding, extra view allocations and visual flashes.
         fun refreshPilotCards(){
             heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])
+            pilotHeading.text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
             for(i in 0 until pilots.childCount) {
                 val selected=i==selectedPilotChoice
                 val item=pilots.getChildAt(i) as LinearLayout
@@ -500,7 +502,8 @@ class MainActivity : Activity() {
                     if(selected)0xffffdd72.toInt() else 0x8859d6ff.toInt())
                 item.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
                 item.isSelected=selected
-                item.contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+pilotNames[i]
+                item.contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+
+                    pilotNames[i]+". "+PilotAbility.fromChoice(i).description
                 (item.getChildAt(1) as TextView).setTextColor(
                     if(selected)0xffffe7a1.toInt() else Color.WHITE)
             }
@@ -519,7 +522,8 @@ class MainActivity : Activity() {
                 isClickable=true
                 isFocusable=true
                 isSelected=selected
-                contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+pilotNames[index]
+                contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+
+                    pilotNames[index]+". "+PilotAbility.fromChoice(index).description
                 setOnClickListener {
                     if(selectedPilotChoice!=index) {
                         selectedPilotChoice=index
@@ -635,7 +639,7 @@ class MainActivity : Activity() {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(154)))
         title(content,"♛  PAUZA",32,Color.WHITE)
-        title(content,"Let je pauziran",16,0xffbce6ff.toInt())
+        title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffbce6ff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -700,7 +704,8 @@ class MainActivity : Activity() {
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         selectedScreen="game"
-        val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,progress.difficulty(),1L)
+        val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,
+            progress.difficulty(),1L,PilotAbility.fromChoice(selectedPilotChoice))
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(0)
         // The idle flight preview is not gameplay. Do not expose pause until
@@ -832,7 +837,8 @@ class MainActivity : Activity() {
         val artwork=FrameLayout(this).apply{
             background=gradient(0xff218fe3.toInt(),0xff08346b.toInt(),24)
             clipToOutline=true
-            contentDescription=pilotNames[selectedPilotChoice]+" u svijetu "+LevelEngine.names[resultWorld]
+            contentDescription=pilotNames[selectedPilotChoice]+" u svijetu "+LevelEngine.names[resultWorld]+
+                ". Sposobnost: "+g.pilotAbility.shortTitle
         }
         artwork.addView(ImageView(this).apply{
             setImageResource(resultBackdrop)
@@ -849,6 +855,15 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,d(186),Gravity.CENTER))
+        artwork.addView(TextView(this).apply {
+            text="MOĆ  ·  "+g.pilotAbility.shortTitle
+            textSize=13f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            gravity=Gravity.CENTER
+            setTextColor(0xffffe7a1.toInt())
+            background=gradient(0xdd063064.toInt(),0xd4031938.toInt(),9)
+            contentDescription="Sposobnost lika: "+g.pilotAbility.shortTitle
+        },FrameLayout.LayoutParams(-1,d(29),Gravity.BOTTOM))
         panel.addView(artwork,LinearLayout.LayoutParams(-1,d(174)).apply{bottomMargin=d(5)})
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
