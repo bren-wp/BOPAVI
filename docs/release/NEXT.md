@@ -1,4 +1,10 @@
 # Next Android release
 
-No unreleased changes are staged.
-Increase the Android versionName/versionCode and review a new NEXT.md entry before publishing another release.
+## v1.0.21 — Aligned lives/HUD and readable moving-pillar warnings (build 151)
+
+- **Polished flight HUD:** align score, berries and lives as three equally tall premium cards with deliberate spacing. The lives card is wider, displaying all three separate hearts (bright outlined full hearts and clearly outlined empty hearts), plus a concise 0/3–3/3 numerical indicator. Score/berry text is measured against the actual bold font and shrinks only if a long marathon counter would overflow. The hearts and labels always use the real GameSimulation values.
+- **Power hierarchy:** move the pilot ability into a taller, clearly labelled second-row chip, with its existing colour-coded one-time shield state. The ability chip stays fully left of the native pause-control lane; neither HUD row changes physics or touch targets.
+- **Shared geometry:** introduce a platform-free FlightHudLayout with four fixed 480x800 rectangles and preallocated heart positions. The renderer reuses these values rather than individually guessed positions. Add Kotlin geometric non-overlap, 18px body-independent indicator, text-layout contract and native pause-lane tests.
+- **Moving-pillar warning:** an upcoming moving obstacle now shows a gold exclamation mark in its solid upper pillar, before reaching the bird. Static, already-passed and offscreen pillars never show the sign; the warning does not blink (also respects reduced-motion preferences), change openings or add fake collisions. Existing glints remain visible.
+- **Stability and privacy:** no extra images, frame-loop allocations, network, ads, tracking, new permissions, save migration or changes to approved 11 character variants. Reuse existing shared Canvas Path/Paint and cached text.
+- **Verification:** source contract, Kotlin/JVM, Lint, responsive layout constraints, Android 15 live gameplay and screenshots, Android 16 smoke, privacy and dead-code audit, unsigned AAB/APK integrity and checksums remain mandatory. Manual TalkBack perception and physical-device balancing are not substituted by emulator testing.
