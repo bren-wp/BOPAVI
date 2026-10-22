@@ -363,7 +363,8 @@ flight=[n for n in nodes if n.get("class")=="android.view.View"
         and n.get("clickable")=="true"
         and (("SCORE:" in label(n) and "FOOD:" in label(n))
              or ("BODOVI:" in label(n) and "HRANA:" in label(n)))
-        and "DODIRNI ZA ZAMAH KRILIMA" in label(n)]
+        and "DODIRNI ZA ZAMAH KRILIMA" in label(n)
+        and "MOĆ:" in label(n)]
 pause=[n for n in nodes if n.get("clickable")=="true"
        and ("PAUSE GAME" in label(n) or "PAUZIRAJ IGRU" in label(n))]
 sys.exit(0 if len(flight)==1 and len(pause)==1 else 1)
