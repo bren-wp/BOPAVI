@@ -20,6 +20,8 @@ for needle in (
     'PilotAbility.fromChoice(i).description',
     'pilotHeading.text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle',
     'game.game.pilotAbility.shortTitle',
+    'game.game.pilotAbility.description',
+    'g.pilotAbility.description',
     'g.pilotAbility.shortTitle',
 ):
     assert needle in activity,needle
@@ -28,6 +30,8 @@ for needle in (
     'private var lastAccessibilityGuard = false',
     'hudGlass(c,18f,75f,310f,104f)',
     'game.pilotAbility.hudStatus(game.pilotGuardReady)',
+    'game.pilotAbility.hudTint(game.pilotGuardReady)',
+    'rect(c,20f,81f,24f,99f,powerTint,2f)',
     'game.pilotGuardReady!=lastAccessibilityGuard',
     'lastAccessibilityGuard=game.pilotGuardReady',
     'Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}',
@@ -38,6 +42,7 @@ for needle in (
     'val pilotAbility:PilotAbility = PilotAbility.CLASSIC',
     'pilotAbility.speedMultiplier',
     'pilotAbility.gravityMultiplier',
+    'pilotAbility.terminalFallSpeed',
     'var pilotGuardReady = endless && pilotAbility == PilotAbility.LISAC; private set',
     'if (pilotGuardReady) {',
     'pilotGuardReady=false',
@@ -47,6 +52,9 @@ for needle in (
     'PillarCollision.sweptBodyHitsPillar(',
 ):
     assert needle in sim,needle
+assert 'terminalFallSpeed:Float=365f' in abilities
+assert 'terminalFallSpeed=315f' in abilities
+assert 'fun hudTint(guardReady:Boolean):Int' in abilities
 assert 'FlightChallengePolicy.levelSpeed(zone,world,epoch,type)' in level
 assert 'FlightChallengePolicy.gateGap(' in level
 assert 'FlightChallengePolicy.gateMovement(' in level
@@ -55,7 +63,10 @@ for name in ('threeSelectablePilotsAreDistinctAndStable',
              'legacyFlightRemainsCompatibleButRealBopiTravelsFaster',
              'owlDescendsMoreSlowlyWithoutModifyingColliderOrInput',
              'foxBlocksExactlyOneRealCollisionThenLosesAHeart',
-             'guardCannotBeCarriedIntoLegacyFiniteLevels'):
+             'guardCannotBeCarriedIntoLegacyFiniteLevels',
+    'owlHasARealLowerTerminalFallSpeedWithoutChangingCollision',
+    'everyPilotKeepsFlightPhysicsConsistentAt30_60_120Hz',
+    'abilityChipColoursExposeShieldReadyAndSpentStates'):
     assert name in tests,name
 for name in ('generatedWorldsAreFasterButBoundedAndDeterministic',
              'gatesAreTougherAfterWarmupWithoutImpossibleMouths',
