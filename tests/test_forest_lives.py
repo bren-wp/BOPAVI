@@ -14,7 +14,8 @@ assert "game.foodCollected+game.coins+game.stars+game.heartsCollected" in view
 assert "if(game.lastImpactLostLife)" in view
 assert "private fun drawMossLedge(" in view and "private fun drawHeartPickup(" in view
 assert "private fun drawHudHeart(" in view
-assert "hudGlass(c,18f,16f,178f,68f)" in view
+assert "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)" in view
+assert "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)" in view
 assert "Životi:" in view
 assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text()
