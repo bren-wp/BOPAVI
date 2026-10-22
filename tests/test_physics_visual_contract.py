@@ -13,8 +13,9 @@ for needle in (
     "drawRockStrata(c,x,w,pillarRenderTop+11f",
     "drawStoneCourses(c,x,pillarRenderTop+36f",
     "drawStoneCourses(c,x,bottom+34f",
-    "hudGlass(c,18f,16f,178f,68f)",
-    "hudGlass(c,185f,16f,310f,68f)",
+    "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)",
+    "hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)",
+    "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
     'text(c,"BODOVI"', 'text(c,"HRANA"'):
     assert needle in view,needle
 assert "fun courses(" not in view

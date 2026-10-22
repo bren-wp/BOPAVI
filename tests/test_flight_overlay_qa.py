@@ -10,7 +10,8 @@ physics=(src/"GameSimulation.kt").read_text()
 units=(root/"android/app/src/test/java/com/brendigo/bopavi/LevelEngineTest.kt").read_text()
 overlay_tests=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightOverlayLayoutTest.kt").read_text()
 assert "val hudScale=(width/480f).coerceAtMost(height/640f)" in view
-assert "hudGlass(c,317f,16f,462f,68f)" in view
+assert "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)" in view
+assert "const val pauseLaneStart = 366f" in (root/"android/app/src/main/java/com/brendigo/bopavi/FlightHudLayout.kt").read_text()
 assert "hudBottom=safeTopPx.coerceAtLeast(0)+ceil(72f*hudScale).toInt()" in layout
 assert "fun pauseTopPx(widthPx:Int,heightPx:Int,density:Float,safeTopPx:Int)" in layout
 assert "fun pauseRightPx(density:Float,safeRightPx:Int)" in layout

@@ -13,6 +13,19 @@ for hud in (a_hud,):
     assert "BODOVI" in hud
     assert "game.coins" not in hud and "game.stars" not in hud
     assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
-assert "hudGlass(c,18f,16f,178f,68f)" in a_hud
-assert "hudGlass(c,185f,16f,310f,68f)" in a_hud
-print("PASS: Android safe-area gameplay scoreboard only")
+for required in (
+    "val h=FlightHudLayout",
+    "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)",
+    "hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)",
+    "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
+    "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
+    "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
+    'text(c,cachedLivesLabel,436f,35f,11f,0xffffdce5.toInt())',
+    'text(c,"MOĆ",30f,91f,10f,0xffd4f4ff.toInt())',
+    "drawHudNumber(c,cachedScoreLabel",
+    "drawHudNumber(c,cachedFoodLabel",
+):
+    assert required in a_hud,required
+assert "p.measureText(value)" in a
+assert "if(game.lives!=cachedLives)" in a
+print("PASS: shared score, food, outlined hearts and power geometry, bounded large totals")

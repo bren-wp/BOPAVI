@@ -43,6 +43,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var cachedScoreLabel = "0"
     private var cachedFood = -1
     private var cachedFoodLabel = "0"
+    private var cachedLives = -1
+    private var cachedLivesLabel = "0/3"
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -898,6 +900,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 }
             }
         }
+        // An approaching *moving* pillar gets an unmistakable stationary
+        // warning badge INSIDE its solid upper shaft (never the open corridor).
+        // Position follows the real animated opening; reduced-motion mode has
+        // no flashing. Static columns and already-passed pillars get no badge.
+        if(FlightHudLayout.movingWarningVisible(g.movement,x,game.birdX) && top>72f){
+            val cx=x+w*.5f
+            val badgeY=top-46f
+            rect(c,cx-11f,badgeY-13f,cx+11f,badgeY+11f,0xffffd876.toInt(),6f)
+            text(c,"!",cx,badgeY+6f,18f,0xff122647.toInt(),true)
+        }
         if(game.endless) {
             val mid=x+w*.5f
             val cy=(a.top+a.bottom)*.5f
@@ -1092,20 +1104,32 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
+    private fun drawHudNumber(c:Canvas,value:String,x:Float,baseline:Float,maxWidth:Float){
+        // Measure the actual glyphs, not their digits, to keep long marathon
+        // totals inside the allotted card even with bold fonts or font scaling.
+        fill(Color.WHITE)
+        p.typeface=headerTypeface
+        p.textAlign=Paint.Align.LEFT
+        p.textSize=23f
+        val measured=p.measureText(value)
+        if(measured>maxWidth && measured>0f)
+            p.textSize=(23f*maxWidth/measured).coerceAtLeast(11f)
+        c.drawText(value,x,baseline,p)
+    }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
-        fill(if(active)0xffff6987.toInt() else 0x777396ba)
+        fill(if(active)0xffff6987.toInt() else 0x552c4b73)
         c.drawPath(path,p)
-        if(!active) {
-            fill(0xffbdcee8.toInt())
-            p.style=Paint.Style.STROKE
-            p.strokeWidth=1.5f
-            c.drawPath(path,p)
-            p.style=Paint.Style.FILL
-        }
+        // A full outline distinguishes missing from remaining hearts in
+        // bright worlds and for colour-vision differences; no new bitmap.
+        fill(if(active)0xffffdce5.toInt() else 0xffd1e8ff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=if(active)1.2f else 1.8f
+        c.drawPath(path,p)
+        p.style=Paint.Style.FILL
     }
     private fun drawHud(c:Canvas){
         // Only the changed counters allocate their numeric strings. At 120 Hz
@@ -1114,33 +1138,34 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val food=game.foodCollected
         if(score!=cachedScore){cachedScore=score;cachedScoreLabel=score.toString()}
         if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
-        // Accessible current score; no wallets, level meters or power-ups.
-        hudGlass(c,18f,16f,178f,68f)
+        if(game.lives!=cachedLives){
+            cachedLives=game.lives
+            cachedLivesLabel="${game.lives}/${game.maxLives}"
+        }
+        // Equal-height, aligned score/fruit/lives cards. Pure geometry is
+        // shared with JVM tests and never affects pillar collision.
+        val h=FlightHudLayout
+        hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)
         text(c,"BODOVI",30f,36f,11f,0xffd4f4ff.toInt())
-        text(c,cachedScoreLabel,30f,60f,23f,Color.WHITE)
-        hudGlass(c,185f,16f,310f,68f)
-        drawBerry(c,203f,45f,8f)
-        text(c,"HRANA",222f,36f,11f,0xffd4f4ff.toInt())
-        text(c,cachedFoodLabel,222f,60f,23f,Color.WHITE)
+        drawHudNumber(c,cachedScoreLabel,30f,60f,h.score.right-38f)
+        hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)
+        drawBerry(c,190f,45f,8f)
+        text(c,"HRANA",209f,36f,11f,0xffd4f4ff.toInt())
+        drawHudNumber(c,cachedFoodLabel,209f,60f,h.food.right-218f)
         if(game.endless) {
-            // Third, visually grouped compact HUD card instead of loose hearts.
-            // The hitbox, life capacity and collectible rules are unchanged.
-            hudGlass(c,317f,16f,462f,68f)
-            text(c,"ŽIVOTI",329f,35f,11f,0xffd4f4ff.toInt())
-            for(i in 0 until game.maxLives) {
-                val hx=342f+i*38f
-                val healthy=i<game.lives
-                drawHudHeart(c,hx,54f,healthy)
+            hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
+            text(c,"ŽIVOTI",316f,35f,11f,0xffd4f4ff.toInt())
+            text(c,cachedLivesLabel,436f,35f,11f,0xffffdce5.toInt())
+            for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
+                drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)
             }
         }
-        // A power indicator uses its own translucent lane left of the native
-        // right-side pause button; it never covers the three primary HUD cards.
-        hudGlass(c,18f,75f,310f,104f)
-        // Character-specific tint and a true ready/spent guard state are easy
-        // to distinguish without adding a new bitmap or moving the pause hitbox.
+        // The entire second-row indicator remains left of the native pause.
+        hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)
         val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
-        rect(c,20f,81f,24f,99f,powerTint,2f)
-        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,95f,12f,powerTint)
+        text(c,"MOĆ",30f,91f,10f,0xffd4f4ff.toInt())
+        rect(c,20f,96f,24f,111f,powerTint,2f)
+        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,110f,12f,powerTint)
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
             game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
             lastAccessibilityScore=score
