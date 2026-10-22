@@ -26,6 +26,8 @@ class MainActivity : Activity() {
     private var selectedScreen = "home"
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
+    // Dark navy remains readable over every stop of the gold CTA gradients.
+    private val primaryButtonInk = 0xff061b49.toInt()
     private val electric = 0xff00d9ff.toInt()
     // Three arcade pilots preserve all historical save-backed skin identifiers.
     private val pilotNames=arrayOf("Bopi","Sova","Lisac")
@@ -135,11 +137,11 @@ class MainActivity : Activity() {
     }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,muted:Boolean=false,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(Color.WHITE)
+            this.text=text;setTextColor(if(primary)primaryButtonInk else Color.WHITE)
             textSize=18f;isAllCaps=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.03f
-            setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xaa07244d.toInt())
+            if(!primary) setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xaa07244d.toInt())
             setAutoSizeTextTypeUniformWithConfiguration(12,18,1,android.util.TypedValue.COMPLEX_UNIT_SP)
             val face=if(primary) GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
@@ -633,7 +635,7 @@ class MainActivity : Activity() {
             val b=Button(this).apply {
                 this.text=text;isAllCaps=false;textSize=18f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-                setTextColor(Color.WHITE)
+                setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
