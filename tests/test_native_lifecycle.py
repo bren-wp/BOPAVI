@@ -56,5 +56,6 @@ result=activity.split("    private fun showResult(g:GameSimulation){",1)[1].spli
 assert result.index("sound.stop()") < result.index('sound.effect(if(g.won)"level" else "hit")')
 assert 'selectedScreen=="game" &&' in activity.split("    override fun onResume()",1)[1].split("    override fun onDestroy()",1)[0]
 assert "gameView?.game?.finished == false" in activity
-assert 'lastHudAccessibility="Dodirni za zamah krilima.' in game
+assert 'lastHudAccessibility="${flightHint()} Bodovi:' in game
+assert 'contentDescription=lastHudAccessibility.ifEmpty { flightHint() }' in game
 print("PASS: results audio focus teardown and accessible gameplay controls")
