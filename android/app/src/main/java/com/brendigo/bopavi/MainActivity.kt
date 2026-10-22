@@ -310,6 +310,16 @@ class MainActivity : Activity() {
                 setPadding(0,d(8),0,0)
             }
             column.addView(label)
+            // Avoid redundant disk writes, including repeated D-pad presses at
+            // a 0%/100% limit. A touch drag commits only once on release.
+            var lastSavedVolume=initial
+            fun persistVolume(value:Int) {
+                val safe=value.coerceIn(0,100)
+                if(safe==lastSavedVolume)return
+                if(music) this@MainActivity.progress.setMusicVolume(safe)
+                else this@MainActivity.progress.setEffectsVolume(safe)
+                lastSavedVolume=safe
+            }
             column.addView(android.widget.SeekBar(this).apply {
                 max=100
                 progress=initial
@@ -320,19 +330,25 @@ class MainActivity : Activity() {
                 // The 48dp LayoutParams size below works on API26+. ProgressBar's
                 // minHeight setter is API29-only and was rejected by Android Lint.
                 setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener {
+                    private var touchTracking=false
                     override fun onProgressChanged(bar:android.widget.SeekBar?,value:Int,fromUser:Boolean){
                         label.text=caption+": "+value+" %"
                         if(fromUser) {
                             if(music) sound.musicVolume=value/100f
                             else sound.effectsVolume=value/100f
+                            // TalkBack, keyboard and D-pad change the SeekBar
+                            // without onStopTrackingTouch: save them now.
+                            if(VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking))
+                                persistVolume(value)
                         }
                     }
-                    override fun onStartTrackingTouch(bar:android.widget.SeekBar?){}
+                    override fun onStartTrackingTouch(bar:android.widget.SeekBar?){
+                        touchTracking=true
+                    }
                     override fun onStopTrackingTouch(bar:android.widget.SeekBar?){
-                        val value=bar?.progress ?: return
-                        // One local preference write per finished gesture.
-                        if(music) this@MainActivity.progress.setMusicVolume(value)
-                        else this@MainActivity.progress.setEffectsVolume(value)
+                        touchTracking=false
+                        // Commit a continuous swipe once, with its final value.
+                        bar?.progress?.let(::persistVolume)
                     }
                 })
             },LinearLayout.LayoutParams(-1,d(48)))
