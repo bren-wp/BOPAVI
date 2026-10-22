@@ -900,6 +900,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 }
             }
         }
+        // An approaching *moving* pillar gets an unmistakable stationary
+        // warning badge INSIDE its solid upper shaft (never the open corridor).
+        // Position follows the real animated opening; reduced-motion mode has
+        // no flashing. Static columns and already-passed pillars get no badge.
+        if(FlightHudLayout.movingWarningVisible(g.movement,x,game.birdX) && top>72f){
+            val cx=x+w*.5f
+            val badgeY=top-46f
+            rect(c,cx-11f,badgeY-13f,cx+11f,badgeY+11f,0xffffd876.toInt(),6f)
+            text(c,"!",cx,badgeY+6f,18f,0xff122647.toInt(),true)
+        }
         if(game.endless) {
             val mid=x+w*.5f
             val cy=(a.top+a.bottom)*.5f
