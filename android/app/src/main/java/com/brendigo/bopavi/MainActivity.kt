@@ -640,6 +640,7 @@ class MainActivity : Activity() {
         },LinearLayout.LayoutParams(-1,d(154)))
         title(content,"♛  PAUZA",32,Color.WHITE)
         title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffbce6ff.toInt())
+        title(content,game.game.pilotAbility.description,13,0xffbce6ff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -862,7 +863,8 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER
             setTextColor(0xffffe7a1.toInt())
             background=gradient(0xdd063064.toInt(),0xd4031938.toInt(),9)
-            contentDescription="Sposobnost lika: "+g.pilotAbility.shortTitle
+            contentDescription="Sposobnost lika: "+g.pilotAbility.shortTitle+
+                ". "+g.pilotAbility.description
         },FrameLayout.LayoutParams(-1,d(29),Gravity.BOTTOM))
         panel.addView(artwork,LinearLayout.LayoutParams(-1,d(174)).apply{bottomMargin=d(5)})
         title(panel,headline,31,Color.WHITE)

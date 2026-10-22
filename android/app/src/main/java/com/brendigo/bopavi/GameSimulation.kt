@@ -166,9 +166,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         val previousY=y
         val previousTime=time
         time += dt; levelTransition = max(0f,levelTransition-dt); invulnerable = max(0f, invulnerable - dt); magnetTime = max(0f, magnetTime - dt); collectPulse = max(0f,collectPulse-dt); impactPulse = max(0f,impactPulse-dt); flapPulse = max(0f,flapPulse-dt)
-        // Every world shares the same tap impulse, terminal speed and 18px body;
-        // Sova's passive ability alone lowers gravity without changing hitboxes.
-        velocity = min(365f, velocity + (685f * gravityFactor + level.wind) * dt)
+        // Every world shares the same tap impulse and 18px body collider.
+        // Sova's 315-unit terminal descent gives distinct fall control without
+        // modifying collision radius or obscuring actual pillar positions.
+        velocity = min(pilotAbility.terminalFallSpeed,
+            velocity + (685f * gravityFactor + level.wind) * dt)
         y += velocity * dt
         // Old batches could change their speed by a visible jump at promotion.
         // Accelerate gently toward the next batch's target, using the same
