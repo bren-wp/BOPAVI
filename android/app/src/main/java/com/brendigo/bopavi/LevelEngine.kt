@@ -1,7 +1,6 @@
 package com.brendigo.bopavi
 
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sin
 
 /** Platform-independent gameplay rules. Every level is generated on demand. */
