@@ -28,10 +28,10 @@ for needle in (
 
 for needle in (
     'private var lastAccessibilityGuard = false',
-    'hudGlass(c,18f,75f,310f,104f)',
+    'hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)',
     'game.pilotAbility.hudStatus(game.pilotGuardReady)',
     'game.pilotAbility.hudTint(game.pilotGuardReady)',
-    'rect(c,20f,81f,24f,99f,powerTint,2f)',
+    'rect(c,20f,96f,24f,111f,powerTint,2f)',
     'game.pilotGuardReady!=lastAccessibilityGuard',
     'lastAccessibilityGuard=game.pilotGuardReady',
     'Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}',
