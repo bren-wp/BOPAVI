@@ -23,7 +23,7 @@ assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 assert "if(delay!=null) postInvalidateDelayed(delay) else postInvalidateOnAnimation()" in view
 assert "frameClock.tick(now,running=true)?.let { game.step(it) }" in view
 assert "val scale=min(width/480f,height/800f)" in view
-assert "hudGlass(c,317f,16f,462f,68f)" in view
+assert "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)" in view
 assert 'text(c,"ŽIVOTI"' in view
 assert "resultWorldDrawableIds[resultWorld]" in activity
 assert "LevelEngine.names[resultWorld]" in activity
