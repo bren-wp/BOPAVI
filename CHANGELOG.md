@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.20 — Better owl glide, clearer abilities and frame-rate QA (build 150)
+
+**Published:** 2026-10-22 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.20)
+
+- **Sova / real gameplay:** retains its 8% lower gravity and now caps downward velocity at 315 logical units/s instead of 365. This gives more reaction time under moving pillars during sustained falls, while preserving the same -255 tap impulse and 18px body collider as every other pilot. The change is bounded to the Sova pilot; all other physics remains unchanged.
+- **More readable character powers:** the native HUD ability chip now uses an accessible distinct high-contrast tint for each pilot. Lisac's one-use shield is clearly green while ready and red/pink after consumption, backed by its existing changing Croatian TalkBack status; a slim visual accent stays inside the existing HUD rectangle, left of native pause control.
+- **Pause and results:** a concise ability explanation appears in the native Pause dialog, and Results' accessibility description explains the selected pilot's advantage rather than only giving a generic ability name. The Home pilot cards likewise describe numerical characteristics (Bopi +6% speed, Sova less gravity/fall, Lisac one absorbed hit).
+- **Performance and compatibility:** no bitmap generation, network call, additional fragment, or new animation in the drawing loop. The HUD tint and status are inexpensive enum lookups. Existing saved scores, player choice, store/legal links and all three difficulty settings are unchanged; historic CLASSIC game instances keep 365-unit descent.
+- **Regression QA:** deterministic Kotlin/JVM checks verify actual sustained owl descent, equal collider and flap impulse, contrasting Fox shield states, and matching pilot movement after one second at 30, 60 and 120 Hz. The source contract guards native HUD and all screens; Android Lint, JVM tests, Android 15 gameplay/screenshots, Android 16 smoke, package integrity, privacy and dead-code audits remain mandatory.
+- **Limitations:** physical-device TalkBack comfort and subjective play balance should still be checked manually; passing GitHub CI does not constitute Google Play/F-Droid approval or official distribution.
+
 ## v1.0.19 — Three pilot powers, faster flights and tougher pillars (build 149)
 
 **Published:** 2026-10-22 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.19)
@@ -14,13 +25,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Accessibility and performance:** updated live flight TalkBack description includes the ability and its one-time status, with updates only when counters/lives/guard state change. Rendering reuses static labels and existing Paint/Canvas primitives, without allocating bitmaps on each frame. Reduced-motion and power-save options continue to work.
 - **Regression gates:** new Kotlin/JVM tests verify the three real skills, one-use collision shield, default compatibility, faster deterministic generation, corridor floors and bounded moving pillars. Expanded source and Android 15 emulator accessibility checks; existing Android Lint, JVM, native screenshots, API35/API36, source/privacy/dead-code and signed/unsigned release validation still gate merges.
 - **Scope:** no paid items, tracking, Internet permission, new SDK, unsafe shortcut collisions, imported-save migration or changes to the approved character/world artwork. Device-specific feel, manual TalkBack validation and F-Droid acceptance remain subject to separate checks.
-
-## v1.0.18 — Reliable accessible audio settings (build 148)
-
-**Published:** 2026-10-22 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.18)
-
-- **Settings reliability:** save music and sound-effect volumes when they are changed using Android keyboard, D-pad or accessibility actions. Previously only the touch-drag release saved a slider; a non-touch change could audibly take effect but be lost on reopening options.
-- **Low-write touch interaction:** during continuous touch movement, update the audio in real time but save only the final slider value when the finger lifts. Preserve the existing 0–100 values and deduplicate repeated identical saves.
-- **Compatibility:** retain `music_volume`, `effects_volume`, `music_last_audible_volume`, existing v6 JSON backup structure and local offline behavior. No migration or new permission.
-- **Tests:** add Android-free JVM policy tests for touch, keyboard/accessibility and programmatic initialization; source-level checks verify both SeekBar instances use the tested policy and preserve the persisted mixer settings. Existing comprehensive Android Lint/JVM and Android 15/16 emulator QA remain release gates.
-- **Unchanged:** game physics, score, collision, progression, pilots, world artwork, signing model and package identifier. F-Droid acceptance and physical TalkBack validation remain outside this release's automatic claims.
