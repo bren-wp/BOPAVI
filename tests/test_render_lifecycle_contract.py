@@ -14,7 +14,8 @@ assert "if(forest && n%3==0)" in render
 assert "path.lineTo(x+18f,row+18f);path.lineTo(x+34f,row+29f)" in render
 assert "fun courses(" not in view
 assert view.count("drawStoneCourses(c,x,")==2
-assert "if(!active) {" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
+assert "fill(if(active)0xffff6987.toInt() else 0x552c4b73)" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
+assert "p.strokeWidth=if(active)1.2f else 1.8f" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
 assert "p.style=Paint.Style.FILL" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
 assert 'ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert 'ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
