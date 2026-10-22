@@ -1136,7 +1136,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // A power indicator uses its own translucent lane left of the native
         // right-side pause button; it never covers the three primary HUD cards.
         hudGlass(c,18f,75f,310f,104f)
-        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,95f,12f,0xffffe7a1.toInt())
+        // Character-specific tint and a true ready/spent guard state are easy
+        // to distinguish without adding a new bitmap or moving the pause hitbox.
+        val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
+        rect(c,20f,81f,24f,99f,powerTint,2f)
+        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,95f,12f,powerTint)
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
             game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
             lastAccessibilityScore=score
