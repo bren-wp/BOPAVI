@@ -38,7 +38,7 @@ assert "if(musicVolume<=0f)" in audio.split("    fun resume() {",1)[1].split("  
 assert "if(value.isFinite()) value.coerceIn(0f,1f) else 0f" in policy
 assert "volume.isFinite() && volume>0f" in policy
 assert "sound.musicVolume=value/100f" in activity
-assert "progress.setMusicVolume(value)" in activity
+assert "progress.setMusicVolume(safe)" in activity
 for test in (
     "zeroVolumeIsRealMuteNotASilentFocusRequest",
     "focusIsOnlyNeededWhenAnAudibleActiveSessionWantsMusic",
