@@ -21,7 +21,7 @@ class FlightHudLayoutTest {
                 center+FlightHudLayout.heartHalfWidth,FlightHudLayout.heartBaseline+7f))
         }
         assertTrue(FlightHudLayout.ability.right<FlightHudLayout.pauseLaneStart)
-        assertTrue(FlightHudLayout.heartCenters.zipWithNext().all { (a,b) -> b-a>=30f })
+        assertTrue(FlightHudLayout.heartCenters.toList().zipWithNext().all { (a,b) -> b-a>=30f })
     }
 
     @Test fun onlyUpcomingMovingPillarsGetWarnings() {
