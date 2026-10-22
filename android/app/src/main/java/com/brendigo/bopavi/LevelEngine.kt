@@ -36,7 +36,7 @@ object LevelEngine {
         val type = if (phase % 60 == 59) 3 else if (phase % 30 == 29) 2 else if (phase % 15 == 14) 1 else 0
         val r = Random32((number.toUInt() * 0x9e3779b9u) xor ((world + 11).toUInt() * 0x85ebca6bu))
         val gap = max(168f, 205f - 5f * zone - world * 1.2f - (epoch % 7) * 0.7f + (if(type == 1) 8f else 0f))
-        val speed = min(212f, 140f + 8f * zone + world * 2f + (epoch % 6) * 1.4f + (if(type == 2) 5f else 0f))
+        val speed = FlightChallengePolicy.levelSpeed(zone,world,epoch,type)
         val count = 11 + (epoch % 4) + (if (type == 3) 1 else 0)
         val gates = ArrayList<Gate>(count)
         var last = 355f
@@ -52,16 +52,16 @@ object LevelEngine {
                 // A rhythm of tall/short pillars: the opening changes per obstacle,
                 // not by an almost invisible 0–3px. Intro gates stay forgiving.
                 // Gap >=164 before difficulty/movement; hard mode remains >=145.
-                gap = (gap + (r.next() - .5f) *
+                gap = FlightChallengePolicy.gateGap((gap + (r.next() - .5f) *
                     (if(i < 2) 12f else 42f + zone * 3f) +
                     (if(i % 5 == 0) 8f else 0f) +
                     // Alternate narrow/wide mouths once introductory gates finish.
                     // Both collision and renderer consume this same gate.gap.
-                    (if(i < 2) 0f else if(i % 2 == 0) 9f else -9f)).coerceAtLeast(164f),
+                    (if(i < 2) 0f else if(i % 2 == 0) 9f else -9f)).coerceAtLeast(164f),i,zone),
                 // Individual obstacle widths vary but retain enough traversal time.
                 // The exact gate width is also used by the physical collider.
                 width = 64f + ((i * 7 + number + world) % 4) * 9f,
-                movement = if (active) 7f + r.next() * 9f else 0f,
+                movement = FlightChallengePolicy.gateMovement(if(active) 7f + r.next() * 9f else 0f,i,zone),
                 phase = r.next() * 6.283185f,
                 kind = world, coin = i % 3 != 2 || type == 1,
                 star = i % 4 == 2 || type == 1,
