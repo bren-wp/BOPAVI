@@ -1133,7 +1133,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastAccessibilityScore=score
             lastAccessibilityFood=food
             lastAccessibilityLives=game.lives
-            lastHudAccessibility="${"BODOVI"}: $score; ${"Hrana"}: $food; Životi: ${game.lives}"
+            lastHudAccessibility="Dodirni za zamah krilima. Bodovi: $score; Hrana: $food; Životi: ${game.lives}"
             contentDescription=lastHudAccessibility
         }
     }

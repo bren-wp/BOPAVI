@@ -88,7 +88,9 @@ class MainActivity : Activity() {
     }
     override fun onResume() {
         super.onResume()
-        if(::sound.isInitialized && gameView?.game?.active == false && gameView?.paused == false) sound.resume()
+        if(::sound.isInitialized && selectedScreen=="game" &&
+            gameView?.game?.active == false && gameView?.game?.finished == false &&
+            gameView?.paused == false) sound.resume()
     }
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= 33) {
@@ -768,6 +770,9 @@ class MainActivity : Activity() {
         frame.requestApplyInsets()
     }
     private fun showResult(g:GameSimulation){
+        // Results are a static screen: release the looping decoder and music
+        // audio focus before the independently mixed finish sound effect.
+        sound.stop()
         val previousRecord=progress.bestPoints()
         val newRecord=g.score()>previousRecord && g.score()>0
         sound.effect(if(g.won)"level" else "hit")
