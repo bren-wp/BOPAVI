@@ -38,6 +38,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var lastHudAccessibility = ""
     private var lastAccessibilityScore = -1
     private var lastAccessibilityFood = -1
+    private var lastAccessibilityGuard = false
     private var cachedScore = -1
     private var cachedScoreLabel = "0"
     private var cachedFood = -1
@@ -1132,11 +1133,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 drawHudHeart(c,hx,54f,healthy)
             }
         }
-        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood || game.lives!=lastAccessibilityLives) {
+        // A power indicator uses its own translucent lane left of the native
+        // right-side pause button; it never covers the three primary HUD cards.
+        hudGlass(c,18f,75f,310f,104f)
+        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,95f,12f,0xffffe7a1.toInt())
+        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
+            game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
             lastAccessibilityScore=score
             lastAccessibilityFood=food
             lastAccessibilityLives=game.lives
-            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}"
+            lastAccessibilityGuard=game.pilotGuardReady
+            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}; Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"
             contentDescription=lastHudAccessibility
         }
     }

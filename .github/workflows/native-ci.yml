@@ -63,6 +63,7 @@ jobs:
           python tools/verify_audio.py
       - run: python tests/test_native_files.py
       - run: python tests/test_three_pilots.py
+      - run: python tests/test_pilot_abilities_contract.py
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_premium_cta_accessibility.py
       - run: python tests/test_quick_options.py

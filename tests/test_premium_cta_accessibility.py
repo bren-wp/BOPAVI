@@ -47,7 +47,7 @@ for stop in action_stops + pause_stops:
 assert 'private fun flightHint():String' in view
 assert '"Bopi leti. Dodirni za zamah krilima."' in view
 assert 'else "$pilotName leti. Dodirni za zamah krilima."' in view
-assert 'lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}"' in view
+assert 'lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}; Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"' in view
 assert "contentDescription=lastHudAccessibility.ifEmpty { flightHint() }" in view
 assert 'contentDescription=if(selectedSkin==0)"Bopi leti"' not in view
 
