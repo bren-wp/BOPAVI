@@ -207,6 +207,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             frameClock.reset()
             postInvalidateOnAnimation()
         }
+    private fun flightHint():String = if(selectedSkin==0)
+        "Bopi leti. Dodirni za zamah krilima."
+        else "$pilotName leti. Dodirni za zamah krilima."
     init {
         isClickable = true
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -1133,7 +1136,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastAccessibilityScore=score
             lastAccessibilityFood=food
             lastAccessibilityLives=game.lives
-            lastHudAccessibility="Dodirni za zamah krilima. Bodovi: $score; Hrana: $food; Životi: ${game.lives}"
+            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}"
             contentDescription=lastHudAccessibility
         }
     }
@@ -1181,7 +1184,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            contentDescription=if(selectedSkin==0)"Bopi leti" else pilotName+" leti"
+            // Never replace the full TalkBack controls/score label with only
+            // the pilot name after each tap; reuse the HUD snapshot instead.
+            contentDescription=lastHudAccessibility.ifEmpty { flightHint() }
             onFlap()
             invalidate()
         }
