@@ -23,8 +23,10 @@ assert 'progress.difficultyNames' in options and 'progress.setDifficulty(index)'
 assert 'progress.setSoundEnabled(enabled)' in options and 'sound.enabled=enabled' in options
 assert 'progress.setHapticEnabled(enabled)' in options
 assert 'progress.setLessMotion(enabled)' in options
-assert 'progress.setMusicVolume(value)' in options and 'sound.musicVolume=value/100f' in options
-assert 'progress.setEffectsVolume(value)' in options and 'sound.effectsVolume=value/100f' in options
+assert 'progress.setMusicVolume(safe)' in options and 'sound.musicVolume=value/100f' in options
+assert 'progress.setEffectsVolume(safe)' in options and 'sound.effectsVolume=value/100f' in options
+assert 'VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking)' in options
+assert 'bar?.progress?.let(::persistVolume)' in options
 assert 'onStopTrackingTouch(' in options and 'onProgressChanged(' in options
 assert 'progress.difficulty(),1L)' in play
 assert 'progress.totalRuns()' in records and 'progress.totalFlaps()' in records
