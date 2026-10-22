@@ -49,3 +49,12 @@ assert '"purchase":' not in (R/"tools/generate_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/verify_audio.py").read_text()
 assert '"purchase"' not in (R/"tools/audit_native_dead_code.py").read_text()
 
+
+# Results must not leave an audible or silent decoder looping under the static
+# results screen; SoundPool feedback must remain available after music stops.
+result=activity.split("    private fun showResult(g:GameSimulation){",1)[1].split("    override fun onBackPressed()",1)[0]
+assert result.index("sound.stop()") < result.index('sound.effect(if(g.won)"level" else "hit")')
+assert 'selectedScreen=="game" &&' in activity.split("    override fun onResume()",1)[1].split("    override fun onDestroy()",1)[0]
+assert "gameView?.game?.finished == false" in activity
+assert 'lastHudAccessibility="Dodirni za zamah krilima.' in game
+print("PASS: results audio focus teardown and accessible gameplay controls")
