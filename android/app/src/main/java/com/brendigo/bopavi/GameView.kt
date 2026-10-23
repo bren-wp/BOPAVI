@@ -45,6 +45,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var cachedFoodLabel = "0"
     private var cachedLives = -1
     private var cachedLivesLabel = "0/3"
+    // Event sampling uses the simulation's real heart/guard state, never a
+    // guessed collision flash; no new objects are allocated on quiet frames.
+    private val flightHudFeedback=FlightHudFeedback()
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -1179,6 +1182,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())
         rect(c,22f,119f,26f,135f,powerTint,2f)
         text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),33f,133f,13f,powerTint)
+        flightHudFeedback.update(game.lives,game.pilotGuardReady,game.time)?.let { notice ->
+            // Separate third row, away from hearts, score, power and the
+            // native Pause button. Static high-contrast cue: no flashing.
+            hudGlass(c,h.notice.left,h.notice.top,h.notice.right,h.notice.bottom)
+            rect(c,h.notice.left+5f,h.notice.top+8f,h.notice.left+9f,
+                h.notice.bottom-8f,notice.tint,2f)
+            text(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,13f,notice.tint)
+        }
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
             game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
             lastAccessibilityScore=score
