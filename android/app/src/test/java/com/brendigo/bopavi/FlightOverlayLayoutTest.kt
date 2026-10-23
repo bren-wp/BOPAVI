@@ -15,7 +15,8 @@ class FlightOverlayLayoutTest {
                 val layoutTop=FlightOverlayLayout.pauseTopPx(
                     widthPx,heightPx,density,safeTop)
                 val scale=min(widthPx/480f,heightPx/640f)
-                val cardBottom=safeTop+ceil(86f*scale).toInt()
+                val cardBottom=safeTop+
+                    ceil((FlightHudLayout.lives.bottom+4f)*scale).toInt()
                 assertTrue("The pause button may not overlap the lives HUD",
                     layoutTop>=cardBottom+(10*density).toInt())
                 assertTrue("Pause control must fit within the physical viewport",
@@ -31,4 +32,20 @@ class FlightOverlayLayoutTest {
             assertTrue(right>=safeRight.coerceAtLeast(0)+(10*3))
         }
     }
+    @Test fun compactAndSplitScreenWindowsUseActualLifeCardHeight() {
+        for(width in listOf(320,360,540,900)) {
+            for(height in listOf(300,420,640,960)) {
+                val density=2.25f
+                val w=(width*density).toInt()
+                val h=(height*density).toInt()
+                val scale=min(w/480f,h/640f)
+                val hudBottom=ceil((FlightHudLayout.lives.bottom+4f)*scale).toInt()
+                val pauseTop=FlightOverlayLayout.pauseTopPx(w,h,density,0)
+                assertTrue(pauseTop>=hudBottom+(12*density+.5f).toInt())
+                assertTrue("Pause must remain visible on realistic resized windows",
+                    pauseTop+(56*density).toInt()<=h)
+            }
+        }
+    }
+
 }

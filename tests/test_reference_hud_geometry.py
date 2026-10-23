@@ -20,13 +20,16 @@ for required in (
     "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
     "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
     "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
-    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f)',
+    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,',
     'text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())',
     "drawHudNumber(c,cachedScoreLabel",
     "drawHudNumber(c,cachedFoodLabel",
 ):
     assert required in a_hud,required
 assert "p.measureText(value)" in a
+assert "FlightHudReadability.fontSize(measured,maxWidth)" in a
+assert "FlightHudReadability.horizontalScale(" in a
+assert "p.textScaleX=1f" in a
 assert "p.textAlign=Paint.Align.RIGHT" in a
 assert "h.lifeCountRight" in a_hud
 assert "if(game.lives!=cachedLives)" in a

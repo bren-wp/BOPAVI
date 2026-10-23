@@ -17,7 +17,7 @@ for name in (
     "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
     "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
     'text(c,"ŽIVOTI",300f,38f,12f',
-    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f)',
+    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,',
     "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
     'text(c,"MOĆ",31f,110f,12f',
     "p.measureText(value)",
