@@ -76,6 +76,7 @@ jobs:
       - run: python tests/test_reference_hud_geometry.py
       - run: python tests/test_flight_hud_layout_contract.py
       - run: python tests/test_hud_readability_contract.py
+      - run: python tests/test_flight_life_feedback_contract.py
       - run: python tests/test_physics_visual_contract.py
       - run: python tests/test_reference_flight_left_rail.py
       - run: python tests/test_reference_bopi_import.py
