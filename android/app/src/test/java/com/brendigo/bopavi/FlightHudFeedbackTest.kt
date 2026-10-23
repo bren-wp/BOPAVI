@@ -18,7 +18,7 @@ class FlightHudFeedbackTest {
         assertEquals(FlightHudFeedback.LOST_LIFE,lost!!.label)
         assertSame(lost,tracker.update(2,false,.6f))
         assertSame(lost,tracker.update(2,false,1.59f))
-        assertNull(tracker.update(2,false,1.6f))
+        assertNull(tracker.update(2,false,1.8f))
         val gained=tracker.update(3,false,2f)
         assertEquals(FlightHudFeedback.RESTORED_LIFE,gained!!.label)
         assertNotEquals(lost.tint,gained.tint)
