@@ -1104,8 +1104,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
-    private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float){
-        fill(0xffffdce5.toInt())
+    private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float,color:Int){
+        fill(color)
         p.typeface=headerTypeface
         p.textSize=12f
         p.textAlign=Paint.Align.RIGHT
@@ -1119,10 +1119,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.typeface=headerTypeface
         p.textAlign=Paint.Align.LEFT
         p.textSize=23f
+        p.textScaleX=1f
         val measured=p.measureText(value)
-        if(measured>maxWidth && measured>0f)
-            p.textSize=(23f*maxWidth/measured).coerceAtLeast(11f)
+        p.textSize=FlightHudReadability.fontSize(measured,maxWidth)
+        p.textScaleX=FlightHudReadability.horizontalScale(
+            measured,maxWidth,p.textSize)
         c.drawText(value,x,baseline,p)
+        // Shared Paint must not squeeze the next heading or life counter.
+        p.textScaleX=1f
     }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
@@ -1163,7 +1167,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(game.endless) {
             hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
             text(c,"ŽIVOTI",300f,38f,12f,0xffd4f4ff.toInt())
-            drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f)
+            drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,
+                FlightHudReadability.lifeCountColor(game.lives,game.maxLives))
             for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
                 drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)
             }
@@ -1180,7 +1185,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastAccessibilityFood=food
             lastAccessibilityLives=game.lives
             lastAccessibilityGuard=game.pilotGuardReady
-            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}; Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"
+            val lifeNotice=if(FlightHudReadability.isFinalLife(game.lives,game.maxLives))
+                " Posljednji život." else ""
+            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}.$lifeNotice Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"
             contentDescription=lastHudAccessibility
         }
     }
