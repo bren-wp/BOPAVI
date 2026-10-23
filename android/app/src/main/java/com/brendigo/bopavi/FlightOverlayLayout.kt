@@ -22,7 +22,8 @@ internal object FlightOverlayLayout {
         val hudScale=min(w/480f,h/640f)
         // onDraw translates HUD by safeTop+4*scale. The taller top cards end
         // at y=82, so the real Pause button must start below y=(82+4)*scale.
-        val hudBottom=safeTopPx.coerceAtLeast(0)+ceil(86f*hudScale).toInt()
+        val hudBottom=safeTopPx.coerceAtLeast(0)+
+            ceil((FlightHudLayout.lives.bottom+4f)*hudScale).toInt()
         return max(dp(24f,density),hudBottom+dp(12f,density))
     }
 
