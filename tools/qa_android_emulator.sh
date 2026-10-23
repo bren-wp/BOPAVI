@@ -390,8 +390,20 @@ m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",pause[0].get("bounds",""))
 assert m,"FAIL: native pause bounds invalid"
 left,top,right,bottom=map(int,m.groups())
 width,height=map(int,sys.argv[2:4])
-hud_bottom=math.ceil(72*min(width/480,height/640))
-assert top>=hud_bottom,(f"FAIL: pause tap target overlaps lives HUD at y={top}, HUD bottom={hud_bottom}")
+# Read the real active GameView bounds, not the old 72px HUD height.
+# HUD cards end at 82 logical units, with 4 units of canvas translation.
+# Account for split-screen and letterboxing; don't use the raw display width
+# when the actual GameView is smaller.
+flight=[n for n in nodes if n.get("class")=="android.view.View" and
+        "BODOVI:" in labels(n) and "MOĆ:" in labels(n)]
+assert len(flight)==1,"FAIL: active GameView accessibility node missing"
+game_match=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+    flight[0].get("bounds",""))
+assert game_match,"FAIL: active GameView bounds invalid"
+vx,vy,vr,vb=map(int,game_match.groups())
+scale=min((vr-vx)/480,(vb-vy)/640)
+hud_bottom=vy+math.ceil(86*scale)
+assert top>=hud_bottom,(f"FAIL: pause tap target overlaps current lives HUD at y={top}, actual HUD bottom={hud_bottom}")
 assert 0<=left<right<=width and top<bottom<=height,"FAIL: pause control is clipped"
 PY
 capture android-gameplay-active
