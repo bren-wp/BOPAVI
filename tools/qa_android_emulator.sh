@@ -403,7 +403,7 @@ vx,vy,vr,vb=map(int,game_match.groups())
 scale=min((vr-vx)/480,(vb-vy)/640)
 from pathlib import Path
 layout=Path("android/app/src/main/java/com/brendigo/bopavi/FlightHudLayout.kt").read_text()
-card=re.search(r"val lives = FlightHudBox\\([0-9.]+f,[0-9.]+f,[0-9.]+f,([0-9.]+)f\\)",layout)
+card=re.search(r"val lives = FlightHudBox[(][0-9.]+f,[0-9.]+f,[0-9.]+f,([0-9.]+)f[)]",layout)
 assert card,"FAIL: native lives HUD geometry source missing"
 hud_bottom=vy+math.ceil((float(card.group(1))+4)*scale)
 assert top>=hud_bottom,(f"FAIL: pause tap target overlaps current lives HUD at y={top}, actual HUD bottom={hud_bottom}")
