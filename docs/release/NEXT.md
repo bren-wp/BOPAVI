@@ -1,4 +1,10 @@
 # Next Android release
 
-No unreleased changes are staged.
-Increase the Android versionName/versionCode and review a new NEXT.md entry before publishing another release.
+## v1.0.24 — Truthful heart and shield feedback (build 154)
+
+- **Instant, understandable feedback:** a compact, high-contrast third-row notice appears for 1.1 seconds after a real life loss (`−1 ŽIVOT`), collected life (`+1 ŽIVOT`), or Lisac's actual one-shot pilot guard use (`ŠTIT POTROŠEN`). The source is the GameSimulation's own live lives/guard, not generic damage effects, speculative pickups or animation clocks.
+- **Correct semantics and quiet rendering:** baseline 3/3 lives never produces a fake event; repeated collision frames and temporary invulnerability do not spam events. An absorbed Lisac hit does not claim a lost heart. One object is allocated per meaningful event, none during ordinary 30/60/90/120Hz frames. The notice expires on simulation time, so pausing naturally freezes it, without flashing, blinking or motion dependence.
+- **Layout safety:** the notice lives in a separate left-aligned 480×800 logical region (18–275, 149–184), below the power indicator and clear of the native right-side Pause button. Existing top score/food/lives card spacing, pilot display and 56dp accessible pause hit target are unchanged. Geometry regression tests validate no overlaps.
+- **Stronger Android UI checks:** the emulator Pause overlap test reads the current Kotlin life-card bottom directly instead of hardcoding an old or future 72/86-unit threshold. It measures the actual active GameView UI bounds; a source-level regression test protects the contract.
+- **Testing:** new pure Kotlin tests validate the real life/guard state machine, event lifetime, once-only behavior across 30, 60 and 120Hz and invalid simulation times. Source-contract audit checks the native GameView integration. Full privacy/source audit, Gradle Lint/JVM, API35 actual gameplay and screenshot, API36 smoke, APK/AAB integrity, public checksums and release verification remain required.
+- **Scope:** no changes to physics, collisions, scoring, health recovery rates, lifetimes, player powers, game art, offline behavior, saved progress, permissions or application ID. Physical-device accessibility checks, Google Play review and F-Droid publication are not implied by passing CI.
