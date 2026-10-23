@@ -6,7 +6,8 @@ import org.junit.Test
 class FlightHudLayoutTest {
     @Test fun lifeHeartsNeverOverlapScoreFoodOrAbility() {
         val regions=listOf(FlightHudLayout.score,FlightHudLayout.food,
-            FlightHudLayout.lives,FlightHudLayout.ability)
+            FlightHudLayout.lives,FlightHudLayout.ability,
+            FlightHudLayout.notice)
         for((i,box) in regions.withIndex()) {
             assertTrue("Positive HUD area $i",box.left<box.right && box.top<box.bottom)
             assertTrue("HUD stays inside logical viewport $i",
@@ -41,6 +42,9 @@ class FlightHudLayoutTest {
         assertTrue(hud.heartBaseline+7f<=hud.lives.bottom-6f)
         assertTrue(hud.ability.right<=hud.pauseLaneStart-24f)
         assertTrue(hud.ability.top>hud.score.bottom)
+        assertTrue(hud.notice.top>=hud.ability.bottom+8f)
+        assertTrue(hud.notice.right<=hud.ability.right)
+        assertTrue(hud.notice.right<=hud.pauseLaneStart-24f)
     }
 
     @Test fun onlyUpcomingMovingPillarsGetWarnings() {

@@ -26,6 +26,8 @@ internal object FlightHudLayout {
     // Power info is intentionally below the score and fruit, never beneath
     // the native Pause control on the right.
     val ability = FlightHudBox(18f,91f,340f,140f)
+    // Short-lived, nonblinking in-flight feedback below the real power row.
+    val notice = FlightHudBox(18f,149f,275f,184f)
     // Wider, centred hearts have a dedicated lower lane. The count sits on
     // the header lane, right-aligned with ample interior padding.
     val heartCenters = floatArrayOf(320f,373f,426f)

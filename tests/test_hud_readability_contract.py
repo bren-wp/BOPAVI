@@ -25,7 +25,8 @@ for required in (
 ):
     assert required in view,required
 assert 'ceil((FlightHudLayout.lives.bottom+4f)*hudScale).toInt()' in layout
-assert 'hud_bottom=vy+math.ceil(86*scale)' in emulator
+assert 'card=re.search(r"val lives = FlightHudBox[(]' in emulator
+assert 'hud_bottom=vy+math.ceil((float(card.group(1))+4)*scale)' in emulator
 assert 'hud_bottom=math.ceil(72*min(' not in emulator
 assert 'flight[0].get("bounds","")' in emulator
 for name in ("overflowAlwaysFitsWithoutRemovingAnyDigits",
