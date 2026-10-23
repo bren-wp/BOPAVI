@@ -1104,6 +1104,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
         rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
     }
+    private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float){
+        fill(0xffffdce5.toInt())
+        p.typeface=headerTypeface
+        p.textSize=12f
+        p.textAlign=Paint.Align.RIGHT
+        c.drawText(value,right,baseline,p)
+        p.textAlign=Paint.Align.LEFT
+    }
     private fun drawHudNumber(c:Canvas,value:String,x:Float,baseline:Float,maxWidth:Float){
         // Measure the actual glyphs, not their digits, to keep long marathon
         // totals inside the allotted card even with bold fonts or font scaling.
@@ -1146,16 +1154,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // shared with JVM tests and never affects pillar collision.
         val h=FlightHudLayout
         hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)
-        text(c,"BODOVI",30f,36f,11f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedScoreLabel,30f,60f,h.score.right-38f)
+        text(c,"BODOVI",30f,38f,12f,0xffd4f4ff.toInt())
+        drawHudNumber(c,cachedScoreLabel,30f,72f,h.score.right-44f)
         hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)
-        drawBerry(c,190f,45f,8f)
-        text(c,"HRANA",209f,36f,11f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedFoodLabel,209f,60f,h.food.right-218f)
+        drawBerry(c,170f,53f,8f)
+        text(c,"HRANA",188f,38f,12f,0xffd4f4ff.toInt())
+        drawHudNumber(c,cachedFoodLabel,188f,72f,h.food.right-199f)
         if(game.endless) {
             hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
-            text(c,"ŽIVOTI",316f,35f,11f,0xffd4f4ff.toInt())
-            text(c,cachedLivesLabel,436f,35f,11f,0xffffdce5.toInt())
+            text(c,"ŽIVOTI",300f,38f,12f,0xffd4f4ff.toInt())
+            drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f)
             for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
                 drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)
             }
@@ -1163,9 +1171,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // The entire second-row indicator remains left of the native pause.
         hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)
         val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
-        text(c,"MOĆ",30f,91f,10f,0xffd4f4ff.toInt())
-        rect(c,20f,96f,24f,111f,powerTint,2f)
-        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),30f,110f,12f,powerTint)
+        text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())
+        rect(c,22f,119f,26f,135f,powerTint,2f)
+        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),33f,133f,13f,powerTint)
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
             game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
             lastAccessibilityScore=score
