@@ -18,15 +18,21 @@ internal data class FlightHudBox(
 }
 
 internal object FlightHudLayout {
-    val score = FlightHudBox(18f,16f,165f,68f)
-    val food = FlightHudBox(172f,16f,297f,68f)
-    val lives = FlightHudBox(304f,16f,462f,68f)
+    // Give the life meter the most width: its hearts must remain readable
+    // even on narrow screens. The three cards share one top/bottom baseline.
+    val score = FlightHudBox(18f,16f,146f,82f)
+    val food = FlightHudBox(154f,16f,276f,82f)
+    val lives = FlightHudBox(284f,16f,462f,82f)
     // Power info is intentionally below the score and fruit, never beneath
     // the native Pause control on the right.
-    val ability = FlightHudBox(18f,75f,310f,119f)
-    val heartCenters = floatArrayOf(326f,370f,414f)
+    val ability = FlightHudBox(18f,91f,340f,140f)
+    // Wider, centred hearts have a dedicated lower lane. The count sits on
+    // the header lane, right-aligned with ample interior padding.
+    val heartCenters = floatArrayOf(320f,373f,426f)
     const val heartHalfWidth = 12f
-    const val heartBaseline = 54f
+    const val heartBaseline = 69f
+    const val lifeCountRight = 445f
+    const val heartHeaderClearance = 12f
     const val pauseLaneStart = 366f
 
     fun movingWarningVisible(movement:Float,x:Float,birdX:Float):Boolean =

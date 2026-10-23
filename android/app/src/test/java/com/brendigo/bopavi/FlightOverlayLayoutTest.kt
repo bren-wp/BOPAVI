@@ -15,7 +15,7 @@ class FlightOverlayLayoutTest {
                 val layoutTop=FlightOverlayLayout.pauseTopPx(
                     widthPx,heightPx,density,safeTop)
                 val scale=min(widthPx/480f,heightPx/640f)
-                val cardBottom=safeTop+ceil(72f*scale).toInt()
+                val cardBottom=safeTop+ceil(86f*scale).toInt()
                 assertTrue("The pause button may not overlap the lives HUD",
                     layoutTop>=cardBottom+(10*density).toInt())
                 assertTrue("Pause control must fit within the physical viewport",

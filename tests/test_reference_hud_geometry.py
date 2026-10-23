@@ -20,12 +20,14 @@ for required in (
     "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
     "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
     "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
-    'text(c,cachedLivesLabel,436f,35f,11f,0xffffdce5.toInt())',
-    'text(c,"MOĆ",30f,91f,10f,0xffd4f4ff.toInt())',
+    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f)',
+    'text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())',
     "drawHudNumber(c,cachedScoreLabel",
     "drawHudNumber(c,cachedFoodLabel",
 ):
     assert required in a_hud,required
 assert "p.measureText(value)" in a
+assert "p.textAlign=Paint.Align.RIGHT" in a
+assert "h.lifeCountRight" in a_hud
 assert "if(game.lives!=cachedLives)" in a
 print("PASS: shared score, food, outlined hearts and power geometry, bounded large totals")
