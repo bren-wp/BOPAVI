@@ -16,7 +16,8 @@ SCREENSHOTS = {
     "BOPAVI-Android-Home.png": "01-home.png",
     "BOPAVI-Android-Flight-Preview.png": "02-flight-preview.png",
     "BOPAVI-Android-Flight-Active.png": "03-flight-active.png",
-    "BOPAVI-Android-Results.png": "04-results.png",
+    "BOPAVI-Android-Pause.png": "04-pause.png",
+    "BOPAVI-Android-Results.png": "05-results.png",
 }
 LOCALE = "fastlane/metadata/android/hr-HR"
 

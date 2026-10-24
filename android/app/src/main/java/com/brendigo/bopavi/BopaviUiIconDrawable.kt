@@ -140,11 +140,16 @@ internal class BopaviUiIconDrawable(
                 paint.style = Paint.Style.FILL
                 canvas.drawCircle(8.5f, 14f, 5f, paint)
                 canvas.drawCircle(15.5f, 14f, 5f, paint)
-                path.moveTo(12f, 10f)
-                path.quadTo(12f, 5f, 15f, 4f)
+                // The fruit is the requested red ink; foliage must stay
+                // green, otherwise a strawberry reads as an abstract red blob.
+                // Honour Drawable alpha and any host-provided ColorFilter.
+                paint.color = Color.argb(requestedAlpha, 76, 211, 137)
+                paint.strokeWidth = 1.9f
+                canvas.drawLine(12f, 10f, 13f, 5f, paint)
                 path.moveTo(13f, 7f)
                 path.quadTo(18f, 2f, 20f, 6f)
                 path.quadTo(19f, 9f, 13f, 7f)
+                path.close()
                 canvas.drawPath(path, paint)
             }
         }

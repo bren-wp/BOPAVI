@@ -60,7 +60,8 @@ sources = [
     ("android-home.png", "01-home.png"),
     ("android-gameplay-ready.png", "02-flight-preview.png"),
     ("android-gameplay-active.png", "03-flight-active.png"),
-    ("android-result.png", "04-loss-result.png"),
+    ("android-pause.png", "04-pause.png"),
+    ("android-result.png", "05-loss-result.png"),
 ]
 for source, dest in sources:
     path = args.screenshots / source
@@ -86,8 +87,8 @@ for source, dest in sources:
     f"BOPAVI Google Play listing kit (v{version})\n"
     "play-icon-512.png: original BOPAVI app icon, RGB 512x512.\n"
     "feature-graphic-1024x500.png: original BOPAVI art and logo, RGB 1024x500.\n"
-    "01-04: REAL Android emulator screenshots, cropped to 9:16 without creating UI.\n"
-    "02-flight-preview shows IDLE game before first flap. 03 is a real active flight.\n"
+    "01-05: REAL Android emulator screenshots, cropped to 9:16 without creating UI.\n"
+    "02-flight-preview shows IDLE game before first flap. 03 is a real active flight; 04 is the actual Pause dialog.\n"
     "For Google Play games recommendations, capture at least 3 real ACTIVE\n"
     "gameplay shots on Android phones in addition to this starter kit.\n"
     "Verify images, cropped controls, safe areas and representation before publishing.\n",

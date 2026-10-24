@@ -617,8 +617,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                                shadow:Int,stone:Int,seed:Int) {
         if(end-start<6f)return
         val span=end-start
-        // Consistently broad 76-unit shafts: edge fractures never narrow
-        // the visible rock to less than 60 units. Preserve the cap collision.
+        // Variable-width shafts: keep every fracture inside the true physical
+        // body; the 54-unit minimum must not inherit an old 76-unit edge.
         val steps=6
         path.reset()
         for(i in 0..steps) {
@@ -664,13 +664,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /**
      * Continuous rock shoulders visibly attach each procedural obstacle to
      * the TOP or BOTTOM of the flight camera. Unlike floating decorative
-     * sprites, every point stays inside the existing x-7..x+width+5 cap
-     * collider and >36px away from the traversable opening.
+     * sprites, distant roots must stay within the x..x+width shaft hitbox.
+     * Only lip bands project sideways (x-7..x+width+5) and have a matching
+     * physical rounded-cap collider; no decorative phantom obstacles.
      * No bitmap allocations or per-frame state.
      */
     private fun drawRootedCliffBases(c:Canvas,x:Float,w:Float,top:Float,bottom:Float,
                                      seed:Int,shadow:Int,stone:Int){
-        val left=x-6f; val right=x+w+4f
+        val left=x; val right=x+w
         val upperEnd=(top-38f).coerceAtMost(172f).coerceAtLeast(0f)
         if(upperEnd>8f){
             path.reset()
@@ -710,9 +711,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(stone);p.alpha=205;c.drawPath(path,p);p.alpha=255
         }
     }
-    /** Biome-colored fissure planes keep all 76-unit pillars visually massive.
+    /** Biome-colored fissure planes keep variable-width pillars visually substantial.
      * Seeded from each gate's phase: no randomness or bitmap work per frame.
-     * This overlay remains inside the solid 76-unit collision shaft; the
+     * This overlay remains inside each actual pillar collision shaft; the
      * opening, bird collider and cap faces are strictly unchanged.
      */
     private fun drawRockStrata(c:Canvas,x:Float,w:Float,start:Float,end:Float,
