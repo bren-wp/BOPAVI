@@ -7,6 +7,7 @@
 - **Home and Results UI:** unified viewport padding for real system bars, gesture navigation and camera cutouts across Android API 26–36 (including the legacy insets path), while background art stays edge-to-edge.
 - **Native pictograms:** give the fruit score icon a separately green stem and leaf over red fruit instead of a monochrome red blob.
 - **App launcher:** make Bopi's authentic approved portrait slightly larger on legacy square launchers, without modifying its pixel content or changing the certified adaptive/themed launcher foreground safe size and original silhouette.
+- **All-screen proof:** Android 15 CI now taps the real Pause button, checks `NASTAVI`, `PONOVO`, and `IZLAZ`, captures a distinct genuine Pause screen, resumes the same flight and then tests its final Results/Retry flow. The new Pause PNG joins the GitHub release and five-image Play/F-Droid submission kits, with SHA-256 verification.
 - **CI and documentation:** add regression guards for rooted shaft visual geometry, cap-only collision shoulders, all six pillar widths, adaptive-icon provenance, legacy icon sizing and Android inset handling. Existing full static/security/audio/art audits, JVM tests and Android 15/16 emulator QA remain mandatory.
 
 No app identity, save-data, physics, networking, tracking, billing or signing-policy changes. Android release APK and AAB distributed by GitHub remain unsigned; the debug APK is for direct installation and testing.
