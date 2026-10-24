@@ -36,6 +36,14 @@ internal object FlightHudLayout {
     const val lifeCountRight = 445f
     const val heartHeaderClearance = 12f
     const val pauseLaneStart = 366f
+    // Power pictogram and bounded status share the lower HUD row.
+    // These anchors leave room for readable text without encroaching on Pause.
+    const val powerIconCenterX = 43f
+    const val powerIconCenterY = 125f
+    const val powerIconRadius = 11f
+    const val powerTextLeft = 62f
+    const val hudTextRightInset = 12f
+
 
     fun movingWarningVisible(movement:Float,x:Float,birdX:Float):Boolean =
         movement>0f && x>=birdX+48f && x<=480f
