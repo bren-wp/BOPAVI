@@ -287,10 +287,11 @@ if photo_bopi:
     themed.putalpha(foreground.getchannel('A'))
     themed.resize((512,512),Image.Resampling.LANCZOS).save(
         a/'drawable/app_icon_monochrome.png',optimize=True)
-    # Distinctly larger approved art in the full-bleed fallback icon.
+    # Enlarge approved art in legacy square launchers without changing its pixels.
+    # Keep adaptive foreground mask-safe and byte-identical to the approved reference.
     # The OS adaptive version remains inset enough for circular launchers.
     legacy_layer=Image.new('RGBA',(1024,1024),(0,0,0,0))
-    legacy_mascot=ImageOps.contain(mascot,(865,865),method=Image.Resampling.LANCZOS)
+    legacy_mascot=ImageOps.contain(mascot,(905,905),method=Image.Resampling.LANCZOS)
     legacy_layer.alpha_composite(legacy_mascot,((1024-legacy_mascot.width)//2,
                                                (1024-legacy_mascot.height)//2))
     Image.alpha_composite(background,legacy_layer).convert('RGB').resize(
