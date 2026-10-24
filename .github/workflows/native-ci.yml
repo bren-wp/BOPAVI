@@ -396,6 +396,7 @@ jobs:
               'dist/real-screenshots/android/android-home.png':'BOPAVI-Android-Home.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
               'dist/real-screenshots/android/android-gameplay-active.png':'BOPAVI-Android-Flight-Active.png',
+              'dist/real-screenshots/android/android-pause.png':'BOPAVI-Android-Pause.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png'
           }
           for src, dest in captures.items():
@@ -421,6 +422,10 @@ jobs:
           if sha256(ready.read_bytes()).digest()==sha256(active.read_bytes()).digest():
               raise SystemExit('Active gameplay screenshot is identical to idle flight; release blocked')
           print('PASS: distinct actual preflight and active flight PNG frames')
+          paused=Path('dist/BOPAVI-Android-Pause.png')
+          if sha256(paused.read_bytes()).digest()==sha256(active.read_bytes()).digest():
+              raise SystemExit('Pause screenshot is identical to unpaused gameplay; release blocked')
+          print('PASS: real Pause overlay is visually distinct from active gameplay')
           results=Path('dist/BOPAVI-Android-Results.png')
           for earlier in (ready,active):
               if sha256(results.read_bytes()).digest()==sha256(earlier.read_bytes()).digest():
@@ -455,8 +460,9 @@ jobs:
             BOPAVI-Android-Home.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
+            BOPAVI-Android-Pause.png \
             BOPAVI-Android-Results.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 9
+          test "$(wc -l < SHA256SUMS.txt)" -eq 10
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -476,13 +482,13 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab app-release-unsigned.apk "BOPAVI-FDroid-submission-${tag}.zip" "$BOPAVI_PLAY_ARCHIVE" BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Results.png SHA256SUMS.txt; do
+            for file in app-debug.apk app-release.aab app-release-unsigned.apk "BOPAVI-FDroid-submission-${tag}.zip" "$BOPAVI_PLAY_ARCHIVE" BOPAVI-Android-Home.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Pause.png BOPAVI-Android-Results.png SHA256SUMS.txt; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
               fi
             done
-            echo "Verified previous publication of $tag at the tested commit with all ten Android distribution artifacts."
+            echo "Verified previous publication of $tag at the tested commit with all eleven Android distribution artifacts."
             exit 0
           fi
           python tools/release_notes.py > dist/release-notes.md
@@ -495,6 +501,7 @@ jobs:
             dist/BOPAVI-Android-Home.png \
             dist/BOPAVI-Android-Flight-Preview.png \
             dist/BOPAVI-Android-Flight-Active.png \
+            dist/BOPAVI-Android-Pause.png \
             dist/BOPAVI-Android-Results.png \
             dist/SHA256SUMS.txt \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
