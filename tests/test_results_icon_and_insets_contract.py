@@ -14,8 +14,10 @@ assert "setImageDrawable(uiIcon(iconKind,iconTint,29))" in start
 assert 'resultCard("REZULTAT",BopaviUiIconDrawable.Kind.STAR,gold' in start
 assert 'resultCard("HRANA",BopaviUiIconDrawable.Kind.BERRY,0xffff6179.toInt()' in start
 assert 'if(icon=="🍓")' not in start
-assert 'or android.view.WindowInsets.Type.displayCutout())' in start
-assert 'view.setPadding(bars.left,bars.top,bars.right,bars.bottom)' in start
+assert 'applySafeViewportInsets(view,insets)' in start
+assert 'or android.view.WindowInsets.Type.displayCutout())' in source
+assert 'view.setPadding(bars.left,bars.top,bars.right,bars.bottom)' in source
+assert 'cutout?.safeInsetTop ?: 0' in source
 assert 'fitted.requestApplyInsets()' in start
 assert 'contentDescription=caption' in back
 print("PASS: results use stable semantic pictograms, berry red, safe cutout, dynamic back label")
