@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.28 — Results icon fidelity and device-safe UI (build 158)
+
+**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.28)
+
+- **Result cards:** fruit counts render a native red berry pictogram (not the gold trophy colour); score keeps a separate native gold star. Pictogram type and tint are provided directly, without guessing from an emoji string.
+- **Navigation accessibility:** native return-home button speaks its actual displayed caption rather than an unrelated fixed description.
+- **Full-bleed Android 15/16:** Result screen reserves both system bar and display cutout insets, consistent with the Home viewport. Request an initial inset dispatch immediately after attaching the native view. Preserve full-bleed background artwork.
+- **Safety:** preserve the original Bopi launcher icon, 3 pilot portraits, actual game physics, saved data, offline privacy and native Pause controls.
+- **QA:** source-contract regression test for result pictogram semantics and safe inset handling, complete Android lint/unit/build, Android 15 and Android 16 emulator QA and artifact checksums.
+
 ## v1.0.27 — Responsive touch targets, consistent iconography and Bopi themed launcher (build 157)
 
 **Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.27)
@@ -13,13 +23,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Original launcher art:** retain the owner-approved Bopi portrait unchanged for the colour adaptive launcher and legacy icon. Add Android 13+ themed monochrome icon **derived exclusively from its alpha mask**; no stock/vector impostor of the mascot.
 - **Regression gates:** source UI contract, approved original mascot pixel-integrity check, compiler/Android lint, JVM tests and Android 15/16 emulator QA. The home responsive smoke checks Play, Options, Records, both legal links and all three pilot card hit targets at two display/density sizes.
 - **Compatibility:** original package name `com.brendigo.bopavi`, offline gameplay and historical local save keys stay unchanged. Distribution remains debug APK plus **unsigned** release APK/AAB, Google Play and F-Droid preparation assets and SHA256SUMS.
-
-## v1.0.26 — Distinct pilot power icons and adaptive HUD labels (build 156)
-
-**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.26)
-
-- **Recognizable powers in flight:** original BOPAVI native HUD gains a small speed lightning bolt for Bopi, a feather for Sova and an outlined one-use shield for Lisac. The shield shows a check mark while charged and a strike when spent. These icons are painted using the existing Canvas Path and Paint, without any downloaded images, new SDKs or per-frame bitmap allocations.
-- **More readable ability card:** the ability label uses the real available space between the icon and card's padded right edge. A measurable 15-unit preferred font shrinks only when the actual text cannot fit; a horizontal-scale fallback preserves the complete Croatian name, including longer states such as `LISAC · ŠTIT POTROŠEN`.
-- **Better event readability:** lost/gained life and consumed-shield notice captions use the same measured, bounded typographic policy; card placement, notices and native Pause hit target remain unchanged.
-- **Regression safety:** pure Kotlin tests validate caption fitting, invalid measurements, pictogram geometry and separation from the status label. A Python source contract enforces the real renderer wiring; Android visual emulator QA, Android 16 smoke tests and Gradle unit/lint remain release gates.
-- **Backward-compatible, offline:** no change to `applicationId`, game rules, character physics, saved progress, screen navigation, advertising/tracking policy or the approved Bopi launcher icon. Unchanged GitHub distribution model: debug APK and unsigned release APK/AAB; publisher-held signing is not configured in this repository.
