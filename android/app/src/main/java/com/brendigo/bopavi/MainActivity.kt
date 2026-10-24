@@ -60,6 +60,30 @@ class MainActivity : Activity() {
         button.contentDescription=if(resume)"Nastavi ili izađi iz pauze"
             else "Pauziraj igru"
     }
+    /** One inset policy for Home and Results on every supported API (26–36).
+     * The illustrated background remains edge-to-edge, while controls are
+     * padded away from navigation gestures and physical display cutouts.
+     * Older Android versions do not have WindowInsets.Type; they must not
+     * silently fall back to zero padding on compact/notched devices.
+     */
+    @Suppress("DEPRECATION")
+    private fun applySafeViewportInsets(view:View,insets:android.view.WindowInsets):android.view.WindowInsets {
+        if(Build.VERSION.SDK_INT>=30) {
+            val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                or android.view.WindowInsets.Type.displayCutout())
+            view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
+        } else {
+            val cutout=if(Build.VERSION.SDK_INT>=28)insets.displayCutout else null
+            view.setPadding(
+                maxOf(insets.systemWindowInsetLeft,cutout?.safeInsetLeft ?: 0),
+                maxOf(insets.systemWindowInsetTop,cutout?.safeInsetTop ?: 0),
+                maxOf(insets.systemWindowInsetRight,cutout?.safeInsetRight ?: 0),
+                maxOf(insets.systemWindowInsetBottom,cutout?.safeInsetBottom ?: 0)
+            )
+        }
+        return insets
+    }
+
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
@@ -648,12 +672,7 @@ class MainActivity : Activity() {
         content.addView(legal,LinearLayout.LayoutParams(-1,d(48)))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
-            if(Build.VERSION.SDK_INT>=30){
-                val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
-                    or android.view.WindowInsets.Type.displayCutout())
-                v.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-            }
-            insets
+            applySafeViewportInsets(v,insets)
         }
         viewport.requestApplyInsets()
     }
@@ -866,15 +885,11 @@ class MainActivity : Activity() {
         }
         fitted.addView(panel)
         root.addView(fitted,FrameLayout.LayoutParams(-1,-1))
-        // Android 16 enforces edge-to-edge: keep result actions out of the
-        // gesture-navigation/status-bar regions, while art remains full bleed.
-        if (Build.VERSION.SDK_INT >= 35) {
-            fitted.setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars()
-                    or android.view.WindowInsets.Type.displayCutout())
-                view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
-                insets
-            }
+        // Safe bounds match Home, including pre-Android-15 navigation bars.
+        // Draw backgrounds full bleed, but never place real actions under
+        // notches or gesture system controls.
+        fitted.setOnApplyWindowInsetsListener { view, insets ->
+            applySafeViewportInsets(view,insets)
         }
         // The result hero renders the ACTUAL selected pilot above the played
         // world. Separate live image layers replace the generic static banner.
