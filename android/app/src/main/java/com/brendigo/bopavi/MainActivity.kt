@@ -73,12 +73,26 @@ class MainActivity : Activity() {
                 or android.view.WindowInsets.Type.displayCutout())
             view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
         } else {
-            val cutout=if(Build.VERSION.SDK_INT>=28)insets.displayCutout else null
+            val cutoutLeft:Int
+            val cutoutTop:Int
+            val cutoutRight:Int
+            val cutoutBottom:Int
+            if(Build.VERSION.SDK_INT>=28) {
+                // Lint must see the API-level guard around each DisplayCutout
+                // accessor. Android 8.0/8.1 has navigation insets, but no cutout.
+                val cutout=insets.displayCutout
+                cutoutLeft=cutout?.safeInsetLeft ?: 0
+                cutoutTop=cutout?.safeInsetTop ?: 0
+                cutoutRight=cutout?.safeInsetRight ?: 0
+                cutoutBottom=cutout?.safeInsetBottom ?: 0
+            } else {
+                cutoutLeft=0;cutoutTop=0;cutoutRight=0;cutoutBottom=0
+            }
             view.setPadding(
-                maxOf(insets.systemWindowInsetLeft,cutout?.safeInsetLeft ?: 0),
-                maxOf(insets.systemWindowInsetTop,cutout?.safeInsetTop ?: 0),
-                maxOf(insets.systemWindowInsetRight,cutout?.safeInsetRight ?: 0),
-                maxOf(insets.systemWindowInsetBottom,cutout?.safeInsetBottom ?: 0)
+                maxOf(insets.systemWindowInsetLeft,cutoutLeft),
+                maxOf(insets.systemWindowInsetTop,cutoutTop),
+                maxOf(insets.systemWindowInsetRight,cutoutRight),
+                maxOf(insets.systemWindowInsetBottom,cutoutBottom)
             )
         }
         return insets
