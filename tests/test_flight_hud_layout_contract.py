@@ -45,4 +45,12 @@ assert "p.textAlign=Paint.Align.RIGHT" in view
 assert "p.textAlign=Paint.Align.LEFT" in view
 assert "game.score()" in hud and "game.foodCollected" in hud
 assert "contentDescription=lastHudAccessibility" in hud
+assert "drawHudPowerIcon(c,powerTint)" in hud
+assert "drawHudCaption(c,game.pilotAbility.hudStatus(game.pilotGuardReady)" in hud
+assert "drawHudCaption(c,notice.label" in hud
+assert "h.ability.right-h.powerTextLeft-h.hudTextRightInset" in hud
+assert "FlightHudReadability.captionFontSize(measured,maxWidth)" in view
+assert "FlightHudReadability.captionHorizontalScale(measured,maxWidth,p.textSize)" in view
+assert "p.textScaleX=1f" in view
+assert "powerPictogramAndStatusTextNeverIntersect" in unit
 print("PASS: aligned collision-free HUD, truthful life indicators and moving pillar warnings")
