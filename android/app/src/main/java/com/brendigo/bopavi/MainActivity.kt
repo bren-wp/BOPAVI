@@ -48,6 +48,18 @@ class MainActivity : Activity() {
         label.contains("POČETNA") -> BopaviUiIconDrawable.Kind.HOME
         else -> BopaviUiIconDrawable.Kind.PLAY
     }
+    /** Keep the real 56dp Pause button, with a font-independent native icon. */
+    private fun showPauseIcon(button:Button?,resume:Boolean) {
+        if(button==null)return
+        button.text=""
+        button.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            uiIcon(if(resume)BopaviUiIconDrawable.Kind.PLAY
+                   else BopaviUiIconDrawable.Kind.PAUSE,Color.WHITE,25),
+            null,null,null)
+        button.gravity=Gravity.CENTER
+        button.contentDescription=if(resume)"Nastavi ili izađi iz pauze"
+            else "Pauziraj igru"
+    }
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
@@ -89,9 +101,7 @@ class MainActivity : Activity() {
         // An idle preview has no visible pause button; only pause active flights.
         if(gameView?.game?.active == true) {
             gameView?.paused = true
-            gamePauseButton?.text = "▶"
-            gamePauseButton?.contentDescription =
-                "Nastavi ili izađi iz pauze"
+            showPauseIcon(gamePauseButton,true)
         }
         if(::sound.isInitialized) sound.pause()
         super.onPause()
@@ -704,8 +714,7 @@ class MainActivity : Activity() {
         }
         command("▶  NASTAVI",0){
             game.paused=false
-            gamePauseButton?.text="Ⅱ"
-            gamePauseButton?.contentDescription="Pauziraj igru"
+            showPauseIcon(gamePauseButton,false)
             sound.resume()
         }
         command("↻  PONOVO",1){startGame()}
@@ -718,8 +727,7 @@ class MainActivity : Activity() {
             // Cancelling Pause resumes only the still-current game.
             if(gameView===game && selectedScreen=="game" && window.decorView.hasWindowFocus()) {
                 game.paused=false
-                gamePauseButton?.text="Ⅱ"
-                gamePauseButton?.contentDescription="Pauziraj igru"
+                showPauseIcon(gamePauseButton,false)
                 sound.resume()
             }
         }
@@ -761,7 +769,8 @@ class MainActivity : Activity() {
             qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
         gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         val pause=Button(this).apply{
-            text="Ⅱ";textSize=23f;setTextColor(Color.WHITE)
+            text="";textSize=23f;setTextColor(Color.WHITE)
+            showPauseIcon(this,false)
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
             elevation=d(5).toFloat()
             contentDescription="Pauziraj igru"
@@ -772,8 +781,7 @@ class MainActivity : Activity() {
                     // The OS backgrounded this run. ▶ resumes in one action,
                     // without opening an extra pause dialog over a paused game.
                     game.paused=false
-                    pauseButton?.text="Ⅱ"
-                    pauseButton?.contentDescription="Pauziraj igru"
+                    showPauseIcon(pauseButton,false)
                     sound.resume()
                     return@setOnClickListener
                 }
