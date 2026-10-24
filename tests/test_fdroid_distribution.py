@@ -33,7 +33,7 @@ class FDroidDistributionTests(unittest.TestCase):
         upstream = (ROOT / "fdroid/metadata/com.brendigo.bopavi.yml").read_text()
         self.assertNotIn("Builds:", upstream)
         self.assertIn("AutoUpdateMode: None", upstream)
-        self.assertEqual(len(SCREENSHOTS), 4)
+        self.assertEqual(len(SCREENSHOTS), 5)
         for filename in ("title.txt", "short_description.txt", "full_description.txt"):
             content = (ROOT / LOCALE / filename).read_text(encoding="utf-8")
             self.assertTrue(content.strip())
@@ -49,7 +49,7 @@ class FDroidDistributionTests(unittest.TestCase):
         self.assertIn("tools/package_fdroid_submission.py --commit", wf)
         self.assertIn("BOPAVI-FDroid-submission-", wf)
         self.assertIn("SHA256SUMS.txt", wf)
-        self.assertIn("test \"$(wc -l < SHA256SUMS.txt)\" -eq 9", wf)
+        self.assertIn("test \"$(wc -l < SHA256SUMS.txt)\" -eq 10", wf)
 
 
 if __name__ == "__main__":
