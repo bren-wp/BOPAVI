@@ -186,7 +186,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             // Endless berries are picked up only by actual body contact.
             // Gates farther than their painted 7px lip overhang plus the 18px
             // bird radius cannot collide during this 120Hz slice; neither can
-            // their centre-mounted berries (minimum gate width is 64px).
+            // their centre-mounted berries (minimum generated gate width is 54px).
             // Legacy finite levels keep the wider 115px magnet look-ahead.
             // Avoid two Opening objects and swept-CCD work on distant gates.
             if (x > birdX + radius + (if(endless) 7f else 115f)) break
