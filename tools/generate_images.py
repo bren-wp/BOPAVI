@@ -257,40 +257,37 @@ generate_worlds(a)
 # SHA-256-verified three-layer assets. No runtime network or fake game controls.
 from reference_bopi_import import install_reference_bopi
 photo_bopi=install_reference_bopi(r)
-# The launcher must feature the OWNER-APPROVED mascot, not the outdated,
-# generic SVG face. The native icon is a genuine illustration, never a baked UI
-# screenshot. Pixel art is generated once, offline; no runtime bitmap work.
+# Use exactly the approved Bopi portrait pixels for launcher foreground.
+# The background may carry original world art, but NO new eye, beak, body,
+# decoration, concentric ring or fake substitute for Bopi is drawn on top.
+# Foreground uses the Android adaptive mask safe area; legacy can be larger.
 if photo_bopi:
-    from PIL import ImageOps, ImageFilter, ImageDraw
+    from PIL import ImageOps, ImageFilter
     source=Image.open(a/'drawable-nodpi/bopiportrait0.png').convert('RGBA')
     bounds=source.getchannel('A').getbbox()
     if not bounds:
         raise RuntimeError('Approved Bopi portrait is empty: refusing launcher icon')
-    # Square, edge-to-edge game-world artwork; heavily softened so the bird
-    # remains legible even when launchers mask the outer 15-20%.
+    mascot=source.crop(bounds)
     scene=Image.open(a/'drawable-nodpi/world0.png').convert('RGB')
     scene=ImageOps.fit(scene,(1024,1024),method=Image.Resampling.LANCZOS,
                        centering=(.51,.42)).filter(ImageFilter.GaussianBlur(14))
     background=Image.alpha_composite(scene.convert('RGBA'),
-                                      Image.new('RGBA',(1024,1024),(2,20,67,152)))
-    # Android adaptive icons need an actual full-bleed world layer behind the transparent mascot.
-    # A flat launcher color previously discarded the detailed BOPAVI background.
-    background.resize((512,512),Image.Resampling.LANCZOS).convert("RGB").save(
+                                      Image.new('RGBA',(1024,1024),(2,20,67,150)))
+    background.resize((512,512),Image.Resampling.LANCZOS).convert('RGB').save(
         a/'drawable/app_icon_background.png',optimize=True)
     foreground=Image.new('RGBA',(1024,1024),(0,0,0,0))
-    halo=Image.new('RGBA',(1024,1024),(0,0,0,0))
-    ImageDraw.Draw(halo,'RGBA').ellipse((128,130,896,899),fill=(0,174,255,190))
-    foreground=Image.alpha_composite(foreground,halo.filter(ImageFilter.GaussianBlur(54)))
-    # Frame stays inside Android's adaptive-icon mask safe zone.
-    frame=ImageDraw.Draw(foreground,'RGBA')
-    frame.ellipse((130,130,894,894),outline=(25,205,255,230),width=16)
-    frame.ellipse((146,146,878,878),outline=(254,211,87,165),width=7)
-    bird=ImageOps.contain(source.crop(bounds),(840,840),method=Image.Resampling.LANCZOS)
-    foreground.alpha_composite(bird,((1024-bird.width)//2,(1024-bird.height)//2+22))
-    # A separate alpha foreground lets Android's adaptive launcher retain a
-    # genuinely full-bleed blue background, never white rounded corners.
+    icon_mascot=ImageOps.contain(mascot,(735,735),method=Image.Resampling.LANCZOS)
+    foreground.alpha_composite(icon_mascot,((1024-icon_mascot.width)//2,
+                                             (1024-icon_mascot.height)//2))
     foreground.resize((512,512),Image.Resampling.LANCZOS).save(
         a/'drawable/app_icon_foreground.png',optimize=True)
-    final=Image.alpha_composite(background,foreground).convert('RGB')
-    final.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
+    # Distinctly larger approved art in the full-bleed fallback icon.
+    # The OS adaptive version remains inset enough for circular launchers.
+    legacy_layer=Image.new('RGBA',(1024,1024),(0,0,0,0))
+    legacy_mascot=ImageOps.contain(mascot,(865,865),method=Image.Resampling.LANCZOS)
+    legacy_layer.alpha_composite(legacy_mascot,((1024-legacy_mascot.width)//2,
+                                               (1024-legacy_mascot.height)//2))
+    Image.alpha_composite(background,legacy_layer).convert('RGB').resize(
+        (512,512),Image.Resampling.LANCZOS).save(
+            a/'drawable/app_icon.png',optimize=True)
 print('Generated native art: 11 complete glowing portraits, 11 bodies, 22 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)

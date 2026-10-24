@@ -1048,14 +1048,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawCircle(0f,0f,53f,p)
         p.shader=null
         c.restore()
-        c.rotate((game.velocity*.06f).coerceIn(-24f,48f))
+        // Every pilot remains front-facing like Bopi, including Sova and Lisac.
+        c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))
         val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
         val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
             // Immediate upward wing response on touch, then a 240 ms return.
-            val flap=if(reducedMotion)0f else sin(game.time*19f)*23f+flapStrength*17f
+            val flap=PilotFlightPose.wingDegrees(game.time,game.flapPulse,reducedMotion)
             wingLeftBitmap?.let { wing ->
                 c.save();c.rotate(flap,wingLeftPivotX,wingLeftPivotY)
                 c.drawBitmap(wing,null,birdRect,p);c.restore()
@@ -1097,15 +1098,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      */
     /** Use one cached caption-width policy on score and distance updates. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
-        rect(c,l,t,r,b,0xf0072344.toInt(),24f)
-        fill(0xff75e2c8.toInt())
+        // Unified premium glass: restrained corner radius, thin highlight,
+        // softer fill, and one subtle lower edge for separation from the sky.
+        // Uses the existing Paint and primitives with zero shader allocations.
+        rect(c,l+1f,t+3f,r-1f,b+2f,0x44031835,18f)
+        rect(c,l,t,r,b,0xe8092949.toInt(),18f)
+        fill(0xff8ae8f9.toInt())
         p.style=Paint.Style.STROKE
-        p.strokeWidth=2.2f
-        p.alpha=196
-        c.drawRoundRect(l+1.5f,t+1.5f,r-1.5f,b-1.5f,22f,22f,p)
+        p.strokeWidth=1.3f
+        p.alpha=155
+        c.drawRoundRect(l+1f,t+1f,r-1f,b-1f,17f,17f,p)
         p.style=Paint.Style.FILL
-        rect(c,l+14f,t+5f,r-14f,t+8f,0x98cdfce8.toInt(),2f)
-        rect(c,l+16f,b-7f,r-16f,b-5f,0x3636aaff,1f)
+        p.alpha=255
+        rect(c,l+15f,t+5f,r-15f,t+7f,0x82bfefff.toInt(),2f)
     }
     private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float,color:Int){
         fill(color)

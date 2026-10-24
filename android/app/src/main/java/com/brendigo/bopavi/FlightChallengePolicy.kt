@@ -14,8 +14,35 @@ internal object FlightChallengePolicy {
             (if(type==2)5f else 0f))
 
     /** The first two pillars of each batch remain introductory. */
-    fun gateGap(original:Float,index:Int,zone:Int):Float =
-        if(index<2)original else max(164f,original-4f-1.5f*zone.coerceIn(0,5))
+    fun gateGap(original:Float,index:Int,zone:Int):Float {
+        if(index<2)return original
+        // Alternating narrow and recovery gates: tougher but never unfair.
+        // The 164px opening floor preserves a 145px hard-mode corridor.
+        val variation=when(index%5) {
+            0 -> 3f
+            1 -> 12f
+            2 -> 18f
+            3 -> 7f
+            else -> -4f
+        }
+        return max(164f,original-variation-zone.coerceIn(0,5)*1.5f)
+    }
+
+    /** Real physical pillar widths, deliberately different from each other.
+     *  No decoration-only obstacles: Gate.width drives rendering and collision.
+     *  Intro gates preserve the old width, later columns mix slim and wide.
+     */
+    fun gateWidth(introWidth:Float,index:Int,ordinal:Int,world:Int):Float {
+        if(index<2)return introWidth
+        return when((index+ordinal+world)%6) {
+            0 -> 54f
+            1 -> 68f
+            2 -> 80f
+            3 -> 92f
+            4 -> 104f
+            else -> 74f
+        }
+    }
 
     /** More active motion only once the course has introduced its rhythm. */
     fun gateMovement(original:Float,index:Int,zone:Int):Float =

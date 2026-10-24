@@ -59,7 +59,8 @@ object LevelEngine {
                     (if(i < 2) 0f else if(i % 2 == 0) 9f else -9f)).coerceAtLeast(164f),i,zone),
                 // Individual obstacle widths vary but retain enough traversal time.
                 // The exact gate width is also used by the physical collider.
-                width = 64f + ((i * 7 + number + world) % 4) * 9f,
+                width = FlightChallengePolicy.gateWidth(
+                    64f + ((i * 7 + number + world) % 4) * 9f,i,number,world),
                 movement = FlightChallengePolicy.gateMovement(if(active) 7f + r.next() * 9f else 0f,i,zone),
                 phase = r.next() * 6.283185f,
                 kind = world, coin = i % 3 != 2 || type == 1,
