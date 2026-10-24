@@ -40,6 +40,14 @@ class MainActivity : Activity() {
         R.drawable.world4,R.drawable.world5,R.drawable.world6,R.drawable.world7)
     private var selectedPilotChoice=0
     private fun d(n:Int):Int = (resources.displayMetrics.density*n+.5f).toInt()
+    private fun uiIcon(kind:BopaviUiIconDrawable.Kind,color:Int,sizeDp:Int=23):BopaviUiIconDrawable =
+        BopaviUiIconDrawable(kind,color,d(sizeDp))
+    private fun actionKind(label:String):BopaviUiIconDrawable.Kind = when {
+        label.contains("PONOVO") -> BopaviUiIconDrawable.Kind.RESTART
+        label.contains("IZLAZ") -> BopaviUiIconDrawable.Kind.EXIT
+        label.contains("POČETNA") -> BopaviUiIconDrawable.Kind.HOME
+        else -> BopaviUiIconDrawable.Kind.PLAY
+    }
     /** Full-bleed game menus, with separately reserved camera cutout insets. */
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
@@ -112,7 +120,13 @@ class MainActivity : Activity() {
     /** Native accessible text treatment shared by Home, Pause and Results. */
     private fun title(parent:LinearLayout,s:String,size:Int,color:Int=textColor) {
         parent.addView(TextView(this).apply {
-            text=s
+            text=s.substringAfter("  ",s)
+            if(s.startsWith("♛  ")) {
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(BopaviUiIconDrawable.Kind.RECORDS,color,25),null,null,null)
+                compoundDrawablePadding=d(7)
+                contentDescription=s
+            }
             textSize=size.toFloat()
             setTextColor(color)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -137,7 +151,13 @@ class MainActivity : Activity() {
     }
     private fun action(parent:LinearLayout,text:String,primary:Boolean=true,muted:Boolean=false,onClick:()->Unit) {
         val button=Button(this).apply {
-            this.text=text;setTextColor(if(primary)primaryButtonInk else Color.WHITE)
+            this.text=text.substringAfter("  ",text)
+            setTextColor(if(primary)primaryButtonInk else Color.WHITE)
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                uiIcon(actionKind(text),if(primary)primaryButtonInk else Color.WHITE,24),
+                null,null,null)
+            compoundDrawablePadding=d(9)
+            gravity=Gravity.CENTER
             textSize=18f;isAllCaps=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             letterSpacing=.03f
@@ -176,7 +196,10 @@ class MainActivity : Activity() {
             setStroke(d(2),0xffa3eaff.toInt())
         }
         val back=Button(this).apply {
-            text="←  $caption"
+            text=caption
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23),null,null,null)
+            compoundDrawablePadding=d(9)
             contentDescription="Povratak na početnu"
             isAllCaps=false
             textSize=18f
@@ -563,7 +586,12 @@ class MainActivity : Activity() {
                 setStroke(d(1),0xff80dfff.toInt())
             }
             extras.addView(TextView(this).apply{
-                this.text=text
+                this.text=text.substringAfter("  ",text)
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(if(text.contains("OPCIJE"))BopaviUiIconDrawable.Kind.SETTINGS
+                        else BopaviUiIconDrawable.Kind.RECORDS,Color.WHITE,21),
+                    null,null,null)
+                compoundDrawablePadding=d(6)
                 textSize=14f
                 gravity=Gravity.CENTER
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -654,7 +682,13 @@ class MainActivity : Activity() {
                 }
             }
             val b=Button(this).apply {
-                this.text=text;isAllCaps=false;textSize=18f
+                this.text=text.substringAfter("  ",text)
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(actionKind(text),if(style==0)primaryButtonInk else Color.WHITE,24),
+                    null,null,null)
+                compoundDrawablePadding=d(9)
+                gravity=Gravity.CENTER
+                isAllCaps=false;textSize=18f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
@@ -902,9 +936,11 @@ class MainActivity : Activity() {
                 }
                 elevation=d(4).toFloat()
             }
-            card.addView(TextView(this).apply{
-                text=icon;textSize=29f;gravity=Gravity.CENTER
-                setTextColor(gold)
+            card.addView(ImageView(this).apply {
+                setImageDrawable(uiIcon(
+                    if(icon=="🍓")BopaviUiIconDrawable.Kind.BERRY
+                    else BopaviUiIconDrawable.Kind.STAR,gold,29))
+                scaleType=ImageView.ScaleType.CENTER_INSIDE
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(37)))
             card.addView(TextView(this).apply{
