@@ -51,7 +51,7 @@ def main():
             "Per-obstacle renderer closure was reintroduced")
     require('"BODOVI"' in game and '"HRANA"' in game,
             "Croatian gameplay HUD missing")
-    require('contentDescription="Povratak na početnu"' in activity,
+    require('contentDescription=caption' in activity,
             "Accessible native Back button missing")
     require('fun importJson(contents: String)' in store and
             'fun exportJson()' in store and
