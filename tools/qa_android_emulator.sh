@@ -461,8 +461,32 @@ m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",continue_buttons[0].get("bounds
 assert m,"FAIL: Continue tap bounds missing"
 x1,y1,x2,y2=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
-print("PASS: real Pause continued without resetting the run",flush=True)
+print("PASS: real Pause Continue action pressed",flush=True)
 PY
+# Dismissing an Android AlertDialog is asynchronous. A tap sent immediately
+# after NASTAVI can be consumed by the still-attached modal window instead
+# of GameView, leaving the deliberate first-flap screenshot hold frozen.
+# Wait for the real native flight surface and Pause control before resuming.
+flight_resumed=0
+for attempt in $(seq 1 14); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+click=[label(n) for n in nodes if n.get("clickable")=="true"]
+active=any("PAUZIRAJ IGRU" in s for s in click)
+modal=any("NASTAVI" in s for s in click)
+flight=any(n.get("class")=="android.view.View" and "MOĆ:" in label(n)
+           for n in nodes)
+sys.exit(0 if active and flight and not modal else 1)
+PY
+  then flight_resumed=1; break; fi
+  sleep 1
+done
+test "$flight_resumed" -eq 1 || {
+  echo "FAIL: Continue did not return to the actual live flight window" >&2; exit 1;
+}
+printf 'STATE: Pause Continue returned to native flight HUD\n' >> qa/screenshots/state-evidence.txt
 # The debug-only first-flap still capture now releases its hold on second tap.
 adb shell input tap "$center" "$((height/2))"
 result_ready=0
