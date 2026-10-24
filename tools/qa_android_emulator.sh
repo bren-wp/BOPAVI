@@ -414,6 +414,56 @@ printf 'STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pau
 if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
 fi
+# Pause is a distinct reachable native screen, not just an icon in Flight.
+# Exercise the actual top-right hit target, require its three real actions,
+# preserve an emulator screenshot, then explicitly resume this same run.
+python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+pause=[n for n in nodes if n.get("clickable")=="true" and "PAUZIRAJ IGRU" in label(n)]
+assert len(pause)==1,"FAIL: cannot locate real native Pause button"
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",pause[0].get("bounds",""))
+assert m,"FAIL: invalid native Pause bounds"
+x1,y1,x2,y2=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+PY
+pause_ready=0
+for attempt in $(seq 1 12); do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+names=[label(n) for n in nodes if n.get("clickable")=="true"]
+headings=[label(n) for n in nodes]
+ok=(any("PAUZA" in n for n in headings)
+    and sum("NASTAVI" in n for n in names)==1
+    and sum("PONOVO" in n for n in names)==1
+    and sum("IZLAZ" in n for n in names)==1)
+sys.exit(0 if ok else 1)
+PY
+  then pause_ready=1; break; fi
+  sleep 1
+done
+test "$pause_ready" -eq 1 || { echo "FAIL: real Pause dialog/buttons did not appear" >&2; exit 1; }
+capture android-pause
+printf 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog\n' >> qa/screenshots/state-evidence.txt
+if cmp -s qa/screenshots/android-pause.png qa/screenshots/android-gameplay-active.png; then
+  echo "FAIL: Pause screenshot duplicates active gameplay" >&2; exit 1
+fi
+python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+continue_buttons=[n for n in nodes if n.get("clickable")=="true" and "NASTAVI" in label(n)]
+assert len(continue_buttons)==1,"FAIL: no unique Continue control in Pause"
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",continue_buttons[0].get("bounds",""))
+assert m,"FAIL: Continue tap bounds missing"
+x1,y1,x2,y2=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+print("PASS: real Pause continued without resetting the run",flush=True)
+PY
+# The debug-only first-flap still capture now releases its hold on second tap.
 adb shell input tap "$center" "$((height/2))"
 result_ready=0
 for attempt in $(seq 1 18); do
