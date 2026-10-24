@@ -34,11 +34,11 @@ for snippet in (
     "private fun actionKind(",
     "uiIcon(actionKind(text),if(primary)primaryButtonInk else Color.WHITE,24)",
     "uiIcon(if(text.contains(\"OPCIJE\"))BopaviUiIconDrawable.Kind.SETTINGS",
-    "if(icon==\"🍓\")BopaviUiIconDrawable.Kind.BERRY",
+    "setImageDrawable(uiIcon(iconKind,iconTint,29))",
     "uiIcon(actionKind(text),if(style==0)primaryButtonInk else Color.WHITE,24)",
     "uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23)",
     "compoundDrawablePadding=d(9)",
-    "contentDescription=\"Povratak na početnu\"",
+    "contentDescription=caption",
     "LinearLayout.LayoutParams(0,d(48),1f)",
 ):
     assert snippet in activity, snippet

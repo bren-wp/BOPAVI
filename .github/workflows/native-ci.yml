@@ -85,6 +85,7 @@ jobs:
       - run: python tests/test_responsive_smoke_contract.py
       - run: python tests/test_native_ui_icons_touch_contract.py
       - run: python tests/test_premium_result_layout.py
+      - run: python tests/test_results_icon_and_insets_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tools/audit_native_dead_code.py

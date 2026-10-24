@@ -210,7 +210,7 @@ class MainActivity : Activity() {
             setCompoundDrawablesRelativeWithIntrinsicBounds(
                 uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23),null,null,null)
             compoundDrawablePadding=d(9)
-            contentDescription="Povratak na početnu"
+            contentDescription=caption
             isAllCaps=false
             textSize=18f
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -870,7 +870,8 @@ class MainActivity : Activity() {
         // gesture-navigation/status-bar regions, while art remains full bleed.
         if (Build.VERSION.SDK_INT >= 35) {
             fitted.setOnApplyWindowInsetsListener { view, insets ->
-                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                    or android.view.WindowInsets.Type.displayCutout())
                 view.setPadding(bars.left,bars.top,bars.right,bars.bottom)
                 insets
             }
@@ -935,7 +936,8 @@ class MainActivity : Activity() {
         panel.addView(summary,LinearLayout.LayoutParams(-1,-2).apply{
             topMargin=d(5);bottomMargin=d(5)
         })
-        fun resultCard(heading:String,icon:String,value:String,color:Int):TextView{
+        fun resultCard(heading:String,iconKind:BopaviUiIconDrawable.Kind,
+                       iconTint:Int,value:String,color:Int):TextView{
             val card=LinearLayout(this).apply{
                 orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER
                 setPadding(d(3),d(10),d(3),d(10))
@@ -945,9 +947,7 @@ class MainActivity : Activity() {
                 elevation=d(4).toFloat()
             }
             card.addView(ImageView(this).apply {
-                setImageDrawable(uiIcon(
-                    if(icon=="🍓")BopaviUiIconDrawable.Kind.BERRY
-                    else BopaviUiIconDrawable.Kind.STAR,gold,29))
+                setImageDrawable(uiIcon(iconKind,iconTint,29))
                 scaleType=ImageView.ScaleType.CENTER_INSIDE
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(37)))
@@ -972,9 +972,9 @@ class MainActivity : Activity() {
             })
             return stat
         }
-        resultCard("REZULTAT","★",g.score().toString(),gold)
-        resultCard("HRANA",
-            "🍓",g.foodCollected.toString(),0xffffd5d7.toInt())
+        resultCard("REZULTAT",BopaviUiIconDrawable.Kind.STAR,gold,g.score().toString(),gold)
+        resultCard("HRANA",BopaviUiIconDrawable.Kind.BERRY,0xffff6179.toInt(),
+            g.foodCollected.toString(),0xffffd5d7.toInt())
         panel.addView(TextView(this).apply{
             val best=progress.bestPoints()
             text="★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
@@ -993,6 +993,7 @@ class MainActivity : Activity() {
             showHome()
         }
         showNativeView(root)
+        fitted.requestApplyInsets()
     }
 
     override fun onBackPressed() = navigateBack()
