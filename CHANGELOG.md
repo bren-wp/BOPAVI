@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.27 — Responsive touch targets, consistent iconography and Bopi themed launcher (build 157)
+
+**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.27)
+
+- **All reachable screen states reviewed:** Home (pilot selection / Play / options / records / legal links), Flight HUD and native Pause, Results, Settings and Records dialogs. Preserve the original Bopi illustration and game rules; do not add redundant screens or fake counters.
+- **Touch targets no longer shrink:** replace the container-wide scale transform with a fill-viewport native ScrollView. On normal viewports it fits without scrolling; genuinely short/split-screen windows can scroll to every action instead of scaling 48dp touch targets or clipping the bottom links.
+- **Unified native icon family:** Play, Pause, Retry, Home, Exit, Options, Records and Results icons now use one consistent antialiased, device-independent Canvas drawable. Croatian content descriptions remain available to accessibility services. The actual Pause button remains a 56dp native touch target.
+- **Original launcher art:** retain the owner-approved Bopi portrait unchanged for the colour adaptive launcher and legacy icon. Add Android 13+ themed monochrome icon **derived exclusively from its alpha mask**; no stock/vector impostor of the mascot.
+- **Regression gates:** source UI contract, approved original mascot pixel-integrity check, compiler/Android lint, JVM tests and Android 15/16 emulator QA. The home responsive smoke checks Play, Options, Records, both legal links and all three pilot card hit targets at two display/density sizes.
+- **Compatibility:** original package name `com.brendigo.bopavi`, offline gameplay and historical local save keys stay unchanged. Distribution remains debug APK plus **unsigned** release APK/AAB, Google Play and F-Droid preparation assets and SHA256SUMS.
+
 ## v1.0.26 — Distinct pilot power icons and adaptive HUD labels (build 156)
 
 **Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.26)
@@ -12,14 +23,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Better event readability:** lost/gained life and consumed-shield notice captions use the same measured, bounded typographic policy; card placement, notices and native Pause hit target remain unchanged.
 - **Regression safety:** pure Kotlin tests validate caption fitting, invalid measurements, pictogram geometry and separation from the status label. A Python source contract enforces the real renderer wiring; Android visual emulator QA, Android 16 smoke tests and Gradle unit/lint remain release gates.
 - **Backward-compatible, offline:** no change to `applicationId`, game rules, character physics, saved progress, screen navigation, advertising/tracking policy or the approved Bopi launcher icon. Unchanged GitHub distribution model: debug APK and unsigned release APK/AAB; publisher-held signing is not configured in this repository.
-
-## v1.0.25 — Varied harder pillars, modern HUD and Bopi-faithful pilots (build 155)
-
-**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.25)
-
-- **More challenging real obstacles:** the first two intro pillars keep their original widths; subsequent shafts follow a deterministic mixture of 54, 68, 74, 80, 92 and 104 logical units. Normal corridor mouths alternate narrow and recovery patterns after the warmup rather than remaining almost constant, but never shrink below 164 units before difficulty/pulses, preserving the proven >=145-unit hard-mode opening and the unchanged 18-unit bird collider. Both the Android Canvas renderer and swept pillar-collision use the same physical `Gate.width` and `LevelEngine.opening`; no fake cosmetic obstacles.
-- **World variety:** true tall/short existing contours and moving gates stay in use. The mixed slimmer and wider column shafts produce visibly different traversal windows without changing the deterministic seed signature, stream seams or original save data. New tests cover exact width patterns, true rendering/collision coupling, min/max openings and reachability.
-- **Consistent forward flight:** all 11 existing pilot art layers now share one front-facing pitch and flap policy. Large sideways tilts are limited to a gentle -14° to +22° range, using a common motion function for Bopi, Sova, Lisac and every recoloured/alternative pilot. The original approved sprite colours, wings, face and 18-unit hitbox are not stretched or rewritten. Reduced motion uses a stable orientation.
-- **Modern premium HUD:** the existing user-reviewed placements of score, berries, 3/3 hearts, ability and native Pause are preserved; cards receive a cleaner dark translucent surface, a lighter single border and subtler corner shape. No full-screen overlays, no new bitmaps/shaders in `onDraw` and no changes to live life/guard values.
-- **Faithful app icon:** the adaptive launcher foreground is now **only** the SHA-256-verified owner's approved Bopi winged portrait, centred in the Android safe area. Remove decorative concentric rings and invented halo shapes covering the mascot. The legacy full-bleed launcher uses the *same exact original Bopi pixels* at a larger scale over the existing original world artwork. New pixel-identity checks reject any changed portrait or generic alternate face.
-- **Safety and QA:** keep game physics, scores, mode-specific advantages, collectible rewards, offline privacy, device permissions, signed-versus-unsigned publishing model and saved progress unchanged. Full Kotlin/JVM tests, world/obstacle fairness, source/dead-code audit, regenerated approved graphics, Android Lint, API35 gameplay/screenshots, API36 navigation and release SHA-256 verification remain mandatory. Human playtesting on physical devices remains necessary to judge subjective difficulty and final art quality; passing CI does not imply Play/F-Droid acceptance.
