@@ -1136,6 +1136,92 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Shared Paint must not squeeze the next heading or life counter.
         p.textScaleX=1f
     }
+    /** Fit all pilot names and life feedback inside their real HUD cards.
+     *  Glyphs are measured using the existing Paint; no new bitmaps or arrays.
+     */
+    private fun drawHudCaption(c:Canvas,value:String,x:Float,y:Float,maxWidth:Float,color:Int){
+        fill(color)
+        p.typeface=headerTypeface
+        p.textAlign=Paint.Align.LEFT
+        p.textScaleX=1f
+        p.textSize=15f
+        val measured=p.measureText(value)
+        p.textSize=FlightHudReadability.captionFontSize(measured,maxWidth)
+        p.textScaleX=FlightHudReadability.captionHorizontalScale(measured,maxWidth,p.textSize)
+        c.drawText(value,x,y,p)
+        p.textScaleX=1f
+    }
+
+    /** Three distinct, accessible colour-and-shape power signs (speed, calm,
+     *  shield), instead of a generic unlabelled strip. Uses the shared Path.
+     */
+    private fun drawHudPowerIcon(c:Canvas,tint:Int){
+        val x=FlightHudLayout.powerIconCenterX
+        val y=FlightHudLayout.powerIconCenterY
+        val r=FlightHudLayout.powerIconRadius
+        oval(c,x-r,y-r,x+r,y+r,0xff193b5b.toInt())
+        fill(tint)
+        when(game.pilotAbility){
+            PilotAbility.BOPI -> {
+                // Lightning silhouette: speed.
+                path.reset()
+                path.moveTo(x+1f,y-9f)
+                path.lineTo(x-7f,y+2f)
+                path.lineTo(x-1f,y+2f)
+                path.lineTo(x-3f,y+9f)
+                path.lineTo(x+8f,y-3f)
+                path.lineTo(x+2f,y-3f)
+                path.close()
+                c.drawPath(path,p)
+            }
+            PilotAbility.SOVA -> {
+                // Curved feather: gentler fall and finer control.
+                path.reset()
+                path.moveTo(x-6f,y+7f)
+                path.cubicTo(x-9f,y-2f,x-1f,y-9f,x+7f,y-8f)
+                path.cubicTo(x+8f,y+1f,x+1f,y+8f,x-6f,y+7f)
+                path.close()
+                c.drawPath(path,p)
+                fill(0xff193b5b.toInt())
+                p.style=Paint.Style.STROKE
+                p.strokeWidth=1.7f
+                c.drawLine(x-5f,y+6f,x+5f,y-5f,p)
+                p.style=Paint.Style.FILL
+            }
+            PilotAbility.LISAC -> {
+                // Shield outline remains visible even after the charge is used.
+                path.reset()
+                path.moveTo(x,y-9f)
+                path.lineTo(x+8f,y-5f)
+                path.lineTo(x+7f,y+3f)
+                path.quadTo(x+5f,y+7f,x,y+9f)
+                path.quadTo(x-5f,y+7f,x-7f,y+3f)
+                path.lineTo(x-8f,y-5f)
+                path.close()
+                c.drawPath(path,p)
+                fill(0xff193b5b.toInt())
+                p.style=Paint.Style.STROKE
+                p.strokeWidth=1.8f
+                if(game.pilotGuardReady){
+                    path.reset()
+                    path.moveTo(x-4f,y)
+                    path.lineTo(x-1f,y+3f)
+                    path.lineTo(x+5f,y-4f)
+                    c.drawPath(path,p)
+                }else{
+                    c.drawLine(x-4f,y+4f,x+4f,y-4f,p)
+                }
+                p.style=Paint.Style.FILL
+            }
+            PilotAbility.CLASSIC -> {
+                p.style=Paint.Style.STROKE
+                p.strokeWidth=2.1f
+                c.drawCircle(x,y,6f,p)
+                p.style=Paint.Style.FILL
+            }
+        }
+    }
+
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
@@ -1186,14 +1272,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
         text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())
         rect(c,22f,119f,26f,135f,powerTint,2f)
-        text(c,game.pilotAbility.hudStatus(game.pilotGuardReady),33f,133f,13f,powerTint)
+        drawHudPowerIcon(c,powerTint)
+        drawHudCaption(c,game.pilotAbility.hudStatus(game.pilotGuardReady),
+            h.powerTextLeft,133f,h.ability.right-h.powerTextLeft-h.hudTextRightInset,powerTint)
         flightHudFeedback.update(game.lives,game.pilotGuardReady,game.time)?.let { notice ->
             // Separate third row, away from hearts, score, power and the
             // native Pause button. Static high-contrast cue: no flashing.
             hudGlass(c,h.notice.left,h.notice.top,h.notice.right,h.notice.bottom)
             rect(c,h.notice.left+5f,h.notice.top+8f,h.notice.left+9f,
                 h.notice.bottom-8f,notice.tint,2f)
-            text(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,13f,notice.tint)
+            drawHudCaption(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,
+                h.notice.right-h.notice.left-17f-h.hudTextRightInset,notice.tint)
         }
         if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
             game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {

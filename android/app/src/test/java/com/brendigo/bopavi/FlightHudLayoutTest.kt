@@ -54,4 +54,20 @@ class FlightHudLayoutTest {
         assertTrue(FlightHudLayout.movingWarningVisible(18f,260f,126f))
         assertTrue(FlightHudLayout.movingWarningVisible(7f,440f,126f))
     }
+    @Test fun powerPictogramAndStatusTextNeverIntersect() {
+        val hud=FlightHudLayout
+        assertTrue(hud.ability.encloses(
+            hud.powerIconCenterX-hud.powerIconRadius,hud.powerIconCenterY-hud.powerIconRadius))
+        assertTrue(hud.ability.encloses(
+            hud.powerIconCenterX+hud.powerIconRadius,hud.powerIconCenterY+hud.powerIconRadius))
+        assertTrue("Pictogram must not cover the status",
+            hud.powerTextLeft>=hud.powerIconCenterX+hud.powerIconRadius+6f)
+        assertTrue("Power text must have a meaningful readable lane",
+            hud.ability.right-hud.powerTextLeft-hud.hudTextRightInset>=200f)
+        assertTrue("Power must remain left of real Pause button",
+            hud.ability.right<hud.pauseLaneStart)
+        assertTrue("Feedback notice has room for complete labels",
+            hud.notice.right-hud.notice.left-17f-hud.hudTextRightInset>=200f)
+    }
+
 }
