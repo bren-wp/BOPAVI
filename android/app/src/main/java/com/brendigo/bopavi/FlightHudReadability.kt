@@ -26,6 +26,26 @@ internal object FlightHudReadability {
         return (availableWidth/(measuredAtBase*size/BASE_SIZE)).coerceIn(.01f,1f)
     }
 
+    // Status chips use a larger preferred caption, but scale down to a
+    // legible minimum if a translated/longer ability label needs more room.
+    // The caller measures the real Typeface glyphs at 15 logical pixels.
+    private const val CAPTION_SIZE = 15f
+    private const val CAPTION_MIN_SIZE = 11f
+
+    fun captionFontSize(measuredAtPreferred:Float,availableWidth:Float):Float {
+        if(!measuredAtPreferred.isFinite() || measuredAtPreferred<=0f ||
+            !availableWidth.isFinite() || availableWidth<=0f)return CAPTION_MIN_SIZE
+        return (CAPTION_SIZE*(availableWidth/measuredAtPreferred).coerceAtMost(1f))
+            .coerceIn(CAPTION_MIN_SIZE,CAPTION_SIZE)
+    }
+
+    fun captionHorizontalScale(measuredAtPreferred:Float,availableWidth:Float,size:Float):Float {
+        if(!measuredAtPreferred.isFinite() || measuredAtPreferred<=0f ||
+            !availableWidth.isFinite() || availableWidth<=0f ||
+            !size.isFinite() || size<=0f)return 1f
+        return (availableWidth/(measuredAtPreferred*size/CAPTION_SIZE)).coerceIn(.01f,1f)
+    }
+
     fun lifeCountColor(lives:Int,maxLives:Int):Int = when {
         lives<=1 -> 0xffffa3b2.toInt() // Last heart: high-contrast warning
         lives<maxLives -> 0xffffd99b.toInt()
