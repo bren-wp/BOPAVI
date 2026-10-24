@@ -281,6 +281,12 @@ if photo_bopi:
                                              (1024-icon_mascot.height)//2))
     foreground.resize((512,512),Image.Resampling.LANCZOS).save(
         a/'drawable/app_icon_foreground.png',optimize=True)
+    # Android 13+ themed icon uses the EXACT approved mascot's alpha, with
+    # no generic bird/redrawing. Its shape tracks the full-colour foreground.
+    themed=Image.new('RGBA',(1024,1024),(255,255,255,0))
+    themed.putalpha(foreground.getchannel('A'))
+    themed.resize((512,512),Image.Resampling.LANCZOS).save(
+        a/'drawable/app_icon_monochrome.png',optimize=True)
     # Distinctly larger approved art in the full-bleed fallback icon.
     # The OS adaptive version remains inset enough for circular launchers.
     legacy_layer=Image.new('RGBA',(1024,1024),(0,0,0,0))

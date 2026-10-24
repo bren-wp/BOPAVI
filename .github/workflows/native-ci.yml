@@ -83,6 +83,7 @@ jobs:
       - run: python tests/test_reference_bopi_import.py
       - run: python tests/test_android_emulator_transport_gate.py
       - run: python tests/test_responsive_smoke_contract.py
+      - run: python tests/test_native_ui_icons_touch_contract.py
       - run: python tests/test_premium_result_layout.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh

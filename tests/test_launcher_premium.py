@@ -29,6 +29,15 @@ expected.alpha_composite(expected_bird,((1024-expected_bird.width)//2,
 expected=expected.resize((512,512),Image.Resampling.LANCZOS)
 assert adaptive.tobytes()==expected.tobytes(), (
     "Launcher foreground must use unchanged approved Bopi portrait pixels")
+# The Android 13 themed icon uses the same exact character silhouette.
+with Image.open(ANDROID/"drawable/app_icon_monochrome.png") as im:
+    mono=im.convert("RGBA")
+assert mono.size==(512,512)
+assert mono.getchannel("A").tobytes()==adaptive.getchannel("A").tobytes(), (
+    "Themed launcher must be derived from the approved Bopi silhouette")
+assert mono.getpixel((0,0))[3]==0 and mono.getpixel((511,511))[3]==0
+assert mono.getchannel("A").getextrema()[1]==255
+
 # All four extreme pixels must remain solid saturated world colours, not the
 # historical white rounded-square padding. Devices apply their own outer mask.
 for corner in ((0,0),(511,0),(0,511),(511,511)):
@@ -38,6 +47,7 @@ for corner in ((0,0),(511,0),(0,511),(511,511)):
 assert len(legacy.resize((48,48)).getcolors(maxcolors=2400) or [])>380
 xml=(ANDROID/"mipmap-anydpi-v26/ic_launcher.xml").read_text()
 assert '@drawable/app_icon_foreground' in xml
+assert '@drawable/app_icon_monochrome' in xml
 assert '@drawable/app_icon_background' in xml
 with Image.open(ANDROID/"drawable/app_icon_background.png") as im:
     assert im.size == (512,512) and im.convert('RGB').getpixel((0,0)) != (255,255,255)

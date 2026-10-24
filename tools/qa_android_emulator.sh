@@ -519,6 +519,25 @@ assert pm,(label,"missing privacy bounds")
 pl,pt,pr,pb=map(int,pm.groups())
 assert 0<=pl<pr<=width and 0<=pt<pb<=height,(label,"privacy button clipped")
 assert pb-pt>=48*int(density)/160,(label,"privacy button below 48dp")
+# The source now preserves real native dimensions on every viewport.
+# Inspect ALL reachable Home actions, not only Play and privacy.
+for title,needle in (
+    ("Terms","UVJETI KORIŠTENJA"),
+    ("Options","OTVORI OPCIJE IGRE"),
+    ("Records","POGLEDAJ SVOJE REKORDE"),
+    ("Bopi","BOPI. "),
+    ("Sova","SOVA. "),
+    ("Lisac","LISAC. "),
+):
+    found=[n for n in nodes if n.get("clickable")=="true" and
+           needle in (n.get("text","")+" "+n.get("content-desc","")).upper()]
+    assert len(found)==1,(label,title,"missing or duplicate accessible Home control")
+    match=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",found[0].get("bounds",""))
+    assert match,(label,title,"missing bounds")
+    x1,y1,x2,y2=map(int,match.groups())
+    assert 0<=x1<x2<=width and 0<=y1<y2<=height,(label,title,"clipped")
+    assert y2-y1>=48*int(density)/160,(label,title,"touch target below 48dp")
+
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
 assert m,(label,"PLAY bounds absent")
 l,t,r,b=map(int,m.groups())

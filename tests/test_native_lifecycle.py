@@ -28,8 +28,12 @@ home=activity.split("private fun showHome(){",1)[1].split("private fun showPremi
 assert 'action(content,"▶  IGRAJ"){startGame()}' in home
 # Pilot-choice feedback uses click SFX; the shared CTA action handles its own sound.
 assert 'progress.chooseArcadePilot(index)' in home
-assert 'gamePauseButton?.text = "▶"' in activity
-assert 'gamePauseButton?.text="Ⅱ"' in activity
+assert "private fun showPauseIcon(button:Button?,resume:Boolean)" in activity
+assert "showPauseIcon(gamePauseButton,true)" in activity
+assert "showPauseIcon(gamePauseButton,false)" in activity
+assert "showPauseIcon(pauseButton,false)" in activity
+assert "BopaviUiIconDrawable.Kind.PAUSE" in activity
+assert "contentDescription=if(resume)" in activity
 assert 'if(game.paused) {' in activity and 'return@setOnClickListener' in activity
 assert 'if(view!=null && view.paused) showPremiumPause(view)' in activity
 assert 'selectedScreen=="game" && window.decorView.hasWindowFocus()' in activity
