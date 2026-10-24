@@ -12,7 +12,8 @@ for value in (
     "private val flightHudFeedback=FlightHudFeedback()",
     "flightHudFeedback.update(game.lives,game.pilotGuardReady,game.time)",
     "hudGlass(c,h.notice.left,h.notice.top,h.notice.right,h.notice.bottom)",
-    "text(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,13f,notice.tint)",
+    "drawHudCaption(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,",
+    "h.notice.right-h.notice.left-17f-h.hudTextRightInset,notice.tint)",
 ):
     assert value in view,value
 for value in (
