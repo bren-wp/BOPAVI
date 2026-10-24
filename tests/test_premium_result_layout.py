@@ -10,5 +10,6 @@ assert "minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(6
 assert "orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER" in result
 assert "FitViewportColumn(this)" in pause and "FitViewportColumn(this)" in result
 assert "setImageResource(portraitDrawableIds[selectedPilotChoice])" in pause
-assert "systemBars()" in result
+assert "applySafeViewportInsets(view,insets)" in result
+assert "android.view.WindowInsets.Type.systemBars()" in main
 print("PASS: vertically centered results, bounded pause dialog and viewport fitting")
