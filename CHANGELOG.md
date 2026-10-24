@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.26 — Distinct pilot power icons and adaptive HUD labels (build 156)
+
+**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.26)
+
+- **Recognizable powers in flight:** original BOPAVI native HUD gains a small speed lightning bolt for Bopi, a feather for Sova and an outlined one-use shield for Lisac. The shield shows a check mark while charged and a strike when spent. These icons are painted using the existing Canvas Path and Paint, without any downloaded images, new SDKs or per-frame bitmap allocations.
+- **More readable ability card:** the ability label uses the real available space between the icon and card's padded right edge. A measurable 15-unit preferred font shrinks only when the actual text cannot fit; a horizontal-scale fallback preserves the complete Croatian name, including longer states such as `LISAC · ŠTIT POTROŠEN`.
+- **Better event readability:** lost/gained life and consumed-shield notice captions use the same measured, bounded typographic policy; card placement, notices and native Pause hit target remain unchanged.
+- **Regression safety:** pure Kotlin tests validate caption fitting, invalid measurements, pictogram geometry and separation from the status label. A Python source contract enforces the real renderer wiring; Android visual emulator QA, Android 16 smoke tests and Gradle unit/lint remain release gates.
+- **Backward-compatible, offline:** no change to `applicationId`, game rules, character physics, saved progress, screen navigation, advertising/tracking policy or the approved Bopi launcher icon. Unchanged GitHub distribution model: debug APK and unsigned release APK/AAB; publisher-held signing is not configured in this repository.
+
 ## v1.0.25 — Varied harder pillars, modern HUD and Bopi-faithful pilots (build 155)
 
 **Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.25)
@@ -13,14 +23,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Modern premium HUD:** the existing user-reviewed placements of score, berries, 3/3 hearts, ability and native Pause are preserved; cards receive a cleaner dark translucent surface, a lighter single border and subtler corner shape. No full-screen overlays, no new bitmaps/shaders in `onDraw` and no changes to live life/guard values.
 - **Faithful app icon:** the adaptive launcher foreground is now **only** the SHA-256-verified owner's approved Bopi winged portrait, centred in the Android safe area. Remove decorative concentric rings and invented halo shapes covering the mascot. The legacy full-bleed launcher uses the *same exact original Bopi pixels* at a larger scale over the existing original world artwork. New pixel-identity checks reject any changed portrait or generic alternate face.
 - **Safety and QA:** keep game physics, scores, mode-specific advantages, collectible rewards, offline privacy, device permissions, signed-versus-unsigned publishing model and saved progress unchanged. Full Kotlin/JVM tests, world/obstacle fairness, source/dead-code audit, regenerated approved graphics, Android Lint, API35 gameplay/screenshots, API36 navigation and release SHA-256 verification remain mandatory. Human playtesting on physical devices remains necessary to judge subjective difficulty and final art quality; passing CI does not imply Play/F-Droid acceptance.
-
-## v1.0.24 — Truthful heart and shield feedback (build 154)
-
-**Published:** 2026-10-23 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.24)
-
-- **Instant, understandable feedback:** a compact, high-contrast third-row notice appears for 1.1 seconds after a real life loss (`−1 ŽIVOT`), collected life (`+1 ŽIVOT`), or Lisac's actual one-shot pilot guard use (`ŠTIT POTROŠEN`). The source is the GameSimulation's own live lives/guard, not generic damage effects, speculative pickups or animation clocks.
-- **Correct semantics and quiet rendering:** baseline 3/3 lives never produces a fake event; repeated collision frames and temporary invulnerability do not spam events. An absorbed Lisac hit does not claim a lost heart. One object is allocated per meaningful event, none during ordinary 30/60/90/120Hz frames. The notice expires on simulation time, so pausing naturally freezes it, without flashing, blinking or motion dependence.
-- **Layout safety:** the notice lives in a separate left-aligned 480×800 logical region (18–275, 149–184), below the power indicator and clear of the native right-side Pause button. Existing top score/food/lives card spacing, pilot display and 56dp accessible pause hit target are unchanged. Geometry regression tests validate no overlaps.
-- **Stronger Android UI checks:** the emulator Pause overlap test reads the current Kotlin life-card bottom directly instead of hardcoding an old or future 72/86-unit threshold. It measures the actual active GameView UI bounds; a source-level regression test protects the contract.
-- **Testing:** new pure Kotlin tests validate the real life/guard state machine, event lifetime, once-only behavior across 30, 60 and 120Hz and invalid simulation times. Source-contract audit checks the native GameView integration. Full privacy/source audit, Gradle Lint/JVM, API35 actual gameplay and screenshot, API36 smoke, APK/AAB integrity, public checksums and release verification remain required.
-- **Scope:** no changes to physics, collisions, scoring, health recovery rates, lifetimes, player powers, game art, offline behavior, saved progress, permissions or application ID. Physical-device accessibility checks, Google Play review and F-Droid publication are not implied by passing CI.
