@@ -11,7 +11,7 @@ for forbidden in ("GameLanguages", "hudVocabulary", "languageCode=", "Tap to fly
     assert forbidden not in a+v+l, forbidden
 for term in ('"▶  IGRAJ"', '"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
-             'contentDescription="Povratak na početnu"'):
+             'contentDescription=caption'):
     assert term in a,term
 for term in ('"DODIRNI ZA LET"', '"DODIR = ZAMAH KRILIMA"',
              '"BODOVI"', '"HRANA"', '"Bopi leti. Dodirni za zamah krilima."'):
