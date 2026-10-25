@@ -30,7 +30,7 @@ def section(r):
     header=HEADER.search(body)
     if header is not None and header.group().startswith("## "+tag+" ") and "(build " in header.group():
         # Current releases require their explicit versioned/build-labelled title.
-        title=header.group()
+        title=header.group().rstrip("\r")
     else:
         # v1.0.28 shipped a historical short heading ('## v1.0.28 ')
         # but retained the immutable, authoritative '**Build 158 distribution:**'
@@ -38,7 +38,7 @@ def section(r):
         # Allow this strictly scoped format ONLY if both its exact tag and
         # numeric published build footer are present. A malformed descriptive
         # header or missing build information must still fail closed.
-        legacy=re.search(r"(?m)^## (v\d+\.\d+\.\d+)[ \t]*$",body)
+        legacy=re.search(r"(?m)^## (v\d+\.\d+\.\d+)[ \t]*\r?$",body)
         footer=re.search(r"(?m)^\*\*Build ([1-9]\d*) distribution:\*\*",body)
         if legacy is None or legacy.group(1)!=tag or footer is None:
             raise ValueError("Invalid published release notes for "+tag)
