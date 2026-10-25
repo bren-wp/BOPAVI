@@ -171,7 +171,8 @@ class MainActivity : Activity() {
             text=s.substringAfter("  ",s)
             if(s.startsWith("♛  ")) {
                 setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(BopaviUiIconDrawable.Kind.RECORDS,color,25),null,null,null)
+                    uiIcon(if(s.contains("PAUZA"))BopaviUiIconDrawable.Kind.PAUSE
+                        else BopaviUiIconDrawable.Kind.RECORDS,color,25),null,null,null)
                 compoundDrawablePadding=d(7)
                 contentDescription=s
             }
@@ -431,16 +432,19 @@ class MainActivity : Activity() {
             addView(column)
         }
         android.app.AlertDialog.Builder(this)
-            .setTitle("⚙  OPCIJE IGRE")
-            .setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))
+            .setTitle("OPCIJE IGRE")
+            .setCustomTitle(premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS))
             .setView(scroll)
             .setPositiveButton("GOTOVO",null)
             .show().also { polishGameDialog(it) }
     }
 
     /** Match both in-game overlays to the midnight-blue/cyan Home palette. */
-    private fun premiumDialogHeader(text:String):TextView = TextView(this).apply {
+    private fun premiumDialogHeader(text:String,kind:BopaviUiIconDrawable.Kind):TextView = TextView(this).apply {
         this.text=text
+        setCompoundDrawablesRelativeWithIntrinsicBounds(
+            uiIcon(kind,0xff9be8ff.toInt(),24),null,null,null)
+        compoundDrawablePadding=d(9)
         textSize=21f
         gravity=Gravity.CENTER
         typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
@@ -468,19 +472,24 @@ class MainActivity : Activity() {
             }
         }
         val rows=listOf(
-            "★  Najbolji rezultat" to progress.bestPoints().toString(),
-            "🍓  Najviše hrane u jednom letu" to progress.bestFood().toString(),
-            "▥  Najviše prođenih prepreka" to progress.endlessBest().toString(),
-            "↗  Odigrani letovi" to progress.totalRuns().toString(),
-            "♧  Ukupni zamasi krilima" to progress.totalFlaps().toString()
+            Triple("Najbolji rezultat",progress.bestPoints().toString(),BopaviUiIconDrawable.Kind.STAR),
+            Triple("Najviše hrane u jednom letu",progress.bestFood().toString(),BopaviUiIconDrawable.Kind.BERRY),
+            Triple("Najviše prođenih prepreka",progress.endlessBest().toString(),BopaviUiIconDrawable.Kind.GATE),
+            Triple("Odigrani letovi",progress.totalRuns().toString(),BopaviUiIconDrawable.Kind.FLIGHT),
+            Triple("Ukupni zamasi krilima",progress.totalFlaps().toString(),BopaviUiIconDrawable.Kind.WING)
         )
-        for((caption,value) in rows){
+        for((caption,value,kind) in rows){
             stats.addView(TextView(this).apply{
                 text=caption+"\n"+value
                 textSize=17f
                 typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
                 setTextColor(0xffe6f7ff.toInt())
-                setPadding(d(6),d(7),d(6),d(7))
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(kind,if(kind==BopaviUiIconDrawable.Kind.BERRY)0xffff6179.toInt()
+                        else 0xffffdd72.toInt(),24),null,null,null)
+                compoundDrawablePadding=d(13)
+                contentDescription="$caption: $value"
+                setPadding(d(6),d(8),d(6),d(8))
             },LinearLayout.LayoutParams(-1,-2))
         }
         stats.addView(TextView(this).apply{
@@ -490,8 +499,8 @@ class MainActivity : Activity() {
             setPadding(0,d(12),0,0)
         })
         android.app.AlertDialog.Builder(this)
-            .setTitle("★  MOJI REKORDI")
-            .setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))
+            .setTitle("MOJI REKORDI")
+            .setCustomTitle(premiumDialogHeader("MOJI REKORDI",BopaviUiIconDrawable.Kind.RECORDS))
             .setView(android.widget.ScrollView(this).apply{addView(stats)})
             .setPositiveButton("ZATVORI",null)
             .show().also { polishGameDialog(it) }
@@ -673,7 +682,8 @@ class MainActivity : Activity() {
                 contentDescription=description
                 isClickable=true
                 isFocusable=true
-                setOnClickListener{click()}
+                background=RippleDrawable(ColorStateList.valueOf(0x337eecff),null,null)
+                setOnClickListener{sound.effect("click");click()}
             }
         val privacy=legalLink("Politika privatnosti","Pročitaj politiku privatnosti"){
             showPrivacyNotice()
@@ -942,7 +952,10 @@ class MainActivity : Activity() {
         title(panel,headline,31,Color.WHITE)
         if(newRecord) {
             val recordBanner=TextView(this).apply {
-                text="♛  NOVI REKORD!"
+                text="NOVI REKORD!"
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(BopaviUiIconDrawable.Kind.RECORDS,0xffffecaa.toInt(),24),null,null,null)
+                compoundDrawablePadding=d(8)
                 textSize=19f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 setTextColor(0xffffecaa.toInt())
@@ -1004,17 +1017,31 @@ class MainActivity : Activity() {
         resultCard("REZULTAT",BopaviUiIconDrawable.Kind.STAR,gold,g.score().toString(),gold)
         resultCard("HRANA",BopaviUiIconDrawable.Kind.BERRY,0xffff6179.toInt(),
             g.foodCollected.toString(),0xffffd5d7.toInt())
-        panel.addView(TextView(this).apply{
-            val best=progress.bestPoints()
-            text="★  NAJBOLJI REZULTAT: $best\n🍓  NAJVIŠE HRANE: ${progress.bestFood()}"
-            textSize=16f;gravity=Gravity.CENTER;setTextColor(Color.WHITE)
-            setAutoSizeTextTypeUniformWithConfiguration(13,16,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            contentDescription=text
-            setPadding(d(10),d(11),d(10),d(11))
+        val recordSummary=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER
+            setPadding(d(10),d(4),d(10),d(4))
             background=gradient(0xf0063978.toInt(),0xf0041a3c.toInt(),21)
-        },LinearLayout.LayoutParams(-1,d(60)).apply{topMargin=d(12)})
+        }
+        fun recordSummaryRow(label:String,value:String,kind:BopaviUiIconDrawable.Kind,tint:Int) {
+            recordSummary.addView(TextView(this).apply{
+                text="$label: $value"
+                textSize=16f
+                gravity=Gravity.CENTER
+                setTextColor(Color.WHITE)
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setAutoSizeTextTypeUniformWithConfiguration(12,16,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+                setCompoundDrawablesRelativeWithIntrinsicBounds(uiIcon(kind,tint,19),null,null,null)
+                compoundDrawablePadding=d(7)
+                contentDescription="$label: $value"
+            },LinearLayout.LayoutParams(-1,d(30)))
+        }
+        recordSummaryRow("NAJBOLJI REZULTAT",progress.bestPoints().toString(),
+            BopaviUiIconDrawable.Kind.STAR,gold)
+        recordSummaryRow("NAJVIŠE HRANE",progress.bestFood().toString(),
+            BopaviUiIconDrawable.Kind.BERRY,0xffff6179.toInt())
+        panel.addView(recordSummary,LinearLayout.LayoutParams(-1,d(68)).apply{topMargin=d(10)})
         action(panel,"▶  PONOVO"){
             startGame()
         }
