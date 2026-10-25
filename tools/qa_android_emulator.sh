@@ -180,6 +180,14 @@ label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 alltext=" ".join(label(n) for n in nodes)
 for required in sys.argv[1:]:
     if required not in alltext:raise SystemExit("FAIL: in-app legal dialog lacks "+required)
+# Capture the actual verified native legal window before dismissing it.
+# These are original adb pixels, not screenshots fabricated from HTML.
+from pathlib import Path
+screen="android-privacy" if sys.argv[1]=="POLITIKA PRIVATNOSTI" else "android-terms"
+capture=subprocess.check_output(["adb","exec-out","screencap","-p"])
+if capture[:8]!=bytes.fromhex("89504e470d0a1a0a") or len(capture)<2000:
+    raise SystemExit("FAIL: original Android legal screenshot is invalid")
+Path("qa/screenshots/"+screen+".png").write_bytes(capture)
 closing=[n for n in nodes if n.get("clickable")=="true" and "ZATVORI" in label(n)]
 if len(closing)!=1:raise SystemExit("FAIL: native legal dialog Close missing")
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",closing[0].get("bounds",""))
@@ -217,6 +225,7 @@ subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=T
 PY
 sleep 1
 dump_ui
+capture android-options
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
@@ -280,6 +289,7 @@ subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=T
 PY
 sleep 1
 dump_ui
+capture android-records
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
