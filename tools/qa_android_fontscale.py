@@ -47,7 +47,15 @@ def measured_targets(root: ET.Element, width: int, height: int, density: int) ->
         name = node.get("class", "").split(".")[-1]
         text = (node.get("content-desc") or node.get("text") or "").casefold()
         rect = bounds(node)
-        if rect is None or node.get("clickable") != "true":
+        # SeekBar is an enabled, focusable range widget on Android: its
+        # UIAutomator clickable flag can be false even though users drag or
+        # adjust it with accessibility actions. Verify that real native
+        # interaction contract instead of treating it as an inert Button.
+        interactive = (
+            node.get("enabled", "true") == "true"
+            and (node.get("focusable") == "true" or node.get("clickable") == "true")
+        ) if name == "SeekBar" else node.get("clickable") == "true"
+        if rect is None or not interactive:
             continue
         left, top, right, bottom = rect
         if not (0 <= left < right <= width and 0 <= top < bottom <= height):
