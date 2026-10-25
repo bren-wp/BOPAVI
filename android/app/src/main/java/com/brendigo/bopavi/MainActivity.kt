@@ -174,7 +174,7 @@ class MainActivity : Activity() {
                     uiIcon(if(s.contains("PAUZA"))BopaviUiIconDrawable.Kind.PAUSE
                         else BopaviUiIconDrawable.Kind.RECORDS,color,25),null,null,null)
                 compoundDrawablePadding=d(7)
-                contentDescription=s
+                contentDescription=text.toString()
             }
             textSize=size.toFloat()
             setTextColor(color)
@@ -328,10 +328,17 @@ class MainActivity : Activity() {
                 textSize=15f
                 setTextColor(0xffe6f7ff.toInt())
                 isChecked=enabled
+                // A fixed 48dp row clips Croatian multi-line labels at large
+                // font scales. Allow the switch and its full caption to grow
+                // together without ever shrinking the native hit area.
+                minHeight=d(64)
+                setPadding(d(6),d(9),d(6),d(9))
+                maxLines=4
+                contentDescription=caption
                 thumbTintList=ColorStateList.valueOf(0xff9ff6df.toInt())
                 trackTintList=ColorStateList.valueOf(0xff286d95.toInt())
                 setOnCheckedChangeListener{_,value->onChange(value)}
-            },LinearLayout.LayoutParams(-1,d(48)))
+            },LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT))
         }
         heading("Težina leta")
         val difficulties=android.widget.RadioGroup(this).apply {
@@ -347,7 +354,10 @@ class MainActivity : Activity() {
                 setTextColor(0xffe6f7ff.toInt())
                 contentDescription="Težina: "+labels[index]
                 buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())
-            },android.widget.RadioGroup.LayoutParams(-1,d(45)))
+                minHeight=d(52)
+                setPadding(d(6),d(8),d(6),d(8))
+            },android.widget.RadioGroup.LayoutParams(
+                -1,android.widget.RadioGroup.LayoutParams.WRAP_CONTENT))
         }
         difficulties.check(radioIds[progress.difficulty()])
         difficulties.setOnCheckedChangeListener{_,id->
@@ -561,8 +571,12 @@ class MainActivity : Activity() {
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(0xffe7f8ff.toInt())
             gravity=Gravity.CENTER
+            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            contentDescription="Odaberi lika. "+pilotNames[selectedPilotChoice]+
+                ". "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
         }
-        content.addView(pilotHeading,LinearLayout.LayoutParams(-1,d(25)))
+        content.addView(pilotHeading,LinearLayout.LayoutParams(-1,d(32)))
         val pilots=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -572,6 +586,8 @@ class MainActivity : Activity() {
         fun refreshPilotCards(){
             heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])
             pilotHeading.text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
+            pilotHeading.contentDescription="Odaberi lika. "+pilotNames[selectedPilotChoice]+
+                ". "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
             for(i in 0 until pilots.childCount) {
                 val selected=i==selectedPilotChoice
                 val item=pilots.getChildAt(i) as LinearLayout
