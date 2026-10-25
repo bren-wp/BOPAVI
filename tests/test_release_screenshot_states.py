@@ -14,6 +14,14 @@ for label in (
     assert label in qa,label
 assert "capture android-gameplay-ready" in qa
 assert "capture android-gameplay-active" in qa
+for state in ("options","records"):
+    assert "capture android-"+state in qa,state
+for state in ("privacy","terms"):
+    assert '"android-'+state+'"' in qa,state
+assert 'screencap","-p"' in qa
+assert 'FAIL: original Android legal screenshot is invalid' in qa
+assert 'for expected in ("OPCIJE IGRE"' in qa
+assert 'for expected in ("MOJI REKORDI"' in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa
 assert 'FAIL: real Pause dialog/buttons did not appear' in qa
