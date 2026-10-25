@@ -19,7 +19,7 @@ def sample(width=720, height=1280, density=320):
             "content-desc": caption,
             "text": caption,
             "clickable": "false" if widget == "SeekBar" else "true",
-            "focusable": "true",
+            "focusable": "false" if widget == "SeekBar" else "true",
             "enabled": "true",
             "bounds": f"[20,100][{width-20},{100+h}]",
         })
