@@ -1,6 +1,6 @@
 # BOPAVI — Current Android screens
 
-**Published release baseline:** v1.0.30 (build 160). New candidate version
+**Published release baseline:** v1.0.31 (build 161). New candidate version
 metadata belongs in Gradle and docs/release/NEXT.md until publication.
 
 The Android entry point is MainActivity.onCreate → showHome. There are four
@@ -17,7 +17,7 @@ world selection, account page or monetization screen is reachable.
 | Terms (Home dialog) | Bundled offline Croatian terms and Close | BOPAVI-Android-Terms.png (from v1.0.31) |
 | Flight (preview) | First flap begins live simulation | BOPAVI-Android-Flight-Preview.png |
 | Flight (active) | Fly past pillars and collect red berries | BOPAVI-Android-Flight-Active.png |
-| Pause (overlay) | Continue, restart or exit | BOPAVI-Android-Pause.png (from v1.0.30) |
+| Pause (overlay) | Continue, restart or exit | BOPAVI-Android-Pause.png (from v1.0.31) |
 | Results | Show saved best, food and retry/home | BOPAVI-Android-Results.png |
 
 Actual release assets: https://github.com/bren-wp/BOPAVI/releases/latest.
