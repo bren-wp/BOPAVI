@@ -3,6 +3,19 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.30 — Uniform native icons, Records/Results polish and touch accessibility (build 160)
+
+**Published:** 2026-10-25 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.30)
+
+- **Results screen:** replace platform-dependent star and strawberry emoji in personal-best summary with reusable antialiased BOPAVI STAR and BERRY pictograms, preserving genuine persisted best points and food.
+- **Records dialog:** show a consistent native icon beside each of five real offline statistics (best points, food, obstacles, flights and flaps). Add new native GATE, FLIGHT and WING drawings; each row has one complete, spoken TalkBack label and value rather than a decorative emoji glyph.
+- **Options and Records headers:** use consistent native SETTINGS/RECORDS pictograms; avoid emoji glyphs that change with device and font.
+- **Pause:** use the actual PAUSE pictogram (not a trophy icon); improve accessible resume action label to "Nastavi let".
+- **Buttons and legal links:** add bounded native ripple feedback and keep explicit 48dp clickable areas, real native input targets and Croatian accessibility descriptions.
+- **Native icon correctness:** correctly compose red berry opacity and green foliage alpha with Drawable alpha; preserve colour filter and original approved Bopi launcher artwork, adaptive icon mask and three pilots.
+- **QA:** update icon, layout and options regression contracts, add a cross-screen native stats accessibility contract; run full Android lint/unit/gameplay/visual QA on Android 15/16, generate five authentic app screenshots and preserve signed-key policy.
+- **Compatibility:** retain original saved progress keys, score logic, collision physics, package name and all existing offline privacy/security behavior.
+
 ## v1.0.29 — Gameplay obstacle honesty, original Bopi launcher and safe UI (build 159)
 
 **Published:** 2026-10-25 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.29)
@@ -14,13 +27,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **App launcher:** make Bopi's authentic approved portrait slightly larger on legacy square launchers, without modifying its pixel content or changing the certified adaptive/themed launcher foreground safe size and original silhouette.
 - **All-screen proof:** Android 15 CI now taps the real Pause button, checks `NASTAVI`, `PONOVO`, and `IZLAZ`, captures a distinct genuine Pause screen, resumes the same flight and then tests its final Results/Retry flow. The new Pause PNG joins the GitHub release and five-image Play/F-Droid submission kits, with SHA-256 verification.
 - **CI and documentation:** add regression guards for rooted shaft visual geometry, cap-only collision shoulders, all six pillar widths, adaptive-icon provenance, legacy icon sizing and Android inset handling. Existing full static/security/audio/art audits, JVM tests and Android 15/16 emulator QA remain mandatory.
-
-## v1.0.28 — Android (build 158)
-
-**Published:** 2026-10-24 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.28)
-
-- **Result cards:** fruit counts render a native red berry pictogram (not the gold trophy colour); score keeps a separate native gold star. Pictogram type and tint are provided directly, without guessing from an emoji string.
-- **Navigation accessibility:** native return-home button speaks its actual displayed caption rather than an unrelated fixed description.
-- **Full-bleed Android 15/16:** Result screen reserves both system bar and display cutout insets, consistent with the Home viewport. Request an initial inset dispatch immediately after attaching the native view. Preserve full-bleed background artwork.
-- **Safety:** preserve the original Bopi launcher icon, 3 pilot portraits, actual game physics, saved data, offline privacy and native Pause controls.
-- **QA:** source-contract regression test for result pictogram semantics and safe inset handling, complete Android lint/unit/build, Android 15 and Android 16 emulator QA and artifact checksums.
