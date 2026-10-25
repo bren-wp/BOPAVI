@@ -28,14 +28,28 @@ def releases(items):
 def section(r):
     tag=r["tag_name"];body=str(r.get("body") or "")
     header=HEADER.search(body)
-    if header is None or not header.group().startswith("## "+tag+" ") or "(build " not in header.group():
-        raise ValueError("Invalid published release notes for "+tag)
+    if header is not None and header.group().startswith("## "+tag+" ") and "(build " in header.group():
+        # Current releases require their explicit versioned/build-labelled title.
+        title=header.group()
+    else:
+        # v1.0.28 shipped a historical short heading ('## v1.0.28 ')
+        # but retained the immutable, authoritative '**Build 158 distribution:**'
+        # footer. Do not modify a published GitHub release merely to fix docs.
+        # Allow this strictly scoped format ONLY if both its exact tag and
+        # numeric published build footer are present. A malformed descriptive
+        # header or missing build information must still fail closed.
+        legacy=re.search(r"(?m)^## (v\d+\.\d+\.\d+)[ \t]*$",body)
+        footer=re.search(r"(?m)^\*\*Build ([1-9]\d*) distribution:\*\*",body)
+        if legacy is None or legacy.group(1)!=tag or footer is None:
+            raise ValueError("Invalid published release notes for "+tag)
+        header=legacy
+        title="## "+tag+" — Android (build "+footer.group(1)+")"
     notes=body[header.end():].split("**Build ",1)[0].splitlines()
     bullets=[line.strip() for line in notes if line.strip().startswith("- ")]
     if not bullets:raise ValueError("Release missing documented changes: "+tag)
     date=r["published_at"][:10]
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}",date):raise ValueError("Bad publication date")
-    return header.group()+"\n\n**Published:** "+date+" · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/"+tag+")\n\n"+"\n".join(bullets[:12])+"\n"
+    return title+"\n\n**Published:** "+date+" · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/"+tag+")\n\n"+"\n".join(bullets[:12])+"\n"
 def render(items):
     if not items:raise ValueError("No stable release")
     intro="# BOPAVI — Published stable releases\n\nOnly two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).\nAll previous versions remain at https://github.com/bren-wp/BOPAVI/releases.\n\n"
