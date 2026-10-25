@@ -49,7 +49,7 @@ class FDroidDistributionTests(unittest.TestCase):
         self.assertIn("tools/package_fdroid_submission.py --commit", wf)
         self.assertIn("BOPAVI-FDroid-submission-", wf)
         self.assertIn("SHA256SUMS.txt", wf)
-        self.assertIn("test \"$(wc -l < SHA256SUMS.txt)\" -eq 10", wf)
+        self.assertIn("test \"$(wc -l < SHA256SUMS.txt)\" -eq 14", wf)
 
 
 if __name__ == "__main__":
