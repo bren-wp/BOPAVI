@@ -34,7 +34,7 @@ assert "applySafeViewportInsets(view,insets)" in main
 assert "viewport.requestApplyInsets()" in main
 assert "fitted.requestApplyInsets()" in main
 
-assert "paint.color = Color.argb(requestedAlpha, 76, 211, 137)" in icon
+assert "paint.color = Color.argb(Color.alpha(paint.color), 76, 211, 137)" in icon
 assert "legacy_mascot=ImageOps.contain(mascot,(905,905)" in generator
 assert "icon_mascot=ImageOps.contain(mascot,(735,735)" in generator
 assert "foreground.alpha_composite(icon_mascot" in generator
