@@ -18,7 +18,9 @@ def sample(width=720, height=1280, density=320):
             "class": "android.widget." + widget,
             "content-desc": caption,
             "text": caption,
-            "clickable": "true",
+            "clickable": "false" if widget == "SeekBar" else "true",
+            "focusable": "true",
+            "enabled": "true",
             "bounds": f"[20,100][{width-20},{100+h}]",
         })
     return root
@@ -38,6 +40,15 @@ class LargeFontGeometryTests(unittest.TestCase):
         self.assertNotIn("relaxed", seen)
         self.assertNotIn("motion", seen)
         self.assertIn("sound", seen)
+
+    def test_seekbar_accessibility_does_not_require_clickable_button_semantics(self):
+        root = sample()
+        # Android exposes enabled/focusable native range controls that can
+        # receive a drag or accessibility adjust action without clickable=true.
+        self.assertEqual(root.findall("node")[6].get("clickable"), "false")
+        self.assertIn("music", measured_targets(root, 720, 1280, 320))
+        root.findall("node")[6].set("enabled", "false")
+        self.assertNotIn("music", measured_targets(root, 720, 1280, 320))
 
     def test_offscreen_or_noninteractive_controls_cannot_pass(self):
         root = sample()
