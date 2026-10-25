@@ -11,6 +11,10 @@ world selection, account page or monetization screen is reachable.
 | State | Action | Genuine Android screenshot |
 |---|---|---|
 | Home | Choose one of three pilots, adjust native options, view local records, read legal notices or press IGRAJ | BOPAVI-Android-Home.png |
+| Options (Home dialog) | Difficulty, sound, vibration, reduced motion, music/effect sliders; expandable text/touch targets | BOPAVI-Android-Options.png (from v1.0.31) |
+| Records (Home dialog) | Five live offline statistics and a Close action | BOPAVI-Android-Records.png (from v1.0.31) |
+| Privacy (Home dialog) | Bundled offline Croatian policy and Close | BOPAVI-Android-Privacy.png (from v1.0.31) |
+| Terms (Home dialog) | Bundled offline Croatian terms and Close | BOPAVI-Android-Terms.png (from v1.0.31) |
 | Flight (preview) | First flap begins live simulation | BOPAVI-Android-Flight-Preview.png |
 | Flight (active) | Fly past pillars and collect red berries | BOPAVI-Android-Flight-Active.png |
 | Pause (overlay) | Continue, restart or exit | BOPAVI-Android-Pause.png (from v1.0.30) |
