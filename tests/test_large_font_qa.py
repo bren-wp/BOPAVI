@@ -52,7 +52,7 @@ class LargeFontGeometryTests(unittest.TestCase):
         launcher = (ROOT / "tools/qa_android_emulator.sh").read_text()
         workflow = (ROOT / ".github/workflows/native-ci.yml").read_text()
         for required in ("compact-fs100", "compact-fs130", "compact-fs150",
-                         "tall-fs150", "uiautomator", "screencap", "wm\", \"size\", \"reset"):
+                         "tall-fs150", "uiautomator", "screencap", '"wm", "size", "reset"'):
             self.assertIn(required, qa)
         self.assertIn("python3 tools/qa_android_fontscale.py", launcher)
         self.assertEqual(workflow.count("BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh"), 2)
