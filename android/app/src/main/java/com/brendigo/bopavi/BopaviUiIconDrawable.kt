@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -136,6 +136,36 @@ internal class BopaviUiIconDrawable(
                 path.close()
                 canvas.drawPath(path, paint)
             }
+            Kind.GATE -> {
+                // The two opposing pillars share one canvas grammar with
+                // the real in-flight obstacles; their central gap stays clear.
+                paint.style = Paint.Style.FILL
+                canvas.drawRoundRect(4f, 2f, 10f, 9f, 1.2f, 1.2f, paint)
+                canvas.drawRoundRect(14f, 2f, 20f, 9f, 1.2f, 1.2f, paint)
+                canvas.drawRoundRect(4f, 15f, 10f, 22f, 1.2f, 1.2f, paint)
+                canvas.drawRoundRect(14f, 15f, 20f, 22f, 1.2f, 1.2f, paint)
+            }
+            Kind.FLIGHT -> {
+                // Directional movement, not a font glyph or an emoji plane.
+                path.moveTo(2.8f, 18f)
+                path.quadTo(8f, 9f, 18.5f, 6f)
+                path.moveTo(11f, 5.5f)
+                path.lineTo(19f, 5.5f)
+                path.lineTo(16f, 13f)
+                canvas.drawPath(path, paint)
+                canvas.drawLine(4f, 20f, 10f, 20f, paint)
+            }
+            Kind.WING -> {
+                paint.style = Paint.Style.FILL
+                path.moveTo(3f, 16f)
+                path.cubicTo(7f, 6f, 13f, 3f, 21f, 4f)
+                path.cubicTo(20f, 9f, 14f, 13f, 11f, 17f)
+                path.lineTo(7f, 20f)
+                path.close()
+                canvas.drawPath(path, paint)
+                paint.color = Color.argb(Color.alpha(paint.color), 8, 48, 91)
+                canvas.drawLine(7f, 18f, 17f, 7f, paint)
+            }
             Kind.BERRY -> {
                 paint.style = Paint.Style.FILL
                 canvas.drawCircle(8.5f, 14f, 5f, paint)
@@ -143,7 +173,7 @@ internal class BopaviUiIconDrawable(
                 // The fruit is the requested red ink; foliage must stay
                 // green, otherwise a strawberry reads as an abstract red blob.
                 // Honour Drawable alpha and any host-provided ColorFilter.
-                paint.color = Color.argb(requestedAlpha, 76, 211, 137)
+                paint.color = Color.argb(Color.alpha(paint.color), 76, 211, 137)
                 paint.strokeWidth = 1.9f
                 canvas.drawLine(12f, 10f, 13f, 5f, paint)
                 path.moveTo(13f, 7f)
