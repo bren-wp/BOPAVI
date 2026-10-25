@@ -47,6 +47,17 @@ class DocsTests(unittest.TestCase):
         self.assertIn("Croatian results and accessible navigation.", rendered)
         self.assertNotIn("distribution:", rendered)
 
+    def test_github_crlf_legacy_release_notes_are_accepted(self):
+        item = record("v1.0.28")
+        item["body"] = (
+            "## v1.0.28 \r\n\r\n"
+            "- Published Croatian UI fixes.\r\n"
+            "\r\n**Build 158 distribution:** immutable artifacts.\r\n"
+        )
+        rendered = section(item)
+        self.assertIn("## v1.0.28 — Android (build 158)", rendered)
+        self.assertIn("- Published Croatian UI fixes.", rendered)
+
     def test_short_heading_must_have_matching_tag_and_real_build_footer(self):
         for body in (
             "## v1.0.28\n- Correct button.\n",
