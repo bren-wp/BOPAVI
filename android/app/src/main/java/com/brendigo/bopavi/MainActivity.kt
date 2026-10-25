@@ -57,7 +57,7 @@ class MainActivity : Activity() {
                    else BopaviUiIconDrawable.Kind.PAUSE,Color.WHITE,25),
             null,null,null)
         button.gravity=Gravity.CENTER
-        button.contentDescription=if(resume)"Nastavi ili izađi iz pauze"
+        button.contentDescription=if(resume)"Nastavi let"
             else "Pauziraj igru"
     }
     /** One inset policy for Home and Results on every supported API (26–36).
@@ -682,7 +682,8 @@ class MainActivity : Activity() {
                 contentDescription=description
                 isClickable=true
                 isFocusable=true
-                background=RippleDrawable(ColorStateList.valueOf(0x337eecff),null,null)
+                background=RippleDrawable(ColorStateList.valueOf(0x337eecff),
+                    GradientDrawable().apply{setColor(Color.TRANSPARENT);cornerRadius=d(12).toFloat()},null)
                 setOnClickListener{sound.effect("click");click()}
             }
         val privacy=legalLink("Politika privatnosti","Pročitaj politiku privatnosti"){
