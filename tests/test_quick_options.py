@@ -18,7 +18,8 @@ assert 'secondaryChoice("★  REKORDI","Pogledaj svoje rekorde"){showLocalRecord
 assert 'LinearLayout.LayoutParams(0,d(48),1f)' in home
 assert 'action(content,"▶  IGRAJ"){startGame()}' in home
 assert 'showSettings(' not in main
-assert 'setTitle("⚙  OPCIJE IGRE")' in options
+assert 'setTitle("OPCIJE IGRE")' in options
+assert 'premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS)' in options
 assert 'progress.difficultyNames' in options and 'progress.setDifficulty(index)' in options
 assert 'progress.setSoundEnabled(enabled)' in options and 'sound.enabled=enabled' in options
 assert 'progress.setHapticEnabled(enabled)' in options
