@@ -102,6 +102,13 @@ def verify_current_release(repository: str, tag: str, releases: list[dict]) -> N
     # published releases are immutable and retain their original 10 assets.
     if tuple(map(int, tag[1:].split("."))) >= (1, 0, 29):
         expected.add("BOPAVI-Android-Pause.png")
+    # v1.0.31 adds actual emulator captures of every accessible Home dialog.
+    # Preserve historical published asset sets and their original checksums.
+    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 31):
+        expected.update({
+            "BOPAVI-Android-Options.png", "BOPAVI-Android-Records.png",
+            "BOPAVI-Android-Privacy.png", "BOPAVI-Android-Terms.png",
+        })
     assets = published[0].get("assets")
     if not isinstance(assets, list) or set(assets) != expected or len(assets) != len(expected):
         raise ValueError(f"New release {tag} has missing or unexpected assets")
