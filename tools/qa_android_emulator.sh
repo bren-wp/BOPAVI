@@ -637,3 +637,10 @@ PY
   adb shell wm density reset
   BOPAVI_RESIZE_IN_PROGRESS=0
 fi
+
+# Actual dynamic text scaling on compact and tall Android displays.
+# Keep the release screenshot flow unchanged; these additional emulator
+# states validate native touch geometry and scroll reachability only.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  python3 tools/qa_android_fontscale.py
+fi
