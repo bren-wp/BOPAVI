@@ -153,7 +153,17 @@ def audit_case(label: str, width: int, height: int, density: int, scale: str) ->
         if set(TARGETS) <= found:
             break
         swipe(width, height)
+    # Preserve the final scrolled state and exact native hierarchy for
+    # diagnosing genuine clipping or accessibility failures in CI artifacts.
+    SCREENSHOTS.mkdir(parents=True, exist_ok=True)
+    (SCREENSHOTS / f"android-options-{label}-final.xml").write_text(
+        ET.tostring(root, encoding="unicode"), encoding="utf-8")
+    screenshot(f"android-options-{label}-scroll", width, height)
     missing = sorted(set(TARGETS) - found)
+    if missing:
+        for n in root.iter("node"):
+            if (n.get("class") or "").endswith("SeekBar"):
+                print(f"QA SeekBar {label}: {n.attrib}", flush=True)
     assert header_seen, f"FAIL: Options dialog missing on {label}"
     assert not missing, f"FAIL: {label} missing, clipped or undersized controls: {missing}"
     # The action bar must remain reachable without hiding the settings content.
