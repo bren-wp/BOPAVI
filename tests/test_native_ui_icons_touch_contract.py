@@ -22,7 +22,7 @@ assert "scaleX=" not in viewport and "scaleY=" not in viewport
 assert "scaleX =" not in viewport and "scaleY =" not in viewport
 assert "clipToPadding = false" in viewport
 
-for kind in ("PLAY","PAUSE","RESTART","HOME","EXIT","SETTINGS","RECORDS","STAR","BERRY"):
+for kind in ("PLAY","PAUSE","RESTART","HOME","EXIT","SETTINGS","RECORDS","STAR","BERRY","GATE","FLIGHT","WING"):
     assert kind in icons, kind
 assert "Paint(Paint.ANTI_ALIAS_FLAG)" in icons
 assert "override fun getIntrinsicWidth()" in icons
