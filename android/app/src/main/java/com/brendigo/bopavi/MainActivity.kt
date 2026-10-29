@@ -1087,6 +1087,11 @@ class MainActivity : Activity() {
         fitted.requestApplyInsets()
     }
 
+    // Android 13+ uses the registered OnBackInvokedCallback above; this
+    // Activity override remains solely for API 26–32 hardware/system Back.
+    // AGP 9 lint cannot infer the runtime-guarded callback registration.
+    @android.annotation.SuppressLint("GestureBackNavigation")
+    @Suppress("DEPRECATION")
     override fun onBackPressed() = navigateBack()
 
     private fun navigateBack() {
