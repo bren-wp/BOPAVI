@@ -48,7 +48,7 @@ for needle in (
     assert needle in sim,needle
 assert 'terminalFallSpeed:Float=365f' in abilities
 assert 'terminalFallSpeed=315f' in abilities
-assert 'fun hudTint(guardReady:Boolean):Int' in abilities
+assert "fun hudTint(" not in abilities and "fun hudStatus(" not in abilities
 assert 'FlightChallengePolicy.levelSpeed(zone,world,epoch,type)' in level
 assert 'FlightChallengePolicy.gateGap(' in level
 assert 'FlightChallengePolicy.gateMovement(' in level
@@ -60,7 +60,7 @@ for name in ('threeSelectablePilotsAreDistinctAndStable',
              'guardCannotBeCarriedIntoLegacyFiniteLevels',
     'owlHasARealLowerTerminalFallSpeedWithoutChangingCollision',
     'everyPilotKeepsFlightPhysicsConsistentAt30_60_120Hz',
-    'abilityChipColoursExposeShieldReadyAndSpentStates'):
+    'skillsKeepTheirSavedIdentifiersAfterRemovingPowerHud'):
     assert name in tests,name
 for name in ('generatedWorldsAreFasterButBoundedAndDeterministic',
              'gatesAreTougherAfterWarmupWithoutImpossibleMouths',
