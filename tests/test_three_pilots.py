@@ -16,7 +16,7 @@ home=main.split("private fun showHome(){",1)[1].split("private fun showPremiumPa
 assert "refreshPilotCards()" in home
 assert "showHome()" not in home
 assert "heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])" in home
-assert "GameView(this,simulation,progress.lessMotion(),pilotSpriteIds[selectedPilotChoice]" in main
+assert "pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled()" in main
 assert "arcade_pilot" in store and 'prefs.getInt("skin_index", 0)' in store
 assert "bopiportrait9" in main and "bopiportrait10" in main
 assert "selectedSkin=skinIndex.coerceIn(0,10)" in view
