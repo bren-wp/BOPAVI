@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR) · kandidat v1.0.35 / build 165 · posljednje objavljeno izdanje v1.0.35 (build 165)
+# Google Play — BOPAVI (hr-HR) · kandidat v1.0.36 / build 166 · posljednje objavljeno izdanje v1.0.36 (build 166)
 
 <!-- verified-feature-ids: home,inline_pilot_selection,flight,tap_to_flap,procedural_obstacles,pause,results,score,berries,local_best,retry,offline,no_ads,no_account -->
 
@@ -22,7 +22,7 @@ Igra radi bez internetske veze, korisničkog računa i oglasa. Nema kupnji unuta
 
 ## Autentične slike — ugovor
 
-Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Referentni izvori javno objavljenog izdanja v1.0.35: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.35. Za v1.0.35 koristiti isključivo nove, stvarne screenshotove snimljene na istom buildu nakon uspješnog QA; stari screenshotovi nisu kandidati za novo izdanje.
+Dopušteni kandidati iz istog izdanja: BOPAVI-Android-Home.png, BOPAVI-Android-Flight-Preview.png, BOPAVI-Android-Flight-Active.png, BOPAVI-Android-Results.png. Referentni izvori javno objavljenog izdanja v1.0.36: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.36. Za v1.0.36 koristiti isključivo nove, stvarne screenshotove snimljene na istom buildu nakon uspješnog QA; stari screenshotovi nisu kandidati za novo izdanje.
 
 - Home: glavni gumb IGRAJ, tri izborna lika i dva diskretna tekstualna linka (privatnost i uvjeti).
 - Flight Preview: prikaz prije prvog zamaha; **ne** predstavljati ga kao aktivni gameplay.

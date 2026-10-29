@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.36 — Canvas transparency and safe return to flight (build 166)
+
+**Published:** 2026-10-29 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.36)
+
+- Fix common Android Canvas `fill(color)` resetting supplied ARGB alpha to 100%. Respect semi-transparent glass, ghosted/empty hearts, pillar materials, bevel highlights, atmospheric layers and effect rings, restoring intended depth while leaving collision bounds unchanged.
+- Prevent foreground re-entry into a stuck paused flight with no Pause HUD. On background, freeze an active run; when its Activity safely regains focus, present the existing native Continue/Retry/Exit dialog **once**. Already-paused sessions do not receive a duplicate dialog. Reset any pending modal request on Home, new Flight or Results.
+- Add deterministic Android 15 background→foreground gameplay QA (same PID, preserved active flight/lives, native single Pause, no HUD Pause button) alongside rotation and viewport tests; add source contracts for paint transparency.
+- Retain Bopi/Sova/Lisac abilities, the 18-unit hitbox, deliberately harder 54–110-unit gates and 164-unit safety floor from v1.0.35.
+- Keep Gradle 9.6.0, AGP 9.5.0, JDK 17, `compileSdk = 36`, `targetSdk = 36`, `minSdk = 26`, offline-only app and existing shared preferences/backups.
+
 ## v1.0.35 — Lives-only Flight, frontal pilots and harder polished obstacles (build 165)
 
 **Published:** 2026-10-29 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.35)
@@ -12,12 +22,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Redraw collision-aligned obstacle lips with depth highlights and cleaner shafts, removing busy flecks without changing the actual collider. Improve difficulty after the introductory pillars via narrower/recovery openings and alternating 54–110-unit real pillar widths, while retaining the 164-unit minimum gate gap and the existing hard-mode 145-unit physical-opening floor.
 - Upgrade the Android build toolchain to Android Gradle Plugin 9.5.0, Gradle 9.6.0 and JDK 17, keeping compileSdk/targetSdk 36 and minSdk 26.
 - Remove retired gameplay overlay/status helpers and replace outdated source/UI contracts with lives-only and real system-Back checks. Keep original score/history/ability save data, offline privacy policy, motion-accessibility and lifecycle protections.
-
-## v1.0.34 — Active-flight rotation regression QA (build 164)
-
-**Published:** 2026-10-29 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.34)
-
-- Strengthen the Android 15 rotation test from an idle-preview check to a genuine first-flap flight check, using the existing debug-only capture gate.
-- Verify that score, lives, pilot ability and the current GameView accessibility state remain identical across landscape-to-portrait rotation, and that the native Pause control stays visible and tappable within display bounds.
-- Verify the same process remains alive and that the ongoing flight accepts the next genuine flap after rotation. Preserve all existing Android 15/16 UI, gameplay, large-font, R8 and release-integrity gates.
-- Keep original gameplay physics, 480 × 800 logical coordinates, art, sound, offline privacy model and saved preferences unchanged. This is a verification-only source change, not a claim of a newly discovered production crash fix.
