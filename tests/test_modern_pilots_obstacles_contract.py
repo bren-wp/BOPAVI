@@ -28,7 +28,7 @@ assert "g.width" in view
 assert "seededGateRhythmsHaveBodyClearanceAndRecoverableAltitudeChanges" in fairness
 assert "c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))" in view
 assert "PilotFlightPose.wingDegrees(game.time,game.flapPulse,reducedMotion)" in view
-assert "coerceIn(-14f,22f)" in pose
+assert "coerceIn(-7f,9f)" in pose
 assert "allCharactersUseSameActualRenderingPose" in unit
 assert "0xe8092949.toInt()" in view
 assert "p.strokeWidth=1.3f" in view
@@ -37,4 +37,4 @@ assert "foreground.alpha_composite(icon_mascot" in generator
 assert "legacy_layer.alpha_composite(legacy_mascot" in generator
 assert "assert adaptive.tobytes()==expected.tobytes()" in icon
 assert "ImageDraw.Draw(halo" not in generator
-print("PASS: real challenging pillars, common Bopi-like pose, modern HUD and exact mascot icon")
+assert "drawPolishedGateLip(c,x,w,top-28f)" in view\nassert "M-17 29 Q-34 55" in (root/"docs/assets/lisac.svg").read_text()\nprint("PASS: collision-safe pillars, frontal Sova/Lisac rig and original mascot icon")
