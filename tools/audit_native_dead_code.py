@@ -49,8 +49,12 @@ def main():
         require(obsolete not in joined,f"Unused gameplay helper restored: {obsolete}")
     require('drawStoneCourses(' in game and 'fun courses(yStart' not in game,
             "Per-obstacle renderer closure was reintroduced")
-    require('"BODOVI"' in game and '"HRANA"' in game,
-            "Croatian gameplay HUD missing")
+    require('"ŽIVOTI"' in game and 'cachedScore' not in game,
+            "Lives-only gameplay HUD missing")
+    require('gamePauseButton' not in activity and 'FlightOverlayLayout' not in joined,
+            "Retired on-screen Pause overlay remains")
+    require('drawPolishedGateLip(' in game,
+            "Premium obstacle bevel disconnected")
     require('contentDescription=caption' in activity,
             "Accessible native Back button missing")
     require('fun importJson(contents: String)' in store and
