@@ -2,8 +2,6 @@ package com.brendigo.bopavi
 
 /** Stable 480x800 logical-space HUD: a single centered lives card. */
 internal data class FlightHudBox(val left:Float,val top:Float,val right:Float,val bottom:Float) {
-    fun intersects(other:FlightHudBox):Boolean =
-        left<other.right && right>other.left && top<other.bottom && bottom>other.top
     fun encloses(x:Float,y:Float):Boolean =
         x>=left && x<=right && y>=top && y<=bottom
 }
