@@ -20,7 +20,10 @@ for outdated in ("window.statusBarColor", "window.navigationBarColor",
 for old_theme in ('name="android:statusBarColor"', 'name="android:navigationBarColor"'):
     assert old_theme not in theme, old_theme
 assert "window.setDecorFitsSystemWindows(false)" in app
-assert "window.insetsController?.hide(android.view.WindowInsets.Type.statusBars())" in app
+assert "decor.post {" in app
+assert "if(decor.isAttachedToWindow)" in app
+assert "decor.windowInsetsController?.hide(" in app
+assert "window.insetsController?.hide(" not in app
 assert "View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION" in app
 assert "applySafeViewportInsets(view,insets)" in app
 assert "Type.displayCutout()" in app
