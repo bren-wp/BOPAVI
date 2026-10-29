@@ -39,7 +39,7 @@ assert 'fun totalRuns():Int' in store and 'fun totalFlaps():Long' in store
 for name in ('difficulty','sound_enabled','haptic_enabled','less_motion','music_volume','effects_volume','endless_runs','flaps'):
     assert '"'+name+'"' in store,name
 assert 'android.permission.INTERNET' not in manifest
-print("PASS: reachable quick options and records, real difficulty, no new routes or permissions")
+print("PASS: reachable quick options and records, real difficulty and new offline menu routes")
 
 qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 for contract in (
@@ -52,7 +52,7 @@ for contract in (
     assert contract in qa,contract
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
-assert 'd(if(tinyDisplay)110 else if(compactDisplay)145 else 230)' in main
+assert 'd(if(tinyDisplay)100 else if(compactDisplay)128 else 203)' in main
 
 # The approved home logo already paints the slogan: do not waste another
 # full-height native row and scale the 48dp legal hitboxes on compact phones.
