@@ -108,7 +108,17 @@ class MainActivity : Activity() {
     private fun applyPremiumSystemBars() {
         if (Build.VERSION.SDK_INT >= 30) {
             window.setDecorFitsSystemWindows(false)
-            window.insetsController?.hide(android.view.WindowInsets.Type.statusBars())
+            // Window.getInsetsController() dereferences DecorView before
+            // attachment and crashed Android 15/16 during Activity.onCreate.
+            // View.getWindowInsetsController() is nullable until attached.
+            // A posted action runs after setContentView has created the root.
+            val decor=window.decorView
+            decor.post {
+                if(decor.isAttachedToWindow) {
+                    decor.windowInsetsController?.hide(
+                        android.view.WindowInsets.Type.statusBars())
+                }
+            }
         } else {
             window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
