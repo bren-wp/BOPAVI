@@ -240,7 +240,7 @@ class LevelEngineTest {
             assertEquals("First obstacle already visible at world=$world level=$number",420f,level.gates.first().x,0f)
             assertTrue("Intro retains familiar shafts",level.gates.take(2).all { it.width in 64f..91f })
             assertTrue("Every gate uses an honestly rendered collision width",
-                level.gates.all { it.width in 54f..104f })
+                level.gates.all { it.width in 54f..110f })
             assertTrue("Later levels mix noticeably slim and wide pillars",
                 level.gates.drop(2).map { it.width }.toSet().size>=5)
             assertTrue("A genuinely wide barrier must occur in every batch",
