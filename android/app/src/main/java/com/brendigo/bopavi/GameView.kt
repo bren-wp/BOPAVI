@@ -794,6 +794,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             row+=57f;n++
         }
     }
+    /** World-colored beveling stays entirely inside the real rounded collision lip. */
+    private fun drawPolishedGateLip(c:Canvas,x:Float,w:Float,y:Float) {
+        // Thin highlight, shaded vertical edges and underside add depth without
+        // making the collision opening look narrower than the actual hitbox.
+        rect(c,x-3f,y+3f,x+w+1f,y+7f,0x66ffffff,2f)
+        rect(c,x-3f,y+8f,x+2f,y+22f,0x44ffffff,2f)
+        rect(c,x+w-2f,y+7f,x+w+2f,y+23f,0x880c2747.toInt(),2f)
+        rect(c,x-3f,y+23f,x+w+2f,y+26f,0x990a2948.toInt(),2f)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -805,9 +814,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
+        drawPolishedGateLip(c,x,w,top-28f)
         if(g.kind==0) drawMossLedge(c,x,w,top-28f,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
+        drawPolishedGateLip(c,x,w,bottom)
         if(g.kind==0) drawMossLedge(c,x,w,bottom,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
@@ -816,51 +827,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val stratumGlint=biomeReliefGlints[g.kind]
         drawRockStrata(c,x,w,pillarRenderTop+11f,top-29f,cliffSeed,shade,stratumGlint)
         drawRockStrata(c,x,w,bottom+28f,pillarRenderBottom-12f,-cliffSeed,shade,stratumGlint)
-        // Width-aware material flecks make both narrow and wide pillars look
-        // finished; every speck stays strictly inside the collision cap.
-        val fleck=when(g.kind){
-            0->0xffb7ed7a.toInt();1->0xff9af7ff.toInt()
-            2->0xffffd06e.toInt();3->0xffffe29a.toInt()
-            4->0xfff8e5cc.toInt();5->0xffffe6a1.toInt()
-            6->0xffa7ffdf.toInt();else->0xffd9baff.toInt()
-        }
-        for(j in 0..2) {
-            val fx=x+9f+(w-22f)*j*.5f
-            val inset=if(j==1)2f else 0f
-            oval(c,fx,top-17f+inset,fx+5f,top-12f+inset,fleck)
-            oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
-        }
-        val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
-        rect(c,x+6f,pillarRenderTop+13f,x+13f,top-30f,highlight,3f)
-        rect(c,x+6f,bottom+28f,x+13f,pillarRenderBottom-16f,highlight,3f)
-        when(g.kind){
-            0->{
-                // Layered rock with grassy ledges. Textures stay within the shaft/cap collider.
-                for(j in 0..2){
-                    val yy=60f+j*110f
-                    if(yy+18f<top-29f)rect(c,x+12f,yy,x+47f,yy+8f,0x77906a5c,3f)
-                    val by=bottom+38f+j*115f
-                    if(by+18f<755f)rect(c,x+9f,by,x+44f,by+8f,0x77906a5c,3f)
-                }
-                for(j in 0..2){val xx=x+j*17f;oval(c,xx,top-24f,xx+16f,top-14f,0xff4ee882.toInt())}
-                for(j in 0..2){val xx=x+j*19f;oval(c,xx,bottom+6f,xx+12f,bottom+12f,0xff2b934d.toInt())}
-            }
-            2,6->{ for(j in 0..2){val yy=top-24+j*7f;oval(c,x+j*16f,yy,x+j*16f+13f,yy+7f,shade)} }
-            1->{for(j in 0..2)oval(c,x+j*18f,bottom+6f,x+j*18f+12f,bottom+12f,0xffffe6b4.toInt())}
-            3->{
-                rect(c,x,bottom+7f,x+w,bottom+14f,0xffffd56d.toInt(),3f)
-                for(j in 0..2){val xx=x+12f+j*18f;oval(c,xx,bottom+16f+j%2*5f,xx+6f,bottom+24f+j%2*5f,0xffffa047.toInt())}
-            }
-            4->{for(j in 0..2)rect(c,x+j*16f,top-19f,x+j*16f+7f,top-5f,0xfffffff0.toInt(),2f)}
-            5->{
-                rect(c,x+11f,top-16f,x+19f,top-5f,0xff9e83ef.toInt())
-                for(j in 0..2){val yy=bottom+8f+j*11f;oval(c,x+14f,yy,x+22f,yy+8f,0xffb1a0ff.toInt())}
-            }
-            7->{
-                for(j in 0..2)oval(c,x+j*17f,bottom+3f,x+j*17f+9f,bottom+12f,0xffc1a4ff.toInt())
-                rect(c,x+14f,top-21f,x+25f,top-14f,0xffb2ecff.toInt(),3f)
-            }
-        }
+        // A restrained side light replaces dozens of noisy flecks/flowers.
+        // Geometry and biome strata remain unchanged for collision fairness.
+        val shaftLight=0x55ffffff
+        rect(c,x+6f,pillarRenderTop+12f,x+10f,top-30f,shaftLight,2f)
+        rect(c,x+6f,bottom+29f,x+10f,pillarRenderBottom-14f,shaftLight,2f)
         drawMovingGateRimCues(c,g,x,top,bottom)
         drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)
         // Stone courses, mineral seams and edge lighting add biome-specific
