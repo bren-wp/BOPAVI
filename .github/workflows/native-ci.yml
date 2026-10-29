@@ -86,6 +86,7 @@ jobs:
       - run: python tests/test_responsive_smoke_contract.py
       - run: python tests/test_native_ui_icons_touch_contract.py
       - run: python tests/test_native_stats_visual_contract.py
+      - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
