@@ -44,5 +44,9 @@ assert "python tests/test_play_console_adaptive_contract.py" in ci
 assert "python3 tools/qa_android_rotation.py" in qa
 assert '"user-rotation", "lock"' in rotate
 assert "android-home-landscape" in rotate and "android-flight-landscape" in rotate
-assert "versionCode = 163" in build and 'versionName = "1.0.33"' in build
+assert '"bopavi_qa_capture_first_flap", "true"' in rotate
+assert "BODOVI:" in rotate and "ŽIVOTI:" in rotate
+assert "PAUZIRAJ IGRU" in rotate and "flight_before" in rotate
+assert "android-flight-portrait-active" in rotate
+assert "versionCode = 164" in build and 'versionName = "1.0.34"' in build
 print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")
