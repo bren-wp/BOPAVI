@@ -613,5 +613,6 @@ fi
 # Separate real-device geometry QA after the original screenshot/gameplay flow.
 # Verify landscape Home and a flight that survives rotation without a restart.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  python3 tools/qa_android_background.py
   python3 tools/qa_android_rotation.py
 fi
