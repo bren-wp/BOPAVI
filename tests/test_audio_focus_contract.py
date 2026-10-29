@@ -19,5 +19,6 @@ assert "if(closed || !enabled || effectsVolume<=0f)return" in audio
 assert "if(closed)return" in audio
 assert "onPause()" in activity and "sound.pause()" in activity
 assert "onDestroy()" in activity and "sound.close()" in activity
-assert "sound.startWorld(0)" in activity
+assert "sound.startWorld(world)" in activity
+assert "private fun openFlight(simulation:GameSimulation,world:Int)" in activity
 print("PASS: Android audio focus, interruption and lifecycle ownership contract")
