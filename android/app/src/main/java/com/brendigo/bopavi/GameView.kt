@@ -157,6 +157,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var viewportSky: LinearGradient? = null
     override fun onSizeChanged(w:Int,h:Int,oldw:Int,oldh:Int){
         super.onSizeChanged(w,h,oldw,oldh)
+        // Drop elapsed vsync time across a rotation, without resetting scores.
+        frameClock.reset()
         viewportSky=LinearGradient(0f,0f,0f,h.toFloat().coerceAtLeast(1f),
             skyA[game.level.world],skyB[game.level.world],Shader.TileMode.CLAMP)
         // The camera is uniformly fitted, but tall displays show additional

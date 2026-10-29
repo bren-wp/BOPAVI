@@ -31,6 +31,9 @@ qa_exit_diagnostic() {
 trap 'qa_exit_diagnostic "$?"' 0
 adb wait-for-device
 adb install -r qa/apk/app-debug.apk
+# Preserve an isolated launch window. Emulator cold-boot log spam can evict
+# app exceptions from the ordinary main log before our startup timeout.
+adb logcat -c >/dev/null 2>&1 || true
 # Debug-only QA: keep the real first active frame stable through slow Pixel
 # screencap calls. GameSimulation resumes with a second genuine flap, and the
 # production (non-debuggable) build ignores this Intent extra entirely.
@@ -38,7 +41,19 @@ adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_captur
 # Android 16 needs extra time after the cold boot before System UI and
 # Accessibility Manager can reliably serve window hierarchy dumps.
 sleep 12
-adb shell pidof com.brendigo.bopavi
+# On AGP/edge-to-edge migrations, a process that vanished before the first
+# screenshot is a real startup failure. Capture the OS exception and process
+# death record before the emulator is torn down; do NOT treat it as an ADB
+# transport error or retry it away.
+if ! adb shell pidof com.brendigo.bopavi; then
+  echo 'FAIL: BOPAVI process exited during native Activity startup' >&2
+  adb logcat -b crash -d -v threadtime > qa/screenshots/android-startup-crash.txt 2>&1 || true
+  adb logcat -d -v threadtime -s AndroidRuntime:* ActivityManager:* ActivityTaskManager:*       > qa/screenshots/android-startup-processes.txt 2>&1 || true
+  adb shell dumpsys activity activities > qa/screenshots/android-startup-activities.txt 2>&1 || true
+  cat qa/screenshots/android-startup-crash.txt >&2 || true
+  grep -E -C 10 'com.brendigo.bopavi|FATAL EXCEPTION|crash|died|has died|force-finishing|Start proc'       qa/screenshots/android-startup-processes.txt | tail -n 200 >&2 || true
+  exit 1
+fi
 
 capture(){
   file="qa/screenshots/$1.png"
@@ -643,4 +658,10 @@ fi
 # states validate native touch geometry and scroll reachability only.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   python3 tools/qa_android_fontscale.py
+fi
+
+# Separate real-device geometry QA after the original screenshot/gameplay flow.
+# Verify landscape Home and a flight that survives rotation without a restart.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  python3 tools/qa_android_rotation.py
 fi

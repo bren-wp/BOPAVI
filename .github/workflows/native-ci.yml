@@ -86,6 +86,7 @@ jobs:
       - run: python tests/test_responsive_smoke_contract.py
       - run: python tests/test_native_ui_icons_touch_contract.py
       - run: python tests/test_native_stats_visual_contract.py
+      - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
@@ -161,14 +162,14 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
+          gradle-version: '9.1.0'
       - name: Install Android SDK components
         run: |
           SDKM="$ANDROID_HOME/cmdline-tools/16.0/bin/sdkmanager"
           if [ ! -x "$SDKM" ]; then SDKM="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"; fi
           test -x "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
-          "$SDKM" --install 'platforms;android-36' 'platforms;android-35' 'build-tools;35.0.0'
+          "$SDKM" --install 'platforms;android-36' 'platforms;android-35' 'build-tools;36.0.0'
       - name: Rebuild original relaxing offline soundtrack into Android resources
         run: |
           python3 tools/generate_audio.py
