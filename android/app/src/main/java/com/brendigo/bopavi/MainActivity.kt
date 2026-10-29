@@ -21,7 +21,6 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
-    private var gamePauseButton: Button? = null
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
     private val textColor = Color.WHITE
@@ -47,18 +46,6 @@ class MainActivity : Activity() {
         label.contains("IZLAZ") -> BopaviUiIconDrawable.Kind.EXIT
         label.contains("POČETNA") -> BopaviUiIconDrawable.Kind.HOME
         else -> BopaviUiIconDrawable.Kind.PLAY
-    }
-    /** Keep the real 56dp Pause button, with a font-independent native icon. */
-    private fun showPauseIcon(button:Button?,resume:Boolean) {
-        if(button==null)return
-        button.text=""
-        button.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            uiIcon(if(resume)BopaviUiIconDrawable.Kind.PLAY
-                   else BopaviUiIconDrawable.Kind.PAUSE,Color.WHITE,25),
-            null,null,null)
-        button.gravity=Gravity.CENTER
-        button.contentDescription=if(resume)"Nastavi let"
-            else "Pauziraj igru"
     }
     /** One inset policy for Home and Results on every supported API (26–36).
      * The illustrated background remains edge-to-edge, while controls are
@@ -100,7 +87,7 @@ class MainActivity : Activity() {
 
     /** True edge-to-edge on API 30+, with a compatibility path on API 26–29.
      * Home and Results own their safe viewport insets. The flight HUD uses
-     * GameView/FlightOverlayLayout insets, so never pad the whole game root.
+     * GameView insets, so never pad the whole game root.
      * The window itself draws behind the transparent navigation area; no
      * deprecated status/navigation-bar color setters are required.
      */
@@ -148,8 +135,7 @@ class MainActivity : Activity() {
         showHome()
     }
     /** Android large-screen rotation must not recreate a live simulation.
-     * GameView.onSizeChanged recomputes the world and camera; the Pause
-     * button has its own layout/insets listener. Native scrolling menus
+     * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
      * remeasure automatically on orientation and window-size changes.
      */
     override fun onConfigurationChanged(newConfig:android.content.res.Configuration) {
@@ -168,10 +154,9 @@ class MainActivity : Activity() {
         setContentView(root)
     }
     override fun onPause() {
-        // An idle preview has no visible pause button; only pause active flights.
+        // Preserve active flight on background; Android Back offers resume/retry/exit.
         if(gameView?.game?.active == true) {
             gameView?.paused = true
-            showPauseIcon(gamePauseButton,true)
         }
         if(::sound.isInitialized) sound.pause()
         super.onPause()
@@ -550,7 +535,7 @@ class MainActivity : Activity() {
 
     private fun showHome(){
         applyPremiumSystemBars()
-        gameView?.paused=true;gameView=null;gamePauseButton=null
+        gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
         val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
         root.addView(ImageView(this).apply{
@@ -806,7 +791,6 @@ class MainActivity : Activity() {
         }
         command("▶  NASTAVI",0){
             game.paused=false
-            showPauseIcon(gamePauseButton,false)
             sound.resume()
         }
         command("↻  PONOVO",1){startGame()}
@@ -839,89 +823,19 @@ class MainActivity : Activity() {
             progress.difficulty(),1L,PilotAbility.fromChoice(selectedPilotChoice))
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(0)
-        // The idle flight preview is not gameplay. Do not expose pause until
-        // the first actual flap; never reuse a pause control across screens.
-        var pauseButton:Button?=null
-        val game=GameView(this,simulation,progress.lessMotion(),pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled(),
+        // Flight is a single fullscreen Canvas: no tappable Pause or score overlay.
+        // Android system Back opens the existing accessible pause dialog.
+        val game=GameView(this,simulation,progress.lessMotion(),
+            pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game === it)showResult(it)},
             onFlap={sound.effect("tap")},
-            onFlightStarted={
-                if(selectedScreen=="game" && gameView?.game === simulation) {
-                    // Charge exactly once when the player actually starts flying.
-                    pauseButton?.visibility=View.VISIBLE
-                }
-            },
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")},
             qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
             qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
-        gameView=game;frame.addView(game,FrameLayout.LayoutParams(-1,-1))
-        val pause=Button(this).apply{
-            text="";textSize=23f;setTextColor(Color.WHITE)
-            showPauseIcon(this,false)
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),gradient(0xff254c79.toInt(),0xff132b51.toInt(),18),null)
-            elevation=d(5).toFloat()
-            contentDescription="Pauziraj igru"
-            visibility=View.INVISIBLE
-            setOnClickListener{
-                if(!game.game.active || game.game.finished || selectedScreen!="game")return@setOnClickListener
-                if(game.paused) {
-                    // The OS backgrounded this run. ▶ resumes in one action,
-                    // without opening an extra pause dialog over a paused game.
-                    game.paused=false
-                    showPauseIcon(pauseButton,false)
-                    sound.resume()
-                    return@setOnClickListener
-                }
-                game.paused=true;sound.pause()
-                showPremiumPause(game)
-
-            }
-        }
-        pauseButton=pause
-        gamePauseButton=pause
-        frame.addView(pause,FrameLayout.LayoutParams(d(56),d(56),Gravity.TOP or Gravity.RIGHT))
-        // The upper-right third HUD panel contains real lives. A pause button
-        // positioned at 24dp covers those hearts on some aspect ratios.
-        // Compute margins from the SAME HUD scale and status/cutout inset as
-        // GameView, rather than guessing a phone-specific fixed margin.
-        var flightSafeTop=0
-        var flightSafeRight=0
-        fun fitPauseButton() {
-            val w=frame.width.takeIf{it>0} ?: resources.displayMetrics.widthPixels
-            val h=frame.height.takeIf{it>0} ?: resources.displayMetrics.heightPixels
-            val lp=pause.layoutParams as FrameLayout.LayoutParams
-            val top=FlightOverlayLayout.pauseTopPx(
-                w,h,resources.displayMetrics.density,flightSafeTop)
-            val right=FlightOverlayLayout.pauseRightPx(
-                resources.displayMetrics.density,flightSafeRight)
-            if(lp.topMargin!=top || lp.rightMargin!=right) {
-                lp.topMargin=top;lp.rightMargin=right
-                pause.layoutParams=lp
-            }
-        }
-        fitPauseButton()
-        // Re-evaluate if the window is resized (including split-screen).
-        frame.addOnLayoutChangeListener { _,_,_,_,_,_,_,_,_->fitPauseButton() }
-        if (Build.VERSION.SDK_INT >= 28) {
-            frame.setOnApplyWindowInsetsListener { _, insets ->
-                if (Build.VERSION.SDK_INT >= 30) {
-                    val safe=insets.getInsets(android.view.WindowInsets.Type.statusBars()
-                        or android.view.WindowInsets.Type.displayCutout())
-                    flightSafeTop=safe.top
-                    flightSafeRight=safe.right
-                } else {
-                    @Suppress("DEPRECATION")
-                    val statusTop=insets.systemWindowInsetTop
-                    flightSafeTop=maxOf(statusTop,insets.displayCutout?.safeInsetTop ?: 0)
-                    flightSafeRight=insets.displayCutout?.safeInsetRight ?: 0
-                }
-                fitPauseButton()
-                insets
-            }
-        }
+        gameView=game
+        frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         showNativeView(frame)
-        frame.requestApplyInsets()
     }
     private fun showResult(g:GameSimulation){
         // Results are a static screen: release the looping decoder and music
@@ -934,7 +848,7 @@ class MainActivity : Activity() {
         val resultWorld=g.level.world.coerceIn(0,LevelEngine.WORLD_COUNT-1)
         val resultBackdrop=resultWorldDrawableIds[resultWorld]
         progress.recordRun(g)
-        gameView?.paused=true;gameView=null;gamePauseButton=null;selectedScreen="result"
+        gameView?.paused=true;gameView=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
@@ -1111,11 +1025,12 @@ class MainActivity : Activity() {
                 current == null -> showHome()
                 current.finished -> showResult(current)
                 current.active -> {
-                    // Back always offers NASTAVI / PONOVO / IZLAZ, even when
-                    // the foreground pause button now resumes in one touch.
-                    val view=gameView
-                    if(view!=null && view.paused) showPremiumPause(view)
-                    else gamePauseButton?.performClick()
+                    // No on-screen Pause control. System Back is the only pause entry.
+                    gameView?.let { view ->
+                        view.paused=true
+                        sound.pause()
+                        showPremiumPause(view)
+                    }
                 } // Do not discard live runs.
                 else -> showHome() // No extra character or level selection
             }
