@@ -19,7 +19,7 @@ fairness=(root/"android/app/src/test/java/com/brendigo/bopavi/ObstacleFairnessTe
 
 assert 'width = FlightChallengePolicy.gateWidth(' in level
 assert 'gap = FlightChallengePolicy.gateGap(' in level
-for v in ("0 -> 54f", "1 -> 68f", "2 -> 80f", "3 -> 92f", "4 -> 104f", "else -> 74f"):
+for v in ("0 -> 54f", "1 -> 74f", "2 -> 86f", "3 -> 98f", "4 -> 110f", "else -> 80f"):
     assert v in difficulty,v
 assert "return max(164f" in difficulty
 assert "LevelEngine.opening(gate" in (src/"GameSimulation.kt").read_text()
@@ -37,4 +37,6 @@ assert "foreground.alpha_composite(icon_mascot" in generator
 assert "legacy_layer.alpha_composite(legacy_mascot" in generator
 assert "assert adaptive.tobytes()==expected.tobytes()" in icon
 assert "ImageDraw.Draw(halo" not in generator
-assert "drawPolishedGateLip(c,x,w,top-28f)" in view\nassert "M-17 29 Q-34 55" in (root/"docs/assets/lisac.svg").read_text()\nprint("PASS: collision-safe pillars, frontal Sova/Lisac rig and original mascot icon")
+assert "drawPolishedGateLip(c,x,w,top-28f)" in view
+assert "M-17 29 Q-34 55" in (root/"docs/assets/lisac.svg").read_text()
+print("PASS: collision-safe pillars, frontal Sova/Lisac rig and original mascot icon")
