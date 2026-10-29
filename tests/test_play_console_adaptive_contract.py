@@ -42,11 +42,12 @@ assert "gradle-9.6.0-bin.zip" in gradle
 assert "gradle-version: '9.6.0'" in ci
 assert "python tests/test_play_console_adaptive_contract.py" in ci
 assert "python3 tools/qa_android_rotation.py" in qa
+assert "python3 tools/qa_android_background.py" in qa
 assert '"user-rotation", "lock"' in rotate
 assert "android-home-landscape" in rotate and "android-flight-landscape" in rotate
 assert '"bopavi_qa_capture_first_flap", "true"' in rotate
 assert "ŽIVOTI:" in rotate and "flight_before" in rotate
 assert "active = active_flight()" in rotate and "assert_flight_visible" in rotate
 assert "android-flight-portrait-active" in rotate
-assert "versionCode = 165" in build and 'versionName = "1.0.35"' in build
+assert "versionCode = 166" in build and 'versionName = "1.0.36"' in build
 print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")

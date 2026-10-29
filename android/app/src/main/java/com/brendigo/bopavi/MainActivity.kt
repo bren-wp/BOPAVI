@@ -21,6 +21,8 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
+    // Prevent a frozen, untappable flight after returning from another app.
+    private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
     private val textColor = Color.WHITE
@@ -154,9 +156,13 @@ class MainActivity : Activity() {
         setContentView(root)
     }
     override fun onPause() {
-        // Preserve active flight on background; Android Back offers resume/retry/exit.
-        if(gameView?.game?.active == true) {
-            gameView?.paused = true
+        // Preserve the run. Remember only a newly backgrounded live flight;
+        // do not open a second dialog if the user already paused via Back.
+        val active=gameView
+        if(selectedScreen=="game" && active?.game?.active==true &&
+            !active.game.finished && !active.paused) {
+            showPauseAfterBackground=true
+            active.paused=true
         }
         if(::sound.isInitialized) sound.pause()
         super.onPause()
@@ -166,6 +172,19 @@ class MainActivity : Activity() {
         if(::sound.isInitialized && selectedScreen=="game" &&
             gameView?.game?.active == false && gameView?.game?.finished == false &&
             gameView?.paused == false) sound.resume()
+    }
+    override fun onWindowFocusChanged(hasFocus:Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // Activity.onResume may precede the restoration of window focus.
+        // Open the existing native dialog exactly once after focus returns.
+        if(hasFocus && showPauseAfterBackground) {
+            showPauseAfterBackground=false
+            val active=gameView
+            if(selectedScreen=="game" && active?.game?.active==true &&
+                !active.game.finished && active.paused && !isFinishing) {
+                showPremiumPause(active)
+            }
+        }
     }
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= 33) {
@@ -534,6 +553,7 @@ class MainActivity : Activity() {
     }
 
     private fun showHome(){
+        showPauseAfterBackground=false
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
@@ -814,6 +834,7 @@ class MainActivity : Activity() {
             minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600)))
     }
     private fun startGame(){
+        showPauseAfterBackground=false
         // Preserve the same inset contract as Home/Results when opening Flight.
         // Hide only the status bar; do not trigger immersive navigation popups.
         applyPremiumSystemBars()
@@ -837,6 +858,7 @@ class MainActivity : Activity() {
         showNativeView(frame)
     }
     private fun showResult(g:GameSimulation){
+        showPauseAfterBackground=false
         // Results are a static screen: release the looping decoder and music
         // audio focus before the independently mixed finish sound effect.
         sound.stop()

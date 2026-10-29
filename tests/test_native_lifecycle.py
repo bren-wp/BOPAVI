@@ -20,6 +20,9 @@ home=activity.split("private fun showHome(){",1)[1].split("private fun showPremi
 assert 'action(content,"▶  IGRAJ"){startGame()}' in home
 assert "progress.chooseArcadePilot(index)" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
+assert "override fun onWindowFocusChanged(hasFocus:Boolean)" in activity
+assert "showPauseAfterBackground=true" in activity
+assert "showPremiumPause(active)" in activity
 assert "FlightOverlayLayout" not in activity and "onFlightStarted" not in game
 assert 'private fun showPremiumPause(game:GameView)' in activity
 assert 'view.paused=true' in activity and 'showPremiumPause(view)' in activity

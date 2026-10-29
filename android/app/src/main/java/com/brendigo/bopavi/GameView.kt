@@ -214,7 +214,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         contentDescription = "Dodirni za let: "+pilotName
         p.isFilterBitmap = true
     }
-    private fun fill(color: Int) { p.shader=null; p.color=color; p.alpha=255; p.style=Paint.Style.FILL; p.strokeWidth=1f }
+    // Paint.color contains its OWN ARGB alpha. Resetting p.alpha to 255 here
+    // accidentally made glass shadows, pillar bevels, fading effects and
+    // missing-life hearts opaque, flattening the artwork across all biomes.
+    // setColor restores the intended alpha after a temporary stroke override.
+    private fun fill(color: Int) {
+        p.shader=null
+        p.color=color
+        p.style=Paint.Style.FILL
+        p.strokeWidth=1f
+    }
     private fun rect(c: Canvas,l:Float,t:Float,r:Float,b:Float,color:Int,round:Float=0f){fill(color);c.drawRoundRect(l,t,r,b,round,round,p)}
     private fun oval(c:Canvas,l:Float,t:Float,r:Float,b:Float,color:Int){fill(color);c.drawOval(l,t,r,b,p)}
     private fun text(c:Canvas,s:String,x:Float,y:Float,size:Float,color:Int,center:Boolean=false){fill(color);p.textSize=size;p.typeface=headerTypeface;p.textAlign=if(center) Paint.Align.CENTER else Paint.Align.LEFT;c.drawText(s,x,y,p)}
@@ -1055,14 +1064,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
-    /**
-     * Premium in-flight information hierarchy shared with iOS Core Graphics.
-     * Every displayed count comes from the live GameSimulation; progress is
-     * explicitly through the current level (never fabricated metres).
-     * Top-right 72px of the 480x800 playfield is reserved for the *real*
-     * screen insets; the original physics remain in world units.
-     */
-    /** The remaining-lives panel reuses cached shapes and native Paint. */
+    /** Only the real lives remain in flight; the 480x800 physics remain unchanged. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         // Unified premium glass: restrained corner radius, thin highlight,
         // softer fill, and one subtle lower edge for separation from the sky.
