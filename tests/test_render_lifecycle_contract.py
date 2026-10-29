@@ -6,7 +6,7 @@ src=root/"android/app/src/main/java/com/brendigo/bopavi"
 view=(src/"GameView.kt").read_text(encoding="utf-8")
 activity=(src/"MainActivity.kt").read_text(encoding="utf-8")
 simulation=(src/"GameSimulation.kt").read_text(encoding="utf-8")
-render=view.split("private fun drawStoneCourses(",1)[1].split("private fun drawGate(",1)[0]
+render=view.split("private fun drawStoneCourses(",1)[1].split("private fun drawPolishedGateLip(",1)[0]
 assert "while(row+16f<yEnd && n<12)" in render
 assert "row+=57f;n++" in render
 assert "rect(c,x+8f+(n%3)*4f,row,x+42f+(n%2)*6f,row+3f,seam,2f)" in render
@@ -21,8 +21,8 @@ assert 'ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert 'ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'ColorStateList.valueOf(0xffffde76.toInt())' in activity
 assert 'window.decorView.hasWindowFocus()' in activity
-assert 'if(view!=null && view.paused) showPremiumPause(view)' in activity
-assert 'return@setOnClickListener' in activity.split("private fun startGame(){",1)[1].split("private fun showResult(",1)[0]
+assert "view.paused=true" in activity and "showPremiumPause(view)" in activity
+assert "gamePauseButton" not in activity
 for dead in ("coinVisible(","starVisible(","powerVisible("):
     assert dead not in simulation,dead
 # Safety invariants: no world/physics behaviour changed by render refactoring.

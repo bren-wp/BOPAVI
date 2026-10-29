@@ -14,7 +14,7 @@ for term in ('"▶  IGRAJ"', '"REZULTAT"', '"HRANA"', "PONOVO",
              'contentDescription=caption'):
     assert term in a,term
 for term in ('"DODIRNI ZA LET"', '"DODIR = ZAMAH KRILIMA"',
-             '"BODOVI"', '"HRANA"', '"Bopi leti. Dodirni za zamah krilima."'):
+             '"ŽIVOTI"', '"Bopi leti. Dodirni za zamah krilima."'):
     assert term in v,term
 assert "fun importJson(contents: String)" in s and "fun exportJson()" in s
 assert "ui_language" in s and "fun languageCode()" not in s

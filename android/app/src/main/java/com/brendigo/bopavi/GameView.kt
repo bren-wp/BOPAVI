@@ -24,7 +24,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -33,21 +33,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var qaWaitingForCapture = false
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
-    // Update point totals on change and the real distance readout at 10 Hz,
-    // rather than allocating formatted text on every animation frame.
+    // Keep only a cached lives accessibility label: no score text or
+    // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
-    private var lastAccessibilityScore = -1
-    private var lastAccessibilityFood = -1
-    private var lastAccessibilityGuard = false
-    private var cachedScore = -1
-    private var cachedScoreLabel = "0"
-    private var cachedFood = -1
-    private var cachedFoodLabel = "0"
     private var cachedLives = -1
-    private var cachedLivesLabel = "0/3"
-    // Event sampling uses the simulation's real heart/guard state, never a
-    // guessed collision flash; no new objects are allocated on quiet frames.
-    private val flightHudFeedback=FlightHudFeedback()
+    private var cachedLivesLabel = "3/3"
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -804,6 +794,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             row+=57f;n++
         }
     }
+    /** World-colored beveling stays entirely inside the real rounded collision lip. */
+    private fun drawPolishedGateLip(c:Canvas,x:Float,w:Float,y:Float) {
+        // Thin highlight, shaded vertical edges and underside add depth without
+        // making the collision opening look narrower than the actual hitbox.
+        rect(c,x-3f,y+3f,x+w+1f,y+7f,0x66ffffff,2f)
+        rect(c,x-3f,y+8f,x+2f,y+22f,0x44ffffff,2f)
+        rect(c,x+w-2f,y+7f,x+w+2f,y+23f,0x880c2747.toInt(),2f)
+        rect(c,x-3f,y+23f,x+w+2f,y+26f,0x990a2948.toInt(),2f)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -815,9 +814,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawRootedCliffBases(c,x,w,top,bottom,cliffSeed,shade,color)
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
+        drawPolishedGateLip(c,x,w,top-28f)
         if(g.kind==0) drawMossLedge(c,x,w,top-28f,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
+        drawPolishedGateLip(c,x,w,bottom)
         if(g.kind==0) drawMossLedge(c,x,w,bottom,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
@@ -826,51 +827,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val stratumGlint=biomeReliefGlints[g.kind]
         drawRockStrata(c,x,w,pillarRenderTop+11f,top-29f,cliffSeed,shade,stratumGlint)
         drawRockStrata(c,x,w,bottom+28f,pillarRenderBottom-12f,-cliffSeed,shade,stratumGlint)
-        // Width-aware material flecks make both narrow and wide pillars look
-        // finished; every speck stays strictly inside the collision cap.
-        val fleck=when(g.kind){
-            0->0xffb7ed7a.toInt();1->0xff9af7ff.toInt()
-            2->0xffffd06e.toInt();3->0xffffe29a.toInt()
-            4->0xfff8e5cc.toInt();5->0xffffe6a1.toInt()
-            6->0xffa7ffdf.toInt();else->0xffd9baff.toInt()
-        }
-        for(j in 0..2) {
-            val fx=x+9f+(w-22f)*j*.5f
-            val inset=if(j==1)2f else 0f
-            oval(c,fx,top-17f+inset,fx+5f,top-12f+inset,fleck)
-            oval(c,fx,bottom+11f+inset,fx+5f,bottom+16f+inset,fleck)
-        }
-        val highlight=if(g.kind==3)0xffffcf7b.toInt() else 0x99ffffff.toInt()
-        rect(c,x+6f,pillarRenderTop+13f,x+13f,top-30f,highlight,3f)
-        rect(c,x+6f,bottom+28f,x+13f,pillarRenderBottom-16f,highlight,3f)
-        when(g.kind){
-            0->{
-                // Layered rock with grassy ledges. Textures stay within the shaft/cap collider.
-                for(j in 0..2){
-                    val yy=60f+j*110f
-                    if(yy+18f<top-29f)rect(c,x+12f,yy,x+47f,yy+8f,0x77906a5c,3f)
-                    val by=bottom+38f+j*115f
-                    if(by+18f<755f)rect(c,x+9f,by,x+44f,by+8f,0x77906a5c,3f)
-                }
-                for(j in 0..2){val xx=x+j*17f;oval(c,xx,top-24f,xx+16f,top-14f,0xff4ee882.toInt())}
-                for(j in 0..2){val xx=x+j*19f;oval(c,xx,bottom+6f,xx+12f,bottom+12f,0xff2b934d.toInt())}
-            }
-            2,6->{ for(j in 0..2){val yy=top-24+j*7f;oval(c,x+j*16f,yy,x+j*16f+13f,yy+7f,shade)} }
-            1->{for(j in 0..2)oval(c,x+j*18f,bottom+6f,x+j*18f+12f,bottom+12f,0xffffe6b4.toInt())}
-            3->{
-                rect(c,x,bottom+7f,x+w,bottom+14f,0xffffd56d.toInt(),3f)
-                for(j in 0..2){val xx=x+12f+j*18f;oval(c,xx,bottom+16f+j%2*5f,xx+6f,bottom+24f+j%2*5f,0xffffa047.toInt())}
-            }
-            4->{for(j in 0..2)rect(c,x+j*16f,top-19f,x+j*16f+7f,top-5f,0xfffffff0.toInt(),2f)}
-            5->{
-                rect(c,x+11f,top-16f,x+19f,top-5f,0xff9e83ef.toInt())
-                for(j in 0..2){val yy=bottom+8f+j*11f;oval(c,x+14f,yy,x+22f,yy+8f,0xffb1a0ff.toInt())}
-            }
-            7->{
-                for(j in 0..2)oval(c,x+j*17f,bottom+3f,x+j*17f+9f,bottom+12f,0xffc1a4ff.toInt())
-                rect(c,x+14f,top-21f,x+25f,top-14f,0xffb2ecff.toInt(),3f)
-            }
-        }
+        // A restrained side light replaces dozens of noisy flecks/flowers.
+        // Geometry and biome strata remain unchanged for collision fairness.
+        val shaftLight=0x55ffffff
+        rect(c,x+6f,pillarRenderTop+12f,x+10f,top-30f,shaftLight,2f)
+        rect(c,x+6f,bottom+29f,x+10f,pillarRenderBottom-14f,shaftLight,2f)
         drawMovingGateRimCues(c,g,x,top,bottom)
         drawBiomeGateRelief(c,x,w,top,bottom,g.kind,cliffSeed)
         // Stone courses, mineral seams and edge lighting add biome-specific
@@ -1053,8 +1014,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.restore()
         // Every pilot remains front-facing like Bopi, including Sova and Lisac.
         c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))
-        val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
-        val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
@@ -1073,6 +1032,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             return
         }
         // Safe fallback if a damaged installation lacks sprite resources.
+        // Compute fallback-only wing phase after the normal bitmap renderer
+        // returns, rather than doing extra sine work on every normal frame.
+        val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
+        val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         path.reset();path.moveTo(-12f,11f);path.lineTo(-35f-3f*phase,22f);path.lineTo(-29f,5f);path.close();fill(0xffef385b.toInt());c.drawPath(path,p)
         oval(c,-30f,0f,-8f,16f,0xff1678d8.toInt())
         c.save();c.rotate(phase*26f,-13f,0f);oval(c,-28f,-4f,8f,16f,0xff0c78dc.toInt());oval(c,-25f,-6f,4f,5f,0xff4ac3ff.toInt());c.restore()
@@ -1097,9 +1060,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Every displayed count comes from the live GameSimulation; progress is
      * explicitly through the current level (never fabricated metres).
      * Top-right 72px of the 480x800 playfield is reserved for the *real*
-     * native Pause button, and the untouched physics remain in world units.
+     * screen insets; the original physics remain in world units.
      */
-    /** Use one cached caption-width policy on score and distance updates. */
+    /** The remaining-lives panel reuses cached shapes and native Paint. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         // Unified premium glass: restrained corner radius, thin highlight,
         // softer fill, and one subtle lower edge for separation from the sky.
@@ -1123,108 +1086,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawText(value,right,baseline,p)
         p.textAlign=Paint.Align.LEFT
     }
-    private fun drawHudNumber(c:Canvas,value:String,x:Float,baseline:Float,maxWidth:Float){
-        // Measure the actual glyphs, not their digits, to keep long marathon
-        // totals inside the allotted card even with bold fonts or font scaling.
-        fill(Color.WHITE)
-        p.typeface=headerTypeface
-        p.textAlign=Paint.Align.LEFT
-        p.textSize=23f
-        p.textScaleX=1f
-        val measured=p.measureText(value)
-        p.textSize=FlightHudReadability.fontSize(measured,maxWidth)
-        p.textScaleX=FlightHudReadability.horizontalScale(
-            measured,maxWidth,p.textSize)
-        c.drawText(value,x,baseline,p)
-        // Shared Paint must not squeeze the next heading or life counter.
-        p.textScaleX=1f
-    }
-    /** Fit all pilot names and life feedback inside their real HUD cards.
-     *  Glyphs are measured using the existing Paint; no new bitmaps or arrays.
-     */
-    private fun drawHudCaption(c:Canvas,value:String,x:Float,y:Float,maxWidth:Float,color:Int){
-        fill(color)
-        p.typeface=headerTypeface
-        p.textAlign=Paint.Align.LEFT
-        p.textScaleX=1f
-        p.textSize=15f
-        val measured=p.measureText(value)
-        p.textSize=FlightHudReadability.captionFontSize(measured,maxWidth)
-        p.textScaleX=FlightHudReadability.captionHorizontalScale(measured,maxWidth,p.textSize)
-        c.drawText(value,x,y,p)
-        p.textScaleX=1f
-    }
-
-    /** Three distinct, accessible colour-and-shape power signs (speed, calm,
-     *  shield), instead of a generic unlabelled strip. Uses the shared Path.
-     */
-    private fun drawHudPowerIcon(c:Canvas,tint:Int){
-        val x=FlightHudLayout.powerIconCenterX
-        val y=FlightHudLayout.powerIconCenterY
-        val r=FlightHudLayout.powerIconRadius
-        oval(c,x-r,y-r,x+r,y+r,0xff193b5b.toInt())
-        fill(tint)
-        when(game.pilotAbility){
-            PilotAbility.BOPI -> {
-                // Lightning silhouette: speed.
-                path.reset()
-                path.moveTo(x+1f,y-9f)
-                path.lineTo(x-7f,y+2f)
-                path.lineTo(x-1f,y+2f)
-                path.lineTo(x-3f,y+9f)
-                path.lineTo(x+8f,y-3f)
-                path.lineTo(x+2f,y-3f)
-                path.close()
-                c.drawPath(path,p)
-            }
-            PilotAbility.SOVA -> {
-                // Curved feather: gentler fall and finer control.
-                path.reset()
-                path.moveTo(x-6f,y+7f)
-                path.cubicTo(x-9f,y-2f,x-1f,y-9f,x+7f,y-8f)
-                path.cubicTo(x+8f,y+1f,x+1f,y+8f,x-6f,y+7f)
-                path.close()
-                c.drawPath(path,p)
-                fill(0xff193b5b.toInt())
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=1.7f
-                c.drawLine(x-5f,y+6f,x+5f,y-5f,p)
-                p.style=Paint.Style.FILL
-            }
-            PilotAbility.LISAC -> {
-                // Shield outline remains visible even after the charge is used.
-                path.reset()
-                path.moveTo(x,y-9f)
-                path.lineTo(x+8f,y-5f)
-                path.lineTo(x+7f,y+3f)
-                path.quadTo(x+5f,y+7f,x,y+9f)
-                path.quadTo(x-5f,y+7f,x-7f,y+3f)
-                path.lineTo(x-8f,y-5f)
-                path.close()
-                c.drawPath(path,p)
-                fill(0xff193b5b.toInt())
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=1.8f
-                if(game.pilotGuardReady){
-                    path.reset()
-                    path.moveTo(x-4f,y)
-                    path.lineTo(x-1f,y+3f)
-                    path.lineTo(x+5f,y-4f)
-                    c.drawPath(path,p)
-                }else{
-                    c.drawLine(x-4f,y+4f,x+4f,y-4f,p)
-                }
-                p.style=Paint.Style.FILL
-            }
-            PilotAbility.CLASSIC -> {
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=2.1f
-                c.drawCircle(x,y,6f,p)
-                p.style=Paint.Style.FILL
-            }
-        }
-    }
-
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
@@ -1241,61 +1102,26 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL
     }
     private fun drawHud(c:Canvas){
-        // Only the changed counters allocate their numeric strings. At 120 Hz
-        // most frames simply reuse the last score and berry-count labels.
-        val score=game.score()
-        val food=game.foodCollected
-        if(score!=cachedScore){cachedScore=score;cachedScoreLabel=score.toString()}
-        if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
-        if(game.lives!=cachedLives){
-            cachedLives=game.lives
-            cachedLivesLabel="${game.lives}/${game.maxLives}"
+        // Minimal native HUD: lives only. Scores, berries and abilities remain
+        // in GameSimulation for authentic results and saved history, never in flight.
+        val lives=game.lives.coerceIn(0,game.maxLives)
+        if(lives!=cachedLives) {
+            cachedLives=lives
+            cachedLivesLabel="$lives/${game.maxLives}"
         }
-        // Equal-height, aligned score/fruit/lives cards. Pure geometry is
-        // shared with JVM tests and never affects pillar collision.
         val h=FlightHudLayout
-        hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)
-        text(c,"BODOVI",30f,38f,12f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedScoreLabel,30f,72f,h.score.right-44f)
-        hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)
-        drawBerry(c,170f,53f,8f)
-        text(c,"HRANA",188f,38f,12f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedFoodLabel,188f,72f,h.food.right-199f)
-        if(game.endless) {
-            hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
-            text(c,"ŽIVOTI",300f,38f,12f,0xffd4f4ff.toInt())
-            drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,
-                FlightHudReadability.lifeCountColor(game.lives,game.maxLives))
-            for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
-                drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)
-            }
+        hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
+        text(c,"ŽIVOTI",h.lives.left+18f,40f,15f,0xfff2faff.toInt())
+        drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,40f,
+            FlightHudReadability.lifeCountColor(lives,game.maxLives))
+        for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
+            drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
         }
-        // The entire second-row indicator remains left of the native pause.
-        hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)
-        val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
-        text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())
-        rect(c,22f,119f,26f,135f,powerTint,2f)
-        drawHudPowerIcon(c,powerTint)
-        drawHudCaption(c,game.pilotAbility.hudStatus(game.pilotGuardReady),
-            h.powerTextLeft,133f,h.ability.right-h.powerTextLeft-h.hudTextRightInset,powerTint)
-        flightHudFeedback.update(game.lives,game.pilotGuardReady,game.time)?.let { notice ->
-            // Separate third row, away from hearts, score, power and the
-            // native Pause button. Static high-contrast cue: no flashing.
-            hudGlass(c,h.notice.left,h.notice.top,h.notice.right,h.notice.bottom)
-            rect(c,h.notice.left+5f,h.notice.top+8f,h.notice.left+9f,
-                h.notice.bottom-8f,notice.tint,2f)
-            drawHudCaption(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,
-                h.notice.right-h.notice.left-17f-h.hudTextRightInset,notice.tint)
-        }
-        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
-            game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
-            lastAccessibilityScore=score
-            lastAccessibilityFood=food
-            lastAccessibilityLives=game.lives
-            lastAccessibilityGuard=game.pilotGuardReady
-            val lifeNotice=if(FlightHudReadability.isFinalLife(game.lives,game.maxLives))
+        if(lives!=lastAccessibilityLives) {
+            lastAccessibilityLives=lives
+            val lifeNotice=if(FlightHudReadability.isFinalLife(lives,game.maxLives))
                 " Posljednji život." else ""
-            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}.$lifeNotice Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"
+            lastHudAccessibility="${flightHint()} Životi: $lives/${game.maxLives}.$lifeNotice"
             contentDescription=lastHudAccessibility
         }
     }
@@ -1339,11 +1165,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 if(firstFlap) frameClock.reset()
                 game.flap()
                 if(firstFlap && game.active) {
-                    onFlightStarted()
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            // Never replace the full TalkBack controls/score label with only
+            // Keep the same accessible lives/flap label instead of only
             // the pilot name after each tap; reuse the HUD snapshot instead.
             contentDescription=lastHudAccessibility.ifEmpty { flightHint() }
             onFlap()

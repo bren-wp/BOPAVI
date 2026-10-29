@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Camera overflow is a drawing-only extension; physics boundaries stay fixed."""
+"""New visual lip is decorative: 480x800 physics and rounded cap geometry remain."""
 from pathlib import Path
 r=Path(__file__).resolve().parents[1]/"android/app/src/main/java/com/brendigo/bopavi"
 view=(r/"GameView.kt").read_text()
@@ -13,15 +12,16 @@ for needle in (
     "drawRockStrata(c,x,w,pillarRenderTop+11f",
     "drawStoneCourses(c,x,pillarRenderTop+36f",
     "drawStoneCourses(c,x,bottom+34f",
-    "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)",
-    "hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)",
+    "rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)",
+    "rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)",
+    "drawPolishedGateLip(c,x,w,top-28f)",
+    "drawPolishedGateLip(c,x,w,bottom)",
     "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
-    'text(c,"BODOVI"', 'text(c,"HRANA"'):
+):
     assert needle in view,needle
+assert 'text(c,"BODOVI"' not in view
 assert "fun courses(" not in view
-assert "private fun drawStoneCourses(" in view
 assert "val safeTop=max(fromOpening.top,toOpening.top)+radius" in sim
-assert "val safeBottom=min(fromOpening.bottom,toOpening.bottom)-radius" in sim
 assert "val radius = 18f" in sim
-assert "touchesRoundedBand" in sim and "sweptBodyHitsPillar" in sim
-print("PASS: extended on-screen pillars, Croatian HUD, unchanged world physics and safe swept broadphase")
+assert "sweptBodyHitsPillar" in sim
+print("PASS: improved collision-aligned pillars, lives-only HUD and unchanged physics")

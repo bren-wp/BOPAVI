@@ -19,7 +19,7 @@ fairness=(root/"android/app/src/test/java/com/brendigo/bopavi/ObstacleFairnessTe
 
 assert 'width = FlightChallengePolicy.gateWidth(' in level
 assert 'gap = FlightChallengePolicy.gateGap(' in level
-for v in ("0 -> 54f", "1 -> 68f", "2 -> 80f", "3 -> 92f", "4 -> 104f", "else -> 74f"):
+for v in ("0 -> 54f", "1 -> 74f", "2 -> 86f", "3 -> 98f", "4 -> 110f", "else -> 80f"):
     assert v in difficulty,v
 assert "return max(164f" in difficulty
 assert "LevelEngine.opening(gate" in (src/"GameSimulation.kt").read_text()
@@ -28,7 +28,7 @@ assert "g.width" in view
 assert "seededGateRhythmsHaveBodyClearanceAndRecoverableAltitudeChanges" in fairness
 assert "c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))" in view
 assert "PilotFlightPose.wingDegrees(game.time,game.flapPulse,reducedMotion)" in view
-assert "coerceIn(-14f,22f)" in pose
+assert "coerceIn(-7f,9f)" in pose
 assert "allCharactersUseSameActualRenderingPose" in unit
 assert "0xe8092949.toInt()" in view
 assert "p.strokeWidth=1.3f" in view
@@ -37,4 +37,6 @@ assert "foreground.alpha_composite(icon_mascot" in generator
 assert "legacy_layer.alpha_composite(legacy_mascot" in generator
 assert "assert adaptive.tobytes()==expected.tobytes()" in icon
 assert "ImageDraw.Draw(halo" not in generator
-print("PASS: real challenging pillars, common Bopi-like pose, modern HUD and exact mascot icon")
+assert "drawPolishedGateLip(c,x,w,top-28f)" in view
+assert "M-17 29 Q-34 55" in (root/"docs/assets/lisac.svg").read_text()
+print("PASS: collision-safe pillars, frontal Sova/Lisac rig and original mascot icon")

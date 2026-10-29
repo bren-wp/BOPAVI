@@ -1,56 +1,20 @@
-#!/usr/bin/env python3
-"""Guard on-screen lives, fruit, score, ability and approaching pillar warnings.
-
-This is a source contract; the Kotlin test checks actual pure geometry and the
-Android emulator captures the real painted view.
-"""
+"""Only one screen-safe HUD card is allowed in a flight."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
-view=(src/"GameView.kt").read_text(encoding="utf-8")
-layout=(src/"FlightHudLayout.kt").read_text(encoding="utf-8")
-unit=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightHudLayoutTest.kt").read_text(encoding="utf-8")
-hud=view.split("    private fun drawHud(c:Canvas){",1)[1].split("    private fun drawCollisionDebugOverlay(",1)[0]
-for name in (
-    "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)",
-    "hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)",
-    "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
-    "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
-    'text(c,"ŽIVOTI",300f,38f,12f',
-    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,',
-    "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
-    'text(c,"MOĆ",31f,110f,12f',
-    "p.measureText(value)",
-    "if(game.lives!=cachedLives)",
-    "cachedLivesLabel=",
-):
-    assert name in (view if name=="p.measureText(value)" else hud),name
+view=(src/"GameView.kt").read_text()
+layout=(src/"FlightHudLayout.kt").read_text()
+unit=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightHudLayoutTest.kt").read_text()
+hud=view.split("    private fun drawHud(c:Canvas){",1)[1].split("    /** Developer QA outlines",1)[0]
+assert "val lives=FlightHudBox(122f,16f,358f,92f)" in layout
+assert "val heartCenters=floatArrayOf(178f,240f,302f)" in layout
+assert "const val lifeCountRight=334f" in layout
+assert "val score =" not in layout and "val food =" not in layout and "val ability =" not in layout
+assert "val notice =" not in layout and "pauseLaneStart" not in layout
+assert 'text(c,"ŽIVOTI"' in hud and 'drawHudHeart(' in hud
+assert 'contentDescription=lastHudAccessibility' in hud
+assert "cachedScore" not in view and "cachedFood" not in view
 assert "FlightHudLayout.movingWarningVisible(g.movement,x,game.birdX)" in view
-assert 'text(c,"!",cx,badgeY+6f,18f' in view
-assert "if(FlightHudLayout.movingWarningVisible" in view
-for name in (
-    "val score = FlightHudBox(18f,16f,146f,82f)",
-    "val food = FlightHudBox(154f,16f,276f,82f)",
-    "val lives = FlightHudBox(284f,16f,462f,82f)",
-    "val ability = FlightHudBox(18f,91f,340f,140f)",
-    "val heartCenters = floatArrayOf(320f,373f,426f)",
-    "const val lifeCountRight = 445f",
-    "movement>0f && x>=birdX+48f && x<=480f",
-):
-    assert name in layout,name
-for name in ("lifeHeartsNeverOverlapScoreFoodOrAbility",
-             "onlyUpcomingMovingPillarsGetWarnings"):
-    assert name in unit,name
-assert "p.textAlign=Paint.Align.RIGHT" in view
-assert "p.textAlign=Paint.Align.LEFT" in view
-assert "game.score()" in hud and "game.foodCollected" in hud
-assert "contentDescription=lastHudAccessibility" in hud
-assert "drawHudPowerIcon(c,powerTint)" in hud
-assert "drawHudCaption(c,game.pilotAbility.hudStatus(game.pilotGuardReady)" in hud
-assert "drawHudCaption(c,notice.label" in hud
-assert "h.ability.right-h.powerTextLeft-h.hudTextRightInset" in hud
-assert "FlightHudReadability.captionFontSize(measured,maxWidth)" in view
-assert "FlightHudReadability.captionHorizontalScale(measured,maxWidth,p.textSize)" in view
-assert "p.textScaleX=1f" in view
-assert "powerPictogramAndStatusTextNeverIntersect" in unit
-print("PASS: aligned collision-free HUD, truthful life indicators and moving pillar warnings")
+assert "onlyLivesCardIsCenteredAndFullyOnScreen" in unit
+assert "onlyUpcomingMovingPillarsGetWarnings" in unit
+print("PASS: centered hearts-only display, collision-safe moving gate warnings")

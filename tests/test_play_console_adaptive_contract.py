@@ -32,21 +32,21 @@ assert 'android:configChanges="orientation|screenSize|smallestScreenSize|screenL
 assert "override fun onConfigurationChanged(" in app
 assert "gameView?.requestLayout()" in app
 assert "frameClock.reset()" in game.split("override fun onSizeChanged(",1)[1].split("private fun updateWorldCover",1)[0]
-assert "id(\"com.android.application\") version \"9.0.1\"" in root
+assert "id(\"com.android.application\") version \"9.5.0\"" in root
 assert "org.jetbrains.kotlin.android" not in root and "org.jetbrains.kotlin.android" not in build
 assert "kotlinOptions" not in build
 assert "compilerOptions" in build and "JvmTarget.JVM_17" in build
 assert "isShrinkResources = true" in build and "isMinifyEnabled = true" in build
 assert "proguard-android-optimize.txt" in build
-assert "gradle-9.1.0-bin.zip" in gradle
-assert "gradle-version: '9.1.0'" in ci
+assert "gradle-9.6.0-bin.zip" in gradle
+assert "gradle-version: '9.6.0'" in ci
 assert "python tests/test_play_console_adaptive_contract.py" in ci
 assert "python3 tools/qa_android_rotation.py" in qa
 assert '"user-rotation", "lock"' in rotate
 assert "android-home-landscape" in rotate and "android-flight-landscape" in rotate
 assert '"bopavi_qa_capture_first_flap", "true"' in rotate
-assert "BODOVI:" in rotate and "ŽIVOTI:" in rotate
-assert "PAUZIRAJ IGRU" in rotate and "flight_before" in rotate
+assert "ŽIVOTI:" in rotate and "flight_before" in rotate
+assert "active = active_flight()" in rotate and "assert_flight_visible" in rotate
 assert "android-flight-portrait-active" in rotate
-assert "versionCode = 164" in build and 'versionName = "1.0.34"' in build
+assert "versionCode = 165" in build and 'versionName = "1.0.35"' in build
 print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")

@@ -10,10 +10,12 @@ for code in (a,):
     assert "!collectedHearts[i] && (!heartAt(i) || lives>=maxLives)" in code
 for renderer in ("android/app/src/main/java/com/brendigo/bopavi/GameView.kt",):
     code=(p/renderer).read_text()
-    assert "cachedFood" in code and "lastAccessibilityFood" in code
-    assert "game.foodCollected" in code
+    assert "cachedFood" not in code and "lastAccessibilityFood" not in code
+    assert '"ŽIVOTI"' in code
+    activity=(p/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
+    assert "g.foodCollected" in activity and "progress.bestFood()" in activity
 for store in ("android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt",):
     code=(p/store).read_text()
     assert "endless_food_best" in code and "bestFood()" in code and "recordRun" in code
     assert "maxOf(bestFood()" in code or "max(bestFood()" in code
-print("PASS: fruit contact, HUD, score/currency isolation and bestFood monotonicity source guard")
+print("PASS: fruit contact, Results-only score and food presentation and bestFood monotonicity source guard")

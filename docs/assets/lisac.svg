@@ -5,8 +5,10 @@
 </defs>
 <g id="wing-left"><path d="M-12 0 Q-44 -40 -75 -34 Q-66 -18 -52 -8 Q-66 -11 -72 -4 Q-57 16 -41 18 Q-52 17 -58 25 Q-37 36 -15 15Z" fill="url(#foxWing)" stroke="#2c6a56" stroke-width="3" stroke-linejoin="round"/><path d="M-64 -23 Q-39 -13 -24 4 M-59 5 L-29 13" fill="none" stroke="#e6ffe0" stroke-width="3" opacity=".8" stroke-linecap="round"/></g>
 <g id="wing-right"><path d="M12 0 Q44 -40 75 -34 Q66 -18 52 -8 Q66 -11 72 -4 Q57 16 41 18 Q52 17 58 25 Q37 36 15 15Z" fill="url(#foxWing)" stroke="#2c6a56" stroke-width="3" stroke-linejoin="round"/><path d="M64 -23 Q39 -13 24 4 M59 5 L29 13" fill="none" stroke="#e6ffe0" stroke-width="3" opacity=".8" stroke-linecap="round"/></g>
-<path d="M26 28 Q71 12 72 43 Q76 65 43 60 L59 49 Q44 53 25 46Z" fill="#e77c39" stroke="#923f34" stroke-width="3"/>
-<path d="M62 46 Q75 49 63 61 Q51 63 43 59 L58 51Z" fill="#fff4d7"/>
+<!-- Center the rear fox tail behind the frontal body; no side-facing silhouette. -->
+<path d="M-17 29 Q-34 55 -14 68 Q0 77 14 68 Q34 55 17 29Z"
+      fill="#cf6937" stroke="#8e4437" stroke-width="3" stroke-linejoin="round"/>
+<path d="M-20 58 Q-12 71 0 73 Q12 71 20 58 Q0 64 -20 58Z" fill="#fff4d7"/>
 <path d="M-31 -20 L-39 -62 L-7 -43 Q0 -47 7 -43 L39 -62 L31 -20" fill="url(#foxBody)" stroke="#a94c34" stroke-width="3" stroke-linejoin="round"/>
 <path d="M-31 -49 L-17 -40 L-29 -27 M31 -49 L17 -40 L29 -27" fill="#ffe6b2"/>
 <ellipse cx="0" cy="10" rx="34" ry="41" fill="url(#foxBody)" stroke="#a64c36" stroke-width="3"/>

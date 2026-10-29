@@ -19,7 +19,7 @@ assert "val left=x-6f; val right=x+w+4f" not in rooted
 assert "rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)" in view
 assert "rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)" in view
 assert "PillarCollision.bodyHitsPillar" in test
-for width in ("54f","68f","74f","80f","92f","104f"):
+for width in ("54f","74f","80f","86f","98f","110f"):
     assert width in test, width
 
 assert "private fun applySafeViewportInsets(" in main

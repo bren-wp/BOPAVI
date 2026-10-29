@@ -3,18 +3,14 @@ package com.brendigo.bopavi
 import kotlin.math.sin
 
 /**
- * Shared front-facing flight pose for Bopi and every alternate sprite.
- *
- * All eleven original PNG body/wing layers stay unmodified; only their
- * Canvas rotation and flap are normalized to the same forward-facing feel.
- * Rendering poses never affect the fixed 18-unit collision sphere.
+ * Shared frontal flight rig for every pilot. Keep eyes/ears centered towards
+ * the player: strong full-body pitch had made alternate faces look side-on.
+ * Wings still move with the same real flap phase; collider remains unchanged.
  */
 internal object PilotFlightPose {
     fun pitchDegrees(velocity:Float,reducedMotion:Boolean):Float {
         if(reducedMotion || !velocity.isFinite())return 0f
-        // A strong 48-degree turn looked side-on on Sova/Lisac and friends.
-        // Keep body/goggles forward, while still giving readable rise/fall.
-        return (velocity*.045f).coerceIn(-14f,22f)
+        return (velocity*.018f).coerceIn(-7f,9f)
     }
 
     fun wingDegrees(time:Float,flapPulse:Float,reducedMotion:Boolean):Float {

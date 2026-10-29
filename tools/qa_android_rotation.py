@@ -120,34 +120,34 @@ def main():
                 current = hierarchy()
                 flights = [n for n in current.iter("node")
                            if n.get("clickable") == "true"
-                           and "BODOVI:" in label(n) and "ŽIVOTI:" in label(n)]
+                           and "ŽIVOTI:" in label(n)
+                           and "BODOVI:" not in label(n)
+                           and "MOĆ:" not in label(n)]
                 pauses = find_action(current, "PAUZIRAJ IGRU")
-                if len(flights) == 1 and len(pauses) == 1:
-                    return flights[0], pauses[0]
+                if len(flights) == 1 and not pauses:
+                    return flights[0]
                 time.sleep(1)
-            raise AssertionError("FAIL: active flight HUD or accessible Pause is missing")
+            raise AssertionError("FAIL: active lives HUD missing or Pause overlay returned")
 
-        def assert_pause_visible(pause, width, height):
+        def assert_flight_visible(flight, width, height):
             match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
-                                 pause.get("bounds") or "")
-            assert match, "FAIL: Pause has no native bounds"
+                                 flight.get("bounds") or "")
+            assert match, "FAIL: active flight has no native bounds"
             left, top, right, bottom = map(int, match.groups())
             assert 0 <= left < right <= width and 0 <= top < bottom <= height, (
-                "FAIL: Pause is outside the visible display after rotation")
-            assert right-left >= 32 and bottom-top >= 32, (
-                "FAIL: Pause touch target is clipped after rotation")
+                "FAIL: flight touch target is clipped after rotation")
 
-        active, pause = active_flight()
+        active = active_flight()
         flight_before = active.get("content-desc")
-        assert flight_before and "Bodovi:" in flight_before and "Životi:" in flight_before
-        assert_pause_visible(pause, w, h)
+        assert flight_before and "Životi:" in flight_before
+        assert_flight_visible(active, w, h)
         screenshot("android-flight-landscape-active")
 
         portrait_w, portrait_h = rotate(0)
-        active, pause = active_flight()
+        active = active_flight()
         assert active.get("content-desc") == flight_before, (
-            "FAIL: rotation reset the active score, lives, pilot power or flight state")
-        assert_pause_visible(pause, portrait_w, portrait_h)
+            "FAIL: rotation reset current lives, active pilot or GameView state")
+        assert_flight_visible(active, portrait_w, portrait_h)
         assert adb("shell", "pidof", APP) == initial_pid, "FAIL: rotation killed process"
         screenshot("android-flight-portrait-active")
 
@@ -156,7 +156,7 @@ def main():
         tap(active)
         assert adb("shell", "pidof", APP) == initial_pid, (
             "FAIL: resuming the rotated flight killed the process")
-        print("PASS: landscape/portrait retained genuine active flight, HUD, Pause and process", flush=True)
+        print("PASS: landscape/portrait retained genuine active flight, lives-only HUD and process", flush=True)
     finally:
         adb("shell", "cmd", "window", "user-rotation", "free")
 

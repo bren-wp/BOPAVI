@@ -1,36 +1,18 @@
-"""Minimal V5 flight HUD. No level bar, coin wallet or fake interactive art."""
+"""Lives-only gameplay HUD. Scores and food remain on Results and saved records."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-a=(root/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
-def get(code,start,end):
-    return code.split(start,1)[1].split(end,1)[0]
-a_draw=get(a,"    override fun onDraw(canvas:Canvas) {","    private fun drawWorldLighting(")
-assert "drawHud(canvas)" in a_draw
-assert "drawLevelProgress(canvas)" not in a_draw
-a_hud=get(a,"    private fun drawHud(c:Canvas){","    override fun onTouchEvent(")
-for hud in (a_hud,):
-    assert "game.score()" in hud and "game.foodCollected" in hud
-    assert "BODOVI" in hud
-    assert "game.coins" not in hud and "game.stars" not in hud
-    assert "walletCoins(" not in hud and "coinWallet(" not in hud and "displayLevel" not in hud
-for required in (
-    "val h=FlightHudLayout",
-    "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)",
-    "hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)",
-    "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)",
-    "hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)",
-    "drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)",
-    'drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,',
-    'text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())',
-    "drawHudNumber(c,cachedScoreLabel",
-    "drawHudNumber(c,cachedFoodLabel",
-):
-    assert required in a_hud,required
-assert "p.measureText(value)" in a
-assert "FlightHudReadability.fontSize(measured,maxWidth)" in a
-assert "FlightHudReadability.horizontalScale(" in a
-assert "p.textScaleX=1f" in a
-assert "p.textAlign=Paint.Align.RIGHT" in a
-assert "h.lifeCountRight" in a_hud
-assert "if(game.lives!=cachedLives)" in a
-print("PASS: shared score, food, outlined hearts and power geometry, bounded large totals")
+view=(root/"android/app/src/main/java/com/brendigo/bopavi/GameView.kt").read_text()
+activity=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
+draw=view.split("    private fun drawHud(c:Canvas){",1)[1].split("    /** Developer QA outlines",1)[0]
+assert "drawHud(canvas)" in view
+for required in ('hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)',
+                 'text(c,"ŽIVOTI"', 'drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)',
+                 'FlightHudReadability.lifeCountColor(lives,game.maxLives)',
+                 '" Posljednji život."', 'Životi: $lives/'):
+    assert required in draw,required
+for obsolete in ('"BODOVI"','"HRANA"','"MOĆ"','hudGlass(c,h.score','hudGlass(c,h.food',
+                 'drawHudPowerIcon(', 'drawHudCaption(', 'game.score()', 'game.foodCollected'):
+    assert obsolete not in draw,obsolete
+assert 'progress.recordRun(g)' in activity
+assert 'recordSummaryRow("NAJBOLJI REZULTAT"' in activity
+print("PASS: only lives visible in flight; real score and food remain in Results")

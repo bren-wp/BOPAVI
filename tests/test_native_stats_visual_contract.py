@@ -33,7 +33,7 @@ assert 'setCompoundDrawablesRelativeWithIntrinsicBounds(' in records
 assert 'premiumDialogHeader("MOJI REKORDI",BopaviUiIconDrawable.Kind.RECORDS)' in records
 assert 'premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS)' in options
 assert "Kind.PAUSE" in title
-assert '"Nastavi let"' in main
+assert 'command("▶  NASTAVI",0)' in pause
 assert 'setCompoundDrawablesRelativeWithIntrinsicBounds(' in pause
 
 assert 'recordSummaryRow("NAJBOLJI REZULTAT"' in result
