@@ -38,7 +38,16 @@ adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_captur
 # Android 16 needs extra time after the cold boot before System UI and
 # Accessibility Manager can reliably serve window hierarchy dumps.
 sleep 12
-adb shell pidof com.brendigo.bopavi
+# On AGP/edge-to-edge migrations, a process that vanished before the first
+# screenshot is a real startup failure. Capture the OS exception and process
+# death record before the emulator is torn down; do NOT treat it as an ADB
+# transport error or retry it away.
+if ! adb shell pidof com.brendigo.bopavi; then
+  echo 'FAIL: BOPAVI process exited during native Activity startup' >&2
+  adb logcat -d -v threadtime -t 1600 > qa/screenshots/android-startup-logcat.txt 2>&1 || true
+  grep -E -C 12 'FATAL EXCEPTION|AndroidRuntime|Process com.brendigo.bopavi|com.brendigo.bopavi.*died|Fatal signal'       qa/screenshots/android-startup-logcat.txt | tail -n 200 >&2 || true
+  exit 1
+fi
 
 capture(){
   file="qa/screenshots/$1.png"
