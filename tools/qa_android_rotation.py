@@ -128,7 +128,7 @@ def main():
             raise AssertionError("FAIL: active flight HUD or accessible Pause is missing")
 
         def assert_pause_visible(pause, width, height):
-            match = re.fullmatch(r"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]",
+            match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
                                  pause.get("bounds") or "")
             assert match, "FAIL: Pause has no native bounds"
             left, top, right, bottom = map(int, match.groups())
