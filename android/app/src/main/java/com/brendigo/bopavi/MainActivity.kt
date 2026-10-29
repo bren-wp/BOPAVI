@@ -98,19 +98,28 @@ class MainActivity : Activity() {
         return insets
     }
 
-    /** Full-bleed game menus, with separately reserved camera cutout insets. */
+    /** True edge-to-edge on API 30+, with a compatibility path on API 26–29.
+     * Home and Results own their safe viewport insets. The flight HUD uses
+     * GameView/FlightOverlayLayout insets, so never pad the whole game root.
+     * The window itself draws behind the transparent navigation area; no
+     * deprecated status/navigation-bar color setters are required.
+     */
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
-        window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        if (Build.VERSION.SDK_INT >= 30) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.hide(android.view.WindowInsets.Type.statusBars())
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        }
     }
     override fun onCreate(state: Bundle?) {
         setTheme(R.style.BopaviTheme)
         super.onCreate(state)
-        window.statusBarColor=0xff09264a.toInt()
-        window.navigationBarColor=0xff09264a.toInt()
         applyPremiumSystemBars()
         // A single OS-managed launch transition, followed directly by Home.
         // No second BOPAVI splash and no artificial loading percentage.
@@ -128,6 +137,19 @@ class MainActivity : Activity() {
         }
         showHome()
     }
+    /** Android large-screen rotation must not recreate a live simulation.
+     * GameView.onSizeChanged recomputes the world and camera; the Pause
+     * button has its own layout/insets listener. Native scrolling menus
+     * remeasure automatically on orientation and window-size changes.
+     */
+    override fun onConfigurationChanged(newConfig:android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyPremiumSystemBars()
+        window.decorView.requestApplyInsets()
+        gameView?.requestLayout()
+        gameView?.invalidate()
+    }
+
     private fun showNativeView(root: View) {
         // Keep the scene artwork edge-to-edge. Safe-area-fitted menus (home,
         // every submenu and results) handle cutout/nav insets for controls.
@@ -799,13 +821,9 @@ class MainActivity : Activity() {
             minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600)))
     }
     private fun startGame(){
-        // Hide only the status bar: IMMERSIVE_STICKY + HIDE_NAVIGATION
-        // triggers Android's full-screen onboarding popup on the first game.
-        // Keep the gesture navigation strip dark (theme sets its color) instead.
-        @Suppress("DEPRECATION")
-        window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        // Preserve the same inset contract as Home/Results when opening Flight.
+        // Hide only the status bar; do not trigger immersive navigation popups.
+        applyPremiumSystemBars()
         selectedScreen="game"
         val simulation=GameSimulation(LevelEngine.createStream(0,1L),true,0,0f,
             progress.difficulty(),1L,PilotAbility.fromChoice(selectedPilotChoice))
