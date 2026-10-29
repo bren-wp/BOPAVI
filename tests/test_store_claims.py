@@ -88,10 +88,13 @@ class StoreClaimsTest(unittest.TestCase):
         for source, prefix in ((a, "fun"),):
             for fn in ("showHome", "startGame", "showPremiumPause", "showResult"):
                 self.assertRegex(source, rf"private\s+{prefix}\s+{fn}\(")
-            for obsolete in ("showShop(", "showWorlds(", "showLevels(",
+            for obsolete in ("showWorlds(",
                              "showSettings(", "showProfile(", "showPilotPicker("):
                 self.assertNotIn(obsolete, source)
             self.assertIn("progress.recordRun(g)", source)
+            self.assertIn("private fun showSkins()",source)
+            self.assertIn("private fun showShop()",source)
+            self.assertIn("private fun showLevels()",source)
         self.assertIn("LevelEngine.createStream(0,1L)", a)
         self.assertNotIn('android.permission.INTERNET', MANIFEST.read_text())
         gradle = GRADLE.read_text()
