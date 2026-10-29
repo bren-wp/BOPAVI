@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.33 — Edge-to-edge, adaptive orientation and optimized R8 resources (build 163)
+
+**Published:** 2026-10-29 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.33)
+
+- Replace deprecated Window.setStatusBarColor and Window.setNavigationBarColor calls and theme attributes with modern inset-driven edge-to-edge on Android API 30+, including transparent navigation area, safe display-cutout padding for Home and Results, and safe HUD/Pause positioning. Preserve API 26–29 compatibility.
+- Remove forced portrait orientation. Retain the current Activity/GameView across rotation with explicit orientation/screen-size configuration handling; GameView recomputes viewport camera/HUD geometry without resetting the 480x800 physics, progress or scores.
+- Include real Android 15 landscape Home -> Flight -> portrait continuity QA on top of existing Android 15/16 full-flow screenshots, four font-scale variants, privacy and performance smoke.
+- Upgrade to Android Gradle Plugin 9.0.1, Gradle 9.1.0 and native Kotlin integration. Enable R8 code minification and optimized resource shrinking for release APK and unsigned AAB; do not add external tracking or network dependencies.
+- Preserve original artwork, music, save keys, Gameplay, Croatian UI, package/application ID and prior release artifacts. v1.0.33 is not published until Android lint, JVM, privacy/graphics audit, Android 15/16 emulators and release integrity all pass.
+
 ## v1.0.32 — Large-text Options accessibility and real emulator touch geometry (build 162)
 
 **Published:** 2026-10-25 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.32)
@@ -12,15 +22,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **No clipped configuration options:** settings may scroll when enlarged, but all nine interactive controls must be independently reachable without shrinking touch targets. Validate the actual Done dismissal, screenshots, screen bounds and emulator process stability.
 - **Failure isolation:** every QA execution restores the original Android font scale, display size and display density even on an assertion failure. New unit regressions reject under-height, clipped, offscreen and non-interactive controls.
 - **Unchanged gameplay, art and privacy:** leave the Bopi/Sova/Lisac artwork, adaptive launcher, game physics, original screens, audio, save keys, offline design, nine release screenshots and original security posture unchanged.
-
-## v1.0.31 — Full nine-screen capture, accessible spacing and original round launcher (build 161)
-
-**Published:** 2026-10-25 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.31)
-
-- **All reachable native screens:** Android 15 captures nine *actual emulator* states: Home, Options, Records, Privacy, Terms, preflight, active Flight, Pause and Results. Validate PNG headers/dimensions, distinct native dialogs, game state/action transitions and SHA-256 for every published image. No generated mock screens or reused captures.
-- **Options and responsive typography:** replace fixed-height 48dp Switch rows and 45dp difficulty RadioButtons with naturally measured, min-height 64dp/52dp touch targets. Add wrap-friendly insets, maximum four-line captions and explicit TalkBack labels to prevent clipped Croatian settings on narrow/high-font-scale Android devices.
-- **Home character selector:** add bounded 10–13sp automatic sizing, 32dp heading height and current pilot/ability accessibility label that updates immediately on pilot selection. Preserve three selectable original pilots, main CTA, 48dp legal links and scroll-only-when-needed layout.
-- **Pause screen accessibility:** do not speak the decorative chess-queen prefix when announcing the native pause heading; preserve all Continue/Retry/Exit actions.
-- **Launcher:** add an explicitly declared `roundIcon` that references the exact same owner-approved adaptive Bopi background/foreground/themed mask rather than a replacement mascot or differently sized art.
-- **Visual audit and release:** release nine different original screen captures, app debug APK, unsigned release APK/AAB, F-Droid preparation bundle, five-screen Play assets and checksums for 14 distributed files (15 assets including SHA256SUMS). Older releases remain unchanged.
-- **Compatibility:** original package name, offline/no-tracking privacy, original artwork, gameplay physics, collision semantics, score, saved-progress keys, animations and audio behavior remain unchanged. Android 15/16 emulator QA, source/art provenance, lint, JVM tests, privacy and dead-code audit remain mandatory.
