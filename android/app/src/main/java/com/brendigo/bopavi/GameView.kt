@@ -1032,6 +1032,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             return
         }
         // Safe fallback if a damaged installation lacks sprite resources.
+        // Compute fallback-only wing phase after the normal bitmap renderer
+        // returns, rather than doing extra sine work on every normal frame.
+        val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
+        val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         path.reset();path.moveTo(-12f,11f);path.lineTo(-35f-3f*phase,22f);path.lineTo(-29f,5f);path.close();fill(0xffef385b.toInt());c.drawPath(path,p)
         oval(c,-30f,0f,-8f,16f,0xff1678d8.toInt())
         c.save();c.rotate(phase*26f,-13f,0f);oval(c,-28f,-4f,8f,16f,0xff0c78dc.toInt());oval(c,-25f,-6f,4f,5f,0xff4ac3ff.toInt());c.restore()
