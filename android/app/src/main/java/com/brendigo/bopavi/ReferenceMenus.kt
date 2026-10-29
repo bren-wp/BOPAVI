@@ -91,7 +91,7 @@ internal class ReferenceMenus(private val host:Activity, private val progress:Pr
         val scroll=ScrollView(host).apply {
             isFillViewport=true
             clipToPadding=false
-            addView(body,ScrollView.LayoutParams(-1,-2))
+            addView(body,FrameLayout.LayoutParams(-1,-2))
             setOnApplyWindowInsetsListener{v,insets->
                 if(Build.VERSION.SDK_INT>=30) {
                     val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
