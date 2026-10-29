@@ -75,7 +75,10 @@ def find_action(root, phrase):
 def main():
     adb("shell", "am", "force-stop", APP)
     adb("shell", "cmd", "window", "user-rotation", "lock", "0")
-    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
+    # Debug-only QA holds a genuine first-flap GameSimulation state steady.
+    # This makes a score/lives continuity comparison deterministic across rotation.
+    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity",
+        "--ez", "bopavi_qa_capture_first_flap", "true")
     try:
         initial_pid = adb("shell", "pidof", APP)
         assert initial_pid, "FAIL: missing BOPAVI process"
@@ -94,24 +97,66 @@ def main():
         screenshot("android-home-landscape")
         tap(plays[0])
 
-        # The real GameView must appear, not a re-launched Home menu.
-        ready = False
+        # Do not mistake the idle GameView preview for a real flight.
+        idle = []
         for _ in range(10):
             root = hierarchy()
-            if any("DODIRNI ZA LET" in label(n) for n in root.iter("node")):
-                ready = True
+            idle = [n for n in root.iter("node")
+                    if n.get("clickable") == "true" and "DODIRNI ZA LET" in label(n)]
+            if len(idle) == 1:
                 break
             time.sleep(1)
-        assert ready, "FAIL: landscape GameView did not appear"
+        assert len(idle) == 1, "FAIL: landscape GameView did not appear"
         screenshot("android-flight-landscape")
         assert adb("shell", "pidof", APP) == initial_pid, "FAIL: rotation recreated process"
 
-        rotate(0)
-        root = hierarchy()
-        assert any("DODIRNI ZA LET" in label(n) for n in root.iter("node")), (
-            "FAIL: GameView lost its current flight when rotated back")
+        # A genuine touch begins the run. The debug-only capture gate freezes
+        # simulation time after that first flap, preserving real HUD values;
+        # the production APK ignores the extra and runs normally.
+        tap(idle[0])
+
+        def active_flight():
+            for _ in range(10):
+                current = hierarchy()
+                flights = [n for n in current.iter("node")
+                           if n.get("clickable") == "true"
+                           and "BODOVI:" in label(n) and "ŽIVOTI:" in label(n)]
+                pauses = find_action(current, "PAUZIRAJ IGRU")
+                if len(flights) == 1 and len(pauses) == 1:
+                    return flights[0], pauses[0]
+                time.sleep(1)
+            raise AssertionError("FAIL: active flight HUD or accessible Pause is missing")
+
+        def assert_pause_visible(pause, width, height):
+            match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                                 pause.get("bounds") or "")
+            assert match, "FAIL: Pause has no native bounds"
+            left, top, right, bottom = map(int, match.groups())
+            assert 0 <= left < right <= width and 0 <= top < bottom <= height, (
+                "FAIL: Pause is outside the visible display after rotation")
+            assert right-left >= 32 and bottom-top >= 32, (
+                "FAIL: Pause touch target is clipped after rotation")
+
+        active, pause = active_flight()
+        flight_before = active.get("content-desc")
+        assert flight_before and "Bodovi:" in flight_before and "Životi:" in flight_before
+        assert_pause_visible(pause, w, h)
+        screenshot("android-flight-landscape-active")
+
+        portrait_w, portrait_h = rotate(0)
+        active, pause = active_flight()
+        assert active.get("content-desc") == flight_before, (
+            "FAIL: rotation reset the active score, lives, pilot power or flight state")
+        assert_pause_visible(pause, portrait_w, portrait_h)
         assert adb("shell", "pidof", APP) == initial_pid, "FAIL: rotation killed process"
-        print("PASS: rotation landscape/portrait, real Home Play and retained Flight", flush=True)
+        screenshot("android-flight-portrait-active")
+
+        # The same flight remains tappable and can resume after rotation;
+        # no restart, synthetic score or newly created GameView is accepted.
+        tap(active)
+        assert adb("shell", "pidof", APP) == initial_pid, (
+            "FAIL: resuming the rotated flight killed the process")
+        print("PASS: landscape/portrait retained genuine active flight, HUD, Pause and process", flush=True)
     finally:
         adb("shell", "cmd", "window", "user-rotation", "free")
 
