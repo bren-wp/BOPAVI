@@ -9,7 +9,6 @@ import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
@@ -26,7 +25,6 @@ import android.widget.TextView
 internal class ReferenceMenus(private val host:Activity, private val progress:ProgressStore) {
     private fun d(value:Int)=(value*host.resources.displayMetrics.density+.5f).toInt()
     private val navy=0xff082858.toInt()
-    private val gold=0xffffbf21.toInt()
     private val cream=0xfffff2dd.toInt()
 
     private fun plate(top:Int,bottom:Int,stroke:Int,radius:Int=22):GradientDrawable =
