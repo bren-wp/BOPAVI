@@ -380,79 +380,29 @@ for attempt in $(seq 1 15); do
   if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
-# GameView.onDraw updates its native accessibility label with live SCORE/FOOD.
-# The control hint and selected-pilot announcement must remain present after
-# the first actual flap and every subsequent counter update.
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 flight=[n for n in nodes if n.get("class")=="android.view.View"
         and n.get("clickable")=="true"
-        and (("SCORE:" in label(n) and "FOOD:" in label(n))
-             or ("BODOVI:" in label(n) and "HRANA:" in label(n)))
+        and "ŽIVOTI:" in label(n)
         and "DODIRNI ZA ZAMAH KRILIMA" in label(n)
-        and "MOĆ:" in label(n)]
+        and "BODOVI:" not in label(n) and "HRANA:" not in label(n)
+        and "MOĆ:" not in label(n)]
 pause=[n for n in nodes if n.get("clickable")=="true"
-       and ("PAUSE GAME" in label(n) or "PAUZIRAJ IGRU" in label(n))]
-sys.exit(0 if len(flight)==1 and len(pause)==1 else 1)
+       and ("PAUZIRAJ IGRU" in label(n) or "PAUSE GAME" in label(n))]
+sys.exit(0 if len(flight)==1 and len(pause)==0 else 1)
 PY
-  then
-    flying=1; break
-  fi
-  echo "Waiting for actual first active flap, attempt $attempt/15" >&2
+  then flying=1; break; fi
   sleep 1
 done
-test "$flying" -eq 1 || { echo "FAIL: first flap never reached active HUD/PAUSE state" >&2; exit 1; }
-# The pause control is a *real* native Button overlaying the Canvas HUD.
-# Verify its measured bounds start below the BODOVI / HRANA / ŽIVOTI cards;
-# rendering a correct screenshot alone cannot prove its tap target is clear.
-python3 - qa/screenshots/android-current-ui.xml "$width" "$height" <<'PY'
-import math,re,sys,xml.etree.ElementTree as ET
-nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-labels=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-pause=[n for n in nodes if n.get("clickable")=="true" and
-       ("PAUZIRAJ IGRU" in labels(n) or "PAUSE GAME" in labels(n))]
-assert len(pause)==1,"FAIL: native pause control not uniquely exposed"
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",pause[0].get("bounds",""))
-assert m,"FAIL: native pause bounds invalid"
-left,top,right,bottom=map(int,m.groups())
-width,height=map(int,sys.argv[2:4])
-# Read the active GameView bounds and the current HUD card height from
-# FlightHudLayout itself, not a stale hardcoded pixel value. Letterboxing and
-# split-screen use the actual GameView width/height from the hierarchy.
-flight=[n for n in nodes if n.get("class")=="android.view.View" and
-        "BODOVI:" in labels(n) and "MOĆ:" in labels(n)]
-assert len(flight)==1,"FAIL: active GameView accessibility node missing"
-game_match=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
-    flight[0].get("bounds",""))
-assert game_match,"FAIL: active GameView bounds invalid"
-vx,vy,vr,vb=map(int,game_match.groups())
-scale=min((vr-vx)/480,(vb-vy)/640)
-from pathlib import Path
-layout=Path("android/app/src/main/java/com/brendigo/bopavi/FlightHudLayout.kt").read_text()
-card=re.search(r"val lives = FlightHudBox[(][0-9.]+f,[0-9.]+f,[0-9.]+f,([0-9.]+)f[)]",layout)
-assert card,"FAIL: native lives HUD geometry source missing"
-hud_bottom=vy+math.ceil((float(card.group(1))+4)*scale)
-assert top>=hud_bottom,(f"FAIL: pause tap target overlaps current lives HUD at y={top}, actual HUD bottom={hud_bottom}")
-assert 0<=left<right<=width and top<bottom<=height,"FAIL: pause control is clipped"
-PY
+test "$flying" -eq 1 || { echo "FAIL: lives-only active GameView not accessible"; exit 1; }
 capture android-gameplay-active
-printf 'STATE: flight-active confirmed by native GameView SCORE/FOOD HUD and Pause control\n' >> qa/screenshots/state-evidence.txt
+printf 'STATE: flight-active confirmed with lives-only native HUD\n' >> qa/screenshots/state-evidence.txt
 if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
 fi
-# Pause is a distinct reachable native screen, not just an icon in Flight.
-# Exercise the actual top-right hit target, require its three real actions,
-# preserve an emulator screenshot, then explicitly resume this same run.
-python3 - qa/screenshots/android-current-ui.xml <<'PY'
-import re,subprocess,sys,xml.etree.ElementTree as ET
-nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-pause=[n for n in nodes if n.get("clickable")=="true" and "PAUZIRAJ IGRU" in label(n)]
-assert len(pause)==1,"FAIL: cannot locate real native Pause button"
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",pause[0].get("bounds",""))
-assert m,"FAIL: invalid native Pause bounds"
-x1,y1,x2,y2=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
-PY
+# No pause icon exists in gameplay. Android system Back opens the accessible
+# Pause dialog; verify there is no hidden tappable Pause overlay in the flight.
+adb shell input keyevent 4
 pause_ready=0
 for attempt in $(seq 1 12); do
   if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
@@ -491,7 +441,7 @@ PY
 # Dismissing an Android AlertDialog is asynchronous. A tap sent immediately
 # after NASTAVI can be consumed by the still-attached modal window instead
 # of GameView, leaving the deliberate first-flap screenshot hold frozen.
-# Wait for the real native flight surface and Pause control before resuming.
+# Wait for the original live flight view (not a newly created preview).
 flight_resumed=0
 for attempt in $(seq 1 14); do
   if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
@@ -499,11 +449,11 @@ import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 click=[label(n) for n in nodes if n.get("clickable")=="true"]
-active=any("PAUZIRAJ IGRU" in s for s in click)
-modal=any("NASTAVI" in s for s in click)
-flight=any(n.get("class")=="android.view.View" and "MOĆ:" in label(n)
+active=any("ŽIVOTI:" in label(n) and n.get("class")=="android.view.View"
            for n in nodes)
-sys.exit(0 if active and flight and not modal else 1)
+overlay=any("PAUZIRAJ IGRU" in s for s in click)
+modal=any("NASTAVI" in s for s in click)
+sys.exit(0 if active and not overlay and not modal else 1)
 PY
   then flight_resumed=1; break; fi
   sleep 1
