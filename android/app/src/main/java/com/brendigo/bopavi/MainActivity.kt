@@ -604,6 +604,7 @@ class MainActivity : Activity() {
     }
 
     private fun showHome(){
+        activeStage=null
         showPauseAfterBackground=false
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
@@ -973,7 +974,7 @@ class MainActivity : Activity() {
         val completed=activeStage
         if(g.won && completed!=null && !g.endless){
             progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)
-            progress.completeLevel(completed.first,completed.second,g.score())
+            progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())
         }
         gameView?.paused=true;gameView=null;selectedScreen="result"
         @Suppress("DEPRECATION")
