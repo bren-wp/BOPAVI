@@ -1043,8 +1043,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.restore()
         // Every pilot remains front-facing like Bopi, including Sova and Lisac.
         c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))
-        val flapStrength=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
-        val phase=if(reducedMotion)0f else sin(game.time*19f)+flapStrength*.65f
         // Keep the head, goggles and scarf stable; only detached wings flap.
         if (birdBitmap != null) {
             fill(Color.WHITE)
@@ -1087,7 +1085,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Every displayed count comes from the live GameSimulation; progress is
      * explicitly through the current level (never fabricated metres).
      * Top-right 72px of the 480x800 playfield is reserved for the *real*
-     * native Pause button, and the untouched physics remain in world units.
+     * screen insets; the original physics remain in world units.
      */
     /** Use one cached caption-width policy on score and distance updates. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
