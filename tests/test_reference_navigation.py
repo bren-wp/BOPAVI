@@ -10,5 +10,5 @@ for code in (a,):
     assert "progress.recordRun(g)" in code
     assert "NOVI REKORD!" in code
     assert "previousRecord" in code
-assert "gamePauseButton?.performClick()" in a
+assert "gamePauseButton" not in a and "view.paused=true" in a
 print("PASS: one-button BOPAVI and four-view navigation, no legacy routes")
