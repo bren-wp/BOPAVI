@@ -8,12 +8,12 @@ import org.junit.Test
  * A painted cap legitimately extends 7 units left and 5 units right of the
  * shaft; distant cliffs must not have the same visual overhang because their
  * physical collider is strictly [x, x + width]. Protect every generated
- * 54–104-unit pillar width and a fully passable corridor.
+ * 54–110-unit pillar width and a fully passable corridor.
  */
 class PillarVisualContactTest {
     @Test fun onlyRoundedMouthLipsHaveLateralOverhang() {
         val mouth=LevelEngine.Opening(300f,470f)
-        for(width in listOf(54f,68f,74f,80f,92f,104f)) {
+        for(width in listOf(54f,74f,80f,86f,98f,110f)) {
             val left=220f
             val right=left+width
             val narrowBird=2f
