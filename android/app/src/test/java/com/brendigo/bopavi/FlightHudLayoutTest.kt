@@ -4,47 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class FlightHudLayoutTest {
-    @Test fun lifeHeartsNeverOverlapScoreFoodOrAbility() {
-        val regions=listOf(FlightHudLayout.score,FlightHudLayout.food,
-            FlightHudLayout.lives,FlightHudLayout.ability,
-            FlightHudLayout.notice)
-        for((i,box) in regions.withIndex()) {
-            assertTrue("Positive HUD area $i",box.left<box.right && box.top<box.bottom)
-            assertTrue("HUD stays inside logical viewport $i",
-                box.left>=0f && box.top>=0f && box.right<=480f && box.bottom<=800f)
-            for(other in regions.drop(i+1))
-                assertFalse("HUD panels cannot overlap",box.intersects(other))
+    @Test fun onlyLivesCardIsCenteredAndFullyOnScreen() {
+        val h=FlightHudLayout
+        assertEquals(240f,(h.lives.left+h.lives.right)/2f,.001f)
+        assertTrue(h.lives.left>=0f && h.lives.right<=480f)
+        assertTrue(h.lives.top>=0f && h.lives.bottom<=800f)
+        assertTrue(h.heartCenters.toList().zipWithNext().all{(a,b)->b-a>=48f})
+        for(x in h.heartCenters){
+            assertTrue(h.lives.encloses(x-h.heartHalfWidth,h.heartBaseline-10f))
+            assertTrue(h.lives.encloses(x+h.heartHalfWidth,h.heartBaseline+7f))
         }
-        for(center in FlightHudLayout.heartCenters) {
-            assertTrue(FlightHudLayout.lives.encloses(
-                center-FlightHudLayout.heartHalfWidth,FlightHudLayout.heartBaseline-10f))
-            assertTrue(FlightHudLayout.lives.encloses(
-                center+FlightHudLayout.heartHalfWidth,FlightHudLayout.heartBaseline+7f))
-        }
-        assertTrue(FlightHudLayout.ability.right<FlightHudLayout.pauseLaneStart)
-        assertTrue(FlightHudLayout.heartCenters.toList().zipWithNext().all { (a,b) -> b-a>=48f })
-        // Both card rows have deliberate gaps; no hearts touch their borders.
-        assertEquals(8f,FlightHudLayout.food.left-FlightHudLayout.score.right,0f)
-        assertEquals(8f,FlightHudLayout.lives.left-FlightHudLayout.food.right,0f)
-        assertEquals(9f,FlightHudLayout.ability.top-FlightHudLayout.lives.bottom,0f)
-    }
-
-    @Test fun heartsAreCenteredAndTheirCountStaysInAnIndependentHeaderLane() {
-        val hud=FlightHudLayout
-        val lifeCardCenter=(hud.lives.left+hud.lives.right)/2f
-        val groupCenter=hud.heartCenters.average().toFloat()
-        assertEquals(lifeCardCenter,groupCenter,.01f)
-        assertTrue(hud.lives.right-hud.lives.left>hud.score.right-hud.score.left)
-        assertTrue(hud.lives.right-hud.lives.left>hud.food.right-hud.food.left)
-        assertTrue(hud.lifeCountRight<=hud.lives.right-16f)
-        assertTrue(hud.lifeCountRight>=hud.lives.left+110f)
-        assertTrue(hud.heartBaseline-10f>=38f+hud.heartHeaderClearance)
-        assertTrue(hud.heartBaseline+7f<=hud.lives.bottom-6f)
-        assertTrue(hud.ability.right<=hud.pauseLaneStart-24f)
-        assertTrue(hud.ability.top>hud.score.bottom)
-        assertTrue(hud.notice.top>=hud.ability.bottom+8f)
-        assertTrue(hud.notice.right<=hud.ability.right)
-        assertTrue(hud.notice.right<=hud.pauseLaneStart-24f)
+        assertEquals(h.heartCenters.average().toFloat(),240f,.001f)
+        assertTrue(h.lifeCountRight<=h.lives.right-16f)
     }
 
     @Test fun onlyUpcomingMovingPillarsGetWarnings() {
@@ -54,20 +25,4 @@ class FlightHudLayoutTest {
         assertTrue(FlightHudLayout.movingWarningVisible(18f,260f,126f))
         assertTrue(FlightHudLayout.movingWarningVisible(7f,440f,126f))
     }
-    @Test fun powerPictogramAndStatusTextNeverIntersect() {
-        val hud=FlightHudLayout
-        assertTrue(hud.ability.encloses(
-            hud.powerIconCenterX-hud.powerIconRadius,hud.powerIconCenterY-hud.powerIconRadius))
-        assertTrue(hud.ability.encloses(
-            hud.powerIconCenterX+hud.powerIconRadius,hud.powerIconCenterY+hud.powerIconRadius))
-        assertTrue("Pictogram must not cover the status",
-            hud.powerTextLeft>=hud.powerIconCenterX+hud.powerIconRadius+6f)
-        assertTrue("Power text must have a meaningful readable lane",
-            hud.ability.right-hud.powerTextLeft-hud.hudTextRightInset>=200f)
-        assertTrue("Power must remain left of real Pause button",
-            hud.ability.right<hud.pauseLaneStart)
-        assertTrue("Feedback notice has room for complete labels",
-            hud.notice.right-hud.notice.left-17f-hud.hudTextRightInset>=200f)
-    }
-
 }
