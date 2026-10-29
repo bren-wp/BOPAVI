@@ -31,6 +31,9 @@ qa_exit_diagnostic() {
 trap 'qa_exit_diagnostic "$?"' 0
 adb wait-for-device
 adb install -r qa/apk/app-debug.apk
+# Preserve an isolated launch window. Emulator cold-boot log spam can evict
+# app exceptions from the ordinary main log before our startup timeout.
+adb logcat -c >/dev/null 2>&1 || true
 # Debug-only QA: keep the real first active frame stable through slow Pixel
 # screencap calls. GameSimulation resumes with a second genuine flap, and the
 # production (non-debuggable) build ignores this Intent extra entirely.
@@ -44,8 +47,11 @@ sleep 12
 # transport error or retry it away.
 if ! adb shell pidof com.brendigo.bopavi; then
   echo 'FAIL: BOPAVI process exited during native Activity startup' >&2
-  adb logcat -d -v threadtime -t 1600 > qa/screenshots/android-startup-logcat.txt 2>&1 || true
-  grep -E -C 12 'FATAL EXCEPTION|AndroidRuntime|Process com.brendigo.bopavi|com.brendigo.bopavi.*died|Fatal signal'       qa/screenshots/android-startup-logcat.txt | tail -n 200 >&2 || true
+  adb logcat -b crash -d -v threadtime > qa/screenshots/android-startup-crash.txt 2>&1 || true
+  adb logcat -d -v threadtime -s AndroidRuntime:* ActivityManager:* ActivityTaskManager:*       > qa/screenshots/android-startup-processes.txt 2>&1 || true
+  adb shell dumpsys activity activities > qa/screenshots/android-startup-activities.txt 2>&1 || true
+  cat qa/screenshots/android-startup-crash.txt >&2 || true
+  grep -E -C 10 'com.brendigo.bopavi|FATAL EXCEPTION|crash|died|has died|force-finishing|Start proc'       qa/screenshots/android-startup-processes.txt | tail -n 200 >&2 || true
   exit 1
 fi
 
