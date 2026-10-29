@@ -18,14 +18,17 @@ internal object FlightChallengePolicy {
         if(index<2)return original
         // Alternating narrow and recovery gates: tougher but never unfair.
         // The 164px opening floor preserves a 145px hard-mode corridor.
-        val variation=when(index%5) {
-            0 -> 3f
-            1 -> 12f
-            2 -> 18f
-            3 -> 7f
-            else -> -4f
+        val variation=when(index%6) {
+            0 -> 10f // tightening
+            1 -> 20f // narrow
+            2 -> 28f // short reaction window
+            3 -> -9f // clear recovery opening
+            4 -> 24f // narrow again
+            else -> 4f
         }
-        return max(164f,original-variation-zone.coerceIn(0,5)*1.5f)
+        // Cap difficulty at the established fair-mouth floor. The same exact
+        // Gate gap drives both visual lip and swept physical collision.
+        return max(164f,original-variation-zone.coerceIn(0,5)*2f)
     }
 
     /** Real physical pillar widths, deliberately different from each other.
@@ -36,11 +39,11 @@ internal object FlightChallengePolicy {
         if(index<2)return introWidth
         return when((index+ordinal+world)%6) {
             0 -> 54f
-            1 -> 68f
-            2 -> 80f
-            3 -> 92f
-            4 -> 104f
-            else -> 74f
+            1 -> 74f
+            2 -> 86f
+            3 -> 98f
+            4 -> 110f
+            else -> 80f
         }
     }
 
