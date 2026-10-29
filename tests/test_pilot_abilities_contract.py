@@ -27,7 +27,7 @@ for needle in (
     assert needle in activity,needle
 
 # Pilot abilities remain real mechanics but no power badge is drawn in flight.
-assert "game.pilotAbility" in view
+assert "game.pilotAbility" not in view  # Real pilot skills stay in GameSimulation, not the HUD
 assert "hudGlass(c,h.ability" not in view
 assert "drawHudPowerIcon(" not in view
 assert '"ŽIVOTI"' in view
