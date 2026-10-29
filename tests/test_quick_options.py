@@ -29,7 +29,9 @@ assert 'progress.setEffectsVolume(safe)' in options and 'sound.effectsVolume=val
 assert 'VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking)' in options
 assert 'bar?.progress?.let(::persistVolume)' in options
 assert 'onStopTrackingTouch(' in options and 'onProgressChanged(' in options
-assert 'progress.difficulty(),1L,PilotAbility.fromChoice(selectedPilotChoice))' in play
+assert 'perks.first,perks.second,progress.difficulty(),1L,' in play
+assert 'PilotAbility.fromChoice(selectedPilotChoice)),0)' in play
+assert 'LevelEngine.createStream(world,number)' in play
 assert 'progress.totalRuns()' in records and 'progress.totalFlaps()' in records
 assert 'progress.bestPoints()' in records and 'progress.bestFood()' in records
 assert 'progress.endlessBest()' in records
