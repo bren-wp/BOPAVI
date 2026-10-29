@@ -24,6 +24,8 @@ assert "Uvjeti korištenja" in home and "showTermsNotice()" in home
 assert 'legalLink("Politika privatnosti","Pročitaj politiku privatnosti")' in home
 assert "portraitDrawableIds[selectedPilotChoice]" in home
 assert "pilotSpriteIds[selectedPilotChoice]" in a
+assert all(x in a for x in ("private fun showSkins()","private fun showShop()","private fun showLevels()"))
+assert (code/"ReferenceMenus.kt").exists()
 pause=section(a,"    private fun showPremiumPause(","    private fun startGame(")
 assert all(label in pause for label in ("NASTAVI","PONOVO","IZLAZ"))
 assert "game.paused=false" in pause
@@ -31,7 +33,7 @@ play=section(a,"    private fun startGame(","    private fun showResult(")
 assert "GameSimulation(" in play and "onFinished" in play
 result=section(a,"    private fun showResult(","    override fun onBackPressed()")
 assert all(label in result for label in ("progress.recordRun(g)","bestPoints()","g.score()","g.foodCollected","PONOVO","POČETNA","backAction(panel"))
-for removed in ("showWorlds(","showLevels(","showShop(","showProfile(","showPerks(","showCollection(","showAchievements(","showLeaderboard(","showSettings(","showPilotPicker("):
+for removed in ("showWorlds(","showProfile(","showPerks(","showCollection(","showAchievements(","showLeaderboard(","showSettings(","showPilotPicker("):
     assert removed not in a,removed
 assert "BerryCollision.touched(" in simulation and "collectedFood[i]=true" in simulation
 assert "if(endless && gate.coin && !collectedFood[i] &&" in simulation
