@@ -59,7 +59,6 @@ class PilotAbilityTest {
         fox.step(1f/60f)
         assertEquals(2,fox.lives)
         assertTrue(fox.lastImpactLostLife)
-        assertEquals("LISAC · ŠTIT POTROŠEN",fox.pilotAbility.hudStatus(fox.pilotGuardReady))
     }
 
     @Test fun guardCannotBeCarriedIntoLegacyFiniteLevels() {
@@ -108,11 +107,10 @@ class PilotAbilityTest {
         }
     }
 
-    @Test fun abilityChipColoursExposeShieldReadyAndSpentStates() {
-        assertNotEquals(PilotAbility.LISAC.hudTint(true),PilotAbility.LISAC.hudTint(false))
-        assertNotEquals(PilotAbility.BOPI.hudTint(false),PilotAbility.SOVA.hudTint(false))
-        assertEquals("LISAC · ŠTIT SPREMAN",PilotAbility.LISAC.hudStatus(true))
-        assertEquals("LISAC · ŠTIT POTROŠEN",PilotAbility.LISAC.hudStatus(false))
+    @Test fun skillsKeepTheirSavedIdentifiersAfterRemovingPowerHud() {
+        assertEquals("Brzi let",PilotAbility.BOPI.shortTitle)
+        assertEquals("Mirna krila",PilotAbility.SOVA.shortTitle)
+        assertEquals("Zaštitni štit",PilotAbility.LISAC.shortTitle)
         assertEquals(365f,PilotAbility.BOPI.terminalFallSpeed,0f)
         assertEquals(315f,PilotAbility.SOVA.terminalFallSpeed,0f)
     }
