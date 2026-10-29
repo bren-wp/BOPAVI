@@ -33,8 +33,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private var qaWaitingForCapture = false
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
-    // Update point totals on change and the real distance readout at 10 Hz,
-    // rather than allocating formatted text on every animation frame.
+    // Keep only a cached lives accessibility label: no score text or
+    // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
     private var cachedLives = -1
     private var cachedLivesLabel = "3/3"
@@ -1058,7 +1058,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Top-right 72px of the 480x800 playfield is reserved for the *real*
      * screen insets; the original physics remain in world units.
      */
-    /** Use one cached caption-width policy on score and distance updates. */
+    /** The remaining-lives panel reuses cached shapes and native Paint. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         // Unified premium glass: restrained corner radius, thin highlight,
         // softer fill, and one subtle lower edge for separation from the sky.
@@ -1164,7 +1164,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            // Never replace the full TalkBack controls/score label with only
+            // Keep the same accessible lives/flap label instead of only
             // the pilot name after each tap; reuse the HUD snapshot instead.
             contentDescription=lastHudAccessibility.ifEmpty { flightHint() }
             onFlap()
