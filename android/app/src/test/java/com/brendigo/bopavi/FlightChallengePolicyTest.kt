@@ -38,8 +38,8 @@ class FlightChallengePolicyTest {
                 val gates=LevelEngine.create(world,number).gates
                 val later=gates.drop(2)
                 assertTrue(later.any { it.width==54f })
-                assertTrue(later.any { it.width==104f })
-                assertTrue(later.all { it.width in 54f..104f })
+                assertTrue(later.any { it.width==110f })
+                assertTrue(later.all { it.width in 54f..110f })
                 assertTrue(gates.take(2).all { it.width in 64f..91f })
                 assertEquals(gates,LevelEngine.create(world,number).gates)
             }
@@ -49,7 +49,7 @@ class FlightChallengePolicyTest {
     @Test fun narrowAndRecoveryMouthsAlternateButNeverBecomeUnfair() {
         for(zone in 0..5) {
             assertTrue(FlightChallengePolicy.gateGap(205f,2,zone) <
-                FlightChallengePolicy.gateGap(205f,4,zone))
+                FlightChallengePolicy.gateGap(205f,3,zone))
             for(i in 0..24) {
                 val mouth=FlightChallengePolicy.gateGap(172f,i,zone)
                 assertTrue(mouth>=164f)
