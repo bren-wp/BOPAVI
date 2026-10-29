@@ -24,7 +24,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onFlightStarted:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -36,18 +36,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Update point totals on change and the real distance readout at 10 Hz,
     // rather than allocating formatted text on every animation frame.
     private var lastHudAccessibility = ""
-    private var lastAccessibilityScore = -1
-    private var lastAccessibilityFood = -1
-    private var lastAccessibilityGuard = false
-    private var cachedScore = -1
-    private var cachedScoreLabel = "0"
-    private var cachedFood = -1
-    private var cachedFoodLabel = "0"
     private var cachedLives = -1
-    private var cachedLivesLabel = "0/3"
-    // Event sampling uses the simulation's real heart/guard state, never a
-    // guessed collision flash; no new objects are allocated on quiet frames.
-    private val flightHudFeedback=FlightHudFeedback()
+    private var cachedLivesLabel = "3/3"
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -1123,108 +1113,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawText(value,right,baseline,p)
         p.textAlign=Paint.Align.LEFT
     }
-    private fun drawHudNumber(c:Canvas,value:String,x:Float,baseline:Float,maxWidth:Float){
-        // Measure the actual glyphs, not their digits, to keep long marathon
-        // totals inside the allotted card even with bold fonts or font scaling.
-        fill(Color.WHITE)
-        p.typeface=headerTypeface
-        p.textAlign=Paint.Align.LEFT
-        p.textSize=23f
-        p.textScaleX=1f
-        val measured=p.measureText(value)
-        p.textSize=FlightHudReadability.fontSize(measured,maxWidth)
-        p.textScaleX=FlightHudReadability.horizontalScale(
-            measured,maxWidth,p.textSize)
-        c.drawText(value,x,baseline,p)
-        // Shared Paint must not squeeze the next heading or life counter.
-        p.textScaleX=1f
-    }
-    /** Fit all pilot names and life feedback inside their real HUD cards.
-     *  Glyphs are measured using the existing Paint; no new bitmaps or arrays.
-     */
-    private fun drawHudCaption(c:Canvas,value:String,x:Float,y:Float,maxWidth:Float,color:Int){
-        fill(color)
-        p.typeface=headerTypeface
-        p.textAlign=Paint.Align.LEFT
-        p.textScaleX=1f
-        p.textSize=15f
-        val measured=p.measureText(value)
-        p.textSize=FlightHudReadability.captionFontSize(measured,maxWidth)
-        p.textScaleX=FlightHudReadability.captionHorizontalScale(measured,maxWidth,p.textSize)
-        c.drawText(value,x,y,p)
-        p.textScaleX=1f
-    }
-
-    /** Three distinct, accessible colour-and-shape power signs (speed, calm,
-     *  shield), instead of a generic unlabelled strip. Uses the shared Path.
-     */
-    private fun drawHudPowerIcon(c:Canvas,tint:Int){
-        val x=FlightHudLayout.powerIconCenterX
-        val y=FlightHudLayout.powerIconCenterY
-        val r=FlightHudLayout.powerIconRadius
-        oval(c,x-r,y-r,x+r,y+r,0xff193b5b.toInt())
-        fill(tint)
-        when(game.pilotAbility){
-            PilotAbility.BOPI -> {
-                // Lightning silhouette: speed.
-                path.reset()
-                path.moveTo(x+1f,y-9f)
-                path.lineTo(x-7f,y+2f)
-                path.lineTo(x-1f,y+2f)
-                path.lineTo(x-3f,y+9f)
-                path.lineTo(x+8f,y-3f)
-                path.lineTo(x+2f,y-3f)
-                path.close()
-                c.drawPath(path,p)
-            }
-            PilotAbility.SOVA -> {
-                // Curved feather: gentler fall and finer control.
-                path.reset()
-                path.moveTo(x-6f,y+7f)
-                path.cubicTo(x-9f,y-2f,x-1f,y-9f,x+7f,y-8f)
-                path.cubicTo(x+8f,y+1f,x+1f,y+8f,x-6f,y+7f)
-                path.close()
-                c.drawPath(path,p)
-                fill(0xff193b5b.toInt())
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=1.7f
-                c.drawLine(x-5f,y+6f,x+5f,y-5f,p)
-                p.style=Paint.Style.FILL
-            }
-            PilotAbility.LISAC -> {
-                // Shield outline remains visible even after the charge is used.
-                path.reset()
-                path.moveTo(x,y-9f)
-                path.lineTo(x+8f,y-5f)
-                path.lineTo(x+7f,y+3f)
-                path.quadTo(x+5f,y+7f,x,y+9f)
-                path.quadTo(x-5f,y+7f,x-7f,y+3f)
-                path.lineTo(x-8f,y-5f)
-                path.close()
-                c.drawPath(path,p)
-                fill(0xff193b5b.toInt())
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=1.8f
-                if(game.pilotGuardReady){
-                    path.reset()
-                    path.moveTo(x-4f,y)
-                    path.lineTo(x-1f,y+3f)
-                    path.lineTo(x+5f,y-4f)
-                    c.drawPath(path,p)
-                }else{
-                    c.drawLine(x-4f,y+4f,x+4f,y-4f,p)
-                }
-                p.style=Paint.Style.FILL
-            }
-            PilotAbility.CLASSIC -> {
-                p.style=Paint.Style.STROKE
-                p.strokeWidth=2.1f
-                c.drawCircle(x,y,6f,p)
-                p.style=Paint.Style.FILL
-            }
-        }
-    }
-
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
@@ -1241,61 +1129,26 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL
     }
     private fun drawHud(c:Canvas){
-        // Only the changed counters allocate their numeric strings. At 120 Hz
-        // most frames simply reuse the last score and berry-count labels.
-        val score=game.score()
-        val food=game.foodCollected
-        if(score!=cachedScore){cachedScore=score;cachedScoreLabel=score.toString()}
-        if(food!=cachedFood){cachedFood=food;cachedFoodLabel=food.toString()}
-        if(game.lives!=cachedLives){
-            cachedLives=game.lives
-            cachedLivesLabel="${game.lives}/${game.maxLives}"
+        // Minimal native HUD: lives only. Scores, berries and abilities remain
+        // in GameSimulation for authentic results and saved history, never in flight.
+        val lives=game.lives.coerceIn(0,game.maxLives)
+        if(lives!=cachedLives) {
+            cachedLives=lives
+            cachedLivesLabel="$lives/${game.maxLives}"
         }
-        // Equal-height, aligned score/fruit/lives cards. Pure geometry is
-        // shared with JVM tests and never affects pillar collision.
         val h=FlightHudLayout
-        hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)
-        text(c,"BODOVI",30f,38f,12f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedScoreLabel,30f,72f,h.score.right-44f)
-        hudGlass(c,h.food.left,h.food.top,h.food.right,h.food.bottom)
-        drawBerry(c,170f,53f,8f)
-        text(c,"HRANA",188f,38f,12f,0xffd4f4ff.toInt())
-        drawHudNumber(c,cachedFoodLabel,188f,72f,h.food.right-199f)
-        if(game.endless) {
-            hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
-            text(c,"ŽIVOTI",300f,38f,12f,0xffd4f4ff.toInt())
-            drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,38f,
-                FlightHudReadability.lifeCountColor(game.lives,game.maxLives))
-            for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
-                drawHudHeart(c,h.heartCenters[i],FlightHudLayout.heartBaseline,i<game.lives)
-            }
+        hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
+        text(c,"ŽIVOTI",h.lives.left+18f,40f,15f,0xfff2faff.toInt())
+        drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,40f,
+            FlightHudReadability.lifeCountColor(lives,game.maxLives))
+        for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
+            drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
         }
-        // The entire second-row indicator remains left of the native pause.
-        hudGlass(c,h.ability.left,h.ability.top,h.ability.right,h.ability.bottom)
-        val powerTint=game.pilotAbility.hudTint(game.pilotGuardReady)
-        text(c,"MOĆ",31f,110f,12f,0xffd4f4ff.toInt())
-        rect(c,22f,119f,26f,135f,powerTint,2f)
-        drawHudPowerIcon(c,powerTint)
-        drawHudCaption(c,game.pilotAbility.hudStatus(game.pilotGuardReady),
-            h.powerTextLeft,133f,h.ability.right-h.powerTextLeft-h.hudTextRightInset,powerTint)
-        flightHudFeedback.update(game.lives,game.pilotGuardReady,game.time)?.let { notice ->
-            // Separate third row, away from hearts, score, power and the
-            // native Pause button. Static high-contrast cue: no flashing.
-            hudGlass(c,h.notice.left,h.notice.top,h.notice.right,h.notice.bottom)
-            rect(c,h.notice.left+5f,h.notice.top+8f,h.notice.left+9f,
-                h.notice.bottom-8f,notice.tint,2f)
-            drawHudCaption(c,notice.label,h.notice.left+17f,h.notice.bottom-10f,
-                h.notice.right-h.notice.left-17f-h.hudTextRightInset,notice.tint)
-        }
-        if(score!=lastAccessibilityScore || food!=lastAccessibilityFood ||
-            game.lives!=lastAccessibilityLives || game.pilotGuardReady!=lastAccessibilityGuard) {
-            lastAccessibilityScore=score
-            lastAccessibilityFood=food
-            lastAccessibilityLives=game.lives
-            lastAccessibilityGuard=game.pilotGuardReady
-            val lifeNotice=if(FlightHudReadability.isFinalLife(game.lives,game.maxLives))
+        if(lives!=lastAccessibilityLives) {
+            lastAccessibilityLives=lives
+            val lifeNotice=if(FlightHudReadability.isFinalLife(lives,game.maxLives))
                 " Posljednji život." else ""
-            lastHudAccessibility="${flightHint()} Bodovi: $score; Hrana: $food; Životi: ${game.lives}.$lifeNotice Moć: ${game.pilotAbility.hudStatus(game.pilotGuardReady)}"
+            lastHudAccessibility="${flightHint()} Životi: $lives/${game.maxLives}.$lifeNotice"
             contentDescription=lastHudAccessibility
         }
     }
@@ -1339,7 +1192,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 if(firstFlap) frameClock.reset()
                 game.flap()
                 if(firstFlap && game.active) {
-                    onFlightStarted()
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
