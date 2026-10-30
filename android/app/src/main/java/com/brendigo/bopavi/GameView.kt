@@ -1073,7 +1073,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.alpha=(210f*(1f-progress)).toInt().coerceIn(0,210)
             for(i in 0 until 10) {
                 val angle=i*6.2831853f/10f
-                val x=126f+cos(angle)*radius
+                val x=game.birdX+cos(angle)*radius
                 val y=game.y+sin(angle)*radius
                 c.drawCircle(x,y,2.9f+(i%3)*.65f,p)
             }
@@ -1090,8 +1090,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 val angle=i*6.2831853f/12f
                 val dx=cos(angle)
                 val dy=sin(angle)
-                c.drawLine(126f+dx*radius,game.y+dy*radius,
-                           126f+dx*(radius+9f),game.y+dy*(radius+9f),p)
+                c.drawLine(game.birdX+dx*radius,game.y+dy*radius,
+                           game.birdX+dx*(radius+9f),game.y+dy*(radius+9f),p)
             }
         }
         p.alpha=255
@@ -1111,10 +1111,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(((105f*strength).toInt().coerceIn(0,105) shl 24) or hue)
         p.style=Paint.Style.STROKE
         p.strokeWidth=2.5f
-        c.drawCircle(126f,game.y,radius,p)
+        c.drawCircle(game.birdX,game.y,radius,p)
         p.style=Paint.Style.FILL
         for(i in 0 until 7) {
-            val x=101f-i*9f-30f*progress
+            val x=game.birdX-25f-i*9f-30f*progress
             val y=game.y+(i%3-1)*19f+sin(game.time*13f+i*1.7f)*4f
             fill(((190f*strength).toInt().coerceIn(0,190) shl 24) or hue)
             c.drawCircle(x,y,2.4f+(i%3)*.7f,p)
@@ -1125,7 +1125,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             val portion=game.collectPulse/.36f
             fill(0xffffe69c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=if(reducedMotion)2f else 3f
             p.alpha=(190f*portion).toInt().coerceIn(0,190)
-            c.drawCircle(126f,game.y,28f+(1f-portion)*38f,p)
+            c.drawCircle(game.birdX,game.y,28f+(1f-portion)*38f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
         if(game.impactPulse>0f){
@@ -1133,7 +1133,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(if(game.lastImpactLostLife)0xffffa1b2.toInt() else 0xffb8efff.toInt())
             p.style=Paint.Style.STROKE;p.strokeWidth=5f
             p.alpha=(210f*portion).toInt().coerceIn(0,210)
-            c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
+            c.drawCircle(game.birdX,game.y,35f+(1f-portion)*28f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
         drawFeedbackSparkles(c)
@@ -1146,7 +1146,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.strokeWidth=2.3f
             p.alpha=if(reducedMotion)105 else (65f+35f*
                 kotlin.math.sin(game.time*3.5f)).toInt().coerceIn(30,130)
-            c.drawCircle(126f,game.y,49f,p)
+            c.drawCircle(game.birdX,game.y,49f,p)
             p.style=Paint.Style.FILL
             p.alpha=255
         }
@@ -1154,7 +1154,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
             for(i in 0 until 5) {
-                val x=107f-i*16f
+                val x=game.birdX-19f-i*16f
                 val y=game.y+(i%3-1)*13f+sin(game.time*5f+i)*3f
                 fill(0xffb4edff.toInt())
                 p.style=Paint.Style.STROKE
@@ -1167,13 +1167,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
             p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT;p.alpha=255
         }
-        if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
+        if(game.magnetTime>0f)oval(c,game.birdX-34f,game.y-34f,game.birdX+34f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,48f+sin(game.time*5f)*2f,p)
+            c.drawCircle(game.birdX,game.y,48f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
-        c.save();c.translate(126f,game.y)
+        c.save();c.translate(game.birdX,game.y)
         // Soft sky-blue/gold light remains behind the real moving wings and body.
         // A flap enlarges only the light, not the sprite or collision radius.
         val auraImpulse=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)

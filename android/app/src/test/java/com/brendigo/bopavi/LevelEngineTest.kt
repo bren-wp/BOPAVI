@@ -755,7 +755,7 @@ class LevelEngineTest {
         val upcoming=sim.upcomingGates().first()
         val spacing=sim.level.gates.last().x-sim.level.gates[sim.level.gates.lastIndex-1].x
         assertEquals(spacing,sim.upcomingGateX(upcoming)-sim.gateX(sim.level.gates.last()),.001f)
-        assertEquals(current.x,sim.gateX(current),.0001f)
+        assertEquals(current.x+FlightCameraComposition.horizontalShift,sim.gateX(current),.0001f)
     }
 
     @Test fun nextLevelArrivesWithoutDistanceResetOrBlankTransition() {

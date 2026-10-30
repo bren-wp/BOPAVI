@@ -38,3 +38,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Source screenshot resolution is 941×1672, while the last Android emulator capture was 1080×2400. The tool correctly **rejects** direct comparison across mismatched sizes instead of stretching the image and claiming pixel identity. A matched Android screenshot with the same animation state and insets must be obtained before collecting 1:1 metrics.
 - Added `tests/test_flight_reference_diff.py` to the CI source audit; local synthetic-image checks passed, including exact-match, single-pixel mutation and size rejection. Production screenshots must still be validated visually.
 - Next after the flight artwork and all associated checks genuinely pass: Results / Game Over, followed by Level Complete. The supplied references contain both, so neither is to be skipped.
+
+### Gameplay flight — body/obstacle horizontal reference alignment
+
+- The supplied active-flight picture places Bopi around the 36–38% horizontal band. The older emulator screenshot placed the character around 26% (previous logical center x=126/480).
+- Moved the real bird body/collider to x=175/480 and projected **all** current/incoming gates, maces, coins, crystals and powerups by the same 49-unit offset; world scroll, first-obstacle reaction distance, collision separation, tap impulse, gate spacing and finite progress denominator remain invariant.
+- All bird-attached visual effects (pickup/hit bursts, auras, ribbons, wind trail and shield/magnet) now use the live simulation x coordinate; none remains frozen at 126.
+- New JUnit and Python tests validate the reference anchor, eight biome families, same initial relative gate distance and a physical moving mace's translated hitbox.
+- The sprite/background artistry is not yet pixel-identical. Screenshots from the new Android build are still required before accepting the screen.

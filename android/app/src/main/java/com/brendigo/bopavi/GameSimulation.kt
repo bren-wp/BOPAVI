@@ -31,16 +31,17 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var nextLevel:LevelEngine.Level? = null
     private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
-    fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
+    fun gateX(gate: LevelEngine.Gate):Float = FlightCameraComposition.gateX(gate.x, levelOrigin, preciseDistance)
     /** Continuous distance-based HUD ratio, not a staircase of completed gates. */
     val levelProgress:Float get() {
         val last = level.gates.lastOrNull() ?: return 0f
-        val finish = last.x.toDouble() + last.width.toDouble() + radius - birdX
+        val finish = last.x.toDouble() + FlightCameraComposition.horizontalShift.toDouble() +
+            last.width.toDouble() + radius - birdX
         if (finish <= 0.0) return 1f
         return ((preciseDistance - levelOrigin) / finish).toFloat().coerceIn(0f,1f)
     }
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
-    fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
+    fun upcomingGateX(gate:LevelEngine.Gate):Float = FlightCameraComposition.gateX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val generated=LevelEngine.createStream(level.world,displayLevel+1)
@@ -146,7 +147,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         return flags
     }
     fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
-    val birdX = 126f
+    val birdX = FlightCameraComposition.birdX
     // Tight body-only hitbox; wings and transparent sprite padding never collide.
     val radius = 18f
     fun flap() {
