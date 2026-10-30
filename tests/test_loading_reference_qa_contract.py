@@ -4,6 +4,7 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 qa=(root/"tools/qa_android_loading.py").read_text()
 workflow=(root/".github/workflows/native-ci.yml").read_text()
+runner=(root/"tools/qa_android_emulator.sh").read_text()
 for expected in (
     'REFERENCE_OUT = Path("qa/screenshots/android-loading-reference-size.png")',
     'adb("shell", "wm", "size", "941x1672")',
@@ -16,5 +17,6 @@ for expected in (
     'assert sum(n.get("content-desc")=="Loading level" for n in ref_nodes)==1',
 ):
     assert expected in qa,expected
-assert "python3 tools/qa_android_loading.py" in workflow
+assert "python3 tools/qa_android_loading.py" in runner
+assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in workflow
 print("PASS: reference Loading capture is native, checked and reset")
