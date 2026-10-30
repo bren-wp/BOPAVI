@@ -43,13 +43,17 @@ def main():
     game=(CODE/"GameView.kt").read_text(encoding="utf-8")
     activity=(CODE/"MainActivity.kt").read_text(encoding="utf-8")
     store=(CODE/"ProgressStore.kt").read_text(encoding="utf-8")
-    # These old one-off item visibility accessors had no callers anywhere in
-    # the production app or unit tests. Keep the backed save state intact.
-    for obsolete in ("coinVisible(", "starVisible(", "powerVisible("):
-        require(obsolete not in joined,f"Unused gameplay helper restored: {obsolete}")
+    # Previously unused visibility helpers are now genuinely consumed by the
+    # finite-level collectible renderer. Fail if a helper is orphaned again or
+    # if the older unreferenced starVisible accessor reappears.
+    simulation=(CODE/"GameSimulation.kt").read_text(encoding="utf-8")
+    for helper in ("coinVisible", "crystalVisible", "powerVisible"):
+        require(f"fun {helper}(" in simulation and f"game.{helper}(" in game,
+                f"Finite pickup visibility is orphaned: {helper}")
+    require("starVisible(" not in joined,"Unreferenced old star visibility helper restored")
     require('drawStoneCourses(' in game and 'fun courses(yStart' not in game,
             "Per-obstacle renderer closure was reintroduced")
-    require('"ŽIVOTI"' in game and 'cachedScore' not in game,
+    require('Životi: $lives/' in game and 'drawHudHeart(' in game and 'cachedScore' not in game,
             "Lives-only gameplay HUD missing")
     require('gamePauseButton' not in activity and 'FlightOverlayLayout' not in joined,
             "Retired on-screen Pause overlay remains")
