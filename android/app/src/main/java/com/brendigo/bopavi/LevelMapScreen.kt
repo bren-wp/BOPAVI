@@ -62,7 +62,6 @@ internal class LevelMapScreen(
 
     private val blue=intArrayOf(0xff2bc7ff.toInt(),0xff0958c9.toInt(),0xffd3f6ff.toInt())
     private val gold=intArrayOf(0xffffe662.toInt(),0xffff8804.toInt(),0xfffffff1.toInt())
-    private val green=intArrayOf(0xff7feb45.toInt(),0xff087a2a.toInt(),0xffbbff8f.toInt())
     private val gray=intArrayOf(0xff9babbe.toInt(),0xff425775.toInt(),0xffc6d2e1.toInt())
     private val volcano=intArrayOf(0xfffe8348.toInt(),0xff9a2b27.toInt(),0xffffcf89.toInt())
     private val wood=intArrayOf(0xffe0b576.toInt(),0xff82441e.toInt(),0xffffda9c.toInt())

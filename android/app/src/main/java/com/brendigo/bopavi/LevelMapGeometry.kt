@@ -16,10 +16,10 @@ internal object LevelMapGeometry {
     // Nodes are actual selected-world stages, so disabled = truly locked.
     val nodes=listOf(
         Point(45f,969f),     // Meadow blue stage 1
-        Point(129f,1088f),   // Meadow blue stage 2
+        Point(129f,1117f),   // Meadow blue stage 2
         Point(299f,1107f),   // Meadow golden stage 3
         Point(421f,596f),    // Crystal stage 4
-        Point(540f,671f),    // Crystal stage 5
+        Point(533f,681f),    // Crystal stage 5
         Point(508f,207f)     // Volcano locked stage 6
     )
     val plaques=listOf(
@@ -41,6 +41,19 @@ internal object LevelMapGeometry {
     fun starStripsInsideReference():Boolean=(0..2).all{
         val p=starStrip(it)
         p.x>=0f && p.y>=0f && p.x+156f<=width && p.y+42f<=height
+    }
+    fun firstThreeMarkersAndStarsDoNotOverlap():Boolean=(0..2).all{index->
+        val strip=starStrip(index)
+        val starRight=strip.x+156f
+        val starBottom=strip.y+42f
+        (0..2).filter{it!=index}.all{other->
+            val marker=nodes[other]
+            val separate=starRight<=marker.x ||
+                strip.x>=marker.x+nodeWidth ||
+                starBottom<=marker.y ||
+                strip.y>=marker.y+nodeHeight
+            separate
+        }
     }
 
     fun pageStart(selected:Int):Int=(selected.coerceIn(0,7)/3)*3
