@@ -29,7 +29,7 @@ for needle in (
 assert "game.pilotAbility" not in view  # Real pilot skills stay in GameSimulation, not the HUD
 assert "hudGlass(c,h.ability" not in view
 assert "drawHudPowerIcon(" not in view
-assert '"ŽIVOTI"' in view
+assert 'Životi: $lives/' in view
 
 for needle in (
     'val pilotAbility:PilotAbility = PilotAbility.CLASSIC',
