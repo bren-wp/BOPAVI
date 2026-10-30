@@ -19,7 +19,6 @@ for phrase in (
     'stage.place(label("LEVEL COMPLETE!",63f,Color.WHITE)',
     'for(index in 0..2)',
     'index<data.stars',
-    '"NO NEW BONUS"',
     'stage.place(LevelCompleteChest(host),338f,1069f,265f,184f)',
     'button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP"',
     'stage.place(button("HOME",false,onHome)',
@@ -30,6 +29,8 @@ for phrase in (
     assert phrase in view,phrase
 assert 'val nextAvailable:Boolean get()=level<LevelEngine.LEVELS_PER_WORLD.toLong()' in model
 assert 'if(justAwardedCoins>0)' in model
+assert '"NO NEW BONUS"' in model
+assert 'label(data.rewardText,25f,' in view
 assert "replayAndNonMilestoneDoNotPretendToGrantChestLoot" in unit
 assert "endOfWorldDoesNotProduceInvalidNextLevel" in unit
 assert "val electric" not in main
