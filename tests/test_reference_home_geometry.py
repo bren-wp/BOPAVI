@@ -21,9 +21,11 @@ assert "minHeight=d(48)" in home
 assert "showLevels()" in home and "showShop()" in home
 assert 'action(content,"▶  PLAY"){startGame()}' in home
 assert "content.getChildAt(content.childCount-1) as Button" in home
-assert "(resources.displayMetrics.widthPixels*.73f).toInt()" in home
-assert "(resources.displayMetrics.widthPixels*.79f).toInt()" in home
-assert "(resources.displayMetrics.widthPixels*.63f).toInt()" in home
+assert "(resources.displayMetrics.widthPixels*.67f).toInt()" in home
+assert "(resources.displayMetrics.widthPixels*.72f).toInt()" in home
+assert "(resources.displayMetrics.widthPixels*.51f).toInt()" in home
+assert "(resources.displayMetrics.widthPixels*.64f).toInt()" in home
+assert "(resources.displayMetrics.widthPixels*.54f).toInt()" in home
 assert 'shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.RECORDS' in home
 assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD' in home
 assert 'shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND' in home

@@ -77,3 +77,5 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 
 - Diagnosed run 41133128581 using its uploaded `android-current-ui.xml`: PLAY did open the real 1080×2400 `android.view.View`, clickable and with `Bopi leti. Dodirni za zamah krilima. Životi: 3/3.` accessibility state. The test still only searched for an older `DODIRNI ZA LET` or English `TAP TO FLY WITH` substring, causing a **false negative** before the gameplay screenshot.
 - Corrected the gate to require the actual clickable native GameView, a real `ŽIVOTI:` count, the real flap hint, and absence of the Home PLAY button. A fake splash, Home or non-interactive decorative image still fails. Added a code regression assertion. No gameplay physics or accessibility text was weakened.
+
+- Calibrated width ratios against the actual 941×1672 owner image: top resource rail 51% of viewport, primary PLAY 67%, secondary SKINS/SHOP row 72%, Settings 54%, and bottom shortcut row 64%. Reference art requires ample negative space around the live controls; ratios stay constant while normal Android dp font/touch minima remain enforced.

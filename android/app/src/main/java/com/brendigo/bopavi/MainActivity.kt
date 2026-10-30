@@ -752,7 +752,7 @@ class MainActivity : Activity() {
         resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR,
             "Otvori kartu razina"){showLevels()}
         content.addView(resourcesBar,LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.67f).toInt(),d(49)).apply{
+            (resources.displayMetrics.widthPixels*.51f).toInt(),d(49)).apply{
             gravity=Gravity.END
         })
 
@@ -784,7 +784,7 @@ class MainActivity : Activity() {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             textSize=if(tinyDisplay)20f else 26f
             (layoutParams as LinearLayout.LayoutParams).apply{
-                width=(resources.displayMetrics.widthPixels*.73f).toInt()
+                width=(resources.displayMetrics.widthPixels*.67f).toInt()
                 gravity=Gravity.CENTER_HORIZONTAL
                 layoutParams=this
             }
@@ -825,7 +825,7 @@ class MainActivity : Activity() {
         feature("SHOP","Otvori trgovinu nadogradnji",0xff6de553.toInt(),
             0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.SHOP){showShop()}
         content.addView(features,LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.79f).toInt(),
+            (resources.displayMetrics.widthPixels*.72f).toInt(),
             d(if(tinyDisplay)55 else 64)).apply{
             gravity=Gravity.CENTER_HORIZONTAL
         })
@@ -848,7 +848,7 @@ class MainActivity : Activity() {
             isClickable=true;isFocusable=true
             setOnClickListener{sound.effect("click");showQuickOptions()}
         },LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.63f).toInt(),
+            (resources.displayMetrics.widthPixels*.54f).toInt(),
             d(if(tinyDisplay)49 else 57)).apply{
             gravity=Gravity.CENTER_HORIZONTAL
             topMargin=d(3);bottomMargin=d(5)
@@ -895,7 +895,7 @@ class MainActivity : Activity() {
         shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND,
             "Otvori zvučne postavke"){showQuickOptions()}
         content.addView(footer,LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.76f).toInt(),
+            (resources.displayMetrics.widthPixels*.64f).toInt(),
             d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)).apply{
             gravity=Gravity.CENTER_HORIZONTAL
             topMargin=d(if(compactDisplay)6 else 23)
