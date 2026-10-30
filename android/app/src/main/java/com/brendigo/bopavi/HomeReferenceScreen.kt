@@ -27,7 +27,6 @@ import java.util.Locale
  */
 internal class HomeReferenceScreen(private val host:Activity,
                                    private val progress:ProgressStore) {
-    private val navy=0xff092654.toInt()
     private fun dp(px:Int)=(px*host.resources.displayMetrics.density+.5f).toInt()
     private fun plate(top:Int,bottom:Int,outline:Int,radius:Int)=
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,

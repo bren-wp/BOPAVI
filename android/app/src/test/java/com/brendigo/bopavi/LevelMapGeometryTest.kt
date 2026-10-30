@@ -28,6 +28,11 @@ class LevelMapGeometryTest {
     }
     @Test fun referenceAnchorsStayWithin941By1672() {
         assertEquals(6,LevelMapGeometry.nodes.size)
+        assertTrue(LevelMapGeometry.nodesInsideReference())
+        assertTrue(LevelMapGeometry.starStripsInsideReference())
+        assertEquals(LevelMapGeometry.Point(45f,969f),LevelMapGeometry.nodes[0])
+        assertEquals(LevelMapGeometry.Point(421f,596f),LevelMapGeometry.nodes[3])
+        assertEquals(LevelMapGeometry.Point(508f,207f),LevelMapGeometry.nodes[5])
         for(point in LevelMapGeometry.nodes+LevelMapGeometry.plaques){
             assertTrue(point.x>=0 && point.x<LevelMapGeometry.width)
             assertTrue(point.y>=0 && point.y<LevelMapGeometry.height)

@@ -65,6 +65,8 @@ internal class LevelMapScreen(
     private val green=intArrayOf(0xff7feb45.toInt(),0xff087a2a.toInt(),0xffbbff8f.toInt())
     private val gray=intArrayOf(0xff9babbe.toInt(),0xff425775.toInt(),0xffc6d2e1.toInt())
     private val volcano=intArrayOf(0xfffe8348.toInt(),0xff9a2b27.toInt(),0xffffcf89.toInt())
+    private val wood=intArrayOf(0xffe0b576.toInt(),0xff82441e.toInt(),0xffffda9c.toInt())
+    private val slate=intArrayOf(0xffa7d6ed.toInt(),0xff2b507a.toInt(),0xffd5f4ff.toInt())
 
     fun create(world:Int,onWorld:(Int)->Unit,
                onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
@@ -95,29 +97,35 @@ internal class LevelMapScreen(
                 cornerRadius=dp(18).toFloat()
             }
         }
-        stage.place(title,342f,25f,240f,58f)
+        stage.place(title,342f,20f,125f,77f)
         stage.place(nativeButton("‹","Home",blue){onBack()},
-            20f,16f,99f,91f,minTouch=true)
+            20f,16f,131f,95f,minTouch=true)
         stage.place(nativeButton("‹","Previous worlds",blue,
             LevelMapGeometry.pageStart(selected)>0){
             onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
-        },145f,29f,76f,61f,minTouch=true)
+        },167f,27f,63f,65f,minTouch=true)
         stage.place(nativeButton("›","More worlds",blue,
             LevelMapGeometry.pageStart(selected)+3<LevelEngine.WORLD_COUNT){
             onWorld(LevelMapGeometry.pageStart(selected)+3)
-        },790f,29f,76f,61f,minTouch=true)
+        },248f,27f,63f,65f,minTouch=true)
 
-        val coins=TextView(host).apply{
-            text="◉ "+progress.coins()
-            textSize=15f
+        // The reference includes currency capsules, not a row-wide status
+        // banner. Only genuinely earned coins and level-rating stars exist.
+        val totalStars=(0 until LevelEngine.WORLD_COUNT)
+            .sumOf{progress.worldStars(it)}
+        fun statChip(number:Int,kind:String):TextView=TextView(host).apply{
+            text="$kind  "+java.text.NumberFormat.getIntegerInstance().format(number)
+            textSize=20f
             setTextColor(Color.WHITE)
-            typeface=Typeface.DEFAULT_BOLD
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER
-            contentDescription="Coins: ${progress.coins()}"
-            background=face(0xff1d69af.toInt(),0xff082452.toInt(),
-                0xffb3e9ff.toInt(),19)
+            contentDescription=if(kind=="COINS")"Coins: $number" else "Earned stars: $number"
+            background=face(0xff2879c4.toInt(),0xff071d4c.toInt(),
+                0xff94ddff.toInt(),19)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
         }
-        stage.place(coins,560f,94f,184f,57f)
+        stage.place(statChip(progress.coins(),"COINS"),481f,23f,203f,73f)
+        stage.place(statChip(totalStars,"STARS"),706f,23f,211f,73f)
 
         val captions=arrayOf("SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
             "NIGHT CASTLES","PEARL SEA","SKY TOWERS","MAGIC FOREST","STAR ABYSS")
@@ -125,9 +133,9 @@ internal class LevelMapScreen(
             val pos=LevelMapGeometry.plaques[idx]
             val earned=progress.worldStars(id)
             val chosen=id==selected
-            val colors=if(chosen)gold else when(idx) {
-                0->green
-                1->blue
+            val colors=when(idx) {
+                0->wood
+                1->slate
                 else->volcano
             }
             val button=nativeButton(
@@ -135,7 +143,8 @@ internal class LevelMapScreen(
                 "Select world ${id+1}, ${captions[id]}, $earned of 60 stars",
                 colors){onWorld(id)}
             button.textSize=if(chosen)20f else 17f
-            stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,95f,
+            button.isSelected=chosen
+            stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,109f,
                 minTouch=true)
         }
         // The mascot on the first reference map is decorative; unlike map
@@ -144,7 +153,7 @@ internal class LevelMapScreen(
             setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },194f,962f,192f,210f)
+        },223f,937f,222f,209f)
 
         val visible=LevelMapGeometry.nearestLevels(frontier)
         for(index in visible.indices){
@@ -153,14 +162,41 @@ internal class LevelMapScreen(
             val unlocked=LevelMapGeometry.isUnlocked(level,frontier)
             val earned=progress.bestLevelStars(selected,level.toLong())
             val node=nativeButton(
-                if(unlocked)"$level\n"+("★".repeat(earned).ifEmpty{"☆"})
-                else "🔒",
+                if(unlocked)"$level" else "",
                 if(unlocked)"Level $level, $earned stars. Tap to play"
                 else "Locked level $level",
                 if(!unlocked)gray else if(level==frontier)gold else blue,
                 unlocked){if(unlocked)onPlay(selected,level.toLong())}
-            node.textSize=if(unlocked)22f else 24f
-            stage.place(node,pos.x,pos.y,108f,106f,minTouch=true)
+            // Actual embossed circular stage plates instead of rectangular
+            // Android buttons; content descriptions retain true save state.
+            val plate=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                if(!unlocked)intArrayOf(0xffb5c0cc.toInt(),0xff4f637e.toInt())
+                else if(level==frontier)
+                    intArrayOf(0xfffff488.toInt(),0xffffa600.toInt())
+                else intArrayOf(0xff66e0ff.toInt(),0xff0068d7.toInt())
+            ).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(dp(4),if(!unlocked)0xff42516c.toInt()
+                    else if(level==frontier)0xffefac15.toInt()
+                    else 0xffbdfbff.toInt())
+            }
+            node.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                plate,null)
+            node.textSize=if(unlocked)28f else 24f
+            stage.place(node,pos.x,pos.y,
+                LevelMapGeometry.nodeWidth,LevelMapGeometry.nodeHeight,minTouch=true)
+            if(!unlocked) {
+                // A decorative, non-focusable vector icon; locked button has
+                // isEnabled=false, and must not launch a hidden stage.
+                stage.place(LevelMapLockGlyph(host),pos.x+34f,pos.y+30f,40f,46f)
+            } else if(index<3){
+                // Three outlined stars are visible even on a new install.
+                // Filling them is tied only to saved bestLevelStars.
+                val strip=LevelMapGeometry.starStrip(index)
+                stage.place(LevelMapStarStrip(host,earned.coerceIn(0,3)),
+                    strip.x,strip.y,156f,42f)
+            }
         }
 
         val chosenStars=progress.bestLevelStars(selected,frontier.toLong())

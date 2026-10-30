@@ -11,7 +11,7 @@ menu=(src/"ReferenceMenus.kt").read_text()
 for phrase in (
     "SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
     "onWorld(id)","onPlay(selected,frontier.toLong())",
-    "node.textSize=if(unlocked)22f else 24f",
+    "node.textSize=if(unlocked)28f else 24f",
     "isEnabled=enabled","setOnClickListener{ if(isEnabled) onClick() }",
     'if(unlocked)"Level $level, $earned stars. Tap to play"',
     'else "Locked level $level"',
@@ -24,6 +24,21 @@ for phrase in (
     assert phrase in mapSource,phrase
 assert "LevelMapScreen(host,progress).create(" in menu
 assert "nearestLevels(frontier)" in mapSource
+assert "LevelMapLockGlyph(host)" in mapSource
+assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
+assert "node.background=RippleDrawable(" in mapSource
+assert "node.textSize=if(unlocked)28f else 24f" in mapSource
+assert "fun starStrip(index:Int):Point" in geometry
+assert "fun nodesInsideReference():Boolean" in geometry
+assert "fun starStripsInsideReference():Boolean" in geometry
+markers=(src/"LevelMapMarkers.kt").read_text()
+assert "private fun star(" in markers
+assert "LevelMapLockGlyph" in markers
+assert "IMPORTANT_FOR_ACCESSIBILITY_NO" in markers
+assert '"🔒"' not in mapSource
+assert "else if(index<3)" in mapSource
+assert '"Coins: $number"' in mapSource
+assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
 assert "full=true" not in mapSource
 assert "fun displayedWorlds(selected:Int)" in geometry
