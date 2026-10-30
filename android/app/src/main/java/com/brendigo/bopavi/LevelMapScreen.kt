@@ -80,7 +80,7 @@ internal class LevelMapScreen(
         },FrameLayout.LayoutParams(-1,-1))
 
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
-        stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f,full=true)
+        stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)
 
         val title=TextView(host).apply{
             text="LEVEL MAP"

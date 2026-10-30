@@ -24,6 +24,8 @@ for phrase in (
     assert phrase in mapSource,phrase
 assert "LevelMapScreen(host,progress).create(" in menu
 assert "nearestLevels(frontier)" in mapSource
+assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
+assert "full=true" not in mapSource
 assert "fun displayedWorlds(selected:Int)" in geometry
 assert "1L..20L" in store  # 20 stages x 3 genuine rating stars
 assert "lockedNodesCannotLaunchAtFreshInstall" in unit
