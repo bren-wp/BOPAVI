@@ -203,7 +203,12 @@ if len(links)!=1:
     # Keep this a genuine accessibility gate, not an unconditional success.
     import time
     for _ in range(5):
-        subprocess.run(["adb","shell","input","swipe","520","1500","520","440","400"],check=True)
+        size=subprocess.check_output(["adb","shell","wm","size"],text=True)
+        dims=re.findall(r"(\\d+)x(\\d+)",size)
+        if not dims:raise SystemExit("FAIL: missing Settings viewport dimensions")
+        width,height=map(int,dims[-1])
+        subprocess.run(["adb","shell","input","swipe",str(width//2),str(height*76//100),
+                        str(width//2),str(height*24//100),"400"],check=True)
         time.sleep(.5)
         subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-legal-search.xml"],
                        check=True,capture_output=True,timeout=40)
