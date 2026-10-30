@@ -640,14 +640,14 @@ class MainActivity : Activity() {
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)78 else if(compactDisplay)94 else 134)))
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)58 else if(compactDisplay)75 else 134)))
         val heroPortrait=ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         content.addView(heroPortrait,
-            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)100 else if(compactDisplay)128 else 203))
+            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)70 else if(compactDisplay)90 else 203))
                 .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         // The original logo already contains this slogan. A duplicate title
@@ -722,7 +722,7 @@ class MainActivity : Activity() {
                 setImageResource(portraitDrawableIds[index])
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(if(compactDisplay)57 else 69)))
+            },LinearLayout.LayoutParams(-1,d(if(compactDisplay)42 else 69)))
             item.addView(TextView(this).apply{
                 text=pilotNames[index]
                 gravity=Gravity.CENTER
@@ -731,7 +731,7 @@ class MainActivity : Activity() {
                 setTextColor(if(selected)0xffffe7a1.toInt() else Color.WHITE)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,d(23)))
-            pilots.addView(item,LinearLayout.LayoutParams(0,d(if(compactDisplay)87 else 99),1f).apply{
+            pilots.addView(item,LinearLayout.LayoutParams(0,d(if(compactDisplay)74 else 99),1f).apply{
                 setMargins(d(3),0,d(3),0)
             })
         }
@@ -775,7 +775,7 @@ class MainActivity : Activity() {
                 leftMargin=d(3);rightMargin=d(3)
             })
         }
-        content.addView(featureRow,LinearLayout.LayoutParams(-1,d(52)).apply{
+        content.addView(featureRow,LinearLayout.LayoutParams(-1,d(48)).apply{
             topMargin=d(3);bottomMargin=d(4)
         })
         // Two compact secondary actions; IGRAJ stays the single main CTA.
