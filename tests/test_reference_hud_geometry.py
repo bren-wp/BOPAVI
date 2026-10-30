@@ -6,12 +6,12 @@ activity=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").
 draw=view.split("    private fun drawHud(c:Canvas){",1)[1].split("    /** Developer QA outlines",1)[0]
 assert "drawHud(canvas)" in view
 for required in ('hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)',
-                 'text(c,"ŽIVOTI"', 'drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)',
+                 'birdBitmap?.let', 'drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)',
                  'FlightHudReadability.lifeCountColor(lives,game.maxLives)',
                  '" Posljednji život."', 'Životi: $lives/'):
     assert required in draw,required
 for obsolete in ('"BODOVI"','"HRANA"','"MOĆ"','hudGlass(c,h.score','hudGlass(c,h.food',
-                 'drawHudPowerIcon(', 'drawHudCaption(', 'game.score()', 'game.foodCollected'):
+                 'drawHudPowerIcon(', 'drawHudCaption(', 'game.score()', 'game.foodCollected', 'cachedLivesLabel', 'drawHudRightText('):
     assert obsolete not in draw,obsolete
 assert 'progress.recordRun(g)' in activity
 assert 'recordSummaryRow("NAJBOLJI REZULTAT"' in activity
