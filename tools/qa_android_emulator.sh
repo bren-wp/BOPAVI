@@ -546,21 +546,39 @@ if cmp -s qa/screenshots/android-result.png qa/screenshots/android-gameplay-read
    cmp -s qa/screenshots/android-result.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: Results PNG duplicates active or idle gameplay" >&2; exit 1
 fi
+# This is the real finished simulation on an Android 941x1672 viewport.
+BOPAVI_RESIZE_IN_PROGRESS=1
+adb shell wm size 941x1672
+adb shell wm density 320
+sleep 2
+capture android-game-over-reference-size
+python3 - <<'PY'
+import struct
+from pathlib import Path
+data=Path("qa/screenshots/android-game-over-reference-size.png").read_bytes()
+assert data[:8]==bytes.fromhex("89504e470d0a1a0a")
+assert struct.unpack(">II",data[16:24])==(941,1672)
+print("PASS: native Game Over exactly 941x1672, without image scaling")
+PY
+adb shell wm size reset
+adb shell wm density reset
+BOPAVI_RESIZE_IN_PROGRESS=0
+dump_ui
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
 nodes=list(root.iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 labels=" ".join(label(n) for n in nodes)
-# The simplified Result contains only earned points, saved best, and live actions.
-# Never require deleted currencies, gate cards, or old Flight Over headings.
-if not any(title in labels for title in ("FLIGHT OVER", "RESULT", "REZULTAT", "LET ZAVRŠEN")):
-    raise SystemExit("FAIL: loss result headline missing")
-if not any(score in labels for score in ("SCORE", "REZULTAT")):
-    raise SystemExit("FAIL: real run score missing")
-if any(gate in labels for gate in ("UKUPNO PROLAZA", "TOTAL GATES", "PRIKUPLJENE KOVANICE", "COLLECTED COINS")):
-    raise SystemExit("FAIL: obsolete reward/gate summary returned")
-if "BEST SCORE" not in labels and "NAJBOLJI REZULTAT" not in labels:raise SystemExit("FAIL: saved best missing")
+# This is an actual finished endless game: food and score are true run data.
+# There is no gem wallet or endless level-coin award in this simulation.
+for required in ("GAME","OVER","DISTANCE","FOOD COLLECTED","SCORE"):
+    if required not in labels:
+        raise SystemExit("FAIL: Game Over did not expose real stat "+required)
+if any(fake in labels for fake in ("GEMS COLLECTED","COLLECTED GEMS","COINS COLLECTED","CLOUD SAVE")):
+    raise SystemExit("FAIL: fictional endless result reward")
+if labels.count("GAME OVER STATISTICS")!=1:
+    raise SystemExit("FAIL: Game Over statistics group missing or duplicated")
 click=[n for n in nodes if n.get("clickable")=="true"]
 retry=[n for n in click if "RETRY" in label(n) or "PONOVO" in label(n)]
 home=[n for n in click if "HOME" in label(n) or "POČETNA" in label(n)]
@@ -580,8 +598,9 @@ for attempt in $(seq 1 12); do
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 labels=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
-sys.exit(0 if ("TAP TO FLY WITH" in labels or "DODIRNI ZA LET" in labels)
-         and "▶  RETRY" not in labels and "▶  PONOVO" not in labels else 1)
+sys.exit(0 if "DODIRNI ZA ZAMAH KRILIMA" in labels
+         and "ŽIVOTI:" in labels
+         and "RETRY" not in labels and "PONOVO" not in labels else 1)
 PY
   then retry_ready=1; break; fi
   sleep 1
