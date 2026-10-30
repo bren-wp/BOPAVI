@@ -39,7 +39,7 @@ for snippet in (
     "uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23)",
     "compoundDrawablePadding=d(9)",
     "contentDescription=caption",
-    "LinearLayout.LayoutParams(0,d(48),1f)",
+    "LinearLayout.LayoutParams(0,d(77),1f)",
 ):
     assert snippet in activity, snippet
 
