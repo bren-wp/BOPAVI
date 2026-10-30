@@ -116,3 +116,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Current painterly Bopi art does not contain the exact sad sitting pose from the screenshot, and backgrounds are simpler. **Do not assert pixel-perfect 1:1** without a directly comparable Android screenshot.
 
 - Emulator UI QA now captures a real Game Over screenshot at 941×1672 after the actual flight collision, checks loss-specific Distance/Food/Score and refuses fake gem/coin counters, then performs the true RETRY transition. The old source test for the generic Results layout is retained for the future Level Complete branch.
+
+### Sequential screen 7 — Level Complete (owner's second reference)
+
+- Added `LevelCompleteScreen` for actual finite wins, separate from loss-only Game Over, using the same reference coordinate canvas (941×1672), a large title, three individually painted earned/unearned stars, real player portrait, reward cards, decorative chest, and native NEXT LEVEL / HOME / SHARE.
+- Retained the exact existing save transaction: the completed run records its level stars and `completeLevelFromRecordedRun` returns the **actual** first-clear milestone coins, which are passed into read-only `LevelCompleteState`. Replays and non-milestone wins show **NO NEW BONUS**, never an invented chest opening, currency or loot grant. Collected run coins remain a separate statistic from awarded wallet coins.
+- NEXT LEVEL is disabled as a next-stage route at the highest legal level by displaying LEVEL MAP instead; HOME remains a real navigation action. SHARE uses the Android native text chooser on direct tap, with no new app INTERNET permission, no automatic upload and no personal information.
+- Source and pure JVM tests cover exact milestone receipt, replay, range bounds, score formatting and the true share text. Corrected the unused `electric` field identified by the preceding Android dead-code CI.
+- Pixel-for-pixel certification remains open: the supplied happy Bopi pose, richer waterfall and chest lighting differ from current local sprites. Use a new native emulator capture to measure visual mismatch before signing off.

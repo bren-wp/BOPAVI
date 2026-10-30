@@ -32,7 +32,6 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
     private val primaryButtonInk = 0xff061b49.toInt()
-    private val electric = 0xff00d9ff.toInt()
     // Three arcade pilots preserve all historical save-backed skin identifiers.
     private val pilotNames=arrayOf("Bopi","Sova","Lisac")
     private val pilotSpriteIds=intArrayOf(0,9,10)
@@ -1107,9 +1106,11 @@ class MainActivity : Activity() {
         val resultBackdrop=resultWorldDrawableIds[resultWorld]
         progress.recordRun(g)
         val completed=activeStage
+        var earnedReward=0
         if(g.won && completed!=null && !g.endless){
             progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)
-            progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())
+            earnedReward=progress.completeLevelFromRecordedRun(
+                completed.first,completed.second,g.score())
         }
         gameView?.paused=true;gameView=null;selectedScreen="result"
         @Suppress("DEPRECATION")
@@ -1126,6 +1127,32 @@ class MainActivity : Activity() {
                 },
                 onHome={showHome()})
             showNativeView(result)
+            return
+        }
+        if(g.won && completed!=null && !g.endless){
+            val winData=LevelCompleteState.fromRun(
+                completed.second,g.completedLevelStars,g.coins,g.score(),earnedReward)
+            val screen=LevelCompleteScreen(this).create(
+                resultBackdrop,portraitDrawableIds[selectedPilotChoice],winData,
+                onNext={
+                    if(winData.nextAvailable)startLevel(completed.first,completed.second+1L)
+                    else showLevels()
+                },
+                onHome={showHome()},
+                onShare={
+                    val text=winData.shareText()
+                    val intent=android.content.Intent(android.content.Intent.ACTION_SEND).apply{
+                        type="text/plain"
+                        putExtra(android.content.Intent.EXTRA_TEXT,text)
+                    }
+                    try {
+                        startActivity(android.content.Intent.createChooser(intent,"Share BOPAVI result"))
+                    }catch(_:android.content.ActivityNotFoundException){
+                        android.widget.Toast.makeText(this,"Sharing unavailable",
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                })
+            showNativeView(screen)
             return
         }
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
