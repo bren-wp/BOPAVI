@@ -715,7 +715,9 @@ import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 ready=[n for n in nodes if n.get("class")=="android.view.View" and
-       "DODIRNI ZA LET" in label(n)]
+       n.get("clickable")=="true" and
+       "ŽIVOTI:" in label(n) and
+       "DODIRNI ZA ZAMAH KRILIMA" in label(n)]
 sys.exit(0 if len(ready)==1 else 1)
 PY
     then reference_ready=1; break; fi
@@ -723,15 +725,32 @@ PY
   done
   test "$reference_ready" -eq 1 || { echo "FAIL: reference-size gameplay did not appear" >&2; exit 1; }
   capture android-gameplay-ready-reference-size
+  # The debug-only first-flap hold freezes the real ACTIVE simulation (no
+  # synthetic player, score, pickups or mock screen), preserving a deterministic
+  # frame while slow CI screenshots are captured.
+  adb shell input tap 470 800
+  sleep 1
+  test -n "$(adb shell pidof com.brendigo.bopavi)" || {
+    echo "FAIL: real GameView crashed after first flap at reference resolution" >&2
+    exit 1
+  }
+  capture android-gameplay-active-reference-size
+  if cmp -s qa/screenshots/android-gameplay-ready-reference-size.png \
+            qa/screenshots/android-gameplay-active-reference-size.png; then
+    echo "FAIL: active flight identical to idle; first flap/tutorial transition missing" >&2
+    exit 1
+  fi
   python3 - <<'PY'
 import struct
 from pathlib import Path
-shot=Path("qa/screenshots/android-gameplay-ready-reference-size.png").read_bytes()
-assert shot[:8]==bytes.fromhex("89504e470d0a1a0a")
-assert struct.unpack(">II",shot[16:24])==(941,1672),"Reference-size screenshot has wrong dimensions"
-print("PASS: real gameplay reference viewport 941x1672, no scaling or mock screenshots")
+for name in ("android-gameplay-ready-reference-size.png",
+             "android-gameplay-active-reference-size.png"):
+    shot=(Path("qa/screenshots")/name).read_bytes()
+    assert shot[:8]==bytes.fromhex("89504e470d0a1a0a")
+    assert struct.unpack(">II",shot[16:24])==(941,1672),name+" dimensions mismatch"
+print("PASS: real idle AND active gameplay at 941x1672, distinct unscaled frames")
 PY
-  printf 'STATE: real flight-idle reference viewport 941x1672 captured\n' >> qa/screenshots/state-evidence.txt
+  printf 'STATE: real flight-idle AND first-flap active at 941x1672 captured\n' >> qa/screenshots/state-evidence.txt
   adb shell wm size reset
   adb shell wm density reset
   BOPAVI_RESIZE_IN_PROGRESS=0

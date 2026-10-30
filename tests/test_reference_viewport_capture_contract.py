@@ -14,3 +14,11 @@ assert 'adb shell wm size reset' in script
 assert 'adb shell wm density reset' in script
 assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in ci
 print("PASS: Android emulator captures unscaled real reference-resolution gameplay")
+
+# Native active Gameplay is captured separately after one real first flap.
+assert 'capture android-gameplay-active-reference-size' in script
+assert 'adb shell input tap 470 800' in script
+assert 'android-gameplay-active-reference-size.png' in script
+assert '"ŽIVOTI:" in label(n)' in script
+assert '"DODIRNI ZA ZAMAH KRILIMA" in label(n)' in script
+assert 'first flap/tutorial transition missing' in script

@@ -31,6 +31,7 @@ for expression in (
     "drawGateCapInlay(c,x,w,bottom,g.kind)",
     "path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)",
     "c.drawBitmap(it,null,hudPortraitRect,p)",
+    "c.drawBitmap(portrait,hudFaceSource,hudPortraitRect,p)",
     "drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)",
     "lastHudAccessibility=",
 ):

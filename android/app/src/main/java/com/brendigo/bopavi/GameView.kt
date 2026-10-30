@@ -10,6 +10,7 @@ import android.view.WindowInsets
 import android.os.Build
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import android.graphics.Rect
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
@@ -50,6 +51,22 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8,R.drawable.bopi9,R.drawable.bopi10)
     private var birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
+    // Owner's avatar is a close-up of the WHOLE Bopi, with goggles, face and
+    // independent wings, not the torso-only layer used for frame animation.
+    // Pre-rendered locally from the same verified source art during build.
+    private val portraitSprites=intArrayOf(
+        R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+        R.drawable.bopiportrait2,R.drawable.bopiportrait3,
+        R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+        R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+        R.drawable.bopiportrait8,R.drawable.bopiportrait9,
+        R.drawable.bopiportrait10)
+    private var hudPortraitBitmap=BitmapFactory.decodeResource(
+        resources,portraitSprites[selectedSkin],
+        BitmapFactory.Options().apply { inScaled=false })
+    // A reused close-up source crop is rendered only INSIDE the round avatar.
+    // This does not alter the real flying bird, its hitbox or wing motion.
+    private val hudFaceSource=FlightAvatarCrop.source
     // Reference pilot is only enabled after build-time manifest and checksum
     // validation. This optional art never alters the same 18px body collider.
     private val referenceBopi0=selectedSkin==0 &&
@@ -1352,11 +1369,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.reset()
         path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)
         c.clipPath(path)
-        birdBitmap?.let {
+        val portrait=hudPortraitBitmap
+        if(portrait!=null) {
             fill(Color.WHITE)
-            c.drawBitmap(it,null,hudPortraitRect,p)
-        } ?: oval(c,h.avatarX-20f,h.avatarY-19f,h.avatarX+20f,h.avatarY+22f,
-            0xff239bdf.toInt())
+            c.drawBitmap(portrait,hudFaceSource,hudPortraitRect,p)
+        } else {
+            // Keep the original torso layer as a no-crash fallback if an
+            // individual portrait raster is absent in a damaged installation.
+            birdBitmap?.let {
+                fill(Color.WHITE)
+                c.drawBitmap(it,null,hudPortraitRect,p)
+            } ?: oval(c,h.avatarX-20f,h.avatarY-19f,h.avatarX+20f,h.avatarY+22f,
+                0xff239bdf.toInt())
+        }
         c.restore()
         // Reference has no horizontal pink life bar; communicate final-life
         // urgency via the avatar's tiny rim glint instead.
@@ -1439,6 +1464,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
         val opts=BitmapFactory.Options().apply { inScaled=false }
         if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
+        if(hudPortraitBitmap==null) hudPortraitBitmap=BitmapFactory.decodeResource(resources,portraitSprites[selectedSkin],opts)
         if(wingLeftBitmap==null) wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],opts)
         if(wingRightBitmap==null) wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],opts)
         if(worldBitmap==null) worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],opts)
@@ -1462,7 +1488,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Avoid explicit recycle(): RenderThread may still own display lists.
         paused=true
         frameClock.reset()
-        birdBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
+        birdBitmap=null;hudPortraitBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
         super.onDetachedFromWindow()
     }
 }

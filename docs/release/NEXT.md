@@ -90,3 +90,10 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Next after visual verification: **Gameplay** (first flight), followed by Pause, Game Over and Level Complete.
 
 - Added an Android 15 emulator snapshot of the actual native Level Map at exactly **941×1672** (`android-level-map-reference-size.png`), with explicit PNG IHDR validation. The emulator first verifies all three world plaques and real locked/unlocked touch controls; it restores its display overrides before continuing the existing finite Level 1 launch test. This is genuine evidence for a future image comparison, not an automatic pixel-identical certification.
+
+### Sequential screen pass 4 — Gameplay: truthful first-flap visual verification
+
+- Replaced torso-only flight HUD avatar with a cropped close-up from the **pre-rendered full original Bopi portrait** for each of the 11 saved skins, while keeping the original body-only layer and both animated wings unchanged in actual flight. One immutable 512x512 source crop, decoded on attach and released on detach; the old torso remains a crash-safe fallback.
+- Corrected the reference-sized emulator ready-state detector to require the real clickable `GameView`, actual `Životi:` count and current Croatian flap hint. The obsolete `DODIRNI ZA LET` wording could never pass on the live game.
+- Native QA now captures **both** untouched Ready and real first-flap Active frames at 941×1672. A first genuine touch changes the same debug-only simulated flight; the QA hold freezes that real frame. A byte-identical screenshot fails; both PNG IHDR dimensions and process survival are asserted. No mock screenshot, fabricated reward or changed 18px collider.
+- This is one measurable gameplay/UI pass, **not** visual 1:1 certification: the source's high-detail islands, exact Bopi painterly silhouette, waterfall/hazard artwork and animation-state matching remain materially different.
