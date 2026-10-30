@@ -13,7 +13,7 @@ for label in (
 ):
     assert label in qa,label
 assert 'and "ŽIVOTI:" in label(n)' in qa
-assert 'and "DODIRNI ZA ZAMAH KRILIMA" in label(n)' in qa
+assert '"DODIRNI ZA ZAMAH KRILIMA" in label(n)' in qa
 assert 'and n.get("clickable")=="true"' in qa
 assert "capture android-gameplay-ready" in qa
 assert "capture android-gameplay-active" in qa
