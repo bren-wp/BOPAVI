@@ -91,6 +91,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             elevation=dp(5).toFloat()
             contentDescription=description
             isClickable=true;isFocusable=true
+            minimumHeight=dp(48)
             setOnClickListener{onClick()}
             setPadding(dp(9),0,dp(9),0)
         }

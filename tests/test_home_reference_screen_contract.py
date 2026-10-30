@@ -41,6 +41,7 @@ for item in (
     assert item in view,item
 assert "assertTrue(HomeReferenceLayout.valid())" in unit
 assert "assertTrue(HomeReferenceLayout.supports(941,1672,true))" in unit
-assert "android-home-reference" in qa
+assert 'capture "android-home-$label"' in qa
+assert "941x1672:320:reference" in qa
 assert "1,250" not in view and "85 Gems" not in view
 print("PASS: reference native Home layout, saved counts and working routed actions")
