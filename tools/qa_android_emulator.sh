@@ -414,7 +414,12 @@ for attempt in $(seq 1 15); do
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
-game=[n for n in nodes if "TAP TO FLY WITH" in label(n) or "DODIRNI ZA LET" in label(n)]
+game=[n for n in nodes if n.get("class")=="android.view.View"
+      and n.get("clickable")=="true"
+      and "ŽIVOTI:" in label(n)
+      and ("DODIRNI ZA ZAMAH KRILIMA" in label(n)
+           or "TAP TO FLY WITH" in label(n)
+           or "DODIRNI ZA LET" in label(n))]
 play=[n for n in nodes if n.get("clickable")=="true"
       and ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
 sys.exit(0 if len(game)==1 and not play else 1)
