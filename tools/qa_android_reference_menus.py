@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Real Android 15 reference-menu regression, not clickable screenshot mockups."""
 import time
+import struct
+from pathlib import Path
 from qa_android_rotation import APP,adb,hierarchy,find_action,tap,label
 
 def node_with(phrase,clickable=True,attempts=15):
@@ -51,7 +53,31 @@ def main():
     tap(node_with("OTVORI OPCIJE IGRE"))
     tap(node_with("LEVEL MAP"))
     node_with("LEVEL MAP",clickable=False)
+    node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
+    node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)
+    node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)
     node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
+    # Genuine screenshot at the owner's source pixel grid, not a resized
+    # mock. Explicitly restore the emulator before testing finite gameplay.
+    resized=False
+    try:
+        adb("shell","wm","size","941x1672")
+        resized=True
+        adb("shell","wm","density","320")
+        time.sleep(1)
+        node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
+        assert exists("LOCKED LEVEL 2",enabled=False)
+        screenshot=adb("exec-out","screencap","-p")
+        assert screenshot[:8]==bytes.fromhex("89504e470d0a1a0a")
+        assert struct.unpack(">II",screenshot[16:24])==(941,1672)
+        target=Path("qa/screenshots/android-level-map-reference-size.png")
+        target.parent.mkdir(parents=True,exist_ok=True)
+        target.write_bytes(screenshot)
+        print("PASS: real 941x1672 Level Map with enabled/locked native controls",flush=True)
+    finally:
+        if resized:
+            adb("shell","wm","size","reset")
+            adb("shell","wm","density","reset")
     locked=exists("LOCKED LEVEL 2",enabled=False)
     assert locked,"FAIL: locked level is not truly disabled"
     tap(node_with("PLAY LEVEL 1, 0 STARS"))

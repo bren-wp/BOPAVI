@@ -28,5 +28,12 @@ assert "fun displayedWorlds(selected:Int)" in geometry
 assert "1L..20L" in store  # 20 stages x 3 genuine rating stars
 assert "lockedNodesCannotLaunchAtFreshInstall" in unit
 assert "realLevelNodesNeverExceedTheMillionLevelLimit" in unit
+qa=(repo/"tools/qa_android_reference_menus.py").read_text()
+assert 'android-level-map-reference-size.png' in qa
+assert 'struct.unpack(">II",screenshot[16:24])==(941,1672)' in qa
+assert 'node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)' in qa
+assert 'node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)' in qa
+assert 'node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)' in qa
+assert '"wm","size","reset"' in qa
 assert "http://" not in mapSource and "https://" not in mapSource
 print("PASS: interactive Level Map nodes, 8 worlds, saved ratings, native touch, no fake locks")
