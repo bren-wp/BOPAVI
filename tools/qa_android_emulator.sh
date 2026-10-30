@@ -399,9 +399,25 @@ def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
 if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
-for menu in ("SKINS","SHOP"):
-    found=[n for n in click if n.get("text","").strip().upper()==menu]
-    if len(found)!=1:raise SystemExit("FAIL: expected one real Home menu: "+menu)
+# HomeReferenceScreen uses a real clickable LinearLayout with the
+# TalkBack action on its parent and visible text on a child TextView.
+# Require BOTH the actionable parent and the actual visible label.
+for menu,action in (
+    ("SKINS","Otvori izbor likova"),
+    ("SHOP","Otvori trgovinu nadogradnji"),
+):
+    actions=[n for n in click if n.get("content-desc")==action]
+    labels=[n for n in nodes if n.get("text","").strip().upper()==menu]
+    if len(actions)!=1 or len(labels)!=1:
+        raise SystemExit("FAIL: Home "+menu+" must have one tappable action and visible label")
+    m=lambda n: re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.get("bounds",""))
+    parent,child=m(actions[0]),m(labels[0])
+    if not parent or not child:
+        raise SystemExit("FAIL: Home "+menu+" accessibility bounds invalid")
+    ax,ay,bx,by=map(int,parent.groups())
+    cx,cy,dx,dy=map(int,child.groups())
+    if not (ax<=cx<dx<=bx and ay<=cy<dy<=by):
+        raise SystemExit("FAIL: Home "+menu+" text not inside its real button")
 for bad in ("PROFILE","PROFIL","CLOUD SAVE","RESTORE PURCHASES"):
     if any(bad in label(n) for n in click):raise SystemExit("FAIL: unsupported Home route: "+bad)
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
