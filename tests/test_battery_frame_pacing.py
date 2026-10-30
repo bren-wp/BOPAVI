@@ -24,7 +24,8 @@ assert "if(delay!=null) postInvalidateDelayed(delay) else postInvalidateOnAnimat
 assert "frameClock.tick(now,running=true)?.let { game.step(it) }" in view
 assert "val scale=min(width/480f,height/800f)" in view
 assert "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)" in view
-assert 'text(c,"ŽIVOTI"' in view
+assert 'Životi: $lives/' in view
+assert 'drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)' in view
 assert "resultWorldDrawableIds[resultWorld]" in activity
 assert "LevelEngine.names[resultWorld]" in activity
 assert "flightPhysicsRemainConsistentAcross30_60_120HzFrameRates" in physics
