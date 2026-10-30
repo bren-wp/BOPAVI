@@ -670,4 +670,6 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   python3 tools/qa_android_reference_menus.py
   python3 tools/qa_android_background.py
   python3 tools/qa_android_rotation.py
+  # Exact native Loading view used by real asynchronous level preparation.
+  python3 tools/qa_android_loading.py
 fi
