@@ -547,46 +547,16 @@ class MainActivity : Activity() {
     }
     /** Read-only on-device records: no network, accounts or score submissions. */
     private fun showLocalRecords(){
-        val stats=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(20),d(16),d(20),d(18))
-            background=gradient(0xff154c8d.toInt(),0xff061d42.toInt(),23).apply {
-                setStroke(d(2),0xff60dafe.toInt())
-            }
+        showPauseAfterBackground=false
+        sound.stop()
+        selectedScreen="records"
+        val summary=LeaderboardSummary(
+            progress.bestPoints(),progress.bestFood(),progress.endlessBest(),
+            progress.totalRuns(),progress.totalFlaps())
+        val scores=progress.leaderboard().map{
+            LeaderboardEntry(it.name,it.score,it.world,it.difficulty,it.gates)
         }
-        val rows=listOf(
-            Triple("Najbolji rezultat",progress.bestPoints().toString(),BopaviUiIconDrawable.Kind.STAR),
-            Triple("Najviše hrane u jednom letu",progress.bestFood().toString(),BopaviUiIconDrawable.Kind.BERRY),
-            Triple("Najviše prođenih prepreka",progress.endlessBest().toString(),BopaviUiIconDrawable.Kind.GATE),
-            Triple("Odigrani letovi",progress.totalRuns().toString(),BopaviUiIconDrawable.Kind.FLIGHT),
-            Triple("Ukupni zamasi krilima",progress.totalFlaps().toString(),BopaviUiIconDrawable.Kind.WING)
-        )
-        for((caption,value,kind) in rows){
-            stats.addView(TextView(this).apply{
-                text=caption+"\n"+value
-                textSize=17f
-                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
-                setTextColor(0xffe6f7ff.toInt())
-                setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(kind,if(kind==BopaviUiIconDrawable.Kind.BERRY)0xffff6179.toInt()
-                        else 0xffffdd72.toInt(),24),null,null,null)
-                compoundDrawablePadding=d(13)
-                contentDescription="$caption: $value"
-                setPadding(d(6),d(8),d(6),d(8))
-            },LinearLayout.LayoutParams(-1,-2))
-        }
-        stats.addView(TextView(this).apply{
-            text="Rekordi se čuvaju samo na ovom uređaju. Brisanje podataka aplikacije briše i rekorde."
-            textSize=12f
-            setTextColor(0xffe6f7ff.toInt())
-            setPadding(0,d(12),0,0)
-        })
-        android.app.AlertDialog.Builder(this)
-            .setTitle("MOJI REKORDI")
-            .setCustomTitle(premiumDialogHeader("MOJI REKORDI",BopaviUiIconDrawable.Kind.RECORDS))
-            .setView(android.widget.ScrollView(this).apply{addView(stats)})
-            .setPositiveButton("ZATVORI",null)
-            .show().also { polishGameDialog(it) }
+        showNativeView(LeaderboardScreen(this).create(summary,scores,onBack={showHome()}))
     }
 
     /** Real navigation destinations backed exclusively by local state. */
