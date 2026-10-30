@@ -72,7 +72,7 @@ for source in (android,):
     assert "142" in source
     assert "bopireference0" in source.lower()
     assert "game.flap()" in source
-    assert '"ŽIVOTI"' in source and "drawHudHeart(" in source  # Flight HUD no longer displays score
+    assert 'Životi: $lives/' in source and "drawHudHeart(" in source  # Flight HUD no longer displays score
     assert "bird" in source
 assert "referenceBopi0" in android
 assert "install_reference_bopi(r)" in images
