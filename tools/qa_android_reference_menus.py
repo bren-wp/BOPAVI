@@ -51,6 +51,13 @@ def main():
     tap(node_with("CHOOSE WISE OWL"))
     node_with("SELECTED WISE OWL")
     home()
+    # A fresh process must restore the REAL saved arcade_pilot, not just a
+    # transient selected card inside the current Activity.
+    adb("shell","am","force-stop",APP)
+    adb("shell","am","start","-W","-n",APP+"/.MainActivity")
+    tap(node_with("OTVORI IZBOR LIKOVA"))
+    node_with("SELECTED WISE OWL")
+    home()
     tap(node_with("OTVORI IZBOR LIKOVA"))
     tap(node_with("CHOOSE CLASSIC AVIATOR"))
     home()
