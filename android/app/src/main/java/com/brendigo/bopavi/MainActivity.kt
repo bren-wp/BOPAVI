@@ -474,14 +474,36 @@ class MainActivity : Activity() {
         }
         volumeSlider("Glazba",progress.musicVolume(),true)
         volumeSlider("Zvučni efekti",progress.effectsVolume(),false)
+        // Level Map stays reachable without adding an extra Home button that
+        // conflicts with the supplied Home composition.
+        lateinit var optionsDialog:android.app.AlertDialog
+        heading("Razine")
+        action(column,"LEVEL MAP",false){
+            optionsDialog.dismiss()
+            showLevels()
+        }
         heading("Pravni dokumenti")
-        action(column,"Privacy Policy",false){showPrivacyNotice()}
-        action(column,"Terms of Service",false){showTermsNotice()}
+        fun legalButton(caption:String,description:String,onClick:()->Unit){
+            column.addView(Button(this).apply{
+                text=caption
+                isAllCaps=false
+                contentDescription=description
+                textSize=16f
+                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                    gradient(0xff2376ac.toInt(),0xff0a386d.toInt(),20),null)
+                minHeight=d(52)
+                setOnClickListener{sound.effect("click");onClick()}
+            },LinearLayout.LayoutParams(-1,d(56)).apply{topMargin=d(5)})
+        }
+        legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPrivacyNotice()}
+        legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}
         val scroll=android.widget.ScrollView(this).apply{
             isFillViewport=false
             addView(column)
         }
-        android.app.AlertDialog.Builder(this)
+        optionsDialog=android.app.AlertDialog.Builder(this)
             .setTitle("OPCIJE IGRE")
             .setCustomTitle(premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS))
             .setView(scroll)
