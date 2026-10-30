@@ -22,6 +22,11 @@ assert "progress.chooseArcadePilot(index)" in activity
 assert "selectedPilotChoice" in home and "showSkins()" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
 assert "override fun onWindowFocusChanged(hasFocus:Boolean)" in activity
+manifest=(r/"android/app/src/main/AndroidManifest.xml").read_text()
+assert 'android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density"' in manifest
+assert 'override fun onConfigurationChanged(newConfig:android.content.res.Configuration)' in activity
+assert 'gameView?.requestLayout()' in activity
+assert 'window.decorView.requestApplyInsets()' in activity
 assert "showPauseAfterBackground=true" in activity
 assert "showPremiumPause(active)" in activity
 assert "FlightOverlayLayout" not in activity and "onFlightStarted" not in game
