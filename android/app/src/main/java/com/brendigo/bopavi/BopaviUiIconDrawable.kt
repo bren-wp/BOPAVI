@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -111,6 +111,16 @@ internal class BopaviUiIconDrawable(
                         12f + dx * 10f, 12f + dy * 10f, paint
                     )
                 }
+            }
+            Kind.MUSIC -> {
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.5f
+                canvas.drawLine(12f,5f,19f,3f,paint)
+                canvas.drawLine(12f,5f,12f,17f,paint)
+                canvas.drawLine(19f,3f,19f,14f,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawOval(6f,15f,13f,20f,paint)
+                canvas.drawOval(13f,12f,20f,17f,paint)
             }
             Kind.SHIELD -> {
                 // One consistent shield silhouette for every upgraded tier.

@@ -26,7 +26,8 @@ assert "showPauseAfterBackground=true" in activity
 assert "showPremiumPause(active)" in activity
 assert "FlightOverlayLayout" not in activity and "onFlightStarted" not in game
 assert 'private fun showPremiumPause(game:GameView)' in activity
-assert 'view.paused=true' in activity and 'showPremiumPause(view)' in activity
+assert 'game.paused=true' in activity and 'showPremiumPause(view)' in activity
+assert 'if(pauseDialog?.isShowing!=true)showPremiumPause(view)' in activity
 assert 'selectedScreen=="game"' in activity
 assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity

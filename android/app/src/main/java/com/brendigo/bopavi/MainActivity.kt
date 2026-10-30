@@ -604,6 +604,34 @@ class MainActivity : Activity() {
             onBack={showHome()})
         showNativeView(view)
     }
+    /** Native full-screen Settings; SOUND shortcut keeps the quick mixer. */
+    private fun showSettingsScreen(){
+        showPauseAfterBackground=false
+        selectedScreen="settings"
+        val page=SettingsScreen(this,progress).create(
+            onBack={showHome()},
+            onMusic={value->
+                progress.setMusicVolume(value)
+                sound.musicVolume=value/100f
+            },
+            onEffects={value->
+                progress.setEffectsVolume(value)
+                sound.effectsVolume=value/100f
+            },
+            onSound={value->
+                progress.setSoundEnabled(value)
+                sound.enabled=value
+            },
+            onHaptic={value->progress.setHapticEnabled(value)},
+            onMotion={value->progress.setLessMotion(value)},
+            onDifficulty={value->
+                progress.setDifficulty(value)
+                showSettingsScreen()
+            },
+            onPrivacy={showPrivacyNotice()},
+            onTerms={showTermsNotice()})
+        showNativeView(page)
+    }
     private fun showShop(){
         showPauseAfterBackground=false
         sound.stop()
@@ -855,7 +883,7 @@ class MainActivity : Activity() {
             contentDescription="Otvori opcije igre"
             elevation=d(4).toFloat()
             isClickable=true;isFocusable=true
-            setOnClickListener{sound.effect("click");showQuickOptions()}
+            setOnClickListener{sound.effect("click");showSettingsScreen()}
         },LinearLayout.LayoutParams(
             (resources.displayMetrics.widthPixels*.54f).toInt(),
             d(if(tinyDisplay)49 else 57)).apply{
