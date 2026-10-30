@@ -717,7 +717,7 @@ class MainActivity : Activity() {
                     },null)
                 contentDescription="$label: $count. $destination"
                 isClickable=true;isFocusable=true
-                minHeight=d(48)
+                minimumHeight=d(48)
                 setOnClickListener{sound.effect("click");onClick()}
             }
             chip.addView(ImageView(this).apply{

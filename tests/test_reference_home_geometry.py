@@ -17,7 +17,7 @@ assert 'resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR' in home
 assert "NumberFormat.getIntegerInstance().format(count)" in home
 assert 'contentDescription="$label: $count. $destination"' in home
 assert 'isClickable=true;isFocusable=true' in home
-assert "minHeight=d(48)" in home
+assert "minimumHeight=d(48)" in home
 assert "showLevels()" in home and "showShop()" in home
 assert 'action(content,"▶  PLAY"){startGame()}' in home
 assert "content.getChildAt(content.childCount-1) as Button" in home
