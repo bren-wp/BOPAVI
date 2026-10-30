@@ -198,7 +198,21 @@ import re,subprocess,sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 links=[n for n in nodes if n.get("clickable")=="true"
        and n.get("content-desc","")==sys.argv[1]]
-if len(links)!=1:raise SystemExit("FAIL: Settings legal control missing")
+if len(links)!=1:
+    # The Settings dialog scrolls; its legal footer may be below the viewport.
+    # Keep this a genuine accessibility gate, not an unconditional success.
+    import time
+    for _ in range(5):
+        subprocess.run(["adb","shell","input","swipe","520","1500","520","440","400"],check=True)
+        time.sleep(.5)
+        subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-legal-search.xml"],
+                       check=True,capture_output=True,timeout=40)
+        output=subprocess.check_output(["adb","exec-out","cat","/sdcard/bopavi-legal-search.xml"])
+        nodes=list(ET.fromstring(output).iter("node"))
+        links=[n for n in nodes if n.get("clickable")=="true"
+               and n.get("content-desc","")==sys.argv[1]]
+        if len(links)==1:break
+if len(links)!=1:raise SystemExit("FAIL: Settings legal control missing after scrolling")
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",links[0].get("bounds",""))
 if not m:raise SystemExit("FAIL: native legal tap bounds missing")
 a,b,c,d=map(int,m.groups())
