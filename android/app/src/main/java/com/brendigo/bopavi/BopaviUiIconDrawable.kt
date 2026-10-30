@@ -132,7 +132,7 @@ internal class BopaviUiIconDrawable(
                 canvas.drawRoundRect(4f,10f,20f,21f,1.3f,1.3f,paint)
                 paint.style=Paint.Style.STROKE
                 canvas.drawRect(8f,15f,12f,21f,paint)
-                canvas.drawLine(3f,10f,5f,4f,19f,4f,paint)
+                canvas.drawLine(5f,4f,19f,4f,paint)
                 for(index in 0..3){
                     canvas.drawLine(5f+index*4f,4f,5f+index*4f,10f,paint)
                 }
