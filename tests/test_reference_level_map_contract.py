@@ -36,7 +36,9 @@ assert "private fun star(" in markers
 assert "LevelMapLockGlyph" in markers
 assert "IMPORTANT_FOR_ACCESSIBILITY_NO" in markers
 assert '"🔒"' not in mapSource
-assert "else if(index<3)" in mapSource
+assert "if(index<3)" in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(24,34,1," in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(16,22,1," in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource

@@ -142,6 +142,20 @@ def main():
     node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)
     node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)
     node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
+    # Verify alternate world pages through genuine native controls, and
+    # return to the first world without unlocking any level.
+    tap(node_with("MORE WORLDS"))
+    node_with("SELECT WORLD 4, NIGHT CASTLES",clickable=True)
+    node_with("SELECT WORLD 5, PEARL SEA",clickable=True)
+    node_with("SELECT WORLD 6, SKY TOWERS",clickable=True)
+    tap(node_with("MORE WORLDS"))
+    node_with("SELECT WORLD 7, MAGIC FOREST",clickable=True)
+    node_with("SELECT WORLD 8, STAR ABYSS",clickable=True)
+    tap(node_with("PREVIOUS WORLDS"))
+    node_with("SELECT WORLD 4, NIGHT CASTLES",clickable=True)
+    tap(node_with("PREVIOUS WORLDS"))
+    node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
+    assert exists("LOCKED LEVEL 2",enabled=False)
     # Genuine screenshot at the owner's source pixel grid, not a resized
     # mock. Explicitly restore the emulator before testing finite gameplay.
     resized=False

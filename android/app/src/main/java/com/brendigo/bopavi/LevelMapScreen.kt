@@ -142,6 +142,8 @@ internal class LevelMapScreen(
                 "Select world ${id+1}, ${captions[id]}, $earned of 60 stars",
                 colors){onWorld(id)}
             button.textSize=if(chosen)20f else 17f
+            button.setAutoSizeTextTypeUniformWithConfiguration(16,22,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             button.isSelected=chosen
             stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,109f,
                 minTouch=true)
@@ -183,14 +185,18 @@ internal class LevelMapScreen(
             node.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
                 plate,null)
             node.textSize=if(unlocked)28f else 24f
+            node.setAutoSizeTextTypeUniformWithConfiguration(24,34,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             stage.place(node,pos.x,pos.y,
                 LevelMapGeometry.nodeWidth,LevelMapGeometry.nodeHeight,minTouch=true)
             if(!unlocked) {
                 // A decorative, non-focusable vector icon; locked button has
                 // isEnabled=false, and must not launch a hidden stage.
                 stage.place(LevelMapLockGlyph(host),pos.x+34f,pos.y+30f,40f,46f)
-            } else if(index<3){
-                // Three outlined stars are visible even on a new install.
+            }
+            if(index<3){
+                // Draw three real-rating placeholders even for a locked
+                // stage; zero earned stars remain outlined, never golden.
                 // Filling them is tied only to saved bestLevelStars.
                 val strip=LevelMapGeometry.starStrip(index)
                 stage.place(LevelMapStarStrip(host,earned.coerceIn(0,3)),
