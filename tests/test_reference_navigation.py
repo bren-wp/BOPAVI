@@ -10,6 +10,9 @@ for code in (a,):
     assert "progress.recordRun(g)" in code
     assert "NOVI REKORD!" in code
     assert "previousRecord" in code
-assert "gamePauseButton" not in a and "view.paused=true" in a
+assert "gamePauseButton" not in a
+assert "game.paused=true" in a
+assert "if(pauseDialog?.isShowing!=true)showPremiumPause(view)" in a
+assert "pauseDialog?.isShowing==true" in a
 assert all(x in a for x in ("showLevels()","showShop()","showSkins()"))
 print("PASS: real BOPAVI menu destinations, flight and system-Back pause")
