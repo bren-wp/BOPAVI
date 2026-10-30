@@ -775,6 +775,67 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             if(i%2==0) oval(c,gx+3f,y+4f+rise,gx+9f,y+8f+rise,0xffb2ed7a.toInt())
         }
     }
+    /** Real finite coins (gate.coin), drawn around the existing pickup centre.
+     * Every shade belongs to the collectible, never to the collision shaft. */
+    private fun drawGoldenCoin(c:Canvas,x:Float,y:Float) {
+        oval(c,x-16f,y-12f,x+16f,y+18f,0x66082040)
+        oval(c,x-15f,y-16f,x+15f,y+14f,0xffaa4d09.toInt())
+        oval(c,x-12f,y-14f,x+12f,y+10f,0xffffb318.toInt())
+        oval(c,x-10f,y-13f,x+10f,y+7f,0xffffe25c.toInt())
+        oval(c,x-8f,y-10f,x+8f,y+6f,0xffffc536.toInt())
+        // Crown emblem on the actual coin; not a phantom spendable gem.
+        path.reset()
+        path.moveTo(x-6f,y-3f);path.lineTo(x-3f,y+2f)
+        path.lineTo(x,y-5f);path.lineTo(x+3f,y+2f)
+        path.lineTo(x+6f,y-3f);path.lineTo(x+5f,y+6f)
+        path.lineTo(x-5f,y+6f);path.close()
+        fill(0xffa95504.toInt());c.drawPath(path,p)
+        oval(c,x-10f,y-12f,x-5f,y-8f,0xccffffff.toInt())
+    }
+    /** The existing gate.star is represented as a sapphire crystal, matching
+     * the reference. Collision/magnet semantics remain 'star' internally. */
+    private fun drawBlueCrystal(c:Canvas,x:Float,y:Float) {
+        oval(c,x-19f,y-20f,x+19f,y+19f,0x4484faff)
+        path.reset()
+        path.moveTo(x,y-21f);path.lineTo(x+15f,y)
+        path.lineTo(x,y+22f);path.lineTo(x-15f,y);path.close()
+        fill(0xff07559f.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-18f);path.lineTo(x+12f,y)
+        path.lineTo(x,y+16f);path.lineTo(x-12f,y);path.close()
+        fill(0xff2dbfff.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-18f);path.lineTo(x-12f,y)
+        path.lineTo(x,y+16f);path.close()
+        fill(0xff8eeaff.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-14f);path.lineTo(x+5f,y-3f)
+        path.lineTo(x,y+11f);path.lineTo(x-5f,y-3f);path.close()
+        fill(0xccffffff.toInt());c.drawPath(path,p)
+    }
+    /** The icon sits at the real finite pickup power coordinate. A shield or
+     * magnet is only rendered while the corresponding item is uncollected. */
+    private fun drawPowerPickup(c:Canvas,x:Float,y:Float,kind:Int) {
+        oval(c,x-17f,y-17f,x+17f,y+17f,0x66300a62)
+        oval(c,x-14f,y-14f,x+14f,y+14f,0xff083a9d.toInt())
+        oval(c,x-11f,y-11f,x+11f,y+11f,0xff64e4ff.toInt())
+        if(kind==1) {
+            path.reset();path.moveTo(x,y-10f);path.lineTo(x+8f,y-6f)
+            path.lineTo(x+6f,y+5f);path.lineTo(x,y+10f)
+            path.lineTo(x-6f,y+5f);path.lineTo(x-8f,y-6f);path.close()
+            fill(0xffffe16a.toInt());c.drawPath(path,p)
+        } else {
+            // U-shaped magnet, cyan poles and real power type.
+            fill(0xffff4479.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=5f
+            path.reset();path.moveTo(x-7f,y-6f);path.lineTo(x-7f,y+3f)
+            path.quadTo(x,y+15f,x+7f,y+3f);path.lineTo(x+7f,y-6f)
+            c.drawPath(path,p);p.style=Paint.Style.FILL
+            rect(c,x-10f,y-9f,x-4f,y-4f,0xffffffff.toInt(),1f)
+            rect(c,x+4f,y-9f,x+10f,y-4f,0xffffffff.toInt(),1f)
+        }
+    }
+
     /** Small native heart sprite, with no extra bitmap allocations. */
     private fun drawHeartPickup(c:Canvas,cx:Float,cy:Float){
         path.reset()
@@ -886,11 +947,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(c,cx-11f,badgeY-13f,cx+11f,badgeY+11f,0xffffd876.toInt(),6f)
             text(c,"!",cx,badgeY+6f,18f,0xff122647.toInt(),true)
         }
+        val mid=x+w*.5f
+        val cy=(a.top+a.bottom)*.5f
         if(game.endless) {
-            val mid=x+w*.5f
-            val cy=(a.top+a.bottom)*.5f
             if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
             else if(game.berryVisible(index,incoming)) drawBerry(c,mid,cy,13f)
+        } else {
+            // Never paint rewards which have already been collected. The
+            // positions match GameSimulation's existing magnet/contact math.
+            if(game.coinVisible(index,incoming))drawGoldenCoin(c,mid,cy)
+            if(game.crystalVisible(index,incoming))drawBlueCrystal(c,mid+35f,cy-25f)
+            if(game.powerVisible(index,incoming))drawPowerPickup(c,mid+39f,cy+39f,g.power)
         }
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
