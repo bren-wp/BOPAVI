@@ -13,10 +13,10 @@ options=main.split("private fun showQuickOptions(){",1)[1].split("private fun sh
 records=main.split("private fun showLocalRecords(){",1)[1].split("private fun showHome(){",1)[0]
 play=main.split("private fun startGame(){",1)[1].split("private fun showResult(",1)[0]
 
-assert 'secondaryChoice("⚙  OPCIJE","Otvori opcije igre"){showQuickOptions()}' in home
-assert 'secondaryChoice("★  REKORDI","Pogledaj svoje rekorde"){showLocalRecords()}' in home
-assert 'LinearLayout.LayoutParams(0,d(48),1f)' in home
-assert 'action(content,"▶  IGRAJ"){startGame()}' in home
+assert 'contentDescription="Otvori opcije igre"' in home
+assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,' in home
+assert 'LinearLayout.LayoutParams(0,d(77),1f)' in home
+assert 'action(content,"▶  PLAY"){startGame()}' in home
 assert 'showSettings(' not in main
 assert 'setTitle("OPCIJE IGRE")' in options
 assert 'premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS)' in options
@@ -52,7 +52,7 @@ for contract in (
     assert contract in qa,contract
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
-assert 'd(if(tinyDisplay)70 else if(compactDisplay)90 else 203)' in main
+assert 'if(tinyDisplay)107 else if(compactDisplay)190 else 290' in main
 
 # The approved home logo already paints the slogan: do not waste another
 # full-height native row and scale the 48dp legal hitboxes on compact phones.
