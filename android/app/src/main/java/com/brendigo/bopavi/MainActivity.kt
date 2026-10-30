@@ -474,6 +474,9 @@ class MainActivity : Activity() {
         }
         volumeSlider("Glazba",progress.musicVolume(),true)
         volumeSlider("Zvučni efekti",progress.effectsVolume(),false)
+        heading("Pravni dokumenti")
+        action(column,"Privacy Policy",false){showPrivacyNotice()}
+        action(column,"Terms of Service",false){showTermsNotice()}
         val scroll=android.widget.ScrollView(this).apply{
             isFillViewport=false
             addView(column)
@@ -603,13 +606,40 @@ class MainActivity : Activity() {
         showNativeView(view)
     }
 
+    /** Reference 941x1672: real counters / logo / hero / CTA / menus / shortcuts. */
+    /** Earned local achievements; nothing fabricated or synchronized. */
+    private fun showLocalAchievements(){
+        val panel=LinearLayout(this).apply{
+            orientation=LinearLayout.VERTICAL
+            setPadding(d(18),d(10),d(18),d(12))
+            background=gradient(0xff154a83.toInt(),0xff061c3b.toInt(),20)
+        }
+        val rows=listOf(
+            "Completed flights: "+progress.wins(),
+            "Total flights: "+progress.totalRuns(),
+            "Wing flaps: "+progress.totalFlaps(),
+            "Best obstacles: "+progress.endlessBest()
+        )
+        for(row in rows)panel.addView(TextView(this).apply{
+            text=row
+            textSize=16f
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            setPadding(d(7),d(10),d(7),d(10))
+        },LinearLayout.LayoutParams(-1,-2))
+        android.app.AlertDialog.Builder(this)
+            .setCustomTitle(premiumDialogHeader("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR))
+            .setView(panel).setPositiveButton("CLOSE",null)
+            .show().also {polishGameDialog(it)}
+    }
+
     private fun showHome(){
         activeStage=null
         showPauseAfterBackground=false
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
-        val root=FrameLayout(this).apply{setBackgroundColor(0xff086ab7.toInt())}
+        val root=FrameLayout(this).apply{setBackgroundColor(0xff087bc9.toInt())}
         root.addView(ImageView(this).apply{
             setImageResource(R.drawable.homeback)
             scaleType=ImageView.ScaleType.CENTER_CROP
@@ -617,229 +647,166 @@ class MainActivity : Activity() {
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(this).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x12011c52,0x001b84c8,0xbb031536.toInt()))
+                intArrayOf(0x13022d74,0x007ed9fd,0x66051e3d))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
-        // One main gameplay action plus a smaller, accessible privacy notice.
-        // Keep original logo and Bopi art independent of backdrop artwork.
         val viewport=FitViewportColumn(this).apply{
             clipChildren=false;clipToPadding=false
         }
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(d(23),d(10),d(23),d(10))
+            setPadding(d(16),d(8),d(16),d(10))
         }
         viewport.addView(content)
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
-        // Reserve a full-size 48dp hit target for both secondary actions and
-        // both legal links, including the 640dp compact emulator viewport.
         val compactDisplay=resources.configuration.screenHeightDp<770
         val tinyDisplay=resources.configuration.screenHeightDp<610
+
+        // Real coins and real earned stars, not the screenshot's static 1,250/85.
+        val resourcesBar=LinearLayout(this).apply{
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.END or Gravity.CENTER_VERTICAL
+        }
+        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind){
+            resourcesBar.addView(TextView(this).apply{
+                text="$label  $count"
+                textSize=if(tinyDisplay)12f else 14f
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(kind,0xffffd44e.toInt(),if(tinyDisplay)19 else 23),
+                    null,null,null)
+                compoundDrawablePadding=d(5)
+                contentDescription="$label: $count"
+                background=gradient(0xff1f69b7.toInt(),0xff05214e.toInt(),17).apply{
+                    setStroke(d(2),0xffa3edff.toInt())
+                }
+            },LinearLayout.LayoutParams(0,d(if(tinyDisplay)35 else 43),1f).apply{
+                setMargins(d(4),0,d(4),0)
+            })
+        }
+        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.RECORDS)
+        val stars=(0 until LevelEngine.WORLD_COUNT).sumOf { progress.worldStars(it) }
+        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR)
+        content.addView(resourcesBar,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)38 else 46)))
+
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)58 else if(compactDisplay)75 else 134)))
-        val heroPortrait=ImageView(this).apply{
+        },LinearLayout.LayoutParams(-1,d(
+            if(tinyDisplay)68 else if(compactDisplay)99 else 143
+        )).apply{topMargin=d(3)})
+        content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        content.addView(heroPortrait,
-            LinearLayout.LayoutParams(-1,d(if(tinyDisplay)70 else if(compactDisplay)90 else 203))
-                .apply{topMargin=d(if(tinyDisplay)0 else if(compactDisplay)3 else 10)})
+        },LinearLayout.LayoutParams(-1,d(
+            if(tinyDisplay)107 else if(compactDisplay)190 else 290
+        )).apply{topMargin=d(if(compactDisplay)0 else 7)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
-        // The original logo already contains this slogan. A duplicate title
-        // consumed ~40dp and shrank native privacy/terms hitboxes below 48dp.
-        action(content,"▶  IGRAJ"){startGame()}
-        val pilotHeading=TextView(this).apply{
-            text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
-            textSize=13f
-            letterSpacing=.03f
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            setTextColor(0xffe7f8ff.toInt())
-            gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            contentDescription="Odaberi lika. "+pilotNames[selectedPilotChoice]+
-                ". "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
-        }
-        content.addView(pilotHeading,LinearLayout.LayoutParams(-1,d(32)))
-        val pilots=LinearLayout(this).apply{
+        action(content,"▶  PLAY"){startGame()}
+
+        val features=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
         }
-        // Rebind three existing cards in place. Rebuilding Home on every choice
-        // caused image decoding, extra view allocations and visual flashes.
-        fun refreshPilotCards(){
-            heroPortrait.setImageResource(portraitDrawableIds[selectedPilotChoice])
-            pilotHeading.text="ODABERI LIKA · "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
-            pilotHeading.contentDescription="Odaberi lika. "+pilotNames[selectedPilotChoice]+
-                ". "+PilotAbility.fromChoice(selectedPilotChoice).shortTitle
-            for(i in 0 until pilots.childCount) {
-                val selected=i==selectedPilotChoice
-                val item=pilots.getChildAt(i) as LinearLayout
-                val plate=gradient(
-                    if(selected)0xff246f94.toInt() else 0xb5093765.toInt(),
-                    if(selected)0xff0a3b69.toInt() else 0xaa061f45.toInt(),16)
-                plate.setStroke(d(if(selected)2 else 1),
-                    if(selected)0xffffdd72.toInt() else 0x8859d6ff.toInt())
-                item.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
-                item.isSelected=selected
-                item.contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+
-                    pilotNames[i]+". "+PilotAbility.fromChoice(i).description
-                (item.getChildAt(1) as TextView).setTextColor(
-                    if(selected)0xffffe7a1.toInt() else Color.WHITE)
-            }
-        }
-        for(index in pilotNames.indices){
-            val selected=index==selectedPilotChoice
-            val item=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL
-                gravity=Gravity.CENTER
-                val plate=gradient(
-                    if(selected)0xff246f94.toInt() else 0xb5093765.toInt(),
-                    if(selected)0xff0a3b69.toInt() else 0xaa061f45.toInt(),16)
-                plate.setStroke(d(if(selected)2 else 1),
-                    if(selected)0xffffdd72.toInt() else 0x8859d6ff.toInt())
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
-                isClickable=true
-                isFocusable=true
-                isSelected=selected
-                contentDescription=(if(selected)"Odabrani lik: " else "Odaberi lika: ")+
-                    pilotNames[index]+". "+PilotAbility.fromChoice(index).description
-                setOnClickListener {
-                    if(selectedPilotChoice!=index) {
-                        selectedPilotChoice=index
-                        progress.chooseArcadePilot(index)
-                        sound.effect("click")
-                        refreshPilotCards()
-                    }
-                }
-            }
-            item.addView(ImageView(this).apply{
-                setImageResource(portraitDrawableIds[index])
-                scaleType=ImageView.ScaleType.FIT_CENTER
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(if(compactDisplay)42 else 69)))
-            item.addView(TextView(this).apply{
-                text=pilotNames[index]
-                gravity=Gravity.CENTER
-                textSize=13f
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(if(selected)0xffffe7a1.toInt() else Color.WHITE)
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(23)))
-            pilots.addView(item,LinearLayout.LayoutParams(0,d(if(compactDisplay)74 else 99),1f).apply{
-                setMargins(d(3),0,d(3),0)
-            })
-        }
-        content.addView(pilots,LinearLayout.LayoutParams(-1,-2).apply{
-            topMargin=d(5);bottomMargin=d(4)
-        })
-        // Real native destinations matching the three reference menu boards.
-        // No image-backed fake controls: TalkBack sees every distinct action.
-        val featureRow=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        for((label,action) in listOf(
-            Pair("SKINS",{showSkins()}),
-            Pair("SHOP",{showShop()}),
-            Pair("LEVELS",{showLevels()})
-        )){
-            featureRow.addView(TextView(this).apply{
+        fun feature(label:String,description:String,top:Int,bottom:Int,
+                    kind:BopaviUiIconDrawable.Kind,onClick:()->Unit){
+            features.addView(TextView(this).apply{
                 text=label
-                textSize=14f
-                gravity=Gravity.CENTER
+                textSize=if(tinyDisplay)16f else 19f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
-                contentDescription=when(label) {
-                    "SKINS"->"Otvori izbor likova"
-                    "SHOP"->"Otvori trgovinu nadogradnji"
-                    else->"Otvori kartu razina"
-                }
+                gravity=Gravity.CENTER
+                setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xff062354.toInt())
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    uiIcon(kind,Color.WHITE,24),null,null,null)
+                compoundDrawablePadding=d(7)
+                contentDescription=description
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
                     GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                        intArrayOf(if(label=="SHOP")0xff68e76e.toInt()
-                            else 0xff33bbfb.toInt(),
-                            if(label=="SHOP")0xff138b37.toInt()
-                            else 0xff064bb3.toInt())).apply {
-                        cornerRadius=d(18).toFloat()
-                        setStroke(d(2),0xffe4f8ff.toInt())
+                        intArrayOf(top,bottom)).apply{
+                        cornerRadius=d(25).toFloat()
+                        setStroke(d(3),0xffb4efff.toInt())
                     },null)
+                elevation=d(4).toFloat()
                 isClickable=true;isFocusable=true
-                setOnClickListener{sound.effect("click");action()}
-            },LinearLayout.LayoutParams(0,d(52),1f).apply{
-                leftMargin=d(3);rightMargin=d(3)
+                setOnClickListener{sound.effect("click");onClick()}
+            },LinearLayout.LayoutParams(0,d(if(tinyDisplay)49 else 57),1f).apply{
+                setMargins(d(4),d(3),d(4),d(3))
             })
         }
-        content.addView(featureRow,LinearLayout.LayoutParams(-1,d(48)).apply{
-            topMargin=d(3);bottomMargin=d(4)
+        feature("SKINS","Otvori izbor likova",0xffbc3bfa.toInt(),
+            0xff5706b8.toInt(),BopaviUiIconDrawable.Kind.FLIGHT){showSkins()}
+        feature("SHOP","Otvori trgovinu nadogradnji",0xff6de553.toInt(),
+            0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.RECORDS){showShop()}
+        content.addView(features,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)55 else 64)))
+
+        content.addView(TextView(this).apply{
+            text="SETTINGS"
+            textSize=if(tinyDisplay)18f else 21f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                uiIcon(BopaviUiIconDrawable.Kind.SETTINGS,Color.WHITE,28),null,null,null)
+            compoundDrawablePadding=d(9)
+            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                gradient(0xff36d7ff.toInt(),0xff075ac4.toInt(),25).apply{
+                    setStroke(d(3),0xffb5edff.toInt())
+                },null)
+            contentDescription="Otvori opcije igre"
+            elevation=d(4).toFloat()
+            isClickable=true;isFocusable=true
+            setOnClickListener{sound.effect("click");showQuickOptions()}
+        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)49 else 57)).apply{
+            topMargin=d(3);bottomMargin=d(5)
         })
-        // Two compact secondary actions; IGRAJ stays the single main CTA.
-        val extras=LinearLayout(this).apply{
+
+        val footer=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
         }
-        fun secondaryChoice(text:String,description:String,onTap:()->Unit){
-            val face=gradient(0xff286f9e.toInt(),0xff103b70.toInt(),16).apply{
-                setStroke(d(1),0xff80dfff.toInt())
-            }
-            extras.addView(TextView(this).apply{
-                this.text=text.substringAfter("  ",text)
-                setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(if(text.contains("OPCIJE"))BopaviUiIconDrawable.Kind.SETTINGS
-                        else BopaviUiIconDrawable.Kind.RECORDS,Color.WHITE,21),
-                    null,null,null)
-                compoundDrawablePadding=d(6)
-                textSize=14f
+        fun shortcut(label:String,kind:BopaviUiIconDrawable.Kind,
+                     description:String,onClick:()->Unit){
+            val group=LinearLayout(this).apply{
+                orientation=LinearLayout.VERTICAL
                 gravity=Gravity.CENTER
+                isClickable=true;isFocusable=true
+                contentDescription=description
+                setOnClickListener{sound.effect("click");onClick()}
+            }
+            group.addView(ImageView(this).apply{
+                setImageDrawable(uiIcon(kind,0xffffcd40.toInt(),35))
+                scaleType=ImageView.ScaleType.CENTER_INSIDE
+                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff2363b9.toInt(),0xff051c42.toInt())).apply{
+                    shape=GradientDrawable.OVAL
+                    setStroke(d(2),0xffffd979.toInt())
+                }
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(if(tinyDisplay)43 else 53),
+                d(if(tinyDisplay)43 else 53)))
+            group.addView(TextView(this).apply{
+                text=label
+                textSize=if(tinyDisplay)10f else 11f
                 typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
                 setTextColor(Color.WHITE)
-                contentDescription=description
-                background=RippleDrawable(ColorStateList.valueOf(0x33ffffff),face,null)
-                isClickable=true
-                isFocusable=true
-                setOnClickListener{sound.effect("click");onTap()}
-            },LinearLayout.LayoutParams(0,d(48),1f).apply{
-                setMargins(d(3),0,d(3),0)
-            })
-        }
-        secondaryChoice("⚙  OPCIJE","Otvori opcije igre"){showQuickOptions()}
-        secondaryChoice("★  REKORDI","Pogledaj svoje rekorde"){showLocalRecords()}
-        content.addView(extras,LinearLayout.LayoutParams(-1,d(48)).apply {
-            topMargin=d(3);bottomMargin=d(2)
-        })
-        val legal=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        fun legalLink(label:String,description:String,click:()->Unit):TextView =
-            TextView(this).apply {
-                text=label
-                textSize=12f
                 gravity=Gravity.CENTER
-                setTextColor(0xffe4f7ff.toInt())
-                paintFlags=paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
-                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
-                contentDescription=description
-                isClickable=true
-                isFocusable=true
-                background=RippleDrawable(ColorStateList.valueOf(0x337eecff),
-                    GradientDrawable().apply{setColor(Color.TRANSPARENT);cornerRadius=d(12).toFloat()},null)
-                setOnClickListener{sound.effect("click");click()}
-            }
-        val privacy=legalLink("Politika privatnosti","Pročitaj politiku privatnosti"){
-            showPrivacyNotice()
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,d(21)))
+            footer.addView(group,LinearLayout.LayoutParams(0,d(77),1f))
         }
-        legal.addView(privacy,LinearLayout.LayoutParams(0,d(48),1f))
-        val terms=legalLink("Uvjeti korištenja","Pročitaj uvjete korištenja"){
-            showTermsNotice()
-        }
-        legal.addView(terms,LinearLayout.LayoutParams(0,d(48),1f))
-        content.addView(legal,LinearLayout.LayoutParams(-1,d(48)))
+        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR,
+            "Pogledaj svoja postignuća"){showLocalAchievements()}
+        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,
+            "Pogledaj svoje rekorde"){showLocalRecords()}
+        shortcut("SOUND",BopaviUiIconDrawable.Kind.WING,
+            "Otvori zvučne postavke"){showQuickOptions()}
+        content.addView(footer,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)68 else 79)))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             applySafeViewportInsets(v,insets)
