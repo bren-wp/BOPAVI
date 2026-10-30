@@ -25,7 +25,8 @@ assert 'ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert 'ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'ColorStateList.valueOf(0xffffde76.toInt())' in activity
 assert 'window.decorView.hasWindowFocus()' in activity
-assert "view.paused=true" in activity and "showPremiumPause(view)" in activity
+assert "game.paused=true" in activity
+assert "if(pauseDialog?.isShowing!=true)showPremiumPause(view)" in activity
 assert "gamePauseButton" not in activity
 for reward in ("coinVisible(","crystalVisible(","powerVisible("):
     assert reward in simulation and "game."+reward in view,reward
