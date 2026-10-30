@@ -331,14 +331,17 @@ def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
 if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
-for bad in ("WORLDS","SVJETOVI","SHOP","TRGOVINA","SETTINGS","POSTAVKE","PROFILE","PROFIL","LEVELS","LEVELI"):
-    if any(bad in label(n) for n in click):raise SystemExit("FAIL: forbidden Home navigation: "+bad)
+for menu in ("SKINS","SHOP","LEVELS"):
+    found=[n for n in click if n.get("text","").strip().upper()==menu]
+    if len(found)!=1:raise SystemExit("FAIL: expected one real Home menu: "+menu)
+for bad in ("PROFILE","PROFIL","CLOUD SAVE","RESTORE PURCHASES"):
+    if any(bad in label(n) for n in click):raise SystemExit("FAIL: unsupported Home route: "+bad)
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
 if not m:raise SystemExit("FAIL: PLAY bounds unavailable")
 a,b,c,d=map(int,m.groups())
 if c-a<130 or d-b<40:raise SystemExit("FAIL: PLAY hit target too small")
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: accessible Home Play and no extra menus",flush=True)
+print("PASS: accessible Home Play plus native Skins Shop Level Map",flush=True)
 PY
 # A successful tap on the Home PLAY button is not proof that the Flight view
 # has appeared. Wait for the *actual native GameView accessibility state*.
@@ -613,6 +616,7 @@ fi
 # Separate real-device geometry QA after the original screenshot/gameplay flow.
 # Verify landscape Home and a flight that survives rotation without a restart.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  python3 tools/qa_android_reference_menus.py
   python3 tools/qa_android_background.py
   python3 tools/qa_android_rotation.py
 fi
