@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -111,6 +111,34 @@ internal class BopaviUiIconDrawable(
                         12f + dx * 10f, 12f + dy * 10f, paint
                     )
                 }
+            }
+            Kind.SHIELD -> {
+                // One consistent shield silhouette for every upgraded tier.
+                paint.style=Paint.Style.FILL
+                path.moveTo(12f,2f)
+                path.lineTo(20f,5f)
+                path.lineTo(19f,14f)
+                path.quadTo(16f,19f,12f,22f)
+                path.quadTo(8f,19f,5f,14f)
+                path.lineTo(4f,5f)
+                path.close()
+                canvas.drawPath(path,paint)
+                paint.color=Color.argb(Color.alpha(paint.color),8,48,91)
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=1.8f
+                canvas.drawLine(12f,5f,12f,17f,paint)
+            }
+            Kind.MAGNET -> {
+                // Horseshoe with protected inner slot and alternating pole tips.
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=5f
+                canvas.drawArc(4.5f,2.5f,19.5f,18.5f,0f,180f,false,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(2f,12f,8f,21f,1f,1f,paint)
+                canvas.drawRoundRect(16f,12f,22f,21f,1f,1f,paint)
+                paint.color=Color.argb(Color.alpha(paint.color),8,48,91)
+                canvas.drawLine(2.5f,16f,7.5f,16f,paint)
+                canvas.drawLine(16.5f,16f,21.5f,16f,paint)
             }
             Kind.COIN -> {
                 // Crown coin in the reference wallet: gold rim and a tiny

@@ -67,6 +67,20 @@ def main():
     node_with("EARNED COINS:",clickable=False)
     assert exists("OWNED:",enabled=None),"FAIL: no real persisted shop inventory"
     assert not exists("GEMS COLLECTED"),"FAIL: fake gem balance"
+    # Assert a real native screenshot, no reference bitmap or fake balances.
+    resized=False
+    try:
+        adb("shell","wm","size","941x1672")
+        resized=True
+        adb("shell","wm","density","320")
+        node_with("EARNED COINS:",clickable=False)
+        w,h=capture_png("android-shop-reference-size")
+        assert (w,h)==(941,1672),"FAIL: Shop screenshot has wrong size"
+        print("PASS: real native Shop screenshot 941x1672",flush=True)
+    finally:
+        if resized:
+            adb("shell","wm","size","reset")
+            adb("shell","wm","density","reset")
     home()
     print("PASS: Shop shows persisted earned coin balance and owned perks",flush=True)
 
