@@ -591,23 +591,15 @@ play=[n for n in nodes if n.get("clickable")=="true"
       and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
               for x in ("PLAY","IGRAJ"))]
 assert len(play)==1,(label,"missing or duplicate accessible PLAY")
-privacy=[n for n in nodes if n.get("clickable")=="true" and
-         "POLITIKA PRIVATNOSTI" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
-assert len(privacy)==1,(label,"missing accessible privacy link")
-pm=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",privacy[0].get("bounds",""))
-assert pm,(label,"missing privacy bounds")
-pl,pt,pr,pb=map(int,pm.groups())
-assert 0<=pl<pr<=width and 0<=pt<pb<=height,(label,"privacy button clipped")
-assert pb-pt>=48*int(density)/160,(label,"privacy button below 48dp")
-# The source now preserves real native dimensions on every viewport.
-# Inspect ALL reachable Home actions, not only Play and privacy.
+# On reference Home the legal documents are in Settings; test actual Home
+# touch targets rather than removed pilot cards / old legal footer.
 for title,needle in (
-    ("Terms","UVJETI KORIŠTENJA"),
-    ("Options","OTVORI OPCIJE IGRE"),
+    ("Settings","OTVORI OPCIJE IGRE"),
     ("Records","POGLEDAJ SVOJE REKORDE"),
-    ("Bopi","BOPI. "),
-    ("Sova","SOVA. "),
-    ("Lisac","LISAC. "),
+    ("Skins","OTVORI IZBOR LIKOVA"),
+    ("Shop","OTVORI TRGOVINU NADOGRADNJI"),
+    ("Achievements","POGLEDAJ SVOJA POSTIGNUĆA"),
+    ("Sound","OTVORI ZVUČNE POSTAVKE"),
 ):
     found=[n for n in nodes if n.get("clickable")=="true" and
            needle in (n.get("text","")+" "+n.get("content-desc","")).upper()]
