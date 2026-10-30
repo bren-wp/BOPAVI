@@ -99,3 +99,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - This is one measurable gameplay/UI pass, **not** visual 1:1 certification: the source's high-detail islands, exact Bopi painterly silhouette, waterfall/hazard artwork and animation-state matching remain materially different.
 
 - Diagnosed two QA defects from the surrounding sequential screens. `qa_android_reference_menus.py` passed PNG output through a text-decoding `adb()` helper, so even an otherwise correct world-map screenshot would fail or corrupt. It now uses the existing binary `screenshot()` utility with exact dimensions and restores display overrides. Two navigation checks use the actual current TalkBack flap prompt and live-life description, not the removed legacy text.
+
+### Sequential pass 5 — Pause (consistent art treatment, no standalone reference)
+
+- Native Pause now retains a single modal instance, with a cyan-framed navy panel and a correctly framed full-wing Bopi portrait; touch targets stay at least 55dp high, gold Continue and blue Retry/Exit actions follow the game UI family. The centered dialog uses 80% of the physical viewport (capped at 420dp) and the existing scroll-safe container for compact devices.
+- Fixed finite-stage Retry: it now selects the exact saved active `(world, level)` rather than silently jumping to the endless mode. Pure `PauseReplayTarget` and JUnit tests cover finite versus endless; no persistence schema changes.
+- Prevented repeated Back/focus transitions from stacking Pause windows; a dismissed dialog releases its own reference. Outside touch cannot accidentally resume, while Back/Cancel can safely resume the current live run.
+- Added a real Android screenshot route `android-pause-reference-size.png` at 941×1672, requiring Home → actual first flap → system Back → exactly one Pause dialog → Resume. PNG dimensions are checked in the binary screenshot helper, not invented from text.
+- There is no directly supplied Pause reference, so **a 1:1 visual match cannot be proven**. Next in sequence: Game Over/Results (the owner's first supplied screenshot).

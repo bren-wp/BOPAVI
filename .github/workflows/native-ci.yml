@@ -101,6 +101,8 @@ jobs:
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
+      - run: python tests/test_pause_reference_contract.py
+      - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh

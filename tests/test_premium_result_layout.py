@@ -6,7 +6,11 @@ main=(r/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_te
 pause=main.split("private fun showPremiumPause(",1)[1].split("private fun startGame(){",1)[0]
 result=main.split("private fun showResult(",1)[1].split("override fun onBackPressed()",1)[0]
 assert "orientation=LinearLayout.VERTICAL\n            gravity=Gravity.CENTER" in pause
-assert "minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600))" in pause
+assert "minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1)," in pause
+assert "d(if(compactPause)480 else 590)" in pause
+assert "(resources.displayMetrics.widthPixels*.80f).toInt()" in pause
+assert "pauseDialog?.isShowing==true" in pause
+assert "setCanceledOnTouchOutside(false)" in pause
 assert "orientation=LinearLayout.VERTICAL;gravity=Gravity.CENTER" in result
 assert "FitViewportColumn(this)" in pause and "FitViewportColumn(this)" in result
 assert "setImageResource(portraitDrawableIds[selectedPilotChoice])" in pause
