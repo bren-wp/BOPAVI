@@ -14,7 +14,7 @@ records=main.split("private fun showLocalRecords(){",1)[1].split("private fun sh
 play=main.split("private fun startGame(){",1)[1].split("private fun showResult(",1)[0]
 
 assert 'contentDescription="Otvori opcije igre"' in home
-assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,' in home
+assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD,' in home
 assert 'LinearLayout.LayoutParams(0,d(77),1f)' in home
 assert 'action(content,"▶  PLAY"){startGame()}' in home
 assert 'showSettings(' not in main
@@ -52,8 +52,10 @@ for contract in (
     assert contract in qa,contract
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
-assert 'val heroHeight=(resources.configuration.screenHeightDp-558).coerceIn(92,270)' in main
+assert 'val heroHeight=if(compactDisplay)' in main
+assert '(resources.configuration.screenHeightDp-558).coerceIn(92,270)' in main
+assert '(resources.configuration.screenHeightDp-468).coerceIn(225,320)' in main
 
-# The approved home logo already paints the slogan: do not waste another
-# full-height native row and scale the 48dp legal hitboxes on compact phones.
+# The owner reference uses a clean winged logo without a second slogan row;
+# keep 48dp native tap targets and avoid an unrelated extra caption.
 assert 'title(content,"MALI LETOVI · VELIKE PRIČE"' not in home
