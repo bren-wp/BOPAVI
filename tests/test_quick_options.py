@@ -52,7 +52,7 @@ for contract in (
     assert contract in qa,contract
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
-assert 'd(if(tinyDisplay)100 else if(compactDisplay)128 else 203)' in main
+assert 'd(if(tinyDisplay)70 else if(compactDisplay)90 else 203)' in main
 
 # The approved home logo already paints the slogan: do not waste another
 # full-height native row and scale the 48dp legal hitboxes on compact phones.
