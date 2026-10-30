@@ -873,6 +873,36 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+w-2f,y+7f,x+w+2f,y+23f,0x880c2747.toInt(),2f)
         rect(c,x-3f,y+23f,x+w+2f,y+26f,0x990a2948.toInt(),2f)
     }
+    /** Decorative sapphire/gold inlays stay entirely inside the existing
+     * top/bottom 27–28px physical cap, keeping collision silhouettes exact.
+     * All biomes reuse the same royal-blue/gold trim from the reference. */
+    private fun drawGateCapInlay(c:Canvas,x:Float,w:Float,y:Float,kind:Int) {
+        val middle=x+w*.5f
+        val cobalt=if(kind==0)0xff1464a2.toInt() else pillarDark[kind]
+        // Two polished bolts and a faceted seal are painted ONLY in solid stone.
+        oval(c,x+4f,y+9f,x+11f,y+16f,0xffffdc67.toInt())
+        oval(c,x+w-11f,y+9f,x+w-4f,y+16f,0xffffdc67.toInt())
+        path.reset()
+        path.moveTo(middle,y+5f)
+        path.lineTo(middle+9f,y+14f)
+        path.lineTo(middle,y+23f)
+        path.lineTo(middle-9f,y+14f)
+        path.close()
+        fill(0xff533114.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(middle,y+7f)
+        path.lineTo(middle+7f,y+14f)
+        path.lineTo(middle,y+21f)
+        path.lineTo(middle-7f,y+14f)
+        path.close()
+        fill(cobalt);c.drawPath(path,p)
+        path.reset()
+        path.moveTo(middle,y+8f)
+        path.lineTo(middle-6f,y+14f)
+        path.lineTo(middle,y+18f)
+        path.close()
+        fill(0xffb6f5ff.toInt());c.drawPath(path,p)
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -885,10 +915,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
         drawPolishedGateLip(c,x,w,top-28f)
+        drawGateCapInlay(c,x,w,top-28f,g.kind)
         if(g.kind==0) drawMossLedge(c,x,w,top-28f,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawPolishedGateLip(c,x,w,bottom)
+        drawGateCapInlay(c,x,w,bottom,g.kind)
         if(g.kind==0) drawMossLedge(c,x,w,bottom,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
