@@ -214,6 +214,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                 damage()
                 if (finished) return
             }
+            // The spiked ball is drawn and collided using one deterministic pose.
+            // It cannot silently award rewards after a fatal hit.
+            if (SkyMaceHazard.sweptHit(gate,i,birdX,previousY,y,radius,
+                    x+travel,x,oldBounds,bounds,previousTime,time)) {
+                damage()
+                if (finished) return
+            }
             val cx = x + gate.width * .5f
             val cy = (bounds.top + bounds.bottom) * .5f
             // Sweep the real fruit/body relative motion across this physics

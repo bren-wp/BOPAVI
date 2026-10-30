@@ -903,6 +903,48 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.close()
         fill(0xffb6f5ff.toInt());c.drawPath(path,p)
     }
+    /**
+     * Collision-faithful upper/lower hanging mace, drawn only at actual physical
+     * hazard locations. Spikes remain within the 18-unit circular contact rim.
+     */
+    private fun drawSkyMace(c:Canvas,g:LevelEngine.Gate,x:Float,
+                            index:Int,a:LevelEngine.Opening) {
+        if(!SkyMaceHazard.enabled(g,index))return
+        val cx=SkyMaceHazard.bobX(g,x,game.time)
+        val cy=SkyMaceHazard.bobY(g,a,game.time,index)
+        val anchorX=x+g.width*.5f
+        val anchorY=if(index%2==0)a.top-7f else a.bottom+7f
+        fill(0xff44314c.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=5f
+        p.strokeCap=Paint.Cap.ROUND
+        c.drawLine(anchorX,anchorY,cx,cy,p)
+        fill(0xffffbd4d.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=1.8f
+        c.drawLine(anchorX,anchorY,cx,cy,p)
+        p.style=Paint.Style.FILL
+        p.strokeCap=Paint.Cap.BUTT
+        // The dark rim itself is physical, not just invisible spike tips.
+        oval(c,cx-18f,cy-18f,cx+18f,cy+18f,0xff15213f.toInt())
+        oval(c,cx-15f,cy-15f,cx+15f,cy+15f,0xff58627e.toInt())
+        for(i in 0..7) {
+            val angle=i*0.78539816f+game.time*.45f
+            val dx=cos(angle)
+            val dy=sin(angle)
+            val px=-dy
+            val py=dx
+            path.reset()
+            path.moveTo(cx+dx*13f+px*5f,cy+dy*13f+py*5f)
+            path.lineTo(cx+dx*18f,cy+dy*18f)
+            path.lineTo(cx+dx*13f-px*5f,cy+dy*13f-py*5f)
+            path.close()
+            fill(0xffffca58.toInt())
+            c.drawPath(path,p)
+        }
+        oval(c,cx-8f,cy-9f,cx+6f,cy+5f,0xff38425f.toInt())
+        oval(c,cx-9f,cy-11f,cx-4f,cy-7f,0xffc7e6ff.toInt())
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -979,6 +1021,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(c,cx-11f,badgeY-13f,cx+11f,badgeY+11f,0xffffd876.toInt(),6f)
             text(c,"!",cx,badgeY+6f,18f,0xff122647.toInt(),true)
         }
+        // This is an actual gameplay obstacle: the same pose is swept in GameSimulation.
+        drawSkyMace(c,g,x,index,a)
         val mid=x+w*.5f
         val cy=(a.top+a.bottom)*.5f
         if(game.endless) {
