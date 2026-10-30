@@ -71,7 +71,7 @@ internal class SettingsScreen(private val host:Activity,
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            setPadding(dp(8),dp(5),dp(9),dp(5))
+            setPadding(dp(8),0,dp(9),0)
             background=plate(0xfffff8e9.toInt(),0xfff1ddbc.toInt(),
                 0xffddbc96.toInt(),20)
             minimumHeight=dp(48)

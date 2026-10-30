@@ -45,6 +45,9 @@ assert 'contentDescription="Pročitaj politiku privatnosti"' in settings
 assert 'contentDescription="Pročitaj uvjete korištenja"' in settings
 assert '"Selected " else "Choose "' in settings
 assert 'capture_png("android-settings-reference-size")' in qa
-assert "Cloud Save" not in settings and "Restore Purchases" not in settings
+assert 'line("Cloud Save"' not in settings
+assert 'line("Restore Purchases"' not in settings
+assert 'button("Restore Purchases"' not in settings
+assert 'setPadding(dp(8),0,dp(9),0)' in settings
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings full page, real preferences, small-screen scroll and legal routes")
