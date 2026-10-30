@@ -9,13 +9,20 @@ internal data class FlightHudBox(val left:Float,val top:Float,val right:Float,va
 internal object FlightHudLayout {
     // Top-left avatar and three hearts mirror the approved gameplay board.
     // No scoreboard, currency, abilities or on-screen pause hit target.
-    val lives=FlightHudBox(12f,16f,244f,84f)
-    val heartCenters=floatArrayOf(116f,169f,222f)
+    // Reference artwork: 941×1672, anchored across the left ~35% of the width.
+    // On the 480-wide HUD canvas the badge is a 163×51 panel, not 232×68.
+    val lives=FlightHudBox(18f,14f,181f,65f)
+    val heartCenters=floatArrayOf(83f,119f,155f)
     const val heartHalfWidth=12f
-    const val heartBaseline=52f
-    const val avatarX=56f
-    const val avatarY=50f
-    const val avatarRadius=27f
+    const val heartBaseline=43f
+    const val avatarX=44f
+    const val avatarY=39f
+    const val avatarRadius=22f
+
+    /** A centered selfie-camera cutout must NOT push the left-side HUD down.
+     * Edge-overlapping cutouts still get their full top safe inset. */
+    fun intersectsHudX(cutoutLeft:Int,cutoutRight:Int,hudLeft:Float,hudRight:Float):Boolean =
+        cutoutRight>hudLeft && cutoutLeft<hudRight
 
     // Warnings belong inside the physical obstacle, never in the HUD.
     fun movingWarningVisible(movement:Float,x:Float,birdX:Float):Boolean =

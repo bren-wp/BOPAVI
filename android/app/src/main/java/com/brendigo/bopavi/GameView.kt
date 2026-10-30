@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.PowerManager
 import android.graphics.Canvas
+import android.view.WindowInsets
+import android.os.Build
 import android.graphics.BitmapFactory
 import android.graphics.RectF
 import android.graphics.Color
@@ -37,7 +39,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
     // Reused, immutable sprite destination: no RectF per rendered frame.
-    private val hudPortraitRect=RectF(29f,23f,83f,77f)
+    private val hudPortraitRect=RectF(22f,17f,66f,61f)
+    // Updated only when Android dispatches insets or the viewport changes.
+    // A center-camera cutout does not overlap the left HUD on normal phones.
+    private var hudTopSafeInsetPx=0
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -160,6 +165,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         pillarRenderTop=-25f-overflow
         pillarRenderBottom=825f+overflow
         updateWorldCover(w,h)
+        if(Build.VERSION.SDK_INT>=30)requestApplyInsets()
+    }
+    override fun onApplyWindowInsets(insets:WindowInsets):WindowInsets {
+        if(Build.VERSION.SDK_INT>=30){
+            val scale=(width/480f).coerceAtMost(height/640f)
+            val originX=(width-480f*scale)*.5f
+            val hudLeft=originX+(FlightHudLayout.avatarX-25f)*scale
+            val hudRight=originX+FlightHudLayout.lives.right*scale
+            val cutout=insets.displayCutout
+            val cutoutOverlaps=cutout?.boundingRects?.any { rect ->
+                rect.bottom>0 &&
+                    FlightHudLayout.intersectsHudX(rect.left,rect.right,hudLeft,hudRight)
+            }==true
+            // statusBars() returns zero once the immersive bar is hidden.
+            hudTopSafeInsetPx=maxOf(insets.getInsets(WindowInsets.Type.statusBars()).top,
+                if(cutoutOverlaps)cutout?.safeInsetTop ?: 0 else 0)
+        } else hudTopSafeInsetPx=0
+        return super.onApplyWindowInsets(insets)
     }
     private fun updateWorldCover(w:Int,h:Int){
         worldBitmap?.let { bmp ->
@@ -335,11 +358,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         canvas.restore()
         if(game.active && !game.finished) {
             val hudScale=(width/480f).coerceAtMost(height/640f)
-            val topInset=if(android.os.Build.VERSION.SDK_INT>=30)
-                rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or
-                    android.view.WindowInsets.Type.displayCutout())?.top ?: 0 else 0
             canvas.save()
-            canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
+            // Inset is cached at lifecycle boundaries; no binder/cutout work on
+            // the 60/90/120 Hz render path and no unnecessary center-notch shift.
+            canvas.translate((width-480f*hudScale)*.5f,hudTopSafeInsetPx+4f*hudScale)
             canvas.scale(hudScale,hudScale)
             drawHud(canvas)
             canvas.restore()
@@ -1228,15 +1250,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
-        fill(if(active)0xffff6987.toInt() else 0x552c4b73)
+        fill(if(active)0xffff4f51.toInt() else 0x66394a72)
         c.drawPath(path,p)
-        // A full outline distinguishes missing from remaining hearts in
-        // bright worlds and for colour-vision differences; no new bitmap.
-        fill(if(active)0xffffdce5.toInt() else 0xffd1e8ff.toInt())
+        // Deep navy contour and a short enamel reflection match the reference;
+        // rendering stays allocation-free and inactive hearts remain distinct.
+        fill(if(active)0xff082e60.toInt() else 0xffa0b8d0.toInt())
         p.style=Paint.Style.STROKE
-        p.strokeWidth=if(active)1.2f else 1.8f
+        p.strokeWidth=2.3f
         c.drawPath(path,p)
         p.style=Paint.Style.FILL
+        if(active){
+            fill(0xb6ffffff.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=1.3f
+            p.strokeCap=Paint.Cap.ROUND
+            c.drawLine(x-6f,y-4f,x-3f,y-5f,p)
+            p.style=Paint.Style.FILL
+            p.strokeCap=Paint.Cap.BUTT
+        }
     }
     private fun drawHud(c:Canvas){
         // Minimal native HUD: lives only. Scores, berries and abilities remain
@@ -1247,8 +1278,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Bird portrait and three glossy hearts are the ONLY flight overlay.
         // No hidden/painted pause button, scores or wallet. Avatar is clipped
         // into its round bezel; the original selected pilot stays visible.
-        oval(c,h.avatarX-31f,h.avatarY-30f,h.avatarX+31f,h.avatarY+32f,0xff052a67.toInt())
-        oval(c,h.avatarX-28f,h.avatarY-28f,h.avatarX+28f,h.avatarY+28f,0xff78ddff.toInt())
+        oval(c,h.avatarX-25f,h.avatarY-25f,h.avatarX+25f,h.avatarY+25f,0xff052a67.toInt())
+        oval(c,h.avatarX-23f,h.avatarY-23f,h.avatarX+23f,h.avatarY+23f,0xff78ddff.toInt())
         c.save()
         path.reset()
         path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)
@@ -1259,13 +1290,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         } ?: oval(c,h.avatarX-20f,h.avatarY-19f,h.avatarX+20f,h.avatarY+22f,
             0xff239bdf.toInt())
         c.restore()
-        // A narrow accent conveys final-life urgency without an extra label.
-        rect(c,h.lives.left+88f,h.lives.bottom-10f,h.lives.right-12f,
-            h.lives.bottom-7f,
-            FlightHudReadability.lifeCountColor(lives,game.maxLives),2f)
+        // Reference has no horizontal pink life bar; communicate final-life
+        // urgency via the avatar's tiny rim glint instead.
+        val rim=FlightHudReadability.lifeCountColor(lives,game.maxLives)
+        oval(c,h.avatarX-18f,h.avatarY-22f,h.avatarX-10f,h.avatarY-20f,rim)
         for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
             c.save()
-            c.scale(1.38f,1.38f,h.heartCenters[i],h.heartBaseline)
+            c.scale(1.17f,1.17f,h.heartCenters[i],h.heartBaseline)
             drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
             c.restore()
         }

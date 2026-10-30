@@ -6,18 +6,25 @@ import org.junit.Test
 class FlightHudLayoutTest {
     @Test fun onlyLivesCardIsLeftAlignedAndFullyOnScreen() {
         val h=FlightHudLayout
-        assertEquals(128f,(h.lives.left+h.lives.right)/2f,.001f)
-        assertTrue(h.lives.right<240f+20f)
+        assertEquals(99.5f,(h.lives.left+h.lives.right)/2f,.001f)
+        assertTrue(h.lives.right<190f)
         assertTrue(h.lives.left>=0f && h.lives.right<=480f)
         assertTrue(h.lives.top>=0f && h.lives.bottom<=800f)
-        assertTrue(h.heartCenters.toList().zipWithNext().all{(a,b)->b-a>=48f})
+        assertTrue(h.heartCenters.toList().zipWithNext().all{(a,b)->b-a>=34f})
         for(x in h.heartCenters){
             assertTrue(h.lives.encloses(x-h.heartHalfWidth,h.heartBaseline-10f))
             assertTrue(h.lives.encloses(x+h.heartHalfWidth,h.heartBaseline+7f))
         }
-        assertEquals(h.heartCenters.average().toFloat(),169f,.001f)
+        assertEquals(h.heartCenters.average().toFloat(),119f,.001f)
         assertTrue(h.lives.encloses(h.avatarX-h.avatarRadius,h.avatarY-h.avatarRadius))
         assertTrue(h.lives.encloses(h.avatarX+h.avatarRadius,h.avatarY+h.avatarRadius))
+    }
+
+    @Test fun centerCutoutDoesNotDisplaceLeftHudButLeftNotchDoes() {
+        assertFalse(FlightHudLayout.intersectsHudX(470,610,40f,410f))
+        assertTrue(FlightHudLayout.intersectsHudX(30,100,40f,410f))
+        assertFalse(FlightHudLayout.intersectsHudX(410,510,40f,410f))
+        assertTrue(FlightHudLayout.intersectsHudX(409,510,40f,410f))
     }
 
     @Test fun onlyUpcomingMovingPillarsGetWarnings() {
