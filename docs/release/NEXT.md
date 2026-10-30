@@ -184,3 +184,10 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 
 - CI repair discovered after the earlier Leaderboard pass: `zipWithNext()` is defined for iterables but cannot be resolved on these primitive `FloatArray` buffers by the installed Kotlin/AGP setup. Replaced both occurrences in Settings/Achievements geometry validation with indexed adjacent-row checks, preserving the original non-overlap inequalities.
 - Updated source icon QA after moving native records rendering from `MainActivity` into `LeaderboardScreen`; the test still validates all eight icon categories but reads both actual rendering owners rather than enforcing the legacy monolith structure.
+
+### Home — final visual pass #2 (source screenshot `00_32_51-1`)
+
+- Confirmed the correct owner reference: Home is `00_32_51-1` (941×1672); `00_32_56-9` is Level Complete. For reference-size Android portrait windows the Home now layers an authentic `R.drawable.logo`, selected Bopi portrait, locally painted flight trails and rings, saved-value wallet chips, gold PLAY, purple SKINS, green SHOP, blue SETTINGS and three circular footer shortcuts at source-matched coordinates.
+- Introduced `HomeReferenceLayout` with strict non-overlapping bounds and pure JVM tests. Native accessibility, real per-control navigation, saved COINS and STARS, safe insets and a compact/split-screen fallback are preserved. No gem currency, inflated 1,250 or 85 wallet values, external resources or flattened concept screenshots are used.
+- Fixed obsolete loading audit spelling `if (preparationFinished) {` to match the current `if(preparationFinished){` without changing runtime behavior. Added Home source contract to CI. Prior actual native Home screenshot placed the logo, Bopi and menu substantially lower than the owner's illustration; this pass shifts them into reference-coordinate anchors.
+- Not yet certified pixel-perfect: the bundled sky art remains flatter than the owner's highly detailed painted backdrop, and authentic Android before/after image comparisons remain pending.

@@ -30,6 +30,8 @@ assert 'shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.RECORDS' in home
 assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD' in home
 assert 'shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND' in home
 assert "content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))" in home
+assert 'HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,' in home
+assert 'HomeReferenceScreen(this,progress).create(' in home
 assert "for spec in 720x1280:320:compact 1080x2400:420:tall 941x1672:320:reference; do" in qa
 for kind in ("COIN","SHOP","LEADERBOARD","SOUND"):
     assert f"Kind.{kind} ->" in icon

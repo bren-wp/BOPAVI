@@ -15,7 +15,7 @@ for required in ("R.drawable.bopi0","R.drawable.bopileft0","R.drawable.bopiright
                  "image(canvas, brand, logoRect)",
                  "leftWing?.recycle()","rightWing?.recycle()",
                  'contentDescription = "Loading level"',
-                 "if (preparationFinished) {"):
+                 "if(preparationFinished){"):
     assert required in view,required
 assert "val logo=LoadingArtBox(93f,113f,848f,341f)" in layout
 assert "val pilot=LoadingArtBox(113f,346f,828f,1061f)" in layout
