@@ -37,5 +37,5 @@ for fake in ("1,250", "85 Gems", "Cloud Save", "Restore Purchases",
     assert fake not in menus, fake
 assert "gamePauseButton" not in app
 assert "python3 tools/qa_android_reference_menus.py" in (root/"tools/qa_android_emulator.sh").read_text()
-assert "versionCode = 169" in (root/"android/app/build.gradle.kts").read_text()
+assert "versionCode = 170" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
