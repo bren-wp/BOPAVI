@@ -88,21 +88,21 @@ internal class ShopScreen(
                 else BopaviUiIconDrawable.Kind.MAGNET,
                 if(item.isShield)0xff128dda.toInt() else 0xffba52fc.toInt(),dp(66)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(87),dp(87)))
-        row.addView(message("TIER ${item.tier}",22,navy),
+        },LinearLayout.LayoutParams(dp(43),dp(43)))
+        row.addView(message("TIER ${item.tier}",18,navy),
             LinearLayout.LayoutParams(0,-1,1f))
         card.addView(row,LinearLayout.LayoutParams(-1,0,1.0f))
         card.addView(message(item.name.uppercase(),20,navy),
-            LinearLayout.LayoutParams(-1,0,.60f))
+            LinearLayout.LayoutParams(-1,0,.52f))
         card.addView(message("OWNED: ${item.owned}/99",17,0xff244c73.toInt()),
-            LinearLayout.LayoutParams(-1,0,.45f))
+            LinearLayout.LayoutParams(-1,0,.40f))
         val buy=button(item.buttonLabel,item.canBuy,item.canBuy){
             onBuy(item.index)
         }.apply{
             contentDescription=item.accessibility+
                 if(item.canBuy)". Buy for ${item.price} coins" else ". Purchase unavailable"
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,.88f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.10f).apply{
             topMargin=dp(4)
         })
         return card

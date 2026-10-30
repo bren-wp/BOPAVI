@@ -22,7 +22,7 @@ for expected in (
     "setOnClickListener{if(!isSelected)onChoose(index)}",
     "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO",
     "progress.coins()","minimumHeight=dp(48)",
-    "item.ability.shortTitle","item.ability.description",
+    "item.ability.shortTitle","equipped.ability.description",
 ):
     assert expected in screen,expected
 assert "cardLefts=floatArrayOf(52f,344f,636f)" in layout

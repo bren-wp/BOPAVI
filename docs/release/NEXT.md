@@ -140,3 +140,6 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Replaced emoji with two reusable native vector kinds in `BopaviUiIconDrawable` for deterministic Android rendering, preserved TalkBack detail on products and native click targets, and removed now-obsolete private Shop UI builders and imports from `ReferenceMenus`.
 - Added JVM tests for all six prices/tier mapping, unable-to-buy states, TalkBack text and 941×1672 canvas geometry, along with an Android QA real 941×1672 Shop capture and source audit. Full pixel-perfect status is **unverified** until actual emulator screenshots can be compared with the owner's art.
 - Next screen in the requested sequential pass: **Settings**; prior Splash, Home, Levels, Gameplay, Pause, Game Over, Level Complete, Skins and Shop need final art/pixel QA before production readiness.
+
+- Shop visual remeasurement: the shield/magnet art stays within the 941px reference card's icon row (43dp), and the transaction button has the largest weighted section (1.10), avoiding clipped oversized icons and keeping native touch height practical at the standard 320dpi reference emulator.
+- Repaired the earlier Skins CI contract to check `equipped.ability.description`, where the selected pilot's full description is actually rendered, not the unused `item.ability.description` expression.

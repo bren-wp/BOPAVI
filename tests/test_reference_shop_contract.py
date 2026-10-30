@@ -29,6 +29,8 @@ assert 'if(progress.claimBonusCoins()>0)' in app
 assert 'val rows=floatArrayOf(454f,791f,1128f)' in geom
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
+assert 'LinearLayout.LayoutParams(-1,0,1.10f)' in shop
+assert 'dp(43),dp(43)' in shop
 assert 'capture_png("android-shop-reference-size")' in qa
 assert '"GEMS COLLECTED"' in qa
 assert 'R.drawable.reference_screenshot' not in shop
