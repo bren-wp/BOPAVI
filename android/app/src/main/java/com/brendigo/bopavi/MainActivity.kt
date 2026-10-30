@@ -22,6 +22,7 @@ class MainActivity : Activity() {
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
     private var pauseDialog: android.app.AlertDialog? = null
+    private val shopPurchaseTapGate=ShopPurchaseTapGate()
     // Prevent a frozen, untappable flight after returning from another app.
     private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
@@ -609,13 +610,19 @@ class MainActivity : Activity() {
         selectedScreen="shop"
         val view=ReferenceMenus(this,progress).shop(
             onBuy={index->
-                if(progress.buyPerk(index)){
-                    sound.effect("collect")
-                    showShop()
-                } else {
-                    android.widget.Toast.makeText(this,
-                        "Nema dovoljno novčića ili je inventar pun.",
-                        android.widget.Toast.LENGTH_SHORT).show()
+                // Filter only a repeated same-product tap in a short window,
+                // including across redraws. The real wallet transaction is
+                // still performed once inside ProgressStore.
+                if(shopPurchaseTapGate.allow(index,
+                        android.os.SystemClock.elapsedRealtime())){
+                    if(progress.buyPerk(index)){
+                        sound.effect("collect")
+                        showShop()
+                    } else {
+                        android.widget.Toast.makeText(this,
+                            "Nema dovoljno novčića ili je inventar pun.",
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
             },
             onClaim={

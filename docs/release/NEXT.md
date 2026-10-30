@@ -143,3 +143,5 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 
 - Shop visual remeasurement: the shield/magnet art stays within the 941px reference card's icon row (43dp), and the transaction button has the largest weighted section (1.10), avoiding clipped oversized icons and keeping native touch height practical at the standard 320dpi reference emulator.
 - Repaired the earlier Skins CI contract to check `equipped.ability.description`, where the selected pilot's full description is actually rendered, not the unused `item.ability.description` expression.
+
+- Added `ShopPurchaseTapGate` (450ms same-product repeat filter shared across Shop re-renders) and pure JVM tests. It prevents an accidental rapid second tap from spending earned coins twice while still permitting intentional later purchases and purchases of different products. This is UI-only protection layered over the unchanged single-transaction `ProgressStore.buyPerk` wallet/inventory edit.

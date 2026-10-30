@@ -25,6 +25,13 @@ for term in (
 assert 'val perkPrices=listOf(80,65,150,120,230,195)' in store
 assert 'prefs.edit().putInt("coins",coins()-perkPrices[index]).putInt("perk_$index",perkCount(index)+1).apply()' in store
 assert 'if(progress.buyPerk(index))' in app
+assert 'shopPurchaseTapGate.allow(index,' in app
+assert 'android.os.SystemClock.elapsedRealtime()' in app
+purchaseGate=(src/"ShopPurchaseTapGate.kt").read_text()
+gateTest=(root/"android/app/src/test/java/com/brendigo/bopavi/ShopPurchaseTapGateTest.kt").read_text()
+assert 'nowMs-lastTime<intervalMs' in purchaseGate
+assert 'secondAccidentalTapCannotChargeTwiceImmediately' in gateTest
+assert 'distinctProductsAndLaterDeliberateBuysRemainAvailable' in gateTest
 assert 'if(progress.claimBonusCoins()>0)' in app
 assert 'val rows=floatArrayOf(454f,791f,1128f)' in geom
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
