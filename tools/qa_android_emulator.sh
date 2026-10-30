@@ -109,6 +109,37 @@ PY
   adb logcat -d -t 200 | tail -n 75 >&2 || true
   return 1
 }
+# Android 15 and 16 can consume an injected Back key while a dismissed
+# AlertDialog window is detaching. Do not rely on that timing to leave Settings:
+# tap its actual accessible HOME button and require Home to appear afterward.
+# This verifies a real application route rather than treating Back as success.
+return_home_from_settings(){
+  dump_ui
+  python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+if not any(n.get("text","").upper()=="SETTINGS" for n in nodes):
+    raise SystemExit("FAIL: Settings title missing before Home navigation")
+buttons=[n for n in nodes if n.get("clickable")=="true" and
+         n.get("content-desc")=="HOME"]
+if len(buttons)!=1:
+    raise SystemExit("FAIL: Settings native HOME button missing or duplicated")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",buttons[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Settings HOME button bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+  sleep 1
+  dump_ui
+  python3 - <<'PY'
+import xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+home=[n for n in nodes if n.get("content-desc")=="Otvori opcije igre"
+      and n.get("clickable")=="true"]
+if len(home)!=1:
+    raise SystemExit("FAIL: Settings native HOME button did not return Home")
+PY
+}
 # The hosted Pixel emulator can show a *system launcher* ANR over a healthy
 # BOPAVI Activity. Recover only that exact dialog; never dismiss a BOPAVI ANR.
 # The next assertion still requires the real destination screen to be visible.
@@ -258,17 +289,8 @@ PY
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
-  # Settings is a real full page, not the previous dialog with GOTOVO.
-  adb shell input keyevent 4
-  sleep 1
-  dump_ui
-  python3 - <<'PY'
-import xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-home=[n for n in nodes if n.get("content-desc")=="Otvori opcije igre"
-      and n.get("clickable")=="true"]
-if len(home)!=1:raise SystemExit("FAIL: Settings did not return Home after legal window")
-PY
+  # Legal dialog was dismissed; use the actual native Settings HOME action.
+  return_home_from_settings
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
 open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO" "OBRIŠI PODATKE"
@@ -332,9 +354,7 @@ nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("nod
 standard=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED STANDARDNO"]
 if len(standard)!=1:raise SystemExit("FAIL: restored standard difficulty not selected")
 PY
-adb shell input keyevent 4
-sleep 1
-dump_ui
+return_home_from_settings
 echo "PASS: full native Settings, persisted difficulty and Home navigation"
 sleep 1
 dump_ui
