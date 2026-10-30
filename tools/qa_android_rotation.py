@@ -86,7 +86,7 @@ def main():
         assert w > h, "FAIL: landscape screenshot not wider than tall"
         root = hierarchy()
         for _ in range(6):
-            plays = find_action(root, "IGRAJ")
+            plays = find_action(root, "PLAY")
             if plays:
                 break
             # Scroll the native Home if the landscape viewport is too short.
