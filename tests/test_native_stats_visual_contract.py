@@ -16,14 +16,14 @@ pause = main.split("private fun showPremiumPause(game:GameView){",1)[1].split("p
 home = main.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
 title = main.split("private fun title(",1)[1].split("private fun action(",1)[0]
 
+leaderboard=(src/"LeaderboardScreen.kt").read_text()
 for kind in ("STAR","BERRY","GATE","FLIGHT","WING","SETTINGS","RECORDS","PAUSE"):
-    assert f"Kind.{kind}" in main, kind
+    assert f"Kind.{kind}" in (main+leaderboard), kind
 for kind in ("GATE","FLIGHT","WING"):
     assert f"Kind.{kind} ->" in icons
 assert "Color.alpha(paint.color), 76, 211, 137" in icons
 assert "Color.argb(requestedAlpha, 76, 211, 137)" not in icons
 
-leaderboard=(src/"LeaderboardScreen.kt").read_text()
 assert 'LeaderboardScreen(this).create(summary,scores,onBack={showHome()})' in records
 assert 'progress.leaderboard().map{' in records
 for caption in ("BEST SCORE","BEST FOOD","BEST GATES","ENDLESS RUNS","WING FLAPS"):

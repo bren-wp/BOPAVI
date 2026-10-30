@@ -10,7 +10,7 @@ internal object SettingsReferenceLayout {
     const val rowWidth=667f
     const val homeTop=1471f
     fun fits():Boolean = rows.size==8 &&
-        rows.zipWithNext().all{it.second-it.first>=rowHeight} &&
+        (0 until rows.lastIndex).all{rows[it+1]-rows[it]>=rowHeight} &&
         rows.last()+rowHeight<homeTop &&
         homeTop+112f<=height && left+rowWidth<=width
 }

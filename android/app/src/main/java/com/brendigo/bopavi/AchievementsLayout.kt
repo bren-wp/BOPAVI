@@ -9,6 +9,6 @@ internal object AchievementsLayout {
     const val cardHeight=209f
     fun valid()=cols.size==2 && rows.size==4 &&
         cols.all{it>=0 && it+cardWidth<=width} &&
-        rows.zipWithNext().all{it.second>=it.first+cardHeight} &&
+        (0 until rows.lastIndex).all{rows[it+1]>=rows[it]+cardHeight} &&
         rows.last()+cardHeight<1481f
 }
