@@ -1,35 +1,12 @@
-# Next Android release — visual redesign, phase 1
+# v1.0.38 — Home reference redesign, screen 1 / 9 (build 168)
 
-## v1.0.37 — Reference-inspired native navigation (build 167)
+Based on the owner's 941×1672 Home reference, reorganize the real native Home screen into a resource strip, centered BOPAVI logo, selected-pilot portrait, primary PLAY, SKINS/SHOP buttons, SETTINGS and ACHIEVEMENTS/LEADERBOARD/SOUND shortcuts.
 
-Nine user-provided visual references have been mapped to Home, Loading, Gameplay,
-World Map, Shop, Skins, Settings, Level Complete and Game Over.
+Changes:
+- Remove legacy inline pilot cards and intrusive Home legal links. Pilot selection remains in Skins. Native offline privacy and terms remain accessible under Settings.
+- Show only **real** earned coins and progress stars, never hard-coded reference screenshot figures, fabricated gem wallet, purchases or cloud sync.
+- Achievements shows actual local records; Leaderboard opens existing offline records; Sound opens the functional options dialog. Level Map remains reachable through Settings and dismisses that modal safely.
+- Improve responsive hero sizing based on available screenHeightDp and preserve 48dp touch targets, safe insets and scrollability on truly undersized layouts.
+- Retain Gradle 9.6.0, AGP 9.5.0, Android API36, saved data, offline functionality, existing gameplay physics/obstacle difficulty, lives-only flight HUD and Android 15/16 compatibility.
 
-### Implemented in this phase
-- New **SKINS**, **SHOP**, and **LEVELS** entry points on Home, preserving existing
-  options, records, Croatian accessibility labels, and the three usable pilots.
-- Native, responsive Skins selector using real Bopi/Sova/Lisac portraits and
-  previously saved `arcade_pilot` preference; no image-backed fake buttons.
-- Offline Shop using the six existing earned-coin perk items, real costs and
-  inventories. Genuine purchases and record-bonus claims, never simulated
-  balances, non-existent gems or external payment systems.
-- Real level map for all eight existing generated worlds; locked/unlocked status
-  comes from saved per-world stream frontiers, while earned stars come from saved
-  level ratings. Locked levels are disabled, not only painted as locked.
-- Finite level start, genuine victory/failure result, actual next-level unlock and
-  stars from physical pickups. Level completion avoids double counting wins
-  after `recordRun`. Replay and Next Level retain the selected world.
-- The existing 18-unit collider, challenging pillars, Android 15/16 lifecycle
-  fixes, untouched on-device save schema, offline assets, Gradle 9.6, AGP 9.5,
-  compile/target 36 and min SDK26 stay unchanged.
-
-### Not yet pixel-identical
-This is a real first-stage implementation, NOT a pixel-by-pixel claim.
-Reference art is supplied in this conversation and isn't automatically
-available to GitHub Actions as app drawable resources. Reference-perfect
-illustrations, typography, 3D button art and exact 941 × 1672 raster
-comparisons still require a proper reusable art asset pipeline, plus
-physical-device validation. No Play or cloud-payment features are fabricated.
-
-Publish only after source contracts, Kotlin tests, API35 genuine gameplay QA,
-API36 smoke, screenshots, release package verification and checksums are green.
+This is a **reference-oriented native Home layout**, not yet a verified pixel-identical 1:1 recreation: the attached full-screen visual reference is not separately decomposed into production-ready layered artwork. Additional screen-by-screen visual assets and pixel-difference QA still required. Never ship if Lint, source audit, emulator UI, lifecycle, screenshots or artifact integrity gates fail.
