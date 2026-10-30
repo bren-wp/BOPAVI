@@ -30,7 +30,7 @@ assert 'VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking)' in 
 assert 'bar?.progress?.let(::persistVolume)' in options
 assert 'onStopTrackingTouch(' in options and 'onProgressChanged(' in options
 assert 'perks.first,perks.second,progress.difficulty(),1L,' in play
-assert 'PilotAbility.fromChoice(selectedPilotChoice)),0)' in play
+assert 'PilotAbility.fromChoice(chosenPilot)' in play
 assert 'LevelEngine.createStream(world,number)' in play
 assert 'progress.totalRuns()' in records and 'progress.totalFlaps()' in records
 assert 'progress.bestPoints()' in records and 'progress.bestFood()' in records
