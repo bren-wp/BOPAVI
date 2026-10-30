@@ -11,7 +11,7 @@ for code in (a,):
 for renderer in ("android/app/src/main/java/com/brendigo/bopavi/GameView.kt",):
     code=(p/renderer).read_text()
     assert "cachedFood" not in code and "lastAccessibilityFood" not in code
-    assert '"ŽIVOTI"' in code
+    assert 'Životi: $lives/' in code
     activity=(p/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
     assert "g.foodCollected" in activity and "progress.bestFood()" in activity
 for store in ("android/app/src/main/java/com/brendigo/bopavi/ProgressStore.kt",):
