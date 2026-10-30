@@ -663,6 +663,27 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
+        // The owner's Home reference is 941×1672. Use fixed reference-camera
+        // coordinates on large portrait windows; retain the legacy scroll-safe
+        // native composition for compact/landscape displays.
+        if(HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,
+                resources.displayMetrics.heightPixels,
+                resources.configuration.orientation ==
+                    android.content.res.Configuration.ORIENTATION_PORTRAIT)){
+            val home=HomeReferenceScreen(this,progress).create(
+                portraitDrawableIds[selectedPilotChoice],
+                onPlay={startGame()},
+                onSkins={showSkins()},
+                onShop={showShop()},
+                onSettings={showSettingsScreen()},
+                onAchievements={showLocalAchievements()},
+                onLeaderboard={showLocalRecords()},
+                onSound={showQuickOptions()},
+                onCoins={showShop()},
+                onStars={showLevels()})
+            showNativeView(home)
+            return
+        }
         val root=FrameLayout(this).apply{setBackgroundColor(0xff087bc9.toInt())}
         root.addView(ImageView(this).apply{
             setImageResource(R.drawable.homeback)
