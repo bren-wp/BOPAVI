@@ -43,7 +43,7 @@ print("PASS: reachable quick options and records, real difficulty and new offlin
 
 qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 for contract in (
-    "FAIL: Home quick options inaccessible",
+    "FAIL: Home Settings inaccessible",
     "FAIL: relaxed flight difficulty not selected",
     "FAIL: restored standard difficulty not selected",
     "FAIL: Home records action missing",

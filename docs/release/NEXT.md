@@ -157,3 +157,5 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Not certified pixel-perfect: the supplied screenshot's painterly 3D frame, icon/typography polish and full artwork still differ from the local resources; real screenshot capture is mandatory to quantify.
 
 - Android 15/16 Settings regression now requires the full page, real persisted sliders and both legal buttons, with an unscaled native 941×1672 screenshot. It returns Home via Back, then uses the dedicated SOUND shortcut to open the original quick options and Level Map. Selected difficulty controls now expose explicit accessible labels and rows are 98 reference pixels high.
+
+- Adapted Android visual/functional smoke to the actual full-page Settings: verified real buttons for the three difficulty options, selecting Relaxed and restoring Standard, and used system Back instead of the obsolete dialog GOTOVO action. The same CI still opens and reads both bundled legal documents and verifies return to Home. The footer SOUND quick mixer continues unchanged for fast audio control.

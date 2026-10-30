@@ -258,21 +258,17 @@ PY
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
-  # Close the underlying Settings dialog using its real DONE action.
-  # Android Back can be consumed by the system and strand an open modal.
+  # Settings is a real full page, not the previous dialog with GOTOVO.
+  adb shell input keyevent 4
+  sleep 1
   dump_ui
   python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-done=[n for n in nodes if n.get("clickable")=="true"
-      and n.get("text","").upper()=="GOTOVO"]
-if len(done)!=1:raise SystemExit("FAIL: Settings DONE action missing after legal window")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: Settings DONE bounds invalid")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+home=[n for n in nodes if n.get("content-desc")=="Otvori opcije igre"
+      and n.get("clickable")=="true"]
+if len(home)!=1:raise SystemExit("FAIL: Settings did not return Home after legal window")
 PY
-  sleep 1
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
 open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO" "OBRIŠI PODATKE"
@@ -284,70 +280,62 @@ open_legal_dialog "Pročitaj uvjete korištenja" "UVJETI KORIŠTENJA" "BRENDIGO"
 echo "PASS: native terms dialog accessible, offline and dismissible"
 sleep 1
 dump_ui
-# Exercise both newly reachable Home overlays before tapping IGRAJ.
-# The real dialog and radio selection must survive a native UI dump.
+# Verify the full native Settings screen, difficulty, and return Home.
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-options=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("content-desc")=="Otvori opcije igre"]
-if len(options)!=1:raise SystemExit("FAIL: Home quick options inaccessible")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",options[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: quick options hitbox invalid")
-a,b,c,d=map(int,m.groups())
+settings=[n for n in nodes if n.get("clickable")=="true"
+          and n.get("content-desc")=="Otvori opcije igre"]
+if len(settings)!=1:raise SystemExit("FAIL: Home Settings inaccessible")
+coords=list(map(int,re.findall("[0-9]+",settings[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: Settings hitbox invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 capture android-options
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-alltext=" ".join(label(n) for n in nodes)
-for expected in ("OPCIJE IGRE","OPUŠTENO","STANDARDNO","IZAZOVNO","GOTOVO"):
-    if expected not in alltext:raise SystemExit("FAIL: options dialog missing "+expected)
-choice=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("text","").upper()=="OPUŠTENO"]
-if len(choice)!=1:raise SystemExit("FAIL: relaxed difficulty not selectable")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",choice[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: difficulty tap bounds invalid")
-a,b,c,d=map(int,m.groups())
+alltext=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
+for expected in ("SETTINGS","OPUŠTENO","STANDARDNO","IZAZOVNO","MUSIC","SOUND EFFECTS"):
+    if expected not in alltext:raise SystemExit("FAIL: full-page Settings missing "+expected)
+choice=[n for n in nodes if n.get("clickable")=="true"
+        and n.get("content-desc","").upper()=="CHOOSE OPUŠTENO"]
+if len(choice)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selectable")
+coords=list(map(int,re.findall("[0-9]+",choice[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: relaxed difficulty bounds invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-relaxed=[n for n in nodes if n.get("text","").upper()=="OPUŠTENO"]
-if len(relaxed)!=1 or relaxed[0].get("checked")!="true":
-    raise SystemExit("FAIL: relaxed flight difficulty not selected")
-# Restore standard difficulty so later gameplay and physics QA are comparable.
-standard=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("text","").upper()=="STANDARDNO"]
+relaxed=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED OPUŠTENO"]
+if len(relaxed)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selected")
+standard=[n for n in nodes if n.get("clickable")=="true"
+          and n.get("content-desc","").upper()=="CHOOSE STANDARDNO"]
 if len(standard)!=1:raise SystemExit("FAIL: standard flight difficulty missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",standard[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: standard option bounds invalid")
-a,b,c,d=map(int,m.groups())
+coords=list(map(int,re.findall("[0-9]+",standard[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: standard difficulty bounds invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-standard=[n for n in nodes if n.get("text","").upper()=="STANDARDNO"]
-if len(standard)!=1 or standard[0].get("checked")!="true":
-    raise SystemExit("FAIL: restored standard difficulty not selected")
-done=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="GOTOVO"]
-if len(done)!=1:raise SystemExit("FAIL: options close action missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: options close bounds missing")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: native options dialog and difficulty selection",flush=True)
+standard=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED STANDARDNO"]
+if len(standard)!=1:raise SystemExit("FAIL: restored standard difficulty not selected")
 PY
+adb shell input keyevent 4
+sleep 1
+dump_ui
+echo "PASS: full native Settings, persisted difficulty and Home navigation"
 sleep 1
 dump_ui
 python3 - <<'PY'
