@@ -684,6 +684,8 @@ class MainActivity : Activity() {
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
         val compactDisplay=resources.configuration.screenHeightDp<770
         val tinyDisplay=resources.configuration.screenHeightDp<610
+        // Cap the art at short window heights; native CTA hit areas never shrink.
+        val heroHeight=(resources.configuration.screenHeightDp-558).coerceIn(92,270)
 
         // Real coins and real earned stars, not the screenshot's static 1,250/85.
         val resourcesBar=LinearLayout(this).apply{
@@ -712,21 +714,21 @@ class MainActivity : Activity() {
         resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.RECORDS)
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf { progress.worldStars(it) }
         resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR)
-        content.addView(resourcesBar,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)38 else 46)))
+        content.addView(resourcesBar,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)36 else if(compactDisplay)40 else 46)))
 
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(
-            if(tinyDisplay)68 else if(compactDisplay)99 else 143
+            if(tinyDisplay)62 else if(compactDisplay)81 else 124
         )).apply{topMargin=d(3)})
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(-1,d(
-            if(tinyDisplay)107 else if(compactDisplay)190 else 290
+            heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         action(content,"▶  PLAY"){startGame()}
@@ -828,7 +830,7 @@ class MainActivity : Activity() {
             "Pogledaj svoje rekorde"){showLocalRecords()}
         shortcut("SOUND",BopaviUiIconDrawable.Kind.WING,
             "Otvori zvučne postavke"){showQuickOptions()}
-        content.addView(footer,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)68 else 79)))
+        content.addView(footer,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             applySafeViewportInsets(v,insets)
