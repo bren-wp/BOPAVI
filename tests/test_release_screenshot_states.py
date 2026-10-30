@@ -26,7 +26,10 @@ for state in ("privacy","terms"):
     assert '"android-'+state+'"' in qa,state
 assert 'screencap","-p"' in qa
 assert 'FAIL: original Android legal screenshot is invalid' in qa
-assert 'for expected in ("OPCIJE IGRE"' in qa
+assert 'for expected in ("SETTINGS","OPUŠTENO","STANDARDNO"' in qa
+assert "FAIL: Home Settings inaccessible" in qa
+assert "FAIL: relaxed flight difficulty not selected" in qa
+assert "FAIL: restored standard difficulty not selected" in qa
 assert 'for expected in ("MOJI REKORDI"' in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa
