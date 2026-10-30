@@ -127,6 +127,18 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
+    /** Render only real finite-level pickups. Appearance and the 23px/30px
+     * pickup ranges come from the same gate/index as the simulation.
+     * Read-only visibility never consumes an item or allocates per frame. */
+    fun coinVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].coin && !collectedCoins[index]
+    fun crystalVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].star && !collectedStars[index]
+    fun powerVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].power!=0 && !collectedPowers[index]
     /** No new pickup arrays on identical-size marathon batches. */
     private fun clearOrResize(flags:BooleanArray,size:Int):BooleanArray {
         if(flags.size!=size)return BooleanArray(size)
