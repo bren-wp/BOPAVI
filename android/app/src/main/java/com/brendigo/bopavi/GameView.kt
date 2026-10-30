@@ -1250,7 +1250,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
-        fill(if(active)0xffff4f51.toInt() else 0x66394a72)
+        fill(if(active)0xffff4f51.toInt() else 0x552c4b73)
         c.drawPath(path,p)
         // Deep navy contour and a short enamel reflection match the reference;
         // rendering stays allocation-free and inactive hearts remain distinct.
