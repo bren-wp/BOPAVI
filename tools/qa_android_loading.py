@@ -38,6 +38,7 @@ def main():
         nodes=list(hierarchy().iter("node"))
         view=[n for n in nodes if n.get("content-desc") == "Loading level"]
         assert len(view)==1, "FAIL: missing one native semantic Loading view"
+        assert all(n.get("text","")!="PLAY" for n in nodes), "FAIL: Home appeared instead of Loading"
         assert view[0].get("clickable")=="false", "FAIL: decorative Loading fake button"
         image=adb("exec-out", "screencap", "-p")
         assert image.startswith(PNG_HEADER) and len(image)>2000, "FAIL: Loading PNG invalid"

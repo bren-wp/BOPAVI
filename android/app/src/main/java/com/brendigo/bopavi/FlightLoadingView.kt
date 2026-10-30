@@ -15,7 +15,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Reference screen 2 / 9: real preflight preparation.
+ * Owner's Splash/Loading artwork, implemented as real preflight preparation.
  *
  * The artwork is drawn from original offline BOPAVI resources and native
  * primitives. The progress track is EMPTY until stream preparation finishes;
@@ -32,13 +32,23 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         BitmapFactory.decodeResource(resources, R.drawable.homeback, imageOptions)
     private val brand: Bitmap? =
         BitmapFactory.decodeResource(resources, R.drawable.logo, imageOptions)
-    private val portraits = intArrayOf(
-        R.drawable.bopiportrait0,
-        R.drawable.bopiportrait9,
-        R.drawable.bopiportrait10
-    )
-    private val hero: Bitmap? =
-        BitmapFactory.decodeResource(resources, portraits[pilotChoice.coerceIn(0, 2)], imageOptions)
+    // The previous portrait-only sprite cropped away Bopi's flying silhouette.
+    // Body and wings share an original 512 x 512 composition space and are
+    // decoded once; all assets are shipped locally with the Android build.
+    private val bodies = intArrayOf(R.drawable.bopi0,R.drawable.bopi9,R.drawable.bopi10)
+    private val leftWings = intArrayOf(R.drawable.bopileft0,R.drawable.bopileft9,R.drawable.bopileft10)
+    private val rightWings = intArrayOf(R.drawable.bopiright0,R.drawable.bopiright9,R.drawable.bopiright10)
+    private val selected = pilotChoice.coerceIn(0,2)
+    private val body: Bitmap? =
+        BitmapFactory.decodeResource(resources,bodies[selected],imageOptions)
+    private val leftWing: Bitmap? =
+        BitmapFactory.decodeResource(resources,leftWings[selected],imageOptions)
+    private val rightWing: Bitmap? =
+        BitmapFactory.decodeResource(resources,rightWings[selected],imageOptions)
+    private val logoRect=RectF(FlightLoadingLayout.logo.left,FlightLoadingLayout.logo.top,
+        FlightLoadingLayout.logo.right,FlightLoadingLayout.logo.bottom)
+    private val pilotRect=RectF(FlightLoadingLayout.pilot.left,FlightLoadingLayout.pilot.top,
+        FlightLoadingLayout.pilot.right,FlightLoadingLayout.pilot.bottom)
 
     private var preparationFinished = false
 
@@ -154,9 +164,10 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
             )
         }
 
-        val scale = min(w / 941f, h / 1672f)
-        val offsetX = (w - 941f * scale) / 2f
-        val offsetY = (h - 1672f * scale) / 2f
+        val scale = min(w / FlightLoadingLayout.referenceWidth,
+            h / FlightLoadingLayout.referenceHeight)
+        val offsetX = (w - FlightLoadingLayout.referenceWidth * scale) / 2f
+        val offsetY = (h - FlightLoadingLayout.referenceHeight * scale) / 2f
         val checkpoint = canvas.save()
         canvas.translate(offsetX, offsetY)
         canvas.scale(scale, scale)
@@ -166,8 +177,12 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         paint.reset()
         paint.color = 0x1affffff
         canvas.drawOval(RectF(90f, 410f, 855f, 1210f), paint)
-        image(canvas, brand, RectF(109f, 74f, 830f, 356f))
-        image(canvas, hero, RectF(159f, 430f, 785f, 1118f))
+        image(canvas, brand, logoRect)
+        // Compose the same original pilot as actual gameplay, wings behind
+        // the head/body. Unlike a portrait, this contains real wing geometry.
+        image(canvas, leftWing, pilotRect)
+        image(canvas, rightWing, pilotRect)
+        image(canvas, body, pilotRect)
 
         // Coins are decoration only. No fictional balances or purchases.
         coin(canvas, 158f, 1005f, 53f)
@@ -197,6 +212,8 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         super.onDetachedFromWindow()
         backdrop?.recycle()
         brand?.recycle()
-        hero?.recycle()
+        body?.recycle()
+        leftWing?.recycle()
+        rightWing?.recycle()
     }
 }

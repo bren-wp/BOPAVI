@@ -52,3 +52,12 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Android 15 emulator QA now additionally opens an actual fresh flight in a 941×1672 viewport after normal UI, pause, results, resume, rotation, and loading checks finish. It captures `android-gameplay-ready-reference-size.png` through Android's own screencap API and verifies its PNG IHDR dimensions.
 - The override is restored on normal completion and through the existing test-exit trap on failure; it cannot substitute a mocked UI or misleading resized screenshot.
 - The image is an unedited native Android capture. Matching resolution is necessary but not sufficient for a pixel-perfect result: compare the same gameplay state, animation pose, viewport insets and original art using `tools/compare_flight_reference.py`.
+
+### Sequential screen-by-screen pass 1: Splash / Loading
+
+- The owner requested a new sequential review beginning with Splash, followed by Home, Levels, Gameplay, Pause, Game Over, Level Complete, Skins, Shop, and Settings.
+- Inspected the actual offline Android art and native Loading View. The old Loading code stretched the 780×236 winged logo to a 721×282 box and used a square **portrait** crop instead of the winged full pilot. This is visibly unlike the approved 941×1672 Splash/Loading reference.
+- Replaced the portrait with the actual full Bopi body and both wing layers from the existing verified local sprite family, keeping the same 512×512 shared coordinates and decoding them once. The winged logo now retains the original intrinsic aspect ratio, with geometry derived from the provided reference.
+- The illustrated sky and local platform assets are still visibly simpler than the reference's dense fantasy environment. This step is NOT a pixel-identical pass; a true screenshot comparison must follow emulator capture at an equivalent viewport and loading state.
+- Kept the system-managed Android launch splash separate from native level preparation: cold start continues directly to Home, avoiding double splash/fictional wait, while actual level preparation renders Loading and completes as soon as generated data is ready.
+- Added JVM tests for reference bounds and source aspect fidelity, plus a CI source contract for real offline sprite layers, correct cleanup and no artificial sleep. **Next: Home**, after Splash visual/CI checks.
