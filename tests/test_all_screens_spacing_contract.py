@@ -26,9 +26,11 @@ assert "android.widget.RadioGroup.LayoutParams(-1,d(45))" not in options
 assert "contentDescription=caption" in options
 
 # Actual Home hero stays native and accommodates smaller windows/font scales.
-assert 'setAutoSizeTextTypeUniformWithConfiguration(10,13,1,' in home
-assert "content.addView(pilotHeading,LinearLayout.LayoutParams(-1,d(32)))" in home
-assert 'pilotHeading.contentDescription="Odaberi lika. "' in home
+assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in home
+assert 'val tinyDisplay=resources.configuration.screenHeightDp<610' in home
+assert 'portraitDrawableIds[selectedPilotChoice]' in home
+assert 'contentDescription="Otvori izbor likova"' not in home or 'showSkins()' in home
+assert 'LinearLayout.LayoutParams(0,d(77),1f)' in home
 assert "FitViewportColumn(this)" in home
 assert "viewport.requestApplyInsets()" in home
 
