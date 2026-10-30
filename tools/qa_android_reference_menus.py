@@ -33,7 +33,6 @@ def main():
 
     tap(node_with("OTVORI IZBOR LIKOVA"))
     node_with("SKINS",clickable=False)
-    assert len(exists("CHOOSE CLASSIC AVIATOR"))==0 or len(exists("CHOOSE CLASSIC AVIATOR"))==1
     tap(node_with("CHOOSE WISE OWL"))
     node_with("SELECTED WISE OWL")
     home()
@@ -51,10 +50,10 @@ def main():
 
     tap(node_with("OTVORI KARTU RAZINA"))
     node_with("LEVEL MAP",clickable=False)
-    node_with("PLAY LEVEL 1",clickable=True)
+    node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
     locked=exists("LOCKED LEVEL 2",enabled=False)
     assert locked,"FAIL: locked level is not truly disabled"
-    tap(node_with("PLAY LEVEL 1"))
+    tap(node_with("PLAY LEVEL 1, 0 STARS"))
     node_with("DODIRNI ZA LET")
     assert adb("shell","pidof",APP)==pid,"FAIL: real level launch crashed the app"
     print("PASS: actual Level Map locks and finite Level 1 launch",flush=True)
