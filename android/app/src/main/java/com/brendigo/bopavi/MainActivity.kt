@@ -21,6 +21,7 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
+    private var pauseDialog: android.app.AlertDialog? = null
     // Prevent a frozen, untappable flight after returning from another app.
     private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
@@ -200,6 +201,8 @@ class MainActivity : Activity() {
             platformBackCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
             platformBackCallback = null
         }
+        pauseDialog?.dismiss()
+        pauseDialog=null
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
@@ -911,26 +914,38 @@ class MainActivity : Activity() {
     }
 
     private fun showPremiumPause(game:GameView){
+        // Single modal only, whether triggered by Back or foreground restoration.
+        if(gameView!==game || selectedScreen!="game" || game.game.finished ||
+            pauseDialog?.isShowing==true || isFinishing || isDestroyed)return
+        game.paused=true
+        sound.pause()
+        val compactPause=resources.configuration.screenHeightDp<690
         val dialog=android.app.AlertDialog.Builder(this).create()
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
-            setPadding(d(18),d(15),d(18),d(19))
-            background=gradient(0xff106bd2.toInt(),0xff031936.toInt(),26).apply{
-                setStroke(d(3),electric)
+            setPadding(d(17),d(13),d(17),d(18))
+            background=gradient(0xff238ee9.toInt(),0xff061b45.toInt(),28).apply{
+                setStroke(d(3),0xff84ecff.toInt())
             }
         }
 
 
         content.addView(ImageView(this).apply{
-            // Keep the actual player visible when pausing Sova or Lisac.
+            // Full local Bopi, with both wings, also used by Home and Results.
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
+            background=gradient(0xff78d9ff.toInt(),0xff1269be.toInt(),24).apply{
+                setStroke(d(2),0xffccf9ff.toInt())
+            }
+            setPadding(d(5),d(3),d(5),d(3))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(154)))
-        title(content,"♛  PAUZA",32,Color.WHITE)
-        title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffbce6ff.toInt())
-        title(content,game.game.pilotAbility.description,13,0xffbce6ff.toInt())
+        },LinearLayout.LayoutParams(-1,d(if(compactPause)112 else 168)).apply{
+            bottomMargin=d(7)
+        })
+        title(content,"♛  PAUZA",if(compactPause)27 else 32,Color.WHITE)
+        title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffe4f5ff.toInt())
+        if(!compactPause)title(content,game.game.pilotAbility.description,13,0xffc7eaff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -939,8 +954,8 @@ class MainActivity : Activity() {
                 1 -> gradient(0xff23c8fc.toInt(),0xff064ab5.toInt(),30).apply{
                     setStroke(d(2),0xff83efff.toInt())
                 }
-                else -> gradient(0xff7593be.toInt(),0xff20365f.toInt(),30).apply{
-                    setStroke(d(2),0xffaec9f3.toInt())
+                else -> gradient(0xff26c9fc.toInt(),0xff0755bb.toInt(),30).apply{
+                    setStroke(d(2),0xff9deaff.toInt())
                 }
             }
             val b=Button(this).apply {
@@ -960,20 +975,35 @@ class MainActivity : Activity() {
                 contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
-            content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
-                setMargins(d(8),d(4),d(8),d(4))
+            content.addView(b,LinearLayout.LayoutParams(-1,d(if(compactPause)55 else 63)).apply{
+                setMargins(d(8),d(6),d(8),d(6))
             })
         }
         command("▶  NASTAVI",0){
-            game.paused=false
-            sound.resume()
+            if(gameView===game && selectedScreen=="game" && !game.game.finished){
+                game.paused=false
+                sound.resume()
+            }
         }
-        command("↻  PONOVO",1){startGame()}
-        command("←  IZLAZ",2){showHome()}
+        command("↻  PONOVO",1){
+            if(gameView===game && selectedScreen=="game" && !game.game.finished){
+                when(val target=PauseReplayTarget.fromStage(activeStage)){
+                    PauseReplayTarget.Endless -> startGame()
+                    is PauseReplayTarget.Finite -> startLevel(target.world,target.level)
+                }
+            }
+        }
+        command("←  IZLAZ",2){
+            if(gameView===game && selectedScreen=="game")showHome()
+        }
         // The streamlined Pause contains only Continue, Retry and Exit.
         // Changes to saved audio/accessibility preferences are preserved.
         val fitted=FitViewportColumn(this).apply{addView(content)}
         dialog.setView(fitted)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnDismissListener{
+            if(pauseDialog===dialog)pauseDialog=null
+        }
         dialog.setOnCancelListener{
             // Cancelling Pause resumes only the still-current game.
             if(gameView===game && selectedScreen=="game" && window.decorView.hasWindowFocus()) {
@@ -981,12 +1011,16 @@ class MainActivity : Activity() {
                 sound.resume()
             }
         }
+        pauseDialog=dialog
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         // Measured live buttons, no scroll even when inline pause options open.
+        dialog.window?.setGravity(Gravity.CENTER)
         dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
-            minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600)))
+            minOf((resources.displayMetrics.widthPixels-d(24)).coerceAtLeast(1),
+                (resources.displayMetrics.widthPixels*.80f).toInt(),d(420)),
+            minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),
+                d(if(compactPause)480 else 590)))
     }
     private fun startGame(){
         activeStage=null
@@ -1262,11 +1296,9 @@ class MainActivity : Activity() {
                 current == null -> showHome()
                 current.finished -> showResult(current)
                 current.active -> {
-                    // No on-screen Pause control. System Back is the only pause entry.
+                    // Repeated system Back never stacks multiple pause windows.
                     gameView?.let { view ->
-                        view.paused=true
-                        sound.pause()
-                        showPremiumPause(view)
+                        if(pauseDialog?.isShowing!=true)showPremiumPause(view)
                     }
                 } // Do not discard live runs.
                 else -> showHome() // No extra character or level selection
