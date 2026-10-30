@@ -17,8 +17,9 @@ assert "updateWorldCover(width,height)" in game
 assert "private var closed = false" in audio and "if(closed)return" in audio
 assert "if(closed || !enabled || effectsVolume<=0f)return" in audio
 home=activity.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
-assert 'action(content,"▶  IGRAJ"){startGame()}' in home
-assert "progress.chooseArcadePilot(index)" in home
+assert 'action(content,"▶  PLAY"){startGame()}' in home
+assert "progress.chooseArcadePilot(index)" in activity
+assert "selectedPilotChoice" in home and "showSkins()" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
 assert "override fun onWindowFocusChanged(hasFocus:Boolean)" in activity
 assert "showPauseAfterBackground=true" in activity
