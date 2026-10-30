@@ -693,45 +693,80 @@ class MainActivity : Activity() {
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
         val compactDisplay=resources.configuration.screenHeightDp<770
         val tinyDisplay=resources.configuration.screenHeightDp<610
-        // Cap the art at short window heights; native CTA hit areas never shrink.
-        val heroHeight=(resources.configuration.screenHeightDp-558).coerceIn(92,270)
+        // Reference Home: the hero is the dominant center artwork. Keep
+        // it larger on tall phones without reducing native 48dp tap targets.
+        val heroHeight=if(compactDisplay)
+            (resources.configuration.screenHeightDp-558).coerceIn(92,270)
+        else (resources.configuration.screenHeightDp-468).coerceIn(225,320)
 
-        // Real coins and real earned stars, not the screenshot's static 1,250/85.
+        // The reference has two small upper-right wallet capsules, not two
+        // full-width score banners. Values always come from actual saved data.
         val resourcesBar=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.END or Gravity.CENTER_VERTICAL
         }
-        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind){
-            resourcesBar.addView(TextView(this).apply{
-                text="$label  $count"
-                textSize=if(tinyDisplay)12f else 14f
+        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind,
+                         destination:String,onClick:()->Unit){
+            val chip=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL
+                gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(5),0,d(5),0)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                    gradient(0xff2073ba.toInt(),0xff061e4c.toInt(),22).apply{
+                        setStroke(d(2),0xff80d7ff.toInt())
+                    },null)
+                contentDescription="$label: $count. $destination"
+                isClickable=true;isFocusable=true
+                minHeight=d(48)
+                setOnClickListener{sound.effect("click");onClick()}
+            }
+            chip.addView(ImageView(this).apply{
+                setImageDrawable(uiIcon(kind,0xffffd44e.toInt(),25))
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(28),d(28)))
+            chip.addView(TextView(this).apply{
+                text=java.text.NumberFormat.getIntegerInstance().format(count)
+                textSize=if(tinyDisplay)14f else 16f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 gravity=Gravity.CENTER
-                setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(kind,0xffffd44e.toInt(),if(tinyDisplay)19 else 23),
-                    null,null,null)
-                compoundDrawablePadding=d(5)
-                contentDescription="$label: $count"
-                background=gradient(0xff1f69b7.toInt(),0xff05214e.toInt(),17).apply{
-                    setStroke(d(2),0xffa3edff.toInt())
-                }
-            },LinearLayout.LayoutParams(0,d(if(tinyDisplay)35 else 43),1f).apply{
-                setMargins(d(4),0,d(4),0)
+                maxLines=1
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,-1,1f))
+            chip.addView(TextView(this).apply{
+                text="+"
+                textSize=21f
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER
+                background=gradient(0xff72ee49.toInt(),0xff0f9e2b.toInt(),9)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(25),d(29)))
+            resourcesBar.addView(chip,LinearLayout.LayoutParams(0,d(48),1f).apply{
+                setMargins(d(3),0,d(3),0)
             })
         }
-        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.RECORDS)
+        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.COIN,
+            "Otvori trgovinu"){showShop()}
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf { progress.worldStars(it) }
-        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR)
-        content.addView(resourcesBar,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)36 else if(compactDisplay)40 else 46)))
+        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR,
+            "Otvori kartu razina"){showLevels()}
+        content.addView(resourcesBar,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.67f).toInt(),d(49)).apply{
+            gravity=Gravity.END
+        })
 
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(
-            if(tinyDisplay)62 else if(compactDisplay)81 else 124
-        )).apply{topMargin=d(3)})
+        },LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.82f).toInt(),
+            d(if(tinyDisplay)82 else if(compactDisplay)108 else 147)
+        ).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+            topMargin=d(1)
+        })
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
@@ -739,8 +774,21 @@ class MainActivity : Activity() {
         },LinearLayout.LayoutParams(-1,d(
             heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
-        content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        // The reference places PLAY immediately after the flying hero,
+        // with no huge stretchable blank strip on tall 20:9 displays.
         action(content,"▶  PLAY"){startGame()}
+        (content.getChildAt(content.childCount-1) as Button).apply{
+            setTextColor(Color.WHITE)
+            setShadowLayer(d(2).toFloat(),0f,d(3).toFloat(),0xff743c00.toInt())
+            setAutoSizeTextTypeUniformWithConfiguration(18,26,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            textSize=if(tinyDisplay)20f else 26f
+            (layoutParams as LinearLayout.LayoutParams).apply{
+                width=(resources.displayMetrics.widthPixels*.73f).toInt()
+                gravity=Gravity.CENTER_HORIZONTAL
+                layoutParams=this
+            }
+        }
 
         val features=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -775,8 +823,12 @@ class MainActivity : Activity() {
         feature("SKINS","Otvori izbor likova",0xffbc3bfa.toInt(),
             0xff5706b8.toInt(),BopaviUiIconDrawable.Kind.FLIGHT){showSkins()}
         feature("SHOP","Otvori trgovinu nadogradnji",0xff6de553.toInt(),
-            0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.RECORDS){showShop()}
-        content.addView(features,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)55 else 64)))
+            0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.SHOP){showShop()}
+        content.addView(features,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.79f).toInt(),
+            d(if(tinyDisplay)55 else 64)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+        })
 
         content.addView(TextView(this).apply{
             text="SETTINGS"
@@ -795,7 +847,10 @@ class MainActivity : Activity() {
             elevation=d(4).toFloat()
             isClickable=true;isFocusable=true
             setOnClickListener{sound.effect("click");showQuickOptions()}
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)49 else 57)).apply{
+        },LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.63f).toInt(),
+            d(if(tinyDisplay)49 else 57)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
             topMargin=d(3);bottomMargin=d(5)
         })
 
@@ -833,13 +888,21 @@ class MainActivity : Activity() {
             },LinearLayout.LayoutParams(-1,d(21)))
             footer.addView(group,LinearLayout.LayoutParams(0,d(77),1f))
         }
-        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR,
+        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.RECORDS,
             "Pogledaj svoja postignuća"){showLocalAchievements()}
-        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,
+        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD,
             "Pogledaj svoje rekorde"){showLocalRecords()}
-        shortcut("SOUND",BopaviUiIconDrawable.Kind.WING,
+        shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND,
             "Otvori zvučne postavke"){showQuickOptions()}
-        content.addView(footer,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)))
+        content.addView(footer,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.76f).toInt(),
+            d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+            topMargin=d(if(compactDisplay)6 else 23)
+        })
+        // On tall displays the spare sky stays BELOW the controls; short
+        // landscape/split-screen windows still scroll with full-size targets.
+        content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             applySafeViewportInsets(v,insets)

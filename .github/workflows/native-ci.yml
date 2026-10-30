@@ -79,6 +79,7 @@ jobs:
       - run: python tests/test_reference_ready_overlay_contract.py
       - run: python tests/test_flight_reference_diff.py
       - run: python tests/test_loading_reference_geometry.py
+      - run: python tests/test_reference_home_geometry.py
       - run: python tests/test_loading_reference_qa_contract.py
       - run: python tests/test_flight_camera_composition.py
       - run: python tests/test_reference_viewport_capture_contract.py

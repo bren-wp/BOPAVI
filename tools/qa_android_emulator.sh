@@ -593,7 +593,7 @@ echo "PASS: simplified real-device Home, game, result and Retry"
 # Every assertion runs against actual native clickable controls, not mock art.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   BOPAVI_RESIZE_IN_PROGRESS=1
-  for spec in 720x1280:320:compact 1080x2400:420:tall; do
+  for spec in 720x1280:320:compact 1080x2400:420:tall 941x1672:320:reference; do
     dims="$(printf '%s' "$spec" | cut -d: -f1)"
     density="$(printf '%s' "$spec" | cut -d: -f2)"
     label="$(printf '%s' "$spec" | cut -d: -f3)"

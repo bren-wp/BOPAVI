@@ -64,3 +64,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 
 - Strengthened Android Loading QA: after the normal 1080×2400 preflight preview, the real native `FlightLoadingView` is also captured at **941×1672** (reference source size) with an asserted PNG header/IHDR and Android accessibility state. A `finally` block restores system viewport overrides and returns to Home.
 - The capture is **evidence to evaluate**, not proof of visual identity. The poster-art landscape remains a major divergence from the uploaded richly rendered reference.
+
+### Sequential screen-by-screen pass 2 — Home (reference 941×1672)
+
+- Inspected the owner's first image against the real prior Android 1080×2400 / 720×1280 Home captures. The prior screen had huge full-width currency banners, a narrow bird, a large empty blue band before PLAY and all three bottom actions near the OS nav bar.
+- The Home resource capsules are now compact and right-aligned, displaying actual earned coins and world stars, never the screenshot's fictional 1,250/85. The green plus area belongs to the genuinely clickable capsule: coins open Shop and stars open Levels (no new fake currency or IAP).
+- Increased the Bopi hero envelope on tall phones, widened the brand image proportionately, aligned PLAY (~73% viewport width), SKINS/SHOP (~79%) and Settings (~63%) to the reference's compact centered buttons, and moved spare vertical flex **after** the footer instead of inserting an empty gap above PLAY. Compact devices keep their original hero cap and full-size native touch targets.
+- Updated native icon vocabulary: coin, shop awning, three-tier leaderboard, speaker. Achievements now uses a real trophy instead of a generic star. Removed the unapproved brand tagline from SVG raster source. No external image generation or packaged screenshot overlays.
+- Expanded actual Android viewport QA to capture Home at native 941×1672 as well as compact 720×1280 and tall 1080×2400; image content remains artwork-limited, so **do not claim pixel-exact identity yet**. Next after a verified Home pass: **Levels (world map)**, the owner's fourth reference.
