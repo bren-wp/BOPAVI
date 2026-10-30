@@ -204,7 +204,7 @@ if len(links)!=1:
     import time
     for _ in range(5):
         size=subprocess.check_output(["adb","shell","wm","size"],text=True)
-        dims=re.findall(r"(\\d+)x(\\d+)",size)
+        dims=re.findall(r"(\d+)x(\d+)",size)
         if not dims:raise SystemExit("FAIL: missing Settings viewport dimensions")
         width,height=map(int,dims[-1])
         subprocess.run(["adb","shell","input","swipe",str(width//2),str(height*76//100),
@@ -258,8 +258,20 @@ PY
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
-  # The underlying Settings modal is still present after the legal window closes.
-  adb shell input keyevent 4
+  # Close the underlying Settings dialog using its real DONE action.
+  # Android Back can be consumed by the system and strand an open modal.
+  dump_ui
+  python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+done=[n for n in nodes if n.get("clickable")=="true"
+      and n.get("text","").upper()=="GOTOVO"]
+if len(done)!=1:raise SystemExit("FAIL: Settings DONE action missing after legal window")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Settings DONE bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
   sleep 1
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
