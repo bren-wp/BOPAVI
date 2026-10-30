@@ -33,7 +33,7 @@ for snippet in (
     "private fun uiIcon(",
     "private fun actionKind(",
     "uiIcon(actionKind(text),if(primary)primaryButtonInk else Color.WHITE,24)",
-    "uiIcon(if(text.contains(\"OPCIJE\"))BopaviUiIconDrawable.Kind.SETTINGS",
+    "uiIcon(BopaviUiIconDrawable.Kind.SETTINGS,Color.WHITE,28)",
     "setImageDrawable(uiIcon(iconKind,iconTint,29))",
     "uiIcon(actionKind(text),if(style==0)primaryButtonInk else Color.WHITE,24)",
     "uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23)",
