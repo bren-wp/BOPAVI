@@ -40,7 +40,7 @@ def main():
         "--ez", "bopavi_qa_capture_first_flap", "true")
     pid = adb("shell", "pidof", APP)
     assert pid, "FAIL: app did not start"
-    tap(one_control("IGRAJ"))
+    tap(one_control("PLAY"))
     tap(one_control("DODIRNI ZA LET"))
     before = active_flight().get("content-desc")
     assert before and "Životi:" in before, "FAIL: no true initial live lives"
