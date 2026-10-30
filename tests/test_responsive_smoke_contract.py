@@ -11,5 +11,7 @@ assert 'BOPAVI_RESIZE_IN_PROGRESS' in qa
 assert 'min48=48*int(density)/160' in qa
 assert 'n.get("scrollable")=="true"' in qa
 assert 'actual==(width,height)' in qa
-assert 'privacy button below 48dp' in qa
+assert 'Settings legal control missing' in qa
+assert 'for title,needle in (' in qa
+assert 'touch target below 48dp' in qa
 print("PASS: two real emulator viewport/density variants and fail-closed UI assertions")
