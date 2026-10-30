@@ -115,26 +115,64 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         canvas.drawText(text, x, y, paint)
     }
 
-    private fun coin(canvas: Canvas, x: Float, y: Float, radius: Float) {
+    /**
+     * Perspective gold ring instead of a flat coin with a star. The owner
+     * Loading reference shows tilted, hollow rings following Bopi's flight.
+     */
+    private fun ring(canvas: Canvas, x: Float, y: Float,
+                     horizontalRadius: Float, verticalRadius: Float, tilt: Float) {
+        val saved=canvas.save()
+        canvas.rotate(tilt,x,y)
+        val ellipse=RectF(x-horizontalRadius,y-verticalRadius,
+            x+horizontalRadius,y+verticalRadius)
         paint.reset()
-        paint.isAntiAlias = true
-        paint.color = 0xffa64e00.toInt()
-        canvas.drawCircle(x, y + 6f, radius + 5f, paint)
-        paint.color = 0xffffa510.toInt()
-        canvas.drawCircle(x, y, radius + 3f, paint)
-        paint.color = 0xffffdb45.toInt()
-        canvas.drawCircle(x, y - 3f, radius - 3f, paint)
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 4f
-        paint.color = Color.WHITE
-        canvas.drawArc(RectF(x-radius+6f, y-radius+6f, x+radius-6f, y+radius-6f),
-            205f, 55f, false, paint)
-        paint.style = Paint.Style.FILL
-        paint.color = 0xffaa6400.toInt()
-        paint.textAlign = Paint.Align.CENTER
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        paint.textSize = radius * 1.35f
-        canvas.drawText("★", x, y + radius * .42f, paint)
+        paint.isAntiAlias=true
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=horizontalRadius*.40f
+        paint.color=0x5507254d
+        canvas.drawOval(RectF(ellipse.left+5f,ellipse.top+11f,
+            ellipse.right+5f,ellipse.bottom+11f),paint)
+        paint.strokeWidth=horizontalRadius*.43f
+        paint.color=0xffa94d00.toInt()
+        canvas.drawOval(ellipse,paint)
+        paint.strokeWidth=horizontalRadius*.33f
+        paint.color=0xffffa800.toInt()
+        canvas.drawOval(ellipse,paint)
+        paint.strokeWidth=horizontalRadius*.20f
+        paint.color=0xffffda3d.toInt()
+        canvas.drawOval(ellipse,paint)
+        paint.strokeWidth=horizontalRadius*.095f
+        paint.color=0xfffff4a9.toInt()
+        canvas.drawArc(ellipse,202f,158f,false,paint)
+        paint.style=Paint.Style.FILL
+        canvas.restoreToCount(saved)
+    }
+
+    private fun feather(canvas:Canvas,left:Boolean) {
+        // Two layered white wing tips at the ends of the loading capsule.
+        val x=if(left)139f else 805f
+        val saved=canvas.save()
+        canvas.translate(x,1367f)
+        if(!left)canvas.scale(-1f,1f)
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.color=0xff052b69.toInt()
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=5f
+        val wing=android.graphics.Path().apply {
+            moveTo(2f,-33f)
+            cubicTo(-21f,-44f,-25f,-31f,-45f,-40f)
+            cubicTo(-44f,-14f,-35f,6f,-12f,21f)
+            cubicTo(-11f,34f,1f,41f,18f,39f)
+            close()
+        }
+        canvas.drawPath(wing,paint)
+        paint.style=Paint.Style.FILL
+        paint.color=Color.WHITE
+        canvas.drawPath(wing,paint)
+        paint.color=0xffcadfff.toInt()
+        canvas.drawOval(-30f,-1f,7f,17f,paint)
+        canvas.restoreToCount(saved)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -172,11 +210,21 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         canvas.translate(offsetX, offsetY)
         canvas.scale(scale, scale)
 
-        // Slight sky veil keeps large Bopi and the wordmark legible over
-        // bright waterfalls without inserting a flat background rectangle.
+        // Translucent wind trails follow the original flying pose without
+        // obscuring the islands or pretending to be a flat UI container.
         paint.reset()
-        paint.color = 0x1affffff
-        canvas.drawOval(RectF(90f, 410f, 855f, 1210f), paint)
+        paint.isAntiAlias=true
+        paint.style=Paint.Style.STROKE
+        paint.strokeCap=Paint.Cap.ROUND
+        paint.color=0x99edfcff.toInt()
+        paint.strokeWidth=10f
+        canvas.drawArc(RectF(-115f,590f,870f,1084f),
+            38f,105f,false,paint)
+        paint.color=0x66ffffff
+        paint.strokeWidth=5f
+        canvas.drawArc(RectF(-80f,628f,895f,1100f),
+            44f,95f,false,paint)
+        paint.style=Paint.Style.FILL
         image(canvas, brand, logoRect)
         // Compose the same original pilot as actual gameplay, wings behind
         // the head/body. Unlike a portrait, this contains real wing geometry.
@@ -184,27 +232,57 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         image(canvas, rightWing, pilotRect)
         image(canvas, body, pilotRect)
 
-        // Coins are decoration only. No fictional balances or purchases.
-        coin(canvas, 158f, 1005f, 53f)
-        coin(canvas, 740f, 1108f, 37f)
-        coin(canvas, 605f, 1185f, 29f)
+        // Ring positions follow the ORIGINAL Loading reference, not the
+        // Game Over screenshot. They are illustrative, never wallet values.
+        ring(canvas,104f,862f,75f,92f,-23f)
+        ring(canvas,354f,1010f,73f,105f,-29f)
+        ring(canvas,550f,1074f,37f,50f,-23f)
+        ring(canvas,658f,1102f,27f,34f,-20f)
+        ring(canvas,738f,1101f,21f,28f,-18f)
+        ring(canvas,28f,1197f,149f,176f,-27f)
 
-        // Golden winged frame and royal-blue/cyan inner track from reference.
-        val outer = RectF(139f, 1333f, 802f, 1441f)
-        fill(canvas, RectF(130f, 1335f, 168f, 1406f), Color.WHITE, 34f)
-        fill(canvas, RectF(773f, 1335f, 811f, 1406f), Color.WHITE, 34f)
-        fill(canvas, outer, 0xff43200b.toInt(), 57f)
-        gradient(canvas, RectF(147f, 1339f, 794f, 1432f),
-            0xffffed7b.toInt(), 0xffff8c06.toInt(), 48f)
-        fill(canvas, RectF(166f, 1354f, 775f, 1415f), 0xff38170a.toInt(), 38f)
-        gradient(canvas, RectF(177f, 1363f, 764f, 1407f),
-            0xff172e66.toInt(), 0xff562009.toInt(), 27f)
-        if (preparationFinished) {
-            gradient(canvas, RectF(181f, 1366f, 758f, 1405f),
-                0xff8dfaff.toInt(), 0xff0088f5.toInt(), 25f)
+        // Reference-height winged golden frame. The preparation state uses
+        // a gliding blue segment (indeterminate); NO fake progress percentage.
+        feather(canvas,true)
+        feather(canvas,false)
+        val outer=RectF(FlightLoadingLayout.track.left,
+            FlightLoadingLayout.track.top,
+            FlightLoadingLayout.track.right,
+            FlightLoadingLayout.track.bottom)
+        fill(canvas,outer,0xff39200f.toInt(),58f)
+        gradient(canvas,RectF(126f,1322f,816f,1418f),
+            0xfffff5a8.toInt(),0xffff9400.toInt(),50f)
+        fill(canvas,RectF(161f,1340f,778f,1402f),
+            0xff2b1105.toInt(),34f)
+        gradient(canvas,RectF(171f,1348f,771f,1399f),
+            0xff14346f.toInt(),0xff4b240d.toInt(),28f)
+
+        val trackLeft=182f
+        val trackRight=764f
+        val trackTop=1352f
+        val trackBottom=1396f
+        if(preparationFinished){
+            gradient(canvas,RectF(trackLeft,trackTop,trackRight,trackBottom),
+                0xff8afaff.toInt(),0xff038af7.toInt(),24f)
+        }else{
+            // A sweeping, bounded highlight communicates ongoing work without
+            // telling the user an unmeasured fraction has completed.
+            val phase=(android.os.SystemClock.uptimeMillis()%1400L)/1400f
+            val left=trackLeft-320f+(trackRight-trackLeft+320f)*phase
+            val saved=canvas.save()
+            canvas.clipRect(trackLeft,trackTop,trackRight,trackBottom)
+            gradient(canvas,RectF(left,trackTop,left+320f,trackBottom),
+                0xff9cffff.toInt(),0xff008eea.toInt(),24f)
+            canvas.restoreToCount(saved)
+            if(isAttachedToWindow)postInvalidateDelayed(60L)
         }
-        outlinedText(canvas, if (preparationFinished) "Ready!" else "Loading...",
-            470f, 1529f, 61f)
+        // Thin gloss across the track is a decorative reflection, not
+        // a second static loading percentage indicator.
+        fill(canvas,RectF(184f,1355f,762f,1362f),
+            0x55ffffff,5f)
+        outlinedText(canvas,if(preparationFinished)"Ready!" else "Loading...",
+            FlightLoadingLayout.captionCenterX,
+            FlightLoadingLayout.captionBaselineY,57f)
         canvas.restoreToCount(checkpoint)
     }
 
