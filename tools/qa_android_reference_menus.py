@@ -48,7 +48,8 @@ def main():
     home()
     print("PASS: Shop shows persisted earned coin balance and owned perks",flush=True)
 
-    tap(node_with("OTVORI KARTU RAZINA"))
+    tap(node_with("OTVORI OPCIJE IGRE"))
+    tap(node_with("LEVEL MAP"))
     node_with("LEVEL MAP",clickable=False)
     node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
     locked=exists("LOCKED LEVEL 2",enabled=False)

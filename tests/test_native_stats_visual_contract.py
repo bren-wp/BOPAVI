@@ -49,5 +49,7 @@ assert "★  Najbolji rezultat" not in records
 
 assert "isClickable=true" in home
 assert "isFocusable=true" in home
-assert "GradientDrawable().apply{setColor(Color.TRANSPARENT);cornerRadius=d(12).toFloat()}" in home
+assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti")' in options
+assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja")' in options
+assert "minHeight=d(52)" in options
 print("PASS: native score/food/record/pause icons, semantic stats and bounded tappable legal controls")

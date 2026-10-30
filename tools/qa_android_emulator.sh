@@ -166,6 +166,31 @@ open_legal_dialog(){
   legal_owner_text="$3"
   legal_required_text="$4"
   legal_opened=0
+  # The illustrated Home contains no legal footer; open the real Settings
+  # route first and scroll its native settings page to the legal rows.
+  dump_ui
+  python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+options=[n for n in nodes if n.get("clickable")=="true"
+         and n.get("content-desc")=="Otvori opcije igre"]
+if len(options)!=1:raise SystemExit("FAIL: Home Settings missing for offline legal check")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",options[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: invalid native Settings tap bounds")
+x,y,z,w=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x+z)//2),str((y+w)//2)],check=True)
+PY
+  sleep 1
+  python3 - <<'PY'
+import re,subprocess
+size=subprocess.check_output(["adb","shell","wm","size"],text=True)
+m=re.findall(r"(\d+)x(\d+)",size)
+if not m:raise SystemExit("FAIL: emulator dimensions missing for Settings scroll")
+w,h=map(int,m[-1])
+subprocess.run(["adb","shell","input","swipe",str(w//2),str(h*4//5),
+                str(w//2),str(h//4),"430"],check=True)
+PY
+  sleep 1
   for legal_attempt in 1 2 3; do
     dump_ui
     if ! python3 - "$legal_link" <<'PY'
@@ -173,14 +198,33 @@ import re,subprocess,sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 links=[n for n in nodes if n.get("clickable")=="true"
        and n.get("content-desc","")==sys.argv[1]]
-if len(links)!=1:raise SystemExit("FAIL: expected native Home legal link missing")
+if len(links)!=1:
+    # The Settings dialog scrolls; its legal footer may be below the viewport.
+    # Keep this a genuine accessibility gate, not an unconditional success.
+    import time
+    for _ in range(5):
+        size=subprocess.check_output(["adb","shell","wm","size"],text=True)
+        dims=re.findall(r"(\d+)x(\d+)",size)
+        if not dims:raise SystemExit("FAIL: missing Settings viewport dimensions")
+        width,height=map(int,dims[-1])
+        subprocess.run(["adb","shell","input","swipe",str(width//2),str(height*76//100),
+                        str(width//2),str(height*24//100),"400"],check=True)
+        time.sleep(.5)
+        subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-legal-search.xml"],
+                       check=True,capture_output=True,timeout=40)
+        output=subprocess.check_output(["adb","exec-out","cat","/sdcard/bopavi-legal-search.xml"])
+        nodes=list(ET.fromstring(output).iter("node"))
+        links=[n for n in nodes if n.get("clickable")=="true"
+               and n.get("content-desc","")==sys.argv[1]]
+        if len(links)==1:break
+if len(links)!=1:raise SystemExit("FAIL: Settings legal control missing after scrolling")
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",links[0].get("bounds",""))
 if not m:raise SystemExit("FAIL: native legal tap bounds missing")
 a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
     then
-      echo 'FAIL: legal link not present on actual Home' >&2
+      echo 'FAIL: Settings legal control missing' >&2
       return 1
     fi
     sleep 2
@@ -214,6 +258,21 @@ PY
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
+  # Close the underlying Settings dialog using its real DONE action.
+  # Android Back can be consumed by the system and strand an open modal.
+  dump_ui
+  python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+done=[n for n in nodes if n.get("clickable")=="true"
+      and n.get("text","").upper()=="GOTOVO"]
+if len(done)!=1:raise SystemExit("FAIL: Settings DONE action missing after legal window")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Settings DONE bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+  sleep 1
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
 open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO" "OBRIŠI PODATKE"
@@ -331,7 +390,7 @@ def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
 if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
-for menu in ("SKINS","SHOP","LEVELS"):
+for menu in ("SKINS","SHOP"):
     found=[n for n in click if n.get("text","").strip().upper()==menu]
     if len(found)!=1:raise SystemExit("FAIL: expected one real Home menu: "+menu)
 for bad in ("PROFILE","PROFIL","CLOUD SAVE","RESTORE PURCHASES"):
@@ -341,7 +400,7 @@ if not m:raise SystemExit("FAIL: PLAY bounds unavailable")
 a,b,c,d=map(int,m.groups())
 if c-a<130 or d-b<40:raise SystemExit("FAIL: PLAY hit target too small")
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: accessible Home Play plus native Skins Shop Level Map",flush=True)
+print("PASS: accessible Home Play, Skins and Shop with separate Settings route",flush=True)
 PY
 # A successful tap on the Home PLAY button is not proof that the Flight view
 # has appeared. Wait for the *actual native GameView accessibility state*.
@@ -563,23 +622,15 @@ play=[n for n in nodes if n.get("clickable")=="true"
       and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
               for x in ("PLAY","IGRAJ"))]
 assert len(play)==1,(label,"missing or duplicate accessible PLAY")
-privacy=[n for n in nodes if n.get("clickable")=="true" and
-         "POLITIKA PRIVATNOSTI" in (n.get("text","")+" "+n.get("content-desc","")).upper()]
-assert len(privacy)==1,(label,"missing accessible privacy link")
-pm=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",privacy[0].get("bounds",""))
-assert pm,(label,"missing privacy bounds")
-pl,pt,pr,pb=map(int,pm.groups())
-assert 0<=pl<pr<=width and 0<=pt<pb<=height,(label,"privacy button clipped")
-assert pb-pt>=48*int(density)/160,(label,"privacy button below 48dp")
-# The source now preserves real native dimensions on every viewport.
-# Inspect ALL reachable Home actions, not only Play and privacy.
+# On reference Home the legal documents are in Settings; test actual Home
+# touch targets rather than removed pilot cards / old legal footer.
 for title,needle in (
-    ("Terms","UVJETI KORIŠTENJA"),
-    ("Options","OTVORI OPCIJE IGRE"),
+    ("Settings","OTVORI OPCIJE IGRE"),
     ("Records","POGLEDAJ SVOJE REKORDE"),
-    ("Bopi","BOPI. "),
-    ("Sova","SOVA. "),
-    ("Lisac","LISAC. "),
+    ("Skins","OTVORI IZBOR LIKOVA"),
+    ("Shop","OTVORI TRGOVINU NADOGRADNJI"),
+    ("Achievements","POGLEDAJ SVOJA POSTIGNUĆA"),
+    ("Sound","OTVORI ZVUČNE POSTAVKE"),
 ):
     found=[n for n in nodes if n.get("clickable")=="true" and
            needle in (n.get("text","")+" "+n.get("content-desc","")).upper()]

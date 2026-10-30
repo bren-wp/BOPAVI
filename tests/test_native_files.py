@@ -18,10 +18,10 @@ def section(source,start,end=None):
 boot=section(a,"    override fun onCreate(state: Bundle?) {","    private fun showNativeView(root: View) {")
 assert "showHome()" in boot and "showSplash()" not in a
 home=section(a,"    private fun showHome(){","    private fun showPremiumPause(")
-assert "IGRAJ" in home and "FitViewportColumn(this)" in home
-assert "Politika privatnosti" in home and "showPrivacyNotice()" in home
-assert "Uvjeti korištenja" in home and "showTermsNotice()" in home
-assert 'legalLink("Politika privatnosti","Pročitaj politiku privatnosti")' in home
+assert 'action(content,"▶  PLAY"){startGame()}' in home and "FitViewportColumn(this)" in home
+assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPrivacyNotice()}' in a
+assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}' in a
+assert 'shortcut("ACHIEVEMENTS"' in home and 'shortcut("LEADERBOARD"' in home
 assert "portraitDrawableIds[selectedPilotChoice]" in home
 assert "pilotSpriteIds[selectedPilotChoice]" in a
 assert all(x in a for x in ("private fun showSkins()","private fun showShop()","private fun showLevels()"))

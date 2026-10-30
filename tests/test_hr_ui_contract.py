@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Live Android screens use Croatian. No destructive migration of legacy saves."""
+"""Croatian gameplay/legal text and reference English Home labels; keep saves."""
 from pathlib import Path
 r=Path(__file__).resolve().parents[1]/"android/app/src/main/java/com/brendigo/bopavi"
 a=(r/"MainActivity.kt").read_text()
@@ -7,9 +7,9 @@ v=(r/"GameView.kt").read_text()
 s=(r/"ProgressStore.kt").read_text()
 l=(r/"LevelEngine.kt").read_text()
 for forbidden in ("GameLanguages", "hudVocabulary", "languageCode=", "Tap to fly with",
-                  "▶  PLAY", "▶  RETRY", "BEST SCORE:"):
+                  "▶  RETRY", "BEST SCORE:"):
     assert forbidden not in a+v+l, forbidden
-for term in ('"▶  IGRAJ"', '"REZULTAT"', '"HRANA"', "PONOVO",
+for term in ('"▶  PLAY"', '"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
              'contentDescription=caption'):
     assert term in a,term

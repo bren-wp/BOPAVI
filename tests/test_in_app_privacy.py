@@ -38,13 +38,12 @@ for term in ('private fun showPrivacyNotice()', 'private fun showTermsNotice()',
              'android.widget.ScrollView(this)','assets.open("legal/$file")',
              'movementMethod=android.text.method.LinkMovementMethod.getInstance()',
              "Pročitaj politiku privatnosti","Pročitaj uvjete korištenja",
-             "paintFlags=paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG",
-             "LinearLayout.LayoutParams(0,d(48),1f)"):
+             "legalButton(", "LinearLayout.LayoutParams(-1,d(56))"):
     assert term in main,term
-assert 'legalLink("Politika privatnosti"' in main
-assert 'legalLink("Uvjeti korištenja"' in main
-assert 'setOnClickListener{sound.effect("click");click()}' in main
-assert 'GradientDrawable().apply{setColor(Color.TRANSPARENT);cornerRadius=d(12).toFloat()}' in main
+assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti")' in main
+assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja")' in main
+assert 'setOnClickListener{sound.effect("click");onClick()}' in main
+assert 'background=RippleDrawable(ColorStateList.valueOf(0x44ffffff)' in main
 assert "compactDisplay=resources.configuration.screenHeightDp<770" in main
 assert "tinyDisplay=resources.configuration.screenHeightDp<610" in main
 assert "github.com" not in main.split("private fun showLegalNotice(",1)[1].split("private fun showHome()",1)[0]
@@ -52,6 +51,6 @@ assert "android.permission.INTERNET" not in manifest
 assert "targetSdk = 36" in gradle
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "Croatian privacy dialog accessible, offline and dismissible" in qa
-assert "privacy button below 48dp" in qa
+assert "Settings legal control missing" in qa
 assert "native terms dialog accessible" in qa
 print("PASS: exact owner legal documents, 23 sections, offline native presentation and safe links")

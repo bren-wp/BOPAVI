@@ -15,8 +15,8 @@ for route in ("fun skins(","fun shop(","fun levels("):
 for route in ("private fun showSkins()","private fun showShop()",
               "private fun showLevels()","private fun startLevel("):
     assert route in app,route
-for action in ('Pair("SKINS",{showSkins()})','Pair("SHOP",{showShop()})',
-               'Pair("LEVELS",{showLevels()})'):
+for action in ('feature("SKINS"','feature("SHOP"',
+               'private fun showLevels()'):
     assert action in app,action
 assert "progress.chooseArcadePilot(index)" in app
 assert "progress.buyPerk(index)" in app
@@ -37,5 +37,5 @@ for fake in ("1,250", "85 Gems", "Cloud Save", "Restore Purchases",
     assert fake not in menus, fake
 assert "gamePauseButton" not in app
 assert "python3 tools/qa_android_reference_menus.py" in (root/"tools/qa_android_emulator.sh").read_text()
-assert "versionCode = 167" in (root/"android/app/build.gradle.kts").read_text()
+assert "versionCode = 168" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
