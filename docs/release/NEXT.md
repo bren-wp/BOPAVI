@@ -161,3 +161,9 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Adapted Android visual/functional smoke to the actual full-page Settings: verified real buttons for the three difficulty options, selecting Relaxed and restoring Standard, and used system Back instead of the obsolete dialog GOTOVO action. The same CI still opens and reads both bundled legal documents and verifies return to Home. The footer SOUND quick mixer continues unchanged for fast audio control.
 
 - CI art stage passed; fixed a Settings source-contract false positive where a comment explaining the absence of Cloud Save/Restore Purchases was mistaken for a fake control. The test now checks only actual rendered rows and actions. Removed 5dp vertical padding on reference rows so 98px-high native controls can retain a full 48dp hit area at 320dpi without clipped switches/seekbars.
+
+### Sequential screen 11 — Achievements
+
+- Replaced the small four-number modal with a full native achievement gallery, eight accessible progress cards and real Bopi/sky art. Sixteen? No: **eight** goals, arranged in two columns and four rows on the 941×1672 reference camera. Compact displays use scroll rather than clipping controls.
+- The eight targets are snapshots of existing offline save counters: finite wins, endless runs, flaps, food best, obstacles best, best score, Sky Meadows collectibles and failed runs. Counters are never fabricated or silently converted into a new wallet, and changing/achieving a goal does not grant coins or persist a separate claim.
+- Added pure JVM threshold tests, overflow-safe progress percentage and source audit, plus real 941×1672 emulator screenshot and eight-card accessibility coverage. No dedicated owner Achievements reference is available, so **pixel-perfect 1:1 cannot be certified**; the next screen is Leaderboard/Records.

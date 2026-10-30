@@ -673,31 +673,17 @@ class MainActivity : Activity() {
         showNativeView(view)
     }
 
-    /** Reference 941x1672: real counters / logo / hero / CTA / menus / shortcuts. */
-    /** Earned local achievements; nothing fabricated or synchronized. */
+    /** Read-only achievements: all eight values are from saved local runs. */
     private fun showLocalAchievements(){
-        val panel=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(18),d(10),d(18),d(12))
-            background=gradient(0xff154a83.toInt(),0xff061c3b.toInt(),20)
-        }
-        val rows=listOf(
-            "Completed flights: "+progress.wins(),
-            "Total flights: "+progress.totalRuns(),
-            "Wing flaps: "+progress.totalFlaps(),
-            "Best obstacles: "+progress.endlessBest()
-        )
-        for(row in rows)panel.addView(TextView(this).apply{
-            text=row
-            textSize=16f
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            setPadding(d(7),d(10),d(7),d(10))
-        },LinearLayout.LayoutParams(-1,-2))
-        android.app.AlertDialog.Builder(this)
-            .setCustomTitle(premiumDialogHeader("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR))
-            .setView(panel).setPositiveButton("CLOSE",null)
-            .show().also {polishGameDialog(it)}
+        showPauseAfterBackground=false
+        sound.stop()
+        selectedScreen="achievements"
+        val snapshot=AchievementSnapshot(
+            wins=progress.wins(),runs=progress.totalRuns(),
+            flaps=progress.totalFlaps(),food=progress.bestFood(),
+            obstacles=progress.endlessBest(),score=progress.bestPoints(),
+            meadows=progress.collectibles(0),deaths=progress.deaths())
+        showNativeView(AchievementsScreen(this).create(snapshot,onBack={showHome()}))
     }
 
     private fun showHome(){

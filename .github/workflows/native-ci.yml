@@ -69,6 +69,7 @@ jobs:
       - run: python tests/test_premium_cta_accessibility.py
       - run: python tests/test_quick_options.py
       - run: python tests/test_reference_settings_contract.py
+      - run: python tests/test_achievements_screen_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_legal_dialog_capture.py

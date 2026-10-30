@@ -31,6 +31,29 @@ def main():
     pid=adb("shell","pidof",APP)
     assert pid,"FAIL: app failed to start for reference menus"
 
+    # An authentic reference-sized screenshot from eight native goal cards.
+    resized=False
+    try:
+        adb("shell","wm","size","941x1672")
+        resized=True
+        adb("shell","wm","density","320")
+        tap(node_with("POGLEDAJ SVOJA POSTIGNUĆA"))
+        node_with("ACHIEVEMENTS",clickable=False)
+        for name in ("FIRST VICTORY","SKY EXPLORER","WING MASTER",
+                     "BERRY HUNTER","GATE RUNNER","HIGH FLYER",
+                     "MEADOW FINDER","KEEP FLYING"):
+            assert exists(name),"FAIL: missing true goal "+name
+        width,height=capture_png("android-achievements-reference-size")
+        assert (width,height)==(941,1672),"FAIL: incorrect Achievements PNG"
+        tap(node_with("HOME"))
+    finally:
+        if resized:
+            adb("shell","wm","size","reset")
+            adb("shell","wm","density","reset")
+    # Restart only the UI process to restore the emulator's standard grid.
+    adb("shell","am","force-stop",APP)
+    adb("shell","am","start","-W","-n",APP+"/.MainActivity")
+
     tap(node_with("OTVORI IZBOR LIKOVA"))
     node_with("SKINS",clickable=False)
     # Real 941x1672 Android screenshot BEFORE and AFTER changing selected pilot.
