@@ -31,3 +31,10 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - A 190×54 coordinate-space glass callout maps to the reference's ~373×113 image-space bounds (max theoretical anchor deviation under six source pixels). English Android locale displays the one-line "Tap to fly" plus a locally drawn hand icon; Croatian retains its existing instructions and secondary control hint.
 - Corrected a stale source-level regression test which demanded the earlier red enamel color and 1.2px stroke, while keeping its explicit check for translucent empty hearts.
 - Pixel identity still requires full real-device screenshots and source artwork comparison. No claim of 1:1 completion, no release, no new persistence keys or physics changes.
+
+### Honest pixel-diff test tooling
+
+- Added `tools/compare_flight_reference.py`, producing whole-image and five region metrics (HUD, Bopi, obstacles, tutorial, bottom): RGB MAE, RMSE, changed pixel fractions and exact equality. Optional JSON/diff files remain internal QA artifacts.
+- Source screenshot resolution is 941×1672, while the last Android emulator capture was 1080×2400. The tool correctly **rejects** direct comparison across mismatched sizes instead of stretching the image and claiming pixel identity. A matched Android screenshot with the same animation state and insets must be obtained before collecting 1:1 metrics.
+- Added `tests/test_flight_reference_diff.py` to the CI source audit; local synthetic-image checks passed, including exact-match, single-pixel mutation and size rejection. Production screenshots must still be validated visually.
+- Next after the flight artwork and all associated checks genuinely pass: Results / Game Over, followed by Level Complete. The supplied references contain both, so neither is to be skipped.
