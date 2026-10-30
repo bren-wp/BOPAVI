@@ -45,7 +45,7 @@ assert "val travel=scrollSpeed*dt" in simulation
 assert "currentScrollSpeed" in simulation
 assert all(symbol in store for symbol in ("endless_food_best","bestFood()","recordRun"))
 assert "progress.bestFood()" in a and "NAJVIŠE HRANE" in a
-assert all(symbol in view for symbol in ("cachedLives","lastAccessibilityLives","drawHudHeart("))
+assert all(symbol in view for symbol in ("hudPortraitRect","lastAccessibilityLives","drawHudHeart("))
 assert all(symbol not in view for symbol in ("cachedScore","cachedFood","lastAccessibilityScore","lastAccessibilityFood"))
 assert "fun score(): Int" in simulation and "foodCollected" in simulation
 assert "gamePauseButton" not in a
