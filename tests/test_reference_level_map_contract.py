@@ -31,7 +31,9 @@ assert "1L..20L" in store  # 20 stages x 3 genuine rating stars
 assert "lockedNodesCannotLaunchAtFreshInstall" in unit
 assert "realLevelNodesNeverExceedTheMillionLevelLimit" in unit
 qa=(repo/"tools/qa_android_reference_menus.py").read_text()
-assert 'android-level-map-reference-size.png' in qa
+# The binary screenshot helper appends .png and saves it under qa/screenshots;
+# the caller intentionally supplies only the basename.
+assert 'width,height=capture_png("android-level-map-reference-size")' in qa
 assert 'width,height=capture_png("android-level-map-reference-size")' in qa
 assert 'assert (width,height)==(941,1672)' in qa
 assert 'screenshot=adb("exec-out","screencap","-p")' not in qa
