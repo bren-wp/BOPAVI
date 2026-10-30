@@ -66,7 +66,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         BitmapFactory.Options().apply { inScaled=false })
     // A reused close-up source crop is rendered only INSIDE the round avatar.
     // This does not alter the real flying bird, its hitbox or wing motion.
-    private val hudFaceSource=FlightAvatarCrop.source
+    private val hudFaceSource=Rect(
+        FlightAvatarCrop.source.left,FlightAvatarCrop.source.top,
+        FlightAvatarCrop.source.right,FlightAvatarCrop.source.bottom)
     // Reference pilot is only enabled after build-time manifest and checksum
     // validation. This optional art never alters the same 18px body collider.
     private val referenceBopi0=selectedSkin==0 &&

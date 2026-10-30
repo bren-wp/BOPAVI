@@ -10,7 +10,7 @@ class FlightAvatarCropTest {
         val crop=FlightAvatarCrop.source
         assertTrue(crop.left>=0 && crop.top>=0)
         assertTrue(crop.right<=512 && crop.bottom<=512)
-        assertEquals(crop.width(),crop.height())
+        assertEquals(crop.width,crop.height)
         assertTrue(crop.width()>=300)
     }
 }
