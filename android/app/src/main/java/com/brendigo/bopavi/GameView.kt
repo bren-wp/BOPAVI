@@ -818,19 +818,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** Real finite coins (gate.coin), drawn around the existing pickup centre.
      * Every shade belongs to the collectible, never to the collision shaft. */
     private fun drawGoldenCoin(c:Canvas,x:Float,y:Float) {
-        oval(c,x-16f,y-12f,x+16f,y+18f,0x66082040)
-        oval(c,x-15f,y-16f,x+15f,y+14f,0xffaa4d09.toInt())
-        oval(c,x-12f,y-14f,x+12f,y+10f,0xffffb318.toInt())
-        oval(c,x-10f,y-13f,x+10f,y+7f,0xffffe25c.toInt())
-        oval(c,x-8f,y-10f,x+8f,y+6f,0xffffc536.toInt())
-        // Crown emblem on the actual coin; not a phantom spendable gem.
+        // Three metallic bevels are inside the unchanged 23-unit pickup range.
+        // Each crown belongs to one actual uncollected gate.coin.
+        oval(c,x-17f,y-12f,x+17f,y+18f,0x66082040)
+        oval(c,x-15f,y-15f,x+15f,y+15f,0xff86410c.toInt())
+        oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())
+        oval(c,x-12f,y-12f,x+12f,y+12f,0xffffcf46.toInt())
+        oval(c,x-9f,y-10f,x+9f,y+8f,0xffffa90e.toInt())
+        fill(0xffffefa2.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
+        c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)
+        p.style=Paint.Style.FILL
         path.reset()
-        path.moveTo(x-6f,y-3f);path.lineTo(x-3f,y+2f)
-        path.lineTo(x,y-5f);path.lineTo(x+3f,y+2f)
-        path.lineTo(x+6f,y-3f);path.lineTo(x+5f,y+6f)
-        path.lineTo(x-5f,y+6f);path.close()
-        fill(0xffa95504.toInt());c.drawPath(path,p)
-        oval(c,x-10f,y-12f,x-5f,y-8f,0xccffffff.toInt())
+        path.moveTo(x-7f,y-3f);path.lineTo(x-4f,y+2f)
+        path.lineTo(x,y-6f);path.lineTo(x+4f,y+2f)
+        path.lineTo(x+7f,y-3f);path.lineTo(x+6f,y+7f)
+        path.lineTo(x-6f,y+7f);path.close()
+        fill(0xff8b460d.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x-5f,y-1f);path.lineTo(x-3f,y+2f)
+        path.lineTo(x,y-4f);path.lineTo(x+3f,y+2f)
+        path.lineTo(x+5f,y-1f);path.lineTo(x+4f,y+5f)
+        path.lineTo(x-4f,y+5f);path.close()
+        fill(0xffffe784.toInt());c.drawPath(path,p)
+        oval(c,x-11f,y-12f,x-6f,y-8f,0xccffffff.toInt())
     }
     /** The existing gate.star is represented as a sapphire crystal, matching
      * the reference. Collision/magnet semantics remain 'star' internally. */
@@ -852,6 +862,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.moveTo(x,y-14f);path.lineTo(x+5f,y-3f)
         path.lineTo(x,y+11f);path.lineTo(x-5f,y-3f);path.close()
         fill(0xccffffff.toInt());c.drawPath(path,p)
+        // Two facet seams and a cold center glint make the original sapphire
+        // legible against the castle islands without moving its pickup centre.
+        fill(0xff0765ae.toInt());p.style=Paint.Style.STROKE
+        p.strokeWidth=1.6f
+        c.drawLine(x,y-18f,x,y+16f,p)
+        c.drawLine(x-12f,y,x+12f,y,p)
+        p.style=Paint.Style.FILL
+        oval(c,x-2f,y-15f,x+2f,y-11f,0xeeffffff.toInt())
     }
     /** The icon sits at the real finite pickup power coordinate. A shield or
      * magnet is only rendered while the corresponding item is uncollected. */
@@ -963,11 +981,20 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.STROKE
         p.strokeWidth=1.8f
         c.drawLine(anchorX,anchorY,cx,cy,p)
+        // Links decorate the actual swinging rope, never add a hazard.
+        for(link in 1..3){
+            val f=link/4f
+            val lx=anchorX+(cx-anchorX)*f
+            val ly=anchorY+(cy-anchorY)*f
+            fill(0xffffce77.toInt());p.strokeWidth=1.3f
+            c.drawCircle(lx,ly,2.8f,p)
+        }
         p.style=Paint.Style.FILL
         p.strokeCap=Paint.Cap.BUTT
-        // The dark rim itself is physical, not just invisible spike tips.
-        oval(c,cx-18f,cy-18f,cx+18f,cy+18f,0xff15213f.toInt())
-        oval(c,cx-15f,cy-15f,cx+15f,cy+15f,0xff58627e.toInt())
+        // The mace's visible 18px rim equals its collision radius.
+        val r=SkyMaceHazard.radius
+        oval(c,cx-r,cy-r,cx+r,cy+r,0xff15213f.toInt())
+        oval(c,cx-r+3f,cy-r+3f,cx+r-3f,cy+r-3f,0xff58627e.toInt())
         for(i in 0..7) {
             val angle=i*0.78539816f+game.time*.45f
             val dx=cos(angle)
@@ -976,14 +1003,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             val py=dx
             path.reset()
             path.moveTo(cx+dx*13f+px*5f,cy+dy*13f+py*5f)
-            path.lineTo(cx+dx*18f,cy+dy*18f)
+            path.lineTo(cx+dx*r,cy+dy*r)
             path.lineTo(cx+dx*13f-px*5f,cy+dy*13f-py*5f)
             path.close()
             fill(0xffffca58.toInt())
             c.drawPath(path,p)
         }
-        oval(c,cx-8f,cy-9f,cx+6f,cy+5f,0xff38425f.toInt())
-        oval(c,cx-9f,cy-11f,cx-4f,cy-7f,0xffc7e6ff.toInt())
+        oval(c,cx-10f,cy-10f,cx+9f,cy+9f,0xff915f34.toInt())
+        oval(c,cx-7f,cy-8f,cx+7f,cy+7f,0xffc78a3a.toInt())
+        oval(c,cx-5f,cy-6f,cx+5f,cy+5f,0xff31384f.toInt())
+        oval(c,cx-6f,cy-8f,cx-2f,cy-4f,0xffd8eaff.toInt())
     }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
@@ -1172,6 +1201,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Flight ribbons keep the sprite visually connected to the wind and world.
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
+            // A broader sky-blue streak follows the actual Bopi position.
+            // Only decorative Canvas paths; accessibility/colliders unchanged.
+            fill(0x77dffcff)
+            p.style=Paint.Style.STROKE;p.strokeWidth=4.2f
+            p.strokeCap=Paint.Cap.ROUND
+            path.reset()
+            path.moveTo(game.birdX-51f,game.y+25f)
+            path.cubicTo(game.birdX-88f,game.y+15f,
+                game.birdX-125f,game.y+3f,game.birdX-150f,game.y-17f)
+            c.drawPath(path,p)
             for(i in 0 until 5) {
                 val x=game.birdX-19f-i*16f
                 val y=game.y+(i%3-1)*13f+sin(game.time*5f+i)*3f
@@ -1339,6 +1378,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
         fill(if(active)0xffff4f51.toInt() else 0x552c4b73)
         c.drawPath(path,p)
+        if(active)oval(c,x-5f,y-2f,x+5f,y+5f,0x55ffaf98)
         // Deep navy contour and a short enamel reflection match the reference;
         // rendering stays allocation-free and inactive hearts remain distinct.
         fill(if(active)0xff082e60.toInt() else 0xffa0b8d0.toInt())
