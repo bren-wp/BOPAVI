@@ -15,7 +15,7 @@ other=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightChallengePolicy
 
 for needle in (
     'pilotNames=arrayOf("Bopi","Sova","Lisac")',
-    'PilotAbility.fromChoice(selectedPilotChoice)',
+    'PilotAbility.fromChoice(chosenPilot)',
     'progress.chooseArcadePilot(index)',
     'portraitDrawableIds[selectedPilotChoice]',
     'game.game.pilotAbility.shortTitle',
