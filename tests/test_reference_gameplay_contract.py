@@ -45,6 +45,25 @@ for forbidden in ('game.score()', 'game.coins', 'cachedLivesLabel',
     assert forbidden not in hud,forbidden
 assert 'val lives=FlightHudBox(18f,14f,181f,65f)' in layout
 assert 'val heartCenters=floatArrayOf(83f,119f,155f)' in layout
+# The owner's 00_32_52-2 Gameplay reference has gold crown coins,
+# faceted sapphires, a linked bronze mace and bright wind behind the bird.
+# These layers MUST follow real pickups and the physical 18px hazard radius.
+assert 'oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())' in game
+assert 'c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)' in game
+assert 'path.moveTo(x-7f,y-3f);path.lineTo(x-4f,y+2f)' in game
+assert 'c.drawLine(x,y-18f,x,y+16f,p)' in game
+assert 'c.drawLine(x-12f,y,x+12f,y,p)' in game
+assert 'for(link in 1..3)' in game
+assert 'val r=SkyMaceHazard.radius' in game
+assert 'path.lineTo(cx+dx*r,cy+dy*r)' in game
+assert 'c.drawCircle(lx,ly,2.8f,p)' in game
+assert 'path.cubicTo(game.birdX-88f,game.y+15f,' in game
+assert 'if(active)oval(c,x-5f,y-2f,x+5f,y+5f,0x55ffaf98)' in game
+assert 'SkyMaceHazard.sweptHit(' in simulation
+assert 'if(game.coinVisible(index,incoming))drawGoldenCoin(c,mid,cy)' in game
+assert 'if(game.crystalVisible(index,incoming))drawBlueCrystal(c,mid+35f,cy-25f)' in game
+assert 'if(!reducedMotion && game.active && !game.finished)' in game
+assert 'drawHud(canvas)' in game
 assert 'val radius = 18f' in simulation
 assert 'if(!game.active && !game.finished) {' in game
 assert 'drawFlightReadyTutorial(canvas)' in game
