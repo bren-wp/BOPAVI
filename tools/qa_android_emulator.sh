@@ -357,15 +357,16 @@ import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 alltext=" ".join(label(n) for n in nodes)
-for expected in ("MOJI REKORDI","NAJBOLJI REZULTAT","ZATVORI"):
-    if expected not in alltext:raise SystemExit("FAIL: native records dialog missing "+expected)
-close=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="ZATVORI"]
-if len(close)!=1:raise SystemExit("FAIL: records dialog close missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: records dialog close bounds missing")
+for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE","TOP 10 LOCAL SCORES","HOME"):
+    if expected not in alltext:raise SystemExit("FAIL: native offline leaderboard missing "+expected)
+home=[n for n in nodes if n.get("clickable")=="true"
+      and n.get("content-desc","").upper()=="HOME"]
+if len(home)!=1:raise SystemExit("FAIL: Leaderboard Home action missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",home[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Leaderboard Home hitbox invalid")
 a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: local records visible and dismissible",flush=True)
+print("PASS: local records screen visible and returns Home",flush=True)
 PY
 sleep 1
 dump_ui
