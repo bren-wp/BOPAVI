@@ -49,5 +49,5 @@ assert '"bopavi_qa_capture_first_flap", "true"' in rotate
 assert "ŽIVOTI:" in rotate and "flight_before" in rotate
 assert "active = active_flight()" in rotate and "assert_flight_visible" in rotate
 assert "android-flight-portrait-active" in rotate
-assert "versionCode = 169" in build and 'versionName = "1.0.39"' in build
+assert "versionCode = 170" in build and 'versionName = "1.0.40"' in build
 print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")
