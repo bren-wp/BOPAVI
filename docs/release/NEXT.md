@@ -107,3 +107,10 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Prevented repeated Back/focus transitions from stacking Pause windows; a dismissed dialog releases its own reference. Outside touch cannot accidentally resume, while Back/Cancel can safely resume the current live run.
 - Added a real Android screenshot route `android-pause-reference-size.png` at 941×1672, requiring Home → actual first flap → system Back → exactly one Pause dialog → Resume. PNG dimensions are checked in the binary screenshot helper, not invented from text.
 - There is no directly supplied Pause reference, so **a 1:1 visual match cannot be proven**. Next in sequence: Game Over/Results (the owner's first supplied screenshot).
+
+### Sequential screen pass 6 — Game Over / Results (owner reference 941×1672)
+
+- Added an independent loss-only, fully native `GameOverScreen` using the shared 941×1672 reference camera. The original win/Level Complete UI remains untouched for its later dedicated pass. Logo lettering now has separate white GAME and coral OVER layers, real Bopi portrait, painted green floating rock podium, three cream full-width stats rows, a gold RETRY and blue HOME with 48dp minimum touch targets.
+- All displayed data come from the finished `GameSimulation`, via pure JVM-tested `GameOverStats`: Distance in engine units (no false meter conversion), Food Collected and Score in endless mode; Distance, Coins Collected and Stars Collected in finite mode. There is **no** real gem currency in this build, so we do not invent a Gems Collected count from the mock reference.
+- Loss values are recorded through the existing `progress.recordRun(g)` exactly once before routing; Retry starts the same finite world/level or a new endless run, Home returns to the actual native menu. Results remain accessible and work offline, avoiding bitmap mockups.
+- Current painterly Bopi art does not contain the exact sad sitting pose from the screenshot, and backgrounds are simpler. **Do not assert pixel-perfect 1:1** without a directly comparable Android screenshot.

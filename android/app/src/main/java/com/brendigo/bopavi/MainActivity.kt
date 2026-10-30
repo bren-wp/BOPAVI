@@ -1114,6 +1114,20 @@ class MainActivity : Activity() {
         gameView?.paused=true;gameView=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
+        if(!g.won){
+            val stats=GameOverStats.fromRun(g.distance,g.coins,g.stars,
+                g.foodCollected,g.score(),g.endless)
+            val result=GameOverScreen(this).create(
+                resultBackdrop,portraitDrawableIds[selectedPilotChoice],stats,
+                onRetry={
+                    val played=activeStage
+                    if(played!=null)startLevel(played.first,played.second)
+                    else startGame()
+                },
+                onHome={showHome()})
+            showNativeView(result)
+            return
+        }
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
         val backdrop=ImageView(this).apply{
             setImageResource(resultBackdrop);scaleType=ImageView.ScaleType.CENTER_CROP
