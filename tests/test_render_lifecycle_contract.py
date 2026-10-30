@@ -23,8 +23,9 @@ assert 'ColorStateList.valueOf(0xffffde76.toInt())' in activity
 assert 'window.decorView.hasWindowFocus()' in activity
 assert "view.paused=true" in activity and "showPremiumPause(view)" in activity
 assert "gamePauseButton" not in activity
-for dead in ("coinVisible(","starVisible(","powerVisible("):
-    assert dead not in simulation,dead
+for reward in ("coinVisible(","crystalVisible(","powerVisible("):
+    assert reward in simulation and "game."+reward in view,reward
+assert "starVisible(" not in simulation
 # Safety invariants: no world/physics behaviour changed by render refactoring.
 for constant in ("val radius = 18f", "1f / 120f", "maxStep=85f*dt",
                  "if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext()"):
