@@ -23,7 +23,12 @@ for term in (
 ):
     assert term in shop,term
 assert 'val perkPrices=listOf(80,65,150,120,230,195)' in store
-assert 'prefs.edit().putInt("coins",coins()-perkPrices[index]).putInt("perk_$index",perkCount(index)+1).apply()' in store
+assert '@Synchronized fun buyPerk(index:Int):Boolean' in store
+assert '.putInt("coins",coins()-perkPrices[index])' in store
+assert '.putInt("perk_$index",perkCount(index)+1)' in store
+assert '.commit()' in store.split("fun buyPerk(",1)[1].split("fun previewPerks(",1)[0]
+assert '@Synchronized fun claimBonusCoins():Int' in store
+assert 'return if(persisted)awarded else 0' in store
 assert 'if(progress.buyPerk(index))' in app
 assert 'shopPurchaseTapGate.allow(index,' in app
 assert 'android.os.SystemClock.elapsedRealtime()' in app

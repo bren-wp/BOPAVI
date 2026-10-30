@@ -31,13 +31,15 @@ class ProgressStore(context: Context) {
         val claimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
         return claimableRecordCoins(bestPoints(),claimed,coins())
     }
-    fun claimBonusCoins():Int {
+    @Synchronized fun claimBonusCoins():Int {
         val awarded=bonusCoinsAvailable()
         if(awarded<=0)return 0
         val claimed=prefs.getInt("score_coins_claimed",0).coerceIn(0,100000)
-        prefs.edit().putInt("coins",coins()+awarded)
-            .putInt("score_coins_claimed",claimed+awarded).apply()
-        return awarded
+        // Complete the local wallet+claim-counter disk transaction BEFORE
+        // showing a successful claim or allowing a dependent purchase.
+        val persisted=prefs.edit().putInt("coins",coins()+awarded)
+            .putInt("score_coins_claimed",claimed+awarded).commit()
+        return if(persisted)awarded else 0
     }
     fun best(world: Int): Int = prefs.getInt("best_$world", 0)
     // IDs/owned bits are stable. Map old backup slugs to their replacement
@@ -120,10 +122,14 @@ class ProgressStore(context: Context) {
     val perkNames=listOf("Početni štit", "Početni magnet", "Dvostruki štit", "Dugi magnet", "Trostruki štit", "Super magnet")
     val perkPrices=listOf(80,65,150,120,230,195)
     fun perkCount(index:Int):Int = if(index in 0..5) prefs.getInt("perk_$index",0).coerceIn(0,99) else 0
-    fun buyPerk(index:Int):Boolean {
+    @Synchronized fun buyPerk(index:Int):Boolean {
         if(index !in 0..5 || perkCount(index)>=99 || coins()<perkPrices[index]) return false
-        prefs.edit().putInt("coins",coins()-perkPrices[index]).putInt("perk_$index",perkCount(index)+1).apply()
-        return true
+        // Wallet and owned stock are committed together. A purchase is not
+        // acknowledged to Shop until the local storage write has finished.
+        return prefs.edit()
+            .putInt("coins",coins()-perkPrices[index])
+            .putInt("perk_$index",perkCount(index)+1)
+            .commit()
     }
     /** Higher-tier purchases override standard gear; never consume both tiers. */
     fun previewPerks():Pair<Int,Float> = Pair(
