@@ -36,8 +36,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Keep only a cached lives accessibility label: no score text or
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
-    private var cachedLives = -1
-    private var cachedLivesLabel = "3/3"
+    // Reused, immutable sprite destination: no RectF per rendered frame.
+    private val hudPortraitRect=RectF(29f,23f,83f,77f)
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -1147,14 +1147,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.alpha=255
         rect(c,l+15f,t+5f,r-15f,t+7f,0x82bfefff.toInt(),2f)
     }
-    private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float,color:Int){
-        fill(color)
-        p.typeface=headerTypeface
-        p.textSize=12f
-        p.textAlign=Paint.Align.RIGHT
-        c.drawText(value,right,baseline,p)
-        p.textAlign=Paint.Align.LEFT
-    }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
@@ -1174,17 +1166,32 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Minimal native HUD: lives only. Scores, berries and abilities remain
         // in GameSimulation for authentic results and saved history, never in flight.
         val lives=game.lives.coerceIn(0,game.maxLives)
-        if(lives!=cachedLives) {
-            cachedLives=lives
-            cachedLivesLabel="$lives/${game.maxLives}"
-        }
         val h=FlightHudLayout
         hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
-        text(c,"ŽIVOTI",h.lives.left+18f,40f,15f,0xfff2faff.toInt())
-        drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,40f,
-            FlightHudReadability.lifeCountColor(lives,game.maxLives))
+        // Bird portrait and three glossy hearts are the ONLY flight overlay.
+        // No hidden/painted pause button, scores or wallet. Avatar is clipped
+        // into its round bezel; the original selected pilot stays visible.
+        oval(c,h.avatarX-31f,h.avatarY-30f,h.avatarX+31f,h.avatarY+32f,0xff052a67.toInt())
+        oval(c,h.avatarX-28f,h.avatarY-28f,h.avatarX+28f,h.avatarY+28f,0xff78ddff.toInt())
+        c.save()
+        path.reset()
+        path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)
+        c.clipPath(path)
+        birdBitmap?.let {
+            fill(Color.WHITE)
+            c.drawBitmap(it,null,hudPortraitRect,p)
+        } ?: oval(c,h.avatarX-20f,h.avatarY-19f,h.avatarX+20f,h.avatarY+22f,
+            0xff239bdf.toInt())
+        c.restore()
+        // A narrow accent conveys final-life urgency without an extra label.
+        rect(c,h.lives.left+88f,h.lives.bottom-10f,h.lives.right-12f,
+            h.lives.bottom-7f,
+            FlightHudReadability.lifeCountColor(lives,game.maxLives),2f)
         for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
+            c.save()
+            c.scale(1.38f,1.38f,h.heartCenters[i],h.heartBaseline)
             drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
+            c.restore()
         }
         if(lives!=lastAccessibilityLives) {
             lastAccessibilityLives=lives
