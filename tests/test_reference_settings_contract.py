@@ -38,6 +38,12 @@ for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
             '"haptic_enabled"','"less_motion"','"difficulty"'):
     assert key in store,key
 assert 'node_with("Music",clickable=False)' in qa
+assert 'node_with("Glazba:",clickable=False)' in qa
+assert 'node_with("Pročitaj politiku privatnosti")' in qa
+assert 'node_with("Pročitaj uvjete korištenja")' in qa
+assert 'contentDescription="Pročitaj politiku privatnosti"' in settings
+assert 'contentDescription="Pročitaj uvjete korištenja"' in settings
+assert '"Selected " else "Choose "' in settings
 assert 'capture_png("android-settings-reference-size")' in qa
 assert "Cloud Save" not in settings and "Restore Purchases" not in settings
 assert "http://" not in settings and "https://" not in settings

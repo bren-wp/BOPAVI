@@ -137,7 +137,10 @@ internal class SettingsScreen(private val host:Activity,
                 addView(button(progress.difficultyNames[index],
                     selected=index==progress.difficulty()){
                     if(index!=progress.difficulty())onChange(index)
-                },LinearLayout.LayoutParams(0,dp(54),1f).apply{
+                }.apply{
+                    contentDescription=(if(index==progress.difficulty())
+                        "Selected " else "Choose ")+progress.difficultyNames[index]
+                },LinearLayout.LayoutParams(0,dp(48),1f).apply{
                     setMargins(dp(2),0,dp(2),0)
                 })
             }
@@ -166,9 +169,13 @@ internal class SettingsScreen(private val host:Activity,
             line("Difficulty",BopaviUiIconDrawable.Kind.STAR,
                 difficulty(onDifficulty)),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
-                button("OPEN",click=onPrivacy)),
+                button("OPEN",click=onPrivacy).apply{
+                    contentDescription="Pročitaj politiku privatnosti"
+                }),
             line("Terms of Service",BopaviUiIconDrawable.Kind.RECORDS,
-                button("OPEN",click=onTerms))
+                button("OPEN",click=onTerms).apply{
+                    contentDescription="Pročitaj uvjete korištenja"
+                })
         )
         val root=FrameLayout(host).apply{setBackgroundColor(0xff248fdf.toInt())}
         root.addView(ImageView(host).apply{

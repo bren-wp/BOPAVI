@@ -85,6 +85,27 @@ def main():
     print("PASS: Shop shows persisted earned coin balance and owned perks",flush=True)
 
     tap(node_with("OTVORI OPCIJE IGRE"))
+    node_with("SETTINGS",clickable=False)
+    node_with("Music",clickable=False)
+    node_with("Glazba:",clickable=False)
+    node_with("Zvučni efekti:",clickable=False)
+    node_with("Pročitaj politiku privatnosti")
+    node_with("Pročitaj uvjete korištenja")
+    resized=False
+    try:
+        adb("shell","wm","size","941x1672")
+        resized=True
+        adb("shell","wm","density","320")
+        node_with("SETTINGS",clickable=False)
+        width,height=capture_png("android-settings-reference-size")
+        assert (width,height)==(941,1672),"FAIL: Settings screenshot is not 941x1672"
+        print("PASS: native Settings 941x1672",flush=True)
+    finally:
+        if resized:
+            adb("shell","wm","size","reset")
+            adb("shell","wm","density","reset")
+    home()
+    tap(node_with("OTVORI ZVUČNE POSTAVKE"))
     tap(node_with("LEVEL MAP"))
     node_with("LEVEL MAP",clickable=False)
     node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
