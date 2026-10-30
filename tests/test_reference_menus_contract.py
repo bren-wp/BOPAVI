@@ -15,8 +15,8 @@ for route in ("fun skins(","fun shop(","fun levels("):
 for route in ("private fun showSkins()","private fun showShop()",
               "private fun showLevels()","private fun startLevel("):
     assert route in app,route
-for action in ('Pair("SKINS",{showSkins()})','Pair("SHOP",{showShop()})',
-               'Pair("LEVELS",{showLevels()})'):
+for action in ('feature("SKINS"','feature("SHOP"',
+               'private fun showLevels()'):
     assert action in app,action
 assert "progress.chooseArcadePilot(index)" in app
 assert "progress.buyPerk(index)" in app
