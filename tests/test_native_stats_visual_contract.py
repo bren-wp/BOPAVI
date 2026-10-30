@@ -23,14 +23,13 @@ for kind in ("GATE","FLIGHT","WING"):
 assert "Color.alpha(paint.color), 76, 211, 137" in icons
 assert "Color.argb(requestedAlpha, 76, 211, 137)" not in icons
 
-for caption in ("Najbolji rezultat","Najviše hrane u jednom letu",
-                "Najviše prođenih prepreka","Odigrani letovi",
-                "Ukupni zamasi krilima"):
-    assert caption in records, caption
-assert "for((caption,value,kind) in rows)" in records
-assert 'contentDescription="$caption: $value"' in records
-assert 'setCompoundDrawablesRelativeWithIntrinsicBounds(' in records
-assert 'premiumDialogHeader("MOJI REKORDI",BopaviUiIconDrawable.Kind.RECORDS)' in records
+leaderboard=(src/"LeaderboardScreen.kt").read_text()
+assert 'LeaderboardScreen(this).create(summary,scores,onBack={showHome()})' in records
+assert 'progress.leaderboard().map{' in records
+for caption in ("BEST SCORE","BEST FOOD","BEST GATES","ENDLESS RUNS","WING FLAPS"):
+    assert caption in leaderboard,caption
+assert 'contentDescription=item.description' in leaderboard
+assert 'BopaviUiIconDrawable.Kind.RECORDS' in leaderboard
 assert 'premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS)' in options
 assert "Kind.PAUSE" in title
 assert 'command("▶  NASTAVI",0)' in pause

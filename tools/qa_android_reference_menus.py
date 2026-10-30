@@ -46,6 +46,13 @@ def main():
         width,height=capture_png("android-achievements-reference-size")
         assert (width,height)==(941,1672),"FAIL: incorrect Achievements PNG"
         tap(node_with("HOME"))
+        tap(node_with("POGLEDAJ SVOJE REKORDE"))
+        node_with("LEADERBOARD",clickable=False)
+        node_with("TOP 10 LOCAL SCORES",clickable=False)
+        node_with("BEST SCORE",clickable=False)
+        width,height=capture_png("android-leaderboard-reference-size")
+        assert (width,height)==(941,1672),"FAIL: actual Leaderboard PNG dimensions"
+        tap(node_with("HOME"))
     finally:
         if resized:
             adb("shell","wm","size","reset")

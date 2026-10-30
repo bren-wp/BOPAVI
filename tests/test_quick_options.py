@@ -32,9 +32,11 @@ assert 'onStopTrackingTouch(' in options and 'onProgressChanged(' in options
 assert 'perks.first,perks.second,progress.difficulty(),number,' in play
 assert 'PilotAbility.fromChoice(chosenPilot)' in play
 assert 'LevelEngine.createStream(world,number)' in play
+assert 'selectedScreen="records"' in records
 assert 'progress.totalRuns()' in records and 'progress.totalFlaps()' in records
 assert 'progress.bestPoints()' in records and 'progress.bestFood()' in records
-assert 'progress.endlessBest()' in records
+assert 'progress.endlessBest()' in records and 'progress.leaderboard()' in records
+assert 'LeaderboardScreen(this).create(summary,scores,onBack={showHome()})' in records
 assert 'fun totalRuns():Int' in store and 'fun totalFlaps():Long' in store
 for name in ('difficulty','sound_enabled','haptic_enabled','less_motion','music_volume','effects_volume','endless_runs','flaps'):
     assert '"'+name+'"' in store,name
@@ -47,7 +49,7 @@ for contract in (
     "FAIL: relaxed flight difficulty not selected",
     "FAIL: restored standard difficulty not selected",
     "FAIL: Home records action missing",
-    "PASS: local records visible and dismissible",
+    "PASS: local records screen visible and returns Home",
 ):
     assert contract in qa,contract
 

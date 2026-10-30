@@ -167,3 +167,10 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Replaced the small four-number modal with a full native achievement gallery, eight accessible progress cards and real Bopi/sky art. Sixteen? No: **eight** goals, arranged in two columns and four rows on the 941×1672 reference camera. Compact displays use scroll rather than clipping controls.
 - The eight targets are snapshots of existing offline save counters: finite wins, endless runs, flaps, food best, obstacles best, best score, Sky Meadows collectibles and failed runs. Counters are never fabricated or silently converted into a new wallet, and changing/achieving a goal does not grant coins or persist a separate claim.
 - Added pure JVM threshold tests, overflow-safe progress percentage and source audit, plus real 941×1672 emulator screenshot and eight-card accessibility coverage. No dedicated owner Achievements reference is available, so **pixel-perfect 1:1 cannot be certified**; the next screen is Leaderboard/Records.
+
+### Sequential screen 12 — Leaderboard / Records
+
+- Replaced the previous modal with a full native 941×1672 offline Leaderboard: five real summary counters, ranked rows for up to ten saved results, Bopi portrait, native iconography and a functioning Home control. Empty saves show a truthful empty state; compact and landscape windows use an accessible scrolling layout.
+- Scores are loaded directly from the existing validated local top ten, ordered descending by score with passed gates as tie-breaker. Each row shows the actual player name, world, difficulty, points and gates with a single TalkBack description. Presentation clamps names to 24 characters and never writes or fabricates scores.
+- Added JVM ordering/empty-state tests, source-level privacy assertions and authentic Android 941×1672 emulator capture. Old modal-based QA tests and stale Back/Pause audit expectations are updated without weakening the runtime pause behavior.
+- There is no owner reference screenshot for Leaderboard: **pixel-perfect 1:1 cannot be confirmed**. Next step: consolidated CI validation and visual comparisons of the supplied original screens.
