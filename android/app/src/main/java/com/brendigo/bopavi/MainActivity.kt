@@ -25,6 +25,8 @@ class MainActivity : Activity() {
     private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
+    // Cancels an in-flight preflight callback when Back leaves Loading.
+    private var loadingGeneration = 0
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
@@ -135,7 +137,12 @@ class MainActivity : Activity() {
                 android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback)
             platformBackCallback=callback
         }
-        showHome()
+        if(intent?.getBooleanExtra("bopavi_qa_loading_preview",false)==true) {
+            // Screenshot-only QA entry: the very same native screen shown
+            // during actual level preparation, without mock progress.
+            selectedScreen="loading"
+            showNativeView(FlightLoadingView(this,selectedPilotChoice))
+        } else showHome()
     }
     /** Android large-screen rotation must not recreate a live simulation.
      * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
@@ -188,6 +195,7 @@ class MainActivity : Activity() {
         }
     }
     override fun onDestroy() {
+        loadingGeneration++
         if (Build.VERSION.SDK_INT >= 33) {
             platformBackCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
             platformBackCallback = null
@@ -656,6 +664,7 @@ class MainActivity : Activity() {
     }
 
     private fun showHome(){
+        loadingGeneration++
         activeStage=null
         showPauseAfterBackground=false
         applyPremiumSystemBars()
@@ -918,19 +927,57 @@ class MainActivity : Activity() {
     }
     private fun startGame(){
         activeStage=null
-        val perks=progress.consumePerks()
-        openFlight(GameSimulation(LevelEngine.createStream(0,1L),true,
-            perks.first,perks.second,progress.difficulty(),1L,
-            PilotAbility.fromChoice(selectedPilotChoice)),0)
+        prepareFlight(world=0,number=1L,endless=true)
     }
+
     private fun startLevel(world:Int,number:Long){
         if(world !in 0 until LevelEngine.WORLD_COUNT ||
             number<1L || number>progress.streamFrontier(world))return
-        val perks=progress.consumePerks()
         activeStage=Pair(world,number)
-        openFlight(GameSimulation(LevelEngine.createStream(world,number),false,
-            perks.first,perks.second,progress.difficulty(),number,
-            PilotAbility.fromChoice(selectedPilotChoice)),world)
+        prepareFlight(world,number,endless=false)
+    }
+
+    /**
+     * Real Loading screen: level generation happens off the UI thread.
+     * No staged percentage or arbitrary minimum delay. Consumable perks
+     * are spent only once preparation succeeds and we're entering flight;
+     * navigating Back before then cannot consume or reset save data.
+     */
+    private fun prepareFlight(world:Int,number:Long,endless:Boolean){
+        if(selectedScreen=="loading")return
+        val token=++loadingGeneration
+        val chosenPilot=selectedPilotChoice
+        selectedScreen="loading"
+        showPauseAfterBackground=false
+        applyPremiumSystemBars()
+        val loading=FlightLoadingView(this,chosenPilot)
+        showNativeView(loading)
+        Thread({
+            val generated=runCatching{LevelEngine.createStream(world,number)}
+            runOnUiThread {
+                if(token!=loadingGeneration || selectedScreen!="loading" ||
+                    isDestroyed || isFinishing)return@runOnUiThread
+                if(!hasWindowFocus()) {
+                    // Never start audio or decode gameplay sprites while
+                    // the Activity is backgrounded or the screen is locked.
+                    showHome()
+                    return@runOnUiThread
+                }
+                generated.onSuccess { level ->
+                    val perks=progress.consumePerks()
+                    val simulation=GameSimulation(level,endless,
+                        perks.first,perks.second,progress.difficulty(),number,
+                        PilotAbility.fromChoice(chosenPilot))
+                    loading.completePreparation()
+                    openFlight(simulation,world)
+                }.onFailure { error ->
+                    android.util.Log.e("BOPAVI","Level preparation failed",error)
+                    showHome()
+                    android.widget.Toast.makeText(this,
+                        "Učitavanje razine nije uspjelo",android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        },"Bopavi-Level-Preparation").start()
     }
     private fun openFlight(simulation:GameSimulation,world:Int){
         showPauseAfterBackground=false
