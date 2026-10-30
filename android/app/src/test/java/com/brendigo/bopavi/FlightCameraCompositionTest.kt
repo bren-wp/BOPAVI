@@ -8,7 +8,7 @@ class FlightCameraCompositionTest {
     @Test fun subjectMatchesReferenceHorizontalAnchor() {
         assertEquals(175f,FlightCameraComposition.birdX,0f)
         assertEquals(49f,FlightCameraComposition.horizontalShift,0f)
-        assertTrue(FlightCameraComposition.birdX/480f in .36f.. .38f)
+        assertTrue(FlightCameraComposition.birdX/480f in 0.36f..0.38f)
     }
 
     @Test fun translationPreservesRelativeGateContactAcrossWorlds() {
