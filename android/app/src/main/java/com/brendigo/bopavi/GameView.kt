@@ -349,14 +349,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
-            rect(canvas,87f,671f,393f,746f,0xd9092559.toInt(),22f)
-            rect(canvas,98f,677f,382f,681f,0xff36d7ff.toInt(),2f)
-            text(canvas,"DODIRNI ZA LET",240f,708f,20f,Color.WHITE,true)
-            text(canvas,"DODIR = ZAMAH KRILIMA",240f,729f,11f,0xffbceeff.toInt(),true)
+            drawFlightReadyTutorial(canvas)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
-        if(game.active && !game.finished) {
+        if(!game.finished) {
+            // Reference ready-state already includes the real life HUD. Render
+            // it both before the first flap and during active flight.
             val hudScale=(width/480f).coerceAtMost(height/640f)
             canvas.save()
             // Inset is cached at lifecycle boundaries; no binder/cutout work on
@@ -1229,6 +1228,75 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
+    /** Reference-sized ready-to-fly callout. World physics and touch targets
+     * remain unchanged: the whole GameView still responds to the first tap.
+     * Display only while idle; no faux HUD after an actual flap.
+     */
+    private fun drawFlightReadyTutorial(c:Canvas) {
+        val a=FlightReadyOverlayLayout
+        rect(c,a.left+1.5f,a.top+3f,a.right+1.5f,a.bottom+3f,0x44051b44,22f)
+        rect(c,a.left,a.top,a.right,a.bottom,0xa7193f80.toInt(),22f)
+        fill(0xff8bdfff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=1.5f
+        c.drawRoundRect(a.left+1f,a.top+1f,a.right-1f,a.bottom-1f,21f,21f,p)
+        p.style=Paint.Style.FILL
+
+        // Original Croatian instructions stay available. English Android
+        // locale uses the short one-line wording in the approved reference.
+        val croatian=resources.configuration.locales.get(0).language=="hr"
+        if(croatian) {
+            drawTutorialText(c,"DODIRNI ZA LET",240f,624f,17f)
+            text(c,"DODIR = ZAMAH KRILIMA",240f,642f,10f,0xffd3f5ff.toInt(),true)
+        } else {
+            drawTutorialHand(c,163f,626f)
+            drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)
+        }
+    }
+
+    private fun drawTutorialText(c:Canvas,message:String,cx:Float,
+                                 baseline:Float,size:Float) {
+        fill(0xff082859.toInt())
+        p.typeface=headerTypeface
+        p.textAlign=Paint.Align.CENTER
+        p.textSize=size
+        p.strokeJoin=Paint.Join.ROUND
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=3f
+        c.drawText(message,cx,baseline,p)
+        p.style=Paint.Style.FILL
+        p.color=Color.WHITE
+        c.drawText(message,cx,baseline,p)
+        p.textAlign=Paint.Align.LEFT
+    }
+
+    /** Tiny local vector hand/click rays; no imported icons or per-frame bitmaps. */
+    private fun drawTutorialHand(c:Canvas,x:Float,y:Float) {
+        path.reset()
+        path.moveTo(x-4f,y+14f)
+        path.lineTo(x-12f,y+2f)
+        path.quadTo(x-14f,y-2f,x-10f,y-4f)
+        path.quadTo(x-7f,y-5f,x-5f,y-1f)
+        path.lineTo(x-5f,y-13f)
+        path.quadTo(x-4f,y-17f,x,y-17f)
+        path.quadTo(x+4f,y-16f,x+4f,y-12f)
+        path.lineTo(x+4f,y-1f)
+        path.quadTo(x+8f,y-5f,x+11f,y-2f)
+        path.lineTo(x+15f,y+9f)
+        path.quadTo(x+13f,y+17f,x+4f,y+18f)
+        path.close()
+        fill(Color.WHITE)
+        c.drawPath(path,p)
+        fill(0xff063064.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=2.4f
+        c.drawPath(path,p)
+        c.drawLine(x-12f,y-16f,x-17f,y-21f,p)
+        c.drawLine(x-18f,y-7f,x-23f,y-9f,p)
+        c.drawLine(x+10f,y-15f,x+15f,y-20f,p)
+        p.style=Paint.Style.FILL
+    }
+
     /** Only the real lives remain in flight; the 480x800 physics remain unchanged. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         // Unified premium glass: restrained corner radius, thin highlight,

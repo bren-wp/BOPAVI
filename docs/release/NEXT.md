@@ -23,3 +23,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Reduced HUD layout from 232×68 to 163×51 logical units, adjusted avatar/heart spacing and badge enamel treatment, and removed the non-reference life underline. **No fake extra lives** were added: finite mode still shows one true life, endless three.
 - Corrected centered punch-hole handling: the left-aligned HUD is displaced for a real cutout that overlaps its x-range, but not for a center cutout that is entirely outside the badge. Top inset is now cached at the WindowInsets lifecycle boundary, not polled every frame.
 - Unit and contract tests cover the new geometry, left/notch intersection, and accessibility preservation. **Pixel-perfect status remains unverified** until new emulator screenshots are captured and compared; world art and animated sprites still differ materially from the illustration.
+
+### Gameplay ready state — one reference-state correction
+
+- Reference: 941×1672 gameplay illustration, including a left lives HUD and a compact tutorial bubble near x=283..656, y=1245..1358.
+- Previous Android emulator READY screenshot omitted the life HUD and painted a 306×75 two-line prompt. The game now draws the actual current-life HUD **before first flap** as well as while flying; the finite/endless life count stays truthful.
+- A 190×54 coordinate-space glass callout maps to the reference's ~373×113 image-space bounds (max theoretical anchor deviation under six source pixels). English Android locale displays the one-line "Tap to fly" plus a locally drawn hand icon; Croatian retains its existing instructions and secondary control hint.
+- Corrected a stale source-level regression test which demanded the earlier red enamel color and 1.2px stroke, while keeping its explicit check for translucent empty hearts.
+- Pixel identity still requires full real-device screenshots and source artwork comparison. No claim of 1:1 completion, no release, no new persistence keys or physics changes.

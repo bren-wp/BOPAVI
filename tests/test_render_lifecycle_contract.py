@@ -14,9 +14,13 @@ assert "if(forest && n%3==0)" in render
 assert "path.lineTo(x+18f,row+18f);path.lineTo(x+34f,row+29f)" in render
 assert "fun courses(" not in view
 assert view.count("drawStoneCourses(c,x,")==2
-assert "fill(if(active)0xffff6987.toInt() else 0x552c4b73)" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
-assert "p.strokeWidth=if(active)1.2f else 1.8f" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
-assert "p.style=Paint.Style.FILL" in view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
+heart=view.split("private fun drawHudHeart",1)[1].split("private fun drawHud(",1)[0]
+# Keep existing missing-heart transparency; the active enamel red and its
+# navy contour were deliberately updated to match the owner's reference.
+assert "fill(if(active)0xffff4f51.toInt() else 0x552c4b73)" in heart
+assert "p.strokeWidth=2.3f" in heart
+assert "p.style=Paint.Style.FILL" in heart
+assert "p.strokeCap=Paint.Cap.BUTT" in heart
 assert 'ColorStateList.valueOf(0xff80eeed.toInt())' in activity
 assert 'ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'ColorStateList.valueOf(0xffffde76.toInt())' in activity

@@ -45,6 +45,12 @@ for forbidden in ('game.score()', 'game.coins', 'cachedLivesLabel',
 assert 'val lives=FlightHudBox(18f,14f,181f,65f)' in layout
 assert 'val heartCenters=floatArrayOf(83f,119f,155f)' in layout
 assert 'val radius = 18f' in simulation
+assert 'if(!game.active && !game.finished) {' in game
+assert 'drawFlightReadyTutorial(canvas)' in game
+assert 'if(!game.finished) {' in game
+assert 'drawHud(canvas)' in game
+assert 'drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)' in game
+assert 'FlightReadyOverlayLayout' in game
 assert 'PillarCollision.sweptBodyHitsPillar(' in simulation
 assert 'onlyRealFiniteRewardsAreVisible' in unit
 assert 'endlessRunDoesNotPaintFictionalFiniteRewards' in unit
