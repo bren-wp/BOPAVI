@@ -61,3 +61,6 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - The illustrated sky and local platform assets are still visibly simpler than the reference's dense fantasy environment. This step is NOT a pixel-identical pass; a true screenshot comparison must follow emulator capture at an equivalent viewport and loading state.
 - Kept the system-managed Android launch splash separate from native level preparation: cold start continues directly to Home, avoiding double splash/fictional wait, while actual level preparation renders Loading and completes as soon as generated data is ready.
 - Added JVM tests for reference bounds and source aspect fidelity, plus a CI source contract for real offline sprite layers, correct cleanup and no artificial sleep. **Next: Home**, after Splash visual/CI checks.
+
+- Strengthened Android Loading QA: after the normal 1080×2400 preflight preview, the real native `FlightLoadingView` is also captured at **941×1672** (reference source size) with an asserted PNG header/IHDR and Android accessibility state. A `finally` block restores system viewport overrides and returns to Home.
+- The capture is **evidence to evaluate**, not proof of visual identity. The poster-art landscape remains a major divergence from the uploaded richly rendered reference.
