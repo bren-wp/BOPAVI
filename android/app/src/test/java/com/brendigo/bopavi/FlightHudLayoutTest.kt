@@ -4,9 +4,10 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class FlightHudLayoutTest {
-    @Test fun onlyLivesCardIsCenteredAndFullyOnScreen() {
+    @Test fun onlyLivesCardIsLeftAlignedAndFullyOnScreen() {
         val h=FlightHudLayout
-        assertEquals(240f,(h.lives.left+h.lives.right)/2f,.001f)
+        assertEquals(128f,(h.lives.left+h.lives.right)/2f,.001f)
+        assertTrue(h.lives.right<240f+20f)
         assertTrue(h.lives.left>=0f && h.lives.right<=480f)
         assertTrue(h.lives.top>=0f && h.lives.bottom<=800f)
         assertTrue(h.heartCenters.toList().zipWithNext().all{(a,b)->b-a>=48f})
@@ -14,8 +15,9 @@ class FlightHudLayoutTest {
             assertTrue(h.lives.encloses(x-h.heartHalfWidth,h.heartBaseline-10f))
             assertTrue(h.lives.encloses(x+h.heartHalfWidth,h.heartBaseline+7f))
         }
-        assertEquals(h.heartCenters.average().toFloat(),240f,.001f)
-        assertTrue(h.lifeCountRight<=h.lives.right-16f)
+        assertEquals(h.heartCenters.average().toFloat(),169f,.001f)
+        assertTrue(h.lives.encloses(h.avatarX-h.avatarRadius,h.avatarY-h.avatarRadius))
+        assertTrue(h.lives.encloses(h.avatarX+h.avatarRadius,h.avatarY+h.avatarRadius))
     }
 
     @Test fun onlyUpcomingMovingPillarsGetWarnings() {
