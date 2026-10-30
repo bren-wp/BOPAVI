@@ -9,7 +9,8 @@ unit=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightHudReadabilityTe
 emulator=(root/"tools/qa_android_emulator.sh").read_text()
 assert 'FlightHudReadability.lifeCountColor(lives,game.maxLives)' in view
 assert 'FlightHudReadability.isFinalLife(lives,game.maxLives)' in view
-assert 'p.textAlign=Paint.Align.RIGHT' in view
+assert 'FlightHudReadability.lifeCountColor(lives,game.maxLives)' in view
+assert 'path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)' in view
 assert 'lastHudAccessibility=' in view
 assert 'lifeColorsMatchTheRealState' in unit
 assert 'finalLifeWarningOnlyWhenOneHeartRemains' in unit
