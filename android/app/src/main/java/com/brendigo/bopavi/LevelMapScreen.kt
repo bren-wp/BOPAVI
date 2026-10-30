@@ -3,15 +3,11 @@ package com.brendigo.bopavi
 import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
-import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
@@ -299,6 +295,15 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
             0xff288fe2.toInt(),0xff646b96.toInt(),0xff8de6ff.toInt())
         island(canvas,347f,1140f,352f,290f,
             0xff3eae59.toInt(),0xff8b7269.toInt(),0xffa6ef75.toInt())
+        // A ring on the actual selected world, not a false unlock indicator.
+        val focus=selected%3
+        val focusX=floatArrayOf(347f,621f,709f)[focus]
+        val focusY=floatArrayOf(1140f,690f,239f)[focus]
+        color(0xaaeaffff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=6f
+        canvas.drawOval(focusX-110f,focusY-50f,focusX+110f,focusY+34f,p)
+        p.style=Paint.Style.FILL
         // Crystal spires are local vector shapes, not reward hitboxes.
         for(i in 0..6){
             val x=460f+i*63f
