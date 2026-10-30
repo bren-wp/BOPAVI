@@ -49,7 +49,7 @@ def main():
         tap(node_with("POGLEDAJ SVOJE REKORDE"))
         node_with("LEADERBOARD",clickable=False)
         node_with("TOP 10 LOCAL SCORES",clickable=False)
-        node_with("BEST SCORE",clickable=False)
+        assert exists("BEST SCORE"),"FAIL: score summary absent"
         width,height=capture_png("android-leaderboard-reference-size")
         assert (width,height)==(941,1672),"FAIL: actual Leaderboard PNG dimensions"
         tap(node_with("HOME"))
