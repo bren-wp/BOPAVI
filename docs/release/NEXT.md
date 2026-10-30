@@ -79,3 +79,12 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - Corrected the gate to require the actual clickable native GameView, a real `ŽIVOTI:` count, the real flap hint, and absence of the Home PLAY button. A fake splash, Home or non-interactive decorative image still fails. Added a code regression assertion. No gameplay physics or accessibility text was weakened.
 
 - Calibrated width ratios against the actual 941×1672 owner image: top resource rail 51% of viewport, primary PLAY 67%, secondary SKINS/SHOP row 72%, Settings 54%, and bottom shortcut row 64%. Reference art requires ample negative space around the live controls; ratios stay constant while normal Android dp font/touch minima remain enforced.
+
+### Sequential screen pass 3 — Levels, native world map
+
+- Replaced the old vertical list of stages with a real `LevelMapScreen` and `LevelMapLandscape`: a 941×1672 reference coordinate layout with three floating island regions, painted rope paths, crystals/lava, local sky backdrop, and genuine accessible Android level nodes. First map page shows Sky Meadows, Crystal Ruins, Volcano Peaks; arrow navigation still exposes all eight existing biomes in grouped pages, without changing `chosen_world` save keys.
+- Nodes select the current visible six-level window around the genuine saved frontier; locked nodes are physically disabled and cannot call `onPlay`. Frontier is capped for the final stage so 1,048,577 cannot be passed into level generation. The golden PLAY LEVEL button launches the selected real playable stage. The existing Android QA text/role requirements remain: LEVEL MAP, PLAY LEVEL 1/0 STARS and disabled LOCKED LEVEL 2.
+- Changed `worldStars` display aggregation to the first 20 recorded stages instead of 10: max 20 × 3 = 60 reference stars, based on real persisted ratings only. No rewards or saved data are added or fabricated.
+- Native touch targets remain at least 48dp; drawn landscape and actual click targets share the same reference transform, while top/bottom display insets are respected. Background is local, paints reuse their objects; no image generation, remote network, or layout-sized raster art.
+- The reference still has substantially richer 3D scenery than current local game assets, so this is a functional world-map reconstruction, **not a verified pixel-identical result**. Capture and compare a real Android 941×1672 screenshot before signing off.
+- Next after visual verification: **Gameplay** (first flight), followed by Pause, Game Over and Level Complete.

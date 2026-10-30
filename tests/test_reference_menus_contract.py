@@ -21,10 +21,15 @@ for action in ('feature("SKINS"','feature("SHOP"',
 assert "progress.chooseArcadePilot(index)" in app
 assert "progress.buyPerk(index)" in app
 assert "progress.claimBonusCoins()" in app
-assert "progress.frontier(selected)" in menus
-assert "progress.bestLevelStars(selected,level.toLong())" in menus
-assert "if(unlocked)onPlay(selected,level.toLong())" in menus
-assert "node.isEnabled=unlocked" in menus
+levelMap=(src/"LevelMapScreen.kt").read_text()
+geometry=(src/"LevelMapGeometry.kt").read_text()
+assert "LevelMapScreen(host,progress).create(world,onWorld,onPlay,onBack)" in menus
+assert "progress.frontier(selected)" in levelMap
+assert "progress.bestLevelStars(selected,level.toLong())" in levelMap
+assert "if(unlocked)onPlay(selected,level.toLong())" in levelMap
+assert "isEnabled=enabled" in levelMap
+assert "LevelMapGeometry.isUnlocked(level,frontier)" in levelMap
+assert "val nodes=listOf(" in geometry
 assert "progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)" in app
 assert "progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())" in app
 assert "if(!runAlreadyRecorded)e.putInt" in state

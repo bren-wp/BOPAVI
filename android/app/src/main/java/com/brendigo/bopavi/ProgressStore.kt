@@ -154,7 +154,7 @@ class ProgressStore(context: Context) {
     }
     /** True earned ratings across the first ten levels of this world (30 maximum). */
     fun worldStars(world:Int):Int = if(world in 0..7)
-        (1L..10L).sumOf {bestLevelStars(world,it)} else 0
+        (1L..20L).sumOf {bestLevelStars(world,it)} else 0
     private fun levelStarRecords():JSONArray {
         val match=Regex("^level_star_([0-7])_([0-9]+)$")
         val records=prefs.all.keys.mapNotNull { key ->

@@ -206,48 +206,9 @@ internal class ReferenceMenus(private val host:Activity, private val progress:Pr
         return root
     }
 
-    fun levels(world:Int,onWorld:(Int)->Unit,onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
-        val selected=world.coerceIn(0,7)
-        val (root,body)=shell("LEVEL MAP",selected)
-        val names=LevelEngine.names
-        val tabs=HorizontalScrollView(host).apply {
-            isHorizontalScrollBarEnabled=false
-            val strip=row()
-            for(i in names.indices) {
-                strip.addView(button("${i+1}  ${names[i].uppercase()}",false) {onWorld(i)},
-                    LinearLayout.LayoutParams(d(180),d(57)).apply {
-                        leftMargin=d(4);rightMargin=d(4)
-                    })
-            }
-            addView(strip)
-        }
-        body.addView(tabs,LinearLayout.LayoutParams(-1,d(65)))
-        body.addView(text(names[selected].uppercase(),22,cream),
-            LinearLayout.LayoutParams(-1,d(55)))
-        val stars=progress.worldStars(selected)
-        body.addView(text("★ $stars / 30    •    LEVEL ${progress.frontier(selected)}",18,
-            Color.WHITE).apply {background=plate(0xff14498a.toInt(),0xff09254a.toInt(),
-                0xff80ebff.toInt(),18)},LinearLayout.LayoutParams(-1,d(62)))
-        val frontier=progress.frontier(selected).coerceIn(1,LevelEngine.LEVELS_PER_WORLD)
-        val first=(frontier-3).coerceAtLeast(1)
-        val last=(first+5).coerceAtMost(LevelEngine.LEVELS_PER_WORLD)
-        for(level in first..last) {
-            val unlocked=level<=frontier
-            val earned=progress.bestLevelStars(selected,level.toLong())
-            val node=button(if(unlocked)"★".repeat(earned)+"  LEVEL $level  ▶"
-                else "🔒  LEVEL $level",unlocked) {
-                if(unlocked)onPlay(selected,level.toLong())
-            }
-            node.isEnabled=unlocked
-            node.contentDescription=if(unlocked)"Play level $level, $earned stars"
-                else "Locked level $level"
-            body.addView(node,LinearLayout.LayoutParams(-1,d(64)).apply{
-                topMargin=d(5);bottomMargin=d(5)
-            })
-        }
-        body.addView(button("▶  PLAY LEVEL $frontier"){onPlay(selected,frontier.toLong())},
-            LinearLayout.LayoutParams(-1,d(74)).apply{topMargin=d(20)})
-        back(body,onBack)
-        return root
-    }
+    /** All level-map artwork and native hit targets live in one reference-
+     * coordinate screen. The old vertical list is replaced without touching
+     * save keys, world choice, score, rating, or launch callbacks. */
+    fun levels(world:Int,onWorld:(Int)->Unit,onPlay:(Int,Long)->Unit,onBack:()->Unit):View =
+        LevelMapScreen(host,progress).create(world,onWorld,onPlay,onBack)
 }

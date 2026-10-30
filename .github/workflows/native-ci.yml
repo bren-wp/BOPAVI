@@ -96,6 +96,7 @@ jobs:
       - run: python tests/test_native_stats_visual_contract.py
       - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_reference_menus_contract.py
+      - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_large_font_qa.py
