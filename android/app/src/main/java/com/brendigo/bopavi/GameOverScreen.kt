@@ -42,7 +42,7 @@ internal class GameOverScreen(private val host:Activity) {
         setTextColor(color)
         setShadowLayer(dp(6).toFloat(),0f,dp(7).toFloat(),navy)
         gravity=Gravity.CENTER
-        isSingleLine=true
+        setSingleLine(true)
         setAutoSizeTextTypeUniformWithConfiguration(38,97,1,
             android.util.TypedValue.COMPLEX_UNIT_SP)
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO

@@ -7,6 +7,7 @@ main=(src/"MainActivity.kt").read_text()
 screen=(src/"GameOverScreen.kt").read_text()
 stats=(src/"GameOverStats.kt").read_text()
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/GameOverStatsTest.kt").read_text()
+qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert 'if(!g.won){' in main
 assert 'val stats=GameOverStats.fromRun(g.distance,g.coins,g.stars,' in main
 assert 'GameOverScreen(this).create(' in main
@@ -31,4 +32,7 @@ assert '"Stars Collected"' in stats
 assert '"Gems Collected"' not in screen+stats
 assert "endlessShowsActualFoodAndScoreNotFictionalGems" in unit
 assert "finiteShowsActualCoinsAndStars" in unit
+assert '("GAME","OVER","DISTANCE","FOOD COLLECTED","SCORE")' in qa
+assert 'capture android-game-over-reference-size' in qa
+assert 'data[16:24])==(941,1672)' in qa
 print("PASS: genuine native game over rows, real counters and actual retry/home")

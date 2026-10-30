@@ -17,6 +17,9 @@ assert '"DODIRNI ZA ZAMAH KRILIMA" in label(n)' in qa
 assert 'and n.get("clickable")=="true"' in qa
 assert "capture android-gameplay-ready" in qa
 assert "capture android-gameplay-active" in qa
+assert "capture android-game-over-reference-size" in qa
+assert 'struct.unpack(">II",data[16:24])==(941,1672)' in qa
+assert '"DODIRNI ZA ZAMAH KRILIMA" in labels' in qa
 for state in ("options","records"):
     assert "capture android-"+state in qa,state
 for state in ("privacy","terms"):
