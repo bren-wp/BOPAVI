@@ -31,7 +31,10 @@ assert "isEnabled=enabled" in levelMap
 assert "LevelMapGeometry.isUnlocked(level,frontier)" in levelMap
 assert "val nodes=listOf(" in geometry
 assert "progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)" in app
-assert "progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())" in app
+assert "earnedReward=progress.completeLevelFromRecordedRun(" in app
+assert "completed.first,completed.second,g.score())" in app
+assert "val winData=LevelCompleteState.fromRun(" in app
+assert "earnedReward)" in app
 assert "if(!runAlreadyRecorded)e.putInt" in state
 assert "fun completeLevel(world:Int, number:Long, score:Int):Int" in state
 assert "fun recordRun(game: GameSimulation)" in state
