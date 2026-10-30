@@ -46,3 +46,9 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - All bird-attached visual effects (pickup/hit bursts, auras, ribbons, wind trail and shield/magnet) now use the live simulation x coordinate; none remains frozen at 126.
 - New JUnit and Python tests validate the reference anchor, eight biome families, same initial relative gate distance and a physical moving mace's translated hitbox.
 - The sprite/background artistry is not yet pixel-identical. Screenshots from the new Android build are still required before accepting the screen.
+
+### Native gameplay screenshot at source-reference dimensions
+
+- Android 15 emulator QA now additionally opens an actual fresh flight in a 941×1672 viewport after normal UI, pause, results, resume, rotation, and loading checks finish. It captures `android-gameplay-ready-reference-size.png` through Android's own screencap API and verifies its PNG IHDR dimensions.
+- The override is restored on normal completion and through the existing test-exit trap on failure; it cannot substitute a mocked UI or misleading resized screenshot.
+- The image is an unedited native Android capture. Matching resolution is necessary but not sufficient for a pixel-perfect result: compare the same gameplay state, animation pose, viewport insets and original art using `tools/compare_flight_reference.py`.

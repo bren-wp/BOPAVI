@@ -673,3 +673,61 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   # Exact native Loading view used by real asynchronous level preparation.
   python3 tools/qa_android_loading.py
 fi
+
+# Matched-pixel source reference capture. This does not claim visual equality:
+# it records the REAL native GameView with exactly the owner's 941x1672 viewport,
+# so subsequent region-by-region differences can be measured without resizing.
+# Full app interaction checks above have already completed successfully.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  BOPAVI_RESIZE_IN_PROGRESS=1
+  adb shell wm size 941x1672
+  adb shell wm density 320
+  adb shell am force-stop com.brendigo.bopavi
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
+  sleep 4
+  reference_home=0
+  for attempt in $(seq 1 12); do
+    if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+play=[n for n in nodes if n.get("clickable")=="true" and
+      ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
+if len(play)!=1:sys.exit(1)
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
+if not m:sys.exit(1)
+x1,y1,x2,y2=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+PY
+    then reference_home=1; break; fi
+    sleep 2
+  done
+  test "$reference_home" -eq 1 || { echo "FAIL: reference-size Home PLAY was not accessible" >&2; exit 1; }
+  reference_ready=0
+  for attempt in $(seq 1 15); do
+    if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+ready=[n for n in nodes if n.get("class")=="android.view.View" and
+       "DODIRNI ZA LET" in label(n)]
+sys.exit(0 if len(ready)==1 else 1)
+PY
+    then reference_ready=1; break; fi
+    sleep 2
+  done
+  test "$reference_ready" -eq 1 || { echo "FAIL: reference-size gameplay did not appear" >&2; exit 1; }
+  capture android-gameplay-ready-reference-size
+  python3 - <<'PY'
+import struct
+from pathlib import Path
+shot=Path("qa/screenshots/android-gameplay-ready-reference-size.png").read_bytes()
+assert shot[:8]==bytes.fromhex("89504e470d0a1a0a")
+assert struct.unpack(">II",shot[16:24])==(941,1672),"Reference-size screenshot has wrong dimensions"
+print("PASS: real gameplay reference viewport 941x1672, no scaling or mock screenshots")
+PY
+  printf 'STATE: real flight-idle reference viewport 941x1672 captured\n' >> qa/screenshots/state-evidence.txt
+  adb shell wm size reset
+  adb shell wm density reset
+  BOPAVI_RESIZE_IN_PROGRESS=0
+fi
