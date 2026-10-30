@@ -7,6 +7,7 @@ for obsolete in ("hudOrb(","hudGoldCoin(","hudPilotPortrait(","game.magnetTime",
                  "game.shield","game.score()","game.foodCollected",
                  '"BODOVI"','"HRANA"','"MOĆ"'):
     assert obsolete not in hud,obsolete
-assert '"ŽIVOTI"' in hud and "game.flap()" in view
+assert 'Životi: $lives/' in hud and 'birdBitmap?.let' in hud
+assert 'game.flap()' in view
 assert "override fun onTouchEvent(event:MotionEvent)" in view
-print("PASS: no legacy flight rail, only lives and genuine tap-to-flap")
+print("PASS: no legacy flight rail, only actual portrait, lives and tap-to-flap")
