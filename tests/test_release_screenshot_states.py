@@ -30,7 +30,9 @@ assert 'for expected in ("SETTINGS","OPUŠTENO","STANDARDNO"' in qa
 assert "FAIL: Home Settings inaccessible" in qa
 assert "FAIL: relaxed flight difficulty not selected" in qa
 assert "FAIL: restored standard difficulty not selected" in qa
-assert 'for expected in ("MOJI REKORDI"' in qa
+assert 'for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE"' in qa
+assert "FAIL: Leaderboard Home action missing" in qa
+assert "PASS: local records screen visible and returns Home" in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa
 assert 'FAIL: real Pause dialog/buttons did not appear' in qa
