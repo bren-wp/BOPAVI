@@ -124,3 +124,11 @@ Third screen in the owner's nine-screen visual reconstruction: the active flight
 - NEXT LEVEL is disabled as a next-stage route at the highest legal level by displaying LEVEL MAP instead; HOME remains a real navigation action. SHARE uses the Android native text chooser on direct tap, with no new app INTERNET permission, no automatic upload and no personal information.
 - Source and pure JVM tests cover exact milestone receipt, replay, range bounds, score formatting and the true share text. Corrected the unused `electric` field identified by the preceding Android dead-code CI.
 - Pixel-for-pixel certification remains open: the supplied happy Bopi pose, richer waterfall and chest lighting differ from current local sprites. Use a new native emulator capture to measure visual mismatch before signing off.
+
+### Sequential screen 8 — Skins / native three-pilot selection
+
+- Replaced the old unbounded vertical card list with a dedicated 941×1672 native gallery: background, title, three side-by-side portrait cards, real selected state, honest free/unlocked label, active ability details, earned-coin counter and Home control.
+- Only Bopi, Sova and Lisac are real playable arcade pilots. All three are free; we do not pretend existing unrelated legacy cosmetic skins are playable, locked or purchasable. Historical cosmetic inventory, wallet and arcade_pilot save keys are untouched.
+- Pilot names, real ability descriptions and selection labels use the same read-only model that is tested in pure JVM tests. Tapping a nonselected pilot still invokes the original `progress.chooseArcadePilot(index)` persistence and re-renders the gallery. Current selection cannot trigger redundant writes.
+- Real Android QA captures Skins at exactly 941×1672 before switching to Sova, and tests that Sova remains selected after a navigation round trip. The gallery uses local image resources, native accessible card hit targets and the same inset-aware letterboxed camera as Levels.
+- **Pixel-perfect is not established** until the emulator screenshot is compared with the owner's reference, particularly artwork, typography, card shadows and portraits. Next screen in the sequential pass: **Shop**.

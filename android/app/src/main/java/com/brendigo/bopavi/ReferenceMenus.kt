@@ -121,48 +121,9 @@ internal class ReferenceMenus(private val host:Activity, private val progress:Pr
         body.addView(button("⌂  HOME",false,onBack),
             LinearLayout.LayoutParams(-1,d(54)).apply{topMargin=d(8)})
     }
-    fun skins(choice:Int,onChoose:(Int)->Unit,onBack:()->Unit):View {
-        val (root,body)=shell("SKINS")
-        body.addView(text("CHOOSE YOUR PILOT",21,Color.WHITE),
-            LinearLayout.LayoutParams(-1,d(50)))
-        val choices=arrayOf("CLASSIC AVIATOR" to "BOPI","WISE OWL" to "SOVA",
-            "SKY FOX" to "LISAC")
-        val imgs=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait9,R.drawable.bopiportrait10)
-        val descriptions=arrayOf("Fast classic wingbeat","Smooth, calm flight","Protective first impact")
-        for(i in choices.indices){
-            val card=LinearLayout(host).apply {
-                orientation=LinearLayout.HORIZONTAL
-                gravity=Gravity.CENTER_VERTICAL
-                setPadding(d(12),d(12),d(12),d(12))
-                background=plate(if(choice==i)0xfffff9e3.toInt() else 0xffe4f2ff.toInt(),
-                    if(choice==i)0xffffdb7b.toInt() else 0xff87c9f5.toInt(),
-                    if(choice==i)0xffffa113.toInt() else 0xff2b8af2.toInt(),22)
-                elevation=d(4).toFloat()
-                isClickable=true
-                isFocusable=true
-                contentDescription=(if(choice==i)"Selected " else "Choose ")+choices[i].first
-                setOnClickListener{onChoose(i)}
-            }
-            card.addView(ImageView(host).apply {
-                setImageResource(imgs[i])
-                scaleType=ImageView.ScaleType.FIT_CENTER
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(d(104),d(120)))
-            val details=LinearLayout(host).apply{orientation=LinearLayout.VERTICAL}
-            details.addView(text(choices[i].first,17),LinearLayout.LayoutParams(-1,-2))
-            details.addView(text(descriptions[i],12,0xff315073.toInt()),
-                LinearLayout.LayoutParams(-1,-2))
-            details.addView(text(if(choice==i)"✓ EQUIPPED" else "EQUIP",16,
-                if(choice==i)0xff067c30.toInt() else 0xff035bb8.toInt()),
-                LinearLayout.LayoutParams(-1,d(34)))
-            card.addView(details,LinearLayout.LayoutParams(0,-2,1f))
-            body.addView(card,LinearLayout.LayoutParams(-1,-2).apply {
-                topMargin=d(8);bottomMargin=d(8)
-            })
-        }
-        back(body,onBack)
-        return root
-    }
+    /** Native 941x1672 gallery: gameplay pilot choice only, no mock prices. */
+    fun skins(choice:Int,onChoose:(Int)->Unit,onBack:()->Unit):View =
+        PilotSelectionScreen(host,progress).create(choice,onChoose,onBack)
 
     fun shop(onBuy:(Int)->Unit,onClaim:()->Unit,onBack:()->Unit):View {
         val (root,body)=shell("SHOP")

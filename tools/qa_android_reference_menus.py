@@ -33,6 +33,21 @@ def main():
 
     tap(node_with("OTVORI IZBOR LIKOVA"))
     node_with("SKINS",clickable=False)
+    # Real 941x1672 Android screenshot BEFORE and AFTER changing selected pilot.
+    # Native capture helper preserves PNG bytes; no bitmap resizing is allowed.
+    resized=False
+    try:
+        adb("shell","wm","size","941x1672")
+        resized=True
+        adb("shell","wm","density","320")
+        node_with("CHOOSE WISE OWL")
+        width,height=capture_png("android-skins-reference-size")
+        assert (width,height)==(941,1672),"FAIL: skins is not 941x1672"
+        print("PASS: real native Skins screenshot 941x1672",flush=True)
+    finally:
+        if resized:
+            adb("shell","wm","size","reset")
+            adb("shell","wm","density","reset")
     tap(node_with("CHOOSE WISE OWL"))
     node_with("SELECTED WISE OWL")
     home()
