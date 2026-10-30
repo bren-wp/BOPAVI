@@ -9,7 +9,7 @@ assert 'adb shell wm size 941x1672' in script
 assert 'adb shell wm density 320' in script
 assert 'capture android-gameplay-ready-reference-size' in script
 assert 'struct.unpack(">II",shot[16:24])==(941,1672)' in script
-assert 'reference_ready' in script and 'DODIRNI ZA LET' in script
+assert 'reference_ready' in script and 'DODIRNI ZA ZAMAH KRILIMA' in script
 assert 'adb shell wm size reset' in script
 assert 'adb shell wm density reset' in script
 assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in ci

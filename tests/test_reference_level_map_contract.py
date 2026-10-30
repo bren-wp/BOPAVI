@@ -32,7 +32,9 @@ assert "lockedNodesCannotLaunchAtFreshInstall" in unit
 assert "realLevelNodesNeverExceedTheMillionLevelLimit" in unit
 qa=(repo/"tools/qa_android_reference_menus.py").read_text()
 assert 'android-level-map-reference-size.png' in qa
-assert 'struct.unpack(">II",screenshot[16:24])==(941,1672)' in qa
+assert 'width,height=capture_png("android-level-map-reference-size")' in qa
+assert 'assert (width,height)==(941,1672)' in qa
+assert 'screenshot=adb("exec-out","screencap","-p")' not in qa
 assert 'node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)' in qa
 assert 'node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)' in qa
 assert 'node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)' in qa

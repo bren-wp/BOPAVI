@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Real Android 15 reference-menu regression, not clickable screenshot mockups."""
 import time
-import struct
-from pathlib import Path
-from qa_android_rotation import APP,adb,hierarchy,find_action,tap,label
+from qa_android_rotation import APP,adb,hierarchy,find_action,tap,label,screenshot as capture_png
 
 def node_with(phrase,clickable=True,attempts=15):
     for attempt in range(attempts):
@@ -67,12 +65,10 @@ def main():
         time.sleep(1)
         node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
         assert exists("LOCKED LEVEL 2",enabled=False)
-        screenshot=adb("exec-out","screencap","-p")
-        assert screenshot[:8]==bytes.fromhex("89504e470d0a1a0a")
-        assert struct.unpack(">II",screenshot[16:24])==(941,1672)
-        target=Path("qa/screenshots/android-level-map-reference-size.png")
-        target.parent.mkdir(parents=True,exist_ok=True)
-        target.write_bytes(screenshot)
+        # The existing helper captures binary PNG bytes directly. adb()
+        # returns text for shell/UI commands and must never decode a PNG.
+        width,height=capture_png("android-level-map-reference-size")
+        assert (width,height)==(941,1672)
         print("PASS: real 941x1672 Level Map with enabled/locked native controls",flush=True)
     finally:
         if resized:
@@ -81,7 +77,7 @@ def main():
     locked=exists("LOCKED LEVEL 2",enabled=False)
     assert locked,"FAIL: locked level is not truly disabled"
     tap(node_with("PLAY LEVEL 1, 0 STARS"))
-    node_with("DODIRNI ZA LET")
+    node_with("DODIRNI ZA ZAMAH KRILIMA")
     assert adb("shell","pidof",APP)==pid,"FAIL: real level launch crashed the app"
     print("PASS: actual Level Map locks and finite Level 1 launch",flush=True)
 

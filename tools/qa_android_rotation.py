@@ -102,7 +102,9 @@ def main():
         for _ in range(10):
             root = hierarchy()
             idle = [n for n in root.iter("node")
-                    if n.get("clickable") == "true" and "DODIRNI ZA LET" in label(n)]
+                    if n.get("clickable") == "true"
+                    and "ŽIVOTI:" in label(n)
+                    and "DODIRNI ZA ZAMAH KRILIMA" in label(n)]
             if len(idle) == 1:
                 break
             time.sleep(1)
