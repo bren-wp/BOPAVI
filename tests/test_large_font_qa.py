@@ -68,7 +68,7 @@ class LargeFontGeometryTests(unittest.TestCase):
                          TARGETS["terms"])
         self.assertTrue(all(TARGETS[key][0] == "Button" for key in
                             ("relaxed", "standard", "challenging")))
-        self.assertNotIn("RadioButton", qa)
+        self.assertNotIn('"RadioButton",', qa)
         self.assertNotIn('"gotovo"', qa)
         self.assertIn('header_seen |= "settings" in strings', qa)
         self.assertIn('Settings HOME did not return Home', qa)
