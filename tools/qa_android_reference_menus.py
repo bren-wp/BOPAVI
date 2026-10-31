@@ -3,12 +3,23 @@
 import time
 from qa_android_rotation import APP,adb,hierarchy,find_action,tap,label,screenshot as capture_png
 
+def matching_nodes(root, phrase, clickable=None, enabled=None):
+    """Case-insensitive native accessibility match with optional real UI flags.
+
+    qa_android_rotation.label() always uppercases node text/description. Keep
+    query normalization here as well, including mixed-case Croatian labels.
+    """
+    needle = phrase.casefold()
+    return [n for n in root.iter("node")
+            if needle in label(n).casefold()
+            and (clickable is None or (n.get("clickable")=="true")==clickable)
+            and (enabled is None or (n.get("enabled")=="true")==enabled)]
+
+
 def node_with(phrase,clickable=True,attempts=15):
     for attempt in range(attempts):
         root=hierarchy()
-        results=[n for n in root.iter("node")
-                 if phrase in label(n)
-                 and (not clickable or n.get("clickable")=="true")]
+        results=matching_nodes(root,phrase,clickable=True if clickable else None)
         if len(results)==1:
             return results[0]
         if attempt in (4,9):
@@ -16,10 +27,9 @@ def node_with(phrase,clickable=True,attempts=15):
         time.sleep(1)
     raise AssertionError(f"FAIL: reference menu control absent or duplicated: {phrase}")
 
+
 def exists(phrase,enabled=None):
-    root=hierarchy()
-    return [n for n in root.iter("node") if phrase in label(n)
-            and (enabled is None or (n.get("enabled")=="true")==enabled)]
+    return matching_nodes(hierarchy(),phrase,enabled=enabled)
 
 def home():
     adb("shell","input","keyevent","4")
