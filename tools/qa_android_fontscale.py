@@ -73,6 +73,31 @@ def measured_targets(root: ET.Element, width: int, height: int, density: int) ->
     return result
 
 
+def native_settings_home(root: ET.Element, width: int, height: int,
+                         density: int) -> list[ET.Element]:
+    """Only the visible, enabled bottom HOME button counts as an exit route.
+
+    The top '< HOME' breadcrumb has different semantics and must not make
+    the final navigation check pass when the actual lower action is missing.
+    """
+    hits = []
+    min_px = int(48 * density / 160) - 1
+    for node in root.iter("node"):
+        if (node.get("class", "").split(".")[-1] != "Button"
+                or (node.get("content-desc") or "").casefold() != "home"
+                or node.get("clickable") != "true"
+                or node.get("enabled", "true") != "true"):
+            continue
+        rect = bounds(node)
+        if rect is None:
+            continue
+        left, top, right, bottom = rect
+        if (0 <= left < right <= width and 0 <= top < bottom <= height
+                and right - left >= min_px and bottom - top >= min_px):
+            hits.append(node)
+    return hits
+
+
 def dump() -> ET.Element:
     for attempt in range(5):
         try:
@@ -169,12 +194,21 @@ def audit_case(label: str, width: int, height: int, density: int, scale: str) ->
                 print(f"QA SeekBar {label}: {n.attrib}", flush=True)
     assert header_seen, f"FAIL: full-screen Settings title missing on {label}"
     assert not missing, f"FAIL: {label} missing, clipped or undersized controls: {missing}"
-    # The native HOME action on the *real* scrollable Settings page must be
-    # visible, clickable and return to the actual Home screen. No fake dialog.
-    home = [n for n in root.iter("node")
-            if n.get("clickable") == "true" and
-            (n.get("content-desc") or "").casefold() == "home"]
-    assert len(home) == 1, f"FAIL: Settings HOME unavailable on {label}"
+    # The top '< HOME' breadcrumb may satisfy the general HOME-size target
+    # before the lower HOME button has entered the viewport. Continue genuine
+    # native scrolling until the lower, independently accessible action is
+    # exposed. Never count an offscreen, clipped or disabled button.
+    home: list[ET.Element] = []
+    for _ in range(9):
+        root = dump()
+        home = native_settings_home(root, width, height, density)
+        if len(home) == 1:
+            break
+        assert not home, f"FAIL: duplicate Settings HOME actions on {label}"
+        swipe(width, height)
+    (SCREENSHOTS / f"android-options-{label}-home.xml").write_text(
+        ET.tostring(root, encoding="unicode"), encoding="utf-8")
+    assert len(home) == 1, f"FAIL: Settings HOME unreachable after scroll on {label}"
     tap(home[0])
     time.sleep(0.8)
     after = dump()
