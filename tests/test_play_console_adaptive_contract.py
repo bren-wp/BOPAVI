@@ -28,7 +28,13 @@ assert "View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION" in app
 assert "applySafeViewportInsets(view,insets)" in app
 assert "Type.displayCutout()" in app
 assert "android:screenOrientation" not in manifest
-assert 'android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"' in manifest
+# Android must preserve gameplay and results across both rotation and density
+# changes (emulator size/density changes must not relaunch MainActivity).
+import xml.etree.ElementTree as ET
+activity=ET.fromstring(manifest).find("application/activity")
+assert activity is not None
+changes=activity.get("{http://schemas.android.com/apk/res/android}configChanges","").split("|")
+assert {"orientation","screenSize","smallestScreenSize","screenLayout","density"}.issubset(changes)
 assert "override fun onConfigurationChanged(" in app
 assert "gameView?.requestLayout()" in app
 assert "frameClock.reset()" in game.split("override fun onSizeChanged(",1)[1].split("private fun updateWorldCover",1)[0]
