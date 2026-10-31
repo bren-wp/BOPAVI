@@ -36,7 +36,7 @@ assert 'keyevent", "3"' in qa and 'one_control("NASTAVI")' in qa
 # real emulator test, otherwise the test fails before testing backgrounding.
 assert 'one_control("DODIRNI ZA ZAMAH KRILIMA")' in qa
 assert 'one_control("DODIRNI ZA LET")' not in qa
-assert 'DODIRNI ZA ZAMAH KRILIMA' in view
+assert 'Dodirni za zamah krilima.' in view
 assert "before = active_flight().get(" in qa
 assert 'resumed.get("content-desc") == before' in qa
 assert "python3 tools/qa_android_background.py" in runner
