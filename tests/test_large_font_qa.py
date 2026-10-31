@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from qa_android_fontscale import TARGETS, measured_targets
+from qa_android_fontscale import TARGETS, measured_targets, native_settings_home
 
 
 def sample(width=720, height=1280, density=320):
@@ -82,6 +82,27 @@ class LargeFontGeometryTests(unittest.TestCase):
         self.assertNotIn("home", actual)
         self.assertNotIn("terms", actual)
         self.assertIn("privacy", actual)
+
+    def test_bottom_home_requires_actual_visible_native_action(self):
+        root = ET.Element("hierarchy")
+        breadcrumb = ET.SubElement(root, "node", {
+            "class": "android.widget.Button", "content-desc": "‹  HOME",
+            "clickable": "true", "enabled": "true",
+            "bounds": "[20,30][300,135]",
+        })
+        self.assertEqual([], native_settings_home(root, 720, 1280, 320))
+        bottom = ET.SubElement(root, "node", {
+            "class": "android.widget.Button", "content-desc": "HOME",
+            "clickable": "true", "enabled": "true",
+            "bounds": "[20,1060][700,1190]",
+        })
+        self.assertEqual([bottom], native_settings_home(root, 720, 1280, 320))
+        bottom.set("bounds", "[20,1240][700,1380]")
+        self.assertEqual([], native_settings_home(root, 720, 1280, 320))
+        bottom.set("bounds", "[20,1060][700,1190]")
+        bottom.set("clickable", "false")
+        self.assertEqual([], native_settings_home(root, 720, 1280, 320))
+        self.assertIsNotNone(breadcrumb)
 
     def test_real_emulator_matrix_is_wired_into_api35_smoke(self):
         qa = (ROOT / "tools/qa_android_fontscale.py").read_text()
