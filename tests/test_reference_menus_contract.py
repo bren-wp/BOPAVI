@@ -52,5 +52,21 @@ flow=(root/"tools/qa_android_reference_menus.py").read_text()
 assert 'pid_before_level=adb("shell","pidof",APP)' in flow
 assert '==pid_before_level' in flow
 assert '==pid,"FAIL: real level launch crashed the app"' not in flow
+# qa_android_rotation.label() uppercases Android UI text. All supplied
+# queries (English/Croatian, mixed-case, accented) must still match reliably.
+import sys
+import xml.etree.ElementTree as ET
+sys.path.insert(0, str(root/"tools"))
+from qa_android_reference_menus import matching_nodes
+xml=ET.Element("hierarchy")
+music=ET.SubElement(xml,"node",{"text":"MUSIC","content-desc":"","clickable":"false","enabled":"true"})
+legal=ET.SubElement(xml,"node",{"text":"OPEN","content-desc":"PROČITAJ POLITIKU PRIVATNOSTI","clickable":"true","enabled":"true"})
+ET.SubElement(xml,"node",{"text":"SOUND","content-desc":"SOUND","clickable":"false","enabled":"true"})
+assert matching_nodes(xml,"Music")==[music]
+assert matching_nodes(xml,"music")==[music]
+assert matching_nodes(xml,"Pročitaj politiku privatnosti",clickable=True)==[legal]
+assert not matching_nodes(xml,"Music",clickable=True)
+assert not matching_nodes(xml,"Nepostojeća opcija")
+
 assert "versionCode = 170" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
