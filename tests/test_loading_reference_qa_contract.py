@@ -17,6 +17,8 @@ for expected in (
     'assert sum(n.get("content-desc")=="Loading level" for n in ref_nodes)==1',
 ):
     assert expected in qa,expected
+assert 'n.get("content-desc","").upper()=="PLAY"' in qa
+assert 'n.get("text","")=="PLAY"' not in qa
 assert "python3 tools/qa_android_loading.py" in runner
 assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in workflow
 print("PASS: reference Loading capture is native, checked and reset")
