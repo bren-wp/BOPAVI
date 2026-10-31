@@ -21,6 +21,8 @@ class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
+    private var pauseDialog: android.app.AlertDialog? = null
+    private val shopPurchaseTapGate=ShopPurchaseTapGate()
     // Prevent a frozen, untappable flight after returning from another app.
     private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
@@ -31,7 +33,6 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
     private val primaryButtonInk = 0xff061b49.toInt()
-    private val electric = 0xff00d9ff.toInt()
     // Three arcade pilots preserve all historical save-backed skin identifiers.
     private val pilotNames=arrayOf("Bopi","Sova","Lisac")
     private val pilotSpriteIds=intArrayOf(0,9,10)
@@ -200,6 +201,8 @@ class MainActivity : Activity() {
             platformBackCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
             platformBackCallback = null
         }
+        pauseDialog?.dismiss()
+        pauseDialog=null
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
         super.onDestroy()
@@ -544,46 +547,16 @@ class MainActivity : Activity() {
     }
     /** Read-only on-device records: no network, accounts or score submissions. */
     private fun showLocalRecords(){
-        val stats=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(20),d(16),d(20),d(18))
-            background=gradient(0xff154c8d.toInt(),0xff061d42.toInt(),23).apply {
-                setStroke(d(2),0xff60dafe.toInt())
-            }
+        showPauseAfterBackground=false
+        sound.stop()
+        selectedScreen="records"
+        val summary=LeaderboardSummary(
+            progress.bestPoints(),progress.bestFood(),progress.endlessBest(),
+            progress.totalRuns(),progress.totalFlaps())
+        val scores=progress.leaderboard().map{
+            LeaderboardEntry(it.name,it.score,it.world,it.difficulty,it.gates)
         }
-        val rows=listOf(
-            Triple("Najbolji rezultat",progress.bestPoints().toString(),BopaviUiIconDrawable.Kind.STAR),
-            Triple("Najviše hrane u jednom letu",progress.bestFood().toString(),BopaviUiIconDrawable.Kind.BERRY),
-            Triple("Najviše prođenih prepreka",progress.endlessBest().toString(),BopaviUiIconDrawable.Kind.GATE),
-            Triple("Odigrani letovi",progress.totalRuns().toString(),BopaviUiIconDrawable.Kind.FLIGHT),
-            Triple("Ukupni zamasi krilima",progress.totalFlaps().toString(),BopaviUiIconDrawable.Kind.WING)
-        )
-        for((caption,value,kind) in rows){
-            stats.addView(TextView(this).apply{
-                text=caption+"\n"+value
-                textSize=17f
-                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
-                setTextColor(0xffe6f7ff.toInt())
-                setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(kind,if(kind==BopaviUiIconDrawable.Kind.BERRY)0xffff6179.toInt()
-                        else 0xffffdd72.toInt(),24),null,null,null)
-                compoundDrawablePadding=d(13)
-                contentDescription="$caption: $value"
-                setPadding(d(6),d(8),d(6),d(8))
-            },LinearLayout.LayoutParams(-1,-2))
-        }
-        stats.addView(TextView(this).apply{
-            text="Rekordi se čuvaju samo na ovom uređaju. Brisanje podataka aplikacije briše i rekorde."
-            textSize=12f
-            setTextColor(0xffe6f7ff.toInt())
-            setPadding(0,d(12),0,0)
-        })
-        android.app.AlertDialog.Builder(this)
-            .setTitle("MOJI REKORDI")
-            .setCustomTitle(premiumDialogHeader("MOJI REKORDI",BopaviUiIconDrawable.Kind.RECORDS))
-            .setView(android.widget.ScrollView(this).apply{addView(stats)})
-            .setPositiveButton("ZATVORI",null)
-            .show().also { polishGameDialog(it) }
+        showNativeView(LeaderboardScreen(this).create(summary,scores,onBack={showHome()}))
     }
 
     /** Real navigation destinations backed exclusively by local state. */
@@ -601,19 +574,53 @@ class MainActivity : Activity() {
             onBack={showHome()})
         showNativeView(view)
     }
+    /** Native full-screen Settings; SOUND shortcut keeps the quick mixer. */
+    private fun showSettingsScreen(){
+        showPauseAfterBackground=false
+        selectedScreen="settings"
+        val page=SettingsScreen(this,progress).create(
+            onBack={showHome()},
+            onMusic={value->
+                progress.setMusicVolume(value)
+                sound.musicVolume=value/100f
+            },
+            onEffects={value->
+                progress.setEffectsVolume(value)
+                sound.effectsVolume=value/100f
+            },
+            onSound={value->
+                progress.setSoundEnabled(value)
+                sound.enabled=value
+            },
+            onHaptic={value->progress.setHapticEnabled(value)},
+            onMotion={value->progress.setLessMotion(value)},
+            onDifficulty={value->
+                progress.setDifficulty(value)
+                showSettingsScreen()
+            },
+            onPrivacy={showPrivacyNotice()},
+            onTerms={showTermsNotice()})
+        showNativeView(page)
+    }
     private fun showShop(){
         showPauseAfterBackground=false
         sound.stop()
         selectedScreen="shop"
         val view=ReferenceMenus(this,progress).shop(
             onBuy={index->
-                if(progress.buyPerk(index)){
-                    sound.effect("collect")
-                    showShop()
-                } else {
-                    android.widget.Toast.makeText(this,
-                        "Nema dovoljno novčića ili je inventar pun.",
-                        android.widget.Toast.LENGTH_SHORT).show()
+                // Filter only a repeated same-product tap in a short window,
+                // including across redraws. The real wallet transaction is
+                // still performed once inside ProgressStore.
+                if(shopPurchaseTapGate.allow(index,
+                        android.os.SystemClock.elapsedRealtime())){
+                    if(progress.buyPerk(index)){
+                        sound.effect("collect")
+                        showShop()
+                    } else {
+                        android.widget.Toast.makeText(this,
+                            "Nema dovoljno novčića ili je inventar pun.",
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
             },
             onClaim={
@@ -636,31 +643,17 @@ class MainActivity : Activity() {
         showNativeView(view)
     }
 
-    /** Reference 941x1672: real counters / logo / hero / CTA / menus / shortcuts. */
-    /** Earned local achievements; nothing fabricated or synchronized. */
+    /** Read-only achievements: all eight values are from saved local runs. */
     private fun showLocalAchievements(){
-        val panel=LinearLayout(this).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(18),d(10),d(18),d(12))
-            background=gradient(0xff154a83.toInt(),0xff061c3b.toInt(),20)
-        }
-        val rows=listOf(
-            "Completed flights: "+progress.wins(),
-            "Total flights: "+progress.totalRuns(),
-            "Wing flaps: "+progress.totalFlaps(),
-            "Best obstacles: "+progress.endlessBest()
-        )
-        for(row in rows)panel.addView(TextView(this).apply{
-            text=row
-            textSize=16f
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            setPadding(d(7),d(10),d(7),d(10))
-        },LinearLayout.LayoutParams(-1,-2))
-        android.app.AlertDialog.Builder(this)
-            .setCustomTitle(premiumDialogHeader("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR))
-            .setView(panel).setPositiveButton("CLOSE",null)
-            .show().also {polishGameDialog(it)}
+        showPauseAfterBackground=false
+        sound.stop()
+        selectedScreen="achievements"
+        val snapshot=AchievementSnapshot(
+            wins=progress.wins(),runs=progress.totalRuns(),
+            flaps=progress.totalFlaps(),food=progress.bestFood(),
+            obstacles=progress.endlessBest(),score=progress.bestPoints(),
+            meadows=progress.collectibles(0),deaths=progress.deaths())
+        showNativeView(AchievementsScreen(this).create(snapshot,onBack={showHome()}))
     }
 
     private fun showHome(){
@@ -670,6 +663,27 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
+        // The owner's Home reference is 941×1672. Use fixed reference-camera
+        // coordinates on large portrait windows; retain the legacy scroll-safe
+        // native composition for compact/landscape displays.
+        if(HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,
+                resources.displayMetrics.heightPixels,
+                resources.configuration.orientation ==
+                    android.content.res.Configuration.ORIENTATION_PORTRAIT)){
+            val home=HomeReferenceScreen(this,progress).create(
+                portraitDrawableIds[selectedPilotChoice],
+                onPlay={startGame()},
+                onSkins={showSkins()},
+                onShop={showShop()},
+                onSettings={showSettingsScreen()},
+                onAchievements={showLocalAchievements()},
+                onLeaderboard={showLocalRecords()},
+                onSound={showQuickOptions()},
+                onCoins={showShop()},
+                onStars={showLevels()})
+            showNativeView(home)
+            return
+        }
         val root=FrameLayout(this).apply{setBackgroundColor(0xff087bc9.toInt())}
         root.addView(ImageView(this).apply{
             setImageResource(R.drawable.homeback)
@@ -693,45 +707,80 @@ class MainActivity : Activity() {
         root.addView(viewport,FrameLayout.LayoutParams(-1,-1))
         val compactDisplay=resources.configuration.screenHeightDp<770
         val tinyDisplay=resources.configuration.screenHeightDp<610
-        // Cap the art at short window heights; native CTA hit areas never shrink.
-        val heroHeight=(resources.configuration.screenHeightDp-558).coerceIn(92,270)
+        // Reference Home: the hero is the dominant center artwork. Keep
+        // it larger on tall phones without reducing native 48dp tap targets.
+        val heroHeight=if(compactDisplay)
+            (resources.configuration.screenHeightDp-558).coerceIn(92,270)
+        else (resources.configuration.screenHeightDp-468).coerceIn(225,320)
 
-        // Real coins and real earned stars, not the screenshot's static 1,250/85.
+        // The reference has two small upper-right wallet capsules, not two
+        // full-width score banners. Values always come from actual saved data.
         val resourcesBar=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.END or Gravity.CENTER_VERTICAL
         }
-        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind){
-            resourcesBar.addView(TextView(this).apply{
-                text="$label  $count"
-                textSize=if(tinyDisplay)12f else 14f
+        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind,
+                         destination:String,onClick:()->Unit){
+            val chip=LinearLayout(this).apply{
+                orientation=LinearLayout.HORIZONTAL
+                gravity=Gravity.CENTER_VERTICAL
+                setPadding(d(5),0,d(5),0)
+                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
+                    gradient(0xff2073ba.toInt(),0xff061e4c.toInt(),22).apply{
+                        setStroke(d(2),0xff80d7ff.toInt())
+                    },null)
+                contentDescription="$label: $count. $destination"
+                isClickable=true;isFocusable=true
+                minimumHeight=d(48)
+                setOnClickListener{sound.effect("click");onClick()}
+            }
+            chip.addView(ImageView(this).apply{
+                setImageDrawable(uiIcon(kind,0xffffd44e.toInt(),25))
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(28),d(28)))
+            chip.addView(TextView(this).apply{
+                text=java.text.NumberFormat.getIntegerInstance().format(count)
+                textSize=if(tinyDisplay)14f else 16f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 gravity=Gravity.CENTER
-                setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    uiIcon(kind,0xffffd44e.toInt(),if(tinyDisplay)19 else 23),
-                    null,null,null)
-                compoundDrawablePadding=d(5)
-                contentDescription="$label: $count"
-                background=gradient(0xff1f69b7.toInt(),0xff05214e.toInt(),17).apply{
-                    setStroke(d(2),0xffa3edff.toInt())
-                }
-            },LinearLayout.LayoutParams(0,d(if(tinyDisplay)35 else 43),1f).apply{
-                setMargins(d(4),0,d(4),0)
+                maxLines=1
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,-1,1f))
+            chip.addView(TextView(this).apply{
+                text="+"
+                textSize=21f
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                gravity=Gravity.CENTER
+                background=gradient(0xff72ee49.toInt(),0xff0f9e2b.toInt(),9)
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(d(25),d(29)))
+            resourcesBar.addView(chip,LinearLayout.LayoutParams(0,d(48),1f).apply{
+                setMargins(d(3),0,d(3),0)
             })
         }
-        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.RECORDS)
+        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.COIN,
+            "Otvori trgovinu"){showShop()}
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf { progress.worldStars(it) }
-        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR)
-        content.addView(resourcesBar,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)36 else if(compactDisplay)40 else 46)))
+        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR,
+            "Otvori kartu razina"){showLevels()}
+        content.addView(resourcesBar,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.51f).toInt(),d(49)).apply{
+            gravity=Gravity.END
+        })
 
         content.addView(ImageView(this).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(
-            if(tinyDisplay)62 else if(compactDisplay)81 else 124
-        )).apply{topMargin=d(3)})
+        },LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.82f).toInt(),
+            d(if(tinyDisplay)82 else if(compactDisplay)108 else 147)
+        ).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+            topMargin=d(1)
+        })
         content.addView(ImageView(this).apply{
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
@@ -739,8 +788,21 @@ class MainActivity : Activity() {
         },LinearLayout.LayoutParams(-1,d(
             heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
-        content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
+        // The reference places PLAY immediately after the flying hero,
+        // with no huge stretchable blank strip on tall 20:9 displays.
         action(content,"▶  PLAY"){startGame()}
+        (content.getChildAt(content.childCount-1) as Button).apply{
+            setTextColor(Color.WHITE)
+            setShadowLayer(d(2).toFloat(),0f,d(3).toFloat(),0xff743c00.toInt())
+            setAutoSizeTextTypeUniformWithConfiguration(18,26,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+            textSize=if(tinyDisplay)20f else 26f
+            (layoutParams as LinearLayout.LayoutParams).apply{
+                width=(resources.displayMetrics.widthPixels*.67f).toInt()
+                gravity=Gravity.CENTER_HORIZONTAL
+                layoutParams=this
+            }
+        }
 
         val features=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -775,8 +837,12 @@ class MainActivity : Activity() {
         feature("SKINS","Otvori izbor likova",0xffbc3bfa.toInt(),
             0xff5706b8.toInt(),BopaviUiIconDrawable.Kind.FLIGHT){showSkins()}
         feature("SHOP","Otvori trgovinu nadogradnji",0xff6de553.toInt(),
-            0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.RECORDS){showShop()}
-        content.addView(features,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)55 else 64)))
+            0xff0a8d25.toInt(),BopaviUiIconDrawable.Kind.SHOP){showShop()}
+        content.addView(features,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.72f).toInt(),
+            d(if(tinyDisplay)55 else 64)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+        })
 
         content.addView(TextView(this).apply{
             text="SETTINGS"
@@ -794,8 +860,11 @@ class MainActivity : Activity() {
             contentDescription="Otvori opcije igre"
             elevation=d(4).toFloat()
             isClickable=true;isFocusable=true
-            setOnClickListener{sound.effect("click");showQuickOptions()}
-        },LinearLayout.LayoutParams(-1,d(if(tinyDisplay)49 else 57)).apply{
+            setOnClickListener{sound.effect("click");showSettingsScreen()}
+        },LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.54f).toInt(),
+            d(if(tinyDisplay)49 else 57)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
             topMargin=d(3);bottomMargin=d(5)
         })
 
@@ -833,13 +902,21 @@ class MainActivity : Activity() {
             },LinearLayout.LayoutParams(-1,d(21)))
             footer.addView(group,LinearLayout.LayoutParams(0,d(77),1f))
         }
-        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.STAR,
+        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.RECORDS,
             "Pogledaj svoja postignuća"){showLocalAchievements()}
-        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,
+        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD,
             "Pogledaj svoje rekorde"){showLocalRecords()}
-        shortcut("SOUND",BopaviUiIconDrawable.Kind.WING,
+        shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND,
             "Otvori zvučne postavke"){showQuickOptions()}
-        content.addView(footer,LinearLayout.LayoutParams(-1,d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)))
+        content.addView(footer,LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.64f).toInt(),
+            d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)).apply{
+            gravity=Gravity.CENTER_HORIZONTAL
+            topMargin=d(if(compactDisplay)6 else 23)
+        })
+        // On tall displays the spare sky stays BELOW the controls; short
+        // landscape/split-screen windows still scroll with full-size targets.
+        content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
         showNativeView(root)
         viewport.setOnApplyWindowInsetsListener{v,insets->
             applySafeViewportInsets(v,insets)
@@ -848,26 +925,38 @@ class MainActivity : Activity() {
     }
 
     private fun showPremiumPause(game:GameView){
+        // Single modal only, whether triggered by Back or foreground restoration.
+        if(gameView!==game || selectedScreen!="game" || game.game.finished ||
+            pauseDialog?.isShowing==true || isFinishing || isDestroyed)return
+        game.paused=true
+        sound.pause()
+        val compactPause=resources.configuration.screenHeightDp<690
         val dialog=android.app.AlertDialog.Builder(this).create()
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
-            setPadding(d(18),d(15),d(18),d(19))
-            background=gradient(0xff106bd2.toInt(),0xff031936.toInt(),26).apply{
-                setStroke(d(3),electric)
+            setPadding(d(17),d(13),d(17),d(18))
+            background=gradient(0xff238ee9.toInt(),0xff061b45.toInt(),28).apply{
+                setStroke(d(3),0xff84ecff.toInt())
             }
         }
 
 
         content.addView(ImageView(this).apply{
-            // Keep the actual player visible when pausing Sova or Lisac.
+            // Full local Bopi, with both wings, also used by Home and Results.
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
+            background=gradient(0xff78d9ff.toInt(),0xff1269be.toInt(),24).apply{
+                setStroke(d(2),0xffccf9ff.toInt())
+            }
+            setPadding(d(5),d(3),d(5),d(3))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(154)))
-        title(content,"♛  PAUZA",32,Color.WHITE)
-        title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffbce6ff.toInt())
-        title(content,game.game.pilotAbility.description,13,0xffbce6ff.toInt())
+        },LinearLayout.LayoutParams(-1,d(if(compactPause)112 else 168)).apply{
+            bottomMargin=d(7)
+        })
+        title(content,"♛  PAUZA",if(compactPause)27 else 32,Color.WHITE)
+        title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffe4f5ff.toInt())
+        if(!compactPause)title(content,game.game.pilotAbility.description,13,0xffc7eaff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
             val face=when(style){
                 0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
@@ -876,8 +965,8 @@ class MainActivity : Activity() {
                 1 -> gradient(0xff23c8fc.toInt(),0xff064ab5.toInt(),30).apply{
                     setStroke(d(2),0xff83efff.toInt())
                 }
-                else -> gradient(0xff7593be.toInt(),0xff20365f.toInt(),30).apply{
-                    setStroke(d(2),0xffaec9f3.toInt())
+                else -> gradient(0xff26c9fc.toInt(),0xff0755bb.toInt(),30).apply{
+                    setStroke(d(2),0xff9deaff.toInt())
                 }
             }
             val b=Button(this).apply {
@@ -897,20 +986,35 @@ class MainActivity : Activity() {
                 contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
-            content.addView(b,LinearLayout.LayoutParams(-1,d(57)).apply{
-                setMargins(d(8),d(4),d(8),d(4))
+            content.addView(b,LinearLayout.LayoutParams(-1,d(if(compactPause)55 else 63)).apply{
+                setMargins(d(8),d(6),d(8),d(6))
             })
         }
         command("▶  NASTAVI",0){
-            game.paused=false
-            sound.resume()
+            if(gameView===game && selectedScreen=="game" && !game.game.finished){
+                game.paused=false
+                sound.resume()
+            }
         }
-        command("↻  PONOVO",1){startGame()}
-        command("←  IZLAZ",2){showHome()}
+        command("↻  PONOVO",1){
+            if(gameView===game && selectedScreen=="game" && !game.game.finished){
+                when(val target=PauseReplayTarget.fromStage(activeStage)){
+                    PauseReplayTarget.Endless -> startGame()
+                    is PauseReplayTarget.Finite -> startLevel(target.world,target.level)
+                }
+            }
+        }
+        command("←  IZLAZ",2){
+            if(gameView===game && selectedScreen=="game")showHome()
+        }
         // The streamlined Pause contains only Continue, Retry and Exit.
         // Changes to saved audio/accessibility preferences are preserved.
         val fitted=FitViewportColumn(this).apply{addView(content)}
         dialog.setView(fitted)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnDismissListener{
+            if(pauseDialog===dialog)pauseDialog=null
+        }
         dialog.setOnCancelListener{
             // Cancelling Pause resumes only the still-current game.
             if(gameView===game && selectedScreen=="game" && window.decorView.hasWindowFocus()) {
@@ -918,12 +1022,16 @@ class MainActivity : Activity() {
                 sound.resume()
             }
         }
+        pauseDialog=dialog
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         // Measured live buttons, no scroll even when inline pause options open.
+        dialog.window?.setGravity(Gravity.CENTER)
         dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels-d(24)).coerceAtMost(d(420)),
-            minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),d(600)))
+            minOf((resources.displayMetrics.widthPixels-d(24)).coerceAtLeast(1),
+                (resources.displayMetrics.widthPixels*.80f).toInt(),d(420)),
+            minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),
+                d(if(compactPause)480 else 590)))
     }
     private fun startGame(){
         activeStage=null
@@ -1010,13 +1118,55 @@ class MainActivity : Activity() {
         val resultBackdrop=resultWorldDrawableIds[resultWorld]
         progress.recordRun(g)
         val completed=activeStage
+        var earnedReward=0
         if(g.won && completed!=null && !g.endless){
             progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)
-            progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())
+            earnedReward=progress.completeLevelFromRecordedRun(
+                completed.first,completed.second,g.score())
         }
         gameView?.paused=true;gameView=null;selectedScreen="result"
         @Suppress("DEPRECATION")
         applyPremiumSystemBars()
+        if(!g.won){
+            val stats=GameOverStats.fromRun(g.distance,g.coins,g.stars,
+                g.foodCollected,g.score(),g.endless)
+            val result=GameOverScreen(this).create(
+                resultBackdrop,portraitDrawableIds[selectedPilotChoice],stats,
+                onRetry={
+                    val played=activeStage
+                    if(played!=null)startLevel(played.first,played.second)
+                    else startGame()
+                },
+                onHome={showHome()})
+            showNativeView(result)
+            return
+        }
+        if(g.won && completed!=null && !g.endless){
+            val winData=LevelCompleteState.fromRun(
+                completed.second,g.completedLevelStars,g.coins,g.score(),earnedReward)
+            val screen=LevelCompleteScreen(this).create(
+                resultBackdrop,portraitDrawableIds[selectedPilotChoice],winData,
+                onNext={
+                    if(winData.nextAvailable)startLevel(completed.first,completed.second+1L)
+                    else showLevels()
+                },
+                onHome={showHome()},
+                onShare={
+                    val text=winData.shareText()
+                    val intent=android.content.Intent(android.content.Intent.ACTION_SEND).apply{
+                        type="text/plain"
+                        putExtra(android.content.Intent.EXTRA_TEXT,text)
+                    }
+                    try {
+                        startActivity(android.content.Intent.createChooser(intent,"Share BOPAVI result"))
+                    }catch(_:android.content.ActivityNotFoundException){
+                        android.widget.Toast.makeText(this,"Sharing unavailable",
+                            android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                })
+            showNativeView(screen)
+            return
+        }
         val root=FrameLayout(this).apply{setBackgroundColor(0xff1d89cb.toInt())}
         val backdrop=ImageView(this).apply{
             setImageResource(resultBackdrop);scaleType=ImageView.ScaleType.CENTER_CROP
@@ -1199,11 +1349,9 @@ class MainActivity : Activity() {
                 current == null -> showHome()
                 current.finished -> showResult(current)
                 current.active -> {
-                    // No on-screen Pause control. System Back is the only pause entry.
+                    // Repeated system Back never stacks multiple pause windows.
                     gameView?.let { view ->
-                        view.paused=true
-                        sound.pause()
-                        showPremiumPause(view)
+                        if(pauseDialog?.isShowing!=true)showPremiumPause(view)
                     }
                 } // Do not discard live runs.
                 else -> showHome() // No extra character or level selection

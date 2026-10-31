@@ -31,16 +31,17 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var nextLevel:LevelEngine.Level? = null
     private var nextOrigin = 0.0
     /** Incoming gates retain the same world coordinates before and after promotion. */
-    fun gateX(gate: LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, levelOrigin, preciseDistance)
+    fun gateX(gate: LevelEngine.Gate):Float = FlightCameraComposition.gateX(gate.x, levelOrigin, preciseDistance)
     /** Continuous distance-based HUD ratio, not a staircase of completed gates. */
     val levelProgress:Float get() {
         val last = level.gates.lastOrNull() ?: return 0f
-        val finish = last.x.toDouble() + last.width.toDouble() + radius - birdX
+        val finish = last.x.toDouble() + FlightCameraComposition.horizontalShift.toDouble() +
+            last.width.toDouble() + radius - birdX
         if (finish <= 0.0) return 1f
         return ((preciseDistance - levelOrigin) / finish).toFloat().coerceIn(0f,1f)
     }
     fun upcomingGates():List<LevelEngine.Gate> = nextLevel?.gates ?: emptyList()
-    fun upcomingGateX(gate:LevelEngine.Gate):Float = WorldCoordinates.screenX(gate.x, nextOrigin, preciseDistance)
+    fun upcomingGateX(gate:LevelEngine.Gate):Float = FlightCameraComposition.gateX(gate.x, nextOrigin, preciseDistance)
     private fun prepareNext() {
         if(!endless || displayLevel>=Long.MAX_VALUE-3L){nextLevel=null;return}
         val generated=LevelEngine.createStream(level.world,displayLevel+1)
@@ -127,6 +128,18 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private var collectedCoins = BooleanArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
+    /** Render only real finite-level pickups. Appearance and the 23px/30px
+     * pickup ranges come from the same gate/index as the simulation.
+     * Read-only visibility never consumes an item or allocates per frame. */
+    fun coinVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].coin && !collectedCoins[index]
+    fun crystalVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].star && !collectedStars[index]
+    fun powerVisible(index:Int,incoming:Boolean=false):Boolean =
+        !endless && !incoming && index in level.gates.indices &&
+            level.gates[index].power!=0 && !collectedPowers[index]
     /** No new pickup arrays on identical-size marathon batches. */
     private fun clearOrResize(flags:BooleanArray,size:Int):BooleanArray {
         if(flags.size!=size)return BooleanArray(size)
@@ -134,7 +147,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         return flags
     }
     fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
-    val birdX = 126f
+    val birdX = FlightCameraComposition.birdX
     // Tight body-only hitbox; wings and transparent sprite padding never collide.
     val radius = 18f
     fun flap() {
@@ -199,6 +212,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             val travel=scrollSpeed*dt
             if (PillarCollision.sweptBodyHitsPillar(birdX,previousY,y,radius,
                     x+travel,x,gate.width,oldBounds,bounds)) {
+                damage()
+                if (finished) return
+            }
+            // The spiked ball is drawn and collided using one deterministic pose.
+            // It cannot silently award rewards after a fatal hit.
+            if (SkyMaceHazard.sweptHit(gate,i,birdX,previousY,y,radius,
+                    x+travel,x,oldBounds,bounds,previousTime,time)) {
                 damage()
                 if (finished) return
             }

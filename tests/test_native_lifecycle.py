@@ -22,11 +22,17 @@ assert "progress.chooseArcadePilot(index)" in activity
 assert "selectedPilotChoice" in home and "showSkins()" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
 assert "override fun onWindowFocusChanged(hasFocus:Boolean)" in activity
+manifest=(r/"android/app/src/main/AndroidManifest.xml").read_text()
+assert 'android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density"' in manifest
+assert 'override fun onConfigurationChanged(newConfig:android.content.res.Configuration)' in activity
+assert 'gameView?.requestLayout()' in activity
+assert 'window.decorView.requestApplyInsets()' in activity
 assert "showPauseAfterBackground=true" in activity
 assert "showPremiumPause(active)" in activity
 assert "FlightOverlayLayout" not in activity and "onFlightStarted" not in game
 assert 'private fun showPremiumPause(game:GameView)' in activity
-assert 'view.paused=true' in activity and 'showPremiumPause(view)' in activity
+assert 'game.paused=true' in activity and 'showPremiumPause(view)' in activity
+assert 'if(pauseDialog?.isShowing!=true)showPremiumPause(view)' in activity
 assert 'selectedScreen=="game"' in activity
 assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity

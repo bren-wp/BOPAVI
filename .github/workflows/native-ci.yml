@@ -68,6 +68,9 @@ jobs:
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_premium_cta_accessibility.py
       - run: python tests/test_quick_options.py
+      - run: python tests/test_reference_settings_contract.py
+      - run: python tests/test_achievements_screen_contract.py
+      - run: python tests/test_leaderboard_screen_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_legal_dialog_capture.py
@@ -75,6 +78,15 @@ jobs:
       - run: python tests/test_reference_navigation.py
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
+      - run: python tests/test_reference_gameplay_contract.py
+      - run: python tests/test_reference_ready_overlay_contract.py
+      - run: python tests/test_flight_reference_diff.py
+      - run: python tests/test_loading_reference_geometry.py
+      - run: python tests/test_reference_home_geometry.py
+      - run: python tests/test_home_reference_screen_contract.py
+      - run: python tests/test_loading_reference_qa_contract.py
+      - run: python tests/test_flight_camera_composition.py
+      - run: python tests/test_reference_viewport_capture_contract.py
       - run: python tests/test_flight_hud_layout_contract.py
       - run: python tests/test_hud_readability_contract.py
       - run: python tests/test_flight_life_feedback_contract.py
@@ -88,11 +100,18 @@ jobs:
       - run: python tests/test_native_stats_visual_contract.py
       - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_reference_menus_contract.py
+      - run: python tests/test_reference_skins_contract.py
+      - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
+      - run: python tests/test_pause_reference_contract.py
+      - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
+      - run: python tests/test_game_over_reference_contract.py
+      - run: python tests/test_level_complete_reference_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tools/audit_native_dead_code.py

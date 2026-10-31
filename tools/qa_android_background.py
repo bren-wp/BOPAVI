@@ -41,7 +41,10 @@ def main():
     pid = adb("shell", "pidof", APP)
     assert pid, "FAIL: app did not start"
     tap(one_control("PLAY"))
-    tap(one_control("DODIRNI ZA LET"))
+    # The idle GameView exposes this precise accessibility prompt. The
+    # obsolete 'DODIRNI ZA LET' text was removed from gameplay; assert the
+    # current live control instead of disabling the background-resume test.
+    tap(one_control("DODIRNI ZA ZAMAH KRILIMA"))
     before = active_flight().get("content-desc")
     assert before and "Životi:" in before, "FAIL: no true initial live lives"
 

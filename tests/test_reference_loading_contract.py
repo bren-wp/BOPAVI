@@ -33,7 +33,7 @@ assert 'loadingGeneration++' in activity
 assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' in qa
 assert 'android-loading.png' in qa
 assert 'python3 tools/qa_android_loading.py' in runner
-assert 'versionCode = 169' in gradle and 'versionName = "1.0.39"' in gradle
+assert 'versionCode = 170' in gradle and 'versionName = "1.0.40"' in gradle
 
 # Must not fake a timed progress countdown, require network, or replace the
 # one-system-splash cold start with an artificial second splash.

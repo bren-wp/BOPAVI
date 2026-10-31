@@ -12,16 +12,27 @@ for label in (
     "ŽIVOTI:", "TAP TO FLY WITH", "input keyevent 4",
 ):
     assert label in qa,label
+assert 'and "ŽIVOTI:" in label(n)' in qa
+assert '"DODIRNI ZA ZAMAH KRILIMA" in label(n)' in qa
+assert 'and n.get("clickable")=="true"' in qa
 assert "capture android-gameplay-ready" in qa
 assert "capture android-gameplay-active" in qa
+assert "capture android-game-over-reference-size" in qa
+assert 'struct.unpack(">II",data[16:24])==(941,1672)' in qa
+assert '"DODIRNI ZA ZAMAH KRILIMA" in labels' in qa
 for state in ("options","records"):
     assert "capture android-"+state in qa,state
 for state in ("privacy","terms"):
     assert '"android-'+state+'"' in qa,state
 assert 'screencap","-p"' in qa
 assert 'FAIL: original Android legal screenshot is invalid' in qa
-assert 'for expected in ("OPCIJE IGRE"' in qa
-assert 'for expected in ("MOJI REKORDI"' in qa
+assert 'for expected in ("SETTINGS","OPUŠTENO","STANDARDNO"' in qa
+assert "FAIL: Home Settings inaccessible" in qa
+assert "FAIL: relaxed flight difficulty not selected" in qa
+assert "FAIL: restored standard difficulty not selected" in qa
+assert 'for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE"' in qa
+assert "FAIL: Leaderboard Home action missing" in qa
+assert "PASS: local records screen visible and returns Home" in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa
 assert 'FAIL: real Pause dialog/buttons did not appear' in qa

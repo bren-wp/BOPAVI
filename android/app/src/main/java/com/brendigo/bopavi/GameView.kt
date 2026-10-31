@@ -6,8 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.PowerManager
 import android.graphics.Canvas
+import android.view.WindowInsets
+import android.os.Build
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import android.graphics.Rect
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.RadialGradient
@@ -36,8 +39,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Keep only a cached lives accessibility label: no score text or
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
-    private var cachedLives = -1
-    private var cachedLivesLabel = "3/3"
+    // Reused, immutable sprite destination: no RectF per rendered frame.
+    private val hudPortraitRect=RectF(22f,17f,66f,61f)
+    // Updated only when Android dispatches insets or the viewport changes.
+    // A center-camera cutout does not overlap the left HUD on normal phones.
+    private var hudTopSafeInsetPx=0
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
@@ -45,6 +51,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val birdSprites = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,R.drawable.bopi7,R.drawable.bopi8,R.drawable.bopi9,R.drawable.bopi10)
     private var birdBitmap = BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],
         BitmapFactory.Options().apply { inScaled=false })
+    // Owner's avatar is a close-up of the WHOLE Bopi, with goggles, face and
+    // independent wings, not the torso-only layer used for frame animation.
+    // Pre-rendered locally from the same verified source art during build.
+    private val portraitSprites=intArrayOf(
+        R.drawable.bopiportrait0,R.drawable.bopiportrait1,
+        R.drawable.bopiportrait2,R.drawable.bopiportrait3,
+        R.drawable.bopiportrait4,R.drawable.bopiportrait5,
+        R.drawable.bopiportrait6,R.drawable.bopiportrait7,
+        R.drawable.bopiportrait8,R.drawable.bopiportrait9,
+        R.drawable.bopiportrait10)
+    private var hudPortraitBitmap=BitmapFactory.decodeResource(
+        resources,portraitSprites[selectedSkin],
+        BitmapFactory.Options().apply { inScaled=false })
+    // A reused close-up source crop is rendered only INSIDE the round avatar.
+    // This does not alter the real flying bird, its hitbox or wing motion.
+    private val hudFaceSource=Rect(
+        FlightAvatarCrop.source.left,FlightAvatarCrop.source.top,
+        FlightAvatarCrop.source.right,FlightAvatarCrop.source.bottom)
     // Reference pilot is only enabled after build-time manifest and checksum
     // validation. This optional art never alters the same 18px body collider.
     private val referenceBopi0=selectedSkin==0 &&
@@ -160,6 +184,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         pillarRenderTop=-25f-overflow
         pillarRenderBottom=825f+overflow
         updateWorldCover(w,h)
+        if(Build.VERSION.SDK_INT>=30)requestApplyInsets()
+    }
+    override fun onApplyWindowInsets(insets:WindowInsets):WindowInsets {
+        if(Build.VERSION.SDK_INT>=30){
+            val scale=(width/480f).coerceAtMost(height/640f)
+            val originX=(width-480f*scale)*.5f
+            val hudLeft=originX+(FlightHudLayout.avatarX-25f)*scale
+            val hudRight=originX+FlightHudLayout.lives.right*scale
+            val cutout=insets.displayCutout
+            val cutoutOverlaps=cutout?.boundingRects?.any { rect ->
+                rect.bottom>0 &&
+                    FlightHudLayout.intersectsHudX(rect.left,rect.right,hudLeft,hudRight)
+            }==true
+            // statusBars() returns zero once the immersive bar is hidden.
+            hudTopSafeInsetPx=maxOf(insets.getInsets(WindowInsets.Type.statusBars()).top,
+                if(cutoutOverlaps)cutout?.safeInsetTop ?: 0 else 0)
+        } else hudTopSafeInsetPx=0
+        return super.onApplyWindowInsets(insets)
     }
     private fun updateWorldCover(w:Int,h:Int){
         worldBitmap?.let { bmp ->
@@ -326,20 +368,18 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
-            rect(canvas,87f,671f,393f,746f,0xd9092559.toInt(),22f)
-            rect(canvas,98f,677f,382f,681f,0xff36d7ff.toInt(),2f)
-            text(canvas,"DODIRNI ZA LET",240f,708f,20f,Color.WHITE,true)
-            text(canvas,"DODIR = ZAMAH KRILIMA",240f,729f,11f,0xffbceeff.toInt(),true)
+            drawFlightReadyTutorial(canvas)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
         canvas.restore()
-        if(game.active && !game.finished) {
+        if(!game.finished) {
+            // Reference ready-state already includes the real life HUD. Render
+            // it both before the first flap and during active flight.
             val hudScale=(width/480f).coerceAtMost(height/640f)
-            val topInset=if(android.os.Build.VERSION.SDK_INT>=30)
-                rootWindowInsets?.getInsets(android.view.WindowInsets.Type.statusBars() or
-                    android.view.WindowInsets.Type.displayCutout())?.top ?: 0 else 0
             canvas.save()
-            canvas.translate((width-480f*hudScale)*.5f,topInset+4f*hudScale)
+            // Inset is cached at lifecycle boundaries; no binder/cutout work on
+            // the 60/90/120 Hz render path and no unnecessary center-notch shift.
+            canvas.translate((width-480f*hudScale)*.5f,hudTopSafeInsetPx+4f*hudScale)
             canvas.scale(hudScale,hudScale)
             drawHud(canvas)
             canvas.restore()
@@ -775,6 +815,85 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             if(i%2==0) oval(c,gx+3f,y+4f+rise,gx+9f,y+8f+rise,0xffb2ed7a.toInt())
         }
     }
+    /** Real finite coins (gate.coin), drawn around the existing pickup centre.
+     * Every shade belongs to the collectible, never to the collision shaft. */
+    private fun drawGoldenCoin(c:Canvas,x:Float,y:Float) {
+        // Three metallic bevels are inside the unchanged 23-unit pickup range.
+        // Each crown belongs to one actual uncollected gate.coin.
+        oval(c,x-17f,y-12f,x+17f,y+18f,0x66082040)
+        oval(c,x-15f,y-15f,x+15f,y+15f,0xff86410c.toInt())
+        oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())
+        oval(c,x-12f,y-12f,x+12f,y+12f,0xffffcf46.toInt())
+        oval(c,x-9f,y-10f,x+9f,y+8f,0xffffa90e.toInt())
+        fill(0xffffefa2.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
+        c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)
+        p.style=Paint.Style.FILL
+        path.reset()
+        path.moveTo(x-7f,y-3f);path.lineTo(x-4f,y+2f)
+        path.lineTo(x,y-6f);path.lineTo(x+4f,y+2f)
+        path.lineTo(x+7f,y-3f);path.lineTo(x+6f,y+7f)
+        path.lineTo(x-6f,y+7f);path.close()
+        fill(0xff8b460d.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x-5f,y-1f);path.lineTo(x-3f,y+2f)
+        path.lineTo(x,y-4f);path.lineTo(x+3f,y+2f)
+        path.lineTo(x+5f,y-1f);path.lineTo(x+4f,y+5f)
+        path.lineTo(x-4f,y+5f);path.close()
+        fill(0xffffe784.toInt());c.drawPath(path,p)
+        oval(c,x-11f,y-12f,x-6f,y-8f,0xccffffff.toInt())
+    }
+    /** The existing gate.star is represented as a sapphire crystal, matching
+     * the reference. Collision/magnet semantics remain 'star' internally. */
+    private fun drawBlueCrystal(c:Canvas,x:Float,y:Float) {
+        oval(c,x-19f,y-20f,x+19f,y+19f,0x4484faff)
+        path.reset()
+        path.moveTo(x,y-21f);path.lineTo(x+15f,y)
+        path.lineTo(x,y+22f);path.lineTo(x-15f,y);path.close()
+        fill(0xff07559f.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-18f);path.lineTo(x+12f,y)
+        path.lineTo(x,y+16f);path.lineTo(x-12f,y);path.close()
+        fill(0xff2dbfff.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-18f);path.lineTo(x-12f,y)
+        path.lineTo(x,y+16f);path.close()
+        fill(0xff8eeaff.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(x,y-14f);path.lineTo(x+5f,y-3f)
+        path.lineTo(x,y+11f);path.lineTo(x-5f,y-3f);path.close()
+        fill(0xccffffff.toInt());c.drawPath(path,p)
+        // Two facet seams and a cold center glint make the original sapphire
+        // legible against the castle islands without moving its pickup centre.
+        fill(0xff0765ae.toInt());p.style=Paint.Style.STROKE
+        p.strokeWidth=1.6f
+        c.drawLine(x,y-18f,x,y+16f,p)
+        c.drawLine(x-12f,y,x+12f,y,p)
+        p.style=Paint.Style.FILL
+        oval(c,x-2f,y-15f,x+2f,y-11f,0xeeffffff.toInt())
+    }
+    /** The icon sits at the real finite pickup power coordinate. A shield or
+     * magnet is only rendered while the corresponding item is uncollected. */
+    private fun drawPowerPickup(c:Canvas,x:Float,y:Float,kind:Int) {
+        oval(c,x-17f,y-17f,x+17f,y+17f,0x66300a62)
+        oval(c,x-14f,y-14f,x+14f,y+14f,0xff083a9d.toInt())
+        oval(c,x-11f,y-11f,x+11f,y+11f,0xff64e4ff.toInt())
+        if(kind==1) {
+            path.reset();path.moveTo(x,y-10f);path.lineTo(x+8f,y-6f)
+            path.lineTo(x+6f,y+5f);path.lineTo(x,y+10f)
+            path.lineTo(x-6f,y+5f);path.lineTo(x-8f,y-6f);path.close()
+            fill(0xffffe16a.toInt());c.drawPath(path,p)
+        } else {
+            // U-shaped magnet, cyan poles and real power type.
+            fill(0xffff4479.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=5f
+            path.reset();path.moveTo(x-7f,y-6f);path.lineTo(x-7f,y+3f)
+            path.quadTo(x,y+15f,x+7f,y+3f);path.lineTo(x+7f,y-6f)
+            c.drawPath(path,p);p.style=Paint.Style.FILL
+            rect(c,x-10f,y-9f,x-4f,y-4f,0xffffffff.toInt(),1f)
+            rect(c,x+4f,y-9f,x+10f,y-4f,0xffffffff.toInt(),1f)
+        }
+    }
+
     /** Small native heart sprite, with no extra bitmap allocations. */
     private fun drawHeartPickup(c:Canvas,cx:Float,cy:Float){
         path.reset()
@@ -812,6 +931,89 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         rect(c,x+w-2f,y+7f,x+w+2f,y+23f,0x880c2747.toInt(),2f)
         rect(c,x-3f,y+23f,x+w+2f,y+26f,0x990a2948.toInt(),2f)
     }
+    /** Decorative sapphire/gold inlays stay entirely inside the existing
+     * top/bottom 27–28px physical cap, keeping collision silhouettes exact.
+     * All biomes reuse the same royal-blue/gold trim from the reference. */
+    private fun drawGateCapInlay(c:Canvas,x:Float,w:Float,y:Float,kind:Int) {
+        val middle=x+w*.5f
+        val cobalt=if(kind==0)0xff1464a2.toInt() else pillarDark[kind]
+        // Two polished bolts and a faceted seal are painted ONLY in solid stone.
+        oval(c,x+4f,y+9f,x+11f,y+16f,0xffffdc67.toInt())
+        oval(c,x+w-11f,y+9f,x+w-4f,y+16f,0xffffdc67.toInt())
+        path.reset()
+        path.moveTo(middle,y+5f)
+        path.lineTo(middle+9f,y+14f)
+        path.lineTo(middle,y+23f)
+        path.lineTo(middle-9f,y+14f)
+        path.close()
+        fill(0xff533114.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(middle,y+7f)
+        path.lineTo(middle+7f,y+14f)
+        path.lineTo(middle,y+21f)
+        path.lineTo(middle-7f,y+14f)
+        path.close()
+        fill(cobalt);c.drawPath(path,p)
+        path.reset()
+        path.moveTo(middle,y+8f)
+        path.lineTo(middle-6f,y+14f)
+        path.lineTo(middle,y+18f)
+        path.close()
+        fill(0xffb6f5ff.toInt());c.drawPath(path,p)
+    }
+    /**
+     * Collision-faithful upper/lower hanging mace, drawn only at actual physical
+     * hazard locations. Spikes remain within the 18-unit circular contact rim.
+     */
+    private fun drawSkyMace(c:Canvas,g:LevelEngine.Gate,x:Float,
+                            index:Int,a:LevelEngine.Opening) {
+        if(!SkyMaceHazard.enabled(g,index))return
+        val cx=SkyMaceHazard.bobX(g,x,game.time)
+        val cy=SkyMaceHazard.bobY(g,a,game.time,index)
+        val anchorX=x+g.width*.5f
+        val anchorY=if(index%2==0)a.top-7f else a.bottom+7f
+        fill(0xff44314c.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=5f
+        p.strokeCap=Paint.Cap.ROUND
+        c.drawLine(anchorX,anchorY,cx,cy,p)
+        fill(0xffffbd4d.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=1.8f
+        c.drawLine(anchorX,anchorY,cx,cy,p)
+        // Links decorate the actual swinging rope, never add a hazard.
+        for(link in 1..3){
+            val f=link/4f
+            val lx=anchorX+(cx-anchorX)*f
+            val ly=anchorY+(cy-anchorY)*f
+            fill(0xffffce77.toInt());p.strokeWidth=1.3f
+            c.drawCircle(lx,ly,2.8f,p)
+        }
+        p.style=Paint.Style.FILL
+        p.strokeCap=Paint.Cap.BUTT
+        // The mace's visible 18px rim equals its collision radius.
+        val r=SkyMaceHazard.radius
+        oval(c,cx-r,cy-r,cx+r,cy+r,0xff15213f.toInt())
+        oval(c,cx-r+3f,cy-r+3f,cx+r-3f,cy+r-3f,0xff58627e.toInt())
+        for(i in 0..7) {
+            val angle=i*0.78539816f+game.time*.45f
+            val dx=cos(angle)
+            val dy=sin(angle)
+            val px=-dy
+            val py=dx
+            path.reset()
+            path.moveTo(cx+dx*13f+px*5f,cy+dy*13f+py*5f)
+            path.lineTo(cx+dx*r,cy+dy*r)
+            path.lineTo(cx+dx*13f-px*5f,cy+dy*13f-py*5f)
+            path.close()
+            fill(0xffffca58.toInt())
+            c.drawPath(path,p)
+        }
+        oval(c,cx-10f,cy-10f,cx+9f,cy+9f,0xff915f34.toInt())
+        oval(c,cx-7f,cy-8f,cx+7f,cy+7f,0xffc78a3a.toInt())
+        oval(c,cx-5f,cy-6f,cx+5f,cy+5f,0xff31384f.toInt())
+        oval(c,cx-6f,cy-8f,cx-2f,cy-4f,0xffd8eaff.toInt())
+    }
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -824,10 +1026,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawCliffShaft(c,x,w,pillarRenderTop,top,shade,color,-cliffSeed)
         rect(c,x-7f,top-28f,x+w+5f,top,cap,7f)
         drawPolishedGateLip(c,x,w,top-28f)
+        drawGateCapInlay(c,x,w,top-28f,g.kind)
         if(g.kind==0) drawMossLedge(c,x,w,top-28f,cliffSeed)
         drawCliffShaft(c,x,w,bottom,pillarRenderBottom,shade,color,cliffSeed)
         rect(c,x-7f,bottom,x+w+5f,bottom+27f,cap,7f)
         drawPolishedGateLip(c,x,w,bottom)
+        drawGateCapInlay(c,x,w,bottom,g.kind)
         if(g.kind==0) drawMossLedge(c,x,w,bottom,cliffSeed)
         drawRockFacets(c,x,w,pillarRenderTop+7f,top-30f)
         drawRockFacets(c,x,w,bottom+28f,pillarRenderBottom-14f)
@@ -886,11 +1090,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             rect(c,cx-11f,badgeY-13f,cx+11f,badgeY+11f,0xffffd876.toInt(),6f)
             text(c,"!",cx,badgeY+6f,18f,0xff122647.toInt(),true)
         }
+        // This is an actual gameplay obstacle: the same pose is swept in GameSimulation.
+        drawSkyMace(c,g,x,index,a)
+        val mid=x+w*.5f
+        val cy=(a.top+a.bottom)*.5f
         if(game.endless) {
-            val mid=x+w*.5f
-            val cy=(a.top+a.bottom)*.5f
             if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
             else if(game.berryVisible(index,incoming)) drawBerry(c,mid,cy,13f)
+        } else {
+            // Never paint rewards which have already been collected. The
+            // positions match GameSimulation's existing magnet/contact math.
+            if(game.coinVisible(index,incoming))drawGoldenCoin(c,mid,cy)
+            if(game.crystalVisible(index,incoming))drawBlueCrystal(c,mid+35f,cy-25f)
+            if(game.powerVisible(index,incoming))drawPowerPickup(c,mid+39f,cy+39f,g.power)
         }
     }
     /** Bursts follow actual game pickup/shield events, not an arbitrary animation timer.
@@ -909,7 +1121,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.alpha=(210f*(1f-progress)).toInt().coerceIn(0,210)
             for(i in 0 until 10) {
                 val angle=i*6.2831853f/10f
-                val x=126f+cos(angle)*radius
+                val x=game.birdX+cos(angle)*radius
                 val y=game.y+sin(angle)*radius
                 c.drawCircle(x,y,2.9f+(i%3)*.65f,p)
             }
@@ -926,8 +1138,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                 val angle=i*6.2831853f/12f
                 val dx=cos(angle)
                 val dy=sin(angle)
-                c.drawLine(126f+dx*radius,game.y+dy*radius,
-                           126f+dx*(radius+9f),game.y+dy*(radius+9f),p)
+                c.drawLine(game.birdX+dx*radius,game.y+dy*radius,
+                           game.birdX+dx*(radius+9f),game.y+dy*(radius+9f),p)
             }
         }
         p.alpha=255
@@ -947,10 +1159,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(((105f*strength).toInt().coerceIn(0,105) shl 24) or hue)
         p.style=Paint.Style.STROKE
         p.strokeWidth=2.5f
-        c.drawCircle(126f,game.y,radius,p)
+        c.drawCircle(game.birdX,game.y,radius,p)
         p.style=Paint.Style.FILL
         for(i in 0 until 7) {
-            val x=101f-i*9f-30f*progress
+            val x=game.birdX-25f-i*9f-30f*progress
             val y=game.y+(i%3-1)*19f+sin(game.time*13f+i*1.7f)*4f
             fill(((190f*strength).toInt().coerceIn(0,190) shl 24) or hue)
             c.drawCircle(x,y,2.4f+(i%3)*.7f,p)
@@ -961,7 +1173,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             val portion=game.collectPulse/.36f
             fill(0xffffe69c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=if(reducedMotion)2f else 3f
             p.alpha=(190f*portion).toInt().coerceIn(0,190)
-            c.drawCircle(126f,game.y,28f+(1f-portion)*38f,p)
+            c.drawCircle(game.birdX,game.y,28f+(1f-portion)*38f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
         if(game.impactPulse>0f){
@@ -969,7 +1181,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             fill(if(game.lastImpactLostLife)0xffffa1b2.toInt() else 0xffb8efff.toInt())
             p.style=Paint.Style.STROKE;p.strokeWidth=5f
             p.alpha=(210f*portion).toInt().coerceIn(0,210)
-            c.drawCircle(126f,game.y,35f+(1f-portion)*28f,p)
+            c.drawCircle(game.birdX,game.y,35f+(1f-portion)*28f,p)
             p.style=Paint.Style.FILL;p.alpha=255
         }
         drawFeedbackSparkles(c)
@@ -982,15 +1194,25 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.strokeWidth=2.3f
             p.alpha=if(reducedMotion)105 else (65f+35f*
                 kotlin.math.sin(game.time*3.5f)).toInt().coerceIn(30,130)
-            c.drawCircle(126f,game.y,49f,p)
+            c.drawCircle(game.birdX,game.y,49f,p)
             p.style=Paint.Style.FILL
             p.alpha=255
         }
         // Flight ribbons keep the sprite visually connected to the wind and world.
         // No temporary bitmaps or Paint instances in the render loop.
         if(!reducedMotion && game.active && !game.finished) {
+            // A broader sky-blue streak follows the actual Bopi position.
+            // Only decorative Canvas paths; accessibility/colliders unchanged.
+            fill(0x77dffcff)
+            p.style=Paint.Style.STROKE;p.strokeWidth=4.2f
+            p.strokeCap=Paint.Cap.ROUND
+            path.reset()
+            path.moveTo(game.birdX-51f,game.y+25f)
+            path.cubicTo(game.birdX-88f,game.y+15f,
+                game.birdX-125f,game.y+3f,game.birdX-150f,game.y-17f)
+            c.drawPath(path,p)
             for(i in 0 until 5) {
-                val x=107f-i*16f
+                val x=game.birdX-19f-i*16f
                 val y=game.y+(i%3-1)*13f+sin(game.time*5f+i)*3f
                 fill(0xffb4edff.toInt())
                 p.style=Paint.Style.STROKE
@@ -1003,13 +1225,13 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
             p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT;p.alpha=255
         }
-        if(game.magnetTime>0f)oval(c,92f,game.y-34f,160f,game.y+34f,0x444fdfff)
+        if(game.magnetTime>0f)oval(c,game.birdX-34f,game.y-34f,game.birdX+34f,game.y+34f,0x444fdfff)
         if(game.shield>0){
             fill(0xff9fefff.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=3f
-            c.drawCircle(126f,game.y,48f+sin(game.time*5f)*2f,p)
+            c.drawCircle(game.birdX,game.y,48f+sin(game.time*5f)*2f,p)
             p.style=Paint.Style.FILL
         }
-        c.save();c.translate(126f,game.y)
+        c.save();c.translate(game.birdX,game.y)
         // Soft sky-blue/gold light remains behind the real moving wings and body.
         // A flap enlarges only the light, not the sprite or collision radius.
         val auraImpulse=if(reducedMotion)0f else (game.flapPulse/.24f).coerceIn(0f,1f)
@@ -1064,6 +1286,75 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,3f,-36f,25f,-16f,0xffa65d2b.toInt());oval(c,7f,-32f,20f,-20f,0xff8cdeff.toInt())
         c.restore()
     }
+    /** Reference-sized ready-to-fly callout. World physics and touch targets
+     * remain unchanged: the whole GameView still responds to the first tap.
+     * Display only while idle; no faux HUD after an actual flap.
+     */
+    private fun drawFlightReadyTutorial(c:Canvas) {
+        val a=FlightReadyOverlayLayout
+        rect(c,a.left+1.5f,a.top+3f,a.right+1.5f,a.bottom+3f,0x44051b44,22f)
+        rect(c,a.left,a.top,a.right,a.bottom,0xa7193f80.toInt(),22f)
+        fill(0xff8bdfff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=1.5f
+        c.drawRoundRect(a.left+1f,a.top+1f,a.right-1f,a.bottom-1f,21f,21f,p)
+        p.style=Paint.Style.FILL
+
+        // Original Croatian instructions stay available. English Android
+        // locale uses the short one-line wording in the approved reference.
+        val croatian=resources.configuration.locales.get(0).language=="hr"
+        if(croatian) {
+            drawTutorialText(c,"DODIRNI ZA LET",240f,624f,17f)
+            text(c,"DODIR = ZAMAH KRILIMA",240f,642f,10f,0xffd3f5ff.toInt(),true)
+        } else {
+            drawTutorialHand(c,163f,626f)
+            drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)
+        }
+    }
+
+    private fun drawTutorialText(c:Canvas,message:String,cx:Float,
+                                 baseline:Float,size:Float) {
+        fill(0xff082859.toInt())
+        p.typeface=headerTypeface
+        p.textAlign=Paint.Align.CENTER
+        p.textSize=size
+        p.strokeJoin=Paint.Join.ROUND
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=3f
+        c.drawText(message,cx,baseline,p)
+        p.style=Paint.Style.FILL
+        p.color=Color.WHITE
+        c.drawText(message,cx,baseline,p)
+        p.textAlign=Paint.Align.LEFT
+    }
+
+    /** Tiny local vector hand/click rays; no imported icons or per-frame bitmaps. */
+    private fun drawTutorialHand(c:Canvas,x:Float,y:Float) {
+        path.reset()
+        path.moveTo(x-4f,y+14f)
+        path.lineTo(x-12f,y+2f)
+        path.quadTo(x-14f,y-2f,x-10f,y-4f)
+        path.quadTo(x-7f,y-5f,x-5f,y-1f)
+        path.lineTo(x-5f,y-13f)
+        path.quadTo(x-4f,y-17f,x,y-17f)
+        path.quadTo(x+4f,y-16f,x+4f,y-12f)
+        path.lineTo(x+4f,y-1f)
+        path.quadTo(x+8f,y-5f,x+11f,y-2f)
+        path.lineTo(x+15f,y+9f)
+        path.quadTo(x+13f,y+17f,x+4f,y+18f)
+        path.close()
+        fill(Color.WHITE)
+        c.drawPath(path,p)
+        fill(0xff063064.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=2.4f
+        c.drawPath(path,p)
+        c.drawLine(x-12f,y-16f,x-17f,y-21f,p)
+        c.drawLine(x-18f,y-7f,x-23f,y-9f,p)
+        c.drawLine(x+10f,y-15f,x+15f,y-20f,p)
+        p.style=Paint.Style.FILL
+    }
+
     /** Only the real lives remain in flight; the 480x800 physics remain unchanged. */
     private fun hudGlass(c:Canvas,l:Float,t:Float,r:Float,b:Float) {
         // Unified premium glass: restrained corner radius, thin highlight,
@@ -1080,44 +1371,69 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.alpha=255
         rect(c,l+15f,t+5f,r-15f,t+7f,0x82bfefff.toInt(),2f)
     }
-    private fun drawHudRightText(c:Canvas,value:String,right:Float,baseline:Float,color:Int){
-        fill(color)
-        p.typeface=headerTypeface
-        p.textSize=12f
-        p.textAlign=Paint.Align.RIGHT
-        c.drawText(value,right,baseline,p)
-        p.textAlign=Paint.Align.LEFT
-    }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
-        fill(if(active)0xffff6987.toInt() else 0x552c4b73)
+        fill(if(active)0xffff4f51.toInt() else 0x552c4b73)
         c.drawPath(path,p)
-        // A full outline distinguishes missing from remaining hearts in
-        // bright worlds and for colour-vision differences; no new bitmap.
-        fill(if(active)0xffffdce5.toInt() else 0xffd1e8ff.toInt())
+        if(active)oval(c,x-5f,y-2f,x+5f,y+5f,0x55ffaf98)
+        // Deep navy contour and a short enamel reflection match the reference;
+        // rendering stays allocation-free and inactive hearts remain distinct.
+        fill(if(active)0xff082e60.toInt() else 0xffa0b8d0.toInt())
         p.style=Paint.Style.STROKE
-        p.strokeWidth=if(active)1.2f else 1.8f
+        p.strokeWidth=2.3f
         c.drawPath(path,p)
         p.style=Paint.Style.FILL
+        if(active){
+            fill(0xb6ffffff.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=1.3f
+            p.strokeCap=Paint.Cap.ROUND
+            c.drawLine(x-6f,y-4f,x-3f,y-5f,p)
+            p.style=Paint.Style.FILL
+            p.strokeCap=Paint.Cap.BUTT
+        }
     }
     private fun drawHud(c:Canvas){
         // Minimal native HUD: lives only. Scores, berries and abilities remain
         // in GameSimulation for authentic results and saved history, never in flight.
         val lives=game.lives.coerceIn(0,game.maxLives)
-        if(lives!=cachedLives) {
-            cachedLives=lives
-            cachedLivesLabel="$lives/${game.maxLives}"
-        }
         val h=FlightHudLayout
         hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)
-        text(c,"ŽIVOTI",h.lives.left+18f,40f,15f,0xfff2faff.toInt())
-        drawHudRightText(c,cachedLivesLabel,h.lifeCountRight,40f,
-            FlightHudReadability.lifeCountColor(lives,game.maxLives))
+        // Bird portrait and three glossy hearts are the ONLY flight overlay.
+        // No hidden/painted pause button, scores or wallet. Avatar is clipped
+        // into its round bezel; the original selected pilot stays visible.
+        oval(c,h.avatarX-25f,h.avatarY-25f,h.avatarX+25f,h.avatarY+25f,0xff052a67.toInt())
+        oval(c,h.avatarX-23f,h.avatarY-23f,h.avatarX+23f,h.avatarY+23f,0xff78ddff.toInt())
+        c.save()
+        path.reset()
+        path.addCircle(h.avatarX,h.avatarY,h.avatarRadius,Path.Direction.CW)
+        c.clipPath(path)
+        val portrait=hudPortraitBitmap
+        if(portrait!=null) {
+            fill(Color.WHITE)
+            c.drawBitmap(portrait,hudFaceSource,hudPortraitRect,p)
+        } else {
+            // Keep the original torso layer as a no-crash fallback if an
+            // individual portrait raster is absent in a damaged installation.
+            birdBitmap?.let {
+                fill(Color.WHITE)
+                c.drawBitmap(it,null,hudPortraitRect,p)
+            } ?: oval(c,h.avatarX-20f,h.avatarY-19f,h.avatarX+20f,h.avatarY+22f,
+                0xff239bdf.toInt())
+        }
+        c.restore()
+        // Reference has no horizontal pink life bar; communicate final-life
+        // urgency via the avatar's tiny rim glint instead.
+        val rim=FlightHudReadability.lifeCountColor(lives,game.maxLives)
+        oval(c,h.avatarX-18f,h.avatarY-22f,h.avatarX-10f,h.avatarY-20f,rim)
         for(i in 0 until game.maxLives.coerceAtMost(h.heartCenters.size)) {
+            c.save()
+            c.scale(1.17f,1.17f,h.heartCenters[i],h.heartBaseline)
             drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
+            c.restore()
         }
         if(lives!=lastAccessibilityLives) {
             lastAccessibilityLives=lives
@@ -1190,6 +1506,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Reattachment is legal after OS window transitions: never draw a recycled Bitmap.
         val opts=BitmapFactory.Options().apply { inScaled=false }
         if(birdBitmap==null) birdBitmap=BitmapFactory.decodeResource(resources,birdSprites[selectedSkin],opts)
+        if(hudPortraitBitmap==null) hudPortraitBitmap=BitmapFactory.decodeResource(resources,portraitSprites[selectedSkin],opts)
         if(wingLeftBitmap==null) wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],opts)
         if(wingRightBitmap==null) wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],opts)
         if(worldBitmap==null) worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],opts)
@@ -1213,7 +1530,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Avoid explicit recycle(): RenderThread may still own display lists.
         paused=true
         frameClock.reset()
-        birdBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
+        birdBitmap=null;hudPortraitBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
         super.onDetachedFromWindow()
     }
 }

@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -111,6 +111,89 @@ internal class BopaviUiIconDrawable(
                         12f + dx * 10f, 12f + dy * 10f, paint
                     )
                 }
+            }
+            Kind.MUSIC -> {
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.5f
+                canvas.drawLine(12f,5f,19f,3f,paint)
+                canvas.drawLine(12f,5f,12f,17f,paint)
+                canvas.drawLine(19f,3f,19f,14f,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawOval(6f,15f,13f,20f,paint)
+                canvas.drawOval(13f,12f,20f,17f,paint)
+            }
+            Kind.SHIELD -> {
+                // One consistent shield silhouette for every upgraded tier.
+                paint.style=Paint.Style.FILL
+                path.moveTo(12f,2f)
+                path.lineTo(20f,5f)
+                path.lineTo(19f,14f)
+                path.quadTo(16f,19f,12f,22f)
+                path.quadTo(8f,19f,5f,14f)
+                path.lineTo(4f,5f)
+                path.close()
+                canvas.drawPath(path,paint)
+                paint.color=Color.argb(Color.alpha(paint.color),8,48,91)
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=1.8f
+                canvas.drawLine(12f,5f,12f,17f,paint)
+            }
+            Kind.MAGNET -> {
+                // Horseshoe with protected inner slot and alternating pole tips.
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=5f
+                canvas.drawArc(4.5f,2.5f,19.5f,18.5f,0f,180f,false,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(2f,12f,8f,21f,1f,1f,paint)
+                canvas.drawRoundRect(16f,12f,22f,21f,1f,1f,paint)
+                paint.color=Color.argb(Color.alpha(paint.color),8,48,91)
+                canvas.drawLine(2.5f,16f,7.5f,16f,paint)
+                canvas.drawLine(16.5f,16f,21.5f,16f,paint)
+            }
+            Kind.COIN -> {
+                // Crown coin in the reference wallet: gold rim and a tiny
+                // impressed crown, not the trophy used by record screens.
+                canvas.drawCircle(12f,12f,9f,paint)
+                canvas.drawCircle(12f,12f,6.8f,paint)
+                path.moveTo(7.5f,13.6f)
+                path.lineTo(7f,9.4f)
+                path.lineTo(10.2f,11.2f)
+                path.lineTo(12f,7.5f)
+                path.lineTo(13.8f,11.2f)
+                path.lineTo(17f,9.4f)
+                path.lineTo(16.5f,13.6f)
+                path.close()
+                canvas.drawPath(path,paint)
+            }
+            Kind.SHOP -> {
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(4f,10f,20f,21f,1.3f,1.3f,paint)
+                paint.style=Paint.Style.STROKE
+                canvas.drawRect(8f,15f,12f,21f,paint)
+                canvas.drawLine(5f,4f,19f,4f,paint)
+                for(index in 0..3){
+                    canvas.drawLine(5f+index*4f,4f,5f+index*4f,10f,paint)
+                }
+            }
+            Kind.LEADERBOARD -> {
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(3f,13f,9f,22f,1f,1f,paint)
+                canvas.drawRoundRect(9f,6f,15f,22f,1f,1f,paint)
+                canvas.drawRoundRect(15f,16f,21f,22f,1f,1f,paint)
+            }
+            Kind.SOUND -> {
+                paint.style=Paint.Style.FILL
+                path.moveTo(3f,9f)
+                path.lineTo(8f,9f)
+                path.lineTo(13f,4f)
+                path.lineTo(13f,20f)
+                path.lineTo(8f,15f)
+                path.lineTo(3f,15f)
+                path.close()
+                canvas.drawPath(path,paint)
+                paint.style=Paint.Style.STROKE
+                canvas.drawArc(12f,6f,20f,18f,-65f,130f,false,paint)
+                canvas.drawArc(10f,3f,23f,21f,-65f,130f,false,paint)
             }
             Kind.RECORDS -> {
                 path.moveTo(7f, 4f)

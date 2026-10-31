@@ -21,12 +21,20 @@ for action in ('feature("SKINS"','feature("SHOP"',
 assert "progress.chooseArcadePilot(index)" in app
 assert "progress.buyPerk(index)" in app
 assert "progress.claimBonusCoins()" in app
-assert "progress.frontier(selected)" in menus
-assert "progress.bestLevelStars(selected,level.toLong())" in menus
-assert "if(unlocked)onPlay(selected,level.toLong())" in menus
-assert "node.isEnabled=unlocked" in menus
+levelMap=(src/"LevelMapScreen.kt").read_text()
+geometry=(src/"LevelMapGeometry.kt").read_text()
+assert "LevelMapScreen(host,progress).create(world,onWorld,onPlay,onBack)" in menus
+assert "progress.frontier(selected)" in levelMap
+assert "progress.bestLevelStars(selected,level.toLong())" in levelMap
+assert "if(unlocked)onPlay(selected,level.toLong())" in levelMap
+assert "isEnabled=enabled" in levelMap
+assert "LevelMapGeometry.isUnlocked(level,frontier)" in levelMap
+assert "val nodes=listOf(" in geometry
 assert "progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)" in app
-assert "progress.completeLevelFromRecordedRun(completed.first,completed.second,g.score())" in app
+assert "earnedReward=progress.completeLevelFromRecordedRun(" in app
+assert "completed.first,completed.second,g.score())" in app
+assert "val winData=LevelCompleteState.fromRun(" in app
+assert "earnedReward)" in app
 assert "if(!runAlreadyRecorded)e.putInt" in state
 assert "fun completeLevel(world:Int, number:Long, score:Int):Int" in state
 assert "fun recordRun(game: GameSimulation)" in state
@@ -37,5 +45,28 @@ for fake in ("1,250", "85 Gems", "Cloud Save", "Restore Purchases",
     assert fake not in menus, fake
 assert "gamePauseButton" not in app
 assert "python3 tools/qa_android_reference_menus.py" in (root/"tools/qa_android_emulator.sh").read_text()
-assert "versionCode = 169" in (root/"android/app/build.gradle.kts").read_text()
+# Emulator QA intentionally relaunches the app during persistence checks.
+# A level-launch crash check must compare against the PID immediately before
+# that navigation, never the stale PID from the first Home process.
+flow=(root/"tools/qa_android_reference_menus.py").read_text()
+assert 'pid_before_level=adb("shell","pidof",APP)' in flow
+assert '==pid_before_level' in flow
+assert '==pid,"FAIL: real level launch crashed the app"' not in flow
+# qa_android_rotation.label() uppercases Android UI text. All supplied
+# queries (English/Croatian, mixed-case, accented) must still match reliably.
+import sys
+import xml.etree.ElementTree as ET
+sys.path.insert(0, str(root/"tools"))
+from qa_android_reference_menus import matching_nodes
+xml=ET.Element("hierarchy")
+music=ET.SubElement(xml,"node",{"text":"MUSIC","content-desc":"","clickable":"false","enabled":"true"})
+legal=ET.SubElement(xml,"node",{"text":"OPEN","content-desc":"PROČITAJ POLITIKU PRIVATNOSTI","clickable":"true","enabled":"true"})
+ET.SubElement(xml,"node",{"text":"SOUND","content-desc":"SOUND","clickable":"false","enabled":"true"})
+assert matching_nodes(xml,"Music")==[music]
+assert matching_nodes(xml,"music")==[music]
+assert matching_nodes(xml,"Pročitaj politiku privatnosti",clickable=True)==[legal]
+assert not matching_nodes(xml,"Music",clickable=True)
+assert not matching_nodes(xml,"Nepostojeća opcija")
+
+assert "versionCode = 170" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")

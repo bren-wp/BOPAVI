@@ -14,7 +14,7 @@ records=main.split("private fun showLocalRecords(){",1)[1].split("private fun sh
 play=main.split("private fun startGame(){",1)[1].split("private fun showResult(",1)[0]
 
 assert 'contentDescription="Otvori opcije igre"' in home
-assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.RECORDS,' in home
+assert 'shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD,' in home
 assert 'LinearLayout.LayoutParams(0,d(77),1f)' in home
 assert 'action(content,"▶  PLAY"){startGame()}' in home
 assert 'showSettings(' not in main
@@ -32,9 +32,11 @@ assert 'onStopTrackingTouch(' in options and 'onProgressChanged(' in options
 assert 'perks.first,perks.second,progress.difficulty(),number,' in play
 assert 'PilotAbility.fromChoice(chosenPilot)' in play
 assert 'LevelEngine.createStream(world,number)' in play
+assert 'selectedScreen="records"' in records
 assert 'progress.totalRuns()' in records and 'progress.totalFlaps()' in records
 assert 'progress.bestPoints()' in records and 'progress.bestFood()' in records
-assert 'progress.endlessBest()' in records
+assert 'progress.endlessBest()' in records and 'progress.leaderboard()' in records
+assert 'LeaderboardScreen(this).create(summary,scores,onBack={showHome()})' in records
 assert 'fun totalRuns():Int' in store and 'fun totalFlaps():Long' in store
 for name in ('difficulty','sound_enabled','haptic_enabled','less_motion','music_volume','effects_volume','endless_runs','flaps'):
     assert '"'+name+'"' in store,name
@@ -43,17 +45,19 @@ print("PASS: reachable quick options and records, real difficulty and new offlin
 
 qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 for contract in (
-    "FAIL: Home quick options inaccessible",
+    "FAIL: Home Settings inaccessible",
     "FAIL: relaxed flight difficulty not selected",
     "FAIL: restored standard difficulty not selected",
     "FAIL: Home records action missing",
-    "PASS: local records visible and dismissible",
+    "PASS: local records screen visible and returns Home",
 ):
     assert contract in qa,contract
 
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in main
-assert 'val heroHeight=(resources.configuration.screenHeightDp-558).coerceIn(92,270)' in main
+assert 'val heroHeight=if(compactDisplay)' in main
+assert '(resources.configuration.screenHeightDp-558).coerceIn(92,270)' in main
+assert '(resources.configuration.screenHeightDp-468).coerceIn(225,320)' in main
 
-# The approved home logo already paints the slogan: do not waste another
-# full-height native row and scale the 48dp legal hitboxes on compact phones.
+# The owner reference uses a clean winged logo without a second slogan row;
+# keep 48dp native tap targets and avoid an unrelated extra caption.
 assert 'title(content,"MALI LETOVI · VELIKE PRIČE"' not in home

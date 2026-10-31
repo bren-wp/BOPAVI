@@ -109,6 +109,37 @@ PY
   adb logcat -d -t 200 | tail -n 75 >&2 || true
   return 1
 }
+# Android 15 and 16 can consume an injected Back key while a dismissed
+# AlertDialog window is detaching. Do not rely on that timing to leave Settings:
+# tap its actual accessible HOME button and require Home to appear afterward.
+# This verifies a real application route rather than treating Back as success.
+return_home_from_settings(){
+  dump_ui
+  python3 - <<'PY'
+import re,subprocess,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+if not any(n.get("text","").upper()=="SETTINGS" for n in nodes):
+    raise SystemExit("FAIL: Settings title missing before Home navigation")
+buttons=[n for n in nodes if n.get("clickable")=="true" and
+         n.get("content-desc")=="HOME"]
+if len(buttons)!=1:
+    raise SystemExit("FAIL: Settings native HOME button missing or duplicated")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",buttons[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Settings HOME button bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+PY
+  sleep 1
+  dump_ui
+  python3 - <<'PY'
+import xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+home=[n for n in nodes if n.get("content-desc")=="Otvori opcije igre"
+      and n.get("clickable")=="true"]
+if len(home)!=1:
+    raise SystemExit("FAIL: Settings native HOME button did not return Home")
+PY
+}
 # The hosted Pixel emulator can show a *system launcher* ANR over a healthy
 # BOPAVI Activity. Recover only that exact dialog; never dismiss a BOPAVI ANR.
 # The next assertion still requires the real destination screen to be visible.
@@ -258,21 +289,8 @@ PY
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }
-  # Close the underlying Settings dialog using its real DONE action.
-  # Android Back can be consumed by the system and strand an open modal.
-  dump_ui
-  python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-done=[n for n in nodes if n.get("clickable")=="true"
-      and n.get("text","").upper()=="GOTOVO"]
-if len(done)!=1:raise SystemExit("FAIL: Settings DONE action missing after legal window")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: Settings DONE bounds invalid")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
-  sleep 1
+  # Legal dialog was dismissed; use the actual native Settings HOME action.
+  return_home_from_settings
 }
 # Read the ACTUAL native policy dialog before entering flight, not static copy.
 open_legal_dialog "Pročitaj politiku privatnosti" "POLITIKA PRIVATNOSTI" "BRENDIGO" "OBRIŠI PODATKE"
@@ -284,70 +302,60 @@ open_legal_dialog "Pročitaj uvjete korištenja" "UVJETI KORIŠTENJA" "BRENDIGO"
 echo "PASS: native terms dialog accessible, offline and dismissible"
 sleep 1
 dump_ui
-# Exercise both newly reachable Home overlays before tapping IGRAJ.
-# The real dialog and radio selection must survive a native UI dump.
+# Verify the full native Settings screen, difficulty, and return Home.
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-options=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("content-desc")=="Otvori opcije igre"]
-if len(options)!=1:raise SystemExit("FAIL: Home quick options inaccessible")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",options[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: quick options hitbox invalid")
-a,b,c,d=map(int,m.groups())
+settings=[n for n in nodes if n.get("clickable")=="true"
+          and n.get("content-desc")=="Otvori opcije igre"]
+if len(settings)!=1:raise SystemExit("FAIL: Home Settings inaccessible")
+coords=list(map(int,re.findall("[0-9]+",settings[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: Settings hitbox invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 capture android-options
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-alltext=" ".join(label(n) for n in nodes)
-for expected in ("OPCIJE IGRE","OPUŠTENO","STANDARDNO","IZAZOVNO","GOTOVO"):
-    if expected not in alltext:raise SystemExit("FAIL: options dialog missing "+expected)
-choice=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("text","").upper()=="OPUŠTENO"]
-if len(choice)!=1:raise SystemExit("FAIL: relaxed difficulty not selectable")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",choice[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: difficulty tap bounds invalid")
-a,b,c,d=map(int,m.groups())
+alltext=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
+for expected in ("SETTINGS","OPUŠTENO","STANDARDNO","IZAZOVNO","MUSIC","SOUND EFFECTS"):
+    if expected not in alltext:raise SystemExit("FAIL: full-page Settings missing "+expected)
+choice=[n for n in nodes if n.get("clickable")=="true"
+        and n.get("content-desc","").upper()=="CHOOSE OPUŠTENO"]
+if len(choice)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selectable")
+coords=list(map(int,re.findall("[0-9]+",choice[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: relaxed difficulty bounds invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import subprocess,re,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-relaxed=[n for n in nodes if n.get("text","").upper()=="OPUŠTENO"]
-if len(relaxed)!=1 or relaxed[0].get("checked")!="true":
-    raise SystemExit("FAIL: relaxed flight difficulty not selected")
-# Restore standard difficulty so later gameplay and physics QA are comparable.
-standard=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("text","").upper()=="STANDARDNO"]
+relaxed=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED OPUŠTENO"]
+if len(relaxed)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selected")
+standard=[n for n in nodes if n.get("clickable")=="true"
+          and n.get("content-desc","").upper()=="CHOOSE STANDARDNO"]
 if len(standard)!=1:raise SystemExit("FAIL: standard flight difficulty missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",standard[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: standard option bounds invalid")
-a,b,c,d=map(int,m.groups())
+coords=list(map(int,re.findall("[0-9]+",standard[0].get("bounds",""))))
+if len(coords)!=4:raise SystemExit("FAIL: standard difficulty bounds invalid")
+a,b,c,d=coords
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
 sleep 1
 dump_ui
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-standard=[n for n in nodes if n.get("text","").upper()=="STANDARDNO"]
-if len(standard)!=1 or standard[0].get("checked")!="true":
-    raise SystemExit("FAIL: restored standard difficulty not selected")
-done=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="GOTOVO"]
-if len(done)!=1:raise SystemExit("FAIL: options close action missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",done[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: options close bounds missing")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: native options dialog and difficulty selection",flush=True)
+standard=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED STANDARDNO"]
+if len(standard)!=1:raise SystemExit("FAIL: restored standard difficulty not selected")
 PY
+return_home_from_settings
+echo "PASS: full native Settings, persisted difficulty and Home navigation"
 sleep 1
 dump_ui
 python3 - <<'PY'
@@ -369,15 +377,16 @@ import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 alltext=" ".join(label(n) for n in nodes)
-for expected in ("MOJI REKORDI","NAJBOLJI REZULTAT","ZATVORI"):
-    if expected not in alltext:raise SystemExit("FAIL: native records dialog missing "+expected)
-close=[n for n in nodes if n.get("clickable")=="true" and n.get("text","").upper()=="ZATVORI"]
-if len(close)!=1:raise SystemExit("FAIL: records dialog close missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",close[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: records dialog close bounds missing")
+for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE","TOP 10 LOCAL SCORES","HOME"):
+    if expected not in alltext:raise SystemExit("FAIL: native offline leaderboard missing "+expected)
+home=[n for n in nodes if n.get("clickable")=="true"
+      and n.get("content-desc","").upper()=="HOME"]
+if len(home)!=1:raise SystemExit("FAIL: Leaderboard Home action missing")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",home[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: Leaderboard Home hitbox invalid")
 a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: local records visible and dismissible",flush=True)
+print("PASS: local records screen visible and returns Home",flush=True)
 PY
 sleep 1
 dump_ui
@@ -390,9 +399,25 @@ def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
 if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
 if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
-for menu in ("SKINS","SHOP"):
-    found=[n for n in click if n.get("text","").strip().upper()==menu]
-    if len(found)!=1:raise SystemExit("FAIL: expected one real Home menu: "+menu)
+# HomeReferenceScreen uses a real clickable LinearLayout with the
+# TalkBack action on its parent and visible text on a child TextView.
+# Require BOTH the actionable parent and the actual visible label.
+for menu,action in (
+    ("SKINS","Otvori izbor likova"),
+    ("SHOP","Otvori trgovinu nadogradnji"),
+):
+    actions=[n for n in click if n.get("content-desc")==action]
+    labels=[n for n in nodes if n.get("text","").strip().upper()==menu]
+    if len(actions)!=1 or len(labels)!=1:
+        raise SystemExit("FAIL: Home "+menu+" must have one tappable action and visible label")
+    m=lambda n: re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.get("bounds",""))
+    parent,child=m(actions[0]),m(labels[0])
+    if not parent or not child:
+        raise SystemExit("FAIL: Home "+menu+" accessibility bounds invalid")
+    ax,ay,bx,by=map(int,parent.groups())
+    cx,cy,dx,dy=map(int,child.groups())
+    if not (ax<=cx<dx<=bx and ay<=cy<dy<=by):
+        raise SystemExit("FAIL: Home "+menu+" text not inside its real button")
 for bad in ("PROFILE","PROFIL","CLOUD SAVE","RESTORE PURCHASES"):
     if any(bad in label(n) for n in click):raise SystemExit("FAIL: unsupported Home route: "+bad)
 m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
@@ -414,7 +439,12 @@ for attempt in $(seq 1 15); do
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
-game=[n for n in nodes if "TAP TO FLY WITH" in label(n) or "DODIRNI ZA LET" in label(n)]
+game=[n for n in nodes if n.get("class")=="android.view.View"
+      and n.get("clickable")=="true"
+      and "ŽIVOTI:" in label(n)
+      and ("DODIRNI ZA ZAMAH KRILIMA" in label(n)
+           or "TAP TO FLY WITH" in label(n)
+           or "DODIRNI ZA LET" in label(n))]
 play=[n for n in nodes if n.get("clickable")=="true"
       and ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
 sys.exit(0 if len(game)==1 and not play else 1)
@@ -541,21 +571,39 @@ if cmp -s qa/screenshots/android-result.png qa/screenshots/android-gameplay-read
    cmp -s qa/screenshots/android-result.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: Results PNG duplicates active or idle gameplay" >&2; exit 1
 fi
+# This is the real finished simulation on an Android 941x1672 viewport.
+BOPAVI_RESIZE_IN_PROGRESS=1
+adb shell wm size 941x1672
+adb shell wm density 320
+sleep 2
+capture android-game-over-reference-size
+python3 - <<'PY'
+import struct
+from pathlib import Path
+data=Path("qa/screenshots/android-game-over-reference-size.png").read_bytes()
+assert data[:8]==bytes.fromhex("89504e470d0a1a0a")
+assert struct.unpack(">II",data[16:24])==(941,1672)
+print("PASS: native Game Over exactly 941x1672, without image scaling")
+PY
+adb shell wm size reset
+adb shell wm density reset
+BOPAVI_RESIZE_IN_PROGRESS=0
+dump_ui
 python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
 nodes=list(root.iter("node"))
 def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
 labels=" ".join(label(n) for n in nodes)
-# The simplified Result contains only earned points, saved best, and live actions.
-# Never require deleted currencies, gate cards, or old Flight Over headings.
-if not any(title in labels for title in ("FLIGHT OVER", "RESULT", "REZULTAT", "LET ZAVRŠEN")):
-    raise SystemExit("FAIL: loss result headline missing")
-if not any(score in labels for score in ("SCORE", "REZULTAT")):
-    raise SystemExit("FAIL: real run score missing")
-if any(gate in labels for gate in ("UKUPNO PROLAZA", "TOTAL GATES", "PRIKUPLJENE KOVANICE", "COLLECTED COINS")):
-    raise SystemExit("FAIL: obsolete reward/gate summary returned")
-if "BEST SCORE" not in labels and "NAJBOLJI REZULTAT" not in labels:raise SystemExit("FAIL: saved best missing")
+# This is an actual finished endless game: food and score are true run data.
+# There is no gem wallet or endless level-coin award in this simulation.
+for required in ("GAME","OVER","DISTANCE","FOOD COLLECTED","SCORE"):
+    if required not in labels:
+        raise SystemExit("FAIL: Game Over did not expose real stat "+required)
+if any(fake in labels for fake in ("GEMS COLLECTED","COLLECTED GEMS","COINS COLLECTED","CLOUD SAVE")):
+    raise SystemExit("FAIL: fictional endless result reward")
+if labels.count("GAME OVER STATISTICS")!=1:
+    raise SystemExit("FAIL: Game Over statistics group missing or duplicated")
 click=[n for n in nodes if n.get("clickable")=="true"]
 retry=[n for n in click if "RETRY" in label(n) or "PONOVO" in label(n)]
 home=[n for n in click if "HOME" in label(n) or "POČETNA" in label(n)]
@@ -575,8 +623,9 @@ for attempt in $(seq 1 12); do
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 labels=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
-sys.exit(0 if ("TAP TO FLY WITH" in labels or "DODIRNI ZA LET" in labels)
-         and "▶  RETRY" not in labels and "▶  PONOVO" not in labels else 1)
+sys.exit(0 if "DODIRNI ZA ZAMAH KRILIMA" in labels
+         and "ŽIVOTI:" in labels
+         and "RETRY" not in labels and "PONOVO" not in labels else 1)
 PY
   then retry_ready=1; break; fi
   sleep 1
@@ -593,7 +642,7 @@ echo "PASS: simplified real-device Home, game, result and Retry"
 # Every assertion runs against actual native clickable controls, not mock art.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   BOPAVI_RESIZE_IN_PROGRESS=1
-  for spec in 720x1280:320:compact 1080x2400:420:tall; do
+  for spec in 720x1280:320:compact 1080x2400:420:tall 941x1672:320:reference; do
     dims="$(printf '%s' "$spec" | cut -d: -f1)"
     density="$(printf '%s' "$spec" | cut -d: -f2)"
     label="$(printf '%s' "$spec" | cut -d: -f3)"
@@ -668,8 +717,86 @@ fi
 # Verify landscape Home and a flight that survives rotation without a restart.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   python3 tools/qa_android_reference_menus.py
+  python3 tools/qa_android_pause_reference.py
   python3 tools/qa_android_background.py
   python3 tools/qa_android_rotation.py
   # Exact native Loading view used by real asynchronous level preparation.
   python3 tools/qa_android_loading.py
+fi
+
+# Matched-pixel source reference capture. This does not claim visual equality:
+# it records the REAL native GameView with exactly the owner's 941x1672 viewport,
+# so subsequent region-by-region differences can be measured without resizing.
+# Full app interaction checks above have already completed successfully.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  BOPAVI_RESIZE_IN_PROGRESS=1
+  adb shell wm size 941x1672
+  adb shell wm density 320
+  adb shell am force-stop com.brendigo.bopavi
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
+  sleep 4
+  reference_home=0
+  for attempt in $(seq 1 12); do
+    if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+play=[n for n in nodes if n.get("clickable")=="true" and
+      ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
+if len(play)!=1:sys.exit(1)
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
+if not m:sys.exit(1)
+x1,y1,x2,y2=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+PY
+    then reference_home=1; break; fi
+    sleep 2
+  done
+  test "$reference_home" -eq 1 || { echo "FAIL: reference-size Home PLAY was not accessible" >&2; exit 1; }
+  reference_ready=0
+  for attempt in $(seq 1 15); do
+    if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
+ready=[n for n in nodes if n.get("class")=="android.view.View" and
+       n.get("clickable")=="true" and
+       "ŽIVOTI:" in label(n) and
+       "DODIRNI ZA ZAMAH KRILIMA" in label(n)]
+sys.exit(0 if len(ready)==1 else 1)
+PY
+    then reference_ready=1; break; fi
+    sleep 2
+  done
+  test "$reference_ready" -eq 1 || { echo "FAIL: reference-size gameplay did not appear" >&2; exit 1; }
+  capture android-gameplay-ready-reference-size
+  # The debug-only first-flap hold freezes the real ACTIVE simulation (no
+  # synthetic player, score, pickups or mock screen), preserving a deterministic
+  # frame while slow CI screenshots are captured.
+  adb shell input tap 470 800
+  sleep 1
+  test -n "$(adb shell pidof com.brendigo.bopavi)" || {
+    echo "FAIL: real GameView crashed after first flap at reference resolution" >&2
+    exit 1
+  }
+  capture android-gameplay-active-reference-size
+  if cmp -s qa/screenshots/android-gameplay-ready-reference-size.png \
+            qa/screenshots/android-gameplay-active-reference-size.png; then
+    echo "FAIL: active flight identical to idle; first flap/tutorial transition missing" >&2
+    exit 1
+  fi
+  python3 - <<'PY'
+import struct
+from pathlib import Path
+for name in ("android-gameplay-ready-reference-size.png",
+             "android-gameplay-active-reference-size.png"):
+    shot=(Path("qa/screenshots")/name).read_bytes()
+    assert shot[:8]==bytes.fromhex("89504e470d0a1a0a")
+    assert struct.unpack(">II",shot[16:24])==(941,1672),name+" dimensions mismatch"
+print("PASS: real idle AND active gameplay at 941x1672, distinct unscaled frames")
+PY
+  printf 'STATE: real flight-idle AND first-flap active at 941x1672 captured\n' >> qa/screenshots/state-evidence.txt
+  adb shell wm size reset
+  adb shell wm density reset
+  BOPAVI_RESIZE_IN_PROGRESS=0
 fi
