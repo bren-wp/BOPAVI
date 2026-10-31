@@ -192,8 +192,12 @@ internal class SettingsScreen(private val host:Activity,
         },FrameLayout.LayoutParams(-1,-1))
 
         val dm=host.resources.displayMetrics
+        // The fixed artwork grid cannot fit 64dp switches at enlarged font
+        // scales without overlapping adjacent rows. Use the native scroll
+        // layout for accessibility instead of clipping interactive controls.
         val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
-            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT
+            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT &&
+            host.resources.configuration.fontScale<1.25f
         if(reference){
             val stage=LevelMapStage(host)
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
