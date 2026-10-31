@@ -45,5 +45,12 @@ for fake in ("1,250", "85 Gems", "Cloud Save", "Restore Purchases",
     assert fake not in menus, fake
 assert "gamePauseButton" not in app
 assert "python3 tools/qa_android_reference_menus.py" in (root/"tools/qa_android_emulator.sh").read_text()
+# Emulator QA intentionally relaunches the app during persistence checks.
+# A level-launch crash check must compare against the PID immediately before
+# that navigation, never the stale PID from the first Home process.
+flow=(root/"tools/qa_android_reference_menus.py").read_text()
+assert 'pid_before_level=adb("shell","pidof",APP)' in flow
+assert '==pid_before_level' in flow
+assert '==pid,"FAIL: real level launch crashed the app"' not in flow
 assert "versionCode = 170" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
