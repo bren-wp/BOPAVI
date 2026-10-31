@@ -49,6 +49,10 @@ assert 'line("Cloud Save"' not in settings
 assert 'line("Restore Purchases"' not in settings
 assert 'button("Restore Purchases"' not in settings
 assert 'setPadding(dp(8),0,dp(9),0)' in settings
+# Large-font reference canvases shrink native switches below the required
+# 64dp accessibility height; those devices must use a scrollable layout.
+assert 'host.resources.configuration.fontScale<1.25f' in settings
+assert 'isFillViewport=true' in settings
 # Three independent difficulty options need at least 48dp width each.
 # The group allocates 180dp; two 2dp margins per button leave 56dp.
 # Do not silently regress this to the old 140dp selector.
