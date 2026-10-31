@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Real Android emulator audit of BOPAVI Options at 1.0/1.3/1.5 font scale.
+"""Real Android emulator audit of BOPAVI Settings at 1.0/1.3/1.5 font scale.
 
 Run after the full gameplay smoke while the same emulator is still available.
 No mock views or source-only assertions: every target comes from UIAutomator.
@@ -15,17 +15,21 @@ from pathlib import Path
 
 SCREENSHOTS = Path("qa/screenshots")
 PKG = "com.brendigo.bopavi"
-# Keep controls in native dp rather than shrinking them to fit the dialog.
+# Match actual full-screen SettingsScreen controls. The older compact
+# Options AlertDialog with RadioButtons and GOTOVO was intentionally removed.
+# All controls remain native, measurable and truly accessible on a real device.
 TARGETS = {
-    "relaxed": ("RadioButton", "težina: opušteno", 52),
-    "standard": ("RadioButton", "težina: standardno", 52),
-    "challenging": ("RadioButton", "težina: izazovno", 52),
+    "relaxed": ("Button", "opušteno", 48),
+    "standard": ("Button", "standardno", 48),
+    "challenging": ("Button", "izazovno", 48),
     "sound": ("Switch", "zvuk uključen", 64),
-    "haptics": ("Switch", "vibracija pri igranju", 64),
-    "motion": ("Switch", "smanjeni pokret i manje osvježavanja", 64),
+    "haptics": ("Switch", "vibracija", 64),
+    "motion": ("Switch", "smanjeni pokret", 64),
     "music": ("SeekBar", "glazba", 48),
     "effects": ("SeekBar", "zvučni efekti", 48),
-    "done": ("Button", "gotovo", 48),
+    "privacy": ("Button", "pročitaj politiku privatnosti", 48),
+    "terms": ("Button", "pročitaj uvjete korištenja", 48),
+    "home": ("Button", "home", 48),
 }
 
 
@@ -109,7 +113,7 @@ def screenshot(name: str, width: int, height: int) -> None:
 
 
 def audit_case(label: str, width: int, height: int, density: int, scale: str) -> None:
-    print(f"QA: Options {label}: {width}x{height} density={density} font={scale}", flush=True)
+    print(f"QA: Settings {label}: {width}x{height} density={density} font={scale}", flush=True)
     adb("shell", "wm", "size", f"{width}x{height}")
     adb("shell", "wm", "density", str(density))
     adb("shell", "settings", "put", "system", "font_scale", scale)
@@ -144,7 +148,7 @@ def audit_case(label: str, width: int, height: int, density: int, scale: str) ->
         strings = " ".join(((n.get("text") or "") + " " +
                             (n.get("content-desc") or "")).casefold()
                            for n in root.iter("node"))
-        header_seen |= "opcije igre" in strings
+        header_seen |= "settings" in strings
         found |= measured_targets(root, width, height, density)
         if not screenshot_saved:
             screenshot(f"android-options-{label}", width, height)
@@ -163,18 +167,22 @@ def audit_case(label: str, width: int, height: int, density: int, scale: str) ->
         for n in root.iter("node"):
             if (n.get("class") or "").endswith("SeekBar"):
                 print(f"QA SeekBar {label}: {n.attrib}", flush=True)
-    assert header_seen, f"FAIL: Options dialog missing on {label}"
+    assert header_seen, f"FAIL: full-screen Settings title missing on {label}"
     assert not missing, f"FAIL: {label} missing, clipped or undersized controls: {missing}"
-    # The action bar must remain reachable without hiding the settings content.
-    done = [n for n in root.iter("node")
+    # The native HOME action on the *real* scrollable Settings page must be
+    # visible, clickable and return to the actual Home screen. No fake dialog.
+    home = [n for n in root.iter("node")
             if n.get("clickable") == "true" and
-            (n.get("text") or "").casefold() == "gotovo"]
-    assert len(done) == 1, f"FAIL: Options Done unavailable on {label}"
-    tap(done[0])
-    time.sleep(0.5)
-    assert not any("opcije igre" in (n.get("text") or "").casefold()
-                   for n in dump().iter("node")), f"FAIL: Options did not close on {label}"
-    print(f"PASS: {label} - all nine native controls, full bounds, scrolling and Done", flush=True)
+            (n.get("content-desc") or "").casefold() == "home"]
+    assert len(home) == 1, f"FAIL: Settings HOME unavailable on {label}"
+    tap(home[0])
+    time.sleep(0.8)
+    after = dump()
+    actions = [n for n in after.iter("node") if
+               n.get("clickable") == "true" and
+               (n.get("content-desc") or "").casefold() == "otvori opcije igre"]
+    assert len(actions) == 1, f"FAIL: Settings HOME did not return Home on {label}"
+    print(f"PASS: {label} - all 11 native Settings controls, measured bounds, scrolling and real Home", flush=True)
 
 
 def main() -> None:

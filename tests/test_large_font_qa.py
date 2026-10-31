@@ -27,14 +27,14 @@ def sample(width=720, height=1280, density=320):
 
 
 class LargeFontGeometryTests(unittest.TestCase):
-    def test_all_nine_native_controls_keep_measured_hit_targets(self):
+    def test_all_eleven_native_controls_keep_measured_hit_targets(self):
         root = sample()
         self.assertEqual(set(TARGETS), measured_targets(root, 720, 1280, 320))
 
-    def test_cropped_radio_button_or_switch_cannot_pass(self):
+    def test_cropped_difficulty_button_or_switch_cannot_pass(self):
         root = sample()
         nodes = root.findall("node")
-        nodes[0].set("bounds", "[20,100][700,150]")  # 25dp radio
+        nodes[0].set("bounds", "[20,100][700,150]")  # 25dp choice button
         nodes[5].set("bounds", "[20,100][700,200]")  # 50dp switch
         seen = measured_targets(root, 720, 1280, 320)
         self.assertNotIn("relaxed", seen)
@@ -57,6 +57,31 @@ class LargeFontGeometryTests(unittest.TestCase):
         seen = measured_targets(root, 720, 1280, 320)
         self.assertNotIn("standard", seen)
         self.assertNotIn("challenging", seen)
+
+    def test_full_screen_settings_replaces_obsolete_dialog_targets(self):
+        qa = (ROOT / "tools/qa_android_fontscale.py").read_text()
+        self.assertEqual(11, len(TARGETS))
+        self.assertEqual(("Button", "home", 48), TARGETS["home"])
+        self.assertEqual(("Button", "pročitaj politiku privatnosti", 48),
+                         TARGETS["privacy"])
+        self.assertEqual(("Button", "pročitaj uvjete korištenja", 48),
+                         TARGETS["terms"])
+        self.assertTrue(all(TARGETS[key][0] == "Button" for key in
+                            ("relaxed", "standard", "challenging")))
+        self.assertNotIn("RadioButton", qa)
+        self.assertNotIn('"gotovo"', qa)
+        self.assertIn('header_seen |= "settings" in strings', qa)
+        self.assertIn('Settings HOME did not return Home', qa)
+
+    def test_disabled_home_and_clipped_legal_buttons_are_rejected(self):
+        root = sample()
+        nodes = root.findall("node")
+        nodes[-1].set("clickable", "false")  # Home must be genuinely tappable
+        nodes[-2].set("bounds", "[20,1240][700,1400]")
+        actual = measured_targets(root, 720, 1280, 320)
+        self.assertNotIn("home", actual)
+        self.assertNotIn("terms", actual)
+        self.assertIn("privacy", actual)
 
     def test_real_emulator_matrix_is_wired_into_api35_smoke(self):
         qa = (ROOT / "tools/qa_android_fontscale.py").read_text()
