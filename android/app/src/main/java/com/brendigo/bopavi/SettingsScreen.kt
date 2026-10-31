@@ -67,7 +67,8 @@ internal class SettingsScreen(private val host:Activity,
             elevation=dp(3).toFloat()
             setOnClickListener{click()}
         }
-    private fun line(text:String,kind:BopaviUiIconDrawable.Kind,control:View):View {
+    private fun line(text:String,kind:BopaviUiIconDrawable.Kind,control:View,
+                     controlWidthDp:Int=140):View {
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
@@ -84,7 +85,9 @@ internal class SettingsScreen(private val host:Activity,
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
         },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(6)})
-        row.addView(control,LinearLayout.LayoutParams(dp(140),-1))
+        // Difficulty is a three-way selector. A 140dp group makes each option
+        // narrower than the 48dp accessibility minimum once margins are added.
+        row.addView(control,LinearLayout.LayoutParams(dp(controlWidthDp),-1))
         return row
     }
     private fun switchControl(name:String,value:Boolean,onChange:(Boolean)->Unit):Switch =
@@ -138,6 +141,10 @@ internal class SettingsScreen(private val host:Activity,
                     selected=index==progress.difficulty()){
                     if(index!=progress.difficulty())onChange(index)
                 }.apply{
+                    // Android's default Button minWidth can override the equal
+                    // weights and clip the remaining difficulty options.
+                    minWidth=0
+                    minimumWidth=0
                     contentDescription=(if(index==progress.difficulty())
                         "Selected " else "Choose ")+progress.difficultyNames[index]
                 },LinearLayout.LayoutParams(0,dp(48),1f).apply{
@@ -167,7 +174,7 @@ internal class SettingsScreen(private val host:Activity,
             line("Reduced Motion",BopaviUiIconDrawable.Kind.WING,
                 switchControl("Smanjeni pokret",progress.lessMotion(),onMotion)),
             line("Difficulty",BopaviUiIconDrawable.Kind.STAR,
-                difficulty(onDifficulty)),
+                difficulty(onDifficulty),controlWidthDp=180),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
                 button("OPEN",click=onPrivacy).apply{
                     contentDescription="Pročitaj politiku privatnosti"
