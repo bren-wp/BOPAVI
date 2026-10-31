@@ -73,9 +73,9 @@ def main():
         adb("shell", "am", "force-stop", APP)
         adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
     home=hierarchy()
-    # The real Home play button is labeled '▶  PLAY' visually and 'PLAY'
-    # semantically; do not reject it because of the arrow glyph.
-    assert any(n.get("content-desc","").upper()=="PLAY" and
+    # Home Play uses an accessible label containing an arrow and PLAY.
+    # Accept the actual label without relying on decorative text children.
+    assert any("PLAY" in n.get("content-desc","").upper() and
                n.get("clickable")=="true" for n in home.iter("node")), (
         "FAIL: normal Home lost after Loading QA")
     print("PASS: normal application launch remains Home, not a second startup splash",flush=True)
