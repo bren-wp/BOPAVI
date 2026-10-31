@@ -177,9 +177,15 @@ def main():
             adb("shell","wm","density","reset")
     locked=exists("LOCKED LEVEL 2",enabled=False)
     assert locked,"FAIL: locked level is not truly disabled"
+    # Earlier steps deliberately force-stop/relaunch the Activity to verify
+    # persisted pilot choice, so the initial launch PID is no longer valid.
+    # Check that starting Level 1 does not kill/restart its current process.
+    pid_before_level=adb("shell","pidof",APP)
+    assert pid_before_level,"FAIL: Level Map process missing before launch"
     tap(node_with("PLAY LEVEL 1, 0 STARS"))
     node_with("DODIRNI ZA ZAMAH KRILIMA")
-    assert adb("shell","pidof",APP)==pid,"FAIL: real level launch crashed the app"
+    assert adb("shell","pidof",APP)==pid_before_level, (
+        "FAIL: real level launch killed or restarted the app process")
     print("PASS: actual Level Map locks and finite Level 1 launch",flush=True)
 
 if __name__=="__main__":
