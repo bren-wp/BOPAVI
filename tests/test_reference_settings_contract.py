@@ -49,5 +49,13 @@ assert 'line("Cloud Save"' not in settings
 assert 'line("Restore Purchases"' not in settings
 assert 'button("Restore Purchases"' not in settings
 assert 'setPadding(dp(8),0,dp(9),0)' in settings
+# Three independent difficulty options need at least 48dp width each.
+# The group allocates 180dp; two 2dp margins per button leave 56dp.
+# Do not silently regress this to the old 140dp selector.
+assert 'controlWidthDp:Int=140' in settings
+assert 'LinearLayout.LayoutParams(dp(controlWidthDp),-1)' in settings
+assert 'difficulty(onDifficulty),controlWidthDp=180' in settings
+assert 'minWidth=0' in settings and 'minimumWidth=0' in settings
+assert (180-3*4)//3>=48
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings full page, real preferences, small-screen scroll and legal routes")
