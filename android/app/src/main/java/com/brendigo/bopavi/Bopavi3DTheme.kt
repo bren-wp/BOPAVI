@@ -15,7 +15,7 @@ internal object Bopavi3DTheme {
     fun panel(finish:Finish):Drawable = when(finish) {
         Finish.GOLD -> HomeEnamelDrawable(
             0xfffff69b.toInt(),0xffffb21b.toInt(),
-            0xffbd5803.toInt(),0xfffff6d4.toInt())
+            0xffdc7610.toInt(),0xfffff6d4.toInt())
         Finish.SKY -> HomeEnamelDrawable(
             0xff91f1ff.toInt(),0xff168fe7.toInt(),
             0xff0649a5.toInt(),0xffd2faff.toInt())
