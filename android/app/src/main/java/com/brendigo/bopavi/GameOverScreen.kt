@@ -25,13 +25,6 @@ internal class GameOverScreen(private val host:Activity) {
     private fun dp(px:Int)=((px*host.resources.displayMetrics.density)+.5f).toInt()
     private val navy=0xff092451.toInt()
     private val gold=0xffffbe23.toInt()
-    private val blue=0xff086dd5.toInt()
-
-    private fun surface(top:Int,bottom:Int,stroke:Int,radius:Int):GradientDrawable =
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(top,bottom)).apply {
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),stroke)
-        }
 
     private fun heading(label:String,color:Int):TextView=TextView(host).apply {
         text=label

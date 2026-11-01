@@ -19,11 +19,6 @@ import android.widget.TextView
 internal class LeaderboardScreen(private val host:Activity){
     private val navy=0xff0b2b60.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
-    private fun frame(a:Int,b:Int,c:Int,r:Int=19)=
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(a,b)).apply{
-            cornerRadius=dp(r).toFloat()
-            setStroke(dp(2),c)
-        }
     private fun label(s:String,size:Int,color:Int=Color.WHITE):TextView=
         TextView(host).apply{
             text=s

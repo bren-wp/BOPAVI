@@ -21,11 +21,6 @@ import android.widget.TextView
 internal class AchievementsScreen(private val host:Activity){
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
     private val ink=0xff0a2856.toInt()
-    private fun plate(a:Int,b:Int,c:Int):GradientDrawable =
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(a,b)).apply {
-            cornerRadius=dp(20).toFloat()
-            setStroke(dp(2),c)
-        }
     private fun label(s:String,size:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=size.toFloat()
