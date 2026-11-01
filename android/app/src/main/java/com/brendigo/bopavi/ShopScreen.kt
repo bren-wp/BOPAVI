@@ -44,11 +44,11 @@ internal class ShopScreen(
         Button(host).apply{
             text=s
             isAllCaps=false
-            textSize=24f
+            textSize=20f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(if(gold)0xff63300a.toInt() else Color.WHITE)
             background=Bopavi3DTheme.button(if(gold)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
-            setAutoSizeTextTypeUniformWithConfiguration(14,24,1,
+            setAutoSizeTextTypeUniformWithConfiguration(12,20,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             minimumHeight=dp(48)
             isEnabled=available
@@ -67,7 +67,7 @@ internal class ShopScreen(
         val card=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
-            setPadding(dp(10),dp(9),dp(10),dp(10))
+            setPadding(dp(5),dp(6),dp(5),dp(8))
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             elevation=dp(4).toFloat()
             contentDescription=item.accessibility
@@ -80,15 +80,15 @@ internal class ShopScreen(
             setImageDrawable(BopaviUiIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
                 else BopaviUiIconDrawable.Kind.MAGNET,
-                if(item.isShield)0xff128dda.toInt() else 0xffba52fc.toInt(),dp(66)))
+                if(item.isShield)0xff128dda.toInt() else 0xffba52fc.toInt(),dp(74)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(43),dp(43)))
-        row.addView(message("TIER ${item.tier}",18,navy),
+        },LinearLayout.LayoutParams(dp(49),dp(49)))
+        row.addView(message("TIER ${item.tier}",15,navy),
             LinearLayout.LayoutParams(0,-1,1f))
         card.addView(row,LinearLayout.LayoutParams(-1,0,1.0f))
-        card.addView(message(item.name.uppercase(),20,navy),
+        card.addView(message(item.name.uppercase(),18,navy),
             LinearLayout.LayoutParams(-1,0,.52f))
-        card.addView(message("OWNED: ${item.owned}/99",17,0xff244c73.toInt()),
+        card.addView(message("OWNED: ${item.owned}/99",14,0xff244c73.toInt()),
             LinearLayout.LayoutParams(-1,0,.40f))
         val buy=button(item.buttonLabel,item.canBuy,item.canBuy){
             onBuy(item.index)
@@ -117,35 +117,73 @@ internal class ShopScreen(
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
-        stage.place(message("SHOP",83),239f,73f,463f,125f)
+        // Native header, real locally saved counters and original character.
+        stage.place(button("‹",false,click=onBack).apply{
+            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
+            contentDescription="HOME"
+        },24f,18f,119f,99f,minTouch=true)
+        stage.place(message("SHOP",83,0xffffe76c.toInt()),291f,130f,359f,150f)
         val coins=progress.coins()
-        stage.place(message("COINS  •  "+
-            NumberFormat.getIntegerInstance().format(coins),32).apply{
-            background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),24)
+        val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
+        stage.place(message("COINS  •  "+NumberFormat.getIntegerInstance().format(coins),
+            21).apply{
+            background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
             contentDescription="Earned coins: $coins"
             isFocusable=true
-        },241f,220f,459f,108f)
+        },466f,20f,201f,78f)
+        stage.place(message("STARS  •  "+NumberFormat.getIntegerInstance().format(stars),
+            21).apply{
+            background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
+            contentDescription="Earned stars: $stars"
+            isFocusable=true
+        },695f,20f,220f,78f)
+        stage.place(ImageView(host).apply {
+            setImageResource(R.drawable.bopiportrait0)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },335f,289f,280f,270f)
+
+        // A *real* featured perk; no fake gems, payment or random skin.
+        val items=ShopItemState.fromStore(progress)
+        val featured=items.last()
+        stage.place(FrameLayout(host).apply {
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.VIOLET)
+            contentDescription="Featured: "+featured.accessibility
+            elevation=dp(8).toFloat()
+        },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
+            ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
+        stage.place(message("FEATURED!",27),70f,578f,275f,62f)
+        stage.place(message(featured.name.uppercase(),32,0xffffe680.toInt()),
+            74f,642f,466f,71f)
+        stage.place(message("TIER \${featured.tier}  •  OWNED \${featured.owned}/99",20),
+            77f,710f,460f,48f)
+        stage.place(ImageView(host).apply {
+            setImageDrawable(BopaviUiIconDrawable(
+                BopaviUiIconDrawable.Kind.MAGNET,0xffe7b3ff.toInt(),dp(95)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },633f,614f,213f,159f)
+        stage.place(button(featured.buttonLabel,true,featured.canBuy){
+            onBuy(featured.index)
+        }.apply {
+            contentDescription="Featured "+featured.accessibility
+        },111f,769f,402f,85f,minTouch=true)
         val bonus=progress.bonusCoinsAvailable()
-        if(bonus>0){
-            stage.place(button("CLAIM +$bonus EARNED COINS",true,click=onClaim),
-                169f,350f,603f,87f,minTouch=true)
-        }else{
-            stage.place(message("OFFLINE POWER-UPS",25,0xffffefb2.toInt()),
-                229f,359f,483f,72f)
+        if(bonus>0) {
+            stage.place(button("CLAIM +$bonus",true,click=onClaim).apply {
+                contentDescription="Claim $bonus earned coins"
+            },574f,770f,283f,85f,minTouch=true)
         }
 
         for(item in ShopItemState.fromStore(progress)){
-            val row=item.index/2
-            val col=item.index%2
+            val row=item.index/3
+            val col=item.index%3
             stage.place(perkCard(item,onBuy),
                 ShopReferenceLayout.columns[col],
                 ShopReferenceLayout.rows[row],
                 ShopReferenceLayout.cardWidth,
                 ShopReferenceLayout.cardHeight)
         }
-        stage.place(button("HOME",false,click=onBack),
-            197f,ShopReferenceLayout.homeTop,547f,ShopReferenceLayout.homeHeight,
-            minTouch=true)
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){

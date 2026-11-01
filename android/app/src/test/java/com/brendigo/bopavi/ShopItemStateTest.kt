@@ -25,6 +25,12 @@ class ShopItemStateTest {
     }
     @Test fun shopGeometryAndAccessibilityMatchReference() {
         assertTrue(ShopReferenceLayout.valid())
+        assertEquals(3,ShopReferenceLayout.columns.size)
+        assertEquals(2,ShopReferenceLayout.rows.size)
+        assertTrue(ShopReferenceLayout.featureTop+ShopReferenceLayout.featureHeight<
+            ShopReferenceLayout.rows[0])
+        assertTrue(ShopReferenceLayout.rows[0]+ShopReferenceLayout.cardHeight<
+            ShopReferenceLayout.rows[1])
         assertEquals("Shield, price 80 coins, owned 5 of 99, available to buy",
             ShopItemState(0,"Shield",80,5,200).accessibility)
     }
