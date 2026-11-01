@@ -277,23 +277,11 @@ class MainActivity : Activity() {
             letterSpacing=.03f
             if(!primary) setShadowLayer(d(2).toFloat(),0f,d(2).toFloat(),0xaa07244d.toInt())
             setAutoSizeTextTypeUniformWithConfiguration(12,18,1,android.util.TypedValue.COMPLEX_UNIT_SP)
-            val face=if(primary) GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xffffdf50.toInt(),0xffffad17.toInt(),0xffff7a00.toInt())).apply{
-                    cornerRadius=d(33).toFloat()
-                    setStroke(d(3),0xffffed9e.toInt())
-                } else if(muted) GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff91b7e3.toInt(),0xff436eaa.toInt(),0xff203960.toInt())).apply{
-                    cornerRadius=d(32).toFloat()
-                    setStroke(d(2),0xffd9edff.toInt())
-                } else GradientDrawable(
-                    GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff23c8fc.toInt(),0xff087dec.toInt(),0xff064cb4.toInt())).apply{
-                    cornerRadius=d(32).toFloat()
-                    setStroke(d(2),0xff7eecff.toInt())
-                }
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
+            background=Bopavi3DTheme.button(when {
+                primary -> Bopavi3DTheme.Finish.GOLD
+                muted -> Bopavi3DTheme.Finish.STONE
+                else -> Bopavi3DTheme.Finish.SKY
+            })
             elevation=d(7).toFloat()
             contentDescription=text
             setOnClickListener{sound.effect("click");onClick()}
@@ -304,12 +292,8 @@ class MainActivity : Activity() {
     }
     /** Distinct native, high-contrast Back affordance; never a painted, inert icon. */
     private fun backAction(parent:LinearLayout,caption:String,onClick:()->Unit) {
-        val face=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(0xff246fba.toInt(),0xff0a376d.toInt())).apply {
-            cornerRadius=d(29).toFloat()
-            setStroke(d(2),0xffa3eaff.toInt())
-        }
-        val back=Button(this).apply {
+
+                val back=Button(this).apply {
             text=caption
             setCompoundDrawablesRelativeWithIntrinsicBounds(
                 uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23),null,null,null)
@@ -322,7 +306,7 @@ class MainActivity : Activity() {
             setTextColor(Color.WHITE)
             setAutoSizeTextTypeUniformWithConfiguration(14,18,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),face,null)
+            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
             minHeight=d(56)
             elevation=d(3).toFloat()
             setOnClickListener { sound.effect("click"); onClick() }
@@ -953,9 +937,9 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(d(17),d(13),d(17),d(18))
-            background=gradient(0xff238ee9.toInt(),0xff061b45.toInt(),28).apply{
-                setStroke(d(3),0xff84ecff.toInt())
-            }
+            background=HomeEnamelDrawable(
+                0xff238ee9.toInt(),0xff145cbb.toInt(),
+                0xff061b45.toInt(),0xffc4f6ff.toInt())
         }
 
 
@@ -975,17 +959,8 @@ class MainActivity : Activity() {
         title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffe4f5ff.toInt())
         if(!compactPause)title(content,game.game.pilotAbility.description,13,0xffc7eaff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
-            val face=when(style){
-                0 -> gradient(0xffffdd58.toInt(),0xffff8700.toInt(),30).apply{
-                    setStroke(d(3),0xffffe6a0.toInt())
-                }
-                1 -> gradient(0xff23c8fc.toInt(),0xff064ab5.toInt(),30).apply{
-                    setStroke(d(2),0xff83efff.toInt())
-                }
-                else -> gradient(0xff26c9fc.toInt(),0xff0755bb.toInt(),30).apply{
-                    setStroke(d(2),0xff9deaff.toInt())
-                }
-            }
+            val finish=if(style==0)Bopavi3DTheme.Finish.GOLD
+                else Bopavi3DTheme.Finish.SKY
             val b=Button(this).apply {
                 this.text=text.substringAfter("  ",text)
                 setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -998,7 +973,7 @@ class MainActivity : Activity() {
                 setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),face,null)
+                background=Bopavi3DTheme.button(finish)
                 elevation=d(5).toFloat()
                 contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}

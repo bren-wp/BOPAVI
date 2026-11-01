@@ -1294,6 +1294,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val a=FlightReadyOverlayLayout
         rect(c,a.left+1.5f,a.top+3f,a.right+1.5f,a.bottom+3f,0x44051b44,22f)
         rect(c,a.left,a.top,a.right,a.bottom,0xa7193f80.toInt(),22f)
+        rect(c,a.left+8f,a.top+5f,a.right-8f,a.top+9f,
+            0x77d1ffff.toInt(),3f)
         fill(0xff8bdfff.toInt())
         p.style=Paint.Style.STROKE
         p.strokeWidth=1.5f
@@ -1370,6 +1372,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL
         p.alpha=255
         rect(c,l+15f,t+5f,r-15f,t+7f,0x82bfefff.toInt(),2f)
+        // Recessed lower enamel and side reflection, without a false score
+        // or shop button in the real gameplay HUD.
+        rect(c,l+12f,b-6f,r-12f,b-4f,0x77021944,2f)
+        rect(c,l+8f,t+10f,l+10f,b-10f,0x39d9ffff,1f)
     }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
@@ -1378,7 +1384,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
         fill(if(active)0xffff4f51.toInt() else 0x552c4b73)
         c.drawPath(path,p)
-        if(active)oval(c,x-5f,y-2f,x+5f,y+5f,0x55ffaf98)
+        if(active){
+            oval(c,x-7f,y-4f,x+4f,y+3f,0x88ffad98.toInt())
+            oval(c,x-5f,y-4f,x-1f,y-2f,0xccffffff.toInt())
+        }
         // Deep navy contour and a short enamel reflection match the reference;
         // rendering stays allocation-free and inactive hearts remain distinct.
         fill(if(active)0xff082e60.toInt() else 0xffa0b8d0.toInt())
