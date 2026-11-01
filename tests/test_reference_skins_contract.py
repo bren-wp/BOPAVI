@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Screen 8: native Skins gallery matches three playable pilots, not fake wallet."""
+"""Native hero-first Skins gallery with only the three genuinely playable pilots."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
@@ -19,13 +19,20 @@ for expected in (
     "R.drawable.bopiportrait0","R.drawable.bopiportrait9",
     "R.drawable.bopiportrait10","stage.setOnApplyWindowInsetsListener",
     "PilotSelectionModel.accessibility(selected,index)",
-    "setOnClickListener{if(!isSelected)onChoose(index)}",
+    "setOnClickListener{onChoose(index)}",
     "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO",
     "progress.coins()","minimumHeight=dp(48)",
-    "item.ability.shortTitle","equipped.ability.description",
+    "item.ability.shortTitle","item.ability.description",
 ):
     assert expected in screen,expected
-assert "cardLefts=floatArrayOf(52f,344f,636f)" in layout
+assert "cardLefts=floatArrayOf(34f,339f,644f)" in layout
+assert "heroTop+heroSize<cardTop" in layout
+assert "platformTop+platformHeight<cardTop" in layout
+assert "stage.place(ImageView(host).apply {" in screen
+assert "setImageResource(skins[selected])" in screen
+assert "PilotSelectionLayout.heroLeft" in screen
+assert "GradientDrawable.OVAL" in screen
+assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
 assert "const val referenceWidth=941f" in layout
 assert "val skins=intArrayOf(" in screen
 assert "Selected WISE OWL" in junit
@@ -34,4 +41,4 @@ assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
 assert "selectOrBuy(" not in screen  # No fake purchase of playable pilots
 assert "http://" not in screen and "https://" not in screen
-print("PASS: native three playable pilots, real saved selection, responsive native cards")
+print("PASS: native selected pilot hero, three real selection cards, persisted free choices")
