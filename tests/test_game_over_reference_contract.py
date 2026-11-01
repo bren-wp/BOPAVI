@@ -15,7 +15,7 @@ assert 'if(played!=null)startLevel(played.first,played.second)' in main
 assert 'onHome={showHome()}' in main
 assert 'progress.recordRun(g)' in main
 for marker in (
-    'stage.place(heading("GAME",Color.WHITE),171f,129f,599f,146f)',
+    'stage.place(heading("GAME",Color.WHITE).apply {',
     'stage.place(heading("OVER",0xffff5b35.toInt()),153f,267f,635f,166f)',
     'stage.place(GameOverPodium(host),168f,728f,605f,216f)',
     'stage.place(statistics,123f,927f,695f,310f)',
@@ -30,6 +30,15 @@ assert '"Food Collected"' in stats
 assert '"Coins Collected"' in stats
 assert '"Stars Collected"' in stats
 assert '"Gems Collected"' not in screen+stats
+for detail in (
+    'contentDescription="Game Over"',
+    'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES',
+    'canvas.translate(0f,6f)',
+    'p.color=0xfffff7d0.toInt()',
+    'for(i in 0..7)',
+    'rock.moveTo(x,85f)',
+):
+    assert detail in screen,detail
 assert "endlessShowsActualFoodAndScoreNotFictionalGems" in unit
 assert "finiteShowsActualCoinsAndStars" in unit
 assert '("GAME","OVER","DISTANCE","FOOD COLLECTED","SCORE")' in qa
