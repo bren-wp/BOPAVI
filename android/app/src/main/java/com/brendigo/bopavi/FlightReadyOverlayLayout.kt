@@ -10,6 +10,16 @@ internal object FlightReadyOverlayLayout {
     const val bottom=650f
     const val textCenterX=258f
     const val textBaselineY=633f
+    const val handCenterX=163f
+    const val handCenterY=626f
+
+    /** Decorative hand stays inside the halo while text remains legible. */
+    fun cueDecorationFits():Boolean =
+        handCenterX-23f>=left-6f &&
+        handCenterX+15f<textCenterX-42f &&
+        handCenterY-21f>=top &&
+        handCenterY+18f<=bottom &&
+        textCenterX>handCenterX+60f
 
     fun insideCamera():Boolean =
         left>=0f && top>=0f && right<=480f && bottom<=800f &&

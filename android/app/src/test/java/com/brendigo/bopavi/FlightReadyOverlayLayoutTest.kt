@@ -14,6 +14,13 @@ class FlightReadyOverlayLayoutTest {
         assertEquals(54f,a.bottom-a.top,0f)
     }
 
+    @Test fun vectorHandRemainsInTheReferenceCallout() {
+        val cue=FlightReadyOverlayLayout
+        assertTrue(cue.cueDecorationFits())
+        assertEquals(163f,cue.handCenterX,0f)
+        assertEquals(626f,cue.handCenterY,0f)
+    }
+
     @Test fun liveHudStillFitsWhenGameIsReady() {
         assertTrue(FlightHudLayout.lives.right<FlightReadyOverlayLayout.left+
             40f)

@@ -1292,14 +1292,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      */
     private fun drawFlightReadyTutorial(c:Canvas) {
         val a=FlightReadyOverlayLayout
-        rect(c,a.left+1.5f,a.top+3f,a.right+1.5f,a.bottom+3f,0x44051b44,22f)
-        rect(c,a.left,a.top,a.right,a.bottom,0xa7193f80.toInt(),22f)
-        rect(c,a.left+8f,a.top+5f,a.right-8f,a.top+9f,
-            0x77d1ffff.toInt(),3f)
-        fill(0xff8bdfff.toInt())
+        // 3D cyan-glass CTA is only a visual cue: the whole GameView
+        // remains the single accessible first-tap target, no fake button.
+        // Fixed reference geometry + reused Paint avoids frame allocations.
+        rect(c,a.left+2f,a.top+7f,a.right+2f,a.bottom+7f,
+            0x6906204d,24f)
+        rect(c,a.left-3f,a.top-3f,a.right+3f,a.bottom+3f,
+            0x342fe2ff,26f)
+        rect(c,a.left,a.top,a.right,a.bottom,
+            0xc2164c91.toInt(),23f)
+        rect(c,a.left+3f,a.top+3f,a.right-3f,a.bottom-4f,
+            0x982981cc.toInt(),20f)
+        // Broad enamel reflection, small highlights, dark lower relief.
+        rect(c,a.left+8f,a.top+5f,a.right-8f,a.top+16f,
+            0x729eedff,13f)
+        rect(c,a.left+14f,a.top+6f,a.right-14f,a.top+9f,
+            0xa3ffffff.toInt(),3f)
+        rect(c,a.left+12f,a.bottom-9f,a.right-12f,a.bottom-5f,
+            0x65031e50,3f)
+        fill(0xffb2faff.toInt())
         p.style=Paint.Style.STROKE
-        p.strokeWidth=1.5f
-        c.drawRoundRect(a.left+1f,a.top+1f,a.right-1f,a.bottom-1f,21f,21f,p)
+        p.strokeWidth=1.8f
+        c.drawRoundRect(a.left+1f,a.top+1f,a.right-1f,a.bottom-1f,
+            22f,22f,p)
         p.style=Paint.Style.FILL
 
         // Original Croatian instructions stay available. English Android
@@ -1309,7 +1324,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawTutorialText(c,"DODIRNI ZA LET",240f,624f,17f)
             text(c,"DODIR = ZAMAH KRILIMA",240f,642f,10f,0xffd3f5ff.toInt(),true)
         } else {
-            drawTutorialHand(c,163f,626f)
+            drawTutorialHand(c,a.handCenterX,a.handCenterY)
             drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)
         }
     }
@@ -1376,6 +1391,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // or shop button in the real gameplay HUD.
         rect(c,l+12f,b-6f,r-12f,b-4f,0x77021944,2f)
         rect(c,l+8f,t+10f,l+10f,b-10f,0x39d9ffff,1f)
+        // Additional right-hand specular highlight makes the badge read
+        // as a single rounded enamel surface, not a flat HUD bitmap.
+        rect(c,r-13f,t+10f,r-11f,b-12f,0x35ecfbff,1f)
     }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
