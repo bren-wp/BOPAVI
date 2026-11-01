@@ -2,6 +2,7 @@ package com.brendigo.bopavi
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
@@ -18,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import kotlin.math.min
 
@@ -64,10 +67,124 @@ internal class LevelMapScreen(
     private val wood=intArrayOf(0xffe0b576.toInt(),0xff82441e.toInt(),0xffffda9c.toInt())
     private val slate=intArrayOf(0xffa7d6ed.toInt(),0xff2b507a.toInt(),0xffd5f4ff.toInt())
 
+    /**
+     * Native scroll alternative for compact, landscape and large-text devices.
+     * The 941x1672 reference camera would otherwise create overlapping
+     * minimum-48dp level hit targets. Preserve all real world/level callbacks.
+     */
+    private fun compactMap(selected:Int,frontier:Int,
+                           onWorld:(Int)->Unit,
+                           onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
+        val root=FrameLayout(host).apply{setBackgroundColor(0xff168be1.toInt())}
+        root.addView(ImageView(host).apply {
+            setImageResource(R.drawable.homeback)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        val scroll=ScrollView(host).apply {
+            isFillViewport=true
+            clipToPadding=false
+            setOnApplyWindowInsetsListener{_,insets->
+                if(Build.VERSION.SDK_INT>=30){
+                    val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    setPadding(safe.left,safe.top,safe.right,safe.bottom)
+                }else{
+                    @Suppress("DEPRECATION")
+                    setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,
+                        insets.systemWindowInsetRight,insets.systemWindowInsetBottom)
+                }
+                insets
+            }
+        }
+        val column=LinearLayout(host).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(dp(12),dp(12),dp(12),dp(24))
+        }
+        fun addControl(view:View,height:Int=64){
+            column.addView(view,LinearLayout.LayoutParams(-1,dp(height)).apply{
+                bottomMargin=dp(9)
+            })
+        }
+        addControl(nativeButton("‹ HOME","Home",blue){onBack()},55)
+        addControl(TextView(host).apply {
+            text="LEVEL MAP"
+            textSize=29f
+            gravity=Gravity.CENTER
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            contentDescription="LEVEL MAP"
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+        },69)
+        val coins=progress.coins()
+        val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{
+            progress.worldStars(it)
+        }
+        addControl(TextView(host).apply {
+            text="COINS  "+coins+"    ★  "+stars
+            textSize=20f
+            gravity=Gravity.CENTER
+            setTextColor(Color.WHITE)
+            contentDescription="Coins: "+coins+". Earned stars: "+stars
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+        },54)
+        val labels=arrayOf("SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
+            "NIGHT CASTLES","PEARL SEA","SKY TOWERS","MAGIC FOREST","STAR ABYSS")
+        for(id in LevelMapGeometry.displayedWorlds(selected)){
+            val earned=progress.worldStars(id)
+            val colors=when(id%3){0->wood;1->slate;else->volcano}
+            addControl(nativeButton(labels[id]+"  ★ "+earned+"/60",
+                "Select world "+(id+1)+", "+labels[id]+", "+earned+" of 60 stars",
+                colors){onWorld(id)})
+        }
+        val pages=LinearLayout(host).apply {
+            orientation=LinearLayout.HORIZONTAL
+        }
+        val previous=LevelMapGeometry.pageStart(selected)>0
+        val next=LevelMapGeometry.pageStart(selected)+3<LevelEngine.WORLD_COUNT
+        pages.addView(nativeButton("‹ PREVIOUS","Previous worlds",blue,previous){
+            onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
+        },LinearLayout.LayoutParams(0,dp(58),1f))
+        pages.addView(nativeButton("MORE ›","More worlds",blue,next){
+            onWorld(LevelMapGeometry.pageStart(selected)+3)
+        },LinearLayout.LayoutParams(0,dp(58),1f))
+        addControl(pages,58)
+        for(level in LevelMapGeometry.nearestLevels(frontier)){
+            val enabled=LevelMapGeometry.isUnlocked(level,frontier)
+            val earned=progress.bestLevelStars(selected,level.toLong())
+            val description=if(enabled) "Level "+level+", "+earned+" stars. Tap to play"
+                else "Locked level "+level
+            addControl(nativeButton(
+                if(enabled)"LEVEL "+level+"  ★ "+earned else "LOCKED LEVEL "+level,
+                description,
+                if(!enabled)gray else if(level==frontier)gold else blue,
+                enabled){
+                if(enabled)onPlay(selected,level.toLong())
+            })
+        }
+        val earned=progress.bestLevelStars(selected,frontier.toLong())
+        addControl(nativeButton("▶ PLAY LEVEL "+frontier,
+            "PLAY LEVEL "+frontier+", "+earned+" STARS",gold){
+            onPlay(selected,frontier.toLong())
+        },77)
+        scroll.addView(column)
+        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        scroll.requestApplyInsets()
+        return root
+    }
+
     fun create(world:Int,onWorld:(Int)->Unit,
                onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
         val selected=world.coerceIn(0,LevelEngine.WORLD_COUNT-1)
         val frontier=LevelMapGeometry.playableFrontier(progress.frontier(selected))
+        if(!LevelMapGeometry.supports(
+                host.resources.displayMetrics.widthPixels,
+                host.resources.displayMetrics.heightPixels,
+                host.resources.configuration.orientation==
+                    Configuration.ORIENTATION_PORTRAIT,
+                host.resources.configuration.fontScale)){
+            return compactMap(selected,frontier,onWorld,onPlay,onBack)
+        }
         val stage=LevelMapStage(host)
         val root=FrameLayout(host).apply {setBackgroundColor(0xff168be1.toInt())}
 
@@ -82,7 +199,11 @@ internal class LevelMapScreen(
 
         val title=TextView(host).apply{
             text="LEVEL MAP"
-            textSize=17f
+            textSize=13f
+            maxLines=1
+            includeFontPadding=false
+            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(Color.WHITE)
             gravity=Gravity.CENTER
@@ -115,6 +236,10 @@ internal class LevelMapScreen(
             setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER
+            maxLines=1
+            includeFontPadding=false
+            setAutoSizeTextTypeUniformWithConfiguration(11,20,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             contentDescription=if(kind=="COINS")"Coins: $number" else "Earned stars: $number"
             background=face(0xff2879c4.toInt(),0xff071d4c.toInt(),
                 0xff94ddff.toInt(),19)
@@ -138,8 +263,11 @@ internal class LevelMapScreen(
                 captions[id]+"\n★ $earned/${LevelMapGeometry.starsPerWorld}",
                 "Select world ${id+1}, ${captions[id]}, $earned of 60 stars",
                 colors){onWorld(id)}
-            button.textSize=if(chosen)20f else 17f
-            button.setAutoSizeTextTypeUniformWithConfiguration(16,22,1,
+            button.textSize=if(chosen)18f else 15f
+            button.maxLines=3
+            button.includeFontPadding=false
+            button.setPadding(dp(3),0,dp(3),0)
+            button.setAutoSizeTextTypeUniformWithConfiguration(11,18,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             button.isSelected=chosen
             stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,109f,
@@ -320,6 +448,118 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         for(i in 0..1)c.drawRoundRect(cx+rx*.34f+i*15f+3f,y+31f,
             cx+rx*.34f+i*15f+5f,y+deep*.70f,2f,2f,p)
     }
+
+    /** Deterministic layered rock facets give floating land a cut-stone edge.
+     * All shapes remain below native controls and do not represent game items.
+     */
+    private fun cliffFacets(c:Canvas,cx:Float,y:Float,rx:Float,deep:Float){
+        for(i in 0..8){
+            val k=i/8f
+            val x=cx-rx*.70f+k*rx*1.4f
+            val bottomY=y+deep*(.65f+(.10f*(i%3)))
+            path.reset()
+            path.moveTo(x-19f,y+28f)
+            path.lineTo(x+23f,y+30f)
+            path.lineTo(x+17f,bottomY)
+            path.lineTo(x-14f,bottomY-14f)
+            path.close()
+            color(if(i%2==0)0x55472f4b else 0x557da5a5)
+            c.drawPath(path,p)
+            color(0x668df8ff)
+            p.strokeWidth=2.8f
+            p.style=Paint.Style.STROKE
+            c.drawLine(x-16f,y+35f,x-11f,bottomY-20f,p)
+            p.style=Paint.Style.FILL
+        }
+    }
+
+    /** Local vector foliage on the actual Sky Meadows world. */
+    private fun meadowCanopy(c:Canvas){
+        for(i in 0..11){
+            val x=115f+(i*73%484)
+            val y=1060f+(i%4)*21f
+            color(0xff765034.toInt())
+            c.drawRoundRect(x-5f,y-5f,x+5f,y+35f,3f,3f,p)
+            color(0xff126d42.toInt())
+            c.drawOval(x-27f,y-28f,x+27f,y+12f,p)
+            color(0xff51c963.toInt())
+            c.drawOval(x-22f,y-35f,x+17f,y+1f,p)
+            color(0xffbaff8a.toInt())
+            c.drawOval(x-10f,y-34f,x+8f,y-21f,p)
+        }
+    }
+
+    /** Faceted crystals echo the original floating ruins rather than
+     * placing collectible reward sprites outside the real level runtime.
+     */
+    private fun crystalCluster(c:Canvas){
+        for(i in 0..8){
+            val x=435f+i*48f
+            val y=589f+(i%3)*24f
+            val height=74f+(i*31%83)
+            path.reset()
+            path.moveTo(x-19f,y+34f)
+            path.lineTo(x,y-height)
+            path.lineTo(x+21f,y+34f)
+            path.close()
+            color(if(i%2==0)0xff7e37d4.toInt() else 0xff1874cf.toInt())
+            c.drawPath(path,p)
+            path.reset()
+            path.moveTo(x,y-height)
+            path.lineTo(x+21f,y+34f)
+            path.lineTo(x,y+21f)
+            path.close()
+            color(if(i%2==0)0xffe29aff.toInt() else 0xff83f5ff.toInt())
+            c.drawPath(path,p)
+            color(0xbaffffff.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=2f
+            c.drawLine(x,y-height+8f,x-10f,y+16f,p)
+            p.style=Paint.Style.FILL
+        }
+    }
+
+    /** Active volcanic land is an environmental backdrop, never a false
+     * unlocked level marker. The red-orange fissures use fixed local geometry.
+     */
+    private fun volcanoCrown(c:Canvas){
+        path.reset()
+        path.moveTo(600f,236f)
+        path.lineTo(654f,143f)
+        path.lineTo(682f,192f)
+        path.lineTo(722f,107f)
+        path.lineTo(763f,180f)
+        path.lineTo(808f,141f)
+        path.lineTo(862f,235f)
+        path.close()
+        color(0xff61404d.toInt())
+        c.drawPath(path,p)
+        path.reset()
+        path.moveTo(662f,190f)
+        path.lineTo(713f,133f)
+        path.lineTo(758f,196f)
+        path.lineTo(735f,184f)
+        path.lineTo(710f,166f)
+        path.close()
+        color(0xff2c273f.toInt())
+        c.drawPath(path,p)
+        color(0xffffe76c.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=12f
+        c.drawArc(691f,126f,760f,201f,23f,133f,false,p)
+        color(0xffff7824.toInt())
+        p.strokeWidth=6f
+        c.drawArc(691f,126f,760f,201f,23f,133f,false,p)
+        p.style=Paint.Style.FILL
+        for(i in 0..6){
+            val x=580f+i*43f
+            val y=228f+(i%3)*27f
+            color(0xffff922c.toInt())
+            c.drawCircle(x,y,4f+(i%3)*2f,p)
+            color(0xffffe070.toInt())
+            c.drawCircle(x-1f,y-1f,2f,p)
+        }
+    }
     override fun onDraw(canvas:Canvas){
         super.onDraw(canvas)
         val checkpoint=canvas.save()
@@ -333,6 +573,12 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
             0xff288fe2.toInt(),0xff646b96.toInt(),0xff8de6ff.toInt())
         island(canvas,347f,1140f,352f,290f,
             0xff3eae59.toInt(),0xff8b7269.toInt(),0xffa6ef75.toInt())
+        cliffFacets(canvas,709f,239f,231f,222f)
+        cliffFacets(canvas,621f,690f,264f,252f)
+        cliffFacets(canvas,347f,1140f,352f,290f)
+        volcanoCrown(canvas)
+        crystalCluster(canvas)
+        meadowCanopy(canvas)
         // A ring on the actual selected world, not a false unlock indicator.
         val focus=selected%3
         val focusX=floatArrayOf(347f,621f,709f)[focus]

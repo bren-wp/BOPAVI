@@ -49,6 +49,13 @@ assert 'line("Cloud Save"' not in settings
 assert 'line("Restore Purchases"' not in settings
 assert 'button("Restore Purchases"' not in settings
 assert 'setPadding(dp(8),0,dp(9),0)' in settings
+assert 'Bopavi3DTheme.panel(when(kind){' in settings
+assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in settings
+assert 'FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER)' in settings
+assert 'title("SETTINGS",57).apply{' in settings
+assert 'title("SETTINGS",31).apply{' in settings
+assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)' in settings
+assert 'setTextColor(0xff61330a.toInt())' in settings
 # Large-font reference canvases shrink native switches below the required
 # 64dp accessibility height; those devices must use a scrollable layout.
 assert 'host.resources.configuration.fontScale<1.25f' in settings

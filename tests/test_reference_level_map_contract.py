@@ -24,6 +24,25 @@ for phrase in (
     assert phrase in mapSource,phrase
 assert "LevelMapScreen(host,progress).create(" in menu
 assert "nearestLevels(frontier)" in mapSource
+assert "LevelMapGeometry.supports(" in mapSource
+assert "return compactMap(selected,frontier,onWorld,onPlay,onBack)" in mapSource
+assert "fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float)" in geometry
+assert "private fun compactMap(" in mapSource
+assert "val scroll=ScrollView(host).apply" in mapSource
+assert "isFillViewport=true" in mapSource
+assert "addControl(nativeButton(" in mapSource
+assert "contentDescription=\"LEVEL MAP\"" in mapSource
+assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
+assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
+assert "if(enabled)onPlay(selected,level.toLong())" in mapSource
+assert "root.addView(scroll,FrameLayout.LayoutParams(-1,-1))" in mapSource
+assert "compactAndLargeTextDevicesUseActualNativeScrollControls" in unit
+for landscape in ("private fun cliffFacets(", "private fun meadowCanopy(",
+                  "private fun crystalCluster(", "private fun volcanoCrown(",
+                  "cliffFacets(canvas,709f,239f,231f,222f)",
+                  "crystalCluster(canvas)", "volcanoCrown(canvas)",
+                  "meadowCanopy(canvas)"):
+    assert landscape in mapSource, landscape
 assert "LevelMapLockGlyph(host)" in mapSource
 assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
 assert "node.background=RippleDrawable(" in mapSource
@@ -38,7 +57,11 @@ assert "IMPORTANT_FOR_ACCESSIBILITY_NO" in markers
 assert '"🔒"' not in mapSource
 assert "if(index<3)" in mapSource
 assert "setAutoSizeTextTypeUniformWithConfiguration(24,34,1," in mapSource
-assert "setAutoSizeTextTypeUniformWithConfiguration(16,22,1," in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(11,18,1," in mapSource
+assert "button.maxLines=3" in mapSource
+assert "button.setPadding(dp(3),0,dp(3),0)" in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(11,20,1," in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(10,13,1," in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource

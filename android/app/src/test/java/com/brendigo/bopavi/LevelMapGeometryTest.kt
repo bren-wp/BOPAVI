@@ -10,6 +10,12 @@ class LevelMapGeometryTest {
         assertEquals(listOf(6,7),LevelMapGeometry.displayedWorlds(7))
         assertEquals(60,LevelMapGeometry.starsPerWorld)
     }
+    @Test fun compactAndLargeTextDevicesUseActualNativeScrollControls() {
+        assertTrue(LevelMapGeometry.supports(941,1672,true,1f))
+        assertFalse(LevelMapGeometry.supports(720,1280,true,1f))
+        assertFalse(LevelMapGeometry.supports(941,1672,true,1.5f))
+        assertFalse(LevelMapGeometry.supports(1920,1080,false,1f))
+    }
     @Test fun realLevelNodesNeverExceedTheMillionLevelLimit() {
         for(frontier in listOf(1,2,3,20,100,1_048_576,1_048_577)){
             val levels=LevelMapGeometry.nearestLevels(frontier)
