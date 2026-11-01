@@ -24,14 +24,19 @@ for required in (
     assert required in view,required
 assert "val logo=LoadingArtBox(28f,96f,913f,364f)" in layout
 assert "val pilot=LoadingArtBox(90f,381f,850f,1141f)" in layout
-assert "val track=LoadingArtBox(222f,1482f,719f,1563f)" in layout
-assert "const val captionBaselineY=1468f" in layout
+assert "val track=LoadingArtBox(175f,1320f,766f,1422f)" in layout
+assert "const val captionBaselineY=1483f" in layout
+assert "assertTrue(l.captionBaselineY>l.track.bottom)" in test
 assert "realReferenceArtworkRetainsItsNaturalProportions" in test
 assert "titlePilotAndTrackStayInReferenceVerticalOrder" in test
 assert "private fun ring(canvas: Canvas" in view
 assert "android.graphics.DashPathEffect(" in view
 assert "coin(canvas," not in view
-assert "ring(canvas,806f,957f,166f,186f,-10f)" in view
+assert "ring(canvas,108f,880f,58f,92f,-18f)" in view
+assert "ring(canvas,355f,1015f,69f,108f,-25f)" in view
+assert "trackWings(canvas)" in view
+assert "0xffffbc27.toInt()" in view
+assert "paint.pathEffect=android.graphics.DashPathEffect" not in view
 assert "ring(canvas,556f,1115f,64f,75f,-14f)" in view
 assert "postInvalidateDelayed(60L)" in view
 assert "isAttachedToWindow" in view
