@@ -37,6 +37,12 @@ assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
 assert "if(enabled)onPlay(selected,level.toLong())" in mapSource
 assert "root.addView(scroll,FrameLayout.LayoutParams(-1,-1))" in mapSource
 assert "compactAndLargeTextDevicesUseActualNativeScrollControls" in unit
+for landscape in ("private fun cliffFacets(", "private fun meadowCanopy(",
+                  "private fun crystalCluster(", "private fun volcanoCrown(",
+                  "cliffFacets(canvas,709f,239f,231f,222f)",
+                  "crystalCluster(canvas)", "volcanoCrown(canvas)",
+                  "meadowCanopy(canvas)"):
+    assert landscape in mapSource, landscape
 assert "LevelMapLockGlyph(host)" in mapSource
 assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
 assert "node.background=RippleDrawable(" in mapSource
