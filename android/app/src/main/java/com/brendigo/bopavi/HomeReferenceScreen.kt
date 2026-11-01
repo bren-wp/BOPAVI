@@ -28,12 +28,6 @@ import java.util.Locale
 internal class HomeReferenceScreen(private val host:Activity,
                                    private val progress:ProgressStore) {
     private fun dp(px:Int)=(px*host.resources.displayMetrics.density+.5f).toInt()
-    private fun plate(top:Int,bottom:Int,outline:Int,radius:Int)=
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(top,bottom)).apply{
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),outline)
-        }
     private fun label(s:String,font:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=font.toFloat()
