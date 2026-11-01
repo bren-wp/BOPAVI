@@ -55,5 +55,17 @@ assert '"bopavi_qa_capture_first_flap", "true"' in rotate
 assert "ŽIVOTI:" in rotate and "flight_before" in rotate
 assert "active = active_flight()" in rotate and "assert_flight_visible" in rotate
 assert "android-flight-portrait-active" in rotate
-assert "versionCode = 171" in build and 'versionName = "1.0.41"' in build
+# Do not hard-code the last published Android version: the PR gate
+# requires a *newer* version for code changes, and release_contract separately
+# verifies the matching staged release notes and unsigned packaging.
+import re
+codes=re.findall(r'(?m)^\\s*versionCode\\s*=\\s*(\\d+)\\s*
+print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")
+,build)
+names=re.findall(r'(?m)^\\s*versionName\\s*=\\s*"(\\d+\\.\\d+\\.\\d+)"\\s*
+print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")
+,build)
+assert len(codes)==1 and len(names)==1, "Android version metadata must be unique"
+assert int(codes[0])>=171 and tuple(map(int,names[0].split(".")))>=(1,0,41), (
+    "Android must not regress below the last verified v1.0.41 build 171")
 print("PASS: edge-to-edge, adaptive orientation, stable game lifecycle and AGP9 R8 contracts")
