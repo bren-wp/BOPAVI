@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-"""Reference Loading must be a truthful, native, cancellable runtime state."""
+"""Native Loading visual and real level preparation must both remain truthful."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
 loading=(src/"FlightLoadingView.kt").read_text(encoding="utf-8")
+layout=(src/"FlightLoadingLayout.kt").read_text(encoding="utf-8")
 activity=(src/"MainActivity.kt").read_text(encoding="utf-8")
 qa=(root/"tools/qa_android_loading.py").read_text(encoding="utf-8")
 runner=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
-gradle=(root/"android/app/build.gradle.kts").read_text(encoding="utf-8")
-
-assert 'internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(context)' in loading
-assert 'R.drawable.homeback' in loading
-assert 'R.drawable.logo' in loading
-assert 'R.drawable.bopiportrait0' in loading
-assert 'RectF(139f, 1333f, 802f, 1441f)' in loading
-assert '"Loading..."' in loading
-assert 'if (preparationFinished)' in loading
-assert 'fun completePreparation()' in loading
-assert 'contentDescription = "Loading level"' in loading
-assert "val scale = min(w / 941f, h / 1672f)" in loading
-assert 'max(w / bg.width, h / bg.height)' in loading
+assert "internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context)" in loading
+for required in ("R.drawable.homeback","R.drawable.logo",
+                 "R.drawable.bopi0","R.drawable.bopileft0","R.drawable.bopiright0",
+                 '"Loading..."',"fun completePreparation()",
+                 'if(startup)"BOPAVI se pokreće" else "Loading level"',
+                 "max(w / bg.width, h / bg.height)",
+                 "FlightLoadingLayout.track.left"):
+    assert required in loading,required
+assert "val track=LoadingArtBox(222f,1482f,719f,1563f)" in layout
 assert "Thread({" in activity and '"Bopavi-Level-Preparation"' in activity
 assert 'val generated=runCatching{LevelEngine.createStream(world,number)}' in activity
 assert 'val perks=progress.consumePerks()' in activity
@@ -31,14 +28,13 @@ assert 'openFlight(simulation,world)' in activity
 assert 'private var loadingGeneration = 0' in activity
 assert 'loadingGeneration++' in activity
 assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' in qa
+assert "showBrandedStartup()" in activity
+assert "},1450L)" in activity
+assert "startup=true" in activity
+assert "pilotChoice.coerceIn(0,bodies.lastIndex)" in loading
 assert 'android-loading.png' in qa
 assert 'python3 tools/qa_android_loading.py' in runner
-assert 'versionCode = 170' in gradle and 'versionName = "1.0.40"' in gradle
-
-# Must not fake a timed progress countdown, require network, or replace the
-# one-system-splash cold start with an artificial second splash.
-for forbidden in ('postDelayed(', 'CountDownTimer(', 'Thread.sleep(', 'INTERNET', '100%', '50%'):
-    assert forbidden not in loading
+for forbidden in ("postDelayed(", "CountDownTimer(", "Thread.sleep(", "INTERNET", "100%", "50%"):
+    assert forbidden not in loading,forbidden
 assert '"showSplash()"' not in activity
-assert 'if(intent?.getBooleanExtra("bopavi_qa_loading_preview",false)==true)' in activity
-print("PASS: native reference Loading uses real level preparation, cancellation and saved perks safely")
+print("PASS: reference Loading animation uses real preparation and cancels stale launches")

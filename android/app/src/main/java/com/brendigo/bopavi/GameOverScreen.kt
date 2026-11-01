@@ -1,14 +1,12 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -27,13 +25,6 @@ internal class GameOverScreen(private val host:Activity) {
     private fun dp(px:Int)=((px*host.resources.displayMetrics.density)+.5f).toInt()
     private val navy=0xff092451.toInt()
     private val gold=0xffffbe23.toInt()
-    private val blue=0xff086dd5.toInt()
-
-    private fun surface(top:Int,bottom:Int,stroke:Int,radius:Int):GradientDrawable =
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(top,bottom)).apply {
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),stroke)
-        }
 
     private fun heading(label:String,color:Int):TextView=TextView(host).apply {
         text=label
@@ -54,8 +45,7 @@ internal class GameOverScreen(private val host:Activity) {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(dp(9),0,dp(12),0)
-            background=surface(0xfffff4de.toInt(),0xfff3ddc0.toInt(),
-                0xffe3c1a0.toInt(),24)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$label: $value"
             isFocusable=true
         }
@@ -96,10 +86,7 @@ internal class GameOverScreen(private val host:Activity) {
             gravity=Gravity.CENTER
             setAutoSizeTextTypeUniformWithConfiguration(18,32,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(primary)surface(0xffffe64e.toInt(),0xffff9805.toInt(),
-                    0xffa74708.toInt(),37)
-                else surface(0xff55d9ff.toInt(),blue,navy,36),null)
+            background=Bopavi3DTheme.button(if(primary)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             contentDescription=label
             elevation=dp(6).toFloat()
             minimumHeight=dp(48)
@@ -138,8 +125,7 @@ internal class GameOverScreen(private val host:Activity) {
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(dp(12),dp(14),dp(12),dp(14))
-            background=surface(0xfffff4dd.toInt(),0xfff6dfc8.toInt(),
-                0xffae631f.toInt(),30)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="Game Over statistics"
         }
         val rows=listOf(

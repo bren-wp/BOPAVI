@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -58,11 +57,8 @@ internal class SettingsScreen(private val host:Activity,
             minimumHeight=dp(48)
             setAutoSizeTextTypeUniformWithConfiguration(12,20,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(selected)plate(0xffffe568.toInt(),0xffffab23.toInt(),
-                    0xffab580b.toInt(),22)
-                else plate(0xff49d9ff.toInt(),0xff0758c5.toInt(),
-                    0xff9beaff.toInt(),22),null)
+            background=Bopavi3DTheme.button(if(selected)
+                Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             contentDescription=s
             elevation=dp(3).toFloat()
             setOnClickListener{click()}
@@ -73,8 +69,7 @@ internal class SettingsScreen(private val host:Activity,
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(dp(8),0,dp(9),0)
-            background=plate(0xfffff8e9.toInt(),0xfff1ddbc.toInt(),
-                0xffddbc96.toInt(),20)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             minimumHeight=dp(48)
         }
         row.addView(ImageView(host).apply{

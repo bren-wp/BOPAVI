@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -151,19 +151,18 @@ internal class BopaviUiIconDrawable(
                 canvas.drawLine(16.5f,16f,21.5f,16f,paint)
             }
             Kind.COIN -> {
-                // Crown coin in the reference wallet: gold rim and a tiny
-                // impressed crown, not the trophy used by record screens.
+                // The approved counter coin bears a raised flying feather.
                 canvas.drawCircle(12f,12f,9f,paint)
-                canvas.drawCircle(12f,12f,6.8f,paint)
-                path.moveTo(7.5f,13.6f)
-                path.lineTo(7f,9.4f)
-                path.lineTo(10.2f,11.2f)
-                path.lineTo(12f,7.5f)
-                path.lineTo(13.8f,11.2f)
-                path.lineTo(17f,9.4f)
-                path.lineTo(16.5f,13.6f)
+                canvas.drawCircle(12f,12f,7f,paint)
+                paint.style=Paint.Style.FILL
+                path.moveTo(7f,17f)
+                path.cubicTo(7.1f,10f,12f,5.7f,18f,6f)
+                path.cubicTo(18f,12.6f,13.8f,16.5f,7f,17f)
                 path.close()
                 canvas.drawPath(path,paint)
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=1.1f
+                canvas.drawLine(6.8f,18f,16.7f,7.7f,paint)
             }
             Kind.SHOP -> {
                 paint.style=Paint.Style.FILL
@@ -227,6 +226,41 @@ internal class BopaviUiIconDrawable(
                 canvas.drawRoundRect(14f, 2f, 20f, 9f, 1.2f, 1.2f, paint)
                 canvas.drawRoundRect(4f, 15f, 10f, 22f, 1.2f, 1.2f, paint)
                 canvas.drawRoundRect(14f, 15f, 20f, 22f, 1.2f, 1.2f, paint)
+            }
+            Kind.SHIRT -> {
+                // Reference Skins tile: a blue jersey with a white feather.
+                val originalAlpha=Color.alpha(paint.color)
+                paint.style=Paint.Style.FILL
+                paint.color=Color.argb(originalAlpha,24,122,229)
+                path.moveTo(8f,3f)
+                path.lineTo(10f,5f)
+                path.lineTo(14f,5f)
+                path.lineTo(16f,3f)
+                path.lineTo(22f,7.5f)
+                path.lineTo(19.2f,12f)
+                path.lineTo(17.3f,10.8f)
+                path.lineTo(17.3f,21f)
+                path.lineTo(6.7f,21f)
+                path.lineTo(6.7f,10.8f)
+                path.lineTo(4.8f,12f)
+                path.lineTo(2f,7.5f)
+                path.close()
+                canvas.drawPath(path,paint)
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=1.2f
+                paint.color=Color.argb(originalAlpha,231,250,255)
+                canvas.drawPath(path,paint)
+                path.reset()
+                paint.style=Paint.Style.FILL
+                path.moveTo(9f,15f)
+                path.cubicTo(10f,10f,15f,8.5f,16f,9.5f)
+                path.cubicTo(16f,13f,12.5f,16f,9f,15f)
+                path.close()
+                canvas.drawPath(path,paint)
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=.7f
+                paint.color=Color.argb(originalAlpha,43,112,200)
+                canvas.drawLine(9f,15f,15.2f,10f,paint)
             }
             Kind.FLIGHT -> {
                 // Directional movement, not a font glyph or an emoji plane.

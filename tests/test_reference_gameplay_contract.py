@@ -58,7 +58,12 @@ assert 'val r=SkyMaceHazard.radius' in game
 assert 'path.lineTo(cx+dx*r,cy+dy*r)' in game
 assert 'c.drawCircle(lx,ly,2.8f,p)' in game
 assert 'path.cubicTo(game.birdX-88f,game.y+15f,' in game
-assert 'if(active)oval(c,x-5f,y-2f,x+5f,y+5f,0x55ffaf98)' in game
+# The lives-only HUD now uses two layered enamel highlights. Ensure
+# the heart remains state-dependent, outlined, and visibly dimensional.
+assert 'if(active){' in game
+assert 'oval(c,x-7f,y-4f,x+4f,y+3f,0x88ffad98.toInt())' in game
+assert 'oval(c,x-5f,y-4f,x-1f,y-2f,0xccffffff.toInt())' in game
+assert 'rect(c,l+12f,b-6f,r-12f,b-4f,0x77021944,2f)' in game
 assert 'SkyMaceHazard.sweptHit(' in simulation
 assert 'if(game.coinVisible(index,incoming))drawGoldenCoin(c,mid,cy)' in game
 assert 'if(game.crystalVisible(index,incoming))drawBlueCrystal(c,mid+35f,cy-25f)' in game

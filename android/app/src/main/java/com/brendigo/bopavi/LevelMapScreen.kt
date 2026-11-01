@@ -33,12 +33,9 @@ internal class LevelMapScreen(
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
 
     private fun face(top:Int,bottom:Int,stroke:Int,round:Int=27):RippleDrawable {
-        val plate=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(top,bottom)).apply{
-            cornerRadius=dp(round).toFloat()
-            setStroke(dp(2),stroke)
-        }
-        return RippleDrawable(ColorStateList.valueOf(0x44ffffff),plate,null)
+        // Native button / currency chip retains its contentDescription and
+        // enabled state while receiving the same layered bevel as Home.
+        return Bopavi3DTheme.custom(top,bottom,stroke)
     }
 
     private fun nativeButton(label:String,description:String,

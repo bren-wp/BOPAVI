@@ -1,12 +1,10 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -21,11 +19,6 @@ import android.widget.TextView
 internal class LeaderboardScreen(private val host:Activity){
     private val navy=0xff0b2b60.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
-    private fun frame(a:Int,b:Int,c:Int,r:Int=19)=
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(a,b)).apply{
-            cornerRadius=dp(r).toFloat()
-            setStroke(dp(2),c)
-        }
     private fun label(s:String,size:Int,color:Int=Color.WHITE):TextView=
         TextView(host).apply{
             text=s
@@ -44,8 +37,7 @@ internal class LeaderboardScreen(private val host:Activity){
         typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         contentDescription="HOME"
         minimumHeight=dp(48)
-        background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-            frame(0xffffe877.toInt(),0xffff940d.toInt(),0xffffe9b4.toInt(),32),null)
+        background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GOLD)
         elevation=dp(5).toFloat()
         setOnClickListener{back()}
     }
@@ -54,7 +46,7 @@ internal class LeaderboardScreen(private val host:Activity){
             gravity=Gravity.CENTER_VERTICAL
             orientation=LinearLayout.HORIZONTAL
             setPadding(dp(6),0,dp(6),0)
-            background=frame(0xfffff8e9.toInt(),0xffedcdab.toInt(),0xffbd8e66.toInt())
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$name: $value"
             isFocusable=true
         }
@@ -75,9 +67,8 @@ internal class LeaderboardScreen(private val host:Activity){
             gravity=Gravity.CENTER_VERTICAL
             orientation=LinearLayout.HORIZONTAL
             setPadding(dp(7),0,dp(7),0)
-            background=frame(if(item.rank<=3)0xfffff2d2.toInt() else 0xffe8f4ff.toInt(),
-                if(item.rank<=3)0xffebc681.toInt() else 0xffb7ddf5.toInt(),
-                if(item.rank<=3)0xffc98c3e.toInt() else 0xff70b3e0.toInt())
+            background=Bopavi3DTheme.panel(if(item.rank<=3)
+                Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
             isFocusable=true
             contentDescription=item.description
         }

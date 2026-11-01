@@ -21,11 +21,17 @@ assert "setTextColor(if(primary)primaryButtonInk else Color.WHITE)" in action
 assert "setTextColor(if(style==0)primaryButtonInk else Color.WHITE)" in pause
 assert "if(!primary) setShadowLayer(" in action
 
-gold_action = action.split("val face=if(primary) GradientDrawable(", 1)[1].split("} else if(muted)", 1)[0]
-gold_pause = pause.split("0 -> gradient(", 1)[1].split("1 -> gradient(", 1)[0]
-action_stops = [int(v, 16) for v in re.findall(r"0x[0-9a-fA-F]{8}", gold_action)[:3]]
-pause_stops = [int(v, 16) for v in re.findall(r"0x[0-9a-fA-F]{8}", gold_pause)[:2]]
-assert len(action_stops) == 3 and len(pause_stops) == 2
+# Main and Pause deliberately share a single enamel palette. Inspect real
+# gradient stops from the exact drawable class rather than obsolete inline
+# GradientDrawable source fragments.
+theme = (source / "Bopavi3DTheme.kt").read_text(encoding="utf-8")
+assert "background=Bopavi3DTheme.button(when {" in action
+assert "primary -> Bopavi3DTheme.Finish.GOLD" in action
+assert "val finish=if(style==0)Bopavi3DTheme.Finish.GOLD" in pause
+assert "background=Bopavi3DTheme.button(finish)" in pause
+gold = theme.split("Finish.GOLD -> HomeEnamelDrawable(", 1)[1].split("Finish.SKY ->", 1)[0]
+gold_stops = [int(v,16) for v in re.findall(r"0x[0-9a-fA-F]{8}",gold)[:3]]
+assert len(gold_stops)==3, "3D gold requires highlight, face and shadow"
 
 def channel(value: int) -> float:
     c = value / 255
@@ -39,7 +45,7 @@ def contrast(a: int, b: int) -> float:
     bright, dark = sorted((luminance(a), luminance(b)), reverse=True)
     return (bright + 0.05) / (dark + 0.05)
 
-for stop in action_stops + pause_stops:
+for stop in gold_stops:
     assert (stop >> 24) == 255, "Gradient stops must be opaque for reliable contrast"
     ratio = contrast(ink, stop)
     assert ratio >= 4.5, f"Gold CTA stop {stop:#010x} fails WCAG AA: {ratio:.2f}:1"
@@ -54,4 +60,4 @@ assert 'contentDescription=if(selectedSkin==0)"Bopi leti"' not in view
 
 qa = (root / "tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 assert '"DODIRNI ZA ZAMAH KRILIMA" in label(n)' in qa
-print("PASS: both gold CTA gradients exceed 4.5:1 and flap keeps Croatian TalkBack instructions")
+print("PASS: shared gold 3D palette meets 4.5:1, Pause action and Croatian flap TalkBack")

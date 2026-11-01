@@ -5,8 +5,6 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -22,11 +20,6 @@ import android.widget.TextView
 internal class AchievementsScreen(private val host:Activity){
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
     private val ink=0xff0a2856.toInt()
-    private fun plate(a:Int,b:Int,c:Int):GradientDrawable =
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(a,b)).apply {
-            cornerRadius=dp(20).toFloat()
-            setStroke(dp(2),c)
-        }
     private fun label(s:String,size:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=size.toFloat()
@@ -51,9 +44,8 @@ internal class AchievementsScreen(private val host:Activity){
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(dp(9),dp(5),dp(9),dp(6))
-            background=if(g.achieved)
-                plate(0xfffff6d8.toInt(),0xffecca8f.toInt(),0xffdb9937.toInt())
-            else plate(0xffedf7ff.toInt(),0xffbad2ec.toInt(),0xff7ab4df.toInt())
+            background=Bopavi3DTheme.panel(if(g.achieved)
+                Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
             isFocusable=true
             contentDescription=g.accessibility
         }
@@ -93,8 +85,7 @@ internal class AchievementsScreen(private val host:Activity){
         minimumHeight=dp(48)
         typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         setTextColor(ink)
-        background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-            plate(0xffffe76b.toInt(),0xffff9905.toInt(),0xffffebae.toInt()),null)
+        background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GOLD)
         elevation=dp(4).toFloat()
         contentDescription="HOME"
         setOnClickListener{onBack()}

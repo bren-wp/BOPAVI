@@ -1,14 +1,12 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -56,11 +54,7 @@ internal class LevelCompleteScreen(private val host:Activity) {
             setAutoSizeTextTypeUniformWithConfiguration(17,30,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             minimumHeight=dp(48)
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                if(gold)panel(0xffffe863.toInt(),0xffff970a.toInt(),
-                    0xffb64d02.toInt(),33)
-                else panel(0xff56dbff.toInt(),0xff0754bc.toInt(),
-                    0xffc0efff.toInt(),31),null)
+            background=Bopavi3DTheme.button(if(gold)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             contentDescription=label
             elevation=dp(5).toFloat()
             setOnClickListener{onClick()}
@@ -71,8 +65,7 @@ internal class LevelCompleteScreen(private val host:Activity) {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(dp(9),dp(8),dp(9),dp(8))
-            background=panel(0xfffcf1d9.toInt(),0xffe6c9ab.toInt(),
-                0xffba8345.toInt(),18)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription=labelText+": "+value
             isFocusable=true
             addView(label(value,28f,color),LinearLayout.LayoutParams(-1,0,1f))

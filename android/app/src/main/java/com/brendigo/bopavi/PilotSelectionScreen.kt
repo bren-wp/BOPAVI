@@ -50,10 +50,7 @@ internal class PilotSelectionScreen(
             textSize=25f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(if(primary)0xff67320d.toInt() else Color.WHITE)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(primary)plate(0xffffe65c.toInt(),0xffff9405.toInt(),
-                    0xfffff2b8.toInt(),33)
-                else plate(0xff4fddff.toInt(),0xff0759c5.toInt(),cyan,30),null)
+            background=Bopavi3DTheme.button(if(primary)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             gravity=Gravity.CENTER
             minimumHeight=dp(48)
             setAutoSizeTextTypeUniformWithConfiguration(15,25,1,
@@ -101,10 +98,9 @@ internal class PilotSelectionScreen(
                 gravity=Gravity.CENTER_HORIZONTAL
                 setPadding(dp(9),dp(10),dp(9),dp(13))
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    if(isSelected)plate(0xfffff6da.toInt(),0xffffd67a.toInt(),
-                        0xffffab17.toInt(),28)
-                    else plate(0xffe4f7ff.toInt(),0xff80c9fa.toInt(),
-                        0xff58b9ee.toInt(),28),null)
+                    Bopavi3DTheme.panel(if(isSelected)
+                        Bopavi3DTheme.Finish.CREAM else
+                        Bopavi3DTheme.Finish.STONE),null)
                 isClickable=true
                 isFocusable=true
                 minimumHeight=dp(48)

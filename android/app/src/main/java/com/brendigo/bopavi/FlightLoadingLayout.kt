@@ -19,13 +19,14 @@ internal object FlightLoadingLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
     // Winged crown wordmark is proportionate to original 780 x 236 logo PNG.
-    val logo=LoadingArtBox(93f,113f,848f,341f)
+    val logo=LoadingArtBox(28f,96f,913f,364f)
     // Bopi's BODY and both animated-gameplay wing layers are all square
     // 512x512 canvases. Paint them in the same rectangle, no distortion.
-    val pilot=LoadingArtBox(113f,346f,828f,1061f)
-    val track=LoadingArtBox(118f,1317f,824f,1423f)
+    val pilot=LoadingArtBox(90f,381f,850f,1141f)
+    // Supplied Splash: Loading caption ABOVE the thin cyan/blue glass track.
+    val track=LoadingArtBox(222f,1482f,719f,1563f)
     const val captionCenterX=470f
-    const val captionBaselineY=1493f
+    const val captionBaselineY=1468f
 
     fun aspectError(a:LoadingArtBox,sourceWidth:Float,sourceHeight:Float):Float =
         kotlin.math.abs(a.width/a.height-sourceWidth/sourceHeight)
