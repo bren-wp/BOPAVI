@@ -248,8 +248,11 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
             segment.height()*.5f)
         val clip=canvas.save()
-        canvas.clipRoundRect(segment,segment.height()*.5f,
-            segment.height()*.5f)
+        val glossClip=android.graphics.Path().apply {
+            addRoundRect(segment,segment.height()*.5f,
+                segment.height()*.5f,android.graphics.Path.Direction.CW)
+        }
+        canvas.clipPath(glossClip)
         paint.reset()
         paint.isAntiAlias=true
         paint.color=0x44ffffff
