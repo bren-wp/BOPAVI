@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AchievementCatalogTest {
+    @Test fun referenceGridIsSafeOnlyForNormalSizedPortraitText() {
+        assertTrue(AchievementsLayout.supports(941,1672,true,1f))
+        assertFalse(AchievementsLayout.supports(720,1280,true,1f))
+        assertFalse(AchievementsLayout.supports(1920,1080,false,1f))
+        assertFalse(AchievementsLayout.supports(941,1672,true,1.5f))
+    }
     @Test fun freshInstallHasEightUnreachedGoals() {
         val goals=AchievementCatalog.goals(AchievementSnapshot(0,0,0L,0,0,0,0,0))
         assertEquals(8,goals.size)

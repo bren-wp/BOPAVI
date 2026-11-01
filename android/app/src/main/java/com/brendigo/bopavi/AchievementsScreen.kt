@@ -46,6 +46,7 @@ internal class AchievementsScreen(private val host:Activity){
             setPadding(dp(9),dp(5),dp(9),dp(6))
             background=Bopavi3DTheme.panel(if(g.achieved)
                 Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
+            elevation=dp(if(g.achieved)6 else 3).toFloat()
             isFocusable=true
             contentDescription=g.accessibility
         }
@@ -53,11 +54,22 @@ internal class AchievementsScreen(private val host:Activity){
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
         }
-        heading.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(kind(g.icon),
-                if(g.achieved)0xffd69413.toInt() else 0xff2b7ac2.toInt(),dp(32)))
+        // The goal icon has the same locally drawn 3D enamel rim as Home.
+        // This decorative tile does not replace the live TalkBack goal text.
+        heading.addView(FrameLayout(host).apply {
+            background=Bopavi3DTheme.panel(if(g.achieved)
+                Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
+            elevation=dp(3).toFloat()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(40),dp(40)))
+            addView(ImageView(host).apply {
+                setImageDrawable(BopaviUiIconDrawable(kind(g.icon),
+                    if(g.achieved)0xff7d390d.toInt() else 0xffffffff.toInt(),dp(31)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(dp(31),dp(31),Gravity.CENTER))
+        },LinearLayout.LayoutParams(dp(43),dp(43)).apply {
+            marginEnd=dp(5)
+        })
         heading.addView(label(g.title,17,ink),LinearLayout.LayoutParams(0,-1,1f))
         col.addView(heading,LinearLayout.LayoutParams(-1,0,1f))
         col.addView(label(g.detail,13,0xff385574.toInt()),
@@ -72,7 +84,7 @@ internal class AchievementsScreen(private val host:Activity){
                 if(g.achieved)0xffdca21e.toInt() else 0xff258fe0.toInt())
             progressBackgroundTintList=ColorStateList.valueOf(0xffbecad4.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,dp(9)))
+        },LinearLayout.LayoutParams(-1,dp(12)))
         col.addView(label(if(g.achieved)"✓ GOAL REACHED" else "IN PROGRESS",
             13,if(g.achieved)0xff23742c.toInt() else 0xff34618c.toInt()),
             LinearLayout.LayoutParams(-1,0,.65f))
@@ -93,6 +105,7 @@ internal class AchievementsScreen(private val host:Activity){
     fun create(snapshot:AchievementSnapshot,onBack:()->Unit):View {
         val goals=AchievementCatalog.goals(snapshot)
         val achieved=goals.count{it.achieved}
+        val total=goals.size
         val root=FrameLayout(host).apply{setBackgroundColor(0xff268fdd.toInt())}
         root.addView(ImageView(host).apply{
             setImageResource(R.drawable.homeback)
@@ -105,14 +118,20 @@ internal class AchievementsScreen(private val host:Activity){
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         val dm=host.resources.displayMetrics
-        val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
-            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT
+        val reference=AchievementsLayout.supports(
+            dm.widthPixels,dm.heightPixels,
+            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT,
+            host.resources.configuration.fontScale)
         if(reference){
             val stage=LevelMapStage(host)
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
             stage.place(portrait,252f,34f,438f,290f)
-            stage.place(label("ACHIEVEMENTS",65,Color.WHITE),75f,322f,791f,114f)
-            stage.place(label("$achieved / 8 GOALS REACHED",29,
+            stage.place(label("ACHIEVEMENTS",65,Color.WHITE).apply {
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+                elevation=dp(7).toFloat()
+                contentDescription="Achievements"
+            },75f,322f,791f,114f)
+            stage.place(label("$achieved / $total GOALS REACHED",29,
                 0xffffe999.toInt()),218f,430f,506f,61f)
             goals.forEachIndexed{index,g->
                 stage.place(card(g),AchievementsLayout.cols[index%2],
@@ -135,6 +154,8 @@ internal class AchievementsScreen(private val host:Activity){
             stage.requestApplyInsets()
         }else{
             val scroll=ScrollView(host).apply{
+                isFillViewport=true
+                clipToPadding=false
                 setOnApplyWindowInsetsListener{_,insets->
                     if(Build.VERSION.SDK_INT>=30){
                         val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -154,9 +175,11 @@ internal class AchievementsScreen(private val host:Activity){
             }
             column.addView(home(onBack),LinearLayout.LayoutParams(-1,dp(53)))
             column.addView(portrait,LinearLayout.LayoutParams(-1,dp(120)))
-            column.addView(label("ACHIEVEMENTS",32,Color.WHITE),
-                LinearLayout.LayoutParams(-1,dp(57)))
-            column.addView(label("$achieved / 8 GOALS REACHED",18,0xffffe999.toInt()),
+            column.addView(label("ACHIEVEMENTS",32,Color.WHITE).apply {
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+                contentDescription="Achievements"
+            },LinearLayout.LayoutParams(-1,dp(57)))
+            column.addView(label("$achieved / $total GOALS REACHED",18,0xffffe999.toInt()),
                 LinearLayout.LayoutParams(-1,dp(43)))
             goals.forEach{g->
                 column.addView(card(g),LinearLayout.LayoutParams(-1,dp(145)).apply{
