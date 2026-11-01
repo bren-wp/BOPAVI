@@ -29,7 +29,7 @@ assert "background=Bopavi3DTheme.button(when {" in action
 assert "primary -> Bopavi3DTheme.Finish.GOLD" in action
 assert "val finish=if(style==0)Bopavi3DTheme.Finish.GOLD" in pause
 assert "background=Bopavi3DTheme.button(finish)" in pause
-gold = theme.split("Finish.GOLD -> HomeEnamelDrawable(", 1)[1].split(")", 1)[0]
+gold = theme.split("Finish.GOLD -> HomeEnamelDrawable(", 1)[1].split("Finish.SKY ->", 1)[0]
 gold_stops = [int(v,16) for v in re.findall(r"0x[0-9a-fA-F]{8}",gold)[:3]]
 assert len(gold_stops)==3, "3D gold requires highlight, face and shadow"
 
