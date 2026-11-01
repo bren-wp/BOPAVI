@@ -2,6 +2,7 @@ package com.brendigo.bopavi
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
@@ -18,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import kotlin.math.min
 
@@ -64,10 +67,124 @@ internal class LevelMapScreen(
     private val wood=intArrayOf(0xffe0b576.toInt(),0xff82441e.toInt(),0xffffda9c.toInt())
     private val slate=intArrayOf(0xffa7d6ed.toInt(),0xff2b507a.toInt(),0xffd5f4ff.toInt())
 
+    /**
+     * Native scroll alternative for compact, landscape and large-text devices.
+     * The 941x1672 reference camera would otherwise create overlapping
+     * minimum-48dp level hit targets. Preserve all real world/level callbacks.
+     */
+    private fun compactMap(selected:Int,frontier:Int,
+                           onWorld:(Int)->Unit,
+                           onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
+        val root=FrameLayout(host).apply{setBackgroundColor(0xff168be1.toInt())}
+        root.addView(ImageView(host).apply {
+            setImageResource(R.drawable.homeback)
+            scaleType=ImageView.ScaleType.CENTER_CROP
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(-1,-1))
+        val scroll=ScrollView(host).apply {
+            isFillViewport=true
+            clipToPadding=false
+            setOnApplyWindowInsetsListener{_,insets->
+                if(Build.VERSION.SDK_INT>=30){
+                    val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        or android.view.WindowInsets.Type.displayCutout())
+                    setPadding(safe.left,safe.top,safe.right,safe.bottom)
+                }else{
+                    @Suppress("DEPRECATION")
+                    setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,
+                        insets.systemWindowInsetRight,insets.systemWindowInsetBottom)
+                }
+                insets
+            }
+        }
+        val column=LinearLayout(host).apply {
+            orientation=LinearLayout.VERTICAL
+            setPadding(dp(12),dp(12),dp(12),dp(24))
+        }
+        fun addControl(view:View,height:Int=64){
+            column.addView(view,LinearLayout.LayoutParams(-1,dp(height)).apply{
+                bottomMargin=dp(9)
+            })
+        }
+        addControl(nativeButton("‹ HOME","Home",blue){onBack()},55)
+        addControl(TextView(host).apply {
+            text="LEVEL MAP"
+            textSize=29f
+            gravity=Gravity.CENTER
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            contentDescription="LEVEL MAP"
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+        },69)
+        val coins=progress.coins()
+        val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{
+            progress.worldStars(it)
+        }
+        addControl(TextView(host).apply {
+            text="COINS  "+coins+"    ★  "+stars
+            textSize=20f
+            gravity=Gravity.CENTER
+            setTextColor(Color.WHITE)
+            contentDescription="Coins: "+coins+". Earned stars: "+stars
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+        },54)
+        val labels=arrayOf("SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
+            "NIGHT CASTLES","PEARL SEA","SKY TOWERS","MAGIC FOREST","STAR ABYSS")
+        for(id in LevelMapGeometry.displayedWorlds(selected)){
+            val earned=progress.worldStars(id)
+            val colors=when(id%3){0->wood;1->slate;else->volcano}
+            addControl(nativeButton(labels[id]+"  ★ "+earned+"/60",
+                "Select world "+(id+1)+", "+labels[id]+", "+earned+" of 60 stars",
+                colors){onWorld(id)})
+        }
+        val pages=LinearLayout(host).apply {
+            orientation=LinearLayout.HORIZONTAL
+        }
+        val previous=LevelMapGeometry.pageStart(selected)>0
+        val next=LevelMapGeometry.pageStart(selected)+3<LevelEngine.WORLD_COUNT
+        pages.addView(nativeButton("‹ PREVIOUS","Previous worlds",blue,previous){
+            onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
+        },LinearLayout.LayoutParams(0,dp(58),1f))
+        pages.addView(nativeButton("MORE ›","More worlds",blue,next){
+            onWorld(LevelMapGeometry.pageStart(selected)+3)
+        },LinearLayout.LayoutParams(0,dp(58),1f))
+        addControl(pages,58)
+        for(level in LevelMapGeometry.nearestLevels(frontier)){
+            val enabled=LevelMapGeometry.isUnlocked(level,frontier)
+            val earned=progress.bestLevelStars(selected,level.toLong())
+            val description=if(enabled) "Level "+level+", "+earned+" stars. Tap to play"
+                else "Locked level "+level
+            addControl(nativeButton(
+                if(enabled)"LEVEL "+level+"  ★ "+earned else "LOCKED LEVEL "+level,
+                description,
+                if(!enabled)gray else if(level==frontier)gold else blue,
+                enabled){
+                if(enabled)onPlay(selected,level.toLong())
+            })
+        }
+        val earned=progress.bestLevelStars(selected,frontier.toLong())
+        addControl(nativeButton("▶ PLAY LEVEL "+frontier,
+            "PLAY LEVEL "+frontier+", "+earned+" STARS",gold){
+            onPlay(selected,frontier.toLong())
+        },77)
+        scroll.addView(column)
+        root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+        scroll.requestApplyInsets()
+        return root
+    }
+
     fun create(world:Int,onWorld:(Int)->Unit,
                onPlay:(Int,Long)->Unit,onBack:()->Unit):View {
         val selected=world.coerceIn(0,LevelEngine.WORLD_COUNT-1)
         val frontier=LevelMapGeometry.playableFrontier(progress.frontier(selected))
+        if(!LevelMapGeometry.supports(
+                host.resources.displayMetrics.widthPixels,
+                host.resources.displayMetrics.heightPixels,
+                host.resources.configuration.orientation==
+                    Configuration.ORIENTATION_PORTRAIT,
+                host.resources.configuration.fontScale)){
+            return compactMap(selected,frontier,onWorld,onPlay,onBack)
+        }
         val stage=LevelMapStage(host)
         val root=FrameLayout(host).apply {setBackgroundColor(0xff168be1.toInt())}
 

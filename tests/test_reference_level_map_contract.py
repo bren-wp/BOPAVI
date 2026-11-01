@@ -24,6 +24,19 @@ for phrase in (
     assert phrase in mapSource,phrase
 assert "LevelMapScreen(host,progress).create(" in menu
 assert "nearestLevels(frontier)" in mapSource
+assert "LevelMapGeometry.supports(" in mapSource
+assert "return compactMap(selected,frontier,onWorld,onPlay,onBack)" in mapSource
+assert "fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float)" in geometry
+assert "private fun compactMap(" in mapSource
+assert "val scroll=ScrollView(host).apply" in mapSource
+assert "isFillViewport=true" in mapSource
+assert "addControl(nativeButton(" in mapSource
+assert "contentDescription=\"LEVEL MAP\"" in mapSource
+assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
+assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
+assert "if(enabled)onPlay(selected,level.toLong())" in mapSource
+assert "root.addView(scroll,FrameLayout.LayoutParams(-1,-1))" in mapSource
+assert "compactAndLargeTextDevicesUseActualNativeScrollControls" in unit
 assert "LevelMapLockGlyph(host)" in mapSource
 assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
 assert "node.background=RippleDrawable(" in mapSource

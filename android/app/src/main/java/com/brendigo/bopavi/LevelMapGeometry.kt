@@ -10,6 +10,11 @@ internal object LevelMapGeometry {
     const val height=1672f
     const val starsPerWorld=60
 
+    // Avoid crossing and obscuring actual 48dp native hit targets on small
+    // screens. Keep the original reference camera only at safe scale.
+    fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
+        portrait && pxWidth>=860 && pxHeight>=1480 && fontScale<1.25f
+
     data class Point(val x:Float,val y:Float)
     // Measured reference centers: three stepping stones on Sky Meadows,
     // two in Crystal Ruins and one on Volcano Peaks (not six on one island).
