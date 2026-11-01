@@ -61,6 +61,45 @@ internal class HomeHeroIconDrawable(
         close()
     }
 
+    private fun counterStar(canvas:Canvas){
+        val star=Path()
+        for(i in 0 until 10){
+            val angle=-PI/2.0+i*PI/5.0
+            val radius=if(i%2==0)45f else 21f
+            val x=50f+cos(angle).toFloat()*radius
+            val y=49f+sin(angle).toFloat()*radius
+            if(i==0)star.moveTo(x,y) else star.lineTo(x,y)
+        }
+        star.close()
+        enamel(canvas,star,0xfffff8ae.toInt(),0xffffaa00.toInt(),
+            0xffb85a0b.toInt(),5.5f)
+        setup(0xaaffffff.toInt(),Paint.Style.STROKE,2.5f)
+        canvas.drawLine(32f,33f,48f,15f,paint)
+    }
+
+    private fun counterCoin(canvas:Canvas){
+        setup(0x88082459.toInt())
+        canvas.drawCircle(51f,54f,44f,paint)
+        setup(0xffb9550b.toInt())
+        canvas.drawCircle(50f,50f,44f,paint)
+        setup(0xffffdb49.toInt())
+        canvas.drawCircle(50f,46f,40f,paint)
+        setup(0xffffe988.toInt())
+        canvas.drawCircle(50f,44f,34f,paint)
+        setup(0xffc76d13.toInt(),Paint.Style.STROKE,4f)
+        canvas.drawCircle(50f,44f,31f,paint)
+        val feather=Path().apply{
+            moveTo(29f,65f)
+            cubicTo(27f,37f,49f,24f,71f,24f)
+            cubicTo(71f,44f,49f,63f,29f,65f)
+            close()
+        }
+        enamel(canvas,feather,0xffffc544.toInt(),0xffaa4b00.toInt(),
+            0xff80400a.toInt(),2f)
+        setup(0xfffff9a9.toInt(),Paint.Style.STROKE,3f)
+        canvas.drawLine(27f,69f,67f,27f,paint)
+    }
+
     private fun play(canvas:Canvas){
         val triangle=Path().apply{
             moveTo(21f,10f)
@@ -196,6 +235,8 @@ internal class HomeHeroIconDrawable(
         canvas.scale(bounds.width()/100f,bounds.height()/100f)
         when(kind){
             BopaviUiIconDrawable.Kind.PLAY->play(canvas)
+            BopaviUiIconDrawable.Kind.STAR->counterStar(canvas)
+            BopaviUiIconDrawable.Kind.COIN->counterCoin(canvas)
             BopaviUiIconDrawable.Kind.SHIRT->shirt(canvas)
             BopaviUiIconDrawable.Kind.SHOP->shop(canvas)
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
