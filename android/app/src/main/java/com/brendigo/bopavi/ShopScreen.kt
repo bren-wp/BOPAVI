@@ -68,8 +68,7 @@ internal class ShopScreen(
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
             setPadding(dp(10),dp(9),dp(10),dp(10))
-            background=plate(0xfffff5df.toInt(),0xffefd3a7.toInt(),
-                0xffbc7a3a.toInt(),22)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             elevation=dp(4).toFloat()
             contentDescription=item.accessibility
         }

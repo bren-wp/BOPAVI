@@ -52,8 +52,7 @@ internal class GameOverScreen(private val host:Activity) {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(dp(9),0,dp(12),0)
-            background=surface(0xfffff4de.toInt(),0xfff3ddc0.toInt(),
-                0xffe3c1a0.toInt(),24)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$label: $value"
             isFocusable=true
         }
@@ -133,8 +132,7 @@ internal class GameOverScreen(private val host:Activity) {
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(dp(12),dp(14),dp(12),dp(14))
-            background=surface(0xfffff4dd.toInt(),0xfff6dfc8.toInt(),
-                0xffae631f.toInt(),30)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="Game Over statistics"
         }
         val rows=listOf(

@@ -98,10 +98,9 @@ internal class PilotSelectionScreen(
                 gravity=Gravity.CENTER_HORIZONTAL
                 setPadding(dp(9),dp(10),dp(9),dp(13))
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    if(isSelected)plate(0xfffff6da.toInt(),0xffffd67a.toInt(),
-                        0xffffab17.toInt(),28)
-                    else plate(0xffe4f7ff.toInt(),0xff80c9fa.toInt(),
-                        0xff58b9ee.toInt(),28),null)
+                    Bopavi3DTheme.panel(if(isSelected)
+                        Bopavi3DTheme.Finish.CREAM else
+                        Bopavi3DTheme.Finish.STONE),null)
                 isClickable=true
                 isFocusable=true
                 minimumHeight=dp(48)

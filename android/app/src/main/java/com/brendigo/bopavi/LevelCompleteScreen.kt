@@ -65,8 +65,7 @@ internal class LevelCompleteScreen(private val host:Activity) {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(dp(9),dp(8),dp(9),dp(8))
-            background=panel(0xfffcf1d9.toInt(),0xffe6c9ab.toInt(),
-                0xffba8345.toInt(),18)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription=labelText+": "+value
             isFocusable=true
             addView(label(value,28f,color),LinearLayout.LayoutParams(-1,0,1f))

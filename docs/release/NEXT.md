@@ -10,6 +10,8 @@
 - Keep the Leaderboard accessible via a small labeled records badge within the Achievements panel. Keep actual locally persisted balances and selected pilot skin, not the example reference numbers.
 - Recompose all eleven selected BOPAVI pilots from their original transparent body and wing sprites. Add the native feather-jersey Skins emblem, feather coin and standalone gold star artwork.
 - Replace the previous oversized golden loading track with a slim blue/cyan glass bar and move the Loading caption above it. The animated fill remains indeterminate until real preparation completes.
+- Extend the native dimensional enamel palette to Skins, Shop, Level Map, Settings, Achievements, Leaderboard, Game Over and Level Complete menus, including their real action buttons and earned-result cards.
+- Apply the same dimensional palette to pause/navigation controls, with subtle highlights on the genuine in-flight lives HUD. Physics, collision boxes, saved progress and offline-only payment logic remain unchanged.
 - Update Android Kotlin geometry tests and Python source contracts. Continue API35 emulator navigation/viewport QA, API36 smoke tests, privacy/dead-code audit and release packaging gates.
 - **Visual acceptance:** The implementation has not yet been shown to be pixel-for-pixel identical to the supplied raster images; compare genuine emulator screenshots against original 941×1672 files before any 1:1 statement.
 

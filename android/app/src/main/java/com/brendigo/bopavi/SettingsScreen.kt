@@ -69,8 +69,7 @@ internal class SettingsScreen(private val host:Activity,
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(dp(8),0,dp(9),0)
-            background=plate(0xfffff8e9.toInt(),0xfff1ddbc.toInt(),
-                0xffddbc96.toInt(),20)
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             minimumHeight=dp(48)
         }
         row.addView(ImageView(host).apply{

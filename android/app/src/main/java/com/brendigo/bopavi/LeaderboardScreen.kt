@@ -51,7 +51,7 @@ internal class LeaderboardScreen(private val host:Activity){
             gravity=Gravity.CENTER_VERTICAL
             orientation=LinearLayout.HORIZONTAL
             setPadding(dp(6),0,dp(6),0)
-            background=frame(0xfffff8e9.toInt(),0xffedcdab.toInt(),0xffbd8e66.toInt())
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$name: $value"
             isFocusable=true
         }
@@ -72,9 +72,8 @@ internal class LeaderboardScreen(private val host:Activity){
             gravity=Gravity.CENTER_VERTICAL
             orientation=LinearLayout.HORIZONTAL
             setPadding(dp(7),0,dp(7),0)
-            background=frame(if(item.rank<=3)0xfffff2d2.toInt() else 0xffe8f4ff.toInt(),
-                if(item.rank<=3)0xffebc681.toInt() else 0xffb7ddf5.toInt(),
-                if(item.rank<=3)0xffc98c3e.toInt() else 0xff70b3e0.toInt())
+            background=Bopavi3DTheme.panel(if(item.rank<=3)
+                Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
             isFocusable=true
             contentDescription=item.description
         }

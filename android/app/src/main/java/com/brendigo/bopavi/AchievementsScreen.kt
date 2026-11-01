@@ -50,9 +50,8 @@ internal class AchievementsScreen(private val host:Activity){
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(dp(9),dp(5),dp(9),dp(6))
-            background=if(g.achieved)
-                plate(0xfffff6d8.toInt(),0xffecca8f.toInt(),0xffdb9937.toInt())
-            else plate(0xffedf7ff.toInt(),0xffbad2ec.toInt(),0xff7ab4df.toInt())
+            background=Bopavi3DTheme.panel(if(g.achieved)
+                Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
             isFocusable=true
             contentDescription=g.accessibility
         }

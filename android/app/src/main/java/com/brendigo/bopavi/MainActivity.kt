@@ -292,8 +292,7 @@ class MainActivity : Activity() {
     }
     /** Distinct native, high-contrast Back affordance; never a painted, inert icon. */
     private fun backAction(parent:LinearLayout,caption:String,onClick:()->Unit) {
-
-                val back=Button(this).apply {
+        val back=Button(this).apply {
             text=caption
             setCompoundDrawablesRelativeWithIntrinsicBounds(
                 uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23),null,null,null)
