@@ -63,12 +63,12 @@ internal class HomeReferenceScreen(private val host:Activity,
         val token=FrameLayout(host).apply{
             elevation=dp(3).toFloat()
             addView(ImageView(host).apply{
-                setImageDrawable(HomeHeroIconDrawable(kind,dp(40)))
+                setImageDrawable(HomeHeroIconDrawable(kind,dp(28)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(40),dp(40),Gravity.CENTER))
+            },FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
         }
-        group.addView(token,LinearLayout.LayoutParams(dp(40),dp(40)))
+        group.addView(token,LinearLayout.LayoutParams(dp(28),dp(28)))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
             24,Color.WHITE),LinearLayout.LayoutParams(0,-1,1f))
         group.addView(label("+",22,Color.WHITE).apply{
@@ -150,10 +150,10 @@ internal class HomeReferenceScreen(private val host:Activity,
                     setStroke(dp(3),0xffffcf63.toInt())
                 },null)
             elevation=dp(4).toFloat()
-            addView(glyph(kind,Color.WHITE,39),
-                FrameLayout.LayoutParams(dp(43),dp(43),Gravity.CENTER))
+            addView(glyph(kind,Color.WHITE,36),
+                FrameLayout.LayoutParams(dp(38),dp(38),Gravity.CENTER))
         }
-        control.addView(round,LinearLayout.LayoutParams(dp(96),0,1f))
+        control.addView(round,LinearLayout.LayoutParams(dp(48),0,1f))
         control.addView(HomeEmbossedLabel(host,text,15f,false),
             LinearLayout.LayoutParams(-1,dp(29)))
         return control

@@ -55,7 +55,7 @@ for feature in ("LinearGradient(","canvas.drawRoundRect(",
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
 assert "GradientDrawable.OVAL" in view
-assert "LinearLayout.LayoutParams(dp(96),0,1f)" in view
+assert "LinearLayout.LayoutParams(dp(48),0,1f)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","SOUND"):
