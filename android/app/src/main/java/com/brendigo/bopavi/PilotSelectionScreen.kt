@@ -29,15 +29,6 @@ internal class PilotSelectionScreen(
 ) {
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
     private val navy=0xff09295b.toInt()
-    private val cyan=0xffa6eeff.toInt()
-
-    private fun plate(top:Int,bottom:Int,outline:Int,radius:Int):GradientDrawable =
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(top,bottom)).apply {
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),outline)
-        }
-
     private fun text(label:String,size:Float,color:Int=Color.WHITE):TextView =
         TextView(host).apply {
             text=label
