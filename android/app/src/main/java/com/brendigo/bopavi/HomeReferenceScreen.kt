@@ -117,17 +117,21 @@ internal class HomeReferenceScreen(private val host:Activity,
             setPadding(dp(if(isPlay)29 else 8),dp(if(isPlay)6 else 9),
                 dp(if(isPlay)29 else 8),dp(if(isPlay)16 else 14))
         }
-        val ink=Color.WHITE
-        val imageSize=if(isPlay)72 else 53
-        val symbol=glyph(kind,ink,imageSize)
+        val imageSize=if(isPlay)88 else 60
+        val symbol=ImageView(host).apply{
+            setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
         if(isPlay){
-            group.addView(symbol,LinearLayout.LayoutParams(dp(83),dp(78)).apply{
-                rightMargin=dp(11)
+            group.addView(symbol,LinearLayout.LayoutParams(dp(93),dp(93)).apply{
+                rightMargin=dp(9)
             })
-            group.addView(label(text,font,ink),LinearLayout.LayoutParams(0,-1,1f))
+            group.addView(title,LinearLayout.LayoutParams(0,-1,1f))
         }else{
-            group.addView(symbol,LinearLayout.LayoutParams(dp(62),0,1f))
-            group.addView(label(text,font,ink),LinearLayout.LayoutParams(-1,dp(37)))
+            group.addView(symbol,LinearLayout.LayoutParams(dp(69),0,1f))
+            group.addView(title,LinearLayout.LayoutParams(-1,dp(40)))
         }
         return group
     }
