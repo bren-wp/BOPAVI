@@ -50,9 +50,15 @@ internal class LeaderboardScreen(private val host:Activity){
             contentDescription="$name: $value"
             isFocusable=true
         }
-        card.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(icon,0xff1889d4.toInt(),dp(26)))
+        card.addView(FrameLayout(host).apply {
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            elevation=dp(3).toFloat()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            addView(ImageView(host).apply {
+                setImageDrawable(BopaviUiIconDrawable(icon,Color.WHITE,dp(23)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(dp(23),dp(23),Gravity.CENTER))
         },LinearLayout.LayoutParams(dp(34),dp(34)))
         val values=LinearLayout(host).apply{orientation=LinearLayout.VERTICAL}
         values.addView(label(name,13,navy),LinearLayout.LayoutParams(-1,0,1f))
@@ -72,8 +78,19 @@ internal class LeaderboardScreen(private val host:Activity){
             isFocusable=true
             contentDescription=item.description
         }
-        card.addView(label("#"+item.rank,20,0xff9a5516.toInt()),
-            LinearLayout.LayoutParams(dp(43),-1))
+        card.addView(label("#"+item.rank,20,
+            if(item.rank<=3)0xff63310e.toInt() else Color.WHITE).apply {
+            // Real rank comes from saved offline scores, never a fake player.
+            background=Bopavi3DTheme.panel(when(item.rank){
+                1->Bopavi3DTheme.Finish.GOLD
+                2->Bopavi3DTheme.Finish.STONE
+                3->Bopavi3DTheme.Finish.CREAM
+                else->Bopavi3DTheme.Finish.SKY
+            })
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(dp(43),-1).apply{
+            marginEnd=dp(7)
+        })
         val player=LinearLayout(host).apply{orientation=LinearLayout.VERTICAL}
         player.addView(label(e.name,16,navy).apply{
             gravity=Gravity.START or Gravity.CENTER_VERTICAL
@@ -113,8 +130,10 @@ internal class LeaderboardScreen(private val host:Activity){
             statistic("ENDLESS RUNS",summary.runs,BopaviUiIconDrawable.Kind.FLIGHT),
             statistic("WING FLAPS",summary.flaps,BopaviUiIconDrawable.Kind.WING))
         val dm=host.resources.displayMetrics
-        val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
-            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT
+        val reference=LeaderboardLayout.supports(
+            dm.widthPixels,dm.heightPixels,
+            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT,
+            host.resources.configuration.fontScale)
         if(reference){
             val stage=LevelMapStage(host)
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
@@ -123,7 +142,11 @@ internal class LeaderboardScreen(private val host:Activity){
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },288f,7f,365f,205f)
-            stage.place(label("LEADERBOARD",67),92f,202f,757f,117f)
+            stage.place(label("LEADERBOARD",67).apply {
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+                elevation=dp(7).toFloat()
+                contentDescription="Leaderboard"
+            },92f,202f,757f,117f)
             stage.place(label("OFFLINE • THIS DEVICE",25,
                 0xffffeaa5.toInt()),205f,305f,531f,58f)
             stats.take(3).forEachIndexed{i,v->
@@ -157,6 +180,8 @@ internal class LeaderboardScreen(private val host:Activity){
             stage.requestApplyInsets()
         }else{
             val scroll=ScrollView(host).apply{
+                isFillViewport=true
+                clipToPadding=false
                 setOnApplyWindowInsetsListener{_,insets->
                     if(Build.VERSION.SDK_INT>=30){
                         val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -175,7 +200,10 @@ internal class LeaderboardScreen(private val host:Activity){
                 setPadding(dp(12),dp(8),dp(12),dp(12))
             }
             col.addView(home(onBack),LinearLayout.LayoutParams(-1,dp(54)))
-            col.addView(label("LEADERBOARD",30),LinearLayout.LayoutParams(-1,dp(62)))
+            col.addView(label("LEADERBOARD",30).apply {
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+                contentDescription="Leaderboard"
+            },LinearLayout.LayoutParams(-1,dp(62)))
             col.addView(label("OFFLINE • THIS DEVICE",17,0xffffeaa5.toInt()),
                 LinearLayout.LayoutParams(-1,dp(42)))
             stats.forEach{v->

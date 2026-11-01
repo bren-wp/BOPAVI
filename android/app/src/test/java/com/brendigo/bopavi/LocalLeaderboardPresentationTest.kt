@@ -4,6 +4,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LocalLeaderboardPresentationTest {
+    @Test fun leaderboardReferenceIsOnlyUsedWhenTextAndOrientationFit(){
+        assertTrue(LeaderboardLayout.supports(941,1672,true,1f))
+        assertFalse(LeaderboardLayout.supports(720,1280,true,1f))
+        assertFalse(LeaderboardLayout.supports(1920,1080,false,1f))
+        assertFalse(LeaderboardLayout.supports(941,1672,true,1.5f))
+    }
     @Test fun scoresSortDescendingWithGateTieBreakAndOnlyTenRows(){
         val runs=(0..12).map{LeaderboardEntry("Player",100+it,0,1,it)}+
             listOf(LeaderboardEntry("Winner",112,1,2,90),

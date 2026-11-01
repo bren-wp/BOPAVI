@@ -23,6 +23,17 @@ assert ".sortedWith(compareByDescending<LeaderboardEntry>{it.score}" in model
 assert ".thenByDescending{it.gates}).take(10)" in model
 assert 'name=item.name.trim().take(24).ifBlank{"Igrač"}' in model
 assert "fun valid()" in layout
+assert "fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float)" in layout
+assert "fontScale<1.25f" in layout
+assert "LeaderboardLayout.supports(" in screen
+assert "leaderboardReferenceIsOnlyUsedWhenTextAndOrientationFit" in unit
+assert "isFillViewport=true" in screen
+assert "contentDescription=item.description" in screen
+assert "1->Bopavi3DTheme.Finish.GOLD" in screen
+assert "2->Bopavi3DTheme.Finish.STONE" in screen
+assert "3->Bopavi3DTheme.Finish.CREAM" in screen
+assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
+assert "setImageDrawable(BopaviUiIconDrawable(icon,Color.WHITE,dp(23)))" in screen
 assert "scoresSortDescendingWithGateTieBreakAndOnlyTenRows" in unit
 assert 'capture_png("android-leaderboard-reference-size")' in qa
 assert "android.permission.INTERNET" not in (repo/"android/app/src/main/AndroidManifest.xml").read_text()

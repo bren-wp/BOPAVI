@@ -8,6 +8,9 @@ internal object LeaderboardLayout {
     const val rowStep=83f
     const val rowHeight=80f
     const val homeY=1492f
+    fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
+        portrait && pxWidth>=860 && pxHeight>=1510 && fontScale<1.25f
+
     fun valid():Boolean =
         firstRowY+9f*rowStep+rowHeight<homeY && homeY+120f<=height
 }
