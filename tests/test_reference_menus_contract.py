@@ -68,5 +68,9 @@ assert matching_nodes(xml,"Pročitaj politiku privatnosti",clickable=True)==[leg
 assert not matching_nodes(xml,"Music",clickable=True)
 assert not matching_nodes(xml,"Nepostojeća opcija")
 
-assert "versionCode = 171" in (root/"android/app/build.gradle.kts").read_text()
+# Keep the baseline version guard, but validate the real staged metadata
+# rather than incorrectly requiring an already-published build on every PR.
+from release_metadata import release_metadata
+version,build=release_metadata(root)
+assert build>=171 and tuple(map(int,version.split(".")))>=(1,0,41)
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
