@@ -61,15 +61,21 @@ internal class HomeReferenceScreen(private val host:Activity,
             setOnClickListener{onClick()}
         }
         val token=FrameLayout(host).apply{
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xfffff3a5.toInt(),0xffffae00.toInt(),
-                    0xffe06a04.toInt())).apply{
-                shape=GradientDrawable.OVAL
-                setStroke(dp(2),0xfffff8cb.toInt())
+            if(kind==BopaviUiIconDrawable.Kind.COIN){
+                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xfffff3a5.toInt(),0xffffae00.toInt(),
+                        0xffe06a04.toInt())).apply{
+                    shape=GradientDrawable.OVAL
+                    setStroke(dp(2),0xfffff8cb.toInt())
+                }
             }
             elevation=dp(3).toFloat()
-            addView(glyph(kind,0xff985015.toInt(),26),
-                FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
+            addView(glyph(kind,if(kind==BopaviUiIconDrawable.Kind.STAR)
+                0xffffd025.toInt() else 0xff985015.toInt(),
+                if(kind==BopaviUiIconDrawable.Kind.STAR)40 else 26),
+                FrameLayout.LayoutParams(dp(if(kind==BopaviUiIconDrawable.Kind.STAR)
+                    40 else 28),dp(if(kind==BopaviUiIconDrawable.Kind.STAR)
+                    40 else 28),Gravity.CENTER))
         }
         group.addView(token,LinearLayout.LayoutParams(dp(40),dp(40)))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
@@ -195,7 +201,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),46,onPlay),
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
-            BopaviUiIconDrawable.Kind.FLIGHT,
+            BopaviUiIconDrawable.Kind.SHIRT,
             0xff51d8ff.toInt(),0xff0077de.toInt(),0xffa7f6ff.toInt(),28,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
