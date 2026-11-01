@@ -148,33 +148,6 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         canvas.restoreToCount(saved)
     }
 
-    private fun feather(canvas:Canvas,left:Boolean) {
-        // Two layered white wing tips at the ends of the loading capsule.
-        val x=if(left)139f else 805f
-        val saved=canvas.save()
-        canvas.translate(x,1367f)
-        if(!left)canvas.scale(-1f,1f)
-        paint.reset()
-        paint.isAntiAlias=true
-        paint.color=0xff052b69.toInt()
-        paint.style=Paint.Style.STROKE
-        paint.strokeWidth=5f
-        val wing=android.graphics.Path().apply {
-            moveTo(2f,-33f)
-            cubicTo(-21f,-44f,-25f,-31f,-45f,-40f)
-            cubicTo(-44f,-14f,-35f,6f,-12f,21f)
-            cubicTo(-11f,34f,1f,41f,18f,39f)
-            close()
-        }
-        canvas.drawPath(wing,paint)
-        paint.style=Paint.Style.FILL
-        paint.color=Color.WHITE
-        canvas.drawPath(wing,paint)
-        paint.color=0xffcadfff.toInt()
-        canvas.drawOval(-30f,-1f,7f,17f,paint)
-        canvas.restoreToCount(saved)
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val w = width.toFloat()
@@ -241,48 +214,51 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
         ring(canvas,738f,1101f,21f,28f,-18f)
         ring(canvas,28f,1197f,149f,176f,-27f)
 
-        // Reference-height winged golden frame. The preparation state uses
-        // a gliding blue segment (indeterminate); NO fake progress percentage.
-        feather(canvas,true)
-        feather(canvas,false)
+        // Owner's supplied Splash has a raised, blue-tinted progress track
+        // near the bottom. Its cyan animation remains indeterminate: no fake
+        // completion percentage or arbitrary network-dependent wait.
         val outer=RectF(FlightLoadingLayout.track.left,
             FlightLoadingLayout.track.top,
             FlightLoadingLayout.track.right,
             FlightLoadingLayout.track.bottom)
-        fill(canvas,outer,0xff39200f.toInt(),58f)
-        gradient(canvas,RectF(126f,1322f,816f,1418f),
-            0xfffff5a8.toInt(),0xffff9400.toInt(),50f)
-        fill(canvas,RectF(161f,1340f,778f,1402f),
-            0xff2b1105.toInt(),34f)
-        gradient(canvas,RectF(171f,1348f,771f,1399f),
-            0xff14346f.toInt(),0xff4b240d.toInt(),28f)
-
-        val trackLeft=182f
-        val trackRight=764f
-        val trackTop=1352f
-        val trackBottom=1396f
-        if(preparationFinished){
-            gradient(canvas,RectF(trackLeft,trackTop,trackRight,trackBottom),
-                0xff8afaff.toInt(),0xff038af7.toInt(),24f)
-        }else{
-            // A sweeping, bounded highlight communicates ongoing work without
-            // telling the user an unmeasured fraction has completed.
-            val phase=(android.os.SystemClock.uptimeMillis()%1400L)/1400f
-            val left=trackLeft-320f+(trackRight-trackLeft+320f)*phase
-            val saved=canvas.save()
-            canvas.clipRect(trackLeft,trackTop,trackRight,trackBottom)
-            gradient(canvas,RectF(left,trackTop,left+320f,trackBottom),
-                0xff9cffff.toInt(),0xff008eea.toInt(),24f)
-            canvas.restoreToCount(saved)
-            if(isAttachedToWindow)postInvalidateDelayed(60L)
+        val radius=outer.height()*.50f
+        fill(canvas,RectF(outer.left+2f,outer.top+9f,outer.right+3f,
+            outer.bottom+12f),0x66031d57, radius)
+        gradient(canvas,outer,0xfff5ffff.toInt(),0xff62a8ed.toInt(),radius)
+        gradient(canvas,RectF(outer.left+5f,outer.top+5f,outer.right-5f,
+            outer.bottom-5f),0xff1f67cb.toInt(),0xff0b2d78.toInt(),radius-5f)
+        val inner=RectF(outer.left+12f,outer.top+11f,
+            outer.right-12f,outer.bottom-12f)
+        gradient(canvas,inner,0xff0c4ba5.toInt(),0xff153a84.toInt(),radius-12f)
+        // The illuminated segment changes width without implying a reported
+        // load percentage. Once game preparation completes, fill the track.
+        val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f
+        val glow=if(preparationFinished)1f else .30f+.44f*
+            (.5f-.5f*kotlin.math.cos(phase*2f*Math.PI.toFloat()))
+        val segment=RectF(inner.left+3f,inner.top+4f,
+            inner.left+3f+(inner.width()-6f)*glow,inner.bottom-4f)
+        gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
+            segment.height()*.5f)
+        val clip=canvas.save()
+        canvas.clipRoundRect(segment,segment.height()*.5f,
+            segment.height()*.5f)
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.color=0x44ffffff
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=6f
+        val stripes=segment.width().toInt()/24+2
+        for(i in 0..stripes){
+            val x=segment.left+i*24f-8f
+            canvas.drawLine(x,segment.bottom-1f,x+30f,segment.top+1f,paint)
         }
-        // Thin gloss across the track is a decorative reflection, not
-        // a second static loading percentage indicator.
-        fill(canvas,RectF(184f,1355f,762f,1362f),
-            0x55ffffff,5f)
+        canvas.restoreToCount(clip)
+        fill(canvas,RectF(inner.left+7f,inner.top+6f,
+            inner.right-7f,inner.top+12f),0x55ffffff,6f)
         outlinedText(canvas,if(preparationFinished)"Ready!" else "Loading...",
             FlightLoadingLayout.captionCenterX,
-            FlightLoadingLayout.captionBaselineY,57f)
+            FlightLoadingLayout.captionBaselineY,53f)
+        if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(60L)
         canvas.restoreToCount(checkpoint)
     }
 
