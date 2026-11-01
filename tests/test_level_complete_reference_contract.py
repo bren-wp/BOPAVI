@@ -16,10 +16,18 @@ assert "Intent.ACTION_SEND" in main
 assert "Intent.createChooser" in main
 assert "if(winData.nextAvailable)" in main
 for phrase in (
-    'stage.place(label("LEVEL COMPLETE!",63f,Color.WHITE)',
+    'stage.place(ResultWingDecoration(host),139f,129f,663f,177f)',
+    'ResultEmblemLabel(host,"LEVEL",89f,',
+    'ResultEmblemLabel(host,"COMPLETE!",88f,',
+    'contentDescription="Level Complete!"',
+    'stage.place(stars,259f,811f,423f,142f)',
+    '},209f,376f,523f,455f)',
+    '},100f,929f,741f,278f)',
+    'stage.place(statRow,123f,949f,697f,112f)',
+    'stage.place(reward,206f,1168f,529f,45f)',
     'for(index in 0..2)',
     'index<data.stars',
-    'stage.place(LevelCompleteChest(host),338f,1069f,265f,184f)',
+    'stage.place(LevelCompleteChest(host),365f,1054f,211f,120f)',
     'button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP"',
     'stage.place(button("HOME",false,onHome)',
     'stage.place(button("SHARE",false,onShare)',

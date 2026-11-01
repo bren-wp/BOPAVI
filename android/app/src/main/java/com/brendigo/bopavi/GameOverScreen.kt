@@ -26,19 +26,6 @@ internal class GameOverScreen(private val host:Activity) {
     private val navy=0xff092451.toInt()
     private val gold=0xffffbe23.toInt()
 
-    private fun heading(label:String,color:Int):TextView=TextView(host).apply {
-        text=label
-        textSize=97f
-        typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-        setTextColor(color)
-        setShadowLayer(dp(6).toFloat(),0f,dp(7).toFloat(),navy)
-        gravity=Gravity.CENTER
-        setSingleLine(true)
-        setAutoSizeTextTypeUniformWithConfiguration(38,97,1,
-            android.util.TypedValue.COMPLEX_UNIT_SP)
-        importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-    }
-
     private fun statRow(label:String,value:String,icon:BopaviUiIconDrawable.Kind,
                         accent:Int):View {
         val row=LinearLayout(host).apply {
@@ -109,13 +96,16 @@ internal class GameOverScreen(private val host:Activity) {
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        stage.place(ResultWingDecoration(host),145f,177f,650f,165f)
         stage.place(GameOverCrown(host),431f,53f,79f,76f)
-
-        stage.place(heading("GAME",Color.WHITE).apply {
+        stage.place(ResultEmblemLabel(host,"GAME",97f,
+            ResultEmblemLabel.Tone.ICE).apply {
             contentDescription="Game Over"
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
         },171f,129f,599f,146f)
-        stage.place(heading("OVER",0xffff5b35.toInt()),153f,267f,635f,166f)
+        stage.place(ResultEmblemLabel(host,"OVER",103f,
+            ResultEmblemLabel.Tone.CORAL).apply {
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },153f,267f,635f,166f)
 
         // Painted floating grass/stone podium stays behind the actual Bopi.
         stage.place(GameOverPodium(host),168f,728f,605f,216f)
