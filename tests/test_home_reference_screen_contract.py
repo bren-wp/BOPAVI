@@ -7,6 +7,8 @@ activity=(src/"MainActivity.kt").read_text()
 view=(src/"HomeReferenceScreen.kt").read_text()
 geometry=(src/"HomeReferenceLayout.kt").read_text()
 bevel=(src/"HomeEnamelDrawable.kt").read_text()
+icons=(src/"HomeHeroIconDrawable.kt").read_text()
+lettering=(src/"HomeEmbossedLabel.kt").read_text()
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "HomeReferenceScreen(this,progress).create(" in activity
@@ -46,6 +48,21 @@ for item in (
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
                 "ColorFilter","setAlpha(alpha:Int)","shadow:Int"):
     assert feature in bevel,feature
+# All six major controls use native independent 3D pictograms and outlined
+# text. Rounded edge and contrast must never be replaced with emoji glyphs.
+assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","SOUND"):
+    assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
+for required in ("LinearGradient(","Paint.Style.STROKE",
+                 "canvas.drawPath(", "drawRoundRect(", "Path()"):
+    assert required in icons,required
+for required in ("textAlign=Paint.Align.CENTER","canvas.drawText(caption",
+                 "paint.textSize" if False else "p.textSize",
+                 "Paint.Style.STROKE","Color.WHITE"):
+    assert required in lettering,required
+assert "android.graphics.DashPathEffect" in view
+assert "ring(canvas,809f,744f,143f,170f,-7f)" in view
 assert "assertTrue(HomeReferenceLayout.valid())" not in unit or "assertTrue(home.valid())" in unit
 assert "assertTrue(HomeReferenceLayout.supports(941,1672,true))" in unit
 assert 'capture "android-home-$label"' in qa
