@@ -25,7 +25,7 @@ import kotlin.math.min
  * Baseline 941 × 1672 with uniform scaling for text/logo/character. The
  * fantasy backdrop is center-cropped, never stretched, at other aspect ratios.
  */
-internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(context) {
+internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val imageOptions = BitmapFactory.Options().apply { inScaled = false }
     private val backdrop: Bitmap? =
@@ -35,10 +35,18 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
     // The previous portrait-only sprite cropped away Bopi's flying silhouette.
     // Body and wings share an original 512 x 512 composition space and are
     // decoded once; all assets are shipped locally with the Android build.
-    private val bodies = intArrayOf(R.drawable.bopi0,R.drawable.bopi9,R.drawable.bopi10)
-    private val leftWings = intArrayOf(R.drawable.bopileft0,R.drawable.bopileft9,R.drawable.bopileft10)
-    private val rightWings = intArrayOf(R.drawable.bopiright0,R.drawable.bopiright9,R.drawable.bopiright10)
-    private val selected = pilotChoice.coerceIn(0,2)
+    private val bodies = intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
+        R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
+        R.drawable.bopi7,R.drawable.bopi8,R.drawable.bopi9,R.drawable.bopi10)
+    private val leftWings = intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
+        R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,
+        R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,
+        R.drawable.bopileft8,R.drawable.bopileft9,R.drawable.bopileft10)
+    private val rightWings = intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
+        R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,
+        R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
+        R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
+    private val selected = pilotChoice.coerceIn(0,bodies.lastIndex)
     private val body: Bitmap? =
         BitmapFactory.decodeResource(resources,bodies[selected],imageOptions)
     private val leftWing: Bitmap? =
@@ -54,14 +62,14 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(cont
 
     init {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
-        contentDescription = "Loading level"
+        contentDescription = if(startup)"BOPAVI se pokreće" else "Loading level"
         isClickable = false
         isFocusable = false
     }
 
     fun completePreparation() {
         preparationFinished = true
-        contentDescription = "Level loaded"
+        contentDescription = if(startup)"BOPAVI je spreman" else "Level loaded"
         invalidate()
     }
 
