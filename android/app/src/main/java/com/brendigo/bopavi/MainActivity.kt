@@ -152,7 +152,7 @@ class MainActivity : Activity() {
 
     private fun showBrandedStartup(){
         selectedScreen="splash"
-        val intro=FlightLoadingView(this,selectedPilotChoice)
+        val intro=FlightLoadingView(this,selectedPilotChoice,startup=true)
         showNativeView(intro)
         // One user-visible introduction, not a network wait or a falsified
         // loading percentage. No navigation survives a newer screen change.
