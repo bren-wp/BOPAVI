@@ -23,9 +23,10 @@ internal object FlightLoadingLayout {
     // Bopi's BODY and both animated-gameplay wing layers are all square
     // 512x512 canvases. Paint them in the same rectangle, no distortion.
     val pilot=LoadingArtBox(113f,346f,828f,1061f)
-    val track=LoadingArtBox(118f,1317f,824f,1423f)
+    // Supplied Splash: Loading caption ABOVE the thin cyan/blue glass track.
+    val track=LoadingArtBox(222f,1482f,719f,1563f)
     const val captionCenterX=470f
-    const val captionBaselineY=1493f
+    const val captionBaselineY=1468f
 
     fun aspectError(a:LoadingArtBox,sourceWidth:Float,sourceHeight:Float):Float =
         kotlin.math.abs(a.width/a.height-sourceWidth/sourceHeight)
