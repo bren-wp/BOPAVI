@@ -155,7 +155,7 @@ internal class ShopScreen(
         stage.place(message("FEATURED!",27),70f,578f,275f,62f)
         stage.place(message(featured.name.uppercase(),32,0xffffe680.toInt()),
             74f,642f,466f,71f)
-        stage.place(message("TIER \${featured.tier}  •  OWNED \${featured.owned}/99",20),
+        stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",20),
             77f,710f,460f,48f)
         stage.place(ImageView(host).apply {
             setImageDrawable(BopaviUiIconDrawable(
