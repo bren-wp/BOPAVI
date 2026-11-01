@@ -72,9 +72,24 @@ internal class SettingsScreen(private val host:Activity,
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             minimumHeight=dp(48)
         }
-        row.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(kind,0xff1877d5.toInt(),dp(36)))
+        // Every row has an independent raised icon tile, while the setting
+        // remains a real native Switch, SeekBar or Button beside it.
+        row.addView(FrameLayout(host).apply{
+            background=Bopavi3DTheme.panel(when(kind){
+                BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET
+                BopaviUiIconDrawable.Kind.SOUND->Bopavi3DTheme.Finish.GREEN
+                BopaviUiIconDrawable.Kind.FLIGHT->Bopavi3DTheme.Finish.VIOLET
+                BopaviUiIconDrawable.Kind.STAR->Bopavi3DTheme.Finish.GOLD
+                BopaviUiIconDrawable.Kind.RECORDS->Bopavi3DTheme.Finish.GOLD
+                else->Bopavi3DTheme.Finish.SKY
+            })
+            elevation=dp(3).toFloat()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            addView(ImageView(host).apply{
+                setImageDrawable(BopaviUiIconDrawable(kind,Color.WHITE,dp(32)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER))
         },LinearLayout.LayoutParams(dp(43),dp(43)))
         row.addView(title(text,18,navy).apply{
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
@@ -204,7 +219,11 @@ internal class SettingsScreen(private val host:Activity,
                     0xff9b572b.toInt(),34)
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },101f,559f,739f,1007f)
-            stage.place(title("SETTINGS",57),182f,486f,577f,101f)
+            stage.place(title("SETTINGS",57).apply{
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)
+                setTextColor(0xff61330a.toInt())
+                elevation=dp(8).toFloat()
+            },182f,486f,577f,101f)
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
@@ -253,8 +272,10 @@ internal class SettingsScreen(private val host:Activity,
                 LinearLayout.LayoutParams(-1,dp(91)))
             col.addView(artwork(R.drawable.bopiportrait0),
                 LinearLayout.LayoutParams(-1,dp(135)))
-            col.addView(title("SETTINGS",31),
-                LinearLayout.LayoutParams(-1,dp(65)))
+            col.addView(title("SETTINGS",31).apply{
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)
+                setTextColor(0xff61330a.toInt())
+            },LinearLayout.LayoutParams(-1,dp(65)))
             val card=LinearLayout(host).apply{
                 orientation=LinearLayout.VERTICAL
                 background=plate(0xfffff7e1.toInt(),0xffe8c7a0.toInt(),
