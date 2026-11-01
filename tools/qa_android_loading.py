@@ -72,13 +72,22 @@ def main():
         # The preview is not a navigable game route and must never strand QA.
         adb("shell", "am", "force-stop", APP)
         adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
-    home=hierarchy()
-    # Home Play uses an accessible label containing an arrow and PLAY.
-    # Accept the actual label without relying on decorative text children.
-    assert any("PLAY" in n.get("content-desc","").upper() and
-               n.get("clickable")=="true" for n in home.iter("node")), (
-        "FAIL: normal Home lost after Loading QA")
-    print("PASS: normal application launch remains Home, not a second startup splash",flush=True)
+    # A genuine cold launch now shows the illustrated BOPAVI Splash before
+    # Home. Allow its bounded introduction to finish, then require the real
+    # clickable Play action; do not mistake a decorative Loading scene for Home.
+    play=[]
+    for attempt in range(8):
+        home=hierarchy()
+        play=[n for n in home.iter("node")
+              if "PLAY" in n.get("content-desc","").upper()
+              and n.get("clickable")=="true"]
+        if len(play)==1:
+            break
+        assert not play, "FAIL: duplicate Home PLAY controls after Loading"
+        time.sleep(.5)
+    assert len(play)==1, "FAIL: normal Home lost after Loading/Splash QA"
+    assert adb("shell", "pidof", APP).strip(), "FAIL: application crashed after Splash"
+    print("PASS: native cold-start Splash transitions to interactive Home after Loading QA",flush=True)
 
 if __name__=="__main__":
     main()
