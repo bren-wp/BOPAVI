@@ -78,55 +78,56 @@ internal class HomeReferenceScreen(private val host:Activity,
         return group
     }
 
+    /** Glossy raised 3D CTA with native hit target, icon and label. */
     private fun pill(text:String,description:String,
                      kind:BopaviUiIconDrawable.Kind,
                      top:Int,bottom:Int,border:Int,
                      font:Int,onClick:()->Unit):View {
+        val isPlay=kind==BopaviUiIconDrawable.Kind.PLAY
         val group=LinearLayout(host).apply{
-            orientation=LinearLayout.HORIZONTAL
+            orientation=if(isPlay)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                plate(top,bottom,border,35),null)
-            elevation=dp(5).toFloat()
+                HomeEnamelDrawable(top,if(isPlay)0xffffaf12.toInt() else top,
+                    bottom,border),null)
+            elevation=dp(8).toFloat()
             contentDescription=description
             isClickable=true;isFocusable=true
             minimumHeight=dp(48)
             setOnClickListener{onClick()}
-            setPadding(dp(9),0,dp(9),0)
+            setOnTouchListener{view,event->
+                when(event.actionMasked){
+                    android.view.MotionEvent.ACTION_DOWN->
+                        view.animate().scaleX(.975f).scaleY(.975f).setDuration(90).start()
+                    android.view.MotionEvent.ACTION_UP,
+                    android.view.MotionEvent.ACTION_CANCEL->
+                        view.animate().scaleX(1f).scaleY(1f).setDuration(130).start()
+                }
+                false
+            }
+            setPadding(dp(if(isPlay)29 else 8),dp(if(isPlay)6 else 9),
+                dp(if(isPlay)29 else 8),dp(if(isPlay)16 else 14))
         }
-        group.addView(glyph(kind,
-            if(kind==BopaviUiIconDrawable.Kind.PLAY)0xff75420e.toInt()
-            else Color.WHITE,if(kind==BopaviUiIconDrawable.Kind.PLAY)45 else 30),
-            LinearLayout.LayoutParams(dp(if(kind==BopaviUiIconDrawable.Kind.PLAY)71 else 53),
-                dp(if(kind==BopaviUiIconDrawable.Kind.PLAY)71 else 54)))
-        group.addView(label(text,font,Color.WHITE),
-            LinearLayout.LayoutParams(0,-1,1f))
+        val ink=Color.WHITE
+        val imageSize=if(isPlay)72 else 53
+        val symbol=glyph(kind,ink,imageSize)
+        if(isPlay){
+            group.addView(symbol,LinearLayout.LayoutParams(dp(83),dp(78)).apply{
+                rightMargin=dp(11)
+            })
+            group.addView(label(text,font,ink),LinearLayout.LayoutParams(0,-1,1f))
+        }else{
+            group.addView(symbol,LinearLayout.LayoutParams(dp(62),0,1f))
+            group.addView(label(text,font,ink),LinearLayout.LayoutParams(-1,dp(37)))
+        }
         return group
     }
-    private fun footer(name:String,description:String,
-                       kind:BopaviUiIconDrawable.Kind,onClick:()->Unit):View{
-        return LinearLayout(host).apply{
-            orientation=LinearLayout.VERTICAL
-            gravity=Gravity.CENTER
-            contentDescription=description
-            isClickable=true;isFocusable=true
-            setOnClickListener{onClick()}
-            addView(glyph(kind,0xffffd34e.toInt(),42).apply {
-                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff2463b2.toInt(),0xff061c45.toInt())).apply {
-                    shape=GradientDrawable.OVAL
-                    setStroke(dp(3),0xffffd56d.toInt())
-                }
-            },LinearLayout.LayoutParams(dp(61),dp(61)))
-            addView(label(name,14,Color.WHITE),
-                LinearLayout.LayoutParams(-1,dp(33)))
-        }
-    }
+
     private fun place(stage:LevelMapStage,view:View,b:HomeBounds,interactive:Boolean=false){
         stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive)
     }
 
-    fun create(pilot:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
+    fun create(pilot:Int,pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
                onSettings:()->Unit,onAchievements:()->Unit,
                onLeaderboard:()->Unit,onSound:()->Unit,
                onCoins:()->Unit,onStars:()->Unit):View {
@@ -161,11 +162,30 @@ internal class HomeReferenceScreen(private val host:Activity,
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },HomeReferenceLayout.logo)
-        place(stage,ImageView(host).apply{
-            setImageResource(pilot)
-            scaleType=ImageView.ScaleType.FIT_CENTER
+        // All original 512×512 wing and body layers align pixel-for-pixel.
+        val bodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
+            R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
+            R.drawable.bopi7,R.drawable.bopi8,R.drawable.bopi9,R.drawable.bopi10)
+        val left=intArrayOf(R.drawable.bopileft0,R.drawable.bopileft1,
+            R.drawable.bopileft2,R.drawable.bopileft3,R.drawable.bopileft4,
+            R.drawable.bopileft5,R.drawable.bopileft6,R.drawable.bopileft7,
+            R.drawable.bopileft8,R.drawable.bopileft9,R.drawable.bopileft10)
+        val right=intArrayOf(R.drawable.bopiright0,R.drawable.bopiright1,
+            R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,
+            R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
+            R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
+        val chosen=pilotIndex.coerceIn(0,bodies.lastIndex)
+        val actor=FrameLayout(host).apply {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },HomeReferenceLayout.hero)
+        }
+        for(sprite in intArrayOf(left[chosen],right[chosen],bodies[chosen])){
+            actor.addView(ImageView(host).apply{
+                setImageResource(sprite)
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(-1,-1))
+        }
+        place(stage,actor,HomeReferenceLayout.hero)
 
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
@@ -173,26 +193,25 @@ internal class HomeReferenceScreen(private val host:Activity,
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.FLIGHT,
-            0xffbf47ff.toInt(),0xff690cbd.toInt(),0xffddb8ff.toInt(),26,onSkins),
+            0xff51d8ff.toInt(),0xff0077de.toInt(),0xffa7f6ff.toInt(),28,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xff7eeb48.toInt(),0xff0e9b29.toInt(),0xffbffca3.toInt(),26,onShop),
+            0xfff152ff.toInt(),0xff7723d8.toInt(),0xffffc1ff.toInt(),29,onShop),
             HomeReferenceLayout.shop,true)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff42d4ff.toInt(),0xff076ecf.toInt(),0xffb2f7ff.toInt(),25,onSettings),
+            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),24,onSettings),
             HomeReferenceLayout.settings,true)
 
-        place(stage,footer("ACHIEVEMENTS","Pogledaj svoja postignuća",
-            BopaviUiIconDrawable.Kind.RECORDS,onAchievements),
-            HomeReferenceLayout.achievements,true)
-        place(stage,footer("LEADERBOARD","Pogledaj svoje rekorde",
-            BopaviUiIconDrawable.Kind.LEADERBOARD,onLeaderboard),
-            HomeReferenceLayout.leaderboard,true)
-        place(stage,footer("SOUND","Otvori zvučne postavke",
-            BopaviUiIconDrawable.Kind.SOUND,onSound),
-            HomeReferenceLayout.sound,true)
+        place(stage,pill("ACHIEVEMENTS","Pogledaj svoja postignuća",
+            BopaviUiIconDrawable.Kind.RECORDS,
+            0xff17d958.toInt(),0xff057d29.toInt(),0xffc7ffad.toInt(),22,
+            onAchievements),HomeReferenceLayout.achievements,true)
+        place(stage,pill("SOUND","Otvori zvučne postavke",
+            BopaviUiIconDrawable.Kind.SOUND,
+            0xff1bd4ff.toInt(),0xff0866c8.toInt(),0xffc3f7ff.toInt(),27,
+            onSound),HomeReferenceLayout.sound,true)
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
