@@ -1400,11 +1400,19 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         path.moveTo(x,y+7f)
         path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
         path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
+        // A raised, darker undercut reads as a 3D enamel heart rather than
+        // a flat red polygon. It is painted only for a genuinely active life.
+        c.save()
+        c.translate(0f,2.6f)
+        fill(if(active)0xff7e1836.toInt() else 0x55304460)
+        c.drawPath(path,p)
+        c.restore()
         fill(if(active)0xffff4f51.toInt() else 0x552c4b73)
         c.drawPath(path,p)
         if(active){
             oval(c,x-7f,y-4f,x+4f,y+3f,0x88ffad98.toInt())
             oval(c,x-5f,y-4f,x-1f,y-2f,0xccffffff.toInt())
+            oval(c,x-3f,y+2f,x+5f,y+4.5f,0x66ffbba1)
         }
         // Deep navy contour and a short enamel reflection match the reference;
         // rendering stays allocation-free and inactive hearts remain distinct.
