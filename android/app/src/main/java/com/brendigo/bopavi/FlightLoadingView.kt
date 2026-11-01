@@ -140,17 +140,22 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         paint.color=0x5507254d
         canvas.drawOval(RectF(ellipse.left+5f,ellipse.top+11f,
             ellipse.right+5f,ellipse.bottom+11f),paint)
-        paint.strokeWidth=horizontalRadius*.43f
+        paint.strokeWidth=horizontalRadius*.37f
         paint.color=0xffa94d00.toInt()
         canvas.drawOval(ellipse,paint)
-        paint.strokeWidth=horizontalRadius*.33f
-        paint.color=0xffffa800.toInt()
+        paint.strokeWidth=horizontalRadius*.28f
+        paint.color=0xffffdfaa.toInt()
         canvas.drawOval(ellipse,paint)
-        paint.strokeWidth=horizontalRadius*.20f
-        paint.color=0xffffda3d.toInt()
+        // Real reference hoop has alternating glossy candy stripes, not a
+        // flat all-gold outline. Keep them inside the golden outer rim.
+        paint.strokeWidth=horizontalRadius*.245f
+        paint.color=0xffd94746.toInt()
+        paint.pathEffect=android.graphics.DashPathEffect(
+            floatArrayOf(horizontalRadius*.28f,horizontalRadius*.21f),0f)
         canvas.drawOval(ellipse,paint)
-        paint.strokeWidth=horizontalRadius*.095f
-        paint.color=0xfffff4a9.toInt()
+        paint.pathEffect=null
+        paint.strokeWidth=horizontalRadius*.060f
+        paint.color=0xfffff4b8.toInt()
         canvas.drawArc(ellipse,202f,158f,false,paint)
         paint.style=Paint.Style.FILL
         canvas.restoreToCount(saved)
@@ -215,12 +220,10 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
 
         // Ring positions follow the ORIGINAL Loading reference, not the
         // Game Over screenshot. They are illustrative, never wallet values.
-        ring(canvas,104f,862f,75f,92f,-23f)
-        ring(canvas,354f,1010f,73f,105f,-29f)
-        ring(canvas,550f,1074f,37f,50f,-23f)
-        ring(canvas,658f,1102f,27f,34f,-20f)
-        ring(canvas,738f,1101f,21f,28f,-18f)
-        ring(canvas,28f,1197f,149f,176f,-27f)
+        ring(canvas,806f,957f,166f,186f,-10f)
+        ring(canvas,556f,1115f,64f,75f,-14f)
+        ring(canvas,733f,1101f,42f,50f,-15f)
+        ring(canvas,830f,1097f,25f,31f,-13f)
 
         // Owner's supplied Splash has a raised, blue-tinted progress track
         // near the bottom. Its cyan animation remains indeterminate: no fake
