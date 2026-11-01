@@ -8,11 +8,11 @@ layout=(src/"FlightLoadingLayout.kt").read_text(encoding="utf-8")
 activity=(src/"MainActivity.kt").read_text(encoding="utf-8")
 qa=(root/"tools/qa_android_loading.py").read_text(encoding="utf-8")
 runner=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
-assert "internal class FlightLoadingView(context: Context, pilotChoice: Int) : View(context)" in loading
+assert "internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context)" in loading
 for required in ("R.drawable.homeback","R.drawable.logo",
                  "R.drawable.bopi0","R.drawable.bopileft0","R.drawable.bopiright0",
                  '"Loading..."',"fun completePreparation()",
-                 'contentDescription = "Loading level"',
+                 'if(startup)"BOPAVI se pokreće" else "Loading level"',
                  "max(w / bg.width, h / bg.height)",
                  "FlightLoadingLayout.track.left"):
     assert required in loading,required
@@ -28,6 +28,10 @@ assert 'openFlight(simulation,world)' in activity
 assert 'private var loadingGeneration = 0' in activity
 assert 'loadingGeneration++' in activity
 assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' in qa
+assert "showBrandedStartup()" in activity
+assert "},1450L)" in activity
+assert "startup=true" in activity
+assert "pilotChoice.coerceIn(0,bodies.lastIndex)" in loading
 assert 'android-loading.png' in qa
 assert 'python3 tools/qa_android_loading.py' in runner
 for forbidden in ("postDelayed(", "CountDownTimer(", "Thread.sleep(", "INTERNET", "100%", "50%"):
