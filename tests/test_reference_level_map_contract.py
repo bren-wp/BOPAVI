@@ -57,7 +57,11 @@ assert "IMPORTANT_FOR_ACCESSIBILITY_NO" in markers
 assert '"🔒"' not in mapSource
 assert "if(index<3)" in mapSource
 assert "setAutoSizeTextTypeUniformWithConfiguration(24,34,1," in mapSource
-assert "setAutoSizeTextTypeUniformWithConfiguration(16,22,1," in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(11,18,1," in mapSource
+assert "button.maxLines=3" in mapSource
+assert "button.setPadding(dp(3),0,dp(3),0)" in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(11,20,1," in mapSource
+assert "setAutoSizeTextTypeUniformWithConfiguration(10,13,1," in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource

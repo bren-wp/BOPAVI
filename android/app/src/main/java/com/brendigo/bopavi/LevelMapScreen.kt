@@ -199,7 +199,11 @@ internal class LevelMapScreen(
 
         val title=TextView(host).apply{
             text="LEVEL MAP"
-            textSize=17f
+            textSize=13f
+            maxLines=1
+            includeFontPadding=false
+            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(Color.WHITE)
             gravity=Gravity.CENTER
@@ -232,6 +236,10 @@ internal class LevelMapScreen(
             setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             gravity=Gravity.CENTER
+            maxLines=1
+            includeFontPadding=false
+            setAutoSizeTextTypeUniformWithConfiguration(11,20,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             contentDescription=if(kind=="COINS")"Coins: $number" else "Earned stars: $number"
             background=face(0xff2879c4.toInt(),0xff071d4c.toInt(),
                 0xff94ddff.toInt(),19)
@@ -255,8 +263,11 @@ internal class LevelMapScreen(
                 captions[id]+"\n★ $earned/${LevelMapGeometry.starsPerWorld}",
                 "Select world ${id+1}, ${captions[id]}, $earned of 60 stars",
                 colors){onWorld(id)}
-            button.textSize=if(chosen)20f else 17f
-            button.setAutoSizeTextTypeUniformWithConfiguration(16,22,1,
+            button.textSize=if(chosen)18f else 15f
+            button.maxLines=3
+            button.includeFontPadding=false
+            button.setPadding(dp(3),0,dp(3),0)
+            button.setAutoSizeTextTypeUniformWithConfiguration(11,18,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             button.isSelected=chosen
             stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,109f,
