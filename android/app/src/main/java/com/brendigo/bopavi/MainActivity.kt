@@ -672,6 +672,7 @@ class MainActivity : Activity() {
                     android.content.res.Configuration.ORIENTATION_PORTRAIT)){
             val home=HomeReferenceScreen(this,progress).create(
                 portraitDrawableIds[selectedPilotChoice],
+                pilotIndex=selectedPilotChoice,
                 onPlay={startGame()},
                 onSkins={showSkins()},
                 onShop={showShop()},
