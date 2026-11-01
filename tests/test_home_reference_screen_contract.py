@@ -57,10 +57,18 @@ for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","SOUND"):
 for required in ("LinearGradient(","Paint.Style.STROKE",
                  "canvas.drawPath(", "drawRoundRect(", "Path()"):
     assert required in icons,required
-for required in ("textAlign=Paint.Align.CENTER","canvas.drawText(caption",
-                 "paint.textSize" if False else "p.textSize",
-                 "Paint.Style.STROKE","Color.WHITE"):
+for required in ("internal class HomeEmbossedLabel(", ":TextView(context)",
+                 "text=caption", "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES",
+                 "isClickable=false", "isFocusable=false",
+                 "textAlign=Paint.Align.CENTER", "canvas.drawText(caption",
+                 "ink.textSize", "Paint.Style.STROKE", "Color.WHITE"):
     assert required in lettering,required
+# The emulator requires exactly one text-bearing SKINS/SHOP child inside
+# the actual clickable 3D button, not a silent custom Canvas View.
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert '("SKINS","Otvori izbor likova")' in qa
+assert '("SHOP","Otvori trgovinu nadogradnji")' in qa
+assert 'n.get("text","").strip().upper()==menu' in qa
 assert "android.graphics.DashPathEffect" in view
 assert "ring(canvas,809f,744f,143f,170f,-7f)" in view
 assert "assertTrue(HomeReferenceLayout.valid())" not in unit or "assertTrue(home.valid())" in unit
