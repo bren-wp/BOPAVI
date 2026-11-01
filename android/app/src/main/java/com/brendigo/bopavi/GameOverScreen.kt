@@ -31,21 +31,28 @@ internal class GameOverScreen(private val host:Activity) {
         val row=LinearLayout(host).apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            setPadding(dp(9),0,dp(12),0)
+            setPadding(dp(7),0,dp(8),0)
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$label: $value"
             isFocusable=true
         }
+        // Reference-size rows are ~90px high. A 65dp icon holder is 130px
+        // on the API35 320dpi QA emulator and visibly overlaps native text.
         row.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(icon,accent,dp(40)))
+            setImageDrawable(BopaviUiIconDrawable(icon,accent,dp(28)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(61),dp(65)))
+        },LinearLayout.LayoutParams(dp(35),dp(37)).apply{
+            marginEnd=dp(6)
+        })
         row.addView(TextView(host).apply{
             text=label
-            textSize=23f
+            textSize=22f
+            maxLines=1
+            includeFontPadding=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(navy)
-            setAutoSizeTextTypeUniformWithConfiguration(13,23,1,
+            setAutoSizeTextTypeUniformWithConfiguration(13,22,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             gravity=Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -53,13 +60,16 @@ internal class GameOverScreen(private val host:Activity) {
         row.addView(TextView(host).apply{
             text=value
             textSize=30f
+            maxLines=1
+            includeFontPadding=false
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(0xffa5490b.toInt())
+            setShadowLayer(dp(2).toFloat(),0f,dp(2).toFloat(),0x440a214f)
             setAutoSizeTextTypeUniformWithConfiguration(16,30,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            gravity=Gravity.CENTER
+            gravity=Gravity.END or Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(167),-1))
+        },LinearLayout.LayoutParams(dp(114),-1))
         return row
     }
 

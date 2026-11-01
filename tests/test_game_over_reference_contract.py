@@ -50,6 +50,11 @@ assert "LinearGradient(" in emblem
 assert "canvas.drawText(caption,x,y" in emblem
 assert "private fun drawWing(c:Canvas,mirror:Boolean)" in wings
 assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in wings
+assert 'BopaviUiIconDrawable(icon,accent,dp(28))' in screen
+assert 'LinearLayout.LayoutParams(dp(35),dp(37))' in screen
+assert 'LinearLayout.LayoutParams(dp(114),-1)' in screen
+assert 'gravity=Gravity.END or Gravity.CENTER_VERTICAL' in screen
+assert 'contentDescription="$label: $value"' in screen
 assert "endlessShowsActualFoodAndScoreNotFictionalGems" in unit
 assert "finiteShowsActualCoinsAndStars" in unit
 assert '("GAME","OVER","DISTANCE","FOOD COLLECTED","SCORE")' in qa
