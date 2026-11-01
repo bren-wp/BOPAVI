@@ -68,5 +68,5 @@ assert matching_nodes(xml,"Pročitaj politiku privatnosti",clickable=True)==[leg
 assert not matching_nodes(xml,"Music",clickable=True)
 assert not matching_nodes(xml,"Nepostojeća opcija")
 
-assert "versionCode = 170" in (root/"android/app/build.gradle.kts").read_text()
+assert "versionCode = 171" in (root/"android/app/build.gradle.kts").read_text()
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
