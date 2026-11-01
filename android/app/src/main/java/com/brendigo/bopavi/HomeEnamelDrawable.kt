@@ -25,6 +25,26 @@ internal class HomeEnamelDrawable(
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private var opacity=255
     private var filter:ColorFilter?=null
+    private var pressed=false
+    private var selected=false
+    private var enabled=true
+
+    // Drawable state comes from the actual Android View/3D button, including
+    // disabled level-map nodes, rather than from a decorative Canvas overlay.
+    override fun isStateful():Boolean=true
+
+    override fun onStateChange(state:IntArray):Boolean {
+        val nextPressed=android.R.attr.state_pressed in state
+        val nextSelected=android.R.attr.state_selected in state
+        val nextEnabled=android.R.attr.state_enabled in state
+        if(pressed==nextPressed && selected==nextSelected && enabled==nextEnabled)
+            return false
+        pressed=nextPressed
+        selected=nextSelected
+        enabled=nextEnabled
+        invalidateSelf()
+        return true
+    }
 
     override fun draw(canvas:Canvas){
         val w=bounds.width().toFloat()
@@ -32,8 +52,11 @@ internal class HomeEnamelDrawable(
         if(w<=0f || h<=0f)return
         val checkpoint=canvas.save()
         canvas.translate(bounds.left.toFloat(),bounds.top.toFloat())
+        // Only actual disabled views are dimmed; the visible button remains
+        // readable and physically separate from its live accessibility label.
+        if(!enabled)canvas.saveLayerAlpha(0f,0f,w,h,145)
         val radius=min(h*.29f,w*.16f)
-        val drop=min(15f,h*.085f)
+        val drop=min(15f,h*.085f)*(if(pressed).48f else 1f)
         val inset=min(8f,h*.041f)
         fun coat(color:Int){
             p.reset()
@@ -65,6 +88,10 @@ internal class HomeEnamelDrawable(
             Shader.TileMode.CLAMP)
         canvas.drawRoundRect(face,radius*.85f,radius*.85f,p)
         p.shader=null
+        if(pressed || selected) {
+            coat(if(pressed)0x38001848 else 0x28ffffff)
+            canvas.drawRoundRect(face,radius*.85f,radius*.85f,p)
+        }
         // Upper curved white specular reflection, with dark lower bevel.
         val upper=RectF(face.left+10f,face.top+7f,
             face.right-10f,face.top+(face.height()*.39f))

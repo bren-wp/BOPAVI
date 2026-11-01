@@ -9,6 +9,7 @@ geometry=(src/"HomeReferenceLayout.kt").read_text()
 bevel=(src/"HomeEnamelDrawable.kt").read_text()
 icons=(src/"HomeHeroIconDrawable.kt").read_text()
 lettering=(src/"HomeEmbossedLabel.kt").read_text()
+wing=(src/"HomeWingActor.kt").read_text()
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "HomeReferenceScreen(this,progress).create(" in activity
@@ -66,6 +67,16 @@ for required in ("internal class HomeEmbossedLabel(", ":TextView(context)",
 # The emulator requires exactly one text-bearing SKINS/SHOP child inside
 # the actual clickable 3D button, not a silent custom Canvas View.
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert "HomeWingActor(host," in view
+for anchor in ("left[chosen],right[chosen],bodies[chosen]",
+               "addView(leftWing,LayoutParams(-1,-1))",
+               "addView(rightWing,LayoutParams(-1,-1))",
+               "addView(body,LayoutParams(-1,-1))",
+               "ValueAnimator.areAnimatorsEnabled()",
+               "onWindowVisibilityChanged(visibility:Int)",
+               "onDetachedFromWindow()", "stopFlapping()",
+               "leftFlap.cancel()", "rightFlap.cancel()"):
+    assert anchor in (view+wing),anchor
 assert '("SKINS","Otvori izbor likova")' in qa
 assert '("SHOP","Otvori trgovinu nadogradnji")' in qa
 assert 'n.get("text","").strip().upper()==menu' in qa

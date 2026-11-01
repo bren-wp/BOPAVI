@@ -179,16 +179,11 @@ internal class HomeReferenceScreen(private val host:Activity,
             R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
             R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
         val chosen=pilotIndex.coerceIn(0,bodies.lastIndex)
-        val actor=FrameLayout(host).apply {
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        for(sprite in intArrayOf(left[chosen],right[chosen],bodies[chosen])){
-            actor.addView(ImageView(host).apply{
-                setImageResource(sprite)
-                scaleType=ImageView.ScaleType.FIT_CENTER
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(-1,-1))
-        }
+        // Preserve the three registered original sprite layers; only the
+        // transparent wings animate, never the painted physical collider.
+        // The actor stops all animators when the window is hidden/detached.
+        val actor=HomeWingActor(host,
+            left[chosen],right[chosen],bodies[chosen])
         place(stage,actor,HomeReferenceLayout.hero)
 
         place(stage,pill("PLAY","▶  PLAY",
