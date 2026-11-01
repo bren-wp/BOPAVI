@@ -84,8 +84,11 @@ internal class HomeReferenceScreen(private val host:Activity,
                      top:Int,bottom:Int,border:Int,
                      font:Int,onClick:()->Unit):View {
         val isPlay=kind==BopaviUiIconDrawable.Kind.PLAY
+        val isWide=isPlay || kind==BopaviUiIconDrawable.Kind.SHIRT ||
+            kind==BopaviUiIconDrawable.Kind.SHOP ||
+            kind==BopaviUiIconDrawable.Kind.SETTINGS
         val group=LinearLayout(host).apply{
-            orientation=if(isPlay)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+            orientation=if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
                 HomeEnamelDrawable(top,if(isPlay)0xffffaf12.toInt() else top,
@@ -108,23 +111,52 @@ internal class HomeReferenceScreen(private val host:Activity,
             setPadding(dp(if(isPlay)29 else 8),dp(if(isPlay)6 else 9),
                 dp(if(isPlay)29 else 8),dp(if(isPlay)16 else 14))
         }
-        val imageSize=if(isPlay)88 else 60
+        val imageSize=if(isPlay)88 else 52
         val symbol=ImageView(host).apply{
             setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
-        if(isPlay){
-            group.addView(symbol,LinearLayout.LayoutParams(dp(93),dp(93)).apply{
-                rightMargin=dp(9)
-            })
+        if(isWide){
+            group.addView(symbol,LinearLayout.LayoutParams(
+                dp(if(isPlay)93 else 59),-1).apply { rightMargin=dp(6) })
             group.addView(title,LinearLayout.LayoutParams(0,-1,1f))
         }else{
             group.addView(symbol,LinearLayout.LayoutParams(dp(69),0,1f))
             group.addView(title,LinearLayout.LayoutParams(-1,dp(40)))
         }
         return group
+    }
+
+    /** Three actual Home shortcuts. Their icons are painted as circles,
+     * but every shortcut is one native accessible click target. */
+    private fun footerShortcut(text:String,description:String,
+        kind:BopaviUiIconDrawable.Kind,onClick:()->Unit):View {
+        val control=LinearLayout(host).apply {
+            orientation=LinearLayout.VERTICAL
+            gravity=Gravity.CENTER
+            contentDescription=description
+            isClickable=true;isFocusable=true
+            minimumHeight=dp(48)
+            setOnClickListener { onClick() }
+        }
+        val round=FrameLayout(host).apply {
+            isDuplicateParentStateEnabled=true
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
+                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff225caa.toInt(),0xff061c51.toInt())).apply {
+                    shape=GradientDrawable.OVAL
+                    setStroke(dp(3),0xffffcf63.toInt())
+                },null)
+            elevation=dp(4).toFloat()
+            addView(glyph(kind,Color.WHITE,39),
+                FrameLayout.LayoutParams(dp(43),dp(43),Gravity.CENTER))
+        }
+        control.addView(round,LinearLayout.LayoutParams(dp(96),0,1f))
+        control.addView(HomeEmbossedLabel(host,text,15f,false),
+            LinearLayout.LayoutParams(-1,dp(29)))
+        return control
     }
 
     private fun place(stage:LevelMapStage,view:View,b:HomeBounds,interactive:Boolean=false){
@@ -203,29 +235,14 @@ internal class HomeReferenceScreen(private val host:Activity,
             0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),24,onSettings),
             HomeReferenceLayout.settings,true)
 
-        place(stage,pill("ACHIEVEMENTS","Pogledaj svoja postignuća",
-            BopaviUiIconDrawable.Kind.RECORDS,
-            0xff17d958.toInt(),0xff057d29.toInt(),0xffc7ffad.toInt(),22,
+        place(stage,footerShortcut("ACHIEVEMENTS",
+            "Pogledaj svoja postignuća",BopaviUiIconDrawable.Kind.RECORDS,
             onAchievements),HomeReferenceLayout.achievements,true)
-        // The original Home image uses a two-card final row. Retain the
-        // previous Records feature as a small visible trophy badge inside the
-        // Achievements card, with its own real 48dp+ touch/accessibility target.
-        val records=FrameLayout(host).apply {
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                HomeEnamelDrawable(0xfffff48d.toInt(),0xffffbb12.toInt(),
-                    0xffbd650b.toInt(),0xffffeeb2.toInt()),null)
-            isClickable=true;isFocusable=true
-            contentDescription="Pogledaj svoje rekorde"
-            setOnClickListener{onLeaderboard()}
-            elevation=dp(11).toFloat()
-            addView(glyph(BopaviUiIconDrawable.Kind.LEADERBOARD,
-                Color.WHITE,38),FrameLayout.LayoutParams(dp(39),dp(39),
-                Gravity.CENTER))
-        }
-        place(stage,records,HomeReferenceLayout.leaderboard,true)
-        place(stage,pill("SOUND","Otvori zvučne postavke",
-            BopaviUiIconDrawable.Kind.SOUND,
-            0xff1bd4ff.toInt(),0xff0866c8.toInt(),0xffc3f7ff.toInt(),27,
+        place(stage,footerShortcut("LEADERBOARD",
+            "Pogledaj svoje rekorde",BopaviUiIconDrawable.Kind.LEADERBOARD,
+            onLeaderboard),HomeReferenceLayout.leaderboard,true)
+        place(stage,footerShortcut("SOUND",
+            "Otvori zvučne postavke",BopaviUiIconDrawable.Kind.SOUND,
             onSound),HomeReferenceLayout.sound,true)
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
