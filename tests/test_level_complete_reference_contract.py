@@ -31,6 +31,15 @@ assert 'val nextAvailable:Boolean get()=level<LevelEngine.LEVELS_PER_WORLD.toLon
 assert 'if(justAwardedCoins>0)' in model
 assert '"NO NEW BONUS"' in model
 assert 'label(data.rewardText,25f,' in view
+for detail in (
+    "canvas.translate(0f,radius*.11f)",
+    "if(earned)0xff98521a.toInt() else 0xff344660.toInt()",
+    "if(earned) {",
+    "paint.color=0xbaffffff.toInt()",
+    "canvas.drawRoundRect(118f,86f,147f,97f,4f,4f,paint)",
+    "paint.color=0xaafff3ce.toInt()",
+):
+    assert detail in view,detail
 assert "replayAndNonMilestoneDoNotPretendToGrantChestLoot" in unit
 assert "endOfWorldDoesNotProduceInvalidNextLevel" in unit
 assert "val electric" not in main

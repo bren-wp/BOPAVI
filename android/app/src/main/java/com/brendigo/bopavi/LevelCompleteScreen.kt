@@ -181,13 +181,25 @@ internal class LevelCompleteStar(host:Activity,private val earned:Boolean):View(
             if(point==0)star.moveTo(x,y) else star.lineTo(x,y)
         }
         star.close()
+        // 3D lower extrusion shares the real earned/empty star state.
+        val depth=canvas.save()
+        canvas.translate(0f,radius*.11f)
         paint.style=Paint.Style.FILL
+        paint.color=if(earned)0xff98521a.toInt() else 0xff344660.toInt()
+        canvas.drawPath(star,paint)
+        canvas.restoreToCount(depth)
         paint.color=if(earned)0xffffd241.toInt() else 0xff7b92ac.toInt()
         canvas.drawPath(star,paint)
         paint.style=Paint.Style.STROKE
         paint.strokeWidth=radius*.08f
         paint.color=if(earned)0xffb46c0a.toInt() else 0xff203e68.toInt()
         canvas.drawPath(star,paint)
+        if(earned) {
+            paint.color=0xbaffffff.toInt()
+            paint.strokeWidth=radius*.045f
+            canvas.drawLine(cx-radius*.31f,cy-radius*.35f,
+                cx-radius*.05f,cy-radius*.52f,paint)
+        }
         paint.style=Paint.Style.FILL
     }
 }
@@ -216,6 +228,17 @@ internal class LevelCompleteChest(host:Activity):View(host){
         canvas.drawRoundRect(32f,106f,233f,119f,4f,4f,paint)
         paint.color=0xff5f3b23.toInt()
         canvas.drawRoundRect(124f,94f,141f,130f,6f,6f,paint)
+        // Local wood grain and gold specular bezel; this is a closed chest
+        // indicating rewards already recorded, not a second claim action.
+        paint.color=0x88ffe2a1.toInt()
+        canvas.drawRoundRect(44f,52f,112f,58f,3f,3f,paint)
+        canvas.drawRoundRect(164f,52f,218f,58f,3f,3f,paint)
+        paint.color=0xfff6cf63.toInt()
+        canvas.drawRoundRect(118f,86f,147f,97f,4f,4f,paint)
+        paint.color=0xff844425.toInt()
+        canvas.drawRoundRect(120f,118f,145f,130f,3f,3f,paint)
+        paint.color=0xaafff3ce.toInt()
+        canvas.drawRoundRect(120f,55f,124f,83f,2f,2f,paint)
         canvas.restoreToCount(save)
     }
 }
