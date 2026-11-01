@@ -50,10 +50,7 @@ internal class PilotSelectionScreen(
             textSize=25f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(if(primary)0xff67320d.toInt() else Color.WHITE)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(primary)plate(0xffffe65c.toInt(),0xffff9405.toInt(),
-                    0xfffff2b8.toInt(),33)
-                else plate(0xff4fddff.toInt(),0xff0759c5.toInt(),cyan,30),null)
+            background=Bopavi3DTheme.button(if(primary)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             gravity=Gravity.CENTER
             minimumHeight=dp(48)
             setAutoSizeTextTypeUniformWithConfiguration(15,25,1,

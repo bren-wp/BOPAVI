@@ -1,11 +1,9 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -49,10 +47,7 @@ internal class ShopScreen(
             textSize=24f
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(if(gold)0xff63300a.toInt() else Color.WHITE)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(gold)plate(0xffffe75a.toInt(),0xffff9404.toInt(),0xfffff5b0.toInt(),25)
-                else plate(0xff50d8ff.toInt(),0xff0864c8.toInt(),0xffacf2ff.toInt(),25),
-                null)
+            background=Bopavi3DTheme.button(if(gold)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             setAutoSizeTextTypeUniformWithConfiguration(14,24,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             minimumHeight=dp(48)

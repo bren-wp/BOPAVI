@@ -1,14 +1,12 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -96,10 +94,7 @@ internal class GameOverScreen(private val host:Activity) {
             gravity=Gravity.CENTER
             setAutoSizeTextTypeUniformWithConfiguration(18,32,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                if(primary)surface(0xffffe64e.toInt(),0xffff9805.toInt(),
-                    0xffa74708.toInt(),37)
-                else surface(0xff55d9ff.toInt(),blue,navy,36),null)
+            background=Bopavi3DTheme.button(if(primary)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             contentDescription=label
             elevation=dp(6).toFloat()
             minimumHeight=dp(48)

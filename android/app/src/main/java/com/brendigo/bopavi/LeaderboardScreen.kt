@@ -1,12 +1,10 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -44,8 +42,7 @@ internal class LeaderboardScreen(private val host:Activity){
         typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         contentDescription="HOME"
         minimumHeight=dp(48)
-        background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-            frame(0xffffe877.toInt(),0xffff940d.toInt(),0xffffe9b4.toInt(),32),null)
+        background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GOLD)
         elevation=dp(5).toFloat()
         setOnClickListener{back()}
     }

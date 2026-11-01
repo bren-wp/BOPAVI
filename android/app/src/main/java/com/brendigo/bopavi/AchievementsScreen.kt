@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -93,8 +92,7 @@ internal class AchievementsScreen(private val host:Activity){
         minimumHeight=dp(48)
         typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         setTextColor(ink)
-        background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-            plate(0xffffe76b.toInt(),0xffff9905.toInt(),0xffffebae.toInt()),null)
+        background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GOLD)
         elevation=dp(4).toFloat()
         contentDescription="HOME"
         setOnClickListener{onBack()}
