@@ -42,6 +42,13 @@ assert 'val rows=floatArrayOf(900f,1216f)' in geom
 assert 'val columns=floatArrayOf(35f,331f,627f)' in geom
 assert 'val row=item.index/3' in shop and 'val col=item.index%3' in shop
 assert 'val featured=items.last()' in shop
+assert 'ShopReferenceLayout.supports(' in shop
+assert 'val scroll=ScrollView(host).apply' in shop
+assert 'isFillViewport=true' in shop
+assert 'column.addView(perkCard(item,onBuy),' in shop
+assert 'val stock=ShopItemState.fromStore(progress)' in shop
+assert 'earned>0' in shop
+assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopiportrait0' in shop

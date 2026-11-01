@@ -25,6 +25,10 @@ class ShopItemStateTest {
     }
     @Test fun shopGeometryAndAccessibilityMatchReference() {
         assertTrue(ShopReferenceLayout.valid())
+        assertTrue(ShopReferenceLayout.supports(941,1672,true,1.0f))
+        assertFalse(ShopReferenceLayout.supports(720,1280,true,1.0f))
+        assertFalse(ShopReferenceLayout.supports(941,1672,true,1.5f))
+        assertFalse(ShopReferenceLayout.supports(1920,1080,false,1.0f))
         assertEquals(3,ShopReferenceLayout.columns.size)
         assertEquals(2,ShopReferenceLayout.rows.size)
         assertTrue(ShopReferenceLayout.featureTop+ShopReferenceLayout.featureHeight<

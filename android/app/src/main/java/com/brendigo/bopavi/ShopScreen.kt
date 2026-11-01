@@ -1,6 +1,7 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import java.text.NumberFormat
 
@@ -115,6 +117,68 @@ internal class ShopScreen(
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 
+        // Fixed reference coordinates cannot fit native 48dp touch targets
+        // on a 720px window, in landscape or at large font scaling.
+        if(!ShopReferenceLayout.supports(
+                host.resources.displayMetrics.widthPixels,
+                host.resources.displayMetrics.heightPixels,
+                host.resources.configuration.orientation==
+                    Configuration.ORIENTATION_PORTRAIT,
+                host.resources.configuration.fontScale)) {
+            val scroll=ScrollView(host).apply {
+                isFillViewport=true
+                clipToPadding=false
+                setOnApplyWindowInsetsListener { _,insets->
+                    if(Build.VERSION.SDK_INT>=30){
+                        val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                            or android.view.WindowInsets.Type.displayCutout())
+                        setPadding(safe.left,safe.top,safe.right,safe.bottom)
+                    }else{
+                        @Suppress("DEPRECATION")
+                        setPadding(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,
+                            insets.systemWindowInsetRight,insets.systemWindowInsetBottom)
+                    }
+                    insets
+                }
+            }
+            val column=LinearLayout(host).apply{
+                orientation=LinearLayout.VERTICAL
+                setPadding(dp(12),dp(12),dp(12),dp(24))
+            }
+            column.addView(button("‹  HOME",false,click=onBack).apply{
+                contentDescription="HOME"
+            },LinearLayout.LayoutParams(-1,dp(56)))
+            column.addView(message("SHOP",45),LinearLayout.LayoutParams(-1,dp(74)))
+            val saved=progress.coins()
+            column.addView(message("COINS  •  "+
+                NumberFormat.getIntegerInstance().format(saved),24).apply {
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+                contentDescription="Earned coins: $saved"
+            },LinearLayout.LayoutParams(-1,dp(61)).apply {
+                topMargin=dp(6);bottomMargin=dp(10)
+            })
+            val stock=ShopItemState.fromStore(progress)
+            val featuredItem=stock.last()
+            column.addView(message("FEATURED: "+featuredItem.name.uppercase(),24).apply{
+                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.VIOLET)
+                contentDescription="Featured: "+featuredItem.accessibility
+            },LinearLayout.LayoutParams(-1,dp(67)))
+            val earned=progress.bonusCoinsAvailable()
+            if(earned>0){
+                column.addView(button("CLAIM +$earned",true,click=onClaim),
+                    LinearLayout.LayoutParams(-1,dp(52)).apply {topMargin=dp(7)})
+            }
+            for(item in stock){
+                column.addView(perkCard(item,onBuy),
+                    LinearLayout.LayoutParams(-1,dp(200)).apply {
+                        topMargin=dp(10)
+                    })
+            }
+            scroll.addView(column)
+            root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
+            scroll.requestApplyInsets()
+            return root
+        }
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         // Native header, real locally saved counters and original character.

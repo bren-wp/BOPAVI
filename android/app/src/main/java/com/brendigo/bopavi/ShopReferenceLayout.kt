@@ -13,6 +13,9 @@ internal object ShopReferenceLayout {
     const val cardWidth=279f
     const val cardHeight=296f
 
+    fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
+        portrait && pxWidth>=860 && pxHeight>=1480 && fontScale<1.25f
+
     fun valid():Boolean=columns.size==3 && rows.size==2 &&
         columns.all{it>=0f && it+cardWidth<=width} &&
         rows.all{it>=0f && it+cardHeight<=height} &&
