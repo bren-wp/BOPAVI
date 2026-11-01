@@ -61,21 +61,12 @@ internal class HomeReferenceScreen(private val host:Activity,
             setOnClickListener{onClick()}
         }
         val token=FrameLayout(host).apply{
-            if(kind==BopaviUiIconDrawable.Kind.COIN){
-                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xfffff3a5.toInt(),0xffffae00.toInt(),
-                        0xffe06a04.toInt())).apply{
-                    shape=GradientDrawable.OVAL
-                    setStroke(dp(2),0xfffff8cb.toInt())
-                }
-            }
             elevation=dp(3).toFloat()
-            addView(glyph(kind,if(kind==BopaviUiIconDrawable.Kind.STAR)
-                0xffffd025.toInt() else 0xff985015.toInt(),
-                if(kind==BopaviUiIconDrawable.Kind.STAR)40 else 26),
-                FrameLayout.LayoutParams(dp(if(kind==BopaviUiIconDrawable.Kind.STAR)
-                    40 else 28),dp(if(kind==BopaviUiIconDrawable.Kind.STAR)
-                    40 else 28),Gravity.CENTER))
+            addView(ImageView(host).apply{
+                setImageDrawable(HomeHeroIconDrawable(kind,dp(40)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },FrameLayout.LayoutParams(dp(40),dp(40),Gravity.CENTER))
         }
         group.addView(token,LinearLayout.LayoutParams(dp(40),dp(40)))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
