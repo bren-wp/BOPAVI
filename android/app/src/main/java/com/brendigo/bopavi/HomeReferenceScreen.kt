@@ -58,22 +58,31 @@ internal class HomeReferenceScreen(private val host:Activity,
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                plate(0xff266cbe.toInt(),0xff051b46.toInt(),
-                    0xff80d4ff.toInt(),20),null)
+                HomeEnamelDrawable(0xff2b91f5.toInt(),0xff1b62bb.toInt(),
+                    0xff0c285c.toInt(),0xff9ae3ff.toInt()),null)
+            elevation=dp(5).toFloat()
             setPadding(dp(4),0,dp(4),0)
             contentDescription="$title: $amount. $destination"
             isClickable=true;isFocusable=true
             setOnClickListener{onClick()}
         }
-        group.addView(glyph(kind,
-            if(kind==BopaviUiIconDrawable.Kind.COIN)0xffffc634.toInt()
-            else 0xffdb66ff.toInt(),29),
-            LinearLayout.LayoutParams(dp(37),dp(37)))
+        val token=FrameLayout(host).apply{
+            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xfffff3a5.toInt(),0xffffae00.toInt(),
+                    0xffe06a04.toInt())).apply{
+                shape=GradientDrawable.OVAL
+                setStroke(dp(2),0xfffff8cb.toInt())
+            }
+            elevation=dp(3).toFloat()
+            addView(glyph(kind,0xff985015.toInt(),26),
+                FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
+        }
+        group.addView(token,LinearLayout.LayoutParams(dp(40),dp(40)))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
-            18,Color.WHITE),LinearLayout.LayoutParams(0,-1,1f))
+            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,1f))
         group.addView(label("+",22,Color.WHITE).apply{
-            background=plate(0xff8af55e.toInt(),0xff16a32a.toInt(),
-                0xff0e6525.toInt(),11)
+            background=HomeEnamelDrawable(0xffbaff8f.toInt(),
+                0xff21df28.toInt(),0xff078224.toInt(),0xffd2ffb4.toInt())
         },LinearLayout.LayoutParams(dp(27),dp(31)))
         return group
     }
@@ -208,6 +217,22 @@ internal class HomeReferenceScreen(private val host:Activity,
             BopaviUiIconDrawable.Kind.RECORDS,
             0xff17d958.toInt(),0xff057d29.toInt(),0xffc7ffad.toInt(),22,
             onAchievements),HomeReferenceLayout.achievements,true)
+        // The original Home image uses a two-card final row. Retain the
+        // previous Records feature as a small visible trophy badge inside the
+        // Achievements card, with its own real 48dp+ touch/accessibility target.
+        val records=FrameLayout(host).apply {
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
+                HomeEnamelDrawable(0xfffff48d.toInt(),0xffffbb12.toInt(),
+                    0xffbd650b.toInt(),0xffffeeb2.toInt()),null)
+            isClickable=true;isFocusable=true
+            contentDescription="Pogledaj svoje rekorde"
+            setOnClickListener{onLeaderboard()}
+            elevation=dp(11).toFloat()
+            addView(glyph(BopaviUiIconDrawable.Kind.LEADERBOARD,
+                Color.WHITE,38),FrameLayout.LayoutParams(dp(39),dp(39),
+                Gravity.CENTER))
+        }
+        place(stage,records,HomeReferenceLayout.leaderboard,true)
         place(stage,pill("SOUND","Otvori zvučne postavke",
             BopaviUiIconDrawable.Kind.SOUND,
             0xff1bd4ff.toInt(),0xff0866c8.toInt(),0xffc3f7ff.toInt(),27,
