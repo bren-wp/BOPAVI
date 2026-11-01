@@ -28,6 +28,7 @@ import java.util.Locale
 internal class HomeReferenceScreen(private val host:Activity,
                                    private val progress:ProgressStore) {
     private fun dp(px:Int)=(px*host.resources.displayMetrics.density+.5f).toInt()
+    private var skinPortraitRes=R.drawable.bopiportrait0
     private fun label(s:String,font:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=font.toFloat()
@@ -113,7 +114,10 @@ internal class HomeReferenceScreen(private val host:Activity,
         }
         val imageSize=if(isPlay)88 else 52
         val symbol=ImageView(host).apply{
-            setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
+            if(kind==BopaviUiIconDrawable.Kind.SHIRT)
+                setImageResource(skinPortraitRes)
+            else
+                setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
@@ -210,7 +214,12 @@ internal class HomeReferenceScreen(private val host:Activity,
             R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,
             R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
             R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
-        val chosen=pilotIndex.coerceIn(0,bodies.lastIndex)
+        // MainActivity stores a three-item PILOT CHOICE, while art uses
+        // sprite IDs 0,9,10. Do not display skin 1 for selected Sova (id 9).
+        val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]
+        val portraits=intArrayOf(R.drawable.bopiportrait0,
+            R.drawable.bopiportrait9,R.drawable.bopiportrait10)
+        skinPortraitRes=portraits[pilotIndex.coerceIn(0,2)]
         // Preserve the three registered original sprite layers; only the
         // transparent wings animate, never the painted physical collider.
         // The actor stops all animators when the window is hidden/detached.
@@ -218,17 +227,20 @@ internal class HomeReferenceScreen(private val host:Activity,
             left[chosen],right[chosen],bodies[chosen])
         place(stage,actor,HomeReferenceLayout.hero)
 
+        // The white wings in the owner's Home sit BEHIND the gold native
+        // PLAY action; the hit target remains one accessible Android View.
+        place(stage,HomePlayWings(host),HomeReferenceLayout.playWings)
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
             0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),46,onPlay),
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xff51d8ff.toInt(),0xff0077de.toInt(),0xffa7f6ff.toInt(),28,onSkins),
+            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),28,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xfff152ff.toInt(),0xff7723d8.toInt(),0xffffc1ff.toInt(),29,onShop),
+            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),29,onShop),
             HomeReferenceLayout.shop,true)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
@@ -286,34 +298,10 @@ internal class HomeOrbitDecoration(host:Activity):View(host){
         canvas.drawPath(path,paint)
     }
 
-    private fun star(canvas:Canvas,x:Float,y:Float,r:Float){
-        val shape=Path()
-        for(i in 0 until 10){
-            val theta=-Math.PI/2.0 + i*Math.PI/5.0
-            val radius=if(i%2==0)r else r*.47f
-            val px=x+radius*kotlin.math.cos(theta).toFloat()
-            val py=y+radius*kotlin.math.sin(theta).toFloat()
-            if(i==0)shape.moveTo(px,py) else shape.lineTo(px,py)
-        }
-        shape.close()
-        paint.reset()
-        paint.isAntiAlias=true
-        paint.color=0xff945318.toInt()
-        paint.style=Paint.Style.STROKE
-        paint.strokeWidth=8f
-        canvas.drawPath(shape,paint)
-        paint.style=Paint.Style.FILL
-        paint.shader=android.graphics.LinearGradient(x,y-r,x,y+r,
-            0xfffff89c.toInt(),0xffffa400.toInt(),
-            android.graphics.Shader.TileMode.CLAMP)
-        canvas.drawPath(shape,paint)
-        paint.shader=null
-        paint.color=0xaaffffff.toInt()
-        paint.style=Paint.Style.STROKE
-        paint.strokeWidth=2.5f
-        canvas.drawLine(x-r*.25f,y-r*.40f,x+r*.23f,y-r*.37f,paint)
-    }
-
+    /** Thin hollow GOLD rings recede behind Bopi's right wing.
+     * The large striped candy hoops in the old version were absent from
+     * the supplied Home reference.
+     */
     private fun ring(canvas:Canvas,x:Float,y:Float,rx:Float,ry:Float,angle:Float){
         val saved=canvas.save()
         canvas.rotate(angle,x,y)
@@ -321,25 +309,23 @@ internal class HomeOrbitDecoration(host:Activity):View(host){
         paint.reset()
         paint.isAntiAlias=true
         paint.style=Paint.Style.STROKE
-        paint.strokeWidth=rx*.16f
-        paint.color=0x66032866
-        canvas.drawOval(RectF(oval.left+9f,oval.top+12f,
-            oval.right+9f,oval.bottom+12f),paint)
-        paint.strokeWidth=rx*.15f
-        paint.color=0xffad601c.toInt()
+        paint.strokeWidth=rx*.49f
+        paint.color=0x77032453
+        canvas.drawOval(RectF(oval.left+4f,oval.top+7f,
+            oval.right+4f,oval.bottom+7f),paint)
+        paint.strokeWidth=rx*.39f
+        paint.color=0xff9c5011.toInt()
         canvas.drawOval(oval,paint)
-        paint.strokeWidth=rx*.12f
-        paint.color=0xffffe6b2.toInt()
+        paint.strokeWidth=rx*.32f
+        paint.color=0xffffc70a.toInt()
         canvas.drawOval(oval,paint)
-        paint.strokeWidth=rx*.105f
-        paint.color=0xffd94746.toInt()
-        paint.pathEffect=android.graphics.DashPathEffect(floatArrayOf(
-            rx*.28f,rx*.20f),0f)
-        canvas.drawOval(oval,paint)
-        paint.pathEffect=null
-        paint.strokeWidth=rx*.035f
-        paint.color=0xfffffbcd.toInt()
-        canvas.drawArc(oval,206f,138f,false,paint)
+        paint.strokeWidth=rx*.14f
+        paint.color=0xfffff0a6.toInt()
+        canvas.drawArc(oval,206f,141f,false,paint)
+        paint.strokeWidth=rx*.065f
+        paint.color=Color.WHITE
+        canvas.drawArc(oval,229f,78f,false,paint)
+        paint.style=Paint.Style.FILL
         canvas.restoreToCount(saved)
     }
 
@@ -359,12 +345,10 @@ internal class HomeOrbitDecoration(host:Activity):View(host){
         paint.color=0x88ffffff.toInt()
         paint.strokeWidth=4f
         canvas.drawArc(RectF(110f,475f,830f,911f),25f,81f,false,paint)
-        // Hero reference: one large right candy hoop and two receding hoops.
-        ring(canvas,809f,744f,143f,170f,-7f)
-        ring(canvas,626f,818f,52f,69f,-11f)
-        ring(canvas,530f,883f,29f,43f,-17f)
-        star(canvas,803f,577f,34f)
-        star(canvas,622f,757f,14f)
+        // Three small metallic golden hoops, all to the right of Bopi.
+        ring(canvas,761f,672f,18f,41f,-23f)
+        ring(canvas,810f,705f,14f,31f,-17f)
+        ring(canvas,852f,744f,10f,20f,-20f)
         sparkle(canvas,264f,417f,13f)
         sparkle(canvas,124f,726f,10f)
         sparkle(canvas,182f,791f,6f)

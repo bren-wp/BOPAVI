@@ -20,6 +20,8 @@ internal object HomeReferenceLayout {
     val logo=HomeBounds(122f,112f,697f,273f)
     val hero=HomeBounds(96f,391f,745f,483f)
     val play=HomeBounds(149f,894f,645f,191f)
+    // Visual wings extend beyond the native gold button on both sides.
+    val playWings=HomeBounds(112f,904f,719f,171f)
 
     // Two broad native buttons, one centered Settings action, three
     // independently tappable circular shortcuts with captions underneath.
@@ -36,7 +38,10 @@ internal object HomeReferenceLayout {
 
     fun valid():Boolean {
         val all=listOf(coins,stars,logo,hero)+actions
-        if(!all.all{it.inside()} || coins.overlaps(stars))return false
+        if(!all.all{it.inside()} || !playWings.inside() ||
+            coins.overlaps(stars))return false
+        if(playWings.x>=play.x || playWings.right<=play.right ||
+            playWings.y<play.y || playWings.bottom>play.bottom)return false
         if(coins.bottom>=logo.y || stars.bottom>=logo.y)return false
         if(logo.bottom>=hero.y || hero.bottom>=play.y)return false
         if(skins.y!=shop.y || achievements.y!=leaderboard.y ||

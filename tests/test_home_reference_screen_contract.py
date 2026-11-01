@@ -10,6 +10,7 @@ bevel=(src/"HomeEnamelDrawable.kt").read_text()
 icons=(src/"HomeHeroIconDrawable.kt").read_text()
 lettering=(src/"HomeEmbossedLabel.kt").read_text()
 wing=(src/"HomeWingActor.kt").read_text()
+play_wings=(src/"HomePlayWings.kt").read_text()
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "HomeReferenceScreen(this,progress).create(" in activity
@@ -21,6 +22,7 @@ for box in (
     "val logo=HomeBounds(122f,112f,697f,273f)",
     "val hero=HomeBounds(96f,391f,745f,483f)",
     "val play=HomeBounds(149f,894f,645f,191f)",
+    "val playWings=HomeBounds(112f,904f,719f,171f)",
     "val skins=HomeBounds(135f,1097f,325f,137f)",
     "val shop=HomeBounds(476f,1097f,325f,137f)",
     "val settings=HomeBounds(243f,1252f,453f,121f)",
@@ -85,8 +87,16 @@ for anchor in ("left[chosen],right[chosen],bodies[chosen]",
 assert '("SKINS","Otvori izbor likova")' in qa
 assert '("SHOP","Otvori trgovinu nadogradnji")' in qa
 assert 'n.get("text","").strip().upper()==menu' in qa
-assert "android.graphics.DashPathEffect" in view
-assert "ring(canvas,809f,744f,143f,170f,-7f)" in view
+assert "android.graphics.DashPathEffect" not in view
+assert "ring(canvas,761f,672f,18f,41f,-23f)" in view
+assert "ring(canvas,810f,705f,14f,31f,-17f)" in view
+assert "HomePlayWings(host)" in view
+assert "private fun drawWing(canvas:Canvas,mirror:Boolean)" in play_wings
+assert "R.drawable.bopiportrait9" in view
+assert "val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]" in view
+assert "setImageResource(skinPortraitRes)" in view
+assert "0xff9110e2.toInt()" in view
+assert "0xff28bd16.toInt()" in view
 assert "assertTrue(HomeReferenceLayout.valid())" not in unit or "assertTrue(home.valid())" in unit
 assert "assertTrue(HomeReferenceLayout.supports(941,1672,true))" in unit
 assert 'capture "android-home-$label"' in qa
