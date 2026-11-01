@@ -136,7 +136,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive)
     }
 
-    fun create(pilot:Int,pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
+    fun create(pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
                onSettings:()->Unit,onAchievements:()->Unit,
                onLeaderboard:()->Unit,onSound:()->Unit,
                onCoins:()->Unit,onStars:()->Unit):View {
