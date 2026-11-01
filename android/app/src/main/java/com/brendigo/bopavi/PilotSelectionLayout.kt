@@ -1,19 +1,31 @@
 package com.brendigo.bopavi
 
-/** Reference camera geometry; every card, avatar and label uses the same scale. */
+/** Actual owner 941×1672 composition: a hero above three real pilots. */
 internal object PilotSelectionLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
-    val cardLefts=floatArrayOf(52f,344f,636f)
-    const val cardTop=435f
-    const val cardWidth=253f
-    const val cardHeight=652f
-    const val portraitInset=19f
-    const val portraitTop=478f
-    const val portraitSize=215f
-    const val activeSelectionTop=1191f
-    const val homeTop=1475f
+    const val bannerLeft=223f
+    const val bannerTop=166f
+    const val bannerWidth=495f
+    const val bannerHeight=128f
+    const val heroLeft=206f
+    const val heroTop=340f
+    const val heroSize=522f
+    const val platformLeft=166f
+    const val platformTop=811f
+    const val platformWidth=612f
+    const val platformHeight=129f
+    val cardLefts=floatArrayOf(34f,339f,644f)
+    const val cardTop=974f
+    const val cardWidth=263f
+    const val cardHeight=324f
+    const val activeSelectionTop=1315f
     fun fitsReference():Boolean=cardLefts.size==3 &&
         cardLefts.all{it>=0f && it+cardWidth<=referenceWidth} &&
-        cardTop+cardHeight<activeSelectionTop && homeTop+120f<=referenceHeight
+        bannerLeft>=0f && bannerLeft+bannerWidth<=referenceWidth &&
+        heroLeft>=0f && heroLeft+heroSize<=referenceWidth &&
+        heroTop+heroSize<cardTop &&
+        platformTop+platformHeight<cardTop &&
+        cardTop+cardHeight<activeSelectionTop &&
+        activeSelectionTop+150f<=referenceHeight
 }

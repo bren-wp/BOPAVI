@@ -13,33 +13,35 @@ internal object HomeReferenceLayout {
     const val width=941f
     const val height=1672f
 
-    // Wallets occupy opposite corners of the image. Values are never baked
-    // into the artwork: they come from the user's local ProgressStore.
-    val coins=HomeBounds(37f,18f,329f,87f)
-    val stars=HomeBounds(607f,18f,299f,87f)
-    val logo=HomeBounds(108f,111f,725f,240f)
-    val hero=HomeBounds(99f,352f,743f,518f)
-    val play=HomeBounds(139f,908f,664f,213f)
+    // The supplied 941×1672 Home illustration places both live balances
+    // in the upper right. Never hardcode the illustration's sample numbers.
+    val coins=HomeBounds(457f,21f,220f,64f)
+    val stars=HomeBounds(705f,21f,215f,64f)
+    val logo=HomeBounds(122f,112f,697f,273f)
+    val hero=HomeBounds(96f,391f,745f,483f)
+    val play=HomeBounds(149f,894f,645f,191f)
 
-    // First row: three individually tappable, glossy embossed controls.
-    val skins=HomeBounds(43f,1153f,274f,212f)
-    val shop=HomeBounds(334f,1153f,274f,212f)
-    val settings=HomeBounds(625f,1153f,273f,212f)
-    // Second row: two wide controls in the illustrated owner reference.
-    val achievements=HomeBounds(106f,1391f,349f,207f)
-    val leaderboard=HomeBounds(360f,1398f,95f,95f) // small, separately tappable badge
-    val sound=HomeBounds(484f,1391f,349f,207f)
+    // Two broad native buttons, one centered Settings action, three
+    // independently tappable circular shortcuts with captions underneath.
+    val skins=HomeBounds(135f,1097f,325f,137f)
+    val shop=HomeBounds(476f,1097f,325f,137f)
+    val settings=HomeBounds(243f,1252f,453f,121f)
+    val achievements=HomeBounds(208f,1452f,166f,142f)
+    val leaderboard=HomeBounds(388f,1452f,166f,142f)
+    val sound=HomeBounds(568f,1452f,166f,142f)
 
-    val actions=listOf(play,skins,shop,settings,achievements,sound)
+    val actions=listOf(play,skins,shop,settings,achievements,leaderboard,sound)
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean):Boolean =
         portrait && pxWidth>=860 && pxHeight>=1480
 
     fun valid():Boolean {
         val all=listOf(coins,stars,logo,hero)+actions
-        if(!all.all{it.inside()} || !leaderboard.inside() || coins.overlaps(stars))return false
-        if(leaderboard.x<achievements.x || leaderboard.right>achievements.right ||
-            leaderboard.y<achievements.y || leaderboard.bottom>achievements.bottom)return false
+        if(!all.all{it.inside()} || coins.overlaps(stars))return false
+        if(coins.bottom>=logo.y || stars.bottom>=logo.y)return false
         if(logo.bottom>=hero.y || hero.bottom>=play.y)return false
+        if(skins.y!=shop.y || achievements.y!=leaderboard.y ||
+            leaderboard.y!=sound.y || settings.y<=skins.y ||
+            settings.bottom>=achievements.y)return false
         for(i in actions.indices)for(j in i+1 until actions.size){
             if(actions[i].overlaps(actions[j]))return false
         }
