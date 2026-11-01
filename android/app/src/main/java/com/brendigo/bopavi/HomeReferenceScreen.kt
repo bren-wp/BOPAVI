@@ -258,47 +258,113 @@ internal class HomeReferenceScreen(private val host:Activity,
     }
 }
 
-/** Gold perspective rings and breeze trails, painted offline behind live CTAs. */
+/** Layered candy hoops, sky glints and breeze trails behind live Home controls. */
 internal class HomeOrbitDecoration(host:Activity):View(host){
     private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
     private val path=Path()
     init{importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO}
+
+    private fun sparkle(canvas:Canvas,x:Float,y:Float,r:Float){
+        path.reset()
+        path.moveTo(x,y-r*1.6f)
+        path.quadTo(x+r*.18f,y-r*.19f,x+r,y)
+        path.quadTo(x+r*.18f,y+r*.19f,x,y+r*1.6f)
+        path.quadTo(x-r*.18f,y+r*.19f,x-r,y)
+        path.quadTo(x-r*.18f,y-r*.19f,x,y-r*1.6f)
+        path.close()
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.color=0x99b6eeff.toInt()
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=7f
+        canvas.drawPath(path,paint)
+        paint.style=Paint.Style.FILL
+        paint.color=Color.WHITE
+        canvas.drawPath(path,paint)
+    }
+
+    private fun star(canvas:Canvas,x:Float,y:Float,r:Float){
+        val shape=Path()
+        for(i in 0 until 10){
+            val theta=-Math.PI/2.0 + i*Math.PI/5.0
+            val radius=if(i%2==0)r else r*.47f
+            val px=x+radius*kotlin.math.cos(theta).toFloat()
+            val py=y+radius*kotlin.math.sin(theta).toFloat()
+            if(i==0)shape.moveTo(px,py) else shape.lineTo(px,py)
+        }
+        shape.close()
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.color=0xff945318.toInt()
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=8f
+        canvas.drawPath(shape,paint)
+        paint.style=Paint.Style.FILL
+        paint.shader=android.graphics.LinearGradient(x,y-r,x,y+r,
+            0xfffff89c.toInt(),0xffffa400.toInt(),
+            android.graphics.Shader.TileMode.CLAMP)
+        canvas.drawPath(shape,paint)
+        paint.shader=null
+        paint.color=0xaaffffff.toInt()
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=2.5f
+        canvas.drawLine(x-r*.25f,y-r*.40f,x+r*.23f,y-r*.37f,paint)
+    }
+
     private fun ring(canvas:Canvas,x:Float,y:Float,rx:Float,ry:Float,angle:Float){
-        val save=canvas.save()
+        val saved=canvas.save()
         canvas.rotate(angle,x,y)
-        val area=RectF(x-rx,y-ry,x+rx,y+ry)
+        val oval=RectF(x-rx,y-ry,x+rx,y+ry)
         paint.reset()
         paint.isAntiAlias=true
         paint.style=Paint.Style.STROKE
-        paint.strokeWidth=10f
-        paint.color=0xffb96b0e.toInt()
-        canvas.drawOval(area,paint)
-        paint.strokeWidth=6f
-        paint.color=0xffffd348.toInt()
-        canvas.drawOval(area,paint)
-        paint.strokeWidth=2.5f
-        paint.color=0xfffffaac.toInt()
-        canvas.drawArc(area,210f,105f,false,paint)
-        canvas.restoreToCount(save)
+        paint.strokeWidth=rx*.16f
+        paint.color=0x66032866
+        canvas.drawOval(RectF(oval.left+9f,oval.top+12f,
+            oval.right+9f,oval.bottom+12f),paint)
+        paint.strokeWidth=rx*.15f
+        paint.color=0xffad601c.toInt()
+        canvas.drawOval(oval,paint)
+        paint.strokeWidth=rx*.12f
+        paint.color=0xffffe6b2.toInt()
+        canvas.drawOval(oval,paint)
+        paint.strokeWidth=rx*.105f
+        paint.color=0xffd94746.toInt()
+        paint.pathEffect=android.graphics.DashPathEffect(floatArrayOf(
+            rx*.28f,rx*.20f),0f)
+        canvas.drawOval(oval,paint)
+        paint.pathEffect=null
+        paint.strokeWidth=rx*.035f
+        paint.color=0xfffffbcd.toInt()
+        canvas.drawArc(oval,206f,138f,false,paint)
+        canvas.restoreToCount(saved)
     }
+
     override fun onDraw(canvas:Canvas){
         val saved=canvas.save()
         canvas.scale(width/941f,height/1672f)
         paint.reset()
         paint.isAntiAlias=true
-        paint.color=0x88b5f8ff.toInt()
+        paint.color=0x88e7ffff.toInt()
         paint.style=Paint.Style.STROKE
-        paint.strokeWidth=7f
+        paint.strokeCap=Paint.Cap.ROUND
+        paint.strokeWidth=10f
         path.reset()
-        path.moveTo(180f,773f)
-        path.cubicTo(227f,831f,315f,861f,391f,862f)
+        path.moveTo(90f,848f)
+        path.cubicTo(208f,708f,255f,857f,380f,820f)
         canvas.drawPath(path,paint)
-        paint.color=0x55ffffff
+        paint.color=0x88ffffff.toInt()
         paint.strokeWidth=4f
-        canvas.drawArc(RectF(80f,538f,815f,902f),25f,76f,false,paint)
-        ring(canvas,755f,661f,25f,55f,24f)
-        ring(canvas,815f,713f,17f,41f,20f)
-        ring(canvas,865f,738f,13f,29f,16f)
+        canvas.drawArc(RectF(110f,475f,830f,911f),25f,81f,false,paint)
+        // Hero reference: one large right candy hoop and two receding hoops.
+        ring(canvas,809f,744f,143f,170f,-7f)
+        ring(canvas,626f,818f,52f,69f,-11f)
+        ring(canvas,530f,883f,29f,43f,-17f)
+        star(canvas,803f,577f,34f)
+        star(canvas,622f,757f,14f)
+        sparkle(canvas,264f,417f,13f)
+        sparkle(canvas,124f,726f,10f)
+        sparkle(canvas,182f,791f,6f)
         canvas.restoreToCount(saved)
     }
 }
