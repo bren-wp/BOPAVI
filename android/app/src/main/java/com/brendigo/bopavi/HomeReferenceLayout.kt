@@ -27,6 +27,7 @@ internal object HomeReferenceLayout {
     val settings=HomeBounds(625f,1153f,273f,212f)
     // Second row: two wide controls in the illustrated owner reference.
     val achievements=HomeBounds(106f,1391f,349f,207f)
+    val leaderboard=HomeBounds(360f,1398f,95f,95f) // small, separately tappable badge
     val sound=HomeBounds(484f,1391f,349f,207f)
 
     val actions=listOf(play,skins,shop,settings,achievements,sound)
@@ -35,7 +36,9 @@ internal object HomeReferenceLayout {
 
     fun valid():Boolean {
         val all=listOf(coins,stars,logo,hero)+actions
-        if(!all.all{it.inside()} || coins.overlaps(stars))return false
+        if(!all.all{it.inside()} || !leaderboard.inside() || coins.overlaps(stars))return false
+        if(leaderboard.x<achievements.x || leaderboard.right>achievements.right ||
+            leaderboard.y<achievements.y || leaderboard.bottom>achievements.bottom)return false
         if(logo.bottom>=hero.y || hero.bottom>=play.y)return false
         for(i in actions.indices)for(j in i+1 until actions.size){
             if(actions[i].overlaps(actions[j]))return false
