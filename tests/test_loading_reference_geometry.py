@@ -22,16 +22,17 @@ for required in (
     "paint.shader = LinearGradient",
 ):
     assert required in view,required
-assert "val logo=LoadingArtBox(93f,113f,848f,341f)" in layout
-assert "val pilot=LoadingArtBox(113f,346f,828f,1061f)" in layout
+assert "val logo=LoadingArtBox(28f,96f,913f,364f)" in layout
+assert "val pilot=LoadingArtBox(90f,381f,850f,1141f)" in layout
 assert "val track=LoadingArtBox(222f,1482f,719f,1563f)" in layout
 assert "const val captionBaselineY=1468f" in layout
 assert "realReferenceArtworkRetainsItsNaturalProportions" in test
 assert "titlePilotAndTrackStayInReferenceVerticalOrder" in test
 assert "private fun ring(canvas: Canvas" in view
+assert "android.graphics.DashPathEffect(" in view
 assert "coin(canvas," not in view
-assert "ring(canvas,104f,862f,75f,92f,-23f)" in view
-assert "ring(canvas,28f,1197f,149f,176f,-27f)" in view
+assert "ring(canvas,806f,957f,166f,186f,-10f)" in view
+assert "ring(canvas,556f,1115f,64f,75f,-14f)" in view
 assert "postInvalidateDelayed(60L)" in view
 assert "isAttachedToWindow" in view
 assert "val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f" in view
