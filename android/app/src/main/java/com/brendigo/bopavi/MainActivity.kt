@@ -124,8 +124,9 @@ class MainActivity : Activity() {
         setTheme(R.style.BopaviTheme)
         super.onCreate(state)
         applyPremiumSystemBars()
-        // A single OS-managed launch transition, followed directly by Home.
-        // No second BOPAVI splash and no artificial loading percentage.
+        // Android owns the launch window. The full-size branded FlightLoading
+        // artwork follows on a genuine cold launch for a short readable beat;
+        // the progress animation remains indeterminate, never a fake value.
         progress=ProgressStore(this)
         selectedPilotChoice=progress.arcadePilot()
         sound=Soundscape(this)
@@ -139,11 +140,27 @@ class MainActivity : Activity() {
             platformBackCallback=callback
         }
         if(intent?.getBooleanExtra("bopavi_qa_loading_preview",false)==true) {
-            // Screenshot-only QA entry: the very same native screen shown
-            // during actual level preparation, without mock progress.
+            // QA captures the exact same native Loading view used by the game.
             selectedScreen="loading"
             showNativeView(FlightLoadingView(this,selectedPilotChoice))
+        } else if(state==null &&
+            intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)!=true &&
+            intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)!=true) {
+            showBrandedStartup()
         } else showHome()
+    }
+
+    private fun showBrandedStartup(){
+        selectedScreen="splash"
+        val intro=FlightLoadingView(this,selectedPilotChoice)
+        showNativeView(intro)
+        // One user-visible introduction, not a network wait or a falsified
+        // loading percentage. No navigation survives a newer screen change.
+        intro.postDelayed({
+            if(selectedScreen=="splash" && !isDestroyed && !isFinishing){
+                showHome()
+            }
+        },1450L)
     }
     /** Android large-screen rotation must not recreate a live simulation.
      * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
