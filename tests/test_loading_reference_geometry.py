@@ -15,7 +15,7 @@ for required in (
     "image(canvas, body, pilotRect)",
     "image(canvas, brand, logoRect)",
     "leftWing?.recycle()","rightWing?.recycle()",
-    'contentDescription = "Loading level"',
+    'if(startup)"BOPAVI se pokreće" else "Loading level"',
     "if(preparationFinished)1f",
     "FlightLoadingLayout.captionBaselineY",
     "FlightLoadingLayout.track.left",
@@ -39,6 +39,9 @@ assert "feather(canvas," not in view
 assert 'val loading=FlightLoadingView(this,chosenPilot)' in main
 assert "Thread({" in main and 'loading.completePreparation()' in main
 assert "Thread.sleep" not in main
+assert 'FlightLoadingView(this,selectedPilotChoice,startup=true)' in main
+assert 'selectedScreen="splash"' in main
+assert "},1450L)" in main
 assert 'selectedScreen="loading"' in main
 assert "progress.consumePerks()" in main
 print("PASS: owner Splash retains original Bopi, cyan enamel bar and truthful loading")
