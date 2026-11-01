@@ -9,3 +9,5 @@
 - Release remains unsigned/unpublished and PR must stay unmerged until CI and Android 15/16 emulator QA pass.
 
 - Gameplay HUD follow-up: deepen the three existing actual life hearts with an inactive-aware red enamel undercut and small glossy lower reflection, reusing the original Canvas/Path without resource allocations. No additional HUD counters, UI targets, hitbox changes or fake hearts.
+
+- Pause visual/functionality pass: preserve the original locally bundled selected Bopi portrait inside a cyan 3D enamel hero with a purely decorative gold halo. Use a **native accessible gold TextView title**, three real Resume/Retry/Exit Android buttons, and existing finite/endless replay semantics. Keep the live GameView paused, preserve focus, prevent duplicate dialogs, and retain scroll-safe compact/large-font layout with 48dp minimum touch controls. Native geometry is covered by JVM and Python contracts. There is no separate original Pause raster supplied, so pixel-accurate 1:1 matching is not yet verifiable.
