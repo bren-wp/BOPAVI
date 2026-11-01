@@ -30,7 +30,10 @@ assert "assertTrue(l.captionBaselineY>l.track.bottom)" in test
 assert "realReferenceArtworkRetainsItsNaturalProportions" in test
 assert "titlePilotAndTrackStayInReferenceVerticalOrder" in test
 assert "private fun ring(canvas: Canvas" in view
-assert "android.graphics.DashPathEffect(" in view
+assert "android.graphics.DashPathEffect(" not in view
+assert "paint.color=0xffffc70a.toInt()" not in view  # Splash gold uses its own palette
+assert "paint.color=0xffffb800.toInt()" in view
+assert "ring(canvas,108f,880f,58f,92f,-18f)" in view
 assert "coin(canvas," not in view
 assert "ring(canvas,108f,880f,58f,92f,-18f)" in view
 assert "ring(canvas,355f,1015f,69f,108f,-25f)" in view
