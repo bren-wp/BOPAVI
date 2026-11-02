@@ -47,11 +47,11 @@ internal class HomeEmbossedLabel(
 
     override fun onDraw(canvas:Canvas){
         if(width<=0 || height<=0)return
-        ink.textSize=textSize
-        // Fit the decorative lettering; do not clip the real Home action on
-        // narrower screens or when Android increases system font scaling.
+        // The reference stage measures in image pixels, while SP uses device
+        // density; clamp to the actual native label bounds on every screen.
+        ink.textSize=min(textSize,height*.66f)
         val measured=ink.measureText(caption).coerceAtLeast(1f)
-        ink.textSize*=min(1f,(width*.92f)/measured)
+        ink.textSize*=min(1f,(width*.87f)/measured)
         val metrics=ink.fontMetrics
         val x=width/2f
         val y=height/2f-(metrics.ascent+metrics.descent)/2f

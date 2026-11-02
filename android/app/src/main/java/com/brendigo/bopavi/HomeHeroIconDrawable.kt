@@ -216,6 +216,43 @@ internal class HomeHeroIconDrawable(
         canvas.drawPath(star,paint)
     }
 
+    /**
+     * Reference Home has a blue/gold three-step podium, not a generic dot.
+     * Keep every podium number inside the raised local vector icon so it
+     * scales with the native leaderboard shortcut at every display density.
+     */
+    private fun podium(canvas:Canvas){
+        fun step(l:Float,t:Float,r:Float,b:Float,light:Int,dark:Int){
+            val block=Path().apply {
+                addRoundRect(RectF(l,t,r,b),4f,4f,Path.Direction.CW)
+            }
+            enamel(canvas,block,light,dark,0xff0b2f71.toInt(),3f)
+        }
+        step(9f,44f,36f,89f,0xffa1e9ff.toInt(),0xff1762b9.toInt())
+        step(36f,20f,65f,89f,0xfffff29c.toInt(),0xffe39409.toInt())
+        step(65f,52f,91f,89f,0xffffbf9b.toInt(),0xffae5525.toInt())
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.typeface=android.graphics.Typeface.create(
+            "sans-serif-black",android.graphics.Typeface.BOLD)
+        paint.textAlign=Paint.Align.CENTER
+        paint.textSize=22f
+        paint.style=Paint.Style.STROKE
+        paint.strokeWidth=4f
+        paint.strokeJoin=Paint.Join.ROUND
+        paint.color=0xff092a61.toInt()
+        for((number,x,y) in listOf(Triple("2",22.5f,72f),
+            Triple("1",50.5f,53f),Triple("3",78f,76f))){
+            canvas.drawText(number,x,y,paint)
+        }
+        paint.style=Paint.Style.FILL
+        paint.color=Color.WHITE
+        for((number,x,y) in listOf(Triple("2",22.5f,72f),
+            Triple("1",50.5f,53f),Triple("3",78f,76f))){
+            canvas.drawText(number,x,y,paint)
+        }
+    }
+
     private fun sound(canvas:Canvas){
         val speaker=polygon(13f,40f,29f,40f,51f,22f,51f,78f,
             29f,60f,13f,60f)
@@ -241,6 +278,7 @@ internal class HomeHeroIconDrawable(
             BopaviUiIconDrawable.Kind.SHOP->shop(canvas)
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
             BopaviUiIconDrawable.Kind.RECORDS->trophy(canvas)
+            BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)
             BopaviUiIconDrawable.Kind.SOUND->sound(canvas)
             else->{
                 setup(Color.WHITE)

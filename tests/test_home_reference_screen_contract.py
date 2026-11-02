@@ -49,6 +49,13 @@ for item in (
     "HomeEnamelDrawable(","android.view.MotionEvent.ACTION_DOWN",
 ):
     assert item in view,item
+# 3D owner-reference pills must be rounded and physically extruded rather
+# than flat Android backgrounds; major icons must have independent art.
+assert "val radius=min(h*.48f,w*.24f)" in bevel
+assert "val drop=min(22f,h*.13f)" in bevel
+assert "val inset=min(12f,h*.075f)" in bevel
+assert "canvas.clipPath(faceClip)" in bevel
+assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
                 "ColorFilter","setAlpha(alpha:Int)","shadow:Int"):
     assert feature in bevel,feature
@@ -57,10 +64,13 @@ for feature in ("LinearGradient(","canvas.drawRoundRect(",
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
 assert "GradientDrawable.OVAL" in view
-assert "LinearLayout.LayoutParams(dp(48),0,1f)" in view
+assert "val emblem=minOf(" in view
+assert "width=emblem" in view and "height=emblem" in view
+assert "LinearLayout.LayoutParams(-1,0,1f)" in view
+assert "glyph(kind,36)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
-for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","SOUND"):
+for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
 for required in ("LinearGradient(","Paint.Style.STROKE",
                  "canvas.drawPath(", "drawRoundRect(", "Path()"):
@@ -93,7 +103,8 @@ assert "ring(canvas,810f,705f,14f,31f,-17f)" in view
 assert "HomePlayWings(host)" in view
 assert "private fun drawWing(canvas:Canvas,mirror:Boolean)" in play_wings
 assert "R.drawable.bopiportrait9" in view
-assert "val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]" in view
+assert "val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)" in view
+assert "allowMotion=!progress.lessMotion()" in view
 assert "setImageResource(skinPortraitRes)" in view
 assert "0xff9110e2.toInt()" in view
 assert "0xff28bd16.toInt()" in view

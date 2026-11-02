@@ -48,7 +48,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,
         R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
         R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
-    private val selected = pilotChoice.coerceIn(0,bodies.lastIndex)
+    private val selected = PilotSelectionModel.spriteIdForChoice(pilotChoice)
     private val body: Bitmap? =
         BitmapFactory.decodeResource(resources,bodies[selected],imageOptions)
     private val leftWing: Bitmap? =

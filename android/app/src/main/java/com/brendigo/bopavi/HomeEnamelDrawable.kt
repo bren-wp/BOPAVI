@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.RectF
 import android.graphics.Shader
@@ -55,9 +56,9 @@ internal class HomeEnamelDrawable(
         // Only actual disabled views are dimmed; the visible button remains
         // readable and physically separate from its live accessibility label.
         if(!enabled)canvas.saveLayerAlpha(0f,0f,w,h,145)
-        val radius=min(h*.29f,w*.16f)
-        val drop=min(15f,h*.085f)*(if(pressed).48f else 1f)
-        val inset=min(8f,h*.041f)
+        val radius=min(h*.48f,w*.24f)
+        val drop=min(22f,h*.13f)*(if(pressed).48f else 1f)
+        val inset=min(12f,h*.075f)
         fun coat(color:Int){
             p.reset()
             p.isAntiAlias=true
@@ -92,12 +93,40 @@ internal class HomeEnamelDrawable(
             coat(if(pressed)0x38001848 else 0x28ffffff)
             canvas.drawRoundRect(face,radius*.85f,radius*.85f,p)
         }
-        // Upper curved white specular reflection, with dark lower bevel.
-        val upper=RectF(face.left+10f,face.top+7f,
-            face.right-10f,face.top+(face.height()*.39f))
+        // Curved specular highlight, clipped to the enamel face. A flat
+        // white rectangle washed out colored buttons on small devices.
+        val faceClip=Path().apply {
+            addRoundRect(face,radius*.85f,radius*.85f,Path.Direction.CW)
+        }
+        val shineClip=canvas.save()
+        canvas.clipPath(faceClip)
+        val upper=Path().apply {
+            moveTo(face.left+4f,face.top+4f)
+            lineTo(face.right-4f,face.top+4f)
+            lineTo(face.right-4f,face.top+face.height()*.24f)
+            cubicTo(face.right-face.width()*.23f,
+                face.top+face.height()*.40f,
+                face.left+face.width()*.39f,
+                face.top+face.height()*.35f,
+                face.left+4f,face.top+face.height()*.52f)
+            close()
+        }
         coat(0x77ffffff)
-        rounded(upper.left,upper.top,upper.right,upper.bottom,
-            min(radius*.72f,upper.height()*.58f))
+        p.shader=LinearGradient(face.left,face.top,face.left,
+            face.top+face.height()*.52f,
+            0x99ffffff.toInt(),0x06ffffff,Shader.TileMode.CLAMP)
+        canvas.drawPath(upper,p)
+        p.shader=null
+        // An off-center enamel glint is visible even on short footer pills.
+        coat(0x99ffffff.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeCap=Paint.Cap.ROUND
+        p.strokeWidth=min(5f,h*.035f)
+        canvas.drawArc(RectF(face.left+13f,face.top+8f,
+            face.left+min(face.width()*.27f,110f),
+            face.top+min(face.height()*.40f,42f)),
+            205f,74f,false,p)
+        canvas.restoreToCount(shineClip)
         coat(0x55ffffff)
         p.style=Paint.Style.STROKE
         p.strokeWidth=min(5f,h*.025f)

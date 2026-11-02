@@ -40,9 +40,9 @@ internal class HomeReferenceScreen(private val host:Activity,
         setShadowLayer(dp(2).toFloat(),0f,dp(3).toFloat(),0x77092050)
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
-    private fun glyph(kind:BopaviUiIconDrawable.Kind,color:Int,pixels:Int):ImageView=
+    private fun glyph(kind:BopaviUiIconDrawable.Kind,pixels:Int):ImageView=
         ImageView(host).apply {
-            setImageDrawable(BopaviUiIconDrawable(kind,color,dp(pixels)))
+            setImageDrawable(HomeHeroIconDrawable(kind,dp(pixels)))
             scaleType=ImageView.ScaleType.CENTER_INSIDE
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
@@ -67,15 +67,17 @@ internal class HomeReferenceScreen(private val host:Activity,
                 setImageDrawable(HomeHeroIconDrawable(kind,dp(28)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
+            },FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
-        group.addView(token,LinearLayout.LayoutParams(dp(28),dp(28)))
+        // Width fractions are tied to the 220px reference wallet, not dp:
+        // dp-sized icons overflow a 64px rail on 3x-density phones.
+        group.addView(token,LinearLayout.LayoutParams(0,-1,.26f))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
-            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,1f))
+            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,.53f))
         group.addView(label("+",22,Color.WHITE).apply{
             background=HomeEnamelDrawable(0xffbaff8f.toInt(),
                 0xff21df28.toInt(),0xff078224.toInt(),0xffd2ffb4.toInt())
-        },LinearLayout.LayoutParams(dp(27),dp(31)))
+        },LinearLayout.LayoutParams(0,-1,.21f))
         return group
     }
 
@@ -99,7 +101,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             isClickable=true;isFocusable=true
             minimumHeight=dp(48)
             setOnClickListener{onClick()}
-            setOnTouchListener{view,event->
+            if(!progress.lessMotion())setOnTouchListener{view,event->
                 when(event.actionMasked){
                     android.view.MotionEvent.ACTION_DOWN->
                         view.animate().scaleX(.975f).scaleY(.975f).setDuration(90).start()
@@ -137,7 +139,29 @@ internal class HomeReferenceScreen(private val host:Activity,
      * but every shortcut is one native accessible click target. */
     private fun footerShortcut(text:String,description:String,
         kind:BopaviUiIconDrawable.Kind,onClick:()->Unit):View {
-        val control=LinearLayout(host).apply {
+        val control=object:LinearLayout(host) {
+            override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
+                // Keep the circular 3D emblem ROUND and the caption below it.
+                // Absolute dp heights previously squeezed its icon into
+                // a flattened oval on high-density reference viewports.
+                val available=View.MeasureSpec.getSize(heightMeasureSpec)
+                val caption=(available*.29f).toInt().coerceAtLeast(1)
+                val emblem=minOf((available-caption).coerceAtLeast(1),
+                    View.MeasureSpec.getSize(widthMeasureSpec).coerceAtLeast(1))
+                if(childCount==2){
+                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
+                        width=emblem
+                        height=emblem
+                        weight=0f
+                    }
+                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
+                        width=LinearLayout.LayoutParams.MATCH_PARENT
+                        height=caption
+                    }
+                }
+                super.onMeasure(widthMeasureSpec,heightMeasureSpec)
+            }
+        }.apply {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             contentDescription=description
@@ -154,12 +178,13 @@ internal class HomeReferenceScreen(private val host:Activity,
                     setStroke(dp(3),0xffffcf63.toInt())
                 },null)
             elevation=dp(4).toFloat()
-            addView(glyph(kind,Color.WHITE,36),
-                FrameLayout.LayoutParams(dp(38),dp(38),Gravity.CENTER))
+            setPadding(dp(3),dp(3),dp(3),dp(3))
+            addView(glyph(kind,36),
+                FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
-        control.addView(round,LinearLayout.LayoutParams(dp(48),0,1f))
+        control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
         control.addView(HomeEmbossedLabel(host,text,15f,false),
-            LinearLayout.LayoutParams(-1,dp(29)))
+            LinearLayout.LayoutParams(-1,0,0f))
         return control
     }
 
@@ -216,7 +241,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
         // MainActivity stores a three-item PILOT CHOICE, while art uses
         // sprite IDs 0,9,10. Do not display skin 1 for selected Sova (id 9).
-        val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]
+        val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)
         val portraits=intArrayOf(R.drawable.bopiportrait0,
             R.drawable.bopiportrait9,R.drawable.bopiportrait10)
         skinPortraitRes=portraits[pilotIndex.coerceIn(0,2)]
@@ -224,7 +249,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         // transparent wings animate, never the painted physical collider.
         // The actor stops all animators when the window is hidden/detached.
         val actor=HomeWingActor(host,
-            left[chosen],right[chosen],bodies[chosen])
+            left[chosen],right[chosen],bodies[chosen],
+            allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero)
 
         // The white wings in the owner's Home sit BEHIND the gold native

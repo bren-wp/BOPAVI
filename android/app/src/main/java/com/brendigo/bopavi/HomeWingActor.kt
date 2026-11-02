@@ -19,7 +19,8 @@ internal class HomeWingActor(
     context:Context,
     leftRes:Int,
     rightRes:Int,
-    bodyRes:Int
+    bodyRes:Int,
+    private val allowMotion:Boolean=true
 ):FrameLayout(context) {
     private fun layer(res:Int):ImageView=ImageView(context).apply {
         setImageResource(res)
@@ -58,7 +59,7 @@ internal class HomeWingActor(
     }
 
     private fun syncFlapping() {
-        if(isAttachedToWindow && windowVisibility==View.VISIBLE &&
+        if(allowMotion && isAttachedToWindow && windowVisibility==View.VISIBLE &&
             ValueAnimator.areAnimatorsEnabled()) {
             if(!leftFlap.isStarted)leftFlap.start()
             if(!rightFlap.isStarted)rightFlap.start()

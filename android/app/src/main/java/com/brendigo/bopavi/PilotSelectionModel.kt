@@ -13,6 +13,13 @@ internal object PilotSelectionModel {
         Pilot(1,"WISE OWL","SOVA",PilotAbility.SOVA),
         Pilot(2,"SKY FOX","LISAC",PilotAbility.LISAC)
     )
+    // Sprite IDs differ from the three selectable pilot indices.
+    // Splash, Home and Flight must resolve the very same playable character.
+    fun spriteIdForChoice(index:Int):Int = when(safeChoice(index)){
+        0 -> 0
+        1 -> 9
+        else -> 10
+    }
     fun safeChoice(index:Int):Int=index.coerceIn(0,2)
     fun selected(index:Int,candidate:Int):Boolean = safeChoice(index)==candidate
     fun accessibility(index:Int,candidate:Int):String =
