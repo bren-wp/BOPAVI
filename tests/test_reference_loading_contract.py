@@ -35,7 +35,7 @@ assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' i
 assert "showBrandedStartup()" in activity
 assert "},1450L)" in activity
 assert "startup=true" in activity
-assert "pilotChoice.coerceIn(0,bodies.lastIndex)" in loading
+assert "PilotSelectionModel.spriteIdForChoice(pilotChoice)" in loading
 assert 'android-loading.png' in qa
 assert 'python3 tools/qa_android_loading.py' in runner
 for forbidden in ("postDelayed(", "CountDownTimer(", "Thread.sleep(", "INTERNET", "100%", "50%"):
