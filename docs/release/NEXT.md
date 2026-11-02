@@ -10,4 +10,6 @@
 - Add explicit source regression checks for visual geometry and maintain existing reference-layout and widget tests.
 - Gameplay follow-up: add physical metallic highlights to genuine gold crown coin pickups and existing spiked-mace geometry without affecting collision radius, pickup state, frame allocations, difficulty or saved progress.
 
+- Level Map follow-up: use three nested, real enamel layers for blue, golden frontier and disabled stone stage markers, preserving actual locks and clickable targets.
+
 **Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.
