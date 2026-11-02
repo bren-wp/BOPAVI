@@ -139,7 +139,27 @@ internal class HomeReferenceScreen(private val host:Activity,
      * but every shortcut is one native accessible click target. */
     private fun footerShortcut(text:String,description:String,
         kind:BopaviUiIconDrawable.Kind,onClick:()->Unit):View {
-        val control=LinearLayout(host).apply {
+        val control=object:LinearLayout(host) {
+            override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
+                // Keep the circular 3D emblem ROUND and the caption below it.
+                // Absolute dp heights previously squeezed its icon into
+                // a flattened oval on high-density reference viewports.
+                val available=View.MeasureSpec.getSize(heightMeasureSpec)
+                val caption=(available*.29f).toInt().coerceAtLeast(1)
+                val emblem=(available-caption).coerceAtLeast(1)
+                if(childCount==2){
+                    (getChildAt(0).layoutParams as LayoutParams).apply {
+                        width=emblem
+                        height=emblem
+                    }
+                    (getChildAt(1).layoutParams as LayoutParams).apply {
+                        width=LayoutParams.MATCH_PARENT
+                        height=caption
+                    }
+                }
+                super.onMeasure(widthMeasureSpec,heightMeasureSpec)
+            }
+        }.apply {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             contentDescription=description
