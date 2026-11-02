@@ -67,7 +67,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                 setImageDrawable(HomeHeroIconDrawable(kind,dp(28)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
+            },FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         // Width fractions are tied to the 220px reference wallet, not dp:
         // dp-sized icons overflow a 64px rail on 3x-density phones.
