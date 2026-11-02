@@ -150,7 +150,7 @@ internal class BopaviUiIconDrawable(
                 canvas.drawLine(2.5f,16f,7.5f,16f,paint)
                 canvas.drawLine(16.5f,16f,21.5f,16f,paint)
             }
-            Kind.COIN -> {
+            Kind.COIN, Kind.CROWN_COIN -> {
                 // The approved counter coin bears a raised flying feather.
                 canvas.drawCircle(12f,12f,9f,paint)
                 canvas.drawCircle(12f,12f,7f,paint)
