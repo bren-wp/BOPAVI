@@ -29,6 +29,7 @@ for marker in (
     'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO',
 ): assert marker in screen,marker
 assert "fun fromRun(distance:Float,coins:Int,stars:Int,food:Int," in stats
+assert '},299f,749f,344f,55f)' in screen
 assert '"Food Collected"' in stats
 assert '"Coins Collected"' in stats
 assert '"Stars Collected"' in stats

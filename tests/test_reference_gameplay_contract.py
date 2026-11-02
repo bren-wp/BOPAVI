@@ -80,6 +80,9 @@ assert 'drawFlightReadyTutorial(canvas)' in game
 assert 'if(!game.finished) {' in game
 assert 'drawHud(canvas)' in game
 assert 'drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)' in game
+assert 'drawTutorialHand(c,a.handCenterX,a.handCenterY)' in game
+assert 'drawTutorialText(c,"DODIRNI ZA LET"' not in game
+assert 'Dodirni za zamah krilima.' in game
 assert 'FlightReadyOverlayLayout' in game
 assert 'PillarCollision.sweptBodyHitsPillar(' in simulation
 assert 'onlyRealFiniteRewardsAreVisible' in unit

@@ -1339,16 +1339,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             22f,22f,p)
         p.style=Paint.Style.FILL
 
-        // Original Croatian instructions stay available. English Android
-        // locale uses the short one-line wording in the approved reference.
-        val croatian=resources.configuration.locales.get(0).language=="hr"
-        if(croatian) {
-            drawTutorialText(c,"DODIRNI ZA LET",240f,624f,17f)
-            text(c,"DODIR = ZAMAH KRILIMA",240f,642f,10f,0xffd3f5ff.toInt(),true)
-        } else {
-            drawTutorialHand(c,a.handCenterX,a.handCenterY)
-            drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)
-        }
+        // The owner's approved screenshot has the same native one-line
+        // English illustrated cue on every Android locale. Croatian
+        // instructions remain in the separate semantic flightHint() label.
+        drawTutorialHand(c,a.handCenterX,a.handCenterY)
+        drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)
     }
 
     private fun drawTutorialText(c:Canvas,message:String,cx:Float,

@@ -126,6 +126,16 @@ internal class GameOverScreen(private val host:Activity) {
 
         // Painted floating grass/stone podium stays behind the actual Bopi.
         stage.place(GameOverPodium(host),168f,728f,605f,216f)
+        // Separate soft contact shadow adds depth without replacing the
+        // portrait with a flattened screenshot or modifying result data.
+        stage.place(View(host).apply{
+            background=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x770b2144,0x220b2144)).apply {
+                shape=GradientDrawable.OVAL
+            }
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },299f,749f,344f,55f)
         stage.place(ImageView(host).apply{
             setImageResource(pilotDrawable)
             scaleType=ImageView.ScaleType.FIT_CENTER

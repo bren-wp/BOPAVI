@@ -278,7 +278,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         // The illuminated segment changes width without implying a reported
         // load percentage. Once game preparation completes, fill the track.
         val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f
-        val glow=if(preparationFinished)1f else .30f+.44f*
+        val glow=if(preparationFinished)1f else .61f+.07f*
             (.5f-.5f*kotlin.math.cos(phase*2f*Math.PI.toFloat()))
         val segment=RectF(inner.left+3f,inner.top+4f,
             inner.left+3f+(inner.width()-6f)*glow,inner.bottom-4f)
