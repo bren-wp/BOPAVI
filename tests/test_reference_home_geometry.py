@@ -32,7 +32,11 @@ assert 'shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND' in home
 assert "content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))" in home
 assert 'HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,' in home
 assert 'HomeReferenceScreen(this,progress).create(' in home
-assert "for spec in 720x1280:320:compact 1080x2400:420:tall 941x1672:320:reference; do" in qa
+for profile in ("480x800:160:small", "600x960:240:short",
+                "720x1280:320:compact", "941x1672:320:reference",
+                "1080x1920:420:standard", "1080x2400:420:tall",
+                "1440x2960:560:large"):
+    assert profile in qa,profile
 for kind in ("COIN","SHOP","LEADERBOARD","SOUND"):
     assert f"Kind.{kind} ->" in icon
 assert "MALI LETOVI" not in logo
