@@ -96,7 +96,8 @@ assert "ring(canvas,810f,705f,14f,31f,-17f)" in view
 assert "HomePlayWings(host)" in view
 assert "private fun drawWing(canvas:Canvas,mirror:Boolean)" in play_wings
 assert "R.drawable.bopiportrait9" in view
-assert "val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]" in view
+assert "val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)" in view
+assert "allowMotion=!progress.lessMotion()" in view
 assert "setImageResource(skinPortraitRes)" in view
 assert "0xff9110e2.toInt()" in view
 assert "0xff28bd16.toInt()" in view
