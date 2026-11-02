@@ -14,7 +14,7 @@ emulator frame.
 | Gameplay | `b80164e67da0e1b56e5b05d2f80fb383721d1a812dca5407255793a4de1ded08` |
 | Game Over | `0fd6b82f6d54564a65eb7f44f0b4ac3027639cba406832c3b49edc484ae0a3df` |
 
-All three originals are **941 x 1672 RGBA**. Do not resize them or bake them
+All four originals are **941 x 1672 RGBA**. Do not resize them or bake them
 into in-game UI controls. User-created screenshot content is reference art only.
 
 ## What must be checked
