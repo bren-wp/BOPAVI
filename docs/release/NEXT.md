@@ -1,4 +1,6 @@
-# Next Android release — v1.0.46 (build 176)
+# Next Android release
+
+## v1.0.46 — Splash/Home 3D UI and pilot consistency (build 176)
 
 **Candidate only; not yet published.** This version is staged for BOPAVI PR #210 and must pass GitHub Actions, Android emulator QA, accessibility checks and reference screenshot review before any merge or release.
 
