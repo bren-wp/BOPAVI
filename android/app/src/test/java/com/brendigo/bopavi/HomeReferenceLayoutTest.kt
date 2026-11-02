@@ -43,6 +43,17 @@ class HomeReferenceLayoutTest {
         assertFalse(HomeReferenceLayout.supports(941,1672,false,1f))
         assertFalse(HomeReferenceLayout.supports(941,1672,true,2f))
         assertFalse(HomeReferenceLayout.supports(941,1672,true,0f))
+        // Exhaustive logical breakpoint sweep: 29 widths × 23 heights ×
+        // four font scales. This checks selection logic, not visual pixels.
+        for(w in 240..2560 step 80) for(h in 320..3840 step 160)
+            for(scale in floatArrayOf(1f,1.3f,1.5f,2f)){
+                val supported=HomeReferenceLayout.supports(w,h,w<h,scale)
+                if(supported){
+                    assertTrue(w>=860 && h>=1480 && w<h && scale<1.3f)
+                }
+                if(scale>=1.3f) assertFalse(supported)
+                if(w>=h) assertFalse(supported)
+            }
     }
 
     @Test fun upperRightLiveWalletsAndThreeIndependentFooterControls(){

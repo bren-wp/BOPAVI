@@ -14,6 +14,21 @@ class FlightLoadingLayoutTest {
         assertEquals("Shared wing/body canvases must remain square",
             1f,layout.pilot.width/layout.pilot.height,0f)
     }
+    @Test fun scaleToFitPreservesEveryArtBoxOnAViewportMatrix(){
+        val art=listOf(FlightLoadingLayout.logo,FlightLoadingLayout.pilot,
+                       FlightLoadingLayout.track)
+        for(w in 240..2560 step 80) for(h in 320..3840 step 160){
+            val scale=kotlin.math.min(w/941f,h/1672f)
+            val dx=(w-941f*scale)/2f
+            val dy=(h-1672f*scale)/2f
+            for(b in art){
+                assertTrue(dx+b.left*scale>=-0.01f)
+                assertTrue(dy+b.top*scale>=-0.01f)
+                assertTrue(dx+b.right*scale<=w+.01f)
+                assertTrue(dy+b.bottom*scale<=h+.01f)
+            }
+        }
+    }
     @Test fun titlePilotAndTrackStayInReferenceVerticalOrder(){
         val l=FlightLoadingLayout
         assertTrue(l.logo.bottom<l.pilot.top)

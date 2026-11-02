@@ -12,3 +12,5 @@
 **Build 175 distribution:** unsigned APK/AAB may be generated for QA. Do not merge, sign or publish until all required checks pass.
 
 - Seven real emulator viewport/density profiles now replace the earlier three-profile loop; the preexisting large-font, insets, accessible native hit target, landscape and screenshot contract checks remain active.
+
+- Added deterministic JVM logical breakpoint sweep across 29 widths and 23 heights, with four system font scales; Splash additionally checks all painted boxes remain onscreen under uniform scaling. This complements seven *real* Android emulator resolutions, but does not replace actual screenshots on devices.
