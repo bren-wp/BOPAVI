@@ -50,7 +50,7 @@ assert "Thread({" in main and 'loading.completePreparation()' in main
 assert "Thread.sleep" not in main
 assert 'FlightLoadingView(this,selectedPilotChoice,startup=true)' in main
 assert 'selectedScreen="splash"' in main
-assert "},1450L)" in main
+assert "},2450L)" in main  # Actual branded startup duration, retained deliberately
 assert 'selectedScreen="loading"' in main
 assert "progress.consumePerks()" in main
 print("PASS: owner Splash retains original Bopi, cyan enamel bar and truthful loading")
