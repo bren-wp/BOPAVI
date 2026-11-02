@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact source-pixel ROI comparisons for the owner's ONLY three priority screens.
+"""Exact source-pixel ROI comparisons for the owner's four priority screens.
 
 A passing compile or low global MAE does not establish 1:1 appearance. This
 tool requires both original owner PNG and real 941x1672 emulator PNG; it
@@ -13,6 +13,13 @@ from PIL import Image, ImageChops, ImageStat
 
 SIZE = (941, 1672)
 REGIONS = {
+    "loading": {
+        "winged_logo": (119, 67, 829, 394),
+        "flying_bopi": (125, 429, 776, 1054),
+        "hollow_gold_rings": (0, 883, 797, 1244),
+        "winged_loading_track": (111, 1299, 828, 1442),
+        "loading_caption": (326, 1433, 632, 1511),
+    },
     "home": {
         "currency_counters": (447, 12, 931, 101),
         "winged_logo": (127, 92, 824, 386),
