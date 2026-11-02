@@ -69,13 +69,15 @@ internal class HomeReferenceScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },FrameLayout.LayoutParams(dp(28),dp(28),Gravity.CENTER))
         }
-        group.addView(token,LinearLayout.LayoutParams(dp(28),dp(28)))
+        // Width fractions are tied to the 220px reference wallet, not dp:
+        // dp-sized icons overflow a 64px rail on 3x-density phones.
+        group.addView(token,LinearLayout.LayoutParams(0,-1,.26f))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
-            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,1f))
+            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,.53f))
         group.addView(label("+",22,Color.WHITE).apply{
             background=HomeEnamelDrawable(0xffbaff8f.toInt(),
                 0xff21df28.toInt(),0xff078224.toInt(),0xffd2ffb4.toInt())
-        },LinearLayout.LayoutParams(dp(27),dp(31)))
+        },LinearLayout.LayoutParams(0,-1,.21f))
         return group
     }
 
