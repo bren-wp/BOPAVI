@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.47 — Reference-aligned Home 3D sizing and medal art (build 177)
+
+**Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.47)
+
+- Make the Play, Skins, Shop and Settings icon/text layout proportional to their native 941×1672 reference bounds rather than relying on density-multiplied fixed `dp` widths and margins.
+- Upgrade the three Home footer icon plates to locally drawn circular blue/gold 3D medallions with a stepped navy rim, extruded gold bezel, curved white highlight and pressed/disabled states.
+- Keep the original local fantasy backdrop, selected character, real navigation, balances, offline save and accessibility.
+- Add explicit source regression checks for visual geometry and maintain existing reference-layout and widget tests.
+- Gameplay follow-up: add physical metallic highlights to genuine gold crown coin pickups and existing spiked-mace geometry without affecting collision radius, pickup state, frame allocations, difficulty or saved progress.
+- Level Map follow-up: use three nested, real enamel layers for blue, golden frontier and disabled stone stage markers, preserving actual locks and clickable targets.
+- Skins follow-up: replace the reference-sized face-only hero with the exact same registered transparent whole-body and animated wing layers used in Home/Flight; keep small portraits only in genuine character selection cards.
+- Shop follow-up: replace flat shield/magnet item pictograms with original local, raised sapphire/gold and enamel-red vector items. Featured icon follows the real item type rather than always displaying a magnet.
+- Game Over follow-up: replace flat result pictograms with vector raised location pin and berry designs plus existing 3D coin/star medals, retaining real distance and collectible values.
+- Home, Gameplay and Game Over are the only screens in this dedicated comparison pass. Game Over Retry/Home now have physical 3D icons and embossed labels, result-row column widths follow design-space proportions, and Gameplay star pickups use the purple faceted crystal palette visible in the reference while preserving real saved stars.
+- Current focused four-screen pass: cold-start Splash lasts 2450 ms (not an artificial loading delay), a stable blue loading track, identical illustrated "Tap to fly" cue in all locales with Croatian accessibility, a dollar-faced Home gold coin, a crown-faced Game Over collectible, and a contact shadow under the result character.
+- Home's purple crystal icon and Game Over's third-row crystal now match the provided reference while still displaying only genuinely earned star values; no new gem balance or payment system was introduced.
+
 ## v1.0.46 — Splash/Home 3D UI and pilot consistency (build 176)
 
 **Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.46)
@@ -16,14 +33,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Full Android test, Android Lint, APK/AAB build and emulator screenshot comparison with the original references.
 - Visually inspect every page and actual touch function. **No 1:1 screenshot acceptance has been established.**
 - This build does not add fictional gems, in-app purchase restoration, cloud backup, or payment-related features simply because they appear in artwork.
-
-## v1.0.45 — Splash/Home responsive and fantasy environment (build 175)
-
-**Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.45)
-
-- Maintain actual Android Splash/Home controls, stored coin/star balances, selected original pilot and offline gameplay.
-- Home reference mode now falls back to the native adaptive layout for enlarged system fonts (1.3x and above); avoid fixed-grid overlap.
-- JVM regression matrix covers nine size/orientation profiles and multiple font scaling factors.
-- Android 15/16 emulator QA checks representative small, compact, reference, standard, tall and large screen sizes, density and rotation. Not every device/form factor can be physically emulated.
-- Continue improving the separately rendered fantasy background; never bake buttons, currency or Bopi's interactive state into scenery.
-- Owner 941×1672 reference and original emulator screenshots are the visual baseline, but a verified post-change 1:1 pixel match is still pending.
