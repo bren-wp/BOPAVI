@@ -49,6 +49,13 @@ for item in (
     "HomeEnamelDrawable(","android.view.MotionEvent.ACTION_DOWN",
 ):
     assert item in view,item
+# 3D owner-reference pills must be rounded and physically extruded rather
+# than flat Android backgrounds; major icons must have independent art.
+assert "val radius=min(h*.48f,w*.24f)" in bevel
+assert "val drop=min(22f,h*.13f)" in bevel
+assert "val inset=min(12f,h*.075f)" in bevel
+assert "canvas.clipPath(faceClip)" in bevel
+assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
                 "ColorFilter","setAlpha(alpha:Int)","shadow:Int"):
     assert feature in bevel,feature
