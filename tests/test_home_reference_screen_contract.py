@@ -63,7 +63,7 @@ assert "LinearLayout.LayoutParams(-1,0,1f)" in view
 assert "glyph(kind,36)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
-for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","SOUND"):
+for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
 for required in ("LinearGradient(","Paint.Style.STROKE",
                  "canvas.drawPath(", "drawRoundRect(", "Path()"):
