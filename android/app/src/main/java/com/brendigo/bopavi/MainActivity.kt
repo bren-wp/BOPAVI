@@ -1111,7 +1111,7 @@ class MainActivity : Activity() {
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         val game=GameView(this,simulation,progress.lessMotion(),
-            pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled(),
+            PilotSelectionModel.spriteIdForChoice(selectedPilotChoice),progress.hapticEnabled(),
             onFinished={if(selectedScreen=="game" && gameView?.game===it)showResult(it)},
             onFlap={sound.effect("tap")},
             onCollect={sound.effect("collect")},
