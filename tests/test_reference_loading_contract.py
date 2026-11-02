@@ -16,7 +16,11 @@ for required in ("R.drawable.homeback","R.drawable.logo",
                  "max(w / bg.width, h / bg.height)",
                  "FlightLoadingLayout.track.left"):
     assert required in loading,required
-assert "val track=LoadingArtBox(222f,1482f,719f,1563f)" in layout
+assert "val track=LoadingArtBox(175f,1320f,766f,1422f)" in layout
+assert "trackWings(canvas)" in loading
+assert "ring(canvas,549f,1033f,37f,54f,-21f)" in loading
+assert "paint.pathEffect=" not in loading
+assert "FlightLoadingLayout.captionBaselineY" in loading
 assert "Thread({" in activity and '"Bopavi-Level-Preparation"' in activity
 assert 'val generated=runCatching{LevelEngine.createStream(world,number)}' in activity
 assert 'val perks=progress.consumePerks()' in activity

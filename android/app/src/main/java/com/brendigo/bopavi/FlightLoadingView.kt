@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
@@ -27,6 +28,7 @@ import kotlin.math.min
  */
 internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val wingShape = Path()
     private val imageOptions = BitmapFactory.Options().apply { inScaled = false }
     private val backdrop: Bitmap? =
         BitmapFactory.decodeResource(resources, R.drawable.homeback, imageOptions)
@@ -123,42 +125,73 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         canvas.drawText(text, x, y, paint)
     }
 
-    /**
-     * Perspective gold ring instead of a flat coin with a star. The owner
-     * Loading reference shows tilted, hollow rings following Bopi's flight.
+    /** The owner's flying rings are hollow metallic GOLD (no candy stripes).
+     * The dark lower extrusion and pale arc recreate local enamel depth.
      */
     private fun ring(canvas: Canvas, x: Float, y: Float,
                      horizontalRadius: Float, verticalRadius: Float, tilt: Float) {
         val saved=canvas.save()
         canvas.rotate(tilt,x,y)
-        val ellipse=RectF(x-horizontalRadius,y-verticalRadius,
+        val oval=RectF(x-horizontalRadius,y-verticalRadius,
             x+horizontalRadius,y+verticalRadius)
         paint.reset()
         paint.isAntiAlias=true
         paint.style=Paint.Style.STROKE
-        paint.strokeWidth=horizontalRadius*.40f
-        paint.color=0x5507254d
-        canvas.drawOval(RectF(ellipse.left+5f,ellipse.top+11f,
-            ellipse.right+5f,ellipse.bottom+11f),paint)
+        paint.strokeWidth=horizontalRadius*.42f
+        paint.color=0x66062255
+        canvas.drawOval(RectF(oval.left+6f,oval.top+10f,
+            oval.right+6f,oval.bottom+10f),paint)
+        paint.color=0xff945015.toInt()
         paint.strokeWidth=horizontalRadius*.37f
-        paint.color=0xffa94d00.toInt()
-        canvas.drawOval(ellipse,paint)
-        paint.strokeWidth=horizontalRadius*.28f
-        paint.color=0xffffdfaa.toInt()
-        canvas.drawOval(ellipse,paint)
-        // Real reference hoop has alternating glossy candy stripes, not a
-        // flat all-gold outline. Keep them inside the golden outer rim.
-        paint.strokeWidth=horizontalRadius*.245f
-        paint.color=0xffd94746.toInt()
-        paint.pathEffect=android.graphics.DashPathEffect(
-            floatArrayOf(horizontalRadius*.28f,horizontalRadius*.21f),0f)
-        canvas.drawOval(ellipse,paint)
-        paint.pathEffect=null
-        paint.strokeWidth=horizontalRadius*.060f
-        paint.color=0xfffff4b8.toInt()
-        canvas.drawArc(ellipse,202f,158f,false,paint)
+        canvas.drawOval(oval,paint)
+        paint.color=0xffffb800.toInt()
+        paint.strokeWidth=horizontalRadius*.30f
+        canvas.drawOval(oval,paint)
+        paint.color=0xffffed87.toInt()
+        paint.strokeWidth=horizontalRadius*.13f
+        canvas.drawArc(oval,198f,158f,false,paint)
+        paint.color=0xfffff9c4.toInt()
+        paint.strokeWidth=horizontalRadius*.055f
+        canvas.drawArc(oval,226f,85f,false,paint)
         paint.style=Paint.Style.FILL
         canvas.restoreToCount(saved)
+    }
+
+    /** Noninteractive white feather wings sit behind the ACTUAL loading track.
+     * Drawing a winged bar never substitutes a fake loading percentage.
+     */
+    private fun trackWings(canvas:Canvas) {
+        for(side in 0..1){
+            val save=canvas.save()
+            if(side==1){
+                canvas.translate(941f,0f)
+                canvas.scale(-1f,1f)
+            }
+            wingShape.reset()
+            wingShape.moveTo(174f,1358f)
+            wingShape.cubicTo(145f,1362f,126f,1334f,119f,1329f)
+            wingShape.cubicTo(112f,1364f,130f,1398f,162f,1405f)
+            wingShape.cubicTo(132f,1410f,116f,1393f,101f,1389f)
+            wingShape.cubicTo(112f,1423f,147f,1436f,186f,1410f)
+            wingShape.close()
+            paint.reset()
+            paint.isAntiAlias=true
+            paint.style=Paint.Style.FILL
+            paint.color=0xff09245c.toInt()
+            canvas.drawPath(wingShape,paint)
+            val inner=canvas.save()
+            canvas.translate(0f,-4f)
+            paint.color=0xffe9f6ff.toInt()
+            canvas.drawPath(wingShape,paint)
+            canvas.restoreToCount(inner)
+            paint.style=Paint.Style.STROKE
+            paint.strokeWidth=3f
+            paint.color=0xff99c9ed.toInt()
+            canvas.drawLine(119f,1355f,170f,1383f,paint)
+            canvas.drawLine(114f,1398f,169f,1407f,paint)
+            canvas.restoreToCount(save)
+        }
+        paint.style=Paint.Style.FILL
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -220,10 +253,10 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
 
         // Ring positions follow the ORIGINAL Loading reference, not the
         // Game Over screenshot. They are illustrative, never wallet values.
-        ring(canvas,806f,957f,166f,186f,-10f)
-        ring(canvas,556f,1115f,64f,75f,-14f)
-        ring(canvas,733f,1101f,42f,50f,-15f)
-        ring(canvas,830f,1097f,25f,31f,-13f)
+        ring(canvas,108f,880f,58f,92f,-18f)
+        ring(canvas,355f,1015f,69f,108f,-25f)
+        ring(canvas,549f,1033f,37f,54f,-21f)
+        ring(canvas,658f,1047f,26f,40f,-19f)
 
         // Owner's supplied Splash has a raised, blue-tinted progress track
         // near the bottom. Its cyan animation remains indeterminate: no fake
@@ -233,14 +266,15 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             FlightLoadingLayout.track.right,
             FlightLoadingLayout.track.bottom)
         val radius=outer.height()*.50f
+        trackWings(canvas)
         fill(canvas,RectF(outer.left+2f,outer.top+9f,outer.right+3f,
             outer.bottom+12f),0x66031d57, radius)
-        gradient(canvas,outer,0xfff5ffff.toInt(),0xff62a8ed.toInt(),radius)
+        gradient(canvas,outer,0xffffed85.toInt(),0xff9a3f0d.toInt(),radius)
         gradient(canvas,RectF(outer.left+5f,outer.top+5f,outer.right-5f,
-            outer.bottom-5f),0xff1f67cb.toInt(),0xff0b2d78.toInt(),radius-5f)
-        val inner=RectF(outer.left+12f,outer.top+11f,
-            outer.right-12f,outer.bottom-12f)
-        gradient(canvas,inner,0xff0c4ba5.toInt(),0xff153a84.toInt(),radius-12f)
+            outer.bottom-5f),0xffffbc27.toInt(),0xff66300e.toInt(),radius-5f)
+        val inner=RectF(outer.left+13f,outer.top+13f,
+            outer.right-13f,outer.bottom-13f)
+        gradient(canvas,inner,0xff632809.toInt(),0xff431907.toInt(),radius-13f)
         // The illuminated segment changes width without implying a reported
         // load percentage. Once game preparation completes, fill the track.
         val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f
@@ -268,7 +302,8 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         }
         canvas.restoreToCount(clip)
         fill(canvas,RectF(inner.left+7f,inner.top+6f,
-            inner.right-7f,inner.top+12f),0x55ffffff,6f)
+            inner.left+7f+(inner.width()-14f)*glow,inner.top+12f),
+            0x55ffffff,6f)
         outlinedText(canvas,if(preparationFinished)"Ready!" else "Loading...",
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)

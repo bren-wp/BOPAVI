@@ -90,10 +90,19 @@ internal class LevelCompleteScreen(private val host:Activity) {
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
 
-        stage.place(label("LEVEL COMPLETE!",63f,Color.WHITE),
-            80f,82f,781f,146f)
-        stage.place(label("LEVEL "+data.level.toString(),26f,
-            0xfffff0b5.toInt()),331f,223f,279f,56f)
+        // Owner reference: LEVEL and COMPLETE! are two separately embossed
+        // real TextViews; wings sit behind them, not over the touch targets.
+        stage.place(ResultWingDecoration(host),139f,129f,663f,177f)
+        stage.place(ResultEmblemLabel(host,"LEVEL",89f,
+            ResultEmblemLabel.Tone.ICE).apply {
+            contentDescription="Level Complete!"
+        },194f,91f,553f,133f)
+        stage.place(ResultEmblemLabel(host,"COMPLETE!",88f,
+            ResultEmblemLabel.Tone.GOLD).apply {
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },112f,204f,718f,160f)
+        stage.place(label("LEVEL "+data.level.toString(),19f,
+            0xfffff0b5.toInt()),347f,362f,247f,43f)
         val stars=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -104,13 +113,14 @@ internal class LevelCompleteScreen(private val host:Activity) {
             stars.addView(LevelCompleteStar(host,index<data.stars),
                 LinearLayout.LayoutParams(0,-1,1f))
         }
-        stage.place(stars,152f,295f,637f,169f)
-
+        // Pilot now appears ABOVE the earned star medals, matching the
+        // owner's actual layout. The star count stays the true level rating.
         stage.place(ImageView(host).apply {
             setImageResource(pilot)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },218f,457f,505f,467f)
+        },209f,376f,523f,455f)
+        stage.place(stars,259f,811f,423f,142f)
 
         val statRow=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
@@ -127,23 +137,28 @@ internal class LevelCompleteScreen(private val host:Activity) {
         })
         statRow.addView(status("SCORE",data.scoreText,
             0xff1677c3.toInt()),LinearLayout.LayoutParams(0,-1,1f))
-        stage.place(statRow,105f,923f,731f,153f)
-
-        stage.place(LevelCompleteChest(host),338f,1069f,265f,184f)
+        // The reference uses one large cream reward area, not three floating
+        // unrelated cards. Each statistic still has live Android text.
+        stage.place(View(host).apply {
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },100f,929f,741f,278f)
+        stage.place(statRow,123f,949f,697f,112f)
+        stage.place(LevelCompleteChest(host),365f,1054f,211f,120f)
         val reward=label(data.rewardText,25f,
             if(data.justAwardedCoins>0)0xffffea90.toInt() else Color.WHITE).apply {
             contentDescription=if(data.justAwardedCoins>0)
                 "Milestone bonus awarded: "+data.justAwardedCoins+" coins"
             else "No milestone coins awarded for this clear"
         }
-        stage.place(reward,206f,1243f,529f,69f)
+        stage.place(reward,206f,1168f,529f,45f)
 
         stage.place(button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP",
-            true,onNext),151f,1337f,639f,116f,minTouch=true)
+            true,onNext),151f,1234f,639f,151f,minTouch=true)
         stage.place(button("HOME",false,onHome),
-            159f,1484f,286f,113f,minTouch=true)
+            150f,1405f,301f,119f,minTouch=true)
         stage.place(button("SHARE",false,onShare),
-            496f,1484f,286f,113f,minTouch=true)
+            490f,1405f,301f,119f,minTouch=true)
 
         stage.setOnApplyWindowInsetsListener{ _,insets ->
             if(Build.VERSION.SDK_INT>=30){
@@ -181,13 +196,25 @@ internal class LevelCompleteStar(host:Activity,private val earned:Boolean):View(
             if(point==0)star.moveTo(x,y) else star.lineTo(x,y)
         }
         star.close()
+        // 3D lower extrusion shares the real earned/empty star state.
+        val depth=canvas.save()
+        canvas.translate(0f,radius*.11f)
         paint.style=Paint.Style.FILL
+        paint.color=if(earned)0xff98521a.toInt() else 0xff344660.toInt()
+        canvas.drawPath(star,paint)
+        canvas.restoreToCount(depth)
         paint.color=if(earned)0xffffd241.toInt() else 0xff7b92ac.toInt()
         canvas.drawPath(star,paint)
         paint.style=Paint.Style.STROKE
         paint.strokeWidth=radius*.08f
         paint.color=if(earned)0xffb46c0a.toInt() else 0xff203e68.toInt()
         canvas.drawPath(star,paint)
+        if(earned) {
+            paint.color=0xbaffffff.toInt()
+            paint.strokeWidth=radius*.045f
+            canvas.drawLine(cx-radius*.31f,cy-radius*.35f,
+                cx-radius*.05f,cy-radius*.52f,paint)
+        }
         paint.style=Paint.Style.FILL
     }
 }
@@ -216,6 +243,17 @@ internal class LevelCompleteChest(host:Activity):View(host){
         canvas.drawRoundRect(32f,106f,233f,119f,4f,4f,paint)
         paint.color=0xff5f3b23.toInt()
         canvas.drawRoundRect(124f,94f,141f,130f,6f,6f,paint)
+        // Local wood grain and gold specular bezel; this is a closed chest
+        // indicating rewards already recorded, not a second claim action.
+        paint.color=0x88ffe2a1.toInt()
+        canvas.drawRoundRect(44f,52f,112f,58f,3f,3f,paint)
+        canvas.drawRoundRect(164f,52f,218f,58f,3f,3f,paint)
+        paint.color=0xfff6cf63.toInt()
+        canvas.drawRoundRect(118f,86f,147f,97f,4f,4f,paint)
+        paint.color=0xff844425.toInt()
+        canvas.drawRoundRect(120f,118f,145f,130f,3f,3f,paint)
+        paint.color=0xaafff3ce.toInt()
+        canvas.drawRoundRect(120f,55f,124f,83f,2f,2f,paint)
         canvas.restoreToCount(save)
     }
 }

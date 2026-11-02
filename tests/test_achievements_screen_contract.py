@@ -24,6 +24,16 @@ for term in ('AchievementCatalog.goals(snapshot)','g.percent','contentDescriptio
              'ScrollView(host)','AchievementsLayout.cols[index%2]'):
     assert term in screen,term
 assert 'val rows=floatArrayOf(517f,743f,969f,1195f)' in layout
+assert 'AchievementsLayout.supports(' in screen
+assert 'fontScale<1.25f' in layout
+assert 'referenceGridIsSafeOnlyForNormalSizedPortraitText' in test
+assert 'val total=goals.size' in screen
+assert '"$achieved / $total GOALS REACHED"' in screen
+assert 'Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY' in screen
+assert 'FrameLayout.LayoutParams(dp(31),dp(31),Gravity.CENTER)' in screen
+assert 'contentDescription=g.accessibility' in screen
+assert 'isFillViewport=true' in screen
+assert 'LinearLayout.LayoutParams(-1,dp(12))' in screen
 assert 'freshInstallHasEightUnreachedGoals' in test
 assert 'cappedPercentHandlesExtremeFlapsAndFailingRuns' in test
 assert 'capture_png("android-achievements-reference-size")' in qa

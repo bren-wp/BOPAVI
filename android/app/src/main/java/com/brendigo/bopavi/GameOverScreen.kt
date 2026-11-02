@@ -26,39 +26,33 @@ internal class GameOverScreen(private val host:Activity) {
     private val navy=0xff092451.toInt()
     private val gold=0xffffbe23.toInt()
 
-    private fun heading(label:String,color:Int):TextView=TextView(host).apply {
-        text=label
-        textSize=97f
-        typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-        setTextColor(color)
-        setShadowLayer(dp(6).toFloat(),0f,dp(7).toFloat(),navy)
-        gravity=Gravity.CENTER
-        setSingleLine(true)
-        setAutoSizeTextTypeUniformWithConfiguration(38,97,1,
-            android.util.TypedValue.COMPLEX_UNIT_SP)
-        importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-    }
-
     private fun statRow(label:String,value:String,icon:BopaviUiIconDrawable.Kind,
                         accent:Int):View {
         val row=LinearLayout(host).apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            setPadding(dp(9),0,dp(12),0)
+            setPadding(dp(7),0,dp(8),0)
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$label: $value"
             isFocusable=true
         }
+        // Reference-size rows are ~90px high. A 65dp icon holder is 130px
+        // on the API35 320dpi QA emulator and visibly overlaps native text.
         row.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(icon,accent,dp(40)))
+            setImageDrawable(BopaviUiIconDrawable(icon,accent,dp(28)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(61),dp(65)))
+        },LinearLayout.LayoutParams(dp(35),dp(37)).apply{
+            marginEnd=dp(6)
+        })
         row.addView(TextView(host).apply{
             text=label
-            textSize=23f
+            textSize=22f
+            maxLines=1
+            includeFontPadding=false
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             setTextColor(navy)
-            setAutoSizeTextTypeUniformWithConfiguration(13,23,1,
+            setAutoSizeTextTypeUniformWithConfiguration(13,22,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             gravity=Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -66,13 +60,16 @@ internal class GameOverScreen(private val host:Activity) {
         row.addView(TextView(host).apply{
             text=value
             textSize=30f
+            maxLines=1
+            includeFontPadding=false
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(0xffa5490b.toInt())
+            setShadowLayer(dp(2).toFloat(),0f,dp(2).toFloat(),0x440a214f)
             setAutoSizeTextTypeUniformWithConfiguration(16,30,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
-            gravity=Gravity.CENTER
+            gravity=Gravity.END or Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(167),-1))
+        },LinearLayout.LayoutParams(dp(114),-1))
         return row
     }
 
@@ -109,10 +106,16 @@ internal class GameOverScreen(private val host:Activity) {
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        stage.place(ResultWingDecoration(host),145f,177f,650f,165f)
         stage.place(GameOverCrown(host),431f,53f,79f,76f)
-
-        stage.place(heading("GAME",Color.WHITE),171f,129f,599f,146f)
-        stage.place(heading("OVER",0xffff5b35.toInt()),153f,267f,635f,166f)
+        stage.place(ResultEmblemLabel(host,"GAME",97f,
+            ResultEmblemLabel.Tone.ICE).apply {
+            contentDescription="Game Over"
+        },171f,129f,599f,146f)
+        stage.place(ResultEmblemLabel(host,"OVER",103f,
+            ResultEmblemLabel.Tone.CORAL).apply {
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },153f,267f,635f,166f)
 
         // Painted floating grass/stone podium stays behind the actual Bopi.
         stage.place(GameOverPodium(host),168f,728f,605f,216f)
@@ -183,11 +186,30 @@ internal class GameOverCrown(host:Activity):View(host) {
         shape.lineTo(40f,4f);shape.lineTo(56f,31f)
         shape.lineTo(72f,18f);shape.lineTo(65f,63f)
         shape.lineTo(16f,63f);shape.close()
-        p.style=Paint.Style.FILL;p.color=0xffffbf16.toInt()
+        // Raised black/bronze extrusion follows the same crown silhouette.
+        val extrusion=canvas.save()
+        canvas.translate(0f,6f)
+        p.style=Paint.Style.FILL
+        p.color=0xff4f260b.toInt()
+        canvas.drawPath(shape,p)
+        canvas.restoreToCount(extrusion)
+        p.color=0xfff18018.toInt()
+        canvas.drawPath(shape,p)
+        p.color=0xffffbf16.toInt()
         canvas.drawPath(shape,p)
         p.style=Paint.Style.STROKE;p.strokeWidth=5f
         p.color=0xff072957.toInt();canvas.drawPath(shape,p)
+        // Gold upper facets and specular light; purely decorative artwork.
+        p.strokeWidth=3f
+        p.color=0xfffff0ad.toInt()
+        canvas.drawLine(13f,20f,25f,36f,p)
+        canvas.drawLine(25f,36f,40f,10f,p)
+        canvas.drawLine(40f,10f,54f,34f,p)
         p.style=Paint.Style.FILL
+        p.color=0xfffff7d0.toInt()
+        canvas.drawCircle(39f,13f,3f,p)
+        canvas.drawCircle(10f,20f,2.6f,p)
+        canvas.drawCircle(71f,20f,2.6f,p)
         canvas.restoreToCount(save)
     }
 }
@@ -208,7 +230,20 @@ internal class GameOverPodium(host:Activity):View(host){
         canvas.drawPath(rock,p)
         p.color=0xff423e5a.toInt();p.style=Paint.Style.STROKE
         p.strokeWidth=8f;canvas.drawPath(rock,p)
+        // Deterministic stone facets: no extra sprites, allocations or
+        // fake pickups. The grassy top remains above the shaded rock faces.
         p.style=Paint.Style.FILL
+        for(i in 0..7){
+            val x=55f+i*62f
+            rock.reset()
+            rock.moveTo(x,85f)
+            rock.lineTo(x+46f,85f)
+            rock.lineTo(x+31f,178f+(i%2)*10f)
+            rock.lineTo(x+8f,160f)
+            rock.close()
+            p.color=if(i%2==0)0x664b364d else 0x667ec6c4
+            canvas.drawPath(rock,p)
+        }
         p.color=0xff448a2b.toInt()
         canvas.drawOval(12f,11f,591f,103f,p)
         p.color=0xff8bdf42.toInt()

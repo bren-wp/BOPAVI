@@ -930,7 +930,9 @@ class MainActivity : Activity() {
             pauseDialog?.isShowing==true || isFinishing || isDestroyed)return
         game.paused=true
         sound.pause()
-        val compactPause=resources.configuration.screenHeightDp<690
+        val compactPause=PauseModalLayout.compact(
+            resources.configuration.screenHeightDp,
+            resources.configuration.fontScale)
         val dialog=android.app.AlertDialog.Builder(this).create()
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
@@ -942,19 +944,41 @@ class MainActivity : Activity() {
         }
 
 
-        content.addView(ImageView(this).apply{
-            // Full local Bopi, with both wings, also used by Home and Results.
+        // Original transparent Bopi portrait floats above a locally drawn
+        // gold/cyan portal. No screenshot replaces native Pause controls.
+        val hero=FrameLayout(this).apply {
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        hero.addView(View(this).apply {
+            background=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0x99fff4c5.toInt(),0x55fcb522,0x009bdcff)
+            ).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(d(2),0xbbfff7d6.toInt())
+            }
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(d(if(compactPause)104 else 155),
+            d(if(compactPause)104 else 155),Gravity.CENTER))
+        hero.addView(ImageView(this).apply {
             setImageResource(portraitDrawableIds[selectedPilotChoice])
             scaleType=ImageView.ScaleType.FIT_CENTER
-            background=gradient(0xff78d9ff.toInt(),0xff1269be.toInt(),24).apply{
-                setStroke(d(2),0xffccf9ff.toInt())
-            }
-            setPadding(d(5),d(3),d(5),d(3))
+            setPadding(d(4),d(3),d(4),d(3))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(if(compactPause)112 else 168)).apply{
-            bottomMargin=d(7)
-        })
+        },FrameLayout.LayoutParams(-1,-1))
+        content.addView(hero,
+            LinearLayout.LayoutParams(-1,d(PauseModalLayout.heroHeightDp(compactPause)))
+                .apply { bottomMargin=d(7) })
         title(content,"♛  PAUZA",if(compactPause)27 else 32,Color.WHITE)
+        // Gold plaque is a native TextView with real accessible lettering,
+        // never Canvas-only embossing or a clickable screenshot.
+        (content.getChildAt(content.childCount-1) as TextView).apply {
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)
+            setTextColor(primaryButtonInk)
+            setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
+            minHeight=d(PauseModalLayout.headerHeightDp(compactPause))
+        }
         title(content,"Let je pauziran · "+game.game.pilotAbility.shortTitle,16,0xffe4f5ff.toInt())
         if(!compactPause)title(content,game.game.pilotAbility.description,13,0xffc7eaff.toInt())
         fun command(text:String,style:Int,action:()->Unit){
@@ -974,10 +998,12 @@ class MainActivity : Activity() {
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=Bopavi3DTheme.button(finish)
                 elevation=d(5).toFloat()
+                minHeight=d(PauseModalLayout.minTouchDp)
                 contentDescription=text
                 setOnClickListener{sound.effect("click");dialog.dismiss();action()}
             }
-            content.addView(b,LinearLayout.LayoutParams(-1,d(if(compactPause)55 else 63)).apply{
+            content.addView(b,LinearLayout.LayoutParams(-1,
+                d(PauseModalLayout.buttonHeightDp(compactPause))).apply{
                 setMargins(d(8),d(6),d(8),d(6))
             })
         }
@@ -1022,7 +1048,7 @@ class MainActivity : Activity() {
             minOf((resources.displayMetrics.widthPixels-d(24)).coerceAtLeast(1),
                 (resources.displayMetrics.widthPixels*.80f).toInt(),d(420)),
             minOf((resources.displayMetrics.heightPixels-d(48)).coerceAtLeast(1),
-                d(if(compactPause)480 else 590)))
+                d(PauseModalLayout.dialogHeightDp(compactPause))))
     }
     private fun startGame(){
         activeStage=null

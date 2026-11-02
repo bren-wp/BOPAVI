@@ -1,45 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230" role="img" aria-label="BOPAVI">
+  <title>BOPAVI</title>
+  <desc>Locally rendered winged crown logo with orange BOPA and bright blue Vi enamel letters.</desc>
   <defs>
-    <linearGradient id="letters" x1="0" x2="1" y1=".2" y2=".2">
-      <stop stop-color="#ff9b08"/><stop offset=".20" stop-color="#ffde61"/>
-      <stop offset=".39" stop-color="#ffffff"/><stop offset=".75" stop-color="#b9f3ff"/>
-      <stop offset="1" stop-color="#22a8ff"/>
+    <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff994"/><stop offset=".31" stop-color="#ffd42d"/>
+      <stop offset=".64" stop-color="#ff9214"/><stop offset="1" stop-color="#ff4e08"/>
     </linearGradient>
-    <linearGradient id="gloss" x1="0" x2="0" y1="0" y2="1">
-      <stop stop-color="#ffffff" stop-opacity=".92"/>
-      <stop offset=".36" stop-color="#ffffff" stop-opacity=".26"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    <linearGradient id="cyanText" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#d0fdff"/><stop offset=".28" stop-color="#5febff"/>
+      <stop offset=".7" stop-color="#05bcfb"/><stop offset="1" stop-color="#0861dd"/>
     </linearGradient>
-    <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
-      <stop stop-color="#fff6a2"/><stop offset=".44" stop-color="#ffbe27"/>
-      <stop offset="1" stop-color="#ff8004"/>
+    <linearGradient id="crownGold" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff9b2"/><stop offset=".42" stop-color="#ffcd16"/>
+      <stop offset="1" stop-color="#f27907"/>
     </linearGradient>
-    <linearGradient id="wings" x1="0" x2="0" y1="0" y2="1">
-      <stop stop-color="#ffffff"/><stop offset=".58" stop-color="#d5efff"/>
-      <stop offset="1" stop-color="#1884df"/>
+    <linearGradient id="feather" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/><stop offset=".69" stop-color="#e8f5ff"/>
+      <stop offset="1" stop-color="#a2c3fe"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#e9a455"/><stop offset=".53" stop-color="#a45c2b"/>
+      <stop offset="1" stop-color="#67321e"/>
     </linearGradient>
   </defs>
-  <!-- Halo, wings and crown match the user-approved premium brand direction. -->
+  <!-- Wings are behind both lettering groups. Each feather is locally drawn. -->
   <g stroke-linejoin="round" stroke-linecap="round">
-    <path d="M143 124Q78 83 20 99Q38 137 102 147Q62 147 30 132Q53 178 145 172"
-          fill="url(#wings)" stroke="#042e73" stroke-width="11"/>
-    <path d="M617 124Q682 83 740 99Q722 137 658 147Q698 147 730 132Q707 178 615 172"
-          fill="url(#wings)" stroke="#042e73" stroke-width="11"/>
-    <path d="M342 45 350 9 378 36 404 5 415 42 442 24 429 67Q386 79 348 65Z"
-          fill="#043780" stroke="#05225c" stroke-width="13"/>
-    <path d="M344 43 352 14 379 42 403 12 414 47 434 29 423 61Q387 72 350 59Z"
-          fill="url(#gold)" stroke="#ffe58b" stroke-width="4"/>
-    <circle cx="379" cy="53" r="6" fill="#ffffff" opacity=".9"/>
-    <path d="M109 168Q370 206 657 157" fill="none" stroke="#0346a1" stroke-width="18"/>
-    <path d="M110 171Q370 209 652 162" fill="none" stroke="#00ddff" stroke-width="6"/>
-    <path d="M198 181Q378 225 579 182" fill="none" stroke="#ffc833" stroke-width="5"/>
+    <path d="M165 111Q99 100 28 73Q20 114 96 139Q63 138 31 128Q49 165 112 171Q79 179 45 167Q91 199 172 151Z"
+      fill="#08245a" stroke="#061d50" stroke-width="14"/>
+    <path d="M164 105Q98 93 32 82Q36 116 111 138Q70 136 39 132Q72 163 128 162Q89 176 52 173Q112 189 172 146Z"
+      fill="url(#feather)" stroke="#4d87ce" stroke-width="3"/>
+    <path d="M595 111Q661 100 732 73Q740 114 664 139Q697 138 729 128Q711 165 648 171Q681 179 715 167Q669 199 588 151Z"
+      fill="#08245a" stroke="#061d50" stroke-width="14"/>
+    <path d="M596 105Q662 93 728 82Q724 116 649 138Q690 136 721 132Q688 163 632 162Q671 176 708 173Q648 189 588 146Z"
+      fill="url(#feather)" stroke="#4d87ce" stroke-width="3"/>
+    <!-- Wooden plaque and leaves under the raised enamel lettering. -->
+    <path d="M160 151Q366 204 602 151L589 193Q379 223 175 190Z"
+      fill="#532716" stroke="#36201b" stroke-width="11"/>
+    <path d="M169 153Q367 194 591 154L582 185Q373 211 177 184Z"
+      fill="url(#wood)" stroke="#edb172" stroke-width="4"/>
+    <path d="M175 165Q368 207 580 168" fill="none" stroke="#ffcd7b" stroke-opacity=".7" stroke-width="4"/>
+    <path d="M168 181Q133 160 104 175Q107 205 151 208Q131 218 126 222Q161 222 182 195"
+      fill="#3bad25" stroke="#075725" stroke-width="6"/>
+    <path d="M590 181Q627 160 655 175Q652 205 608 208Q629 218 635 222Q599 222 580 195"
+      fill="#3bad25" stroke="#075725" stroke-width="6"/>
+    <path d="M127 182Q150 185 167 194M634 182Q613 185 596 194"
+      fill="none" stroke="#a7f35d" stroke-width="4"/>
+    <!-- Dark crown silhouette, warm gold face and three tiny jewels. -->
+    <path d="M325 63L331 17L363 42L389 7L415 41L445 18L450 62L438 83Q390 95 341 82Z"
+      fill="#071a55" stroke="#07133c" stroke-width="13"/>
+    <path d="M331 61L338 24L363 48L389 16L413 49L438 26L443 61L432 76Q389 85 347 75Z"
+      fill="url(#crownGold)" stroke="#fff19b" stroke-width="4"/>
+    <circle cx="337" cy="28" r="5" fill="#fff7bb"/><circle cx="388" cy="16" r="6" fill="#fff7bb"/>
+    <circle cx="439" cy="29" r="5" fill="#fff7bb"/>
   </g>
-  <g text-anchor="middle" font-family="DejaVu Sans,Arial Rounded MT Bold,Arial,sans-serif"
-     font-size="111" font-weight="900" letter-spacing="-6" stroke-linejoin="round"
-     paint-order="stroke" stroke-linecap="round">
-    <text x="380" y="153" fill="#031c56" stroke="#031c56" stroke-width="39">BOPAVI</text>
-    <text x="380" y="149" fill="#0855bc" stroke="#0b60bb" stroke-width="27">BOPAVI</text>
-    <text x="380" y="143" fill="url(#letters)" stroke="#084491" stroke-width="10">BOPAVI</text>
-    <text x="380" y="143" fill="url(#gloss)" stroke="none" opacity=".26">BOPAVI</text>
+  <!-- Extrusions are separate shapes, while the face retains live SVG text. -->
+  <g font-family="DejaVu Sans,Arial Rounded MT Bold,Arial,sans-serif"
+    font-size="126" font-weight="900" text-anchor="middle" letter-spacing="-5"
+    stroke-linecap="round" stroke-linejoin="round" paint-order="stroke">
+    <text x="318" y="164" fill="#071743" stroke="#04123c" stroke-width="39">BOPA</text>
+    <text x="595" y="164" fill="#071743" stroke="#04123c" stroke-width="39">Vi</text>
+    <text x="318" y="156" fill="#7b250c" stroke="#102b60" stroke-width="26">BOPA</text>
+    <text x="595" y="156" fill="#064493" stroke="#102b60" stroke-width="26">Vi</text>
+    <text x="318" y="150" fill="url(#goldText)" stroke="#b3450a" stroke-width="8">BOPA</text>
+    <text x="595" y="150" fill="url(#cyanText)" stroke="#035bb1" stroke-width="8">Vi</text>
+    <text x="318" y="150" fill="#fffef0" stroke="none" opacity=".12">BOPA</text>
+    <text x="595" y="150" fill="#e3ffff" stroke="none" opacity=".13">Vi</text>
   </g>
 </svg>
