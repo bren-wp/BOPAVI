@@ -354,6 +354,51 @@ internal class HomeHeroIconDrawable(
         }
     }
 
+
+    /** Original raised white retry arrow with a cinnamon enamel outline. */
+    private fun retry(canvas:Canvas){
+        val arc=Path().apply {
+            addArc(RectF(16f,24f,84f,89f),-50f,-275f)
+        }
+        val shadow=canvas.save()
+        canvas.translate(0f,4f)
+        setup(0x99092254.toInt(),Paint.Style.STROKE,24f)
+        canvas.drawPath(arc,paint)
+        canvas.restoreToCount(shadow)
+        setup(0xff783411.toInt(),Paint.Style.STROKE,22f)
+        canvas.drawPath(arc,paint)
+        setup(Color.WHITE,Paint.Style.STROKE,15f)
+        canvas.drawPath(arc,paint)
+        val arrow=polygon(59f,5f,91f,23f,62f,46f,61f,33f,
+            44f,32f,44f,18f)
+        enamel(canvas,arrow,Color.WHITE,0xffd5e6f7.toInt(),
+            0xff763511.toInt(),4f)
+        setup(0xbbffffff.toInt(),Paint.Style.STROKE,3f)
+        canvas.drawArc(RectF(22f,29f,78f,80f),203f,97f,false,paint)
+    }
+
+    /** Rounded white 3D house icon for the actual blue HOME result action. */
+    private fun home(canvas:Canvas){
+        val walls=Path().apply{
+            moveTo(25f,52f);lineTo(50f,28f);lineTo(75f,52f)
+            lineTo(75f,87f);quadTo(75f,91f,71f,91f)
+            lineTo(29f,91f);quadTo(25f,91f,25f,87f);close()
+        }
+        enamel(canvas,walls,Color.WHITE,0xffc5d9fa.toInt(),
+            0xff0b3172.toInt(),4.5f)
+        val roof=polygon(10f,50f,47f,13f,52f,13f,90f,50f,
+            81f,62f,50f,34f,20f,62f)
+        enamel(canvas,roof,Color.WHITE,0xffd2e6ff.toInt(),
+            0xff082b72.toInt(),5f)
+        val door=Path().apply {
+            addRoundRect(RectF(43f,68f,57f,92f),2f,2f,Path.Direction.CW)
+        }
+        enamel(canvas,door,0xff73caff.toInt(),0xff1262b9.toInt(),
+            0xff0b3172.toInt(),1.8f)
+        setup(0x99ffffff.toInt(),Paint.Style.STROKE,2f)
+        canvas.drawLine(28f,53f,47f,36f,paint)
+    }
+
     private fun sound(canvas:Canvas){
         val speaker=polygon(13f,40f,29f,40f,51f,22f,51f,78f,
             29f,60f,13f,60f)
@@ -380,6 +425,8 @@ internal class HomeHeroIconDrawable(
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
             BopaviUiIconDrawable.Kind.RECORDS->trophy(canvas)
             BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)
+            BopaviUiIconDrawable.Kind.RESTART->retry(canvas)
+            BopaviUiIconDrawable.Kind.HOME->home(canvas)
             BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)
             BopaviUiIconDrawable.Kind.BERRY->berry(canvas)
             BopaviUiIconDrawable.Kind.SHIELD->shield(canvas)
