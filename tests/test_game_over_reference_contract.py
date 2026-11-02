@@ -54,8 +54,11 @@ assert 'HomeHeroIconDrawable(icon,dp(28))' in screen
 icons=(src/"HomeHeroIconDrawable.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)' in icons
 assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
-assert 'LinearLayout.LayoutParams(dp(35),dp(37))' in screen
-assert 'LinearLayout.LayoutParams(dp(114),-1)' in screen
+assert 'LinearLayout.LayoutParams(0,-1,.15f)' in screen
+assert 'LinearLayout.LayoutParams(0,-1,.30f)' in screen
+assert 'HomeEmbossedLabel(host,label,52f,primary)' in screen
+assert 'BopaviUiIconDrawable.Kind.RESTART->retry(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
+assert 'BopaviUiIconDrawable.Kind.HOME->home(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
 assert 'gravity=Gravity.END or Gravity.CENTER_VERTICAL' in screen
 assert 'contentDescription="$label: $value"' in screen
 assert "endlessShowsActualFoodAndScoreNotFictionalGems" in unit
