@@ -17,7 +17,12 @@ assert "resources.configuration.fontScale" in activity
 assert "screenDensityAndLargeFontBreakpointMatrix" in (r/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 assert 'adb shell wm size reset' in qa and 'adb shell wm density reset' in qa
 assert 'BOPAVI_RESIZE_IN_PROGRESS' in qa
-assert 'min48=48*int(density)/160' in qa
+# The scroll-aware Android helper checks full native hit bounds on each page.
+helper=(r/"tools/qa_home_viewports.py").read_text()
+assert 'min48 = 48 * int(density) / 160' in helper
+assert 'adb("shell", "input", "swipe"' in helper
+assert 'set(TARGETS) <= all_found' in helper
+assert 'tools/qa_home_viewports.py "$dims" "$density" "$label"' in qa
 assert 'n.get("scrollable")=="true"' in qa
 assert 'actual==(width,height)' in qa
 assert 'Settings legal control missing' in qa
