@@ -253,6 +253,63 @@ internal class HomeHeroIconDrawable(
         }
     }
 
+    /** Raised blue sapphire shield, with an inset polished golden star. */
+    private fun shield(canvas:Canvas){
+        val outline=Path().apply {
+            moveTo(50f,7f)
+            cubicTo(65f,19f,78f,19f,89f,24f)
+            lineTo(84f,64f)
+            cubicTo(77f,82f,63f,92f,50f,98f)
+            cubicTo(37f,92f,23f,82f,16f,64f)
+            lineTo(11f,24f)
+            cubicTo(22f,19f,35f,19f,50f,7f)
+            close()
+        }
+        enamel(canvas,outline,0xff8aefff.toInt(),0xff084bba.toInt(),
+            0xff062f74.toInt(),5f)
+        val inner=Path().apply {
+            moveTo(50f,19f);lineTo(77f,30f)
+            lineTo(73f,62f);quadTo(68f,77f,50f,86f)
+            quadTo(32f,77f,27f,62f);lineTo(23f,30f);close()
+        }
+        enamel(canvas,inner,0xffa8f4ff.toInt(),0xff126ac8.toInt(),
+            0xff0b4798.toInt(),2f)
+        val star=Path()
+        for(i in 0 until 10){
+            val angle=-PI/2.0+i*PI/5.0
+            val radius=if(i%2==0)20f else 9f
+            val x=50f+cos(angle).toFloat()*radius
+            val y=49f+sin(angle).toFloat()*radius
+            if(i==0)star.moveTo(x,y) else star.lineTo(x,y)
+        }
+        star.close()
+        enamel(canvas,star,0xfffff8a4.toInt(),0xffee9a0e.toInt(),
+            0xff99520e.toInt(),3f)
+    }
+
+    /** 3D horseshoe magnet with genuinely separate pale metallic poles. */
+    private fun magnet(canvas:Canvas){
+        val arc=Path().apply {
+            moveTo(17f,17f);lineTo(37f,17f)
+            lineTo(37f,56f)
+            cubicTo(37f,73f,63f,73f,63f,56f)
+            lineTo(63f,17f);lineTo(83f,17f)
+            lineTo(83f,57f)
+            cubicTo(83f,105f,17f,105f,17f,57f)
+            close()
+        }
+        enamel(canvas,arc,0xffff8298.toInt(),0xffd22256.toInt(),
+            0xff3c235f.toInt(),5f)
+        setup(0xfff7fdff.toInt())
+        canvas.drawRoundRect(RectF(17f,17f,37f,34f),3f,3f,paint)
+        canvas.drawRoundRect(RectF(63f,17f,83f,34f),3f,3f,paint)
+        setup(0xff97dfff.toInt(),Paint.Style.STROKE,2f)
+        canvas.drawLine(21f,20f,32f,20f,paint)
+        canvas.drawLine(67f,20f,78f,20f,paint)
+        setup(0x88ffffff.toInt(),Paint.Style.STROKE,3f)
+        canvas.drawArc(RectF(25f,43f,75f,88f),18f,146f,false,paint)
+    }
+
     private fun sound(canvas:Canvas){
         val speaker=polygon(13f,40f,29f,40f,51f,22f,51f,78f,
             29f,60f,13f,60f)
@@ -279,6 +336,8 @@ internal class HomeHeroIconDrawable(
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
             BopaviUiIconDrawable.Kind.RECORDS->trophy(canvas)
             BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)
+            BopaviUiIconDrawable.Kind.SHIELD->shield(canvas)
+            BopaviUiIconDrawable.Kind.MAGNET->magnet(canvas)
             BopaviUiIconDrawable.Kind.SOUND->sound(canvas)
             else->{
                 setup(Color.WHITE)

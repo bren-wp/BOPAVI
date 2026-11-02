@@ -79,10 +79,9 @@ internal class ShopScreen(
             gravity=Gravity.CENTER_VERTICAL
         }
         row.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(
+            setImageDrawable(HomeHeroIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,
-                if(item.isShield)0xff128dda.toInt() else 0xffba52fc.toInt(),dp(74)))
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(74)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(dp(49),dp(49)))
         row.addView(message("TIER ${item.tier}",15,navy),
@@ -222,8 +221,9 @@ internal class ShopScreen(
         stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",20),
             77f,710f,460f,48f)
         stage.place(ImageView(host).apply {
-            setImageDrawable(BopaviUiIconDrawable(
-                BopaviUiIconDrawable.Kind.MAGNET,0xffe7b3ff.toInt(),dp(95)))
+            setImageDrawable(HomeHeroIconDrawable(
+                if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(95)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },633f,614f,213f,159f)

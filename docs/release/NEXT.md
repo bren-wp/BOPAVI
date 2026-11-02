@@ -14,4 +14,6 @@
 
 - Skins follow-up: replace the reference-sized face-only hero with the exact same registered transparent whole-body and animated wing layers used in Home/Flight; keep small portraits only in genuine character selection cards.
 
+- Shop follow-up: replace flat shield/magnet item pictograms with original local, raised sapphire/gold and enamel-red vector items. Featured icon follows the real item type rather than always displaying a magnet.
+
 **Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.
