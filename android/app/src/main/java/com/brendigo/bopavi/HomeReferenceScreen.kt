@@ -154,7 +154,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                     setStroke(dp(3),0xffffcf63.toInt())
                 },null)
             elevation=dp(4).toFloat()
-            addView(glyph(kind,Color.WHITE,36),
+            addView(glyph(kind,36),
                 FrameLayout.LayoutParams(dp(38),dp(38),Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(dp(48),0,1f))
