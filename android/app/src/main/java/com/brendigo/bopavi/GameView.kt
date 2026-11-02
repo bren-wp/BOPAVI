@@ -825,6 +825,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())
         oval(c,x-12f,y-12f,x+12f,y+12f,0xffffcf46.toInt())
         oval(c,x-9f,y-10f,x+9f,y+8f,0xffffa90e.toInt())
+        // Dark bronze undercut and a thin illuminated upper lip keep each
+        // genuine crown coin readable as a raised 3D pickup in motion.
+        fill(0xff8e410e.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=2.4f
+        c.drawArc(x-14f,y-14f,x+14f,y+14f,28f,150f,false,p)
+        fill(0xfffff3b2.toInt())
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=1.4f
+        c.drawArc(x-13f,y-13f,x+13f,y+13f,197f,104f,false,p)
         fill(0xffffefa2.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
         c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)
         p.style=Paint.Style.FILL
@@ -1008,6 +1018,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             path.close()
             fill(0xffffca58.toInt())
             c.drawPath(path,p)
+            // A tiny lit ridge follows each physical spike. It adds depth,
+            // never exceeds the existing 18-unit collision/visual rim.
+            fill(0x99fff6ce.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeCap=Paint.Cap.ROUND
+            p.strokeWidth=1.1f
+            c.drawLine(cx+dx*13f+px*2f,cy+dy*13f+py*2f,
+                cx+dx*(r-2f),cy+dy*(r-2f),p)
+            p.style=Paint.Style.FILL
         }
         oval(c,cx-10f,cy-10f,cx+9f,cy+9f,0xff915f34.toInt())
         oval(c,cx-7f,cy-8f,cx+7f,cy+7f,0xffc78a3a.toInt())

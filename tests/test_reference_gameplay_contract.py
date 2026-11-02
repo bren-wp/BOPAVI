@@ -84,4 +84,10 @@ assert 'onlyRealFiniteRewardsAreVisible' in unit
 assert 'endlessRunDoesNotPaintFictionalFiniteRewards' in unit
 assert 'abs(cx+35f-birdX) < magnetRange' in simulation
 assert 'abs(cx+39f-birdX) < 30f' in simulation
+# Raised crown-coin depth and mace spike highlights must remain inside
+# existing physical pickup/hazard extents: purely visual, no new hit target.
+assert 'c.drawArc(x-14f,y-14f,x+14f,y+14f,28f,150f,false,p)' in game
+assert 'c.drawArc(x-13f,y-13f,x+13f,y+13f,197f,104f,false,p)' in game
+assert 'c.drawLine(cx+dx*13f+px*2f,cy+dy*13f+py*2f,' in game
+assert 'cx+dx*(r-2f),cy+dy*(r-2f),p)' in game
 print("PASS: reference gameplay paints only true collectible and lives geometry")
