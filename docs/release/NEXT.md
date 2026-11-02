@@ -10,3 +10,5 @@
 - Owner 941×1672 reference and original emulator screenshots are the visual baseline, but a verified post-change 1:1 pixel match is still pending.
 
 **Build 175 distribution:** unsigned APK/AAB may be generated for QA. Do not merge, sign or publish until all required checks pass.
+
+- Seven real emulator viewport/density profiles now replace the earlier three-profile loop; the preexisting large-font, insets, accessible native hit target, landscape and screenshot contract checks remain active.
