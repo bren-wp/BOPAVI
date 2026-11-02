@@ -39,7 +39,9 @@ internal class GameOverScreen(private val host:Activity) {
         // Reference-size rows are ~90px high. A 65dp icon holder is 130px
         // on the API35 320dpi QA emulator and visibly overlaps native text.
         row.addView(ImageView(host).apply{
-            setImageDrawable(BopaviUiIconDrawable(icon,accent,dp(28)))
+            // The red distance marker and genuine collectible pictograms
+            // use the same three-dimensional vector enamel as Home/Shop.
+            setImageDrawable(HomeHeroIconDrawable(icon,dp(28)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(dp(35),dp(37)).apply{

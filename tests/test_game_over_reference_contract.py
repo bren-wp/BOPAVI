@@ -50,7 +50,10 @@ assert "LinearGradient(" in emblem
 assert "canvas.drawText(caption,x,y" in emblem
 assert "private fun drawWing(c:Canvas,mirror:Boolean)" in wings
 assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in wings
-assert 'BopaviUiIconDrawable(icon,accent,dp(28))' in screen
+assert 'HomeHeroIconDrawable(icon,dp(28))' in screen
+icons=(src/"HomeHeroIconDrawable.kt").read_text()
+assert 'BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)' in icons
+assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
 assert 'LinearLayout.LayoutParams(dp(35),dp(37))' in screen
 assert 'LinearLayout.LayoutParams(dp(114),-1)' in screen
 assert 'gravity=Gravity.END or Gravity.CENTER_VERTICAL' in screen

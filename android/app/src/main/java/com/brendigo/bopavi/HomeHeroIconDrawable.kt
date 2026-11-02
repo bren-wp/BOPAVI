@@ -310,6 +310,50 @@ internal class HomeHeroIconDrawable(
         canvas.drawArc(RectF(25f,43f,75f,88f),18f,146f,false,paint)
     }
 
+    /** Raised red location pin for genuine recorded flight distance. */
+    private fun distancePin(canvas:Canvas){
+        val pin=Path().apply{
+            moveTo(50f,96f)
+            cubicTo(40f,78f,17f,52f,17f,39f)
+            cubicTo(17f,19f,32f,7f,50f,7f)
+            cubicTo(68f,7f,83f,19f,83f,39f)
+            cubicTo(83f,52f,60f,78f,50f,96f)
+            close()
+        }
+        enamel(canvas,pin,0xffff8b66.toInt(),0xffcf2331.toInt(),
+            0xff7b1431.toInt(),5f)
+        setup(0xff802343.toInt())
+        canvas.drawCircle(50f,39f,14f,paint)
+        setup(0xfffffaf4.toInt())
+        canvas.drawCircle(50f,36f,11f,paint)
+        setup(0xbaffffff.toInt(),Paint.Style.STROKE,3.5f)
+        canvas.drawArc(RectF(25f,15f,72f,60f),208f,95f,false,paint)
+    }
+
+    /** Real endless-run berry, separate from coins and stars. */
+    private fun berry(canvas:Canvas){
+        val fruit=Path().apply{
+            moveTo(50f,26f)
+            cubicTo(75f,11f,89f,39f,82f,61f)
+            cubicTo(72f,86f,56f,95f,50f,96f)
+            cubicTo(44f,95f,28f,86f,18f,61f)
+            cubicTo(11f,39f,25f,11f,50f,26f)
+            close()
+        }
+        enamel(canvas,fruit,0xffff9a8d.toInt(),0xffdb1f4c.toInt(),
+            0xff761449.toInt(),4f)
+        val leaf=polygon(50f,27f,35f,15f,16f,22f,35f,31f,
+            50f,25f,65f,31f,84f,22f,65f,15f)
+        enamel(canvas,leaf,0xffbaff8e.toInt(),0xff2a9e53.toInt(),
+            0xff18694c.toInt(),2.5f)
+        setup(0xaaffffff.toInt())
+        canvas.drawOval(RectF(28f,40f,36f,52f),paint)
+        setup(0xffffefac.toInt())
+        for(i in 0..3){
+            canvas.drawCircle(39f+(i%2)*18f,58f+(i/2)*13f,2f,paint)
+        }
+    }
+
     private fun sound(canvas:Canvas){
         val speaker=polygon(13f,40f,29f,40f,51f,22f,51f,78f,
             29f,60f,13f,60f)
@@ -336,6 +380,8 @@ internal class HomeHeroIconDrawable(
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
             BopaviUiIconDrawable.Kind.RECORDS->trophy(canvas)
             BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)
+            BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)
+            BopaviUiIconDrawable.Kind.BERRY->berry(canvas)
             BopaviUiIconDrawable.Kind.SHIELD->shield(canvas)
             BopaviUiIconDrawable.Kind.MAGNET->magnet(canvas)
             BopaviUiIconDrawable.Kind.SOUND->sound(canvas)
