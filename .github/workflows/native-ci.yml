@@ -98,6 +98,7 @@ jobs:
       - run: python tests/test_reference_bopi_import.py
       - run: python tests/test_android_emulator_transport_gate.py
       - run: python tests/test_responsive_smoke_contract.py
+      - run: python tests/test_home_viewport_a11y.py
       - run: python tests/test_native_ui_icons_touch_contract.py
       - run: python tests/test_native_stats_visual_contract.py
       - run: python tests/test_play_console_adaptive_contract.py
