@@ -152,6 +152,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                     (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
                         width=emblem
                         height=emblem
+                        weight=0f
                     }
                     (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
                         width=LinearLayout.LayoutParams.MATCH_PARENT
