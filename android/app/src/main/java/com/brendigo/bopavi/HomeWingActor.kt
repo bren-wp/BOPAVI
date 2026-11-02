@@ -59,7 +59,7 @@ internal class HomeWingActor(
     }
 
     private fun syncFlapping() {
-        if(isAttachedToWindow && windowVisibility==View.VISIBLE &&
+        if(allowMotion && isAttachedToWindow && windowVisibility==View.VISIBLE &&
             ValueAnimator.areAnimatorsEnabled()) {
             if(!leftFlap.isStarted)leftFlap.start()
             if(!rightFlap.isStarted)rightFlap.start()
