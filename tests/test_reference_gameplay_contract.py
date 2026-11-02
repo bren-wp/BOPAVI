@@ -52,6 +52,8 @@ assert 'oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())' in game
 assert 'c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)' in game
 assert 'path.moveTo(x-7f,y-3f);path.lineTo(x-4f,y+2f)' in game
 assert 'c.drawLine(x,y-18f,x,y+16f,p)' in game
+assert 'fill(0xffe83bfa.toInt());c.drawPath(path,p)' in game
+assert 'fill(0xfff7b6ff.toInt());c.drawPath(path,p)' in game
 assert 'c.drawLine(x-12f,y,x+12f,y,p)' in game
 assert 'for(link in 1..3)' in game
 assert 'val r=SkyMaceHazard.radius' in game
