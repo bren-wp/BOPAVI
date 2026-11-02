@@ -56,9 +56,9 @@ internal class HomeEnamelDrawable(
         // Only actual disabled views are dimmed; the visible button remains
         // readable and physically separate from its live accessibility label.
         if(!enabled)canvas.saveLayerAlpha(0f,0f,w,h,145)
-        val radius=min(h*.29f,w*.16f)
-        val drop=min(15f,h*.085f)*(if(pressed).48f else 1f)
-        val inset=min(8f,h*.041f)
+        val radius=min(h*.48f,w*.24f)
+        val drop=min(22f,h*.13f)*(if(pressed).48f else 1f)
+        val inset=min(12f,h*.075f)
         fun coat(color:Int){
             p.reset()
             p.isAntiAlias=true
