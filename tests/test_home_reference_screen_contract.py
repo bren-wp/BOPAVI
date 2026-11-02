@@ -62,8 +62,12 @@ for feature in ("LinearGradient(","canvas.drawRoundRect(",
 # All major controls use native independent 3D pictograms and outlined
 # text. Rounded edge and contrast must never be replaced with emoji glyphs.
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
+assert "val symbolWeight=if(isPlay).23f else .255f" in view
+assert "setPadding(0,0,0,0)" in view
+assert "dp(if(isPlay)93 else 59)" not in view
+assert "HomeMedalDrawable()" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
-assert "GradientDrawable.OVAL" in view
+assert "HomeMedalDrawable()" in view
 assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
