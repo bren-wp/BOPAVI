@@ -12,6 +12,15 @@ class PilotSelectionModelTest {
         assertEquals(PilotAbility.SOVA,PilotSelectionModel.pilots[1].ability)
         assertEquals(PilotAbility.LISAC,PilotSelectionModel.pilots[2].ability)
     }
+    @Test fun splashHomeAndFlightUseIdenticalPilotSpriteIds() {
+        assertEquals(0,PilotSelectionModel.spriteIdForChoice(0))
+        assertEquals(9,PilotSelectionModel.spriteIdForChoice(1))
+        assertEquals(10,PilotSelectionModel.spriteIdForChoice(2))
+        assertEquals(0,PilotSelectionModel.spriteIdForChoice(-100))
+        assertEquals(10,PilotSelectionModel.spriteIdForChoice(100))
+        assertNotEquals(1,PilotSelectionModel.spriteIdForChoice(1))
+        assertNotEquals(2,PilotSelectionModel.spriteIdForChoice(2))
+    }
     @Test fun selectedBadgeAndTalkBackFollowSavedArcadeChoice() {
         assertTrue(PilotSelectionModel.selected(1,1))
         assertFalse(PilotSelectionModel.selected(1,0))
