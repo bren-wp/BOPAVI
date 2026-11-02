@@ -248,7 +248,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         // transparent wings animate, never the painted physical collider.
         // The actor stops all animators when the window is hidden/detached.
         val actor=HomeWingActor(host,
-            left[chosen],right[chosen],bodies[chosen])
+            left[chosen],right[chosen],bodies[chosen],
+            allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero)
 
         // The white wings in the owner's Home sit BEHIND the gold native
