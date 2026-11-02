@@ -23,10 +23,10 @@ internal data class GameOverStats(
                     score:Int,endless:Boolean):GameOverStats {
             val travelled=if(distance.isFinite())distance.coerceAtLeast(0f).toInt() else 0
             return if(endless)GameOverStats(
-                format(travelled),"Food Collected",format(food),
+                format(travelled)+" m","Food Collected",format(food),
                 "Score",format(score))
             else GameOverStats(
-                format(travelled),"Coins Collected",format(coins),
+                format(travelled)+" m","Coins Collected",format(coins),
                 "Stars Collected",format(stars))
         }
     }

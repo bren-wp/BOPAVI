@@ -29,6 +29,8 @@ import kotlin.math.min
 internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val wingShape = Path()
+    // Reuse the same temporary gloss contour every animation frame.
+    private val progressGlossClip = Path()
     private val imageOptions = BitmapFactory.Options().apply { inScaled = false }
     private val backdrop: Bitmap? =
         BitmapFactory.decodeResource(resources, R.drawable.homeback, imageOptions)
@@ -298,11 +300,10 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
             segment.height()*.5f)
         val clip=canvas.save()
-        val glossClip=android.graphics.Path().apply {
-            addRoundRect(segment,segment.height()*.5f,
-                segment.height()*.5f,android.graphics.Path.Direction.CW)
-        }
-        canvas.clipPath(glossClip)
+        progressGlossClip.reset()
+        progressGlossClip.addRoundRect(segment,segment.height()*.5f,
+            segment.height()*.5f,Path.Direction.CW)
+        canvas.clipPath(progressGlossClip)
         paint.reset()
         paint.isAntiAlias=true
         paint.color=0x44ffffff
@@ -317,7 +318,9 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         fill(canvas,RectF(inner.left+7f,inner.top+6f,
             inner.left+7f+(inner.width()-14f)*glow,inner.top+12f),
             0x55ffffff,6f)
-        outlinedText(canvas,if(preparationFinished)"Ready!" else "Loading...",
+        // Keep the owner's exact Loading... caption until navigation leaves
+        // this screen; state is still conveyed truthfully by accessibility.
+        outlinedText(canvas,"Loading...",
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)
         if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(60L)

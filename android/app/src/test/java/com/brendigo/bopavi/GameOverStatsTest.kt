@@ -7,7 +7,7 @@ class GameOverStatsTest {
     @Test fun endlessShowsActualFoodAndScoreNotFictionalGems() {
         val values=GameOverStats.fromRun(1843.9f,coins=0,stars=0,food=56,
             score=1900,endless=true)
-        assertEquals("1,843",values.distance)
+        assertEquals("1,843 m",values.distance)
         assertEquals("Food Collected",values.collectedLabel)
         assertEquals("56",values.collected)
         assertEquals("Score",values.thirdLabel)
@@ -16,6 +16,7 @@ class GameOverStatsTest {
     @Test fun finiteShowsActualCoinsAndStars() {
         val values=GameOverStats.fromRun(39f,coins=3,stars=2,food=0,
             score=321,endless=false)
+        assertEquals("39 m",values.distance)
         assertEquals("Coins Collected",values.collectedLabel)
         assertEquals("3",values.collected)
         assertEquals("Stars Collected",values.thirdLabel)
@@ -23,7 +24,7 @@ class GameOverStatsTest {
     }
     @Test fun invalidDistanceAndCountersNeverLeakToUi() {
         val values=GameOverStats.fromRun(Float.NaN,-1,-3,-2,-4,true)
-        assertEquals("0",values.distance)
+        assertEquals("0 m",values.distance)
         assertEquals("0",values.collected)
         assertEquals("0",values.third)
     }
