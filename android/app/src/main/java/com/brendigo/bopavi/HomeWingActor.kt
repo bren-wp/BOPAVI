@@ -19,7 +19,8 @@ internal class HomeWingActor(
     context:Context,
     leftRes:Int,
     rightRes:Int,
-    bodyRes:Int
+    bodyRes:Int,
+    private val allowMotion:Boolean=true
 ):FrameLayout(context) {
     private fun layer(res:Int):ImageView=ImageView(context).apply {
         setImageResource(res)
