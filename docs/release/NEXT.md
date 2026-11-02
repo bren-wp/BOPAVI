@@ -14,3 +14,9 @@
 - Seven real emulator viewport/density profiles now replace the earlier three-profile loop; the preexisting large-font, insets, accessible native hit target, landscape and screenshot contract checks remain active.
 
 - Added deterministic JVM logical breakpoint sweep across 29 widths and 23 heights, with four system font scales; Splash additionally checks all painted boxes remain onscreen under uniform scaling. This complements seven *real* Android emulator resolutions, but does not replace actual screenshots on devices.
+
+### Compact Home accessibility regression (PR #209)
+
+- Investigated Android 15 emulator run #2029: at 480×800/160dpi the four upper actions were visible, while the three footer shortcuts were below the fold inside the existing native ScrollView. The original viewport assertion incorrectly expected all seven controls in a single UIAutomator snapshot.
+- The Android viewport QA now performs real on-device swipes for compact windows, checks that all seven independent actions become fully visible and clickable with at least 48dp hit bounds, and saves post-scroll XML/screenshot evidence. Missing, duplicate and undersized actions still fail CI; the 941×1672 reference Home must fit without a swipe.
+- Added offline parser regression tests for above/below-fold controls. This does not assert 1:1 image equality and does not replace successful Android 15/16 emulator execution.
