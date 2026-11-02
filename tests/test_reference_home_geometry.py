@@ -37,7 +37,9 @@ for profile in ("480x800:160:small", "600x960:240:short",
                 "1080x1920:420:standard", "1080x2400:420:tall",
                 "1440x2960:560:large"):
     assert profile in qa,profile
-for kind in ("COIN","SHOP","LEADERBOARD","SOUND"):
+# COIN and CROWN_COIN deliberately share the same vector case.
+assert "Kind.COIN, Kind.CROWN_COIN ->" in icon
+for kind in ("SHOP","LEADERBOARD","SOUND"):
     assert f"Kind.{kind} ->" in icon
 assert "MALI LETOVI" not in logo
 assert "1,250" not in home and "85 Gems" not in home
