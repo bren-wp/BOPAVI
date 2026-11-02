@@ -669,7 +669,8 @@ class MainActivity : Activity() {
         if(HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,
                 resources.displayMetrics.heightPixels,
                 resources.configuration.orientation ==
-                    android.content.res.Configuration.ORIENTATION_PORTRAIT)){
+                    android.content.res.Configuration.ORIENTATION_PORTRAIT,
+                resources.configuration.fontScale)){
             val home=HomeReferenceScreen(this,progress).create(
                 pilotIndex=selectedPilotChoice,
                 onPlay={startGame()},

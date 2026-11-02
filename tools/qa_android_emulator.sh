@@ -642,7 +642,7 @@ echo "PASS: simplified real-device Home, game, result and Retry"
 # Every assertion runs against actual native clickable controls, not mock art.
 if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   BOPAVI_RESIZE_IN_PROGRESS=1
-  for spec in 720x1280:320:compact 1080x2400:420:tall 941x1672:320:reference; do
+  for spec in 480x800:160:small 600x960:240:short 720x1280:320:compact 941x1672:320:reference 1080x1920:420:standard 1080x2400:420:tall 1440x2960:560:large; do
     dims="$(printf '%s' "$spec" | cut -d: -f1)"
     density="$(printf '%s' "$spec" | cut -d: -f2)"
     label="$(printf '%s' "$spec" | cut -d: -f3)"
@@ -656,50 +656,10 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
     }
     dump_ui
     capture "android-home-$label"
-    python3 - "$dims" "$density" "$label" <<'PY'
-import re,sys,struct,xml.etree.ElementTree as ET
-from pathlib import Path
-dims,density,label=sys.argv[1:]
-width,height=map(int,dims.split("x"))
-source=Path("qa/screenshots/android-home-"+label+".png").read_bytes()
-assert source[:8]==bytes.fromhex("89504e470d0a1a0a")
-actual=struct.unpack(">II",source[16:24])
-assert actual==(width,height),(label,actual)
-root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
-nodes=list(root.iter("node"))
-play=[n for n in nodes if n.get("clickable")=="true"
-      and any(x in (n.get("text","")+" "+n.get("content-desc","")).upper()
-              for x in ("PLAY","IGRAJ"))]
-assert len(play)==1,(label,"missing or duplicate accessible PLAY")
-# On reference Home the legal documents are in Settings; test actual Home
-# touch targets rather than removed pilot cards / old legal footer.
-for title,needle in (
-    ("Settings","OTVORI OPCIJE IGRE"),
-    ("Records","POGLEDAJ SVOJE REKORDE"),
-    ("Skins","OTVORI IZBOR LIKOVA"),
-    ("Shop","OTVORI TRGOVINU NADOGRADNJI"),
-    ("Achievements","POGLEDAJ SVOJA POSTIGNUĆA"),
-    ("Sound","OTVORI ZVUČNE POSTAVKE"),
-):
-    found=[n for n in nodes if n.get("clickable")=="true" and
-           needle in (n.get("text","")+" "+n.get("content-desc","")).upper()]
-    assert len(found)==1,(label,title,"missing or duplicate accessible Home control")
-    match=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",found[0].get("bounds",""))
-    assert match,(label,title,"missing bounds")
-    x1,y1,x2,y2=map(int,match.groups())
-    assert 0<=x1<x2<=width and 0<=y1<y2<=height,(label,title,"clipped")
-    assert y2-y1>=48*int(density)/160,(label,title,"touch target below 48dp")
-
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
-assert m,(label,"PLAY bounds absent")
-l,t,r,b=map(int,m.groups())
-assert 0<=l<r<=width and 0<=t<b<=height,(label,"clipped PLAY control")
-min48=48*int(density)/160
-assert r-l>=min48 and b-t>=min48,(label,"PLAY target smaller than 48dp")
-assert not any(n.get("scrollable")=="true" and
-               n.get("package")=="com.brendigo.bopavi" for n in nodes),(label,"unwanted scroll")
-print("PASS: native",label,"PLAY hit target, screen insets and no scrolling")
-PY
+    # Compact Home uses a native ScrollView: verify every action AFTER a
+    # real finger swipe rather than wrongly requiring all actions on page 1.
+    # The helper rejects missing/duplicate, clipped and <48dp hit targets.
+    python3 tools/qa_home_viewports.py "$dims" "$density" "$label"
   done
   adb shell wm size reset
   adb shell wm density reset

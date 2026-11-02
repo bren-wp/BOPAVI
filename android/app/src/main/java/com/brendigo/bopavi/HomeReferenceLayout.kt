@@ -33,8 +33,12 @@ internal object HomeReferenceLayout {
     val sound=HomeBounds(568f,1452f,166f,142f)
 
     val actions=listOf(play,skins,shop,settings,achievements,leaderboard,sound)
-    fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean):Boolean =
-        portrait && pxWidth>=860 && pxHeight>=1480
+    // Large system text requires the native adaptive Home instead of
+    // squeezing labelled controls into the fixed reference artwork grid.
+    fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,
+                 fontScale:Float=1f):Boolean =
+        portrait && pxWidth>=860 && pxHeight>=1480 &&
+        fontScale>=.85f && fontScale<1.3f
 
     fun valid():Boolean {
         val all=listOf(coins,stars,logo,hero)+actions
