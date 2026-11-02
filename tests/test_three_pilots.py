@@ -9,14 +9,14 @@ view=(K/"GameView.kt").read_text()
 store=(K/"ProgressStore.kt").read_text()
 generator=(ROOT/"tools/generate_images.py").read_text()
 assert 'pilotNames=arrayOf("Bopi","Sova","Lisac")' in main
-assert "pilotSpriteIds=intArrayOf(0,9,10)" in main
+assert "fun spriteIdForChoice(index:Int):Int" in (K/"PilotSelectionModel.kt").read_text()
 assert "progress.chooseArcadePilot(index)" in main
 assert "private fun showSkins()" in main
 home=main.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
 assert "showSkins()" in home
 assert "showHome()" not in home
 assert "setImageResource(portraitDrawableIds[selectedPilotChoice])" in home
-assert "pilotSpriteIds[selectedPilotChoice],progress.hapticEnabled()" in main
+assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice),progress.hapticEnabled()" in main
 assert "arcade_pilot" in store and 'prefs.getInt("skin_index", 0)' in store
 assert "bopiportrait9" in main and "bopiportrait10" in main
 assert "selectedSkin=skinIndex.coerceIn(0,10)" in view
