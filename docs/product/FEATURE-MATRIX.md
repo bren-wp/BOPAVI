@@ -10,10 +10,10 @@ is the source for the automated public-claims gate.
 {
   "schema": 1,
   "baseline_sha": "c6eb1c18e8548cfdb5bb480296b33f1239a0ea27",
-  "release": "v1.0.44",
+  "release": "v1.0.45",
   "publication_status": "published",
-  "last_published_github_release": "v1.0.44",
-  "build": 174,
+  "last_published_github_release": "v1.0.45",
+  "build": 175,
   "scope_decision": "pending",
   "screens": [
     "home",
