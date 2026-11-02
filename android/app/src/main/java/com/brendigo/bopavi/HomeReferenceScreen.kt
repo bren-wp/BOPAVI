@@ -225,7 +225,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         val earnedStars=(0 until LevelEngine.WORLD_COUNT)
             .sumOf{progress.worldStars(it)}
         place(stage,wallet("STARS",earnedStars,
-            BopaviUiIconDrawable.Kind.STAR,"Otvori kartu razina",onStars),
+            BopaviUiIconDrawable.Kind.GEM,"Otvori kartu razina",onStars),
             HomeReferenceLayout.stars,true)
 
         place(stage,ImageView(host).apply{

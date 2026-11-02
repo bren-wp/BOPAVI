@@ -22,4 +22,6 @@
 
 - Current focused four-screen pass: cold-start Splash lasts 2450 ms (not an artificial loading delay), a stable blue loading track, identical illustrated "Tap to fly" cue in all locales with Croatian accessibility, a dollar-faced Home gold coin, a crown-faced Game Over collectible, and a contact shadow under the result character.
 
+- Home's purple crystal icon and Game Over's third-row crystal now match the provided reference while still displaying only genuinely earned star values; no new gem balance or payment system was introduced.
+
 **Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.

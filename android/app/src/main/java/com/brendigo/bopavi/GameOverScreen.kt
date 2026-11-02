@@ -158,7 +158,7 @@ internal class GameOverScreen(private val host:Activity) {
                 gold),
             statRow(stats.thirdLabel,stats.third,
                 if(stats.thirdLabel=="Stars Collected")
-                    BopaviUiIconDrawable.Kind.STAR
+                    BopaviUiIconDrawable.Kind.GEM
                 else BopaviUiIconDrawable.Kind.RECORDS,
                 0xffbf37f5.toInt())
         )

@@ -61,6 +61,38 @@ internal class HomeHeroIconDrawable(
         close()
     }
 
+
+    /**
+     * A native faceted purple crystal for earned stars. This changes
+     * artwork only: the value remains ProgressStore.worldStars and
+     * GameSimulation's real star pickups, never a fictitious gem wallet.
+     */
+    private fun gem(canvas:Canvas){
+        val outer=polygon(50f,5f,79f,15f,96f,40f,50f,97f,4f,40f,21f,15f)
+        val depth=canvas.save()
+        canvas.translate(0f,4f)
+        setup(0x88081852.toInt())
+        canvas.drawPath(outer,paint)
+        canvas.restoreToCount(depth)
+        enamel(canvas,outer,0xffff83ff.toInt(),0xffa808d5.toInt(),
+            0xff300a72.toInt(),4f)
+        val facetLeft=polygon(21f,17f,49f,6f,39f,42f,9f,41f)
+        setup(0xfffaaaff.toInt())
+        canvas.drawPath(facetLeft,paint)
+        val facetTop=polygon(21f,17f,79f,17f,63f,41f,39f,41f)
+        setup(0xffffb5ff.toInt())
+        canvas.drawPath(facetTop,paint)
+        val facetCenter=polygon(39f,41f,63f,41f,50f,88f)
+        setup(0xffe636fa.toInt())
+        canvas.drawPath(facetCenter,paint)
+        val facetRight=polygon(63f,41f,92f,40f,50f,88f)
+        setup(0xff8a16c7.toInt())
+        canvas.drawPath(facetRight,paint)
+        setup(0xddffffff.toInt(),Paint.Style.STROKE,3f)
+        canvas.drawLine(23f,19f,39f,15f,paint)
+        canvas.drawLine(39f,15f,54f,15f,paint)
+    }
+
     private fun counterStar(canvas:Canvas){
         val star=Path()
         for(i in 0 until 10){
@@ -439,6 +471,7 @@ internal class HomeHeroIconDrawable(
         when(kind){
             BopaviUiIconDrawable.Kind.PLAY->play(canvas)
             BopaviUiIconDrawable.Kind.STAR->counterStar(canvas)
+            BopaviUiIconDrawable.Kind.GEM->gem(canvas)
             BopaviUiIconDrawable.Kind.COIN->counterCoin(canvas)
             BopaviUiIconDrawable.Kind.CROWN_COIN->crownCoin(canvas)
             BopaviUiIconDrawable.Kind.SHIRT->shirt(canvas)
