@@ -25,3 +25,5 @@
 - Home's purple crystal icon and Game Over's third-row crystal now match the provided reference while still displaying only genuinely earned star values; no new gem balance or payment system was introduced.
 
 **Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.
+
+- Four-reference correction: owner Home SOUND icon is now warm metallic amber/gold with layered wave arcs; Loading track receives a dark lower extrusion and specular highlight. Gameplay retains the exact illustrated English `Tap to fly` cue while Croatian TalkBack remains localized. These are source refinements, not an assertion of pixel-perfect acceptance.

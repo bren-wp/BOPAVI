@@ -267,9 +267,22 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             FlightLoadingLayout.track.bottom)
         val radius=outer.height()*.50f
         trackWings(canvas)
-        fill(canvas,RectF(outer.left+2f,outer.top+9f,outer.right+3f,
-            outer.bottom+12f),0x66031d57, radius)
+        // The reference bar has a navy extrusion beneath a high-polish GOLD
+        // outer rim. Keep this decoration behind the true native loading state.
+        fill(canvas,RectF(outer.left-5f,outer.top+5f,
+            outer.right+6f,outer.bottom+13f),0x8c072657.toInt(),radius+5f)
+        fill(canvas,RectF(outer.left-3f,outer.top-4f,
+            outer.right+3f,outer.bottom+7f),0xff482614.toInt(),radius+3f)
         gradient(canvas,outer,0xffffed85.toInt(),0xff9a3f0d.toInt(),radius)
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.style=Paint.Style.STROKE
+        paint.strokeCap=Paint.Cap.ROUND
+        paint.strokeWidth=3f
+        paint.color=0xfffff6d2.toInt()
+        canvas.drawArc(RectF(outer.left+6f,outer.top+3f,
+            outer.right-6f,outer.bottom-6f),202f,137f,false,paint)
+        paint.style=Paint.Style.FILL
         gradient(canvas,RectF(outer.left+5f,outer.top+5f,outer.right-5f,
             outer.bottom-5f),0xffffbc27.toInt(),0xff66300e.toInt(),radius-5f)
         val inner=RectF(outer.left+13f,outer.top+13f,

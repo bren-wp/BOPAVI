@@ -452,15 +452,21 @@ internal class HomeHeroIconDrawable(
     }
 
     private fun sound(canvas:Canvas){
+        // Owner's Home sound shortcut has a GOLD/AMBER raised speaker,
+        // not the generic white-blue silhouette. Both wave arcs repeat
+        // its warm navy/gold enamel material with a pale inner glint.
         val speaker=polygon(13f,40f,29f,40f,51f,22f,51f,78f,
             29f,60f,13f,60f)
-        enamel(canvas,speaker,0xfff9feff.toInt(),0xffcbdcf9.toInt(),
-            0xff244f9e.toInt(),5f)
-        setup(0xffeaf6ff.toInt(),Paint.Style.STROKE,6f)
-        canvas.drawArc(RectF(38f,27f,75f,73f),-55f,110f,false,paint)
-        canvas.drawArc(RectF(40f,13f,95f,87f),-55f,110f,false,paint)
-        setup(0xff294c9b.toInt(),Paint.Style.STROKE,2f)
-        canvas.drawArc(RectF(43f,16f,95f,84f),-55f,110f,false,paint)
+        enamel(canvas,speaker,0xfffff9af.toInt(),0xffffae22.toInt(),
+            0xffa24d0c.toInt(),5f)
+        setup(0xff6b310b.toInt(),Paint.Style.STROKE,9f)
+        canvas.drawArc(RectF(37f,27f,78f,73f),-55f,110f,false,paint)
+        canvas.drawArc(RectF(38f,13f,96f,87f),-55f,110f,false,paint)
+        setup(0xffffcf43.toInt(),Paint.Style.STROKE,5.5f)
+        canvas.drawArc(RectF(37f,27f,78f,73f),-55f,110f,false,paint)
+        canvas.drawArc(RectF(38f,13f,96f,87f),-55f,110f,false,paint)
+        setup(0xfffff7bd.toInt(),Paint.Style.STROKE,1.8f)
+        canvas.drawArc(RectF(40f,15f,94f,84f),-53f,85f,false,paint)
     }
 
     override fun draw(canvas:Canvas){

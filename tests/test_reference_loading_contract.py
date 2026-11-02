@@ -18,6 +18,9 @@ for required in ("R.drawable.homeback","R.drawable.logo",
     assert required in loading,required
 assert "val track=LoadingArtBox(175f,1320f,766f,1422f)" in layout
 assert "trackWings(canvas)" in loading
+assert "outer.left-3f,outer.top-4f" in loading
+assert "0xff482614.toInt()" in loading
+assert "paint.color=0xfffff6d2.toInt()" in loading
 assert "val glow=if(preparationFinished)1f else .61f+.07f*" in loading
 assert "ring(canvas,549f,1033f,37f,54f,-21f)" in loading
 assert "paint.pathEffect=" not in loading

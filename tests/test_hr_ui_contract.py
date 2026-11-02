@@ -13,9 +13,13 @@ for term in ('"▶  PLAY"', '"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
              'contentDescription=caption'):
     assert term in a,term
-for term in ('"DODIRNI ZA LET"', '"DODIR = ZAMAH KRILIMA"',
-             'Životi: $lives/', '"Bopi leti. Dodirni za zamah krilima."'):
+# Visual text must match the owner's English gameplay screenshot, while
+# Croatian spoken assistance and saved data remain preserved.
+for term in ('drawTutorialText(c,"Tap to fly"',
+             'Životi: $lives/', '"Bopi leti. Dodirni za zamah krilima."',
+             'contentDescription = "Dodirni za let: "+pilotName'):
     assert term in v,term
+assert 'drawTutorialText(c,"DODIRNI ZA LET"' not in v
 assert "fun importJson(contents: String)" in s and "fun exportJson()" in s
 assert "ui_language" in s and "fun languageCode()" not in s
 print("PASS: Croatian live UI and historic save keys")

@@ -56,6 +56,7 @@ assert "val drop=min(22f,h*.13f)" in bevel
 assert "val inset=min(12f,h*.075f)" in bevel
 assert "canvas.clipPath(faceClip)" in bevel
 assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
+assert "enamel(canvas,speaker,0xfffff9af.toInt(),0xffffae22.toInt()," in icons
 assert 'wallet("STARS",earnedStars,' in view
 assert "BopaviUiIconDrawable.Kind.GEM->gem(canvas)" in icons
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
