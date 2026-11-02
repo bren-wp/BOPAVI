@@ -35,7 +35,6 @@ class MainActivity : Activity() {
     private val primaryButtonInk = 0xff061b49.toInt()
     // Three arcade pilots preserve all historical save-backed skin identifiers.
     private val pilotNames=arrayOf("Bopi","Sova","Lisac")
-    private val pilotSpriteIds=intArrayOf(0,9,10)
     private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait9,R.drawable.bopiportrait10)
     // Results show the world from the actual completed flight, not a fixed
     // forest image if gameplay is later started in a different biome.
