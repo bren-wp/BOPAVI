@@ -23,9 +23,15 @@ assert 'min48 = 48 * int(density) / 160' in helper
 assert 'adb("shell", "input", "swipe"' in helper
 assert 'set(TARGETS) <= all_found' in helper
 assert 'tools/qa_home_viewports.py "$dims" "$density" "$label"' in qa
-assert 'n.get("scrollable")=="true"' in qa
-assert 'actual==(width,height)' in qa
-assert 'Settings legal control missing' in qa
-assert 'for title,needle in (' in qa
-assert 'touch target below 48dp' in qa
-print("PASS: two real emulator viewport/density variants and fail-closed UI assertions")
+# The old assertion block targeted an inline Python heredoc that was
+# replaced by the separately testable, swipe-aware real-emulator helper.
+assert 'def scrollable_home(root: ET.Element) -> bool:' in helper
+assert 'node.get("scrollable") == "true"' in helper
+assert 'struct.unpack(">II", image[16:24]) == (width, height)' in helper
+assert 'assert len(matches) <= 1' in helper
+assert 'native touch target smaller than 48dp' in helper
+assert 'Home targets not reachable after swipes' in helper
+assert 'Reference Home unexpectedly needs scrolling' in helper
+assert 'android-home-{label}-scrolled.png' in helper
+assert 'python tests/test_home_viewport_a11y.py' in flow
+print("PASS: seven emulator viewports and scroll-aware, fail-closed UI assertions")
