@@ -176,8 +176,9 @@ internal class HomeReferenceScreen(private val host:Activity,
                     setStroke(dp(3),0xffffcf63.toInt())
                 },null)
             elevation=dp(4).toFloat()
+            setPadding(dp(3),dp(3),dp(3),dp(3))
             addView(glyph(kind,36),
-                FrameLayout.LayoutParams(dp(38),dp(38),Gravity.CENTER))
+                FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(dp(48),0,1f))
         control.addView(HomeEmbossedLabel(host,text,15f,false),
