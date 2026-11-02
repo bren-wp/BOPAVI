@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, GEM, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -150,7 +150,7 @@ internal class BopaviUiIconDrawable(
                 canvas.drawLine(2.5f,16f,7.5f,16f,paint)
                 canvas.drawLine(16.5f,16f,21.5f,16f,paint)
             }
-            Kind.COIN -> {
+            Kind.COIN, Kind.CROWN_COIN -> {
                 // The approved counter coin bears a raised flying feather.
                 canvas.drawCircle(12f,12f,9f,paint)
                 canvas.drawCircle(12f,12f,7f,paint)
@@ -206,7 +206,7 @@ internal class BopaviUiIconDrawable(
                 canvas.drawLine(12f, 15f, 12f, 19f, paint)
                 canvas.drawLine(8f, 20f, 16f, 20f, paint)
             }
-            Kind.STAR -> {
+            Kind.STAR, Kind.GEM -> {
                 paint.style = Paint.Style.FILL
                 for(index in 0 until 10) {
                     val angle = -PI / 2.0 + index * PI / 5.0

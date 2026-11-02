@@ -1,4 +1,31 @@
 # Next Android release
 
-No unreleased changes are staged.
-Increase the Android versionName/versionCode and review a new NEXT.md entry before publishing another release.
+## v1.0.47 — Reference-aligned Home 3D sizing and medal art (build 177)
+
+**Candidate only — not published.** This is a follow-up to published v1.0.46, not a modification of its immutable release.
+
+- Make the Play, Skins, Shop and Settings icon/text layout proportional to their native 941×1672 reference bounds rather than relying on density-multiplied fixed `dp` widths and margins.
+- Upgrade the three Home footer icon plates to locally drawn circular blue/gold 3D medallions with a stepped navy rim, extruded gold bezel, curved white highlight and pressed/disabled states.
+- Keep the original local fantasy backdrop, selected character, real navigation, balances, offline save and accessibility.
+- Add explicit source regression checks for visual geometry and maintain existing reference-layout and widget tests.
+- Gameplay follow-up: add physical metallic highlights to genuine gold crown coin pickups and existing spiked-mace geometry without affecting collision radius, pickup state, frame allocations, difficulty or saved progress.
+
+- Level Map follow-up: use three nested, real enamel layers for blue, golden frontier and disabled stone stage markers, preserving actual locks and clickable targets.
+
+- Skins follow-up: replace the reference-sized face-only hero with the exact same registered transparent whole-body and animated wing layers used in Home/Flight; keep small portraits only in genuine character selection cards.
+
+- Shop follow-up: replace flat shield/magnet item pictograms with original local, raised sapphire/gold and enamel-red vector items. Featured icon follows the real item type rather than always displaying a magnet.
+
+- Game Over follow-up: replace flat result pictograms with vector raised location pin and berry designs plus existing 3D coin/star medals, retaining real distance and collectible values.
+
+- Home, Gameplay and Game Over are the only screens in this dedicated comparison pass. Game Over Retry/Home now have physical 3D icons and embossed labels, result-row column widths follow design-space proportions, and Gameplay star pickups use the purple faceted crystal palette visible in the reference while preserving real saved stars.
+
+- Current focused four-screen pass: cold-start Splash lasts 2450 ms (not an artificial loading delay), a stable blue loading track, identical illustrated "Tap to fly" cue in all locales with Croatian accessibility, a dollar-faced Home gold coin, a crown-faced Game Over collectible, and a contact shadow under the result character.
+
+- Home's purple crystal icon and Game Over's third-row crystal now match the provided reference while still displaying only genuinely earned star values; no new gem balance or payment system was introduced.
+
+- Four owner-screen focus pass: the Game Over distance is now formatted with the reference's metre suffix while retaining the actual run distance; Loading keeps its original caption through the handoff and reuses its animated gloss path to avoid per-frame allocation. The Gameplay tutorial CI contract now checks the English owner reference independently from localized accessibility instructions.
+
+**Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.
+
+- Four-reference correction: owner Home SOUND icon is now warm metallic amber/gold with layered wave arcs; Loading track receives a dark lower extrusion and specular highlight. Gameplay retains the exact illustrated English `Tap to fly` cue while Croatian TalkBack remains localized. These are source refinements, not an assertion of pixel-perfect acceptance.

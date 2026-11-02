@@ -29,6 +29,8 @@ import kotlin.math.min
 internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val wingShape = Path()
+    // Reuse the same temporary gloss contour every animation frame.
+    private val progressGlossClip = Path()
     private val imageOptions = BitmapFactory.Options().apply { inScaled = false }
     private val backdrop: Bitmap? =
         BitmapFactory.decodeResource(resources, R.drawable.homeback, imageOptions)
@@ -267,9 +269,22 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             FlightLoadingLayout.track.bottom)
         val radius=outer.height()*.50f
         trackWings(canvas)
-        fill(canvas,RectF(outer.left+2f,outer.top+9f,outer.right+3f,
-            outer.bottom+12f),0x66031d57, radius)
+        // The reference bar has a navy extrusion beneath a high-polish GOLD
+        // outer rim. Keep this decoration behind the true native loading state.
+        fill(canvas,RectF(outer.left-5f,outer.top+5f,
+            outer.right+6f,outer.bottom+13f),0x8c072657.toInt(),radius+5f)
+        fill(canvas,RectF(outer.left-3f,outer.top-4f,
+            outer.right+3f,outer.bottom+7f),0xff482614.toInt(),radius+3f)
         gradient(canvas,outer,0xffffed85.toInt(),0xff9a3f0d.toInt(),radius)
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.style=Paint.Style.STROKE
+        paint.strokeCap=Paint.Cap.ROUND
+        paint.strokeWidth=3f
+        paint.color=0xfffff6d2.toInt()
+        canvas.drawArc(RectF(outer.left+6f,outer.top+3f,
+            outer.right-6f,outer.bottom-6f),202f,137f,false,paint)
+        paint.style=Paint.Style.FILL
         gradient(canvas,RectF(outer.left+5f,outer.top+5f,outer.right-5f,
             outer.bottom-5f),0xffffbc27.toInt(),0xff66300e.toInt(),radius-5f)
         val inner=RectF(outer.left+13f,outer.top+13f,
@@ -278,18 +293,17 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         // The illuminated segment changes width without implying a reported
         // load percentage. Once game preparation completes, fill the track.
         val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f
-        val glow=if(preparationFinished)1f else .30f+.44f*
+        val glow=if(preparationFinished)1f else .61f+.07f*
             (.5f-.5f*kotlin.math.cos(phase*2f*Math.PI.toFloat()))
         val segment=RectF(inner.left+3f,inner.top+4f,
             inner.left+3f+(inner.width()-6f)*glow,inner.bottom-4f)
         gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
             segment.height()*.5f)
         val clip=canvas.save()
-        val glossClip=android.graphics.Path().apply {
-            addRoundRect(segment,segment.height()*.5f,
-                segment.height()*.5f,android.graphics.Path.Direction.CW)
-        }
-        canvas.clipPath(glossClip)
+        progressGlossClip.reset()
+        progressGlossClip.addRoundRect(segment,segment.height()*.5f,
+            segment.height()*.5f,Path.Direction.CW)
+        canvas.clipPath(progressGlossClip)
         paint.reset()
         paint.isAntiAlias=true
         paint.color=0x44ffffff
@@ -304,7 +318,9 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         fill(canvas,RectF(inner.left+7f,inner.top+6f,
             inner.left+7f+(inner.width()-14f)*glow,inner.top+12f),
             0x55ffffff,6f)
-        outlinedText(canvas,if(preparationFinished)"Ready!" else "Loading...",
+        // Keep the owner's exact Loading... caption until navigation leaves
+        // this screen; state is still conveyed truthfully by accessibility.
+        outlinedText(canvas,"Loading...",
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)
         if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(60L)

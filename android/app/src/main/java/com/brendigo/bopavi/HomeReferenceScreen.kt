@@ -56,7 +56,8 @@ internal class HomeReferenceScreen(private val host:Activity,
                 HomeEnamelDrawable(0xff2b91f5.toInt(),0xff1b62bb.toInt(),
                     0xff0c285c.toInt(),0xff9ae3ff.toInt()),null)
             elevation=dp(5).toFloat()
-            setPadding(dp(4),0,dp(4),0)
+            // The outer Stage uses 941px reference units, not dp.
+            setPadding(2,0,2,0)
             contentDescription="$title: $amount. $destination"
             isClickable=true;isFocusable=true
             setOnClickListener{onClick()}
@@ -111,8 +112,10 @@ internal class HomeReferenceScreen(private val host:Activity,
                 }
                 false
             }
-            setPadding(dp(if(isPlay)29 else 8),dp(if(isPlay)6 else 9),
-                dp(if(isPlay)29 else 8),dp(if(isPlay)16 else 14))
+            // A fixed dp gutter changes the illustrated 3D button at 2x/3x
+            // screen densities. Give the native icon/text a proportional
+            // share of the same measured button rectangle instead.
+            setPadding(0,0,0,0)
         }
         val imageSize=if(isPlay)88 else 52
         val symbol=ImageView(host).apply{
@@ -125,12 +128,18 @@ internal class HomeReferenceScreen(private val host:Activity,
         }
         val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
         if(isWide){
+            val symbolWeight=if(isPlay).23f else .255f
+            // Reference-aligned proportions stay identical on 1x/2x/3x
+            // displays; these are native tappable Views, not image hot spots.
             group.addView(symbol,LinearLayout.LayoutParams(
-                dp(if(isPlay)93 else 59),-1).apply { rightMargin=dp(6) })
-            group.addView(title,LinearLayout.LayoutParams(0,-1,1f))
+                0,LinearLayout.LayoutParams.MATCH_PARENT,symbolWeight))
+            group.addView(title,LinearLayout.LayoutParams(
+                0,LinearLayout.LayoutParams.MATCH_PARENT,1f-symbolWeight))
         }else{
-            group.addView(symbol,LinearLayout.LayoutParams(dp(69),0,1f))
-            group.addView(title,LinearLayout.LayoutParams(-1,dp(40)))
+            group.addView(symbol,LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,0,.72f))
+            group.addView(title,LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,0,.28f))
         }
         return group
     }
@@ -172,13 +181,10 @@ internal class HomeReferenceScreen(private val host:Activity,
         val round=FrameLayout(host).apply {
             isDuplicateParentStateEnabled=true
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff225caa.toInt(),0xff061c51.toInt())).apply {
-                    shape=GradientDrawable.OVAL
-                    setStroke(dp(3),0xffffcf63.toInt())
-                },null)
+                HomeMedalDrawable(),null)
             elevation=dp(4).toFloat()
-            setPadding(dp(3),dp(3),dp(3),dp(3))
+            // Pixel design coordinates within the reference Stage, not dp.
+            setPadding(4,4,4,4)
             addView(glyph(kind,36),
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
@@ -219,7 +225,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         val earnedStars=(0 until LevelEngine.WORLD_COUNT)
             .sumOf{progress.worldStars(it)}
         place(stage,wallet("STARS",earnedStars,
-            BopaviUiIconDrawable.Kind.STAR,"Otvori kartu razina",onStars),
+            BopaviUiIconDrawable.Kind.GEM,"Otvori kartu razina",onStars),
             HomeReferenceLayout.stars,true)
 
         place(stage,ImageView(host).apply{

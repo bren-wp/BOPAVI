@@ -42,6 +42,12 @@ assert 'val rows=floatArrayOf(900f,1216f)' in geom
 assert 'val columns=floatArrayOf(35f,331f,627f)' in geom
 assert 'val row=item.index/3' in shop and 'val col=item.index%3' in shop
 assert 'val featured=items.last()' in shop
+heroIcons=(src/"HomeHeroIconDrawable.kt").read_text()
+assert 'HomeHeroIconDrawable(' in shop
+assert 'if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD' in shop
+assert 'BopaviUiIconDrawable.Kind.SHIELD->shield(canvas)' in heroIcons
+assert 'BopaviUiIconDrawable.Kind.MAGNET->magnet(canvas)' in heroIcons
+assert '0xfffff8a4.toInt()' in heroIcons and '0xffff8298.toInt()' in heroIcons
 assert 'ShopReferenceLayout.supports(' in shop
 assert 'val scroll=ScrollView(host).apply' in shop
 assert 'isFillViewport=true' in shop

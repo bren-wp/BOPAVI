@@ -46,6 +46,10 @@ for landscape in ("private fun cliffFacets(", "private fun meadowCanopy(",
 assert "LevelMapLockGlyph(host)" in mapSource
 assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
 assert "node.background=RippleDrawable(" in mapSource
+assert "LayerDrawable(arrayOf(sidewall,bezel,insetFace))" in mapSource
+assert "setLayerInset(1,3,1,3,8)" in mapSource
+assert "setLayerInset(2,9,6,9,15)" in mapSource
+assert "val rimColor=if(!unlocked)" in mapSource
 assert "node.textSize=if(unlocked)28f else 24f" in mapSource
 assert "fun starStrip(index:Int):Point" in geometry
 assert "fun nodesInsideReference():Boolean" in geometry

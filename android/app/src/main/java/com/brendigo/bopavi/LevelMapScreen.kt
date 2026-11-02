@@ -11,6 +11,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.Gravity
@@ -295,17 +296,45 @@ internal class LevelMapScreen(
                 unlocked){if(unlocked)onPlay(selected,level.toLong())}
             // Actual embossed circular stage plates instead of rectangular
             // Android buttons; content descriptions retain true save state.
-            val plate=GradientDrawable(
+            // Three independent nested enamel layers reproduce the rounded
+            // extrusion visible on the reference stage markers. All insets
+            // are logical design pixels (not dp) on the 941×1672 camera.
+            val rimColor=if(!unlocked)0xff43526c.toInt()
+                else if(level==frontier)0xffb8640e.toInt()
+                else 0xff073a8a.toInt()
+            val sidewall=GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                if(!unlocked)intArrayOf(0xffb5c0cc.toInt(),0xff4f637e.toInt())
+                intArrayOf(if(!unlocked)0xff67788f.toInt() else rimColor,
+                    0xff142752.toInt())).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(3,0xff0a275a.toInt())
+            }
+            val bezel=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(if(!unlocked)0xffe2e9f2.toInt()
+                    else if(level==frontier)0xfffff3ac.toInt()
+                    else 0xffd4fbff.toInt(),
+                    if(!unlocked)0xff8394aa.toInt()
+                    else if(level==frontier)0xffffb827.toInt()
+                    else 0xff2589e8.toInt())).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(2,rimColor)
+            }
+            val insetFace=GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                if(!unlocked)intArrayOf(0xffccd5e2.toInt(),0xff617993.toInt())
                 else if(level==frontier)
-                    intArrayOf(0xfffff488.toInt(),0xffffa600.toInt())
-                else intArrayOf(0xff66e0ff.toInt(),0xff0068d7.toInt())
+                    intArrayOf(0xfffff89e.toInt(),0xffffbd23.toInt(),0xffdf7611.toInt())
+                else intArrayOf(0xff9aecff.toInt(),0xff168fe7.toInt(),0xff0654b8.toInt())
             ).apply {
                 shape=GradientDrawable.OVAL
-                setStroke(dp(4),if(!unlocked)0xff42516c.toInt()
-                    else if(level==frontier)0xffefac15.toInt()
-                    else 0xffbdfbff.toInt())
+                setStroke(2,if(!unlocked)0xfff6f8fb.toInt()
+                    else if(level==frontier)0xfffff7c4.toInt()
+                    else 0xffdffeff.toInt())
+            }
+            val plate=LayerDrawable(arrayOf(sidewall,bezel,insetFace)).apply {
+                setLayerInset(1,3,1,3,8)
+                setLayerInset(2,9,6,9,15)
             }
             node.background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
                 plate,null)

@@ -120,11 +120,21 @@ internal class PilotSelectionScreen(
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },PilotSelectionLayout.platformLeft,PilotSelectionLayout.platformTop,
             PilotSelectionLayout.platformWidth,PilotSelectionLayout.platformHeight)
-        stage.place(ImageView(host).apply {
-            setImageResource(skins[selected])
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },PilotSelectionLayout.heroLeft,PilotSelectionLayout.heroTop,
+        // The owner's large floating Skins hero is the COMPLETE winged
+        // aviator, not the face-only portrait used for small selection cards.
+        // These original transparent 512×512 layers align exactly and share
+        // the same saved choice-to-sprite mapping as Splash/Home/Gameplay.
+        val heroId=PilotSelectionModel.spriteIdForChoice(selected)
+        val heroBodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi9,R.drawable.bopi10)
+        val heroLeftWings=intArrayOf(
+            R.drawable.bopileft0,R.drawable.bopileft9,R.drawable.bopileft10)
+        val heroRightWings=intArrayOf(
+            R.drawable.bopiright0,R.drawable.bopiright9,R.drawable.bopiright10)
+        val heroChoice=when(heroId){0->0;9->1;else->2}
+        stage.place(HomeWingActor(host,
+            heroLeftWings[heroChoice],heroRightWings[heroChoice],
+            heroBodies[heroChoice],allowMotion=!progress.lessMotion()),
+            PilotSelectionLayout.heroLeft,PilotSelectionLayout.heroTop,
             PilotSelectionLayout.heroSize,PilotSelectionLayout.heroSize)
 
         // Three genuinely available pilots. The reference illustrates four

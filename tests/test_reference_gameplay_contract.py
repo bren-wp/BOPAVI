@@ -52,6 +52,8 @@ assert 'oval(c,x-14f,y-14f,x+14f,y+14f,0xffdf8f0b.toInt())' in game
 assert 'c.drawArc(x-12f,y-12f,x+12f,y+12f,201f,148f,false,p)' in game
 assert 'path.moveTo(x-7f,y-3f);path.lineTo(x-4f,y+2f)' in game
 assert 'c.drawLine(x,y-18f,x,y+16f,p)' in game
+assert 'fill(0xffe83bfa.toInt());c.drawPath(path,p)' in game
+assert 'fill(0xfff7b6ff.toInt());c.drawPath(path,p)' in game
 assert 'c.drawLine(x-12f,y,x+12f,y,p)' in game
 assert 'for(link in 1..3)' in game
 assert 'val r=SkyMaceHazard.radius' in game
@@ -78,10 +80,19 @@ assert 'drawFlightReadyTutorial(canvas)' in game
 assert 'if(!game.finished) {' in game
 assert 'drawHud(canvas)' in game
 assert 'drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)' in game
+assert 'drawTutorialHand(c,a.handCenterX,a.handCenterY)' in game
+assert 'drawTutorialText(c,"DODIRNI ZA LET"' not in game
+assert 'Dodirni za zamah krilima.' in game
 assert 'FlightReadyOverlayLayout' in game
 assert 'PillarCollision.sweptBodyHitsPillar(' in simulation
 assert 'onlyRealFiniteRewardsAreVisible' in unit
 assert 'endlessRunDoesNotPaintFictionalFiniteRewards' in unit
 assert 'abs(cx+35f-birdX) < magnetRange' in simulation
 assert 'abs(cx+39f-birdX) < 30f' in simulation
+# Raised crown-coin depth and mace spike highlights must remain inside
+# existing physical pickup/hazard extents: purely visual, no new hit target.
+assert 'c.drawArc(x-14f,y-14f,x+14f,y+14f,28f,150f,false,p)' in game
+assert 'c.drawArc(x-13f,y-13f,x+13f,y+13f,197f,104f,false,p)' in game
+assert 'c.drawLine(cx+dx*13f+px*2f,cy+dy*13f+py*2f,' in game
+assert 'cx+dx*(r-2f),cy+dy*(r-2f),p)' in game
 print("PASS: reference gameplay paints only true collectible and lives geometry")

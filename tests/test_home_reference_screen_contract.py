@@ -56,14 +56,21 @@ assert "val drop=min(22f,h*.13f)" in bevel
 assert "val inset=min(12f,h*.075f)" in bevel
 assert "canvas.clipPath(faceClip)" in bevel
 assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
+assert "enamel(canvas,speaker,0xfffff9af.toInt(),0xffffae22.toInt()," in icons
+assert 'wallet("STARS",earnedStars,' in view
+assert "BopaviUiIconDrawable.Kind.GEM->gem(canvas)" in icons
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
                 "ColorFilter","setAlpha(alpha:Int)","shadow:Int"):
     assert feature in bevel,feature
 # All major controls use native independent 3D pictograms and outlined
 # text. Rounded edge and contrast must never be replaced with emoji glyphs.
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
+assert "val symbolWeight=if(isPlay).23f else .255f" in view
+assert "setPadding(0,0,0,0)" in view
+assert "dp(if(isPlay)93 else 59)" not in view
+assert "HomeMedalDrawable()" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
-assert "GradientDrawable.OVAL" in view
+assert "HomeMedalDrawable()" in view
 assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
