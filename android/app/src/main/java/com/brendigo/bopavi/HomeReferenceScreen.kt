@@ -146,14 +146,15 @@ internal class HomeReferenceScreen(private val host:Activity,
                 // a flattened oval on high-density reference viewports.
                 val available=View.MeasureSpec.getSize(heightMeasureSpec)
                 val caption=(available*.29f).toInt().coerceAtLeast(1)
-                val emblem=(available-caption).coerceAtLeast(1)
+                val emblem=minOf((available-caption).coerceAtLeast(1),
+                    View.MeasureSpec.getSize(widthMeasureSpec).coerceAtLeast(1))
                 if(childCount==2){
-                    (getChildAt(0).layoutParams as LayoutParams).apply {
+                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
                         width=emblem
                         height=emblem
                     }
-                    (getChildAt(1).layoutParams as LayoutParams).apply {
-                        width=LayoutParams.MATCH_PARENT
+                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
+                        width=LinearLayout.LayoutParams.MATCH_PARENT
                         height=caption
                     }
                 }
