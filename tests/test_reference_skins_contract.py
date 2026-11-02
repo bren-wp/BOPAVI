@@ -28,8 +28,10 @@ for expected in (
 assert "cardLefts=floatArrayOf(34f,339f,644f)" in layout
 assert "heroTop+heroSize<cardTop" in layout
 assert "platformTop+platformHeight<cardTop" in layout
-assert "stage.place(ImageView(host).apply {" in screen
-assert "setImageResource(skins[selected])" in screen
+assert "stage.place(HomeWingActor(host," in screen
+assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
+assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
+assert "allowMotion=!progress.lessMotion()" in screen
 assert "PilotSelectionLayout.heroLeft" in screen
 assert "GradientDrawable.OVAL" in screen
 assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
