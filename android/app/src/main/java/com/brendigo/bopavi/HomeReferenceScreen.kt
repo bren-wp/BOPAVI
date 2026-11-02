@@ -216,7 +216,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
         // MainActivity stores a three-item PILOT CHOICE, while art uses
         // sprite IDs 0,9,10. Do not display skin 1 for selected Sova (id 9).
-        val chosen=intArrayOf(0,9,10)[pilotIndex.coerceIn(0,2)]
+        val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)
         val portraits=intArrayOf(R.drawable.bopiportrait0,
             R.drawable.bopiportrait9,R.drawable.bopiportrait10)
         skinPortraitRes=portraits[pilotIndex.coerceIn(0,2)]
