@@ -18,4 +18,6 @@
 
 - Game Over follow-up: replace flat result pictograms with vector raised location pin and berry designs plus existing 3D coin/star medals, retaining real distance and collectible values.
 
+- Home, Gameplay and Game Over are the only screens in this dedicated comparison pass. Game Over Retry/Home now have physical 3D icons and embossed labels, result-row column widths follow design-space proportions, and Gameplay star pickups use the purple faceted crystal palette visible in the reference while preserving real saved stars.
+
 **Acceptance gate:** Android Gradle compilation, tests, and fresh reference-sized emulator captures must pass. Match against the nine owner-supplied 941×1672 PNGs with `tools/compare_owner_ui.py` before describing any screen as pixel-perfect. Do not add fake gems, IAP, online rankings or cloud save to imitate a static concept.
