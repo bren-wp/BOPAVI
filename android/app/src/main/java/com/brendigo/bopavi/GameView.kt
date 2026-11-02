@@ -855,26 +855,29 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** The existing gate.star is represented as a sapphire crystal, matching
      * the reference. Collision/magnet semantics remain 'star' internally. */
     private fun drawBlueCrystal(c:Canvas,x:Float,y:Float) {
-        oval(c,x-19f,y-20f,x+19f,y+19f,0x4484faff)
+        // The reference gameplay collectible has violet/magenta crystal
+        // facets. Its real saved state remains the existing star pickup,
+        // not a second fabricated gem currency or new collision type.
+        oval(c,x-19f,y-20f,x+19f,y+19f,0x66f89aff)
         path.reset()
         path.moveTo(x,y-21f);path.lineTo(x+15f,y)
         path.lineTo(x,y+22f);path.lineTo(x-15f,y);path.close()
-        fill(0xff07559f.toInt());c.drawPath(path,p)
+        fill(0xff681a9b.toInt());c.drawPath(path,p)
         path.reset()
         path.moveTo(x,y-18f);path.lineTo(x+12f,y)
         path.lineTo(x,y+16f);path.lineTo(x-12f,y);path.close()
-        fill(0xff2dbfff.toInt());c.drawPath(path,p)
+        fill(0xffe83bfa.toInt());c.drawPath(path,p)
         path.reset()
         path.moveTo(x,y-18f);path.lineTo(x-12f,y)
         path.lineTo(x,y+16f);path.close()
-        fill(0xff8eeaff.toInt());c.drawPath(path,p)
+        fill(0xfff7b6ff.toInt());c.drawPath(path,p)
         path.reset()
         path.moveTo(x,y-14f);path.lineTo(x+5f,y-3f)
         path.lineTo(x,y+11f);path.lineTo(x-5f,y-3f);path.close()
         fill(0xccffffff.toInt());c.drawPath(path,p)
         // Two facet seams and a cold center glint make the original sapphire
         // legible against the castle islands without moving its pickup centre.
-        fill(0xff0765ae.toInt());p.style=Paint.Style.STROKE
+        fill(0xff941bbd.toInt());p.style=Paint.Style.STROKE
         p.strokeWidth=1.6f
         c.drawLine(x,y-18f,x,y+16f,p)
         c.drawLine(x-12f,y,x+12f,y,p)
