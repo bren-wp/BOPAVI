@@ -31,7 +31,7 @@ internal class GameOverScreen(private val host:Activity) {
         val row=LinearLayout(host).apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            setPadding(dp(7),0,dp(8),0)
+            setPadding(8,0,8,0)
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="$label: $value"
             isFocusable=true
@@ -44,9 +44,7 @@ internal class GameOverScreen(private val host:Activity) {
             setImageDrawable(HomeHeroIconDrawable(icon,dp(28)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(35),dp(37)).apply{
-            marginEnd=dp(6)
-        })
+        },LinearLayout.LayoutParams(0,-1,.15f))
         row.addView(TextView(host).apply{
             text=label
             textSize=22f
@@ -58,7 +56,7 @@ internal class GameOverScreen(private val host:Activity) {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             gravity=Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,-1,1f))
+        },LinearLayout.LayoutParams(0,-1,.55f))
         row.addView(TextView(host).apply{
             text=value
             textSize=30f
@@ -71,24 +69,32 @@ internal class GameOverScreen(private val host:Activity) {
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             gravity=Gravity.END or Gravity.CENTER_VERTICAL
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(114),-1))
+        },LinearLayout.LayoutParams(0,-1,.30f))
         return row
     }
 
-    private fun action(label:String,primary:Boolean,onClick:()->Unit):Button =
-        Button(host).apply {
-            text=label
-            isAllCaps=false
-            textSize=32f
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-            setTextColor(if(primary)0xff60300b.toInt() else Color.WHITE)
+    /** Native clickable 3D action with independently drawn icon and lettering. */
+    private fun action(label:String,primary:Boolean,onClick:()->Unit):View =
+        LinearLayout(host).apply {
+            orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(18,32,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            background=Bopavi3DTheme.button(if(primary)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
+            background=Bopavi3DTheme.button(if(primary)
+                Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
             contentDescription=label
             elevation=dp(6).toFloat()
             minimumHeight=dp(48)
+            isClickable=true
+            isFocusable=true
+            addView(ImageView(host).apply {
+                setImageDrawable(HomeHeroIconDrawable(
+                    if(primary)BopaviUiIconDrawable.Kind.RESTART
+                    else BopaviUiIconDrawable.Kind.HOME,100))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,-1,.32f))
+            addView(HomeEmbossedLabel(host,label,52f,primary).apply {
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(0,-1,.68f))
             setOnClickListener{onClick()}
         }
 
@@ -129,7 +135,7 @@ internal class GameOverScreen(private val host:Activity) {
 
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
-            setPadding(dp(12),dp(14),dp(12),dp(14))
+            setPadding(12,14,12,14)
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             contentDescription="Game Over statistics"
         }
@@ -149,7 +155,7 @@ internal class GameOverScreen(private val host:Activity) {
         )
         for(item in rows){
             statistics.addView(item,LinearLayout.LayoutParams(-1,0,1f).apply {
-                setMargins(0,dp(3),0,dp(3))
+                setMargins(0,3,0,3)
             })
         }
         stage.place(statistics,123f,927f,695f,310f)
