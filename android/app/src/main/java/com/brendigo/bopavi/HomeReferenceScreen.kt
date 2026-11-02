@@ -101,7 +101,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             isClickable=true;isFocusable=true
             minimumHeight=dp(48)
             setOnClickListener{onClick()}
-            setOnTouchListener{view,event->
+            if(!progress.lessMotion())setOnTouchListener{view,event->
                 when(event.actionMasked){
                     android.view.MotionEvent.ACTION_DOWN->
                         view.animate().scaleX(.975f).scaleY(.975f).setDuration(90).start()
