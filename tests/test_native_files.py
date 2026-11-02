@@ -23,7 +23,8 @@ assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPriva
 assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}' in a
 assert 'shortcut("ACHIEVEMENTS"' in home and 'shortcut("LEADERBOARD"' in home
 assert "portraitDrawableIds[selectedPilotChoice]" in home
-assert "pilotSpriteIds[selectedPilotChoice]" in a
+assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice)" in a
+assert "pilotSpriteIds[selectedPilotChoice]" not in a
 assert all(x in a for x in ("private fun showSkins()","private fun showShop()","private fun showLevels()"))
 assert (code/"ReferenceMenus.kt").exists()
 pause=section(a,"    private fun showPremiumPause(","    private fun startGame(")
