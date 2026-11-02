@@ -3,6 +3,20 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.46 — Splash/Home 3D UI and pilot consistency (build 176)
+
+**Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.46)
+
+- Keep Splash, Home and gameplay character selection consistent through one canonical pilot/sprite mapping (Bopi 0, Sova 9, Lisac 10).
+- Improve the reference Home's raised 3D button depth, rounded enamel shape, clipped specular shine and thick borders.
+- Render a dedicated 3D leaderboard podium instead of a generic fallback glyph.
+- Prevent circular Home footer buttons from stretching to oval shapes; fit embossed labels and wallet controls to reference bounds.
+- Honor reduced-motion preference for Home animated wings and press scaling.
+- Update UI/character regression contracts and document acceptance for all nine supplied 941×1672 references.
+- Full Android test, Android Lint, APK/AAB build and emulator screenshot comparison with the original references.
+- Visually inspect every page and actual touch function. **No 1:1 screenshot acceptance has been established.**
+- This build does not add fictional gems, in-app purchase restoration, cloud backup, or payment-related features simply because they appear in artwork.
+
 ## v1.0.45 — Splash/Home responsive and fantasy environment (build 175)
 
 **Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.45)
@@ -13,20 +27,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Android 15/16 emulator QA checks representative small, compact, reference, standard, tall and large screen sizes, density and rotation. Not every device/form factor can be physically emulated.
 - Continue improving the separately rendered fantasy background; never bake buttons, currency or Bopi's interactive state into scenery.
 - Owner 941×1672 reference and original emulator screenshots are the visual baseline, but a verified post-change 1:1 pixel match is still pending.
-
-## v1.0.44 — native Gameplay Ready reference polish (build 174)
-
-**Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.44)
-
-- Refine the original 941×1672 Gameplay Ready callout in the unchanged 480×800 gameplay camera: layered translucent cyan enamel, a dark lower bevel, white highlight and outlined glass border. The original hand gesture now shares validated reference constants rather than scattered coordinates.
-- Add a second subtle glossy highlight to the real lives-only 3D HUD, without adding currency, score, fictitious lives, or clickable Canvas UI.
-- Preserve the real first tap/wing flap, original pilot bitmaps and animation, 18px collision radius, local earned pickups, game state, accessibility description, rotation and reduced-motion handling.
-- Add JVM reference geometry and Python rendering source regression checks. Original emulator screenshots must still be compared against owner-supplied reference PNG at exact source dimensions; visual 1:1 has not been certified.
-- Release remains unsigned/unpublished and PR must stay unmerged until CI and Android 15/16 emulator QA pass.
-- Gameplay HUD follow-up: deepen the three existing actual life hearts with an inactive-aware red enamel undercut and small glossy lower reflection, reusing the original Canvas/Path without resource allocations. No additional HUD counters, UI targets, hitbox changes or fake hearts.
-- Pause visual/functionality pass: preserve the original locally bundled selected Bopi portrait inside a cyan 3D enamel hero with a purely decorative gold halo. Use a **native accessible gold TextView title**, three real Resume/Retry/Exit Android buttons, and existing finite/endless replay semantics. Keep the live GameView paused, preserve focus, prevent duplicate dialogs, and retain scroll-safe compact/large-font layout with 48dp minimum touch controls. Native geometry is covered by JVM and Python contracts. There is no separate original Pause raster supplied, so pixel-accurate 1:1 matching is not yet verifiable.
-- Game Over screen-by-screen 3D follow-up: retain the real result statistics and native Retry/Home buttons, add accessible 'Game Over' heading semantics, raised crown facets and deterministic shaded stone faces under the original illustrated Bopi podium. All scenery is noninteractive local Canvas decoration; game results, distances, saved totals and replay callbacks are unchanged. Original owner screenshot and fresh emulator screenshot still require pixel-diff acceptance; do not claim exact 1:1.
-- Level Complete visual pass: the three genuine earned-star indicators now have local dimensional shading and earned-only highlights. The existing already-awarded reward chest gains a metallic bezel and wood-grain detail, remaining decorative rather than a duplicate claim button. Native Next Level/Home/Share, saved first-clear rewards, locked world boundaries and current level state are unchanged. A post-change 941×1672 emulator screenshot/pixel diff is still required before a 1:1 certification.
-- Achievements: eight genuine locally saved goals now have raised native enamel badges (gold when reached, cyan otherwise), enhanced raised native card states and thicker real progress indicators. The summary derives its total from the actual catalog rather than a fabricated hardcoded count. Large-font/compact/landscape displays use the existing scrollable, inset-aware native layout; measured layout/JVM/source regression checks updated. No fake rewards or clicks were introduced. There is no separate owner-supplied Achievements raster in this conversation; visual 1:1 cannot be certified.
-- Leaderboard native 3D follow-up: the real sorted top-ten offline score rows now have separate embossed rank medals for first, second, third and subsequent placements, plus raised cyan pictograms for actual saved performance counters. Header uses a native accessible 3D TextView. Compact, landscape, and large-font devices keep the scrollable layout and safe insets; new JVM/Python contracts verify the geometry. No fictional players, online leaderboard, permissions or score mutations. No separate owner-supplied Leaderboard reference raster is available, so 1:1 visual identity remains unverified.
-- Reference-driven result compositions using the user's re-attached original 941×1672 PNGs: added locally drawn symmetrical layered white/blue wings and a **native accessible TextView** result wordmark with navy extrusion, multi-stop ICE/CORAL/GOLD lettering and gloss highlights. Game Over keeps its existing saved stats, original pilot sprite and genuine Retry/Home CTAs. Level Complete now follows the actual composition order **two-line title → pilot → three real awarded stars → unified cream stats/reward panel → Next/Home/Share**, with the chest remaining decorative and score/coin/star amounts backed by local saved state. The mockup's gem economy is deliberately not fabricated. Post-change emulator screenshot comparison remains required; 1:1 is not yet certified.
