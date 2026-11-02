@@ -154,7 +154,7 @@ internal class GameOverScreen(private val host:Activity) {
             statRow(stats.collectedLabel,stats.collected,
                 if(stats.collectedLabel=="Food Collected")
                     BopaviUiIconDrawable.Kind.BERRY
-                else BopaviUiIconDrawable.Kind.COIN,
+                else BopaviUiIconDrawable.Kind.CROWN_COIN,
                 gold),
             statRow(stats.thirdLabel,stats.third,
                 if(stats.thirdLabel=="Stars Collected")

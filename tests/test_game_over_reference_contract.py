@@ -54,6 +54,8 @@ assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in wings
 assert 'HomeHeroIconDrawable(icon,dp(28))' in screen
 icons=(src/"HomeHeroIconDrawable.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)' in icons
+assert 'BopaviUiIconDrawable.Kind.CROWN_COIN->crownCoin(canvas)' in icons
+assert 'BopaviUiIconDrawable.Kind.CROWN_COIN' in screen
 assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
 assert 'LinearLayout.LayoutParams(0,-1,.15f)' in screen
 assert 'LinearLayout.LayoutParams(0,-1,.30f)' in screen

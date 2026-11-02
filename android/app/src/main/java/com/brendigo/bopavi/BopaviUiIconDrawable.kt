@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f

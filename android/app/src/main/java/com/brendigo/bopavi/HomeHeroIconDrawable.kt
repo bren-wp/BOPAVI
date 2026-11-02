@@ -77,7 +77,9 @@ internal class HomeHeroIconDrawable(
         canvas.drawLine(32f,33f,48f,15f,paint)
     }
 
-    private fun counterCoin(canvas:Canvas){
+
+    /** Shared 3D golden rim for wallet and recorded-result coins. */
+    private fun coinRim(canvas:Canvas){
         setup(0x88082459.toInt())
         canvas.drawCircle(51f,54f,44f,paint)
         setup(0xffb9550b.toInt())
@@ -88,16 +90,34 @@ internal class HomeHeroIconDrawable(
         canvas.drawCircle(50f,44f,34f,paint)
         setup(0xffc76d13.toInt(),Paint.Style.STROKE,4f)
         canvas.drawCircle(50f,44f,31f,paint)
-        val feather=Path().apply{
-            moveTo(29f,65f)
-            cubicTo(27f,37f,49f,24f,71f,24f)
-            cubicTo(71f,44f,49f,63f,29f,65f)
-            close()
-        }
-        enamel(canvas,feather,0xffffc544.toInt(),0xffaa4b00.toInt(),
-            0xff80400a.toInt(),2f)
-        setup(0xfffff9a9.toInt(),Paint.Style.STROKE,3f)
-        canvas.drawLine(27f,69f,67f,27f,paint)
+    }
+
+    /** The owner Home wallet coin has a raised dollar symbol. */
+    private fun counterCoin(canvas:Canvas){
+        coinRim(canvas)
+        setup(0xff92510e.toInt(),Paint.Style.STROKE,7f)
+        paint.typeface=android.graphics.Typeface.create(
+            "sans-serif-black",android.graphics.Typeface.BOLD)
+        paint.textAlign=Paint.Align.CENTER
+        paint.textSize=55f
+        canvas.drawText("$",50f,65f,paint)
+        setup(0xfffff9b2.toInt())
+        paint.typeface=android.graphics.Typeface.create(
+            "sans-serif-black",android.graphics.Typeface.BOLD)
+        paint.textAlign=Paint.Align.CENTER
+        paint.textSize=55f
+        canvas.drawText("$",50f,64f,paint)
+    }
+
+    /** Actual collected coins have the distinct gold crown on Game Over. */
+    private fun crownCoin(canvas:Canvas){
+        coinRim(canvas)
+        val crown=polygon(27f,36f,36f,48f,50f,28f,64f,48f,
+            73f,36f,68f,65f,32f,65f)
+        enamel(canvas,crown,0xfffff9ae.toInt(),0xffffb91e.toInt(),
+            0xff96520d.toInt(),2.8f)
+        setup(0xcaffffff.toInt(),Paint.Style.STROKE,2.5f)
+        canvas.drawLine(39f,47f,50f,34f,paint)
     }
 
     private fun play(canvas:Canvas){
@@ -420,6 +440,7 @@ internal class HomeHeroIconDrawable(
             BopaviUiIconDrawable.Kind.PLAY->play(canvas)
             BopaviUiIconDrawable.Kind.STAR->counterStar(canvas)
             BopaviUiIconDrawable.Kind.COIN->counterCoin(canvas)
+            BopaviUiIconDrawable.Kind.CROWN_COIN->crownCoin(canvas)
             BopaviUiIconDrawable.Kind.SHIRT->shirt(canvas)
             BopaviUiIconDrawable.Kind.SHOP->shop(canvas)
             BopaviUiIconDrawable.Kind.SETTINGS->gear(canvas)
