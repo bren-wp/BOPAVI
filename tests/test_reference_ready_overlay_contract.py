@@ -9,8 +9,12 @@ unit=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightReadyOverlayLayo
 assert "if(!game.finished) {" in view
 assert "drawHud(canvas)" in view
 assert "drawFlightReadyTutorial(canvas)" in view
-assert "val croatian=resources.configuration.locales.get(0).language==\"hr\"" in view
-assert "DODIRNI ZA LET" in view and "Tap to fly" in view
+# The approved Gameplay PNG uses an English cue on all device locales.
+# Semantic TalkBack text is allowed to remain localized separately.
+ready=view.split("private fun drawFlightReadyTutorial(c:Canvas)",1)[1].split("private fun drawTutorialText(",1)[0]
+assert 'drawTutorialText(c,"Tap to fly",a.textCenterX,a.textBaselineY,21f)' in ready
+assert "val croatian=" not in ready
+assert "DODIRNI ZA LET" not in ready
 assert "const val left=145f" in layout and "const val right=335f" in layout
 assert "const val top=596f" in layout and "const val bottom=650f" in layout
 assert "tutorialMatchesReferenceRelativeBounds" in unit
