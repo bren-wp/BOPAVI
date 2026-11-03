@@ -3,6 +3,15 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.48 — Splash, Home, Gameplay and Game Over reference corrections (build 178)
+
+**Published:** 2026-11-03 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.48)
+
+- **Splash:** raised blue-and-white Loading lettering with separate navy shadow; preserve live preparations, flying Bopi, winged BOPAVI mark, rings and enamel progress bar.
+- **Home:** reduce the excessive spaces between the icon and heading on Play, Skins, Shop and Settings by measuring one proportional centered cluster per button. Pin real coin/star balances to the physical safe top on tall portrait screens instead of vertically centering the wallets with the rest of the reference-stage UI. No fictional gem balance or payments.
+- **Gameplay:** raise avatar and the actual three-heart HUD on reference-sized displays without altering hitboxes, lives, enemy positions, physics, collection or save behavior.
+- **Game Over:** display current earned values inside locally drawn 3D outlined result text (white/navy captions; gold/bronze values), retaining real distance, coins/food and stars/score. Functional Retry/Home and the existing 3D podium remain.
+
 ## v1.0.47 — Reference-aligned Home 3D sizing and medal art (build 177)
 
 **Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.47)
@@ -19,17 +28,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Home, Gameplay and Game Over are the only screens in this dedicated comparison pass. Game Over Retry/Home now have physical 3D icons and embossed labels, result-row column widths follow design-space proportions, and Gameplay star pickups use the purple faceted crystal palette visible in the reference while preserving real saved stars.
 - Current focused four-screen pass: cold-start Splash lasts 2450 ms (not an artificial loading delay), a stable blue loading track, identical illustrated "Tap to fly" cue in all locales with Croatian accessibility, a dollar-faced Home gold coin, a crown-faced Game Over collectible, and a contact shadow under the result character.
 - Home's purple crystal icon and Game Over's third-row crystal now match the provided reference while still displaying only genuinely earned star values; no new gem balance or payment system was introduced.
-
-## v1.0.46 — Splash/Home 3D UI and pilot consistency (build 176)
-
-**Published:** 2026-11-02 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.46)
-
-- Keep Splash, Home and gameplay character selection consistent through one canonical pilot/sprite mapping (Bopi 0, Sova 9, Lisac 10).
-- Improve the reference Home's raised 3D button depth, rounded enamel shape, clipped specular shine and thick borders.
-- Render a dedicated 3D leaderboard podium instead of a generic fallback glyph.
-- Prevent circular Home footer buttons from stretching to oval shapes; fit embossed labels and wallet controls to reference bounds.
-- Honor reduced-motion preference for Home animated wings and press scaling.
-- Update UI/character regression contracts and document acceptance for all nine supplied 941×1672 references.
-- Full Android test, Android Lint, APK/AAB build and emulator screenshot comparison with the original references.
-- Visually inspect every page and actual touch function. **No 1:1 screenshot acceptance has been established.**
-- This build does not add fictional gems, in-app purchase restoration, cloud backup, or payment-related features simply because they appear in artwork.
