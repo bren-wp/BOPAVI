@@ -91,30 +91,30 @@ internal class HomeReferenceScreen(private val host:Activity,
         val isWide=isPlay || kind==BopaviUiIconDrawable.Kind.SHIRT ||
             kind==BopaviUiIconDrawable.Kind.SHOP ||
             kind==BopaviUiIconDrawable.Kind.SETTINGS
+        val textMeasure=Paint(Paint.ANTI_ALIAS_FLAG).apply{
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+        }
         val group=object:LinearLayout(host){
             override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
-                // Keep icon and text as ONE compact cluster, not wide columns.
+                // Measure actual painted text. Broad TextView columns used
+                // to produce an 80-120px apparent gap beside the 3D icon.
                 if(isWide && childCount==2){
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
                     val h=View.MeasureSpec.getSize(heightMeasureSpec)
-                    val iconW=minOf((h*(if(isPlay).70f else .61f)).toInt(),
-                        (w*.29f).toInt()).coerceAtLeast(1)
-                    val titleW=(w*when(kind){
-                        BopaviUiIconDrawable.Kind.PLAY->.53f
-                        BopaviUiIconDrawable.Kind.SETTINGS->.60f
-                        BopaviUiIconDrawable.Kind.SHIRT->.51f
-                        else->.47f
-                    }).toInt().coerceAtLeast(1)
-                    val gap=(w*.022f).toInt().coerceAtLeast(4)
+                    textMeasure.textSize=minOf(
+                        font*host.resources.displayMetrics.scaledDensity,h*.66f)
+                    val cluster=ReferenceButtonCluster.measure(
+                        w,h,textMeasure.measureText(text),
+                        if(isPlay).70f else .61f,.29f)
                     (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply{
-                        width=iconW
+                        width=cluster.iconWidth
                         height=LinearLayout.LayoutParams.MATCH_PARENT
                         weight=0f
                     }
                     (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply{
-                        width=titleW
+                        width=cluster.labelWidth
                         height=LinearLayout.LayoutParams.MATCH_PARENT
-                        marginStart=gap
+                        marginStart=cluster.gap
                         weight=0f
                     }
                 }

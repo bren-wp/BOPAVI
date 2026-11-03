@@ -65,13 +65,17 @@ for feature in ("LinearGradient(","canvas.drawRoundRect(",
 # All major controls use native independent 3D pictograms and outlined
 # text. Rounded edge and contrast must never be replaced with emoji glyphs.
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
-assert "Keep icon and text as ONE compact cluster" in view
-assert "val iconW=minOf(" in view
-assert "val gap=(w*.022f).toInt()" in view
+assert "Measure actual painted text." in view
+assert "ReferenceButtonCluster.measure(" in view
+assert "textMeasure.measureText(text)" in view
+assert "width=cluster.labelWidth" in view
+assert "marginStart=cluster.gap" in view
+assert "val titleW=(w*when(kind)" not in view
 assert "HomeTopWalletRail(host)" in view
 assert "walletRail.attach(wallet(" in view
 rail=(src/"HomeTopWalletRail.kt").read_text()
-assert "safeTop+e.b.y*scale" in rail
+assert "maxOf(safeTop,(e.b.y*scale).toInt())" in rail
+assert "safeTop+e.b.y*scale" not in rail
 assert "setPadding(0,0,0,0)" in view
 assert "dp(if(isPlay)93 else 59)" not in view
 assert "HomeMedalDrawable()" in view

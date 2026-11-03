@@ -47,7 +47,9 @@ internal class HomeTopWalletRail(context:Context):ViewGroup(context) {
             HomeReferenceLayout.width
         for(e in entries){
             val x=(safeLeft+e.b.x*scale).toInt()
-            val y=(safeTop+e.b.y*scale).toInt()
+            // Avoid double-counting the reference's 21px top margin.
+            // Status bar/cutout safety remains mandatory if it is visible.
+            val y=maxOf(safeTop,(e.b.y*scale).toInt())
             e.child.layout(x,y,x+e.child.measuredWidth,y+e.child.measuredHeight)
         }
     }
