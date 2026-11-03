@@ -118,9 +118,14 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         paint.textSize = size
         paint.textAlign = Paint.Align.CENTER
         paint.strokeJoin = Paint.Join.ROUND
-        paint.strokeWidth = size * .14f
+        // A separate navy 3D extrusion and blue edge match the owner's
+        // raised "Loading..." lettering without replacing accessible state.
+        paint.strokeWidth = size * .20f
         paint.style = Paint.Style.STROKE
-        paint.color = 0xff073872.toInt()
+        paint.color = 0xff052359.toInt()
+        canvas.drawText(text, x, y+4f, paint)
+        paint.strokeWidth = size * .125f
+        paint.color = 0xff166ac4.toInt()
         canvas.drawText(text, x, y, paint)
         paint.style = Paint.Style.FILL
         paint.color = Color.WHITE
