@@ -1,13 +1,13 @@
 # Next Android release
 
-## v1.0.49 — Compact 3D control spacing and HUD correction (build 179)
+## v1.0.50 — Android 15 gameplay preflight lifecycle fix (build 180)
 
-**Candidate only, not yet published.** Based on v1.0.48 main; scoped to owner reference Loading, Home, Gameplay and Game Over at 941 × 1672.
+**Candidate only, not yet published.** Post-merge hotfix following the unsuccessful 1.0.49 main-branch QA. Version 1.0.49 was not released. The published baseline is v1.0.48.
 
-- Home Play, Skins, Shop, Settings 3D buttons now center the visible icon and measured text together, avoiding empty half-button text columns.
-- Game Over Retry and Home native controls use the same measured 3D icon/text geometry, without altering retry or navigation actions.
-- Home top-right coin/crystal HUD no longer stacks a second reference offset on the physical safe inset.
-- Added shared `ReferenceButtonCluster` calculation and source/JVM regression tests.
-- No fake currency, game pickups, gem wallet or clickable screenshot overlays.
+- Keep the merged Home Play, Skins, Shop and Settings compact 3D button layouts; no unrelated visual changes.
+- Keep native Game Over Retry and Home controls and genuine saved statistics.
+- Keep the top-right Home wallet HUD safe-inset fix.
+- Fix async preflight: check actual Activity onResume/onPause instead of transient window focus, which can drop during UIAutomator and incorrectly return Home before first flap.
+- Background/resume QA now retains an actual accessibility hierarchy and emulator screenshot on failure instead of suppressing or retrying a real application problem. No fake game state.
 
-**Before release:** CI source audit, Android tests and APK/AAB build, and real 941 × 1672 screenshots of all four screens compared against original owner references. Existing distinct sad seated Bopi asset and some background art remain visual gaps; no pixel-parity claim is made.
+**Before release:** run the full Android 15 background/rotation gameplay suite, API 36 smoke, source/security audit, Kotlin tests, and unsigned APK/AAB build. Publishing must remain blocked unless all critical jobs pass. Pixel-exactness against original 941 × 1672 references remains unverified.

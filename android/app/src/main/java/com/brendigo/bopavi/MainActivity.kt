@@ -29,6 +29,9 @@ class MainActivity : Activity() {
     private var selectedScreen = "home"
     // Cancels an in-flight preflight callback when Back leaves Loading.
     private var loadingGeneration = 0
+    // Unlike window focus, the Activity resume state does not flicker during
+    // UIAutomator hierarchy dumps or transient non-pausing overlays.
+    private var activityResumed = false
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
@@ -181,6 +184,7 @@ class MainActivity : Activity() {
         setContentView(root)
     }
     override fun onPause() {
+        activityResumed=false
         // Preserve the run. Remember only a newly backgrounded live flight;
         // do not open a second dialog if the user already paused via Back.
         val active=gameView
@@ -194,6 +198,7 @@ class MainActivity : Activity() {
     }
     override fun onResume() {
         super.onResume()
+        activityResumed=true
         if(::sound.isInitialized && selectedScreen=="game" &&
             gameView?.game?.active == false && gameView?.game?.finished == false &&
             gameView?.paused == false) sound.resume()
@@ -1082,9 +1087,12 @@ class MainActivity : Activity() {
             runOnUiThread {
                 if(token!=loadingGeneration || selectedScreen!="loading" ||
                     isDestroyed || isFinishing)return@runOnUiThread
-                if(!hasWindowFocus()) {
-                    // Never start audio or decode gameplay sprites while
-                    // the Activity is backgrounded or the screen is locked.
+                if(!activityResumed) {
+                    // A genuinely paused Activity must never enter active
+                    // gameplay, decode new sprites or start world audio.
+                    // Transient loss of WINDOW focus while still resumed
+                    // (e.g. UIAutomator accessibility inspection) is NOT
+                    // grounds to discard an otherwise completed level.
                     showHome()
                     return@runOnUiThread
                 }
