@@ -50,9 +50,36 @@ internal class GameOverScreen(private val host:Activity) {
         return row
     }
 
-    /** Native clickable 3D action with independently drawn icon and lettering. */
-    private fun action(label:String,primary:Boolean,onClick:()->Unit):View =
-        LinearLayout(host).apply {
+    /** A single full-size native touch target with a compact raised pair. */
+    private fun action(label:String,primary:Boolean,onClick:()->Unit):View {
+        val textMeasure=Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            typeface=android.graphics.Typeface.create(
+                "sans-serif-black",android.graphics.Typeface.BOLD)
+        }
+        return object:LinearLayout(host) {
+            override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int) {
+                if(childCount==2) {
+                    val w=View.MeasureSpec.getSize(widthMeasureSpec)
+                    val h=View.MeasureSpec.getSize(heightMeasureSpec)
+                    textMeasure.textSize=minOf(
+                        52f*host.resources.displayMetrics.scaledDensity,h*.66f)
+                    val cluster=ReferenceButtonCluster.measure(
+                        w,h,textMeasure.measureText(label),.70f,.27f)
+                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
+                        width=cluster.iconWidth
+                        height=LinearLayout.LayoutParams.MATCH_PARENT
+                        weight=0f
+                    }
+                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
+                        width=cluster.labelWidth
+                        height=LinearLayout.LayoutParams.MATCH_PARENT
+                        marginStart=cluster.gap
+                        weight=0f
+                    }
+                }
+                super.onMeasure(widthMeasureSpec,heightMeasureSpec)
+            }
+        }.apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
             background=Bopavi3DTheme.button(if(primary)
@@ -68,12 +95,13 @@ internal class GameOverScreen(private val host:Activity) {
                     else BopaviUiIconDrawable.Kind.HOME,100))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(0,-1,.32f))
+            },LinearLayout.LayoutParams(0,-1))
             addView(HomeEmbossedLabel(host,label,52f,primary).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(0,-1,.68f))
+            },LinearLayout.LayoutParams(0,-1))
             setOnClickListener{onClick()}
         }
+    }
 
     fun create(worldDrawable:Int,pilotDrawable:Int,stats:GameOverStats,
                onRetry:()->Unit,onHome:()->Unit):View {
