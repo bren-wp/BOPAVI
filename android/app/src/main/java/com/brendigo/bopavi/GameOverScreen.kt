@@ -91,6 +91,8 @@ internal class GameOverScreen(private val host:Activity) {
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        // Original local wood and leaves sit behind the raised wordmark.
+        stage.place(GameOverTitlePlank(host),198f,333f,545f,135f)
         stage.place(ResultWingDecoration(host),145f,177f,650f,165f)
         stage.place(GameOverCrown(host),431f,53f,79f,76f)
         stage.place(ResultEmblemLabel(host,"GAME",97f,
@@ -104,6 +106,8 @@ internal class GameOverScreen(private val host:Activity) {
 
         // Painted floating grass/stone podium stays behind the actual Bopi.
         stage.place(GameOverPodium(host),168f,728f,605f,216f)
+        // Separate ambient feathers stay decorative, outside touch controls.
+        stage.place(GameOverFeathers(host),125f,406f,690f,508f)
         // Separate soft contact shadow adds depth without replacing the
         // portrait with a flattened screenshot or modifying result data.
         stage.place(View(host).apply{
