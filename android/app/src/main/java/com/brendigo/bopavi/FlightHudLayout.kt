@@ -11,12 +11,12 @@ internal object FlightHudLayout {
     // No scoreboard, currency, abilities or on-screen pause hit target.
     // Reference artwork: 941×1672, anchored across the left ~35% of the width.
     // On the 480-wide HUD canvas the badge is a 163×51 panel, not 232×68.
-    val lives=FlightHudBox(18f,14f,181f,65f)
+    val lives=FlightHudBox(18f,10f,181f,61f)
     val heartCenters=floatArrayOf(83f,119f,155f)
     const val heartHalfWidth=12f
-    const val heartBaseline=43f
+    const val heartBaseline=39f
     const val avatarX=44f
-    const val avatarY=39f
+    const val avatarY=35f
     const val avatarRadius=22f
 
     /** A centered selfie-camera cutout must NOT push the left-side HUD down.
