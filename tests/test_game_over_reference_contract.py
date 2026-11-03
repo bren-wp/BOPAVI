@@ -62,6 +62,10 @@ assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
 assert 'LinearLayout.LayoutParams(0,-1,.15f)' in screen
 assert 'LinearLayout.LayoutParams(0,-1,.30f)' in screen
 assert 'HomeEmbossedLabel(host,label,52f,primary)' in screen
+assert 'textMeasure.measureText(label),.70f,.27f' in screen
+assert 'width=cluster.iconWidth' in screen
+assert 'marginStart=cluster.gap' in screen
+assert 'LinearLayout.LayoutParams(0,-1,.32f)' not in screen
 assert 'BopaviUiIconDrawable.Kind.RESTART->retry(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.HOME->home(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
 assert "ResultStatText(host,label,false)" in screen
