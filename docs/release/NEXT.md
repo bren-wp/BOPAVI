@@ -1,14 +1,13 @@
 # Next Android release
 
-## v1.0.48 — Splash, Home, Gameplay and Game Over reference corrections (build 178)
+## v1.0.49 — 3D button spacing and reference HUD (build 179)
 
-**Candidate only — not published.** Built on the verified and released v1.0.47 baseline.
+**Unpublished candidate** based on main v1.0.48. Scope: four owner PNG references at 941×1672 — Loading, Home, Gameplay and Game Over. Changes are concentrated on the controls with the highest source-verified spacing mismatch.
 
-- **Splash:** raised blue-and-white Loading lettering with separate navy shadow; preserve live preparations, flying Bopi, winged BOPAVI mark, rings and enamel progress bar.
-- **Home:** reduce the excessive spaces between the icon and heading on Play, Skins, Shop and Settings by measuring one proportional centered cluster per button. Pin real coin/star balances to the physical safe top on tall portrait screens instead of vertically centering the wallets with the rest of the reference-stage UI. No fictional gem balance or payments.
-- **Gameplay:** raise avatar and the actual three-heart HUD on reference-sized displays without altering hitboxes, lives, enemy positions, physics, collection or save behavior.
-- **Game Over:** display current earned values inside locally drawn 3D outlined result text (white/navy captions; gold/bronze values), retaining real distance, coins/food and stars/score. Functional Retry/Home and the existing 3D podium remain.
+- **Home:** Play, Skins, Shop and Settings now measure actual bold caption width and center the 3D icon and text together. The label no longer sits inside a half-width blank column. The native button retains its full clickable surface, 3D extrusion, movement preferences and navigation.
+- **Home wallet:** stop adding a second 21px top margin on top of the device safe-area inset. Keep genuinely visible cutouts/status bars safe; show earned in-game values, not fake samples.
+- **Game Over:** Gold Retry and blue Home actions use the same compact measured icon/letter layout. Result values, original location and retry handlers are unchanged.
+- **Gameplay/Loading:** Existing real HUD, hitboxes, collectibles, loading-bar rendering and full-screen backdrop are protected by source tests; do not invent 3D or pixel-perfect acceptance without emulator evidence.
+- New pure Kotlin `ReferenceButtonCluster` geometry, JVM tests and source contracts check spacing and safe HUD placement.
 
-**Required acceptance before merge / release:** passing Android CI, debug/release APK and AAB compilation, no stale import warnings, responsive and cutout checks, native touch and accessibility tests, and emulator captures of the actual four screens at 941×1672 compared with the owner PNGs using `tools/compare_owner_ui.py` and `tools/qa_three_owner_references.py`.
-
-**Remaining artwork fidelity:** The existing happy/portrait Bopi is not the distinct sad seated hero shown in the Game Over reference. Complex fantasy background elements are also not identical to the owner concept. Do not claim fully pixel-perfect 1:1 without original standalone assets and actual device captures.
+**Release gates:** full GitHub Actions Android build/lint/tests and 941×1672 emulator captures checked against the four original reference PNGs. No exact 1:1 claim without actual captures. The distinct sad seated Bopi illustration and some environmental details still lack standalone source artwork; do not substitute a baked screenshot for working UI.
