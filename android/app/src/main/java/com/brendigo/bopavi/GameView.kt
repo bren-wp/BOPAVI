@@ -379,7 +379,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             canvas.save()
             // Inset is cached at lifecycle boundaries; no binder/cutout work on
             // the 60/90/120 Hz render path and no unnecessary center-notch shift.
-            canvas.translate((width-480f*hudScale)*.5f,hudTopSafeInsetPx+4f*hudScale)
+            canvas.translate((width-480f*hudScale)*.5f,hudTopSafeInsetPx+1f*hudScale)
             canvas.scale(hudScale,hudScale)
             drawHud(canvas)
             canvas.restore()

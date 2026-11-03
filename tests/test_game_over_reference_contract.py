@@ -64,7 +64,12 @@ assert 'LinearLayout.LayoutParams(0,-1,.30f)' in screen
 assert 'HomeEmbossedLabel(host,label,52f,primary)' in screen
 assert 'BopaviUiIconDrawable.Kind.RESTART->retry(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.HOME->home(canvas)' in (src/"HomeHeroIconDrawable.kt").read_text()
-assert 'gravity=Gravity.END or Gravity.CENTER_VERTICAL' in screen
+assert "ResultStatText(host,label,false)" in screen
+assert "ResultStatText(host,value,true)" in screen
+statText=(src/"ResultStatText.kt").read_text()
+assert "gravity=(if(isValue)Gravity.END else Gravity.START) or Gravity.CENTER_VERTICAL" in statText
+assert 'ink.color=if(isValue)0xffffc43b.toInt() else Color.WHITE' in statText
+assert "GameOverTitlePlank(host)" in screen and "GameOverFeathers(host)" in screen
 assert 'contentDescription="$label: $value"' in screen
 assert "endlessShowsActualFoodAndScoreNotFictionalGems" in unit
 assert "finiteShowsActualCoinsAndStars" in unit

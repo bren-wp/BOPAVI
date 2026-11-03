@@ -91,7 +91,36 @@ internal class HomeReferenceScreen(private val host:Activity,
         val isWide=isPlay || kind==BopaviUiIconDrawable.Kind.SHIRT ||
             kind==BopaviUiIconDrawable.Kind.SHOP ||
             kind==BopaviUiIconDrawable.Kind.SETTINGS
-        val group=LinearLayout(host).apply{
+        val group=object:LinearLayout(host){
+            override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
+                // Keep icon and text as ONE compact cluster, not wide columns.
+                if(isWide && childCount==2){
+                    val w=View.MeasureSpec.getSize(widthMeasureSpec)
+                    val h=View.MeasureSpec.getSize(heightMeasureSpec)
+                    val iconW=minOf((h*(if(isPlay).70f else .61f)).toInt(),
+                        (w*.29f).toInt()).coerceAtLeast(1)
+                    val titleW=(w*when(kind){
+                        BopaviUiIconDrawable.Kind.PLAY->.53f
+                        BopaviUiIconDrawable.Kind.SETTINGS->.60f
+                        BopaviUiIconDrawable.Kind.SHIRT->.51f
+                        else->.47f
+                    }).toInt().coerceAtLeast(1)
+                    val gap=(w*.022f).toInt().coerceAtLeast(4)
+                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply{
+                        width=iconW
+                        height=LinearLayout.LayoutParams.MATCH_PARENT
+                        weight=0f
+                    }
+                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply{
+                        width=titleW
+                        height=LinearLayout.LayoutParams.MATCH_PARENT
+                        marginStart=gap
+                        weight=0f
+                    }
+                }
+                super.onMeasure(widthMeasureSpec,heightMeasureSpec)
+            }
+        }.apply{
             orientation=if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
@@ -128,13 +157,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         }
         val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
         if(isWide){
-            val symbolWeight=if(isPlay).23f else .255f
-            // Reference-aligned proportions stay identical on 1x/2x/3x
-            // displays; these are native tappable Views, not image hot spots.
-            group.addView(symbol,LinearLayout.LayoutParams(
-                0,LinearLayout.LayoutParams.MATCH_PARENT,symbolWeight))
-            group.addView(title,LinearLayout.LayoutParams(
-                0,LinearLayout.LayoutParams.MATCH_PARENT,1f-symbolWeight))
+            group.addView(symbol,LinearLayout.LayoutParams(0,-1))
+            group.addView(title,LinearLayout.LayoutParams(0,-1))
         }else{
             group.addView(symbol,LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,0,.72f))
@@ -216,17 +240,20 @@ internal class HomeReferenceScreen(private val host:Activity,
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        // Keep top balances anchored above the centered fantasy scene.
+        val walletRail=HomeTopWalletRail(host)
+        root.addView(walletRail,FrameLayout.LayoutParams(-1,-1))
 
         // Decorative rings are local Canvas geometry, not false pickups.
         stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f)
-        place(stage,wallet("COINS",progress.coins(),
+        walletRail.attach(wallet("COINS",progress.coins(),
             BopaviUiIconDrawable.Kind.COIN,"Otvori trgovinu",onCoins),
-            HomeReferenceLayout.coins,true)
+            HomeReferenceLayout.coins)
         val earnedStars=(0 until LevelEngine.WORLD_COUNT)
             .sumOf{progress.worldStars(it)}
-        place(stage,wallet("STARS",earnedStars,
+        walletRail.attach(wallet("STARS",earnedStars,
             BopaviUiIconDrawable.Kind.GEM,"Otvori kartu razina",onStars),
-            HomeReferenceLayout.stars,true)
+            HomeReferenceLayout.stars)
 
         place(stage,ImageView(host).apply{
             setImageResource(R.drawable.logo)
@@ -293,10 +320,13 @@ internal class HomeReferenceScreen(private val host:Activity,
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
                     or android.view.WindowInsets.Type.displayCutout())
                 stage.setSafe(bars.left,bars.top,bars.right,bars.bottom)
+                walletRail.setSafe(bars.left,bars.top,bars.right)
             }else{
                 @Suppress("DEPRECATION")
                 stage.setSafe(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,
                     insets.systemWindowInsetRight,insets.systemWindowInsetBottom)
+                walletRail.setSafe(insets.systemWindowInsetLeft,
+                    insets.systemWindowInsetTop,insets.systemWindowInsetRight)
             }
             insets
         }
