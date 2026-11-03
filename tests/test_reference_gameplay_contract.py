@@ -43,7 +43,7 @@ for forbidden in ('game.score()', 'game.coins', 'cachedLivesLabel',
                   'drawHudRightText(', 'game.foodCollected', 'game.magnetTime',
                   'game.shield'):
     assert forbidden not in hud,forbidden
-assert 'val lives=FlightHudBox(18f,14f,181f,65f)' in layout
+assert 'val lives=FlightHudBox(18f,10f,181f,61f)' in layout
 assert 'val heartCenters=floatArrayOf(83f,119f,155f)' in layout
 # The owner's 00_32_52-2 Gameplay reference has gold crown coins,
 # faceted sapphires, a linked bronze mace and bright wind behind the bird.
