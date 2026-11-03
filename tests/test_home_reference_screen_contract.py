@@ -65,7 +65,7 @@ for feature in ("LinearGradient(","canvas.drawRoundRect(",
 # All major controls use native independent 3D pictograms and outlined
 # text. Rounded edge and contrast must never be replaced with emoji glyphs.
 assert "HomeHeroIconDrawable(kind,dp(imageSize))" in view
-assert "Keep icon and text as ONE compact cluster" in view
+assert "Measure actual painted text." in view
 assert "ReferenceButtonCluster.measure(" in view
 assert "textMeasure.measureText(text)" in view
 assert "width=cluster.labelWidth" in view
