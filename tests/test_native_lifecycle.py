@@ -22,6 +22,16 @@ assert "progress.chooseArcadePilot(index)" in activity
 assert "selectedPilotChoice" in home and "showSkins()" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
 assert "override fun onWindowFocusChanged(hasFocus:Boolean)" in activity
+# Level preparation must be gated on Activity lifecycle, not an unstable
+# window-focus bit that UIAutomator can briefly clear while Home/Flight
+# remains resumed. Genuine onPause still cancels background game starts.
+assert "private var activityResumed = false" in activity
+assert "override fun onPause() {\n        activityResumed=false" in activity
+assert "override fun onResume() {\n        super.onResume()\n        activityResumed=true" in activity
+prepare=activity.split("private fun prepareFlight(",1)[1].split("private fun openFlight(",1)[0]
+assert "if(!activityResumed)" in prepare
+assert "if(!hasWindowFocus())" not in prepare
+assert "if(token!=loadingGeneration || selectedScreen!=\"loading\"" in prepare
 manifest=(r/"android/app/src/main/AndroidManifest.xml").read_text()
 assert 'android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density"' in manifest
 assert 'override fun onConfigurationChanged(newConfig:android.content.res.Configuration)' in activity
