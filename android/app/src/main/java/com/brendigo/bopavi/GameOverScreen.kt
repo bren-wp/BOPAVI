@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.Gravity
@@ -13,7 +12,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 
 /**
  * Loss-only native BOPAVI result screen. Coordinate targets follow the
@@ -22,7 +20,6 @@ import android.widget.TextView
  */
 internal class GameOverScreen(private val host:Activity) {
     private fun dp(px:Int)=((px*host.resources.displayMetrics.density)+.5f).toInt()
-    private val navy=0xff092451.toInt()
     private val gold=0xffffbe23.toInt()
 
     private fun statRow(label:String,value:String,icon:BopaviUiIconDrawable.Kind,
@@ -44,29 +41,10 @@ internal class GameOverScreen(private val host:Activity) {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(0,-1,.15f))
-        row.addView(TextView(host).apply{
-            text=label
-            textSize=22f
-            maxLines=1
-            includeFontPadding=false
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            setTextColor(navy)
-            setAutoSizeTextTypeUniformWithConfiguration(13,22,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            gravity=Gravity.CENTER_VERTICAL
+        row.addView(ResultStatText(host,label,false).apply{
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(0,-1,.55f))
-        row.addView(TextView(host).apply{
-            text=value
-            textSize=30f
-            maxLines=1
-            includeFontPadding=false
-            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-            setTextColor(0xffa5490b.toInt())
-            setShadowLayer(dp(2).toFloat(),0f,dp(2).toFloat(),0x440a214f)
-            setAutoSizeTextTypeUniformWithConfiguration(16,30,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            gravity=Gravity.END or Gravity.CENTER_VERTICAL
+        row.addView(ResultStatText(host,value,true).apply{
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(0,-1,.30f))
         return row
