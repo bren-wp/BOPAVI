@@ -7,8 +7,8 @@ home=(src/"HomeReferenceScreen.kt").read_text()
 medal=(src/"HomeMedalDrawable.kt").read_text()
 layout=(src/"HomeReferenceLayout.kt").read_text()
 assert "setPadding(0,0,0,0)" in home
-assert "val symbolWeight=if(isPlay).23f else .255f" in home
-assert "1f-symbolWeight" in home
+assert "val iconW=minOf(" in home
+assert "val gap=(w*.022f).toInt()" in home
 assert "dp(if(isPlay)93 else 59)" not in home
 assert "HomeMedalDrawable()" in home
 assert "canvas.scale(bounds.width()/100f,bounds.height()/100f)" in medal
