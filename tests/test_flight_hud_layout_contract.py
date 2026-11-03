@@ -18,7 +18,7 @@ assert "FlightHudLayout.movingWarningVisible(g.movement,x,game.birdX)" in view
 assert "onlyLivesCardIsLeftAlignedAndFullyOnScreen" in unit
 assert "centerCutoutDoesNotDisplaceLeftHudButLeftNotchDoes" in unit
 assert "override fun onApplyWindowInsets(insets:WindowInsets)" in view
-assert "hudTopSafeInsetPx+4f*hudScale" in view
+assert "hudTopSafeInsetPx+1f*hudScale" in view
 assert "rootWindowInsets?.getInsets" not in view
 assert "onlyUpcomingMovingPillarsGetWarnings" in unit
 print("PASS: left-aligned lives-only HUD, collision-safe moving gate warnings")
