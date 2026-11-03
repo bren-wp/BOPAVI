@@ -6,8 +6,9 @@ Pause dialog. The GameView must retain its real lives and first-flap state.
 This is a debug-only deterministic capture, never a synthetic gameplay score.
 """
 import time
+import xml.etree.ElementTree as ET
 
-from qa_android_rotation import APP, adb, hierarchy, find_action, label, tap
+from qa_android_rotation import APP, OUT, adb, hierarchy, find_action, label, screenshot, tap
 
 
 def one_control(phrase, attempts=16):
@@ -17,7 +18,22 @@ def one_control(phrase, attempts=16):
         if len(hits) == 1:
             return hits[0]
         time.sleep(1)
-    raise AssertionError(f"FAIL: expected exactly one accessible {phrase}")
+    # Preserve evidence of the real screen instead of misclassifying a
+    # missing GameView as an emulator transport failure. Release remains
+    # blocked if Home/Loading/Crash is visible after a genuine PLAY tap.
+    detail="hierarchy unavailable"
+    try:
+        root=hierarchy()
+        visible=[label(n).strip() for n in root.iter("node")
+                 if n.get("clickable")=="true"]
+        detail="accessible click targets: "+repr(visible[:16])
+        (OUT/"android-background-failed-hierarchy.xml").write_bytes(
+            ET.tostring(root,encoding="utf-8"))
+        screenshot("android-background-failed-state")
+    except Exception as exc:
+        detail+="; diagnostic capture unavailable: "+str(exc)
+    raise AssertionError(
+        f"FAIL: expected exactly one accessible {phrase}; {detail}")
 
 
 def active_flight():
