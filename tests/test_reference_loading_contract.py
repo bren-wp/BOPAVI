@@ -32,7 +32,12 @@ assert 'val generated=runCatching{LevelEngine.createStream(world,number)}' in ac
 assert 'val perks=progress.consumePerks()' in activity
 assert activity.index('val generated=runCatching{LevelEngine.createStream(world,number)}') < activity.index('val perks=progress.consumePerks()')
 assert 'if(token!=loadingGeneration || selectedScreen!="loading" ||' in activity
-assert 'if(!hasWindowFocus())' in activity
+# PR #214 intentionally replaced transient window-focus gating with Activity
+# resume state, so UIAutomator dumps cannot discard a real Play tap.
+prepare=activity.split("private fun prepareFlight(",1)[1].split(
+    "private fun openFlight(",1)[0]
+assert "if(!activityResumed)" in prepare
+assert "if(!hasWindowFocus())" not in prepare
 assert 'loading.completePreparation()' in activity
 assert 'openFlight(simulation,world)' in activity
 assert 'private var loadingGeneration = 0' in activity
