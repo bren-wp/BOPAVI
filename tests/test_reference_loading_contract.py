@@ -21,7 +21,9 @@ assert "trackWings(canvas)" in loading
 assert "outer.left-3f,outer.top-4f" in loading
 assert "0xff482614.toInt()" in loading
 assert "paint.color=0xfffff6d2.toInt()" in loading
-assert "val glow=if(preparationFinished)1f else .61f+.07f*" in loading
+assert "FlightLoadingTrack.segment(inner.width()-6f," in loading
+assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in loading
+assert ".61f+.07f" not in loading
 assert "ring(canvas,549f,1033f,37f,54f,-21f)" in loading
 assert "paint.pathEffect=" not in loading
 assert "FlightLoadingLayout.captionBaselineY" in loading
