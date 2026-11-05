@@ -15,13 +15,13 @@ assert 'if(played!=null)startLevel(played.first,played.second)' in main
 assert 'onHome={showHome()}' in main
 assert 'progress.recordRun(g)' in main
 for marker in (
-    'stage.place(ResultWingDecoration(host),145f,177f,650f,165f)',
+    'stage.place(ResultWingDecoration(host),145f,177f,650f,165f,',
     'ResultEmblemLabel(host,"GAME",97f,',
     'ResultEmblemLabel.Tone.ICE',
     'ResultEmblemLabel(host,"OVER",103f,',
     'ResultEmblemLabel.Tone.CORAL',
-    'stage.place(GameOverPodium(host),168f,728f,605f,216f)',
-    'stage.place(statistics,123f,927f,695f,310f)',
+    'stage.place(GameOverPodium(host),168f,728f,605f,216f,',
+    'stage.place(statistics,123f,927f,695f,310f,',
     'stage.place(action("RETRY",true,onRetry),183f,1233f,575f,150f,',
     'stage.place(action("HOME",false,onHome),241f,1404f,459f,124f,',
     'contentDescription="$label: $value"',
@@ -29,7 +29,7 @@ for marker in (
     'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO',
 ): assert marker in screen,marker
 assert "fun fromRun(distance:Float,coins:Int,stars:Int,food:Int," in stats
-assert '},299f,749f,344f,55f)' in screen
+assert '},299f,749f,344f,55f,referenceAligned=true)' in screen
 assert '"Food Collected"' in stats
 assert '"Coins Collected"' in stats
 assert '"Stars Collected"' in stats
