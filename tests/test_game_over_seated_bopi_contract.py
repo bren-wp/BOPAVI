@@ -9,8 +9,8 @@ pose=(src/"GameOverSeatedBopi.kt").read_text()
 assert "GameOverSeatedBopi(host)" in screen
 assert "pilotDrawable==R.drawable.bopiportrait0" in screen
 assert "setImageResource(pilotDrawable)" in screen  # other selected pilots preserved
-assert "stage.place(resultPilot,224f,431f,494f,445f)" in screen
-assert "stage.place(GameOverPodium(host),168f,728f,605f,216f)" in screen
+assert "stage.place(resultPilot,224f,431f,494f,445f," in screen
+assert "stage.place(GameOverPodium(host),168f,728f,605f,216f," in screen
 assert "onRetry" in screen and "onHome" in screen
 assert "setOnClickListener{onClick()}" in screen
 assert "internal class GameOverSeatedBopi(context:Context):View(context)" in pose
