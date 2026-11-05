@@ -8,6 +8,7 @@ This change continues the existing merged v1.0.50 (build 180) Android game; it d
 
 - Splash/Loading: during asynchronous level preparation, replace the 61–68% apparent prefilled progress bar with an indeterminate cyan scan; fill the blue enamel track only on the real preparation completion event. Keep the native offline artwork and loading accessibility state.
 - Game Over: use a newly drawn local, noninteractive **sad seated classic Bopi** illustration instead of the flying portrait for the original blue aviator. Preserve the currently selected alternate-pilot portraits until dedicated approved seated images exist.
+- Home and Game Over: place decorative wordmarks, character art, podiums and 3D reference controls on the original full 941×1672 grid when safe. Keep a real Android cutout/navigation-bar fallback for native touch targets on smaller or inset-heavy devices.
 - Keep real Retry/Home click listeners and accessibility targets, true run stats, save data, gameplay physics, collision geometry, music and existing world progression unchanged.
 - Add deterministic JVM tests for loading scan bounds, movement and completion, and source assertions for the seated Bopi route.
 
