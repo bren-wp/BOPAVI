@@ -16,7 +16,7 @@ for required in (
     "image(canvas, brand, logoRect)",
     "leftWing?.recycle()","rightWing?.recycle()",
     'if(startup)"BOPAVI se pokreće" else "Loading level"',
-    "if(preparationFinished)1f",
+    "FlightLoadingTrack.segment(inner.width()-6f,",
     "FlightLoadingLayout.captionBaselineY",
     "FlightLoadingLayout.track.left",
     "paint.shader = LinearGradient",
