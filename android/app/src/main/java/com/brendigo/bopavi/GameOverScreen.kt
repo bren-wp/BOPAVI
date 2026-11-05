@@ -146,11 +146,17 @@ internal class GameOverScreen(private val host:Activity) {
             }
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },299f,749f,344f,55f)
-        stage.place(ImageView(host).apply{
+        // The classic blue aviator needs a true seated Game Over pose.
+        // Keep the selected portrait for alternate pilots until each has
+        // an approved dedicated seated illustration of its own.
+        val resultPilot:View=if(pilotDrawable==R.drawable.bopiportrait0)
+            GameOverSeatedBopi(host)
+        else ImageView(host).apply{
             setImageResource(pilotDrawable)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },224f,431f,494f,445f)
+        }
+        stage.place(resultPilot,224f,431f,494f,445f)
 
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
