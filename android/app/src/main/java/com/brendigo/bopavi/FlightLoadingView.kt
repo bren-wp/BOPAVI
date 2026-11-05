@@ -295,13 +295,14 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         val inner=RectF(outer.left+13f,outer.top+13f,
             outer.right-13f,outer.bottom-13f)
         gradient(canvas,inner,0xff632809.toInt(),0xff431907.toInt(),radius-13f)
-        // The illuminated segment changes width without implying a reported
-        // load percentage. Once game preparation completes, fill the track.
-        val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f
-        val glow=if(preparationFinished)1f else .61f+.07f*
-            (.5f-.5f*kotlin.math.cos(phase*2f*Math.PI.toFloat()))
-        val segment=RectF(inner.left+3f,inner.top+4f,
-            inner.left+3f+(inner.width()-6f)*glow,inner.bottom-4f)
+        // The dark track remains unfilled while a 24%-wide scanning light
+        // moves across it; the entire bar lights only after preparation.
+        // Level generation has no known fractional completion: animate
+        // a scanning highlight until the genuine ready signal arrives.
+        val scan=FlightLoadingTrack.segment(inner.width()-6f,
+            android.os.SystemClock.uptimeMillis(),preparationFinished)
+        val segment=RectF(inner.left+3f+scan.offset,inner.top+4f,
+            inner.left+3f+scan.offset+scan.width,inner.bottom-4f)
         gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
             segment.height()*.5f)
         val clip=canvas.save()
@@ -320,8 +321,8 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             canvas.drawLine(x,segment.bottom-1f,x+30f,segment.top+1f,paint)
         }
         canvas.restoreToCount(clip)
-        fill(canvas,RectF(inner.left+7f,inner.top+6f,
-            inner.left+7f+(inner.width()-14f)*glow,inner.top+12f),
+        fill(canvas,RectF(segment.left+6f,segment.top+2f,
+            segment.right-6f,segment.top+8f),
             0x55ffffff,6f)
         // Keep the owner's exact Loading... caption until navigation leaves
         // this screen; state is still conveyed truthfully by accessibility.
