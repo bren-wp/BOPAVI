@@ -15,11 +15,9 @@ assert "onRetry" in screen and "onHome" in screen
 assert "setOnClickListener{onClick()}" in screen
 assert "internal class GameOverSeatedBopi(context:Context):View(context)" in pose
 assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in pose
-for feature in ("Draw a moving", "SITTING pose", "Sad lowered brows",
+for feature in ("SITTING pose", "Sad lowered brows",
                 "Closed drooping orange beak", "Large sitting toes",
                 "tucked downward"):
-    if feature=="Draw a moving":
-        continue
     assert feature in pose,feature
 assert "android.graphics.BitmapFactory" not in pose
 assert "onTouchEvent" not in pose
