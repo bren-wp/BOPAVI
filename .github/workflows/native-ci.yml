@@ -111,6 +111,7 @@ jobs:
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_reference_button_cluster_contract.py
+      - run: python tests/test_reference_insets_alignment_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
       - run: python tests/test_pause_reference_contract.py
