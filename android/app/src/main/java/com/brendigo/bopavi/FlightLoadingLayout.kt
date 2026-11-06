@@ -19,7 +19,10 @@ internal object FlightLoadingLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
     // Winged crown wordmark is proportionate to original 780 x 236 logo PNG.
-    val logo=LoadingArtBox(28f,96f,913f,364f)
+    // The previous 885px wordmark extended nearly edge-to-edge; the
+    // approved owner artwork has a more balanced lateral sky margin.
+    // 757/229 ~= 780/236 retains the source logo's natural ratio.
+    val logo=LoadingArtBox(92f,128f,849f,357f)
     // Bopi's BODY and both animated-gameplay wing layers are all square
     // 512x512 canvases. Paint them in the same rectangle, no distortion.
     val pilot=LoadingArtBox(90f,381f,850f,1141f)

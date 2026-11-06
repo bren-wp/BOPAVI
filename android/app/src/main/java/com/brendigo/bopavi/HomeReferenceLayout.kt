@@ -18,7 +18,17 @@ internal object HomeReferenceLayout {
     val coins=HomeBounds(457f,21f,220f,64f)
     val stars=HomeBounds(705f,21f,215f,64f)
     val logo=HomeBounds(122f,112f,697f,273f)
-    val hero=HomeBounds(96f,391f,745f,483f)
+    // The original Bopi layers use a SQUARE 512x512 transparency grid.
+    // A 745x483 container with FIT_CENTER shrank all wing/body pixels to 483px,
+    // making Bopi visibly too small. Preserve square source proportions while
+    // sizing the painted silhouette to the owner's 941x1672 reference.
+    val hero=HomeBounds(152f,342f,645f,645f)
+    // Extents of alpha>12 in the approved classic 512px body/wing union:
+    // x=18..493 and y=86..424. Only painted pixels, not the transparent
+    // square canvas, must clear the logo and the native Play touch target.
+    val heroArtwork=HomeBounds(
+        hero.x+18f*hero.w/512f,hero.y+86f*hero.h/512f,
+        475f*hero.w/512f,339f*hero.h/512f)
     val play=HomeBounds(149f,894f,645f,191f)
     // Visual wings extend beyond the native gold button on both sides.
     val playWings=HomeBounds(112f,904f,719f,171f)
@@ -47,7 +57,8 @@ internal object HomeReferenceLayout {
         if(playWings.x>=play.x || playWings.right<=play.right ||
             playWings.y<play.y || playWings.bottom>play.bottom)return false
         if(coins.bottom>=logo.y || stars.bottom>=logo.y)return false
-        if(logo.bottom>=hero.y || hero.bottom>=play.y)return false
+        if(!heroArtwork.inside() || logo.bottom>=heroArtwork.y ||
+            heroArtwork.bottom>=play.y)return false
         if(skins.y!=shop.y || achievements.y!=leaderboard.y ||
             leaderboard.y!=sound.y || settings.y<=skins.y ||
             settings.bottom>=achievements.y)return false

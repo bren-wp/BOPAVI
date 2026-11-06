@@ -9,6 +9,7 @@ class FlightLoadingLayoutTest {
         assertTrue(layout.logo.isInsideReference())
         assertTrue(layout.pilot.isInsideReference())
         assertTrue(layout.track.isInsideReference())
+        assertTrue("Splash logo should keep side margins",layout.logo.left>=90f && layout.logo.right<=850f)
         assertTrue("Branded wordmark must not be stretched",
             layout.aspectError(layout.logo,780f,236f)<.01f)
         assertEquals("Shared wing/body canvases must remain square",

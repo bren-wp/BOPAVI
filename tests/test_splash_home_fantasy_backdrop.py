@@ -9,6 +9,9 @@ loading=(root/"android/app/src/main/java/com/brendigo/bopavi/FlightLoadingView.k
 assert "home_art=enrich_background(home_art)" in g
 assert "from paint_fantasy_backdrop import enrich_background" in g
 assert "Random(24187)" in d and "source.size != (900, 1600)" in d
+assert "def cinematic_detail(flat: Image.Image)" in d
+assert "Random(9411672)" in d and "ImageFilter.GaussianBlur" in d
+assert "return cinematic_detail(Image.alpha_composite(" in d
 for item in ("castle(102,426,.66)","castle(773,487,.58)","enrich_background(source)"):
     assert item in d,item
 assert "R.drawable.homeback" in home and "R.drawable.homeback" in loading

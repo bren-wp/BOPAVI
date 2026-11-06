@@ -20,7 +20,7 @@ for box in (
     "val coins=HomeBounds(457f,21f,220f,64f)",
     "val stars=HomeBounds(705f,21f,215f,64f)",
     "val logo=HomeBounds(122f,112f,697f,273f)",
-    "val hero=HomeBounds(96f,391f,745f,483f)",
+    "val hero=HomeBounds(152f,342f,645f,645f)",
     "val play=HomeBounds(149f,894f,645f,191f)",
     "val playWings=HomeBounds(112f,904f,719f,171f)",
     "val skins=HomeBounds(135f,1097f,325f,137f)",
@@ -81,10 +81,11 @@ assert "dp(if(isPlay)93 else 59)" not in view
 assert "HomeMedalDrawable()" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
 assert "HomeMedalDrawable()" in view
+assert "val caption=(available*.23f).toInt().coerceAtLeast(1)" in view
 assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
-assert "glyph(kind,36)" in view
+assert "glyph(kind,40)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
