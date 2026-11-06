@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.51 — Honest splash progress and seated Game Over Bopi (build 181)
+
+**Published:** 2026-11-06 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.51)
+
+- Splash/Loading: during asynchronous level preparation, replace the 61–68% apparent prefilled progress bar with an indeterminate cyan scan; fill the blue enamel track only on the real preparation completion event. Keep the native offline artwork and loading accessibility state.
+- Game Over: use a newly drawn local, noninteractive **sad seated classic Bopi** illustration instead of the flying portrait for the original blue aviator. Preserve the currently selected alternate-pilot portraits until dedicated approved seated images exist.
+- Home and Game Over: place decorative wordmarks, character art, podiums and 3D reference controls on the original full 941×1672 grid when safe. Keep a real Android cutout/navigation-bar fallback for native touch targets on smaller or inset-heavy devices.
+- Keep real Retry/Home click listeners and accessibility targets, true run stats, save data, gameplay physics, collision geometry, music and existing world progression unchanged.
+- Add deterministic JVM tests for loading scan bounds, movement and completion, and source assertions for the seated Bopi route.
+
 ## v1.0.50 — Android 15 gameplay preflight lifecycle fix (build 180)
 
 **Published:** 2026-11-03 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.50)
@@ -12,12 +22,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Keep the top-right Home wallet HUD safe-inset fix.
 - Fix async preflight: check actual Activity onResume/onPause instead of transient window focus, which can drop during UIAutomator and incorrectly return Home before first flap.
 - Background/resume QA now retains an actual accessibility hierarchy and emulator screenshot on failure instead of suppressing or retrying a real application problem. No fake game state.
-
-## v1.0.48 — Splash, Home, Gameplay and Game Over reference corrections (build 178)
-
-**Published:** 2026-11-03 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.48)
-
-- **Splash:** raised blue-and-white Loading lettering with separate navy shadow; preserve live preparations, flying Bopi, winged BOPAVI mark, rings and enamel progress bar.
-- **Home:** reduce the excessive spaces between the icon and heading on Play, Skins, Shop and Settings by measuring one proportional centered cluster per button. Pin real coin/star balances to the physical safe top on tall portrait screens instead of vertically centering the wallets with the rest of the reference-stage UI. No fictional gem balance or payments.
-- **Gameplay:** raise avatar and the actual three-heart HUD on reference-sized displays without altering hitboxes, lives, enemy positions, physics, collection or save behavior.
-- **Game Over:** display current earned values inside locally drawn 3D outlined result text (white/navy captions; gold/bronze values), retaining real distance, coins/food and stars/score. Functional Retry/Home and the existing 3D podium remain.
