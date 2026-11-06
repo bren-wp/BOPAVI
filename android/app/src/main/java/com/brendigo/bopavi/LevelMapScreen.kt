@@ -389,16 +389,25 @@ internal class LevelMapScreen(
 
 /** Uniform reference camera for native taps and the painted landscape. */
 internal class LevelMapStage(context:Context):ViewGroup(context){
-    private data class Slot(val view:View,val bounds:RectF,val full:Boolean,val minTouch:Boolean)
+    private data class Slot(val view:View,val bounds:RectF,val full:Boolean,
+                            val minTouch:Boolean,val referenceAligned:Boolean)
     private val slots=ArrayList<Slot>()
     private var safeLeft=0
     private var safeTop=0
     private var safeRight=0
     private var safeBottom=0
 
+    /**
+     * Decorative art is allowed to use the exact full owner reference grid.
+     * A native touch target may do so only when its entire reference rectangle
+     * fits within the real device's safe window insets. Otherwise it falls
+     * back to the previously existing safe-area transform.
+     */
     fun place(view:View,x:Float,y:Float,w:Float,h:Float,
-              full:Boolean=false,minTouch:Boolean=false){
-        slots.add(Slot(view,RectF(x,y,x+w,y+h),full,minTouch))
+              full:Boolean=false,minTouch:Boolean=false,
+              referenceAligned:Boolean=false){
+        slots.add(Slot(view,RectF(x,y,x+w,y+h),full,minTouch,
+            referenceAligned))
         addView(view,ViewGroup.LayoutParams(-2,-2))
     }
     fun setSafe(left:Int,top:Int,right:Int,bottom:Int) {
@@ -415,13 +424,37 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
         return Triple(scale,safeLeft+(availableW-LevelMapGeometry.width*scale)/2f,
             safeTop+(availableH-LevelMapGeometry.height*scale)/2f)
     }
+    private fun referenceTransform(width:Int,height:Int):Triple<Float,Float,Float>{
+        val scale=min(width/LevelMapGeometry.width,
+            height/LevelMapGeometry.height)
+        return Triple(scale,(width-LevelMapGeometry.width*scale)/2f,
+            (height-LevelMapGeometry.height*scale)/2f)
+    }
+    private fun placement(slot:Slot,width:Int,height:Int,
+                          safe:Triple<Float,Float,Float>,
+                          reference:Triple<Float,Float,Float>
+    ):Triple<Float,Float,Float>{
+        if(!slot.referenceAligned)return safe
+        if(!slot.minTouch)return reference
+        val scale=reference.first
+        val x=reference.second
+        val y=reference.third
+        val b=slot.bounds
+        val inside=x+b.left*scale>=safeLeft &&
+            x+b.right*scale<=width-safeRight &&
+            y+b.top*scale>=safeTop &&
+            y+b.bottom*scale<=height-safeBottom
+        return if(inside)reference else safe
+    }
     override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
         val w=View.MeasureSpec.getSize(widthMeasureSpec)
         val h=View.MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(w,h)
-        val (scale,_,_)=transform(w,h)
+        val safe=transform(w,h)
+        val reference=referenceTransform(w,h)
         val minimum=(48f*resources.displayMetrics.density).toInt()
         for(slot in slots){
+            val (scale,_,_)=placement(slot,w,h,safe,reference)
             val cw=if(slot.full)w else maxOf((slot.bounds.width()*scale).toInt(),
                 if(slot.minTouch)minimum else 1)
             val ch=if(slot.full)h else maxOf((slot.bounds.height()*scale).toInt(),
@@ -433,9 +466,11 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
     override fun onLayout(changed:Boolean,left:Int,top:Int,right:Int,bottom:Int){
         val w=right-left
         val h=bottom-top
-        val (scale,ox,oy)=transform(w,h)
+        val safe=transform(w,h)
+        val reference=referenceTransform(w,h)
         for(slot in slots){
             val child=slot.view
+            val (scale,ox,oy)=placement(slot,w,h,safe,reference)
             val x=if(slot.full)0 else (ox+slot.bounds.left*scale).toInt()
             val y=if(slot.full)0 else (oy+slot.bounds.top*scale).toInt()
             child.layout(x,y,x+child.measuredWidth,y+child.measuredHeight)

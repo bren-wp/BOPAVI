@@ -120,22 +120,27 @@ internal class GameOverScreen(private val host:Activity) {
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         // Original local wood and leaves sit behind the raised wordmark.
-        stage.place(GameOverTitlePlank(host),198f,333f,545f,135f)
-        stage.place(ResultWingDecoration(host),145f,177f,650f,165f)
-        stage.place(GameOverCrown(host),431f,53f,79f,76f)
+        stage.place(GameOverTitlePlank(host),198f,333f,545f,135f,
+            referenceAligned=true)
+        stage.place(ResultWingDecoration(host),145f,177f,650f,165f,
+            referenceAligned=true)
+        stage.place(GameOverCrown(host),431f,53f,79f,76f,
+            referenceAligned=true)
         stage.place(ResultEmblemLabel(host,"GAME",97f,
             ResultEmblemLabel.Tone.ICE).apply {
             contentDescription="Game Over"
-        },171f,129f,599f,146f)
+        },171f,129f,599f,146f,referenceAligned=true)
         stage.place(ResultEmblemLabel(host,"OVER",103f,
             ResultEmblemLabel.Tone.CORAL).apply {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },153f,267f,635f,166f)
+        },153f,267f,635f,166f,referenceAligned=true)
 
         // Painted floating grass/stone podium stays behind the actual Bopi.
-        stage.place(GameOverPodium(host),168f,728f,605f,216f)
+        stage.place(GameOverPodium(host),168f,728f,605f,216f,
+            referenceAligned=true)
         // Separate ambient feathers stay decorative, outside touch controls.
-        stage.place(GameOverFeathers(host),125f,406f,690f,508f)
+        stage.place(GameOverFeathers(host),125f,406f,690f,508f,
+            referenceAligned=true)
         // Separate soft contact shadow adds depth without replacing the
         // portrait with a flattened screenshot or modifying result data.
         stage.place(View(host).apply{
@@ -145,12 +150,19 @@ internal class GameOverScreen(private val host:Activity) {
                 shape=GradientDrawable.OVAL
             }
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },299f,749f,344f,55f)
-        stage.place(ImageView(host).apply{
+        },299f,749f,344f,55f,referenceAligned=true)
+        // The classic blue aviator needs a true seated Game Over pose.
+        // Keep the selected portrait for alternate pilots until each has
+        // an approved dedicated seated illustration of its own.
+        val resultPilot:View=if(pilotDrawable==R.drawable.bopiportrait0)
+            GameOverSeatedBopi(host)
+        else ImageView(host).apply{
             setImageResource(pilotDrawable)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },224f,431f,494f,445f)
+        }
+        stage.place(resultPilot,224f,431f,494f,445f,
+            referenceAligned=true)
 
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
@@ -177,12 +189,13 @@ internal class GameOverScreen(private val host:Activity) {
                 setMargins(0,3,0,3)
             })
         }
-        stage.place(statistics,123f,927f,695f,310f)
+        stage.place(statistics,123f,927f,695f,310f,
+            referenceAligned=true)
 
         stage.place(action("RETRY",true,onRetry),183f,1233f,575f,150f,
-            minTouch=true)
+            minTouch=true,referenceAligned=true)
         stage.place(action("HOME",false,onHome),241f,1404f,459f,124f,
-            minTouch=true)
+            minTouch=true,referenceAligned=true)
         stage.setOnApplyWindowInsetsListener{ _,insets ->
             if(Build.VERSION.SDK_INT>=30){
                 val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()

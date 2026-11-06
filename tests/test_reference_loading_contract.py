@@ -21,7 +21,9 @@ assert "trackWings(canvas)" in loading
 assert "outer.left-3f,outer.top-4f" in loading
 assert "0xff482614.toInt()" in loading
 assert "paint.color=0xfffff6d2.toInt()" in loading
-assert "val glow=if(preparationFinished)1f else .61f+.07f*" in loading
+assert "FlightLoadingTrack.segment(inner.width()-6f," in loading
+assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in loading
+assert ".61f+.07f" not in loading
 assert "ring(canvas,549f,1033f,37f,54f,-21f)" in loading
 assert "paint.pathEffect=" not in loading
 assert "FlightLoadingLayout.captionBaselineY" in loading
@@ -30,7 +32,12 @@ assert 'val generated=runCatching{LevelEngine.createStream(world,number)}' in ac
 assert 'val perks=progress.consumePerks()' in activity
 assert activity.index('val generated=runCatching{LevelEngine.createStream(world,number)}') < activity.index('val perks=progress.consumePerks()')
 assert 'if(token!=loadingGeneration || selectedScreen!="loading" ||' in activity
-assert 'if(!hasWindowFocus())' in activity
+# PR #214 intentionally replaced transient window-focus gating with Activity
+# resume state, so UIAutomator dumps cannot discard a real Play tap.
+prepare=activity.split("private fun prepareFlight(",1)[1].split(
+    "private fun openFlight(",1)[0]
+assert "if(!activityResumed)" in prepare
+assert "if(!hasWindowFocus())" not in prepare
 assert 'loading.completePreparation()' in activity
 assert 'openFlight(simulation,world)' in activity
 assert 'private var loadingGeneration = 0' in activity

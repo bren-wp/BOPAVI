@@ -16,7 +16,7 @@ for required in (
     "image(canvas, brand, logoRect)",
     "leftWing?.recycle()","rightWing?.recycle()",
     'if(startup)"BOPAVI se pokreće" else "Loading level"',
-    "if(preparationFinished)1f",
+    "FlightLoadingTrack.segment(inner.width()-6f,",
     "FlightLoadingLayout.captionBaselineY",
     "FlightLoadingLayout.track.left",
     "paint.shader = LinearGradient",
@@ -43,7 +43,7 @@ assert "ring(canvas,549f,1033f,37f,54f,-21f)" in view
 assert "ring(canvas,658f,1047f,26f,40f,-19f)" in view
 assert "postInvalidateDelayed(60L)" in view
 assert "isAttachedToWindow" in view
-assert "val phase=(android.os.SystemClock.uptimeMillis()%1550L)/1550f" in view
+assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in view
 assert "feather(canvas," not in view
 assert 'val loading=FlightLoadingView(this,chosenPilot)' in main
 assert "Thread({" in main and 'loading.completePreparation()' in main

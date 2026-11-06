@@ -82,6 +82,7 @@ jobs:
       - run: python tests/test_reference_ready_overlay_contract.py
       - run: python tests/test_flight_reference_diff.py
       - run: python tests/test_loading_reference_geometry.py
+      - run: python tests/test_reference_loading_contract.py
       - run: python tests/test_reference_home_geometry.py
       - run: python tests/test_home_reference_screen_contract.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
@@ -109,12 +110,15 @@ jobs:
       - run: python tests/test_reference_pixel_diff_tool.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
+      - run: python tests/test_reference_button_cluster_contract.py
+      - run: python tests/test_reference_insets_alignment_contract.py
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
       - run: python tests/test_pause_reference_contract.py
       - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
       - run: python tests/test_game_over_reference_contract.py
+      - run: python tests/test_game_over_seated_bopi_contract.py
       - run: python tests/test_level_complete_reference_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh

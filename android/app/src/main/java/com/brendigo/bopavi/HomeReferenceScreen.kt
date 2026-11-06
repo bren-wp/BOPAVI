@@ -219,7 +219,8 @@ internal class HomeReferenceScreen(private val host:Activity,
     }
 
     private fun place(stage:LevelMapStage,view:View,b:HomeBounds,interactive:Boolean=false){
-        stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive)
+        stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive,
+            referenceAligned=true)
     }
 
     fun create(pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
@@ -245,7 +246,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         root.addView(walletRail,FrameLayout.LayoutParams(-1,-1))
 
         // Decorative rings are local Canvas geometry, not false pickups.
-        stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f)
+        stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f,
+            referenceAligned=true)
         walletRail.attach(wallet("COINS",progress.coins(),
             BopaviUiIconDrawable.Kind.COIN,"Otvori trgovinu",onCoins),
             HomeReferenceLayout.coins)
