@@ -1502,13 +1502,16 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     private fun drawHudHeart(c:Canvas,x:Float,y:Float,active:Boolean){
         path.reset()
-        path.moveTo(x,y+7f)
-        path.cubicTo(x-12f,y-1f,x-7f,y-10f,x,y-5f)
-        path.cubicTo(x+7f,y-10f,x+12f,y-1f,x,y+7f)
+        // Wider, taller source lobes better match the large raised 3D
+        // hearts in the original 941×1672 gameplay HUD. Centers remain
+        // untouched, so existing alive/dead state and layout still apply.
+        path.moveTo(x,y+10f)
+        path.cubicTo(x-14.5f,y+1f,x-12f,y-13f,x,y-6f)
+        path.cubicTo(x+12f,y-13f,x+14.5f,y+1f,x,y+10f)
         // A raised, darker undercut reads as a 3D enamel heart rather than
         // a flat red polygon. It is painted only for a genuinely active life.
         c.save()
-        c.translate(0f,2.6f)
+        c.translate(0f,3.5f)
         fill(if(active)0xff7e1836.toInt() else 0x55304460)
         c.drawPath(path,p)
         c.restore()
