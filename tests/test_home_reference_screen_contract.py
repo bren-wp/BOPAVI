@@ -81,10 +81,11 @@ assert "dp(if(isPlay)93 else 59)" not in view
 assert "HomeMedalDrawable()" in view
 assert "if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL" in view
 assert "HomeMedalDrawable()" in view
+assert "val caption=(available*.23f).toInt().coerceAtLeast(1)" in view
 assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
-assert "glyph(kind,36)" in view
+assert "glyph(kind,40)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
