@@ -19,6 +19,9 @@ BOPAVI v1.0.52, with the merged Splash/Home adjustments intact.
   embossed native button labels. Keep one accessible, working click target for
   each action; tapping Retry must still start real new gameplay and Home must
   navigate to the actual home screen.
+- **Game Over Bopi:** tilt the original blue aviator's seated head gently
+  and lift the inner eyebrows to express disappointment instead of anger;
+  leave other selected skins and result data untouched.
 - **Game Over Sky Meadows:** use the same enhanced, offline island backdrop
   as Home, with twilight tonal grading. Other worlds retain their world art.
   Never fake the numerical run statistics or replace Bopi with a flat screenshot.
