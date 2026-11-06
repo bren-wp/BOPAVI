@@ -20,7 +20,7 @@ for box in (
     "val coins=HomeBounds(457f,21f,220f,64f)",
     "val stars=HomeBounds(705f,21f,215f,64f)",
     "val logo=HomeBounds(122f,112f,697f,273f)",
-    "val hero=HomeBounds(96f,391f,745f,483f)",
+    "val hero=HomeBounds(152f,342f,645f,645f)",
     "val play=HomeBounds(149f,894f,645f,191f)",
     "val playWings=HomeBounds(112f,904f,719f,171f)",
     "val skins=HomeBounds(135f,1097f,325f,137f)",
