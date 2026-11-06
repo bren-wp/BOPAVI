@@ -178,7 +178,10 @@ internal class HomeReferenceScreen(private val host:Activity,
                 // Absolute dp heights previously squeezed its icon into
                 // a flattened oval on high-density reference viewports.
                 val available=View.MeasureSpec.getSize(heightMeasureSpec)
-                val caption=(available*.29f).toInt().coerceAtLeast(1)
+                // Owner reference circles are noticeably larger than the
+                // v1.0.51 footer: leave 23% for the caption, 77% for the
+                // true circular native medal, without changing touch bounds.
+                val caption=(available*.23f).toInt().coerceAtLeast(1)
                 val emblem=minOf((available-caption).coerceAtLeast(1),
                     View.MeasureSpec.getSize(widthMeasureSpec).coerceAtLeast(1))
                 if(childCount==2){
@@ -209,7 +212,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             elevation=dp(4).toFloat()
             // Pixel design coordinates within the reference Stage, not dp.
             setPadding(4,4,4,4)
-            addView(glyph(kind,36),
+            addView(glyph(kind,40),
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
