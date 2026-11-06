@@ -93,7 +93,107 @@ def enrich_background(source: Image.Image) -> Image.Image:
         pen.ellipse((x-radius,y-radius,x+radius,y+radius),
                     fill=(255,255,219,rng.randrange(45,105)))
 
-    return Image.alpha_composite(source.convert("RGBA"),overlay).convert("RGB")
+    return cinematic_detail(Image.alpha_composite(source.convert("RGBA"),overlay).convert("RGB"))
+
+
+def cinematic_detail(flat: Image.Image) -> Image.Image:
+    """Add deterministic soft cloud banks, distant garden cliffs and foliage.
+
+    Scene only: no Bopi/logo, UI text, score, fake currency or touch targets.
+    All detail stays in the OFFLINE landscape behind native Android Views.
+    """
+    from PIL import ImageFilter
+    from math import sin
+    w,h=flat.size
+    rng=Random(9411672)
+    result=flat.convert("RGBA")
+
+    # Puffy, semi-transparent cloud banks around the outer thirds.
+    mist=Image.new("L",(w,h),0)
+    pen=ImageDraw.Draw(mist)
+    for cx,cy,s in ((-24,127,1.05),(927,168,1.04),
+                    (-36,600,1.20),(925,727,1.10),
+                    (4,1030,1.08),(901,1180,1.13),
+                    (182,1425,.87),(775,1463,.86)):
+        for _ in range(17):
+            dx=rng.randint(-145,145)*s
+            dy=rng.randint(-72,68)*s
+            radius=rng.randint(33,87)*s
+            x,y=cx+dx,cy+dy
+            pen.ellipse((int(x-radius),int(y-radius*.64),
+                         int(x+radius),int(y+radius*.64)),
+                        fill=rng.randint(78,139))
+    cloud=Image.new("RGBA",(w,h),(249,253,255,0))
+    cloud.putalpha(mist.filter(ImageFilter.GaussianBlur(18)))
+    result=Image.alpha_composite(result,cloud)
+
+    # Layered rock cliffs and waterfalls reinforce the owner's left/right
+    # waterfall islands without covering the central animated pilot.
+    layer=Image.new("RGBA",(w,h),(0,0,0,0))
+    d=ImageDraw.Draw(layer,"RGBA")
+    for index,(cx,top,rad,depth) in enumerate(
+        ((35,315,155,174),(856,435,137,172),
+         (24,877,116,156),(877,1048,113,149))):
+        left,right=cx-rad,cx+rad
+        d.ellipse((left-8,top+depth-18,right+8,top+depth+22),
+                  fill=(29,69,113,32))
+        d.polygon(((left,top+11),(right,top+13),
+                   (cx+rad*.66,top+depth*.62),
+                   (cx+rad*.1,top+depth),(cx-rad*.56,top+depth*.69)),
+                  fill=(78,80,107,228))
+        d.polygon(((left+9,top+15),(cx-rad*.06,top+29),
+                   (cx-rad*.38,top+depth*.66),
+                   (cx-rad*.56,top+depth*.69)),
+                  fill=(183,148,124,194))
+        d.polygon(((cx+rad*.08,top+29),(right-6,top+14),
+                   (cx+rad*.66,top+depth*.62),
+                   (cx+rad*.14,top+depth*.85)),
+                  fill=(66,75,106,180))
+        for k in range(8):
+            x=left+24+k*(2*rad-48)/8
+            y=top+25+(k%3)*8
+            d.line((int(x),int(y),int(x+8),int(y+34+(k%3)*10)),
+                   fill=(242,207,156,83),width=2)
+        d.ellipse((left-5,top-24,right+5,top+32),
+                  fill=(27,116,65,242))
+        d.ellipse((left+1,top-30,right-1,top+14),
+                  fill=(84,198,77,247))
+        d.arc((left+8,top-27,right-9,top+17),185,350,
+              fill=(195,255,146,204),width=6)
+        xfall=cx+rad*.48 if index%2 else cx-rad*.24
+        for k in range(12):
+            x=xfall+(k-6)*2.9
+            bottom=top+depth*.85+sin(k*1.9)*7
+            d.line((int(x),top+18,int(x-13),int(bottom)),
+                   fill=(169,231,255,127+((k*47)%90)),width=3)
+        d.ellipse((xfall-35,top+depth*.8,xfall+42,top+depth*.91),
+                  fill=(226,252,255,76))
+        for k in range(20):
+            x=left+12+(k*29+index*17)%max(20,2*rad-26)
+            y=top-22+(k%5)*5
+            rr=5+(k%3)*3
+            d.ellipse((x-rr,y-rr,x+rr,y+rr),
+                      fill=(24,98,53,235) if k%4
+                           else (151,240,67,229))
+            if k%6==0:
+                d.ellipse((x+rr-2,y-rr-3,x+rr+3,y-rr+2),
+                          fill=(255,251,231,225))
+    # In the owner illustration, dark soft-focus foliage frames the lower
+    # corners. It is BACKGROUND, never a synthetic clickable image.
+    fringe=Image.new("RGBA",(w,h),(0,0,0,0))
+    foliage=ImageDraw.Draw(fringe,"RGBA")
+    for side in (-1,1):
+        anchor=0 if side<0 else w
+        for k in range(19):
+            x=anchor+side*rng.randrange(-80,190)
+            y=rng.randrange(1480,1700)
+            rx,ry=rng.randrange(28,87),rng.randrange(16,57)
+            foliage.ellipse((x-rx,y-ry,x+rx,y+ry),
+                            fill=(12,58+((k*9)%32),34,90+(k%4)*23))
+    result=Image.alpha_composite(result,layer)
+    result=Image.alpha_composite(result,
+        fringe.filter(ImageFilter.GaussianBlur(9)))
+    return result.convert("RGB")
 
 
 if __name__ == "__main__":
