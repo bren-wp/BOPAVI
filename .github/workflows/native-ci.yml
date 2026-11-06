@@ -118,6 +118,7 @@ jobs:
       - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
       - run: python tests/test_game_over_reference_contract.py
+      - run: python tests/test_ground_spikes_and_result_3d_contract.py
       - run: python tests/test_game_over_seated_bopi_contract.py
       - run: python tests/test_level_complete_reference_contract.py
       - run: python tests/test_release_screenshot_states.py

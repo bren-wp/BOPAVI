@@ -61,7 +61,7 @@ assert 'BopaviUiIconDrawable.Kind.CROWN_COIN' in screen
 assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
 assert 'LinearLayout.LayoutParams(0,-1,.15f)' in screen
 assert 'LinearLayout.LayoutParams(0,-1,.30f)' in screen
-assert 'HomeEmbossedLabel(host,label,52f,primary)' in screen
+assert 'HomeEmbossedLabel(host,label,60f,primary)' in screen
 assert 'textMeasure.measureText(label),.70f,.27f' in screen
 assert 'width=cluster.iconWidth' in screen
 assert 'marginStart=cluster.gap' in screen

@@ -65,7 +65,8 @@ assert 'path.cubicTo(game.birdX-88f,game.y+15f,' in game
 assert 'if(active){' in game
 assert 'oval(c,x-7f,y-4f,x+4f,y+3f,0x88ffad98.toInt())' in game
 assert 'oval(c,x-5f,y-4f,x-1f,y-2f,0xccffffff.toInt())' in game
-assert 'c.translate(0f,2.6f)' in game
+# Revised owner 3D heart extrusion is deeper without moving the actual HUD.
+assert 'c.translate(0f,3.5f)' in game
 assert 'if(active)0xff7e1836.toInt() else 0x55304460' in game
 assert 'oval(c,x-3f,y+2f,x+5f,y+4.5f,0x66ffbba1)' in game
 assert 'rect(c,l+12f,b-6f,r-12f,b-4f,0x77021944,2f)' in game
