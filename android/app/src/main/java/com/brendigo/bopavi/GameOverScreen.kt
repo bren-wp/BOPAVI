@@ -123,14 +123,19 @@ internal class GameOverScreen(private val host:Activity) {
     fun create(worldDrawable:Int,pilotDrawable:Int,stats:GameOverStats,
                onRetry:()->Unit,onHome:()->Unit):View {
         val root=FrameLayout(host).apply{setBackgroundColor(0xff278bdb.toInt())}
+        // Sky Meadows' loss backdrop uses the richly decorated Home
+        // fantasy islands, while other worlds keep their own biomes.
+        val lossBackdrop=if(worldDrawable==R.drawable.world0)
+            R.drawable.homeback else worldDrawable
         root.addView(ImageView(host).apply{
-            setImageResource(worldDrawable)
+            setImageResource(lossBackdrop)
             scaleType=ImageView.ScaleType.CENTER_CROP
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(host).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x55042255,0x1178e1ff,0x55032149))
+                intArrayOf(0x88092358.toInt(),0x332b70b5,
+                    0x11ffb7ac,0x77432a65))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 
