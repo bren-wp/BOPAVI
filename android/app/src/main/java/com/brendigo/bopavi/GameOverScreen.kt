@@ -62,7 +62,7 @@ internal class GameOverScreen(private val host:Activity) {
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
                     val h=View.MeasureSpec.getSize(heightMeasureSpec)
                     textMeasure.textSize=minOf(
-                        52f*host.resources.displayMetrics.scaledDensity,h*.66f)
+                        60f*host.resources.displayMetrics.scaledDensity,h*.68f)
                     val cluster=ReferenceButtonCluster.measure(
                         w,h,textMeasure.measureText(label),.70f,.27f)
                     (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
@@ -82,8 +82,9 @@ internal class GameOverScreen(private val host:Activity) {
         }.apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
-            background=Bopavi3DTheme.button(if(primary)
-                Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
+            background=android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0x44ffffff),
+                ResultActionEnamelDrawable(primary),null)
             contentDescription=label
             elevation=dp(6).toFloat()
             minimumHeight=dp(48)
@@ -96,10 +97,26 @@ internal class GameOverScreen(private val host:Activity) {
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(0,-1))
-            addView(HomeEmbossedLabel(host,label,52f,primary).apply {
+            addView(HomeEmbossedLabel(host,label,60f,primary).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(0,-1))
             setOnClickListener{onClick()}
+            // The entire native hit target remains clickable. This short
+            // pressure response never replaces onClick or changes its bounds.
+            setOnTouchListener{v,event->
+                if(android.animation.ValueAnimator.areAnimatorsEnabled()){
+                    when(event.actionMasked){
+                        android.view.MotionEvent.ACTION_DOWN->
+                            v.animate().scaleX(.985f).scaleY(.975f)
+                                .setDuration(85L).start()
+                        android.view.MotionEvent.ACTION_UP,
+                        android.view.MotionEvent.ACTION_CANCEL->
+                            v.animate().scaleX(1f).scaleY(1f)
+                                .setDuration(125L).start()
+                    }
+                }
+                false
+            }
         }
     }
 
