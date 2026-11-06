@@ -45,6 +45,12 @@ assert "contentDescription=label" in result
 assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)" in result
 assert 'contentDescription="$label: $value"' in result
 assert "GameOverSeatedBopi(host)" in result
+seated=(src/"GameOverSeatedBopi.kt").read_text()
+assert "val headPose=c.save()" in seated
+assert "c.rotate(6f,256f,241f)" in seated
+assert "c.restoreToCount(headPose)" in seated
+assert "line(c,176f,224f,234f,207f" in seated
+assert "line(c,288f,209f,344f,227f" in seated
 assert "setImageResource(pilotDrawable)" in result
 assert "val lossBackdrop=if(worldDrawable==R.drawable.world0)" in result
 assert "R.drawable.homeback else worldDrawable" in result
