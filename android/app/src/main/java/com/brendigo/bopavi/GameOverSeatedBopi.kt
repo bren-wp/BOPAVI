@@ -152,6 +152,10 @@ internal class GameOverSeatedBopi(context:Context):View(context) {
             lineTo(247f,395f)
         }
 
+        // A slight rightward head tilt matches the owner's dejected Bopi,
+        // independent of the stable seated feet and stone podium geometry.
+        val headPose=c.save()
+        c.rotate(6f,256f,241f)
         // Dropped head, gentle crest and white cheeks make a SITTING pose.
         polygon(c,0xff078fea.toInt(),0xff035bad.toInt(),5f){
             moveTo(202f,122f)
@@ -198,8 +202,9 @@ internal class GameOverSeatedBopi(context:Context):View(context) {
             stroke=2f)
         oval(c,208f,247f,220f,268f,Color.WHITE,Color.WHITE,stroke=0f)
         oval(c,297f,255f,309f,277f,Color.WHITE,Color.WHITE,stroke=0f)
-        line(c,176f,207f,234f,227f,0xff3f2330.toInt(),10f)
-        line(c,288f,231f,344f,211f,0xff3f2330.toInt(),10f)
+        // Raised inner eyebrows convey sadness, not an angry scowl.
+        line(c,176f,224f,234f,207f,0xff3f2330.toInt(),8f)
+        line(c,288f,209f,344f,227f,0xff3f2330.toInt(),8f)
         oval(c,159f,287f,194f,304f,0xffffb8bd.toInt(),0xffef9ba6.toInt(),
             stroke=0f)
         oval(c,337f,290f,371f,307f,0xffffb8bd.toInt(),0xffef9ba6.toInt(),
@@ -217,6 +222,7 @@ internal class GameOverSeatedBopi(context:Context):View(context) {
             quadTo(277f,323f,253f,319f)
         }
         line(c,248f,315f,279f,313f,0xffa55912.toInt(),3f)
+        c.restoreToCount(headPose)
         c.restoreToCount(checkpoint)
     }
 }
