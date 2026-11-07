@@ -88,7 +88,7 @@ assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
 assert "glyph(kind,40)" in view
-assert "HomeEmbossedLabel(host,text,15f,false)" in view
+assert "HomeEmbossedLabel(host,text,17f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
