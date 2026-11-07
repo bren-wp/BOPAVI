@@ -207,9 +207,8 @@ internal class ShopScreen(
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
             contentDescription="HOME"
         },24f,18f,119f,99f,minTouch=true)
-        stage.place(message("SHOP",83,0xffffdf43.toInt()).apply {
-            setShadowLayer(4f,2f,6f,0xff6f230c.toInt())
-        },291f,143f,359f,139f)
+        stage.place(ShopEmbossedTitle(host),
+            266f,136f,409f,154f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         stage.place(message(NumberFormat.getIntegerInstance().format(coins),
