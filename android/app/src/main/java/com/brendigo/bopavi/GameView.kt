@@ -158,8 +158,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
-    private val pillars = intArrayOf(0xffba8b65.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
-    private val pillarDark = intArrayOf(0xff64463c.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
+    // Owner's Sky Meadows pillars are sunlit carved SANDSTONE, never dark
+    // timber. Material-only palette change; every physical opening stays put.
+    private val pillars = intArrayOf(0xffe8b68e.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
+    private val pillarDark = intArrayOf(0xff76556a.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
 
     // Material palettes are immutable flight-scoped data, not two new arrays
     // allocated for every obstacle on every animation frame.
@@ -1408,6 +1410,45 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * Uses the real flap event rather than a looping decorative timer.
      * The burst is cosmetic and deliberately disabled for reduced motion.
      */
+    /**
+     * Reference ready screen contains a visible, pale wind trail behind Bopi
+     * even before the first tap. This is scenery, NOT a physics impulse, fake
+     * item or active-hazard preview. The same cached path/paint are reused;
+     * nothing is allocated inside the frame loop.
+     */
+    private fun drawIdleWindRibbons(c:Canvas){
+        if(reducedMotion || game.active || game.finished)return
+        val bx=game.birdX
+        val by=game.y
+        for(i in 0..4){
+            val d=i*14f
+            fill(if(i%2==0)0x9cffffff.toInt() else 0x73d7faff)
+            p.style=Paint.Style.STROKE
+            p.strokeCap=Paint.Cap.ROUND
+            p.strokeWidth=if(i%2==0)3.4f else 2.6f
+            path.reset()
+            path.moveTo(-29f,by+61f-d)
+            path.cubicTo(8f,by+6f-d,
+                70f,by-40f-d*.25f,
+                bx-37f,by-12f+d*.23f)
+            c.drawPath(path,p)
+        }
+        p.style=Paint.Style.FILL
+        p.strokeCap=Paint.Cap.BUTT
+        // Four blue feather flecks behind the pilot do not collide with
+        // anything; all real collectible objects are still gate-bound.
+        for(i in 0..3){
+            val x=bx-125f+i*27f
+            val y=by-33f+(i%3)*26f
+            path.reset()
+            path.moveTo(x-6f,y)
+            path.quadTo(x+4f,y-13f,x+17f,y-7f)
+            path.quadTo(x+8f,y+3f,x-6f,y)
+            path.close()
+            fill(0x9962c6ff.toInt())
+            c.drawPath(path,p)
+        }
+    }
     private fun drawFlapWake(c:Canvas) {
         if(reducedMotion || game.flapPulse<=0f) return
         val strength=(game.flapPulse/.24f).coerceIn(0f,1f)
@@ -1443,6 +1484,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.style=Paint.Style.FILL;p.alpha=255
         }
         drawFeedbackSparkles(c)
+        drawIdleWindRibbons(c)
         drawFlapWake(c)
         // Keep a calm, unmistakable grace-period outline when a heart is
         // lost. Continuous light replaces unpleasant full-sprite blinking.
