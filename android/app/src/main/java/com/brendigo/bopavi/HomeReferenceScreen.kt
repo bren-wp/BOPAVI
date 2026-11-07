@@ -216,7 +216,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
-        control.addView(HomeEmbossedLabel(host,text,15f,false),
+        control.addView(HomeEmbossedLabel(host,text,17f,false),
             LinearLayout.LayoutParams(-1,0,0f))
         return control
     }
@@ -296,19 +296,19 @@ internal class HomeReferenceScreen(private val host:Activity,
         place(stage,HomePlayWings(host),HomeReferenceLayout.playWings)
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
-            0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),46,onPlay),
+            0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),58,onPlay),
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),28,onSkins),
+            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),36,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),29,onShop),
+            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),37,onShop),
             HomeReferenceLayout.shop,true)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),24,onSettings),
+            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),29,onSettings),
             HomeReferenceLayout.settings,true)
 
         place(stage,footerShortcut("ACHIEVEMENTS",
