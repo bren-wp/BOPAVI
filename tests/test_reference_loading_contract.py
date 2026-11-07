@@ -45,7 +45,7 @@ assert 'private var loadingGeneration = 0' in activity
 assert 'loadingGeneration++' in activity
 assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' in qa
 assert "showBrandedStartup()" in activity
-assert "},2450L)" in activity
+assert "},3500L)" in activity
 assert "startup=true" in activity
 assert "PilotSelectionModel.spriteIdForChoice(pilotChoice)" in loading
 assert 'android-loading.png' in qa
