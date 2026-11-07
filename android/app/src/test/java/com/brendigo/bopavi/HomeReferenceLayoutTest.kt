@@ -25,16 +25,16 @@ class HomeReferenceLayoutTest {
         assertEquals(home.achievements.y,home.leaderboard.y,0f)
         assertEquals(home.leaderboard.y,home.sound.y,0f)
     }
-    @Test fun referenceModeIsOnlyUsedOnLargePortraitScreens(){
+    @Test fun referenceModeAlsoSupportsCompactPortraitScreens(){
         assertTrue(HomeReferenceLayout.supports(941,1672,true))
         assertTrue(HomeReferenceLayout.supports(1080,2400,true))
-        assertFalse(HomeReferenceLayout.supports(720,1280,true))
+        assertTrue(HomeReferenceLayout.supports(720,1280,true))
         assertFalse(HomeReferenceLayout.supports(1920,1080,false))
     }
     @Test fun screenDensityAndLargeFontBreakpointMatrix(){
         val modes=listOf(
             Triple(360,640,false),Triple(480,800,false),
-            Triple(600,960,false),Triple(720,1280,false),
+            Triple(600,960,false),Triple(720,1280,true),
             Triple(941,1672,true),Triple(1080,1920,true),
             Triple(1080,2400,true),Triple(1440,2960,true),
             Triple(2400,1080,false))
@@ -52,7 +52,7 @@ class HomeReferenceLayoutTest {
             for(scale in floatArrayOf(1f,1.3f,1.5f,2f)){
                 val supported=HomeReferenceLayout.supports(w,h,w<h,scale)
                 if(supported){
-                    assertTrue(w>=860 && h>=1480 && w<h && scale<1.3f)
+                    assertTrue(w>=720 && h>=1280 && w<h && scale<1.3f)
                 }
                 if(scale>=1.3f) assertFalse(supported)
                 if(w>=h) assertFalse(supported)
