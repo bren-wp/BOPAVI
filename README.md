@@ -49,58 +49,42 @@ Svaki let počinje krilatim logotipom, veselim pilotskim naočalama i nebeskim k
 
 ## Pogledaj sve zaslone igre
 
-Ovdje su stvarne snimke Android aplikacije, zabilježene tijekom provjera na emulatoru. Nisu konceptni prikazi. Svaka se snimka može otvoriti u punoj rezoluciji kroz datoteke posljednjeg verificiranog GitHub izdanja.
+Galerija obuhvaća svih **16 autentičnih Android zaslona**. Dva stupca osiguravaju da nijedna slika ne izlazi izvan širine mobilnog zaslona. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
 
 <div align="center">
 
 <table>
 <tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Splash.png" alt="Stvarna Android snimka: Čarobni početak" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarna Android snimka: Početna avantura" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarna Android snimka: Spreman za let" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka: U letu" width="196"></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Splash.png" alt="Stvarna Android snimka: Čarobni početak" width="154"><p><strong>Čarobni početak</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarna Android snimka: Početna avantura" width="154"><p><strong>Početna avantura</strong></p></td>
 </tr>
 <tr>
-<td align="center"><strong>Čarobni početak</strong></td>
-<td align="center"><strong>Početna avantura</strong></td>
-<td align="center"><strong>Spreman za let</strong></td>
-<td align="center"><strong>U letu</strong></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Preview.png" alt="Stvarna Android snimka: Spreman za let" width="154"><p><strong>Spreman za let</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Flight-Active.png" alt="Stvarna Android snimka: U letu" width="154"><p><strong>U letu</strong></p></td>
 </tr>
 <tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pause.png" alt="Stvarna Android snimka: Pauza" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarna Android snimka: Rezultati" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Skins.png" alt="Stvarna Android snimka: Odabir junaka" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Shop.png" alt="Stvarna Android snimka: Nadogradnje" width="196"></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Pause.png" alt="Stvarna Android snimka: Pauza" width="154"><p><strong>Pauza</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarna Android snimka: Rezultati" width="154"><p><strong>Rezultati</strong></p></td>
 </tr>
 <tr>
-<td align="center"><strong>Pauza</strong></td>
-<td align="center"><strong>Rezultati</strong></td>
-<td align="center"><strong>Odabir junaka</strong></td>
-<td align="center"><strong>Nadogradnje</strong></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Skins.png" alt="Stvarna Android snimka: Odabir junaka" width="154"><p><strong>Odabir junaka</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Shop.png" alt="Stvarna Android snimka: Nadogradnje" width="154"><p><strong>Nadogradnje</strong></p></td>
 </tr>
 <tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Stvarna Android snimka: Detaljne postavke" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png" alt="Stvarna Android snimka: Postignuća" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png" alt="Stvarna Android snimka: Poredak" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Level-Map.png" alt="Stvarna Android snimka: Karta razina" width="196"></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Stvarna Android snimka: Detaljne postavke" width="154"><p><strong>Detaljne postavke</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png" alt="Stvarna Android snimka: Postignuća" width="154"><p><strong>Postignuća</strong></p></td>
 </tr>
 <tr>
-<td align="center"><strong>Detaljne postavke</strong></td>
-<td align="center"><strong>Postignuća</strong></td>
-<td align="center"><strong>Poredak</strong></td>
-<td align="center"><strong>Karta razina</strong></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png" alt="Stvarna Android snimka: Poredak" width="154"><p><strong>Poredak</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Level-Map.png" alt="Stvarna Android snimka: Karta razina" width="154"><p><strong>Karta razina</strong></p></td>
 </tr>
 <tr>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Options.png" alt="Stvarna Android snimka: Opcije igre" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Records.png" alt="Stvarna Android snimka: Rekordi" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Privacy.png" alt="Stvarna Android snimka: Privatnost" width="196"></td>
-<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Terms.png" alt="Stvarna Android snimka: Uvjeti korištenja" width="196"></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Options.png" alt="Stvarna Android snimka: Opcije igre" width="154"><p><strong>Opcije igre</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Records.png" alt="Stvarna Android snimka: Rekordi" width="154"><p><strong>Rekordi</strong></p></td>
 </tr>
 <tr>
-<td align="center"><strong>Opcije igre</strong></td>
-<td align="center"><strong>Rekordi</strong></td>
-<td align="center"><strong>Privatnost</strong></td>
-<td align="center"><strong>Uvjeti korištenja</strong></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Privacy.png" alt="Stvarna Android snimka: Privatnost" width="154"><p><strong>Privatnost</strong></p></td>
+<td align="center"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Terms.png" alt="Stvarna Android snimka: Uvjeti korištenja" width="154"><p><strong>Uvjeti korištenja</strong></p></td>
 </tr>
 </table>
 
