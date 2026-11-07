@@ -9,10 +9,38 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from qa_two_owner_reference_screens import SIZE, REGIONS, compare, load_png, mae
+from qa_two_owner_reference_screens import (
+    SIZE, REGIONS, TARGET_MAX_DEVIATION_PERCENT, TARGET_MAX_RGB_MAE,
+    compare, load_png, mae, deviation_percent, passes_target,
+)
 
 
 class TwoScreenPixelComparisonTests(unittest.TestCase):
+    def test_10_percent_threshold_uses_unrounded_rgb_error(self):
+        self.assertEqual(TARGET_MAX_DEVIATION_PERCENT, 10.0)
+        self.assertEqual(TARGET_MAX_RGB_MAE, 25.5)
+        self.assertTrue(passes_target(25.5))
+        self.assertFalse(passes_target(25.50001))
+        self.assertEqual(deviation_percent(255.0), 100.0)
+
+    def test_every_named_roi_must_also_be_within_10_percent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            reference=Path(tmp)/"reference.png"
+            capture=Path(tmp)/"capture.png"
+            Image.new("RGB",SIZE,(90,90,90)).save(reference)
+            Image.new("RGB",SIZE,(115,115,115)).save(capture)
+            passing=compare(reference,capture,"Home")
+            self.assertTrue(passing["whole_screen_target_met"])
+            self.assertTrue(passing["all_regions_target_met"])
+            self.assertTrue(passing["meets_target"])
+            self.assertTrue(all(r["meets_target"] for r in passing["regions_ranked"]))
+            Image.new("RGB",SIZE,(116,116,116)).save(capture)
+            failing=compare(reference,capture,"Splash")
+            self.assertFalse(failing["whole_screen_target_met"])
+            self.assertFalse(failing["all_regions_target_met"])
+            self.assertFalse(failing["meets_target"])
+            self.assertTrue(all(not r["meets_target"] for r in failing["regions_ranked"]))
+
     def test_identical_pixels_are_zero_and_explicit(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "owner.png"
