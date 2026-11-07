@@ -8,6 +8,13 @@ script=(root/"tools/prepare_android_emulator_image.sh").read_text()
 readme=(root/"README.md").read_text()
 assert 'maxOf(safeTop,(it.b.y*scale).toInt())' in hud
 assert 'sharedTop=entries.maxOfOrNull' in hud
+assert 'onRowBottomChanged?.invoke(sharedTop+minBottomSpace)' in hud
+home=(root/'android/app/src/main/java/com/brendigo/bopavi/HomeReferenceScreen.kt').read_text()
+main=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read_text()
+assert 'walletRail.onRowBottomChanged={rowBottom->' in home
+assert 'logoView.scaleX=scale' in home
+assert 'logoView.scaleY=scale' in home
+assert '},3500L)' in main
 assert 'e.child.layout(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val area=Rect(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val coins=HomeBounds(457f,21f,220f,64f)' in layout
