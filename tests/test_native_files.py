@@ -22,7 +22,12 @@ assert 'action(content,"▶  PLAY"){startGame()}' in home and "FitViewportColumn
 assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPrivacyNotice()}' in a
 assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}' in a
 assert 'shortcut("ACHIEVEMENTS"' in home and 'shortcut("LEADERBOARD"' in home
-assert "portraitDrawableIds[selectedPilotChoice]" in home
+# The compact Home now uses the approved original 3-piece flying Bopi,
+# rather than a static portrait, without changing saved pilot selection.
+assert "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(" in home
+assert "content.addView(compactWingedBopi," in home
+for sprite in ("R.drawable.bopi0","R.drawable.bopi9","R.drawable.bopi10"):
+    assert sprite in home,sprite
 assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice)" in a
 assert "pilotSpriteIds[selectedPilotChoice]" not in a
 assert all(x in a for x in ("private fun showSkins()","private fun showShop()","private fun showLevels()"))
