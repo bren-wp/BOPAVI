@@ -372,10 +372,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
             game.active,game.finished)
         if(showGameplayObstacles) {
-            // The owner's Sky Meadows gameplay reference has open cloud scenery:
-            // no permanent FLOOR spike rack. The optional forest rack belongs
-            // only to its distinct biome, fully below the solid ground line.
-            if(game.level.world==6)drawEnchantedForestGroundSpikes(canvas)
+            // Owner's Sky Meadows reference has five gold cones at the
+            // foreground's lower stone terrace. Their tips stay inside the
+            // SAME solid ground y>=753 used by GameSimulation, so the art
+            // cannot introduce an unfair or invisible collision.
+            if(game.level.world==0 || game.level.world==6)
+                drawEnchantedForestGroundSpikes(canvas)
             // No per-frame generation: both current and incoming gates reuse
             // the cached real simulation data, including pickup visibility.
             val upcoming=game.upcomingGates()
@@ -585,11 +587,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL
     }
 
-    /**
-     * Native 3D stone-and-gold lower spikes for the original meadow world.
-     * Golden tips and every stone pixel stay on/BELOW y=753, the same real
-     * ground contact plane as GameSimulation. No hitbox, RNG or allocations
-     * are introduced into the 120 Hz render path.
+    /** Shared owner-reference lower stone terrace and golden spikes.
+     * All pixels lie within the solid ground y>=753; never in the flight lane.
+     * No extra physical collider or per-frame sprite allocation is needed.
      */
     private fun drawEnchantedForestGroundSpikes(c:Canvas) {
         val g=FlightGroundSpikeGeometry

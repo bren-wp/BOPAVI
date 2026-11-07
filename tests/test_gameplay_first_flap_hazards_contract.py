@@ -42,7 +42,8 @@ for item in ("drawEnchantedForestGroundSpikes(canvas)",
 # All physical gate drawing must happen inside the preview visibility guard.
 before=on_draw.split("if(showGameplayObstacles) {",1)[0]
 assert "drawEnchantedForestGroundSpikes(canvas)" not in before
-assert "if(game.level.world==0)drawEnchantedForestGroundSpikes(canvas)" not in on_draw
+assert "if(game.level.world==0 || game.level.world==6)" in on_draw
+assert "drawEnchantedForestGroundSpikes(canvas)" in on_draw
 assert "drawGate(canvas," not in before
 assert "if(collisionOverlayEnabled && showGameplayObstacles)" in on_draw
 
@@ -76,4 +77,4 @@ for marker in ("WIDTH, HEIGHT = 941, 1672", "ROI = (265, 1200, 700, 1390)",
                "if fraction<.06:", "import zlib"):
     assert marker in probe,marker
 assert "import PIL" not in probe and "cv2" not in probe
-print("PASS: native idle Gameplay has no dynamic spikes/pillars/maces until real first flap")
+print("PASS: ready Gameplay previews real gates and safe ground-edge cones; collisions still start on first tap")

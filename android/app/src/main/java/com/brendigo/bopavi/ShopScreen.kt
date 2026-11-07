@@ -75,12 +75,12 @@ internal class ShopScreen(
             setPadding(dp(5),dp(6),dp(5),dp(8))
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             elevation=dp(4).toFloat()
-            contentDescription=item.accessibility
+            contentDescription="OWNED: ${item.owned}/99. "+item.accessibility
         }
         card.addView(message(item.storefrontTitle,15,0xff5f260e.toInt()).apply{
             maxLines=2
             setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
-        },LinearLayout.LayoutParams(-1,0,.65f))
+        },LinearLayout.LayoutParams(-1,0,.72f))
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -88,20 +88,20 @@ internal class ShopScreen(
         row.addView(ImageView(host).apply{
             setImageDrawable(HomeHeroIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,dp(44)))
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(52)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(40),dp(40)))
-        row.addView(message(item.iconTierLabel,20,0xffffac17.toInt()).apply{
+        },LinearLayout.LayoutParams(dp(52),dp(52)))
+        row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
             setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(28),dp(40)))
-        card.addView(row,LinearLayout.LayoutParams(-1,0,1.10f))
+        },LinearLayout.LayoutParams(dp(30),dp(52)))
+        card.addView(row,LinearLayout.LayoutParams(-1,0,1.55f))
         card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
                 maxLines=2
-        },LinearLayout.LayoutParams(-1,0,.46f))
-        card.addView(message("OWNED: ${item.owned}/99  •  TIER ${item.tier}",12,
-            0xff6e5141.toInt()),LinearLayout.LayoutParams(-1,0,.27f))
+        },LinearLayout.LayoutParams(-1,0,.65f))
+        // Keep the true inventory count accessible without adding a fifth
+        // visible row that the approved six-card storefront does not have.
         val buy=button(NumberFormat.getIntegerInstance().format(item.price),false,item.canBuy){
             onBuy(item.index)
         }.apply{
@@ -116,7 +116,7 @@ internal class ShopScreen(
                 if(item.canBuy)". Buy for ${item.price} coins"
                 else ". Purchase unavailable"
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.25f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,.90f).apply{
             topMargin=dp(4)
         })
         return card

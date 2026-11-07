@@ -48,6 +48,9 @@ for landscape in ("private fun cliffFacets(", "private fun meadowCanopy(",
                   "crystalCluster(canvas)", "volcanoCrown(canvas)",
                   "meadowCanopy(canvas)"):
     assert landscape in mapSource, landscape
+assert "meadowCastle(canvas)" in mapSource
+assert "private fun meadowCastle(c:Canvas)" in mapSource
+assert 'contentDescription="LEVEL MAP"' in mapSource
 assert "LevelMapLockGlyph(host)" in mapSource
 assert "LevelMapStarStrip(host,earned.coerceIn(0,3))" in mapSource
 assert "node.background=RippleDrawable(" in mapSource

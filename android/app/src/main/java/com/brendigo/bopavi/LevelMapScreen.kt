@@ -187,7 +187,10 @@ internal class LevelMapScreen(
             return compactMap(selected,frontier,onWorld,onPlay,onBack)
         }
         val stage=LevelMapStage(host)
-        val root=FrameLayout(host).apply {setBackgroundColor(0xff168be1.toInt())}
+        val root=FrameLayout(host).apply {
+            setBackgroundColor(0xff168be1.toInt())
+            contentDescription="LEVEL MAP"
+        }
 
         root.addView(ImageView(host).apply{
             setImageResource(R.drawable.homeback)
@@ -206,17 +209,8 @@ internal class LevelMapScreen(
         },20f,16f,122f,95f,minTouch=true)
         // Decorative feather-edged arrow cannot consume native Back taps.
         stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)
-        // A small genuine semantic page heading is still needed for screen
-        // readers and Android UI tests, without the former oversized LEVEL
-        // blob that covered the owner's clean top-center sky.
-        stage.place(TextView(host).apply{
-            text="LEVEL MAP"
-            contentDescription="LEVEL MAP"
-            setTextColor(0xffeffcff.toInt())
-            textSize=11f
-            gravity=Gravity.CENTER
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-        },330f,27f,120f,49f)
+        // The native root exposes the accessible page title; reference sky
+        // stays clear of an extra painted heading between currency capsules.
         if(LevelMapGeometry.pageStart(selected)>0) {
             stage.place(nativeButton("‹","Previous worlds",blue){
                 onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
@@ -577,6 +571,48 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         }
     }
 
+    /** Passive ivory towers and orange roofs behind the live Meadow nodes. */
+    private fun meadowCastle(c:Canvas){
+        for(i in 0..2){
+            val x=302f+i*57f
+            val high=if(i==1)153f else if(i==0)116f else 133f
+            val y=1070f-high
+            color(0xff795c57.toInt())
+            c.drawRoundRect(x,y+5f,x+48f,1072f,5f,5f,p)
+            color(0xfffff1d1.toInt())
+            c.drawRoundRect(x+4f,y+4f,x+44f,1069f,3f,3f,p)
+            color(0xffd6c3b4.toInt())
+            c.drawRect(x+35f,y+7f,x+43f,1067f,p)
+            for(w in 0..1){
+                val wy=y+23f+w*37f
+                color(0xff6b6281.toInt())
+                c.drawRoundRect(x+17f,wy,x+31f,wy+24f,6f,6f,p)
+                color(0xff84d5ec.toInt())
+                c.drawRoundRect(x+19f,wy+3f,x+29f,wy+19f,4f,4f,p)
+            }
+            path.reset()
+            path.moveTo(x-8f,y+7f)
+            path.lineTo(x+23f,y-43f)
+            path.lineTo(x+55f,y+7f)
+            path.close()
+            color(0xff842c36.toInt());c.drawPath(path,p)
+            path.reset()
+            path.moveTo(x-3f,y+4f)
+            path.lineTo(x+23f,y-39f)
+            path.lineTo(x+48f,y+4f)
+            path.close()
+            color(0xffff8b34.toInt());c.drawPath(path,p)
+            color(0xffffd477.toInt())
+            c.drawRect(x+20f,y-50f,x+23f,y-36f,p)
+            path.reset()
+            path.moveTo(x+23f,y-50f)
+            path.lineTo(x+44f,y-46f)
+            path.lineTo(x+23f,y-40f)
+            path.close()
+            color(0xffff6949.toInt());c.drawPath(path,p)
+        }
+    }
+
     /** Local vector foliage on the actual Sky Meadows world. */
     private fun meadowCanopy(c:Canvas){
         for(i in 0..11){
@@ -682,6 +718,7 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         cliffFacets(canvas,347f,1140f,352f,290f)
         volcanoCrown(canvas)
         crystalCluster(canvas)
+        meadowCastle(canvas)
         meadowCanopy(canvas)
         // A ring on the actual selected world, not a false unlock indicator.
         val focus=selected%3

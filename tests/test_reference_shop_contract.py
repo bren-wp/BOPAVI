@@ -65,8 +65,10 @@ assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,1.25f)' in shop
-assert 'dp(40),dp(40)' in shop
+assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
+assert 'LinearLayout.LayoutParams(dp(52),dp(52))' in shop
+assert 'contentDescription="OWNED: ${item.owned}/99. "+item.accessibility' in shop
+assert 'message("OWNED: ${item.owned}/99  •  TIER' not in shop
 assert 'message(item.storefrontTitle,15' in shop
 assert 'message(item.perkEffect,13' in shop
 assert 'item.iconTierLabel' in shop
