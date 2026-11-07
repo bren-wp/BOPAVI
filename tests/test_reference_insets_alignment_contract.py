@@ -12,7 +12,9 @@ assert "referenceAligned:Boolean=false" in stage
 assert "private fun referenceTransform(width:Int,height:Int)" in stage
 assert "private fun placement(slot:Slot,width:Int,height:Int," in stage
 assert "if(!slot.referenceAligned)return safe" in stage
-assert "if(!slot.minTouch)return reference" in stage
+assert "if(!slot.minTouch)return aligned" in stage
+assert "extraHeight*slot.verticalAnchor" in stage
+assert "verticalAnchor.coerceIn(0f,1f)" in stage
 for safe_dimension in (
     "x+b.left*scale>=safeLeft",
     "x+b.right*scale<=width-safeRight",
@@ -20,11 +22,11 @@ for safe_dimension in (
     "y+b.bottom*scale<=height-safeBottom",
 ):
     assert safe_dimension in stage,safe_dimension
-assert "return if(inside)reference else safe" in stage
+assert "return if(inside)aligned else safe" in stage
 assert "val (scale,_,_)=placement(slot,w,h,safe,reference)" in stage
 assert "val (scale,ox,oy)=placement(slot,w,h,safe,reference)" in stage
 assert "stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive," in home
-assert "referenceAligned=true)" in home
+assert "referenceAligned=true,verticalAnchor=verticalAnchor)" in home
 assert "stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f," in home
 assert "minTouch=true,referenceAligned=true)" in result
 assert "stage.setSafe(" in home and "stage.setSafe(" in result
