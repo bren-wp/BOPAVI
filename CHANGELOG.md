@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.53 — Gameplay floor 3D and Game Over Retry/Home (build 183)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.53)
+
+- **Gameplay (Sky Meadows):** add five original gold/brass beveled spikes and a
+- **Gameplay HUD:** redraw active hearts with wider/taller red, navy-outlined,
+- **Game Over:** separate pressure-aware, curved **gold Retry** and **sky-blue
+- **Game Over Bopi:** tilt the original blue aviator's seated head gently
+- **Game Over Sky Meadows:** use the same enhanced, offline island backdrop
+- Add JVM collision-boundary unit tests and mandatory source/UI contracts.
+
 ## v1.0.52 — Splash / Home visual geometry and fantasy scenery (build 182)
 
 **Published:** 2026-11-06 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.52)
@@ -12,13 +23,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Splash + Home scenery:** add deterministic, offline clouds, lush side
 - Preserve native 3D Play, Skins, Shop, Settings, three Home footer actions,
 - Refresh Kotlin/source assertions for these reference coordinates.
-
-## v1.0.51 — Honest splash progress and seated Game Over Bopi (build 181)
-
-**Published:** 2026-11-06 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.51)
-
-- Splash/Loading: during asynchronous level preparation, replace the 61–68% apparent prefilled progress bar with an indeterminate cyan scan; fill the blue enamel track only on the real preparation completion event. Keep the native offline artwork and loading accessibility state.
-- Game Over: use a newly drawn local, noninteractive **sad seated classic Bopi** illustration instead of the flying portrait for the original blue aviator. Preserve the currently selected alternate-pilot portraits until dedicated approved seated images exist.
-- Home and Game Over: place decorative wordmarks, character art, podiums and 3D reference controls on the original full 941×1672 grid when safe. Keep a real Android cutout/navigation-bar fallback for native touch targets on smaller or inset-heavy devices.
-- Keep real Retry/Home click listeners and accessibility targets, true run stats, save data, gameplay physics, collision geometry, music and existing world progression unchanged.
-- Add deterministic JVM tests for loading scan bounds, movement and completion, and source assertions for the seated Bopi route.
