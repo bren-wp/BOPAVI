@@ -780,10 +780,14 @@ class MainActivity : Activity() {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.82f).toInt(),
+            LinearLayout.LayoutParams.MATCH_PARENT,
             d(if(tinyDisplay)82 else if(compactDisplay)108 else 147)
         ).apply{
+            // Match the actual narrow window, not full displayMetrics.
+            // On split-screen the complete BOPAVI letters stay visible.
             gravity=Gravity.CENTER_HORIZONTAL
+            marginStart=d(6)
+            marginEnd=d(6)
             topMargin=d(1)
         })
         // Compact Home uses the same original flying body/wings as the
