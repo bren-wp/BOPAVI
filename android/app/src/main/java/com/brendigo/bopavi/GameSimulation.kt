@@ -126,6 +126,9 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         return !heartAt(index,incoming) || lives>=maxLives
     }
     private var collectedCoins = BooleanArray(level.gates.size)
+    // Six independent real rings per eligible royal gate, with no per-frame
+    // collection allocations. These bits reset at endless level boundaries.
+    private var collectedRoyalRingBits = IntArray(level.gates.size)
     private var collectedStars = BooleanArray(level.gates.size)
     private var collectedPowers = BooleanArray(level.gates.size)
     /** Render only real finite-level pickups. Appearance and the 23px/30px
@@ -134,6 +137,13 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     fun coinVisible(index:Int,incoming:Boolean=false):Boolean =
         !endless && !incoming && index in level.gates.indices &&
             level.gates[index].coin && !collectedCoins[index]
+    fun royalRingVisible(index:Int,ringIndex:Int,incoming:Boolean=false):Boolean {
+        if(ringIndex !in 0 until RoyalRingTrail.count)return false
+        val segment=if(incoming)nextLevel else level
+        if(segment==null || index !in segment.gates.indices ||
+            !RoyalRingTrail.enabled(segment.gates[index]))return false
+        return incoming || (collectedRoyalRingBits[index] and (1 shl ringIndex))==0
+    }
     fun crystalVisible(index:Int,incoming:Boolean=false):Boolean =
         !endless && !incoming && index in level.gates.indices &&
             level.gates[index].star && !collectedStars[index]
@@ -144,6 +154,11 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
     private fun clearOrResize(flags:BooleanArray,size:Int):BooleanArray {
         if(flags.size!=size)return BooleanArray(size)
         flags.fill(false)
+        return flags
+    }
+    private fun clearOrResize(flags:IntArray,size:Int):IntArray {
+        if(flags.size!=size)return IntArray(size)
+        flags.fill(0)
         return flags
     }
     fun foodVisible(index: Int) = index in collectedFood.indices && !collectedFood[index]
@@ -194,6 +209,38 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
         preciseDistance += (scrollSpeed * dt).toDouble()
         distance = preciseDistance.toFloat()
         if (y < radius + 5f || y > 753f - radius) { damage(); y = y.coerceIn(radius + 5f, 753f - radius); return }
+        // World-zero reference: golden ring arc before each real royal gate.
+        // Check it independently of the pillar broad phase: the first ring
+        // enters the camera well before its pillar becomes collision-relevant.
+        // Both old/new ring positions use the *same* moving opening as art.
+        if(level.world==0) {
+            val travel=scrollSpeed*dt
+            val pickupReach=birdX+RoyalRingTrail.leadingDistance+
+                RoyalRingTrail.contactRadius+radius
+            for(i in passed until level.gates.size) {
+                val gate=level.gates[i]
+                val x=gateX(gate)
+                if(x>pickupReach)break
+                if(!RoyalRingTrail.enabled(gate) ||
+                    x+gate.width<birdX-RoyalRingTrail.contactRadius)continue
+                val opening=LevelEngine.opening(gate,time,difficulty)
+                val oldOpening=LevelEngine.opening(gate,previousTime,difficulty)
+                for(ring in 0 until RoyalRingTrail.count) {
+                    val bit=1 shl ring
+                    if(collectedRoyalRingBits[i] and bit!=0)continue
+                    if(BerryCollision.touched(
+                        RoyalRingTrail.x(x+travel,ring)-birdX,
+                        RoyalRingTrail.y(oldOpening,ring)-previousY,
+                        RoyalRingTrail.x(x,ring)-birdX,
+                        RoyalRingTrail.y(opening,ring)-y,
+                        radius+RoyalRingTrail.contactRadius)) {
+                        collectedRoyalRingBits[i]=collectedRoyalRingBits[i] or bit
+                        if(coins<Int.MAX_VALUE)coins++
+                        collectPulse=.36f
+                    }
+                }
+            }
+        }
         for (i in passed until level.gates.size) {
             val gate = level.gates[i]; val x = gateX(gate)
             // Endless berries are picked up only by actual body contact.
@@ -280,6 +327,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                         collectedFood = clearOrResize(collectedFood,gateCount)
                         collectedHearts = clearOrResize(collectedHearts,gateCount)
                         collectedCoins = clearOrResize(collectedCoins,gateCount)
+                        collectedRoyalRingBits = clearOrResize(collectedRoyalRingBits,gateCount)
                         collectedStars = clearOrResize(collectedStars,gateCount)
                         collectedPowers = clearOrResize(collectedPowers,gateCount)
                     } else { won = true; finished = true; active = false }
@@ -311,7 +359,8 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
             } else { finished = true; active = false; won = false }
         }
     }
-    fun score(): Int = (totalPassed.toLong() * 100L + (if(endless) 0L else coins.toLong() * 10L + stars.toLong() * 25L)).coerceIn(0L,100_000_000L).toInt()
+    fun score(): Int = (totalPassed.toLong() * 100L + coins.toLong() * 10L +
+        (if(endless) 0L else stars.toLong() * 25L)).coerceIn(0L,100_000_000L).toInt()
 }
 
 /** Screen-space projection must subtract in Double before the final Float conversion. */
