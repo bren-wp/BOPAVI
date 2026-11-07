@@ -56,3 +56,23 @@ internal class ReferenceBackArrow(private val px:Int):Drawable(){
     override fun getIntrinsicWidth():Int=px
     override fun getIntrinsicHeight():Int=px
 }
+
+/**
+ * Non-clickable arrow artwork over an independently clickable native Button.
+ * Leaves the REAL Back/Home action, ripple and accessibility on that Button.
+ */
+internal class ReferenceArrowOverlayView(context:android.content.Context):android.view.View(context){
+    private val arrow=ReferenceBackArrow(58)
+    init {
+        importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
+        isClickable=false
+        isFocusable=false
+    }
+    override fun onDraw(canvas:Canvas) {
+        val size=minOf(width*.62f,height*.70f).toInt().coerceAtLeast(1)
+        val l=(width-size)/2
+        val t=(height-size)/2
+        arrow.setBounds(l,t,l+size,t+size)
+        arrow.draw(canvas)
+    }
+}
