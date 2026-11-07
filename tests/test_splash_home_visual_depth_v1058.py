@@ -16,8 +16,13 @@ backdrop=(root/"tools/paint_fantasy_backdrop.py").read_text()
 logo=(root/"docs/assets/logo.svg").read_text()
 gradle=(root/"android/app/build.gradle.kts").read_text()
 
-assert 'versionName = "1.0.60"' in gradle
-assert 'versionCode = 190' in gradle
+# The visual contract must survive future releases; pin minimum, not a
+# versionName that causes every legitimate next APK to fail the audit.
+import re
+name=re.search(r'versionName\\s*=\\s*"(\\d+)\\.(\\d+)\\.(\\d+)"',gradle)
+code=re.search(r'versionCode\\s*=\\s*(\\d+)',gradle)
+assert name and tuple(map(int,name.groups())) >= (1,0,60)
+assert code and int(code.group(1))>=190
 assert 'val cursor=width*.70f' in track
 assert 'val travel=(width-cursor).coerceAtMost(width*.10f)' in track
 assert 'postInvalidateDelayed(33L)' in splash
