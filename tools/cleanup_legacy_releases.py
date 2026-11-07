@@ -109,6 +109,16 @@ def verify_current_release(repository: str, tag: str, releases: list[dict]) -> N
             "BOPAVI-Android-Options.png", "BOPAVI-Android-Records.png",
             "BOPAVI-Android-Privacy.png", "BOPAVI-Android-Terms.png",
         })
+    # New gallery screenshots are mandatory only for v1.0.59+, not
+    # for any immutable historical release.
+    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 59):
+        expected.update({
+            "BOPAVI-Android-Splash.png", "BOPAVI-Android-Skins.png",
+            "BOPAVI-Android-Shop.png", "BOPAVI-Android-Settings.png",
+            "BOPAVI-Android-Achievements.png",
+            "BOPAVI-Android-Leaderboard.png",
+            "BOPAVI-Android-Level-Map.png",
+        })
     assets = published[0].get("assets")
     if not isinstance(assets, list) or set(assets) != expected or len(assets) != len(expected):
         raise ValueError(f"New release {tag} has missing or unexpected assets")

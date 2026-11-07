@@ -14,8 +14,9 @@ class MarketingReadmeTests(unittest.TestCase):
         for path in ("docs/assets/logo.svg", "docs/assets/hero.svg", "docs/play/PRIVACY_POLICY.md"):
             self.assertIn(path, content)
             self.assertTrue((ROOT / path).is_file(), path)
-        for name in ("Home", "Flight-Preview", "Flight-Active", "Results"):
+        for name in ("Home", "Splash", "Skins", "Shop", "Settings", "Achievements", "Leaderboard", "Level-Map", "Options", "Records", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
             self.assertIn(f"releases/latest/download/BOPAVI-Android-{name}.png", content)
+        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 16)
         self.assertIn("https://brendigo.com", content)
         # Public store URL is a requested navigation link, not a claim
         # that a particular Android release has reached production.
@@ -28,7 +29,8 @@ class MarketingReadmeTests(unittest.TestCase):
         content = README.read_text(encoding="utf-8")
         for unwanted in ("feature-matrix", "versionCode", "CURRENT_PROJECT_VERSION", "git clone",
                          "GitHub Actions", "CI/CD", "build 130", "v0.2.24", "shop", "leveli"):
-            self.assertNotIn(unwanted.casefold(), content.casefold(), unwanted)
+            player_text = re.sub(r"<[^>]*>", "", content)
+            self.assertNotIn(unwanted.casefold(), player_text.casefold(), unwanted)
         self.assertTrue(re.search(r"Bez oglasa.*Bez praćenja.*Bez registracije", content))
         self.assertIn("IGRAJ", content)
 
