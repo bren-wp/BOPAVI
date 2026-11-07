@@ -392,7 +392,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(!game.finished) {
             // Reference ready-state already includes the real life HUD. Render
             // it both before the first flap and during active flight.
-            val hudScale=(width/480f).coerceAtMost(height/640f)
+            val hudScale=GameplayReferenceHudLayout.scaleFor(
+                width,height,hudTopSafeInsetPx)
             canvas.save()
             // Inset is cached at lifecycle boundaries; no binder/cutout work on
             // the 60/90/120 Hz render path and no unnecessary center-notch shift.
@@ -1727,7 +1728,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawHudEmbossed(c,referenceCrystalLabel,186f,29.5f,15f,Color.WHITE)
 
         // Both bright green plus chips are real store navigation controls.
-        for(x in floatArrayOf(96f,214f)){
+        // Avoid allocating a temporary float array on every 60/90/120Hz frame.
+        for(index in 0..1){
+            val x=if(index==0)96f else 214f
             rect(c,x,12f,x+21f,38f,0xff104d27.toInt(),7f)
             rect(c,x+1f,11f,x+20f,35f,0xff59d92d.toInt(),7f)
             rect(c,x+2f,12f,x+19f,17f,0xffb5ff80.toInt(),5f)
