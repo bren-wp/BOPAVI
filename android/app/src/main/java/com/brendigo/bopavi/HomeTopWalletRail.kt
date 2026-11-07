@@ -12,6 +12,8 @@ import android.view.ViewGroup
 internal class HomeTopWalletRail(context:Context):ViewGroup(context) {
     private data class Entry(val child:View,val b:HomeBounds)
     private val entries=ArrayList<Entry>(2)
+    /** Actual lower edge of both notch-safe currency wallets, in root pixels. */
+    var onRowBottomChanged:((Int)->Unit)?=null
     private var safeLeft=0
     private var safeTop=0
     private var safeRight=0
@@ -86,5 +88,6 @@ internal class HomeTopWalletRail(context:Context):ViewGroup(context) {
             e.child.layout(x,sharedTop,x+e.child.measuredWidth,
                 sharedTop+e.child.measuredHeight)
         }
+        onRowBottomChanged?.invoke(sharedTop+minBottomSpace)
     }
 }
