@@ -37,7 +37,7 @@ assert "GradientDrawable.OVAL" in screen
 assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
 assert "const val referenceWidth=941f" in layout
 assert "val skins=intArrayOf(" in screen
-assert "Selected SKY EAGLE" in junit
+assert "Selected SKY OWL" in junit
 assert 'tap(node_with("CHOOSE SKY EAGLE"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
