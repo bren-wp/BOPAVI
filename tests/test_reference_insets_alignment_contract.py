@@ -30,11 +30,14 @@ assert "referenceAligned=true,verticalAnchor=verticalAnchor)" in home
 assert "stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f," in home
 assert "minTouch=true,referenceAligned=true)" in result
 assert "stage.setSafe(" in home and "stage.setSafe(" in result
-# The OS navigation strip is absent on the owner's gameplay captures.
-# Hide it only while an actual live GameView owns the screen; Home/Results
-# must restore system navigation and cannot be covered by swipe handles.
+# The owner captures for Gameplay, Level Map and Shop all cover the
+# complete 941x1672 viewport. Keep these three illustrated scenes immersive,
+# but restore system navigation on Home/Results and other menus.
 activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
+assert 'else if(selectedScreen=="shop" || selectedScreen=="levels") {' in activity
+assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
+assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
 assert 'android.view.WindowInsets.Type.navigationBars())' in activity
 assert 'controller?.show(android.view.WindowInsets.Type.navigationBars())' in activity
 assert 'View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY' in activity
