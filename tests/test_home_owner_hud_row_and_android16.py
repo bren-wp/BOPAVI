@@ -23,5 +23,5 @@ assert 'if [ "$api" = 36 ]; then' in script
 assert 'targets=(default google_apis)' in script
 assert 'targets=(google_apis default)' in script
 assert '## Pogledaj sve zaslone igre' in readme
-assert readme.count('releases/latest/download/BOPAVI-Android-')==16
+assert readme.count('releases/latest/download/BOPAVI-Android-')==32
 print("PASS: safe single-row live HUD, API36 AOSP first, all README screenshots")
