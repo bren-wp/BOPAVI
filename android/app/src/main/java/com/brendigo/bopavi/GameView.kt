@@ -147,8 +147,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val feather = intArrayOf(0xff39b5fc.toInt(),0xffffc73e.toInt(),0xffff6883.toInt(),0xff9e86f6.toInt(),0xff45daad.toInt(),0xff6676a8.toInt())
     private val skyA = intArrayOf(0xff159df7.toInt(),0xff18b5e7.toInt(),0xff418ddc.toInt(),0xff6e287e.toInt(),0xff45aaf6.toInt(),0xff131a4b.toInt(),0xff123969.toInt(),0xff0b123f.toInt())
     private val skyB = intArrayOf(0xffd0f8ff.toInt(),0xffffe3b2.toInt(),0xffedfbff.toInt(),0xffffa36d.toInt(),0xffffe9b6.toInt(),0xff7461bc.toInt(),0xff60f6d5.toInt(),0xff5955a9.toInt())
-    private val pillars = intArrayOf(0xff4c9165.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
-    private val pillarDark = intArrayOf(0xff1f533c.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
+    private val pillars = intArrayOf(0xffba8b65.toInt(),0xfff5a65b.toInt(),0xff8ad8f5.toInt(),0xffe65b35.toInt(),0xffe9d9b5.toInt(),0xff57459a.toInt(),0xff5fdddc.toInt(),0xff7973f3.toInt())
+    private val pillarDark = intArrayOf(0xff64463c.toInt(),0xffbd7153.toInt(),0xff4282ad.toInt(),0xff912f35.toInt(),0xff9d8d80.toInt(),0xff241b60.toInt(),0xff247b9b.toInt(),0xff373192.toInt())
 
     // Material palettes are immutable flight-scoped data, not two new arrays
     // allocated for every obstacle on every animation frame.
@@ -913,6 +913,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** Real finite coins (gate.coin), drawn around the existing pickup centre.
      * Every shade belongs to the collectible, never to the collision shaft. */
     private fun drawGoldenCoin(c:Canvas,x:Float,y:Float) {
+        if(game.level.world==0){drawRoyalRing(c,x,y);return}
         // Three metallic bevels are inside the unchanged 23-unit pickup range.
         // Each crown belongs to one actual uncollected gate.coin.
         oval(c,x-17f,y-12f,x+17f,y+18f,0x66082040)
@@ -947,6 +948,25 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xffffe784.toInt());c.drawPath(path,p)
         oval(c,x-11f,y-12f,x-6f,y-8f,0xccffffff.toInt())
     }
+    /** Glowing GOLD RING centred on a genuine uncollected Gate.coin. */
+    private fun drawRoyalRing(c:Canvas,x:Float,y:Float){
+        fill(0x66fff0a0);p.style=Paint.Style.STROKE;p.strokeWidth=9f
+        c.drawOval(x-17f,y-19f,x+17f,y+19f,p)
+        fill(0xff7a360c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=7f
+        c.drawOval(x-15f,y-17f,x+15f,y+17f,p)
+        fill(0xffffba27.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=5f
+        c.drawOval(x-14f,y-16f,x+14f,y+16f,p)
+        fill(0xfffff4a6.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=2f
+        c.drawArc(x-14f,y-16f,x+14f,y+16f,185f,175f,false,p)
+        p.style=Paint.Style.FILL
+        path.reset()
+        path.moveTo(x+11f,y-20f);path.lineTo(x+13f,y-15f)
+        path.lineTo(x+18f,y-13f);path.lineTo(x+13f,y-11f)
+        path.lineTo(x+11f,y-6f);path.lineTo(x+9f,y-11f)
+        path.lineTo(x+4f,y-13f);path.lineTo(x+9f,y-15f)
+        path.close();fill(0xeeffffff.toInt());c.drawPath(path,p)
+    }
+
     /** The existing gate.star is represented as a sapphire crystal, matching
      * the reference. Collision/magnet semantics remain 'star' internally. */
     private fun drawBlueCrystal(c:Canvas,x:Float,y:Float) {
@@ -1131,6 +1151,91 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         oval(c,cx-5f,cy-6f,cx+5f,cy+5f,0xff31384f.toInt())
         oval(c,cx-6f,cy-8f,cx-2f,cy-4f,0xffd8eaff.toInt())
     }
+    /** Golden insignia on the actual physical cliff cap. */
+    private fun drawRoyalCrown(c:Canvas,cx:Float,cy:Float,r:Float){
+        path.reset()
+        path.moveTo(cx-r,cy+r*.6f)
+        path.lineTo(cx-r,cy-r*.43f)
+        path.lineTo(cx-r*.48f,cy-r*.08f)
+        path.lineTo(cx,cy-r*.83f)
+        path.lineTo(cx+r*.48f,cy-r*.08f)
+        path.lineTo(cx+r,cy-r*.43f)
+        path.lineTo(cx+r,cy+r*.6f)
+        path.close()
+        fill(0xff69340e.toInt());c.drawPath(path,p)
+        c.save();c.translate(0f,-1f)
+        fill(0xffffd858.toInt());c.drawPath(path,p);c.restore()
+    }
+
+    /** All ornaments remain INSIDE the existing collision-solid stone and lip. */
+    private fun drawRoyalPillar(c:Canvas,x:Float,w:Float,edge:Float,
+                                upper:Boolean,seed:Int,spiked:Boolean){
+        val center=x+w*.5f
+        val lip=if(upper)edge-28f else edge
+        val flagTop=if(upper)edge-163f else edge+72f
+        val flagBottom=if(upper)edge-62f else edge+174f
+        val half=(w*.23f).coerceIn(10f,18f)
+        c.save()
+        c.clipRect(x+2f,if(upper)pillarRenderTop else edge,
+            x+w-2f,if(upper)edge else pillarRenderBottom)
+        // Royal red pennant hangs along the rock shaft, with genuine 3D trim.
+        path.reset()
+        path.moveTo(center-half,flagTop);path.lineTo(center+half,flagTop)
+        path.lineTo(center+half,flagBottom-12f)
+        path.lineTo(center,flagBottom)
+        path.lineTo(center-half,flagBottom-12f);path.close()
+        fill(0xff873526.toInt());c.drawPath(path,p)
+        c.save();c.translate(0f,-2f)
+        fill(0xffed323b.toInt());c.drawPath(path,p);c.restore()
+        rect(c,center-half-4f,flagTop-5f,center+half+4f,
+            flagTop+2f,0xffffd04d.toInt(),3f)
+        drawRoyalCrown(c,center,(flagTop+flagBottom)*.5f,8f)
+        // Seeded vines and tiny daisy blooms (stable across every frame).
+        for(i in 0..3){
+            val yy=if(upper)edge-43f-i*36f else edge+38f+i*36f
+            val xx=if(i%2==0)x+10f else x+w-10f
+            oval(c,xx-10f,yy-8f,xx+8f,yy+6f,0xff24763c.toInt())
+            oval(c,xx-6f,yy-11f,xx+9f,yy+3f,0xff79d353.toInt())
+            if((seed+i)%2==0){
+                oval(c,xx-5f,yy-4f,xx+5f,yy+4f,0xffffffff.toInt())
+                oval(c,xx-2f,yy-8f,xx+3f,yy+7f,0xfff6fff0.toInt())
+                oval(c,xx-3f,yy-3f,xx+3f,yy+3f,0xffffd24a.toInt())
+            }
+        }
+        c.restore()
+        // Gilded cap band and bevelled crown medallion.
+        rect(c,x-7f,lip+4f,x+w+5f,lip+11f,0xff803b1f.toInt(),5f)
+        rect(c,x-7f,lip+3f,x+w+5f,lip+8f,0xffffce4d.toInt(),3f)
+        rect(c,x-5f,lip+3f,x+w+3f,lip+5f,0xfffff5aa.toInt(),1f)
+        oval(c,center-16f,lip+2f,center+16f,lip+26f,0xff76401b.toInt())
+        oval(c,center-13f,lip+4f,center+13f,lip+24f,0xffffd452.toInt())
+        oval(c,center-10f,lip+6f,center+10f,lip+21f,0xffa65c1c.toInt())
+        drawRoyalCrown(c,center,lip+14f,7f)
+        if(spiked)drawRoyalCapSpikes(c,x,w,edge,upper)
+    }
+
+    /** Decorative metal tips stop at the ACTUAL solid collision edge. */
+    private fun drawRoyalCapSpikes(c:Canvas,x:Float,w:Float,edge:Float,upper:Boolean){
+        val base=if(upper)edge-25f else edge+25f
+        val tip=if(upper)edge-.6f else edge+.6f
+        val half=min(11f,(w-12f)/6f)
+        for(i in 0..2){
+            val cx=x+w*(i+1f)/4f
+            path.reset()
+            path.moveTo(cx-half,base);path.lineTo(cx+half,base)
+            path.lineTo(cx,tip);path.close()
+            fill(0xff6b5a65.toInt());c.drawPath(path,p)
+            path.reset()
+            path.moveTo(cx-half+1f,base);path.lineTo(cx+1f,base)
+            path.lineTo(cx,tip);path.close()
+            fill(0xffe7f6ff.toInt());c.drawPath(path,p)
+            path.reset()
+            path.moveTo(cx+1f,base);path.lineTo(cx+half-1f,base)
+            path.lineTo(cx,tip);path.close()
+            fill(0xff8a98a8.toInt());c.drawPath(path,p)
+        }
+    }
+
     private fun drawGate(c:Canvas,g:LevelEngine.Gate,x:Float,index:Int,incoming:Boolean=false){
         val a=LevelEngine.opening(g,game.time,game.difficulty)
         val w=g.width
@@ -1196,6 +1301,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     oval(c,fx+3f,yy-4f,fx+8f,yy+1f,0xffffe2a1.toInt())
                 }
             }
+        }
+        if(g.kind==0){
+            val spiked=index>=2 && index%3!=1
+            drawRoyalPillar(c,x,w,top,true,cliffSeed,spiked)
+            drawRoyalPillar(c,x,w,bottom,false,cliffSeed+3,spiked)
         }
         // An approaching *moving* pillar gets an unmistakable stationary
         // warning badge INSIDE its solid upper shaft (never the open corridor).
@@ -1360,6 +1470,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawCircle(0f,0f,53f,p)
         p.shader=null
         c.restore()
+        // Mild flying-forward perspective on 3D Sova and Lisac; the actual
+        // same 18px body collider and separate wing hinges are unchanged.
+        if(selectedSkin==9 || selectedSkin==10)c.skew(-.045f,0f)
         // Every pilot remains front-facing like Bopi, including Sova and Lisac.
         c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))
         // Keep the head, goggles and scarf stable; only detached wings flap.
