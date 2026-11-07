@@ -257,9 +257,11 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         image(canvas, brand, logoRect)
         // Compose the same original pilot as actual gameplay, wings behind
         // the head/body. Unlike a portrait, this contains real wing geometry.
+        if(selected==0)BopiOwnerAccessories.drawBack(canvas,pilotRect)
         image(canvas, leftWing, pilotRect)
         image(canvas, rightWing, pilotRect)
         image(canvas, body, pilotRect)
+        if(selected==0)BopiOwnerAccessories.drawFront(canvas,pilotRect)
 
         // Ring positions follow the ORIGINAL Loading reference, not the
         // Game Over screenshot. They are illustrative, never wallet values.
