@@ -325,7 +325,16 @@ internal class HomeReferenceScreen(private val host:Activity,
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
                     or android.view.WindowInsets.Type.displayCutout())
                 stage.setSafe(bars.left,bars.top,bars.right,bars.bottom)
-                walletRail.setSafe(bars.left,bars.top,bars.right)
+                // A hidden status bar must not pull the full-screen
+                // Home currency HUD down to its invisible inset height.
+                // Explicit cutout bounds are checked per wallet instead.
+                val statusTop=if(insets.isVisible(
+                    android.view.WindowInsets.Type.statusBars()))
+                    insets.getInsets(
+                        android.view.WindowInsets.Type.statusBars()).top
+                    else 0
+                walletRail.setSafe(bars.left,statusTop,bars.right,
+                    insets.displayCutout?.boundingRects.orEmpty())
             }else{
                 @Suppress("DEPRECATION")
                 stage.setSafe(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,
