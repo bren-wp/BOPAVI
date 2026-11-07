@@ -86,6 +86,12 @@ for element in ("private fun woodenBoard(","private fun awning(",
                 "c.scale(width/941f,height/1672f)"):
     assert element in decor, element
 assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
+assert 'stage.place(ShopEmbossedTitle(host)' in shop
+headline=(src/"ShopEmbossedTitle.kt").read_text()
+assert 'internal class ShopEmbossedTitle(context:Context):TextView(context)' in headline
+assert 'text="SHOP"' in headline
+assert 'intArrayOf(0xfffffaaa.toInt(),0xffffd932.toInt(),' in headline
+assert 'contentDescription="SHOP"' in headline
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert 'ShopItemState.fromStore(progress)' in shop
 assert 'onBuy(item.index)' in shop
