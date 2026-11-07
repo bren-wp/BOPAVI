@@ -31,7 +31,7 @@ internal object FlightLoadingLayout {
     val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f
     // The owner's 941x1672 splash puts a broad gold/blue winged track near
     // the lower edge and the real "Loading..." caption BELOW the track.
-    val track=LoadingArtBox(175f,1320f,766f,1422f)
+    val track=LoadingArtBox(161f,1318f,780f,1422f)
     const val captionCenterX=470f
     const val captionBaselineY=1483f
 
