@@ -69,4 +69,19 @@ assert 'capture_png("android-shop-reference-size")' in qa
 assert '"GEMS COLLECTED"' in qa
 assert 'R.drawable.reference_screenshot' not in shop
 assert 'http://' not in shop and 'https://' not in shop
+
+# The owner's shop contains a full wooden storefront and twelve striped
+# awning sections. These are decor only: native controls must stay live.
+decor=(src/"ShopStorefrontDecor.kt").read_text()
+for element in ("private fun woodenBoard(","private fun awning(",
+                "private fun lantern(","private fun featuredAura(",
+                "private fun frame(","for(i in 0..11)",
+                "c.scale(width/941f,height/1672f)"):
+    assert element in decor, element
+assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
+assert 'Bopavi3DTheme.Finish.GREEN' in shop
+assert 'ShopItemState.fromStore(progress)' in shop
+assert 'onBuy(item.index)' in shop
+assert 'R.drawable.reference_screenshot' not in decor
+
 print("PASS: reference 3x2 Shop preserves six prices, offline buys, native access and bonuses")
