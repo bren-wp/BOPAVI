@@ -132,6 +132,39 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
         c.drawRoundRect(cx-12f,cy-20f,cx+12f,cy+16f,4f,4f,p);p.shader=null
         round(c,cx-20f,cy+15f,40f,9f,4f,0xffeab448.toInt())
     }
+    /** Small gold-riveted blue supply chest, as in the owner's counter.
+     * Props are passive scene details; they are never purchasable card images.
+     */
+    private fun chest(c:Canvas,x:Float,y:Float,w:Float,h:Float){
+        round(c,x+3f,y+7f,w,h,9f,0xff553012.toInt())
+        shiny(c,x,y+4f,w,h-6f,8f,0xffffd477.toInt(),0xff8e4b1e.toInt())
+        shiny(c,x+7f,y+12f,w-14f,h-19f,4f,
+            0xff358cef.toInt(),0xff0f4193.toInt())
+        shiny(c,x-2f,y-4f,w+4f,h*.36f,7f,
+            0xffffd673.toInt(),0xff9e561a.toInt())
+        shiny(c,x+9f,y+2f,w-18f,h*.19f,4f,
+            0xff70caff.toInt(),0xff1254a5.toInt())
+        for(dx in floatArrayOf(5f,w-17f)){
+            round(c,x+dx,y+1f,12f,h-8f,3f,0xffdc9631.toInt())
+            round(c,x+dx+2f,y+5f,5f,5f,2f,0xfffff0a3.toInt())
+        }
+        round(c,x+w*.43f,y+h*.39f,w*.14f,h*.21f,3f,0xfff0c64b.toInt())
+        round(c,x+w*.48f,y+h*.43f,w*.04f,h*.10f,2f,0xff6c4018.toInt())
+    }
+
+    /** Glints behind the mascot, never over buttons or numeric values. */
+    private fun kioskSparkles(c:Canvas){
+        for(i in 0..9){
+            val x=148f+i*71f
+            val y=420f+(i*47%115)
+            val r=if(i%3==0)12f else 5f
+            color(0xffffe48f.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=3f
+            c.drawLine(x-r,y,x+r,y,p)
+            c.drawLine(x,y-r,x,y+r,p)
+            p.style=Paint.Style.FILL
+        }
+    }
     private fun frame(c:Canvas){
         // The same illustrated wooden body encloses Featured and all six
         // genuinely interactive native cards. No embedded products or prices.
@@ -181,10 +214,80 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
         frame(c)
         lantern(c,87f,467f)
         lantern(c,853f,467f)
+        chest(c,138f,518f,78f,45f)
+        chest(c,666f,474f,101f,88f)
+        kioskSparkles(c)
         featuredAura(c)
         // Countertop is in front of the mascot's feet but behind all buttons.
         round(c,24f,550f,891f,39f,10f,0xff613118.toInt())
         shiny(c,23f,546f,895f,26f,8f,0xfff9c778.toInt(),0xffaf6629.toInt())
+        c.restoreToCount(saved)
+    }
+}
+
+/**
+ * Foreground leaves and white flowers frame the lower corners of the owner
+ * Shop artwork. Entirely passive: never consume taps, focus or clicks on any
+ * of the six real product cards, even where foliage overlaps their edge.
+ */
+internal class ShopForegroundFoliage(context:Context):View(context) {
+    private val ink=Paint(Paint.ANTI_ALIAS_FLAG)
+    private val petal=Path()
+    init {
+        importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
+        isClickable=false
+        isFocusable=false
+    }
+    private fun leaf(c:Canvas,x:Float,y:Float,w:Float,h:Float,angle:Float,light:Boolean){
+        val saved=c.save()
+        c.rotate(angle,x,y)
+        petal.reset()
+        petal.moveTo(x,y)
+        petal.cubicTo(x-w*.45f,y-h*.29f,x-w*.55f,y-h*.8f,x,y-h)
+        petal.cubicTo(x+w*.49f,y-h*.7f,x+w*.46f,y-h*.25f,x,y)
+        petal.close()
+        ink.reset();ink.isAntiAlias=true
+        ink.color=if(light)0xff70c92e.toInt() else 0xff17643a.toInt()
+        c.drawPath(petal,ink)
+        ink.style=Paint.Style.STROKE
+        ink.strokeWidth=3f
+        ink.color=if(light)0xffc6e963.toInt() else 0xff31974b.toInt()
+        c.drawLine(x,y-7f,x,y-h*.68f,ink)
+        c.restoreToCount(saved)
+    }
+    private fun daisy(c:Canvas,x:Float,y:Float,scale:Float){
+        ink.reset();ink.isAntiAlias=true
+        for(i in 0..7){
+            val a=i*3.141593f/4f
+            val dx=kotlin.math.cos(a)*13f*scale
+            val dy=kotlin.math.sin(a)*13f*scale
+            ink.color=0xfffff9ea.toInt()
+            c.drawOval(x+dx-8f*scale,y+dy-12f*scale,
+                x+dx+8f*scale,y+dy+12f*scale,ink)
+        }
+        ink.color=0xffffbc20.toInt()
+        c.drawCircle(x,y,10f*scale,ink)
+        ink.color=0xffffed8c.toInt()
+        c.drawCircle(x-2f*scale,y-3f*scale,4f*scale,ink)
+    }
+    override fun onDraw(c:Canvas){
+        if(width<=0 || height<=0)return
+        val saved=c.save()
+        c.scale(width/941f,height/1672f)
+        for(i in 0..7){
+            leaf(c,30f+i*14f,1649f-i*3f,100f,165f,
+                -43f+i*11f,i%3!=0)
+            leaf(c,918f-i*15f,1664f-i*4f,111f,188f,
+                22f-i*11f,i%3==0)
+        }
+        for(i in 0..4){
+            leaf(c,4f+i*16f,1510f+i*9f,80f,120f,
+                -67f+i*12f,i%2==0)
+            leaf(c,938f-i*18f,1478f+i*11f,83f,127f,
+                41f-i*12f,i%2!=0)
+        }
+        daisy(c,50f,1550f,1.3f)
+        daisy(c,899f,1513f,1.26f)
         c.restoreToCount(saved)
     }
 }

@@ -105,6 +105,15 @@ assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert 'ShopItemState.fromStore(progress)' in shop
 assert 'onBuy(item.index)' in shop
 assert 'R.drawable.reference_screenshot' not in decor
+assert "chest(c,666f,474f,101f,88f)" in decor
+assert "chest(c,138f,518f,78f,45f)" in decor
+assert "kioskSparkles(c)" in decor
+assert "class ShopForegroundFoliage(" in decor
+assert "isClickable=false" in decor and "isFocusable=false" in decor
+assert 'stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f)' in shop
+assert "if(featured.canBuy)onBuy(featured.index)" in shop
+assert "item.soldOut -> android.widget.Toast.makeText" in shop
+assert "!item.affordable -> android.widget.Toast.makeText" in shop
 enamels=(src/"ShopReferenceEnamels.kt").read_text()
 for cls in ("ShopCreamCardDrawable","ShopFeaturedPanelDrawable"):
     assert "class "+cls in enamels

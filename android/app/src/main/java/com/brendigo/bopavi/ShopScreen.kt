@@ -105,8 +105,17 @@ internal class ShopScreen(
         },LinearLayout.LayoutParams(-1,0,.65f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
-        val buy=button(NumberFormat.getIntegerInstance().format(item.price),false,item.canBuy){
-            onBuy(item.index)
+        // Reference buy capsules stay saturated emerald even for a new
+        // player. Tapping an unaffordable item gives truthful feedback;
+        // it never mutates coins or bypasses ProgressStore.buyPerk().
+        val buy=button(NumberFormat.getIntegerInstance().format(item.price),false,true){
+            when {
+                item.soldOut -> android.widget.Toast.makeText(host,
+                    "Inventory full (99).",android.widget.Toast.LENGTH_SHORT).show()
+                !item.affordable -> android.widget.Toast.makeText(host,
+                    "Not enough coins.",android.widget.Toast.LENGTH_SHORT).show()
+                else -> onBuy(item.index)
+            }
         }.apply{
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
             setTextColor(Color.WHITE)
@@ -117,7 +126,7 @@ internal class ShopScreen(
             gravity=Gravity.CENTER
             contentDescription=item.accessibility+
                 if(item.canBuy)". Buy for ${item.price} coins"
-                else ". Purchase unavailable"
+                else ". Tap for purchase requirements"
         }
         card.addView(buy,LinearLayout.LayoutParams(-1,0,.90f).apply{
             topMargin=dp(4)
@@ -296,9 +305,17 @@ internal class ShopScreen(
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },516f,593f,343f,253f)
-        stage.place(button(featured.buttonLabel,true,featured.canBuy){
-            onBuy(featured.index)
+        stage.place(button(NumberFormat.getIntegerInstance().format(featured.price),
+            true,true){
+            if(featured.canBuy)onBuy(featured.index)
+            else android.widget.Toast.makeText(host,
+                if(featured.soldOut)"Inventory full (99)." else "Not enough coins.",
+                android.widget.Toast.LENGTH_SHORT).show()
         }.apply {
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.COIN,dp(30)),
+                null,null,null)
+            compoundDrawablePadding=dp(8)
             contentDescription="Featured "+featured.accessibility
         },96f,771f,322f,84f,minTouch=true)
         val bonus=progress.bonusCoinsAvailable()
@@ -317,6 +334,9 @@ internal class ShopScreen(
                 ShopReferenceLayout.cardWidth,
                 ShopReferenceLayout.cardHeight)
         }
+
+        // Entirely passive flower/leaf foreground, preserving all touches.
+        stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f)
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
