@@ -77,7 +77,7 @@ internal class ShopScreen(
             elevation=dp(4).toFloat()
             contentDescription=item.accessibility
         }
-        card.addView(message(item.name.uppercase(),18,0xff5f260e.toInt()).apply{
+        card.addView(message(item.storefrontTitle,18,0xff5f260e.toInt()).apply{
             maxLines=2
             setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
         },LinearLayout.LayoutParams(-1,0,.58f))
@@ -88,23 +88,30 @@ internal class ShopScreen(
         row.addView(ImageView(host).apply{
             setImageDrawable(HomeHeroIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,dp(74)))
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(86)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(49),dp(49)))
+        },LinearLayout.LayoutParams(dp(68),dp(68)))
+        row.addView(message(item.iconTierLabel,20,0xffffac17.toInt()).apply{
+            setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LinearLayout.LayoutParams(dp(38),dp(47)))
         card.addView(row,LinearLayout.LayoutParams(-1,0,1.03f))
-        card.addView(message(
-            if(item.isShield)"Protection for your next flight"
-            else "Attract nearby rewards",13,0xff723d20.toInt()).apply {
+        card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
                 maxLines=2
         },LinearLayout.LayoutParams(-1,0,.54f))
         card.addView(message("OWNED: ${item.owned}/99  •  TIER ${item.tier}",12,
             0xff6e5141.toInt()),LinearLayout.LayoutParams(-1,0,.38f))
-        val buy=button(item.price.toString(),false,item.canBuy){
+        val buy=button(NumberFormat.getIntegerInstance().format(item.price),false,item.canBuy){
             onBuy(item.index)
         }.apply{
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
             setTextColor(Color.WHITE)
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.COIN,dp(26)),
+                null,null,null)
+            compoundDrawablePadding=dp(3)
+            gravity=Gravity.CENTER
             contentDescription=item.accessibility+
                 if(item.canBuy)". Buy for ${item.price} coins"
                 else ". Purchase unavailable"
@@ -245,9 +252,9 @@ internal class ShopScreen(
         },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
             ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
         stage.place(message("FEATURED!",27),70f,578f,275f,62f)
-        stage.place(message(featured.name.uppercase(),32,0xffffe680.toInt()),
+        stage.place(message(featured.storefrontTitle,32,0xffffe680.toInt()),
             74f,642f,466f,71f)
-        stage.place(message("PROTECT YOUR NEXT FLIGHT",19),
+        stage.place(message(featured.perkEffect.uppercase(),19),
             77f,707f,464f,47f)
         stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",15),
             77f,728f,464f,32f)
