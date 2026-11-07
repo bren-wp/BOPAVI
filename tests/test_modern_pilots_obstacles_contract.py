@@ -38,5 +38,10 @@ assert "legacy_layer.alpha_composite(legacy_mascot" in generator
 assert "assert adaptive.tobytes()==expected.tobytes()" in icon
 assert "ImageDraw.Draw(halo" not in generator
 assert "drawPolishedGateLip(c,x,w,top-28f)" in view
-assert "M-17 29 Q-34 55" in (root/"docs/assets/lisac.svg").read_text()
+fox=(root/"docs/assets/lisac.svg").read_text()
+bird=(root/"docs/assets/sova.svg").read_text()
+assert "Oversized fluffy orange tail" in fox
+assert 'id="wing-left"' in fox and 'id="wing-right"' in fox
+assert 'id="wing-left"' in bird and 'id="wing-right"' in bird
+assert 'id="glass"' in fox and 'id="glass"' in bird
 print("PASS: collision-safe pillars, frontal Sova/Lisac rig and original mascot icon")
