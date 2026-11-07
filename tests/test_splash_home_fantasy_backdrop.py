@@ -17,7 +17,10 @@ for item in ("castle(102,426,.66)","castle(773,487,.58)","enrich_background(sour
 assert "R.drawable.homeback" in home
 assert "R.drawable.loadingback" in loading
 assert "from paint_loading_reference import paint_loading_reference" in g
-assert "loading_art=paint_loading_reference(home_art)" in g
+assert "loading_detail=paint_loading_reference(home_art)" in g
+assert "loading_art=Image.composite(loading_detail,home_art,loading_mask)" in g
+assert "loading_mask_draw.rectangle((0,0,185,370),fill=128)" in g
+assert "loading_mask_draw.rectangle((710,870,900,1600),fill=192)" in g
 assert "loading_art.save(a/'drawable-nodpi/loadingback.png',optimize=True)" in g
 paint=(root/"tools/paint_loading_reference.py").read_text()
 for marker in ("def paint_loading_reference(base: Image.Image)",
