@@ -53,8 +53,9 @@ internal class HomeReferenceScreen(private val host:Activity,
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                HomeEnamelDrawable(0xff2b91f5.toInt(),0xff1b62bb.toInt(),
-                    0xff0c285c.toInt(),0xff9ae3ff.toInt()),null)
+                HomeEnamelDrawable(0xff2c5294.toInt(),0xff122c66.toInt(),
+                    0xff071941.toInt(),0xff3086c7.toInt(),
+                    sourceHome=true),null)
             elevation=dp(5).toFloat()
             // The outer Stage uses 941px reference units, not dp.
             setPadding(2,0,2,0)
@@ -127,7 +128,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             gravity=Gravity.CENTER
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
                 HomeEnamelDrawable(top,if(isPlay)0xffffaf12.toInt() else top,
-                    bottom,border),null)
+                    bottom,border,sourceHome=true),null)
             elevation=dp(8).toFloat()
             contentDescription=description
             isClickable=true;isFocusable=true
@@ -219,7 +220,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
-        control.addView(HomeEmbossedLabel(host,text,17f,false),
+        control.addView(HomeEmbossedLabel(host,text,19f,false),
             LinearLayout.LayoutParams(-1,0,0f))
         return control
     }
@@ -299,19 +300,19 @@ internal class HomeReferenceScreen(private val host:Activity,
         place(stage,HomePlayWings(host),HomeReferenceLayout.playWings)
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
-            0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),58,onPlay),
+            0xfffff07a.toInt(),0xffff9904.toInt(),0xffa3560b.toInt(),58,onPlay),
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),36,onSkins),
+            0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),36,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),37,onShop),
+            0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),37,onShop),
             HomeReferenceLayout.shop,true)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),29,onSettings),
+            0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),29,onSettings),
             HomeReferenceLayout.settings,true)
 
         place(stage,footerShortcut("ACHIEVEMENTS",
