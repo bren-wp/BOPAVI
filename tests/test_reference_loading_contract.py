@@ -9,7 +9,7 @@ activity=(src/"MainActivity.kt").read_text(encoding="utf-8")
 qa=(root/"tools/qa_android_loading.py").read_text(encoding="utf-8")
 runner=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 assert "internal class FlightLoadingView(context: Context, pilotChoice: Int, private val startup:Boolean=false) : View(context)" in loading
-for required in ("R.drawable.homeback","R.drawable.logo",
+for required in ("R.drawable.loadingback","R.drawable.logo",
                  "R.drawable.bopi0","R.drawable.bopileft0","R.drawable.bopiright0",
                  '"Loading..."',"fun completePreparation()",
                  'if(startup)"BOPAVI se pokreće" else "Loading level"',
