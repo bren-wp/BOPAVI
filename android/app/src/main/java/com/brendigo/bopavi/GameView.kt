@@ -361,6 +361,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
         }
         drawWorldAtmosphere(canvas)
+        // The supplied Sky Meadows ready frame has a mossy floating-stone
+        // arch behind the real bird and playable obstacles. This is part of
+        // the distant environment, NOT a fake collectible or damage hitbox.
+        if(game.level.world==0)drawSkyMeadowsArchScenery(canvas)
         // Nothing that can collide with Bopi is painted on the ready-to-fly
         // screen. First tap calls GameSimulation.flap(), which sets active=true;
         // that SAME real event makes spikes, pillars, maces and pickups appear.
@@ -479,6 +483,67 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             }
         }
     }
+    /** Static layered ruin behind the first-world obstacle lane.
+     *
+     * A native Canvas scene keeps the supplied fantasy arch motif visible on
+     * ready/active gameplay without copying screenshot UI, fake maces or gems.
+     * Every actual obstacle still comes exclusively from GameSimulation.
+     * Paint and Path are cached fields; no graphics allocations per frame.
+     */
+    private fun drawSkyMeadowsArchScenery(c:Canvas) {
+        val left=336f
+        val right=455f
+        val top=241f
+        val bottom=399f
+        // Cloud depth shadow and blue waterfall silhouette behind columns.
+        oval(c,left-13f,top+120f,right+8f,bottom+28f,0x337ce9ff)
+        rect(c,365f,270f,424f,bottom+23f,0x444ccfe9,15f)
+        rect(c,378f,275f,411f,bottom+21f,0x557ef3fc,12f)
+        // Two real-looking but non-interactive stone pillars. Their silhouette
+        // stays to the right of the pilot's 18px body lane.
+        rect(c,left-4f,top+18f,left+25f,bottom,0xff596d81.toInt(),7f)
+        rect(c,right-27f,top+18f,right+3f,bottom,0xff596d81.toInt(),7f)
+        rect(c,left,top+21f,left+19f,bottom-5f,0xffb6bdc5.toInt(),5f)
+        rect(c,right-23f,top+21f,right-2f,bottom-5f,0xffa7b5bf.toInt(),5f)
+        // The same arch curve is reused for shadow, sandstone and illuminated
+        // inner ridge; the large opening remains blue sky, not solid rock.
+        path.reset()
+        path.moveTo(left+6f,top+42f)
+        path.cubicTo(left+9f,top-28f,right-8f,top-28f,right-10f,top+42f)
+        fill(0xff4f6479.toInt())
+        p.style=Paint.Style.STROKE;p.strokeWidth=30f
+        p.strokeCap=Paint.Cap.ROUND
+        c.drawPath(path,p)
+        fill(0xffc7bec0.toInt());p.strokeWidth=22f
+        c.drawPath(path,p)
+        fill(0xfff2e6c4.toInt());p.strokeWidth=3.5f
+        c.drawPath(path,p)
+        p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
+        // Chiseled gold bindings and moss make the world visually match the
+        // meadow islands. They never alter the live gate opening or physics.
+        for(x in floatArrayOf(left+9f,right-10f)) {
+            rect(c,x-15f,top+69f,x+15f,top+78f,
+                0xff6c5d62.toInt(),3f)
+            rect(c,x-13f,top+68f,x+13f,top+74f,
+                0xffedbe63.toInt(),2f)
+            rect(c,x-16f,bottom-22f,x+16f,bottom-15f,
+                0xff546c69.toInt(),2f)
+        }
+        for(i in 0..8) {
+            val x=left+10f+i*13f
+            val y=top+8f+(i%3)*3f
+            oval(c,x-11f,y-6f,x+14f,y+7f,0xff226d41.toInt())
+            oval(c,x-10f,y-9f,x+11f,y+2f,0xff6ed660.toInt())
+        }
+        // Sunlit flowers are scenery, not pickups.
+        for(i in 0..3) {
+            val x=left+20f+i*28f
+            val y=top+8f+(i%2)*6f
+            oval(c,x-5f,y-3f,x+5f,y+3f,0xfff7f8e7.toInt())
+            oval(c,x-2f,y-2f,x+2f,y+2f,0xffffc14c.toInt())
+        }
+    }
+
     private fun drawWorldAtmosphere(c:Canvas) {
         val world=game.level.world
         val dustDrift=if(reducedMotion)0f else
