@@ -365,10 +365,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // arch behind the real bird and playable obstacles. This is part of
         // the distant environment, NOT a fake collectible or damage hitbox.
         if(game.level.world==0)drawSkyMeadowsArchScenery(canvas)
-        // Nothing that can collide with Bopi is painted on the ready-to-fly
-        // screen. First tap calls GameSimulation.flap(), which sets active=true;
-        // that SAME real event makes spikes, pillars, maces and pickups appear.
-        // Pause/resume keeps active, whereas Retry creates a fresh idle run.
+        // The 941x1672 owner ready frame already shows real obstacles and
+        // collectible rings. Draw the SAME cached gates in ready and active
+        // states; the first real tap still owns physics, travel, pickup
+        // collection and damage. Finished runs hide hazards under the result.
         val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
             game.active,game.finished)
         if(showGameplayObstacles) {
