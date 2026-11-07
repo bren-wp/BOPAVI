@@ -27,7 +27,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 /** Native GPU-backed Android Canvas. No HTML, Chromium, WebView or network activity. */
-class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false) : View(context) {
+class GameView(context: Context, val game: GameSimulation, private val reducedMotion: Boolean, private val skinIndex: Int, private val hapticEnabled: Boolean, private val onFinished: (GameSimulation) -> Unit, private val onLevelCompleted:(Long)->Unit = {}, private val onFlap:()->Unit = {}, private val onCollect:()->Unit = {}, private val onShieldImpact:()->Unit = {}, qaCaptureFirstFlap:Boolean = false, qaCollisionOverlay:Boolean = false, private val onPauseRequested:()->Unit={}, private val onWalletRequested:()->Unit={}) : View(context) {
     // QA-only freeze after a REAL first flap. The drawn view remains the actual
     // GameSimulation with truthful HUD, while slow emulator screenshot IPC runs.
     // Android release builds cannot enable this even via an injected Intent.
@@ -39,6 +39,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Keep only a cached lives accessibility label: no score text or
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
+    private val savedCoinsAtFlightStart=ProgressStore(context).coins()
+    private var lastReferenceScore=-1
+    private var lastReferenceCrystals=-1
+    private var referenceScoreLabel="0"
+    private var referenceCrystalLabel="0"
+    private val referenceCoinLabel=String.format(java.util.Locale.US,"%,d",savedCoinsAtFlightStart)
     // Reused, immutable sprite destination: no RectF per rendered frame.
     private val hudPortraitRect=RectF(22f,17f,66f,61f)
     // Updated only when Android dispatches insets or the viewport changes.
@@ -391,7 +397,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             // the 60/90/120 Hz render path and no unnecessary center-notch shift.
             canvas.translate((width-480f*hudScale)*.5f,hudTopSafeInsetPx+1f*hudScale)
             canvas.scale(hudScale,hudScale)
-            drawHud(canvas)
+            if(game.active)drawGameplayReferenceHud(canvas) else drawHud(canvas)
             canvas.restore()
         }
         // The illustrated world already owns its entire 480x800 canvas.
@@ -1659,6 +1665,103 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             p.strokeCap=Paint.Cap.BUTT
         }
     }
+    /** Readable embossed native text; no fake screenshot or overdrawn bitmap. */
+    private fun drawHudEmbossed(c:Canvas,value:String,x:Float,y:Float,
+                                size:Float,color:Int) {
+        fill(0xff4d270f.toInt())
+        p.typeface=headerTypeface;p.textSize=size;p.textAlign=Paint.Align.CENTER
+        p.style=Paint.Style.STROKE;p.strokeWidth=3.8f
+        c.drawText(value,x,y+1.4f,p)
+        p.style=Paint.Style.FILL
+        fill(color);p.typeface=headerTypeface;p.textSize=size
+        p.textAlign=Paint.Align.CENTER
+        c.drawText(value,x,y,p)
+    }
+
+    private fun drawGameplayReferenceHud(c:Canvas){
+        val h=GameplayReferenceHudLayout
+        // Source of truth: actual local wallet, score and crystal pickups.
+        // The app has no spendable gem currency; never draw fabricated 85.
+        val score=game.score()
+        if(score!=lastReferenceScore){
+            lastReferenceScore=score
+            referenceScoreLabel=score.toString()
+        }
+        if(game.stars!=lastReferenceCrystals){
+            lastReferenceCrystals=game.stars
+            referenceCrystalLabel=game.stars.toString()
+            contentDescription=flightHint()+" Rezultat: $score. "+
+                "Novčići: $savedCoinsAtFlightStart. Kristali: ${game.stars}. "+
+                "Gore desno pauza."
+        }
+        hudGlass(c,h.coinWallet.left,h.coinWallet.top,
+            h.coinWallet.right,h.coinWallet.bottom)
+        hudGlass(c,h.crystalWallet.left,h.crystalWallet.top,
+            h.crystalWallet.right,h.crystalWallet.bottom)
+
+        // Coin: extruded gold and a raised dollar/coin motif.
+        oval(c,9f,10f,42f,42f,0xff603013.toInt())
+        oval(c,10f,8f,40f,38f,0xffffb62d.toInt())
+        oval(c,13f,11f,37f,35f,0xffffe060.toInt())
+        oval(c,16f,14f,34f,32f,0xffc8750e.toInt())
+        drawHudEmbossed(c,"$",25f,28f,18f,0xfffff1b4.toInt())
+        drawHudEmbossed(c,referenceCoinLabel,73f,29.5f,15f,Color.WHITE)
+
+        // Violet badge is the real run's crystal count (GameSimulation.stars).
+        path.reset();path.moveTo(141f,8f);path.lineTo(157f,11f)
+        path.lineTo(165f,24f);path.lineTo(149f,41f)
+        path.lineTo(134f,24f);path.close()
+        fill(0xff5d188d.toInt());c.drawPath(path,p)
+        path.reset();path.moveTo(141f,11f);path.lineTo(156f,12f)
+        path.lineTo(162f,24f);path.lineTo(149f,38f)
+        path.lineTo(137f,24f);path.close()
+        fill(0xffe43aff.toInt());c.drawPath(path,p)
+        path.reset();path.moveTo(141f,11f);path.lineTo(148f,20f)
+        path.lineTo(137f,24f);path.close()
+        fill(0xfffba8ff.toInt());c.drawPath(path,p)
+        drawHudEmbossed(c,referenceCrystalLabel,186f,29.5f,15f,Color.WHITE)
+
+        // Both bright green plus chips are real store navigation controls.
+        for(x in floatArrayOf(96f,214f)){
+            rect(c,x,12f,x+21f,38f,0xff104d27.toInt(),7f)
+            rect(c,x+1f,11f,x+20f,35f,0xff59d92d.toInt(),7f)
+            rect(c,x+2f,12f,x+19f,17f,0xffb5ff80.toInt(),5f)
+            drawHudEmbossed(c,"+",x+10.5f,30f,21f,Color.WHITE)
+        }
+
+        // Painted back wings remain BEHIND the live SCORE plaque.
+        path.reset()
+        path.moveTo(171f,72f);path.cubicTo(153f,66f,148f,73f,152f,85f)
+        path.cubicTo(154f,98f,166f,106f,174f,107f)
+        path.close();fill(0xfff8fbff.toInt());c.drawPath(path,p)
+        path.reset()
+        path.moveTo(308f,72f);path.cubicTo(330f,66f,334f,77f,327f,90f)
+        path.cubicTo(324f,99f,316f,104f,307f,107f)
+        path.close();fill(0xfff8fbff.toInt());c.drawPath(path,p)
+        // Wooden dark panel with bright outer gold bevel.
+        rect(c,166f,79f,314f,123f,0xff542b1c.toInt(),14f)
+        rect(c,168f,76f,312f,120f,0xffffbf43.toInt(),14f)
+        rect(c,173f,81f,307f,114f,0xff773a20.toInt(),10f)
+        rect(c,171f,79f,309f,82f,0xffffe789.toInt(),3f)
+        // Blue SCORE ribbon, gold crown and white readable lettering.
+        rect(c,174f,55f,306f,83f,0xff0a2b75.toInt(),12f)
+        rect(c,176f,54f,304f,79f,0xff168eee.toInt(),12f)
+        rect(c,179f,56f,301f,61f,0xff9cefff.toInt(),3f)
+        drawRoyalCrown(c,240f,49f,13f)
+        drawHudEmbossed(c,"SCORE",240f,73f,18f,Color.WHITE)
+        drawHudEmbossed(c,referenceScoreLabel,240f,111f,34f,0xffffda62.toInt())
+
+        // Native orange pause target, not merely a decorative image.
+        rect(c,426f,12f,474f,66f,0xff542115.toInt(),15f)
+        rect(c,428f,10f,472f,60f,0xffffb52e.toInt(),14f)
+        rect(c,430f,12f,470f,54f,0xffff822b.toInt(),12f)
+        rect(c,433f,13f,467f,17f,0xffffedb0.toInt(),3f)
+        rect(c,440f,21f,447f,47f,0xff672b25.toInt(),3f)
+        rect(c,452f,21f,459f,47f,0xff672b25.toInt(),3f)
+        rect(c,441f,20f,446f,44f,Color.WHITE,2f)
+        rect(c,453f,20f,458f,44f,Color.WHITE,2f)
+    }
+
     private fun drawHud(c:Canvas){
         // Minimal native HUD: lives only. Scores, berries and abilities remain
         // in GameSimulation for authentic results and saved history, never in flight.
@@ -1729,7 +1832,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     }
     /** Every ACTION_DOWN is one flap; holding and moving cannot steer. */
     override fun onTouchEvent(event:MotionEvent):Boolean {
-        if(event.actionMasked==MotionEvent.ACTION_DOWN) performClick()
+        if(event.actionMasked==MotionEvent.ACTION_DOWN) {
+            if(game.active && !paused && !game.finished) {
+                val target=GameplayReferenceHudLayout.hitArea(
+                    event.x,event.y,width,height,hudTopSafeInsetPx)
+                if(target==1){onPauseRequested();return true}
+                if(target==2){onWalletRequested();return true}
+            }
+            performClick()
+        }
         return true
     }
     override fun performClick():Boolean {
