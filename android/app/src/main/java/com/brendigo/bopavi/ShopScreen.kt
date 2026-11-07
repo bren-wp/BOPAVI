@@ -66,6 +66,9 @@ internal class ShopScreen(
         }
 
     private fun perkCard(item:ShopItemState,onBuy:(Int)->Unit):View {
+        // A native product card with four independent text/image regions,
+        // not a flattened product screenshot. Existing six offline purchases
+        // retain the exact ProgressStore index, price and stored inventory.
         val card=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
@@ -74,28 +77,37 @@ internal class ShopScreen(
             elevation=dp(4).toFloat()
             contentDescription=item.accessibility
         }
+        card.addView(message(item.name.uppercase(),18,0xff5f260e.toInt()).apply{
+            maxLines=2
+            setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
+        },LinearLayout.LayoutParams(-1,0,.58f))
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER_VERTICAL
+            gravity=Gravity.CENTER
         }
         row.addView(ImageView(host).apply{
             setImageDrawable(HomeHeroIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
                 else BopaviUiIconDrawable.Kind.MAGNET,dp(74)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },LinearLayout.LayoutParams(dp(49),dp(49)))
-        row.addView(message("TIER ${item.tier}",15,navy),
-            LinearLayout.LayoutParams(0,-1,1f))
-        card.addView(row,LinearLayout.LayoutParams(-1,0,1.0f))
-        card.addView(message(item.name.uppercase(),18,navy),
-            LinearLayout.LayoutParams(-1,0,.52f))
-        card.addView(message("OWNED: ${item.owned}/99",14,0xff244c73.toInt()),
-            LinearLayout.LayoutParams(-1,0,.40f))
-        val buy=button(item.buttonLabel,item.canBuy,item.canBuy){
+        card.addView(row,LinearLayout.LayoutParams(-1,0,1.03f))
+        card.addView(message(
+            if(item.isShield)"Protection for your next flight"
+            else "Attract nearby rewards",13,0xff723d20.toInt()).apply {
+                maxLines=2
+        },LinearLayout.LayoutParams(-1,0,.54f))
+        card.addView(message("OWNED: ${item.owned}/99  •  TIER ${item.tier}",12,
+            0xff6e5141.toInt()),LinearLayout.LayoutParams(-1,0,.38f))
+        val buy=button(item.price.toString(),false,item.canBuy){
             onBuy(item.index)
         }.apply{
+            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
+            setTextColor(Color.WHITE)
             contentDescription=item.accessibility+
-                if(item.canBuy)". Buy for ${item.price} coins" else ". Purchase unavailable"
+                if(item.canBuy)". Buy for ${item.price} coins"
+                else ". Purchase unavailable"
         }
         card.addView(buy,LinearLayout.LayoutParams(-1,0,1.10f).apply{
             topMargin=dp(4)
@@ -180,26 +192,43 @@ internal class ShopScreen(
         }
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        // Full storefront artwork is a separate passive native Canvas layer.
+        // Dynamic prices, avatar, balances and buttons remain Android Views.
+        stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)
         // Native header, real locally saved counters and original character.
         stage.place(button("‹",false,click=onBack).apply{
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
             contentDescription="HOME"
         },24f,18f,119f,99f,minTouch=true)
-        stage.place(message("SHOP",83,0xffffe76c.toInt()),291f,130f,359f,150f)
+        stage.place(message("SHOP",83,0xffffdf43.toInt()).apply {
+            setShadowLayer(4f,2f,6f,0xff6f230c.toInt())
+        },291f,143f,359f,139f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
-        stage.place(message("COINS  •  "+NumberFormat.getIntegerInstance().format(coins),
-            21).apply{
+        stage.place(message(NumberFormat.getIntegerInstance().format(coins),
+            27).apply{
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
             contentDescription="Earned coins: $coins"
             isFocusable=true
+            setPadding(dp(24),0,dp(3),0)
         },466f,20f,201f,78f)
-        stage.place(message("STARS  •  "+NumberFormat.getIntegerInstance().format(stars),
-            21).apply{
+        stage.place(ImageView(host).apply {
+            setImageDrawable(HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(31)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },463f,21f,60f,63f)
+        stage.place(message(NumberFormat.getIntegerInstance().format(stars),
+            27).apply{
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
             contentDescription="Earned stars: $stars"
             isFocusable=true
+            setPadding(dp(24),0,dp(3),0)
         },695f,20f,220f,78f)
+        stage.place(ImageView(host).apply {
+            setImageDrawable(BopaviUiIconDrawable(
+                BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },694f,22f,65f,65f)
         stage.place(ImageView(host).apply {
             setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER
@@ -218,8 +247,10 @@ internal class ShopScreen(
         stage.place(message("FEATURED!",27),70f,578f,275f,62f)
         stage.place(message(featured.name.uppercase(),32,0xffffe680.toInt()),
             74f,642f,466f,71f)
-        stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",20),
-            77f,710f,460f,48f)
+        stage.place(message("PROTECT YOUR NEXT FLIGHT",19),
+            77f,707f,464f,47f)
+        stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",15),
+            77f,728f,464f,32f)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
