@@ -38,8 +38,8 @@ assert 'nowMs-lastTime<intervalMs' in purchaseGate
 assert 'secondAccidentalTapCannotChargeTwiceImmediately' in gateTest
 assert 'distinctProductsAndLaterDeliberateBuysRemainAvailable' in gateTest
 assert 'if(progress.claimBonusCoins()>0)' in app
-assert 'val rows=floatArrayOf(886f,1208f)' in geom
-assert 'val columns=floatArrayOf(35f,331f,627f)' in geom
+assert 'val rows=floatArrayOf(883f,1208f)' in geom
+assert 'val columns=floatArrayOf(52f,336f,619f)' in geom
 assert 'val row=item.index/3' in shop and 'val col=item.index%3' in shop
 assert 'val featured=items.last()' in shop
 heroIcons=(src/"HomeHeroIconDrawable.kt").read_text()
@@ -66,9 +66,14 @@ assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
 assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
-assert 'LinearLayout.LayoutParams(dp(52),dp(52))' in shop
+assert 'LinearLayout.LayoutParams(0,-1,2.15f)' in shop
+assert 'LinearLayout.LayoutParams(0,-1,.85f)' in shop
+assert 'background=ShopCreamCardDrawable()' in shop
+assert 'background=ShopFeaturedPanelDrawable()' in shop
+assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)' not in shop
 assert 'contentDescription="OWNED: ${item.owned}/99. "+item.accessibility' in shop
 assert 'message("OWNED: ${item.owned}/99  •  TIER' not in shop
+assert 'stage.place(message("TIER ${featured.tier}' not in shop
 assert 'message(item.storefrontTitle,15' in shop
 assert 'message(item.perkEffect,13' in shop
 assert 'item.iconTierLabel' in shop
@@ -100,5 +105,10 @@ assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert 'ShopItemState.fromStore(progress)' in shop
 assert 'onBuy(item.index)' in shop
 assert 'R.drawable.reference_screenshot' not in decor
+enamels=(src/"ShopReferenceEnamels.kt").read_text()
+for cls in ("ShopCreamCardDrawable","ShopFeaturedPanelDrawable"):
+    assert "class "+cls in enamels
+assert "LinearGradient" in enamels and "RadialGradient" in enamels
+assert 'R.drawable.reference_screenshot' not in enamels
 
 print("PASS: reference 3x2 Shop preserves six prices, offline buys, native access and bonuses")

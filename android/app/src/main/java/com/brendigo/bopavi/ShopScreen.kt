@@ -73,7 +73,7 @@ internal class ShopScreen(
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER_HORIZONTAL
             setPadding(dp(5),dp(6),dp(5),dp(8))
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            background=ShopCreamCardDrawable()
             elevation=dp(4).toFloat()
             contentDescription="OWNED: ${item.owned}/99. "+item.accessibility
         }
@@ -85,17 +85,20 @@ internal class ShopScreen(
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
         }
+        // Flexible weights fill the reference card instead of multiplying
+        // hardcoded dp icon widths by a device's physical pixel density.
+        // The art stays fully inside the cream panel at every screen scale.
         row.addView(ImageView(host).apply{
             setImageDrawable(HomeHeroIconDrawable(
                 if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
                 else BopaviUiIconDrawable.Kind.MAGNET,dp(52)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(52),dp(52)))
+        },LinearLayout.LayoutParams(0,-1,2.15f))
         row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
             setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(30),dp(52)))
+        },LinearLayout.LayoutParams(0,-1,.85f))
         card.addView(row,LinearLayout.LayoutParams(-1,0,1.55f))
         card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
                 maxLines=2
@@ -131,7 +134,7 @@ internal class ShopScreen(
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(host).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x7c082348,0x225cbfeb,0xaa041d46.toInt()))
+                intArrayOf(0x15082348,0x055cbfeb,0x39041d46))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 
@@ -252,30 +255,34 @@ internal class ShopScreen(
         val items=ShopItemState.fromStore(progress)
         val featured=items.last()
         stage.place(FrameLayout(host).apply {
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.VIOLET)
+            background=ShopFeaturedPanelDrawable()
             contentDescription="Featured: "+featured.accessibility
             elevation=dp(8).toFloat()
         },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
             ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
-        stage.place(message("FEATURED!",27),70f,578f,275f,62f)
+        stage.place(message("FEATURED!",23).apply {
+            background=plate(0xffff4b86.toInt(),0xffab0341.toInt(),
+                0xffffafc5.toInt(),8)
+            setShadowLayer(2f,1f,3f,0xff6b0632.toInt())
+        },70f,578f,275f,62f)
         stage.place(message(featured.storefrontTitle,32,0xffffe680.toInt()),
             74f,642f,466f,71f)
         stage.place(message(featured.perkEffect.uppercase(),19),
             77f,707f,464f,47f)
-        stage.place(message("TIER ${featured.tier}  •  OWNED ${featured.owned}/99",15),
-            77f,728f,464f,32f)
+        // The featured panel already exposes the real owned quantity to
+        // TalkBack; avoid an extra visible tier line across the reference art.
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
                 else BopaviUiIconDrawable.Kind.MAGNET,dp(95)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },633f,614f,213f,159f)
+        },516f,593f,343f,253f)
         stage.place(button(featured.buttonLabel,true,featured.canBuy){
             onBuy(featured.index)
         }.apply {
             contentDescription="Featured "+featured.accessibility
-        },111f,769f,402f,85f,minTouch=true)
+        },96f,771f,322f,84f,minTouch=true)
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0) {
             stage.place(button("CLAIM +$bonus",true,click=onClaim).apply {

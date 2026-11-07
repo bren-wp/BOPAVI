@@ -45,6 +45,11 @@ class ShopItemStateTest {
         assertFalse(ShopReferenceLayout.supports(720,1280,true,1.0f))
         assertFalse(ShopReferenceLayout.supports(941,1672,true,1.5f))
         assertFalse(ShopReferenceLayout.supports(1920,1080,false,1.0f))
+        assertEquals(52f,ShopReferenceLayout.columns[0],0f)
+        assertEquals(336f,ShopReferenceLayout.columns[1],0f)
+        assertEquals(619f,ShopReferenceLayout.columns[2],0f)
+        assertEquals(270f,ShopReferenceLayout.cardWidth,0f)
+        assertEquals(883f,ShopReferenceLayout.rows[0],0f)
         assertEquals(3,ShopReferenceLayout.columns.size)
         assertEquals(2,ShopReferenceLayout.rows.size)
         assertTrue(ShopReferenceLayout.featureTop+ShopReferenceLayout.featureHeight<

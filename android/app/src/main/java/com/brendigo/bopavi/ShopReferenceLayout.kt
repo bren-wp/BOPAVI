@@ -8,9 +8,11 @@ internal object ShopReferenceLayout {
     const val featureTop=562f
     const val featureWidth=870f
     const val featureHeight=307f
-    val columns=floatArrayOf(35f,331f,627f)
-    val rows=floatArrayOf(886f,1208f)
-    const val cardWidth=279f
+    // Measured ceramic card rims from the owner's 941x1672 screenshot.
+    // One shared geometry contract drives both drawing and tap targets.
+    val columns=floatArrayOf(52f,336f,619f)
+    val rows=floatArrayOf(883f,1208f)
+    const val cardWidth=270f
     const val cardHeight=312f
 
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
