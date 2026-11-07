@@ -1683,13 +1683,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Source of truth: actual local wallet, score and crystal pickups.
         // The app has no spendable gem currency; never draw fabricated 85.
         val score=game.score()
-        if(score!=lastReferenceScore){
+        val scoreChanged=score!=lastReferenceScore
+        val crystalsChanged=game.stars!=lastReferenceCrystals
+        if(scoreChanged){
             lastReferenceScore=score
             referenceScoreLabel=score.toString()
         }
-        if(game.stars!=lastReferenceCrystals){
+        if(crystalsChanged){
             lastReferenceCrystals=game.stars
             referenceCrystalLabel=game.stars.toString()
+        }
+        if(scoreChanged || crystalsChanged){
             contentDescription=flightHint()+" Rezultat: $score. "+
                 "Novčići: $savedCoinsAtFlightStart. Kristali: ${game.stars}. "+
                 "Gore desno pauza."
