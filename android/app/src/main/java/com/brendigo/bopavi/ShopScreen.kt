@@ -206,7 +206,11 @@ internal class ShopScreen(
         stage.place(button("‹",false,click=onBack).apply{
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
             contentDescription="HOME"
+            text=""
         },24f,18f,119f,99f,minTouch=true)
+        // Match the owner arrow silhouette, without replacing the actual
+        // HOME action with a decorative non-clickable screenshot.
+        stage.place(ReferenceArrowOverlayView(host),24f,18f,119f,99f)
         stage.place(ShopEmbossedTitle(host),
             266f,136f,409f,154f)
         val coins=progress.coins()
