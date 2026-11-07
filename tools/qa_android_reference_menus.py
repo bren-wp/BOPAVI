@@ -16,9 +16,40 @@ def matching_nodes(root, phrase, clickable=None, enabled=None):
             and (enabled is None or (n.get("enabled")=="true")==enabled)]
 
 
+def acknowledge_native_fullscreen_education(root):
+    """Dismiss ONLY the exact OS-owned immersive prompt, never an app dialog.
+
+    Shop and Level Map now match the reference's full-bleed screenshots. Some
+    fresh Android 15/16 emulators display one-time system education on the
+    first menu launch. We still require the real Shop/Map controls afterward.
+    """
+    system=("android","com.android.systemui")
+    nodes=list(root.iter("node"))
+    titles=[n for n in nodes if n.get("package") in system and
+            n.get("text")=="Viewing full screen"]
+    if not titles:
+        return False
+    assert len(titles)==1,"FAIL: ambiguous native fullscreen dialog"
+    package=titles[0].get("package")
+    assert len([n for n in nodes if n.get("package")==package and
+                n.get("text")=="To exit, swipe down from the top of your screen"])==1, (
+                "FAIL: unexpected system fullscreen overlay")
+    buttons=[n for n in nodes if n.get("package")==package and
+             n.get("text")=="Got it" and
+             n.get("class")=="android.widget.Button" and
+             n.get("clickable")=="true" and n.get("enabled")=="true"]
+    assert len(buttons)==1,"FAIL: unverified immersive education acknowledgment"
+    tap(buttons[0])
+    print("QA: acknowledged verified Android fullscreen education",flush=True)
+    return True
+
+
 def node_with(phrase,clickable=True,attempts=15):
     for attempt in range(attempts):
         root=hierarchy()
+        if acknowledge_native_fullscreen_education(root):
+            time.sleep(.6)
+            root=hierarchy()
         results=matching_nodes(root,phrase,clickable=True if clickable else None)
         if len(results)==1:
             return results[0]
@@ -111,6 +142,9 @@ def main():
         tap(node_with("OTVORI TRGOVINU NADOGRADNJI",attempts=6))
         for _ in range(6):
             root=hierarchy()
+            if acknowledge_native_fullscreen_education(root):
+                time.sleep(.6)
+                root=hierarchy()
             has_wallet=bool(matching_nodes(root,"EARNED COINS:"))
             has_inventory=bool(matching_nodes(root,"OWNED:"))
             if has_wallet and has_inventory:
