@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.57 — Splash and Home source-contour 3D fidelity (build 187)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.57)
+
+- Replace regular DejaVu BOPAVI title with owner-derived irregular native SVG wordmark contours, including separated blue i-dot, crown, wings, layered golden/cyan enamel and wood backing.
+- Restore six hollow metallic gold rings in Splash's source perspective, including a partly cropped lower-left foreground ring. Maintain genuine Android stream preparation, accessible Loading label and indeterminate animation without fake completion.
+- Deepen Home gold Play, purple Skins, green Shop and blue Settings buttons with authentic raised dark-navy sidewalls. Keep independent working clickable controls, real balance values, and three bottom shortcuts.
+- Add owner 864×1536 versus native emulator 941×1672 comparison tooling and tests. Reference JPEGs are not bundled in the app or committed to this public repository.
+- Baseline before changes: Splash 29.56% normalized RGB deviation and Home 27.21%. These numbers are **not** proof that the new revision is pixel-identical or within 10%; new on-device measurements and separately approved background/character layers are still required.
+- Preserve other screens and gameplay physics. No new network permissions, purchases or fictional currencies.
+
 ## v1.0.56 — Home and Splash <=10 percent RGB deviation target (build 186)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.56)
@@ -19,20 +30,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - [ ] Source privacy, dead-code, release version, image generator audits
 - [ ] Kotlin/JVM, Android 15 and 16 emulator tests pass
 - [ ] Genuine Home AND Splash emulator PNGs at all seven dimensions
-
-## v1.0.55 — Gameplay hazards activate on first real flap (build 185)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.55)
-
-- Before the first real flap, the 941×1672 Gameplay preview displays
-- After the first actual player tap invokes `GameSimulation.flap()`,
-- Pause and background/resume preserve active-flight obstacle rendering.
-- Keep the existing 480×800 simulation coordinates, 18px bird hitbox,
-- Add `FlightHazardPresentationTest` and a mandatory Python source
-- Preserve all Splash, Home, Shop, Skins, Settings and Game Over native
-- [ ] Privacy/security, dead-code, asset and source-contract audits pass.
-- [ ] Kotlin/JVM and Android APK/AAB builds pass.
-- [ ] Android 15 Play → first flap → pause → resume → Retry passes.
-- [ ] Android 16 API36 smoke and navigation pass.
-- [ ] Genuine emulator screenshots confirm that idle obstacles are hidden
-- [ ] Recompare all four priority owner-reference screens and document
