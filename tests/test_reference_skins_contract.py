@@ -38,7 +38,7 @@ assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
 assert "const val referenceWidth=941f" in layout
 assert "val skins=intArrayOf(" in screen
 assert "Selected SKY OWL" in junit
-assert 'tap(node_with("CHOOSE SKY EAGLE"))' in qa
+assert 'tap(node_with("CHOOSE SKY OWL"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
 assert "selectOrBuy(" not in screen  # No fake purchase of playable pilots
