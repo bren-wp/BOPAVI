@@ -280,7 +280,7 @@ internal class ShopScreen(
             266f,136f,409f,154f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
-        // Two glass counters retain only REAL offline values. Their green
+        // Two glass counters retain only REAL offline values (coins and stars). Their green
         // reference plus buttons are functional native touch surfaces: coin
         // bonus claims only genuine earned coins, while the star button
         // explains the actual level-based reward (no fictitious gems).
@@ -313,9 +313,11 @@ internal class ShopScreen(
             contentDescription="Earned stars: $stars"
             isFocusable=true
         },762f,31f,102f,53f)
+        // An earned STAR balance must not use a GEM pictogram: BOPAVI has
+        // no spendable gem wallet, and implying one would mislead players.
         stage.place(ImageView(host).apply {
             setImageDrawable(BopaviUiIconDrawable(
-                BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)))
+                BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },694f,22f,65f,65f)
         stage.place(ShopPlusControl(host,"How to earn stars") {
