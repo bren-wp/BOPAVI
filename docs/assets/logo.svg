@@ -65,15 +65,21 @@
        Keep them as individually shaded native vectors at build time. -->
   <defs>
     <path id="ownerWarm" fill-rule="evenodd" d="M521,127 507,118 490,118 479,125 475,125 464,145 458,146 453,126 438,113 438,111 429,109 382,109 382,113 366,123 359,122 359,116 364,111 361,111 357,118 352,119 351,135 346,135 333,122 313,115 291,116 274,122 255,139 251,139 245,169 233,167 240,152 238,131 216,116 184,114 151,123 153,131 137,144 128,142 128,134 125,139 120,140 148,236 157,247 175,248 212,240 239,229 251,219 258,204 262,204 274,215 288,220 320,219 341,207 353,190 359,191 364,220 370,224 393,223 399,220 403,214 402,191 420,187 435,181 442,181 432,203 432,212 437,216 451,220 465,220 477,206 500,207 505,210 510,224 536,226 536,171Z M187,191 202,189 206,192 204,201 192,204Z M491,168 497,169 497,179 488,178Z M297,150 308,152 314,160 315,175 306,182 299,182 289,173 288,160Z M180,147 192,150 192,158 184,162 180,162 176,158 175,150Z M399,137 405,137 415,143 415,152 407,157 398,155Z"/>
-    <path id="ownerBlue" fill-rule="evenodd" d="M524,118 521,132 546,250 565,258 580,256 623,188 607,263 618,272 643,273 671,188 664,174 680,155 678,140 655,132 643,144 644,134 637,146 629,140 609,136 602,141 601,136 587,161 583,158 586,164 577,181 568,120 533,115 539,120 531,124 529,119 527,133Z"/>
+    <!-- The blue V and lowercase i must be TWO distinct glyph contours. A
+         single connected silhouette looked like W in real Android captures. -->
+    <path id="ownerBlue" d="M528 115 Q551 108 560 130 L574 203 L601 130 Q607 114 621 118 L635 123 Q644 130 635 148 L591 248 Q585 264 566 261 L553 258 Q546 257 542 239 L520 135 Q517 118 528 115 Z"/>
+    <path id="ownerI" d="M648 152 Q663 148 676 158 Q683 166 678 180 L653 259 Q648 274 630 271 L622 270 Q609 267 614 250 L639 171 Q642 158 648 152 Z"/>
   </defs>
   <g transform="translate(0 -12)" stroke-linecap="round" stroke-linejoin="round">
     <use href="#ownerWarm" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
     <use href="#ownerBlue" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
+    <use href="#ownerI" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
     <use href="#ownerWarm" transform="translate(0 6)" fill="#a43a0b" stroke="#092659" stroke-width="13"/>
     <use href="#ownerBlue" transform="translate(0 6)" fill="#084c9a" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerI" transform="translate(0 6)" fill="#084c9a" stroke="#092659" stroke-width="13"/>
     <use href="#ownerWarm" fill="url(#goldText)" stroke="#8d320d" stroke-width="5"/>
     <use href="#ownerBlue" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
+    <use href="#ownerI" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
     <path d="M145 150Q165 116 190 119 M275 121Q292 110 310 119 M361 109Q384 100 409 115 M472 130Q484 114 493 123"
        fill="none" stroke="#fffcc2" stroke-width="5" stroke-opacity=".74"/>
     <path d="M541 130Q549 119 555 133 M626 148Q645 126 663 141"
