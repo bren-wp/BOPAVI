@@ -153,7 +153,8 @@ titles=[n.get("text","") for n in root.iter("node")
 waits=[n for n in root.iter("node") if n.get("resource-id")=="android:id/aerr_wait"
        and n.get("text")=="Wait" and n.get("clickable")=="true"]
 if len(waits)!=1 or titles not in (
-    ["Pixel Launcher isn't responding"],["System UI isn't responding"]):
+    ["Pixel Launcher isn't responding"],["Quickstep isn't responding"],
+    ["System UI isn't responding"]):
     sys.exit(1)
 m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',waits[0].get("bounds",""))
 if not m:
@@ -161,10 +162,14 @@ if not m:
 left,top,right,bottom=map(int,m.groups())
 # Pixel Launcher and System UI are distinct system processes. Recovery
 # is allowed ONLY for these verified dialog titles, never for a BOPAVI ANR.
-if titles == ["Pixel Launcher isn't responding"]:
-    print("Stopping confirmed unresponsive Pixel Launcher (not BOPAVI)",flush=True)
-    subprocess.run(["adb","shell","am","force-stop",
-                    "com.google.android.apps.nexuslauncher"],check=True)
+if titles in (["Pixel Launcher isn't responding"],
+              ["Quickstep isn't responding"]):
+    # AOSP API36's launcher is Quickstep/com.android.launcher3; Pixel
+    # Launcher is the distinct Google launcher package. Never kill BOPAVI.
+    launcher=("com.android.launcher3" if titles==["Quickstep isn't responding"]
+              else "com.google.android.apps.nexuslauncher")
+    print("Stopping confirmed unresponsive system launcher: "+launcher,flush=True)
+    subprocess.run(["adb","shell","am","force-stop",launcher],check=True)
 else:
     # Never force-stop System UI (which owns status/navigation surfaces).
     # Press the exact native Wait action to let it recover, then require the
@@ -175,6 +180,39 @@ else:
 subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,
                stdout=subprocess.DEVNULL)
 PY
+}
+# Android may show its own one-time immersive-mode confirmation when
+# Flight first hides the navigation bar. This is a system-owned education
+# overlay, NOT a BOPAVI screen or a failed PLAY route. Dismiss only the exact
+# Android 15 title/instructions/button, then still assert the real GameView.
+# A custom dialog, a BOPAVI crash or an unrelated overlay must never pass.
+acknowledge_verified_fullscreen_education(){
+  adb shell pidof com.brendigo.bopavi >/dev/null || return 1
+  python3 - qa/screenshots/android-current-ui.xml <<'PY_FULLSCREEN'
+import re, subprocess, sys, xml.etree.ElementTree as ET
+try:
+    root=ET.parse(sys.argv[1]).getroot()
+except (OSError,ET.ParseError):
+    sys.exit(1)
+nodes=list(root.iter("node"))
+def system_text(value):
+    return [n for n in nodes if n.get("package")=="android" and
+            n.get("text")==value]
+if len(system_text("Viewing full screen"))!=1 or len(system_text(
+    "To exit, swipe down from the top of your screen"))!=1:
+    sys.exit(1)
+buttons=[n for n in nodes if n.get("package")=="android" and
+         n.get("class")=="android.widget.Button" and n.get("text")=="Got it"
+         and n.get("clickable")=="true" and n.get("enabled")=="true"]
+if len(buttons)!=1:sys.exit(1)
+m=re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',buttons[0].get("bounds",""))
+if not m:sys.exit(1)
+a,b,c,d=map(int,m.groups())
+if a>=c or b>=d:sys.exit(1)
+print("Acknowledging verified Android system immersive education",flush=True)
+subprocess.run(["adb","shell","input","tap",
+                str((a+c)//2),str((b+d)//2)],check=True)
+PY_FULLSCREEN
 }
 # New production UX: one Play -> live endless game -> genuine result -> Retry.
 sleep 2
@@ -491,6 +529,12 @@ sys.exit(0 if len(game)==1 and not play else 1)
 PY
   then
     ready=1; break
+  fi
+  # The first immersive flight can be covered by Android's own "Got it"
+  # tutorial. Dismiss only that exact system-owned overlay, then re-read
+  # the hierarchy and require actual live idle GameView in the next pass.
+  if acknowledge_verified_fullscreen_education; then
+    echo "System fullscreen prompt dismissed; rechecking native Flight" >&2
   fi
   echo "Waiting for actual Flight idle GameView, attempt $attempt/15" >&2
   sleep 2
