@@ -802,3 +802,51 @@ PY
   adb shell wm density reset
   BOPAVI_RESIZE_IN_PROGRESS=0
 fi
+
+# Owner's two actual 864x1536 references require ORIGINAL Android pixels
+# at that resolution. Do not resize screenshots offline to claim zero error.
+# This is separate from seven established viewport smoke-test profiles.
+if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
+  BOPAVI_RESIZE_IN_PROGRESS=1
+  adb shell wm size 864x1536
+  adb shell wm density 320
+  adb shell am force-stop com.brendigo.bopavi
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
+    --ez bopavi_qa_capture_first_flap true
+  sleep 3
+  dump_ui
+  python3 - qa/screenshots/android-current-ui.xml <<'PY_OWNER_HOME'
+import sys, xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+accessible={n.get("content-desc","") for n in nodes
+            if n.get("clickable")=="true"}
+assert "▶  PLAY" in accessible and "Otvori opcije igre" in accessible, \
+    "Owner-size Home has no native Play/Settings controls"
+PY_OWNER_HOME
+  capture android-home-owner-native-864
+  adb shell am force-stop com.brendigo.bopavi
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
+    --ez bopavi_qa_loading_preview true
+  sleep 2
+  dump_ui
+  python3 - qa/screenshots/android-current-ui.xml <<'PY_OWNER_SPLASH'
+import sys, xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+assert any(n.get("content-desc")=="Loading level" for n in nodes), \
+    "Owner-size Splash not present as a real native Loading view"
+PY_OWNER_SPLASH
+  capture android-loading-owner-native-864
+  python3 - <<'PY_OWNER_PIXELS'
+from pathlib import Path
+import struct
+for name in ("android-home-owner-native-864.png",
+             "android-loading-owner-native-864.png"):
+    data=(Path("qa/screenshots")/name).read_bytes()
+    assert data[:8]==bytes.fromhex("89504e470d0a1a0a")
+    assert struct.unpack(">II",data[16:24])==(864,1536),name
+print("PASS: actual owner-size Home and Splash Android PNGs are 864x1536")
+PY_OWNER_PIXELS
+  adb shell wm size reset
+  adb shell wm density reset
+  BOPAVI_RESIZE_IN_PROGRESS=0
+fi

@@ -111,6 +111,7 @@ jobs:
       - run: python tests/test_reference_pixel_diff_tool.py
       - run: python tests/test_two_owner_screen_comparator.py
       - run: python tests/test_owner_zero_pixel_comparator.py
+      - run: python tests/test_owner_exact_native_capture_contract.py
       - run: python tests/test_responsive_home_splash.py
       - run: python tests/test_responsive_home_splash_capture_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
