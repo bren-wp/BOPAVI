@@ -23,7 +23,7 @@ for required in (
 ):
     assert required in view,required
 assert "val logo=LoadingArtBox(91f,95f,850f,384f)" in layout
-assert "val pilot=LoadingArtBox(110f,280f,780f,950f)" in layout
+assert "val pilot=LoadingArtBox(100f,364f,757f,1021f)" in layout
 assert "val track=LoadingArtBox(161f,1350f,780f,1454f)" in layout
 assert "const val captionBaselineY=1515f" in layout
 assert "val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f" in layout
