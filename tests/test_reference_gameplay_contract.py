@@ -96,4 +96,15 @@ assert 'c.drawArc(x-14f,y-14f,x+14f,y+14f,28f,150f,false,p)' in game
 assert 'c.drawArc(x-13f,y-13f,x+13f,y+13f,197f,104f,false,p)' in game
 assert 'c.drawLine(cx+dx*13f+px*2f,cy+dy*13f+py*2f,' in game
 assert 'cx+dx*(r-2f),cy+dy*(r-2f),p)' in game
+
+# Idle visual wind belongs to the owner reference, without activating the
+# first-flap hazards or changing the simulation's collision state.
+assert "private fun drawIdleWindRibbons(c:Canvas)" in game
+idle_wind=game.split("private fun drawIdleWindRibbons(c:Canvas)",1)[1].split(
+    "private fun drawFlapWake(",1)[0]
+assert "game.active || game.finished" in idle_wind
+assert "game.step(" not in idle_wind and "game.flap(" not in idle_wind
+assert "drawIdleWindRibbons(c)" in game.split("private fun drawBird(",1)[1]
+assert "0xffe8b68e.toInt()" in game and "0xff76556a.toInt()" in game
+
 print("PASS: reference gameplay paints only true collectible and lives geometry")
