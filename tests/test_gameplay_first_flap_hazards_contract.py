@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""The idle Gameplay screen must not render dynamic hazards or fake pickups.
+"""The owner ready Gameplay reference includes true gate/pickup previews.
 
-This source contract complements the JVM state tests and the real Android
-15 before/after-first-flap screenshot capture. It does NOT claim RGB parity.
+This source contract checks that the same physical gate coordinates render
+on idle and after the real first flap, without starting physics prematurely.
+It does NOT claim RGB parity.
 """
 from pathlib import Path
 
@@ -21,8 +22,10 @@ assert "active = true" in first_flap
 assert "flaps++" in first_flap
 assert "if (!active || finished) return" in simulation
 
-# The helper must depend on real run state, not time or an arbitrary delay.
-assert "firstFlapReceived && !finished" in model
+# The owner frame shows real hazards even before the first actual tap.
+# Preview is visual only: the simulation's state and physics stay idle.
+assert "fun obstaclesVisible(firstFlapReceived:Boolean,finished:Boolean)" in model
+assert "        !finished" in model
 assert "obstaclesVisible(firstFlapReceived:Boolean,finished:Boolean)" in model
 assert "animation" not in model.lower()
 
@@ -36,14 +39,14 @@ for item in ("drawEnchantedForestGroundSpikes(canvas)",
              "game.upcomingGates()", "drawGate(canvas,g,x,i,true)",
              "drawGate(canvas,g,x,i)"):
     assert item in hazards,item
-# All dynamic hazard drawing must happen after the real state guard.
+# All physical gate drawing must happen inside the preview visibility guard.
 before=on_draw.split("if(showGameplayObstacles) {",1)[0]
 assert "drawEnchantedForestGroundSpikes(canvas)" not in before
 assert "if(game.level.world==0)drawEnchantedForestGroundSpikes(canvas)" not in on_draw
 assert "drawGate(canvas," not in before
 assert "if(collisionOverlayEnabled && showGameplayObstacles)" in on_draw
 
-# Bopi, lives and instruction stay on idle; new visual gate has no physics work.
+# Bopi, lives and instruction remain on idle; visual preview has no physics work.
 assert "drawBird(canvas)" in on_draw
 assert "if(!game.active && !game.finished) {" in on_draw
 assert "drawFlightReadyTutorial(canvas)" in on_draw
@@ -56,10 +59,10 @@ click=view.split("override fun performClick():Boolean {",1)[1].split(
 assert "val firstFlap=!game.active" in click
 assert "game.flap()" in click
 assert "if(firstFlap && game.active)" in click
-for case in ("noHazardsBeforeRealFirstFlap",
+for case in ("ownerReferenceShowsRealGatePreviewBeforeFirstFlap",
              "showRealHazardsAfterFirstFlap",
              "finishedRunCannotDrawGameplayHazardsOverResult",
-             "newRunStartsHiddenAgainWithoutOldStateLeak"):
+             "newRunStartsWithHonestRealGatePreviewWithoutOldStateLeak"):
     assert case in unit,case
 
 # Existing native Android QA captures both true idle and real first-flap frames.
@@ -68,7 +71,7 @@ for capture in ("android-gameplay-ready-reference-size",
     assert capture in qa,capture
 assert "python3 tools/qa_first_flap_hazards.py" in qa
 probe=(root/"tools/qa_first_flap_hazards.py").read_text(encoding="utf-8")
-for marker in ("WIDTH, HEIGHT = 941, 1672", "ROI = (210, 1535, 830, 1615)",
+for marker in ("WIDTH, HEIGHT = 941, 1672", "ROI = (265, 1200, 700, 1390)",
                "read_rgb_crop(ready_path)", "read_rgb_crop(active_path)",
                "if fraction<.06:", "import zlib"):
     assert marker in probe,marker
