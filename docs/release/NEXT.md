@@ -40,13 +40,62 @@ screen OR a single named region exceeds 10%. No claim of 1:1 equality is made.
   reports completion, native accessibility and proper lifecycle.
 - Keep local offline BOPAVI art; no rasterized whole-screen UI substitute.
 
+### Required small-to-large Android acceptance matrix
+
+The exact same **<=10% RGB MAE** requirement applies independently to BOTH
+Home and Splash/Loading on all seven actual Android emulator formats:
+
+| Profile | Screen pixels | Density |
+| --- | ---: | ---: |
+| small | 480×800 | 160 dpi |
+| short | 600×960 | 240 dpi |
+| compact | 720×1280 | 320 dpi |
+| reference | 941×1672 | 320 dpi |
+| standard | 1080×1920 | 420 dpi |
+| tall | 1080×2400 | 420 dpi |
+| large | 1440×2960 | 560 dpi |
+
+Native `tools/qa_android_emulator.sh` runs BOTH screens in every profile,
+checks Home's seven accessible actual tap targets are unique and at least
+48dp, verifies the single accessible Loading view, and preserves exact
+unscaled emulator PNGs in `qa/screenshots/android-home-<profile>.png` and
+`android-loading-<profile>.png`.
+
+`tools/qa_responsive_home_splash.py` produces a transparent 14-screen,
+region-by-region JSON report with `--enforce-target`: it exits nonzero
+unless every whole screen AND all its named regions have MAE <=25.5/255.
+Only the OWNER reference is uniformly projected to non-reference aspect
+ratios; the emulator's PNG is always original/native. Full-screen comparison
+uses center-cover and UI region coordinates use fit-center, because the
+native backdrop and live UI have those separate transforms. This is an
+explicit aspect-ratio *proxy*, not an assertion that different-sized
+reference drawings were provided or exact source-pixel identity proven.
+
+The original owner reference Home/Splash PNGs are **not yet tracked as
+GitHub repository assets**, so an ordinary Kotlin/CI pass is NEVER
+evidence that this visual gate passed. To run the strict benchmark, place
+the two original owner PNGs in a controlled local/CI input and invoke:
+
+```bash
+python tools/qa_responsive_home_splash.py \
+  --home-reference /path/to/original-home.png \
+  --splash-reference /path/to/original-splash.png \
+  --screenshots-dir qa/screenshots \
+  --json-report qa/screenshots/owner-seven-viewports-report.json \
+  --enforce-target
+```
+
+No new public release or merge should be presented as visually accepted
+without verified results for all seven screen profiles and functional QA.
+
 ### Blocking gates
 
 - [ ] Source privacy, dead-code, release version, image generator audits
 - [ ] Kotlin/JVM, Android 15 and 16 emulator tests pass
-- [ ] Candidate 941×1672 unmodified Home AND Splash captures available
-- [ ] Home full-screen MAE <=25.5 and **all Home ROIs** MAE <=25.5
-- [ ] Splash full-screen MAE <=25.5 and **all Splash ROIs** MAE <=25.5
+- [ ] Genuine Home AND Splash emulator PNGs at all seven dimensions
+- [ ] Every profile's Home full-screen MAE <=25.5 and all Home ROIs <=25.5
+- [ ] Every profile's Splash full-screen MAE <=25.5 and all Splash ROIs <=25.5
+- [ ] 7-profile accessible native controls and QA Loading view verified
 - [ ] Real wallet values, genuine loading state and accessible controls
 - [ ] No mismatch in Bopi layers, Play/Skins/Shop/Settings, insets or touch
 
