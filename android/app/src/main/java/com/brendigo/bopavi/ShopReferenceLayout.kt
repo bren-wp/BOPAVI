@@ -9,9 +9,9 @@ internal object ShopReferenceLayout {
     const val featureWidth=870f
     const val featureHeight=307f
     val columns=floatArrayOf(35f,331f,627f)
-    val rows=floatArrayOf(900f,1216f)
+    val rows=floatArrayOf(886f,1208f)
     const val cardWidth=279f
-    const val cardHeight=296f
+    const val cardHeight=312f
 
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
         portrait && pxWidth>=860 && pxHeight>=1480 && fontScale<1.25f
