@@ -60,8 +60,10 @@ for primary,retry,marker,expected in [
 # education on API 35, and API 36 AOSP launcher is Quickstep. Recover only
 # their exact OS-owned UI; the real GameView/Home assertions remain mandatory.
 assert 'acknowledge_verified_fullscreen_education(){' in qa
-assert 'n.get("package")=="android"' in qa
-assert 'system_text("Viewing full screen")' in qa
+assert 'system_packages=("android","com.android.systemui")' in qa
+assert 'n.get("text")=="Viewing full screen"' in qa
+assert 'system_package=titles[0].get("package")' in qa
+assert 'n.get("package")==system_package' in qa
 assert '"To exit, swipe down from the top of your screen"' in qa
 assert 'n.get("text")=="Got it"' in qa
 assert 'if acknowledge_verified_fullscreen_education; then' in qa
