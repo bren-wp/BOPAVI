@@ -514,9 +514,11 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.STROKE;p.strokeWidth=30f
         p.strokeCap=Paint.Cap.ROUND
         c.drawPath(path,p)
-        fill(0xffc7bec0.toInt());p.strokeWidth=22f
+        fill(0xffc7bec0.toInt())
+        p.style=Paint.Style.STROKE;p.strokeWidth=22f
         c.drawPath(path,p)
-        fill(0xfff2e6c4.toInt());p.strokeWidth=3.5f
+        fill(0xfff2e6c4.toInt())
+        p.style=Paint.Style.STROKE;p.strokeWidth=3.5f
         c.drawPath(path,p)
         p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
         // Chiseled gold bindings and moss make the world visually match the
