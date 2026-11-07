@@ -86,6 +86,7 @@ jobs:
       - run: python tests/test_reference_loading_contract.py
       - run: python tests/test_reference_home_geometry.py
       - run: python tests/test_home_reference_screen_contract.py
+      - run: python tests/test_home_owner_hud_row_and_android16.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
       - run: python tests/test_splash_home_visual_depth_v1058.py
       - run: python tools/paint_fantasy_backdrop.py

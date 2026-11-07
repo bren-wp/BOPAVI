@@ -207,7 +207,12 @@ done
 if [ "$home_ready" -ne 1 ]; then
   echo "FAIL: Home native controls remained inaccessible" >&2
   cp qa/screenshots/android-current-ui.xml qa/screenshots/android-home-failed-ui.xml || true
-  adb logcat -d -t 250 > qa/screenshots/android-home-failed-logcat.txt 2>&1 || true
+  # Capture the actual ANR diagnostics rather than treating an inaccessible
+  # Home as a UI-automation flake. The next build must fix the main thread.
+  adb logcat -d -t 1600 > qa/screenshots/android-home-failed-logcat.txt 2>&1 || true
+  adb shell dumpsys activity processes > qa/screenshots/android-home-failed-processes.txt 2>&1 || true
+  adb shell dumpsys activity anr > qa/screenshots/android-home-failed-anr.txt 2>&1 || true
+  adb shell dumpsys input > qa/screenshots/android-home-failed-input.txt 2>&1 || true
   exit 1
 fi
 capture android-home

@@ -80,7 +80,9 @@ assert "val titleW=(w*when(kind)" not in view
 assert "HomeTopWalletRail(host)" in view
 assert "walletRail.attach(wallet(" in view
 rail=(src/"HomeTopWalletRail.kt").read_text()
-assert "maxOf(safeTop,(e.b.y*scale).toInt())" in rail
+assert "maxOf(safeTop,(it.b.y*scale).toInt())" in rail
+assert "sharedTop=entries.maxOfOrNull" in rail
+assert "e.child.layout(x,sharedTop,x+e.child.measuredWidth," in rail
 assert "safeTop+e.b.y*scale" not in rail
 assert "setPadding(0,0,0,0)" in view
 assert "dp(if(isPlay)93 else 59)" not in view
