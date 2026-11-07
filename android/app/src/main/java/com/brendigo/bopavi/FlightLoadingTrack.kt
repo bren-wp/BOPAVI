@@ -20,7 +20,7 @@ internal object FlightLoadingTrack {
         // Owner's source has a broad cyan sweep rooted at the left edge.
         // A small repeating glimmer is visibly indeterminate without a
         // misleading jump to the far-right side at screenshot time.
-        val travel=(width-cursor).coerceAtMost(width*.045f)
+        val travel=(width-cursor).coerceAtMost(width*.10f)
         val position=(.5f-.5f*kotlin.math.cos(
             phase*2f*kotlin.math.PI.toFloat()))*travel
         return Segment(position,cursor)
