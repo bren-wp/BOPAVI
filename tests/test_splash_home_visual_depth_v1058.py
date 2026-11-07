@@ -16,8 +16,8 @@ backdrop=(root/"tools/paint_fantasy_backdrop.py").read_text()
 logo=(root/"docs/assets/logo.svg").read_text()
 gradle=(root/"android/app/build.gradle.kts").read_text()
 
-assert 'versionName = "1.0.59"' in gradle
-assert 'versionCode = 189' in gradle
+assert 'versionName = "1.0.60"' in gradle
+assert 'versionCode = 190' in gradle
 assert 'val cursor=width*.70f' in track
 assert 'val travel=(width-cursor).coerceAtMost(width*.045f)' in track
 assert 'if(ready)return Segment(0f,width)' in track
