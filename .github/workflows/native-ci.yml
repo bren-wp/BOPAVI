@@ -81,6 +81,7 @@ jobs:
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
       - run: python tests/test_reference_gameplay_contract.py
+      - run: python tests/test_gameplay_reference_hud_and_pillars.py
       - run: python tests/test_reference_ready_overlay_contract.py
       - run: python tests/test_flight_reference_diff.py
       - run: python tests/test_loading_reference_geometry.py

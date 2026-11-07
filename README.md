@@ -62,6 +62,14 @@ Svaki let počinje krilatim logotipom, veselim pilotskim naočalama i nebeskim k
 
 Pri pokretanju BOPAVI prikazuje **3,5 sekundi animiranog Splasha** s krilatim logotipom i živom trakom učitavanja. Na Homeu se brojači novčića i dragulja prilagođavaju zaslonu tako da ne prekrivaju puni natpis BOPAVI, uključujući uređaje s izrezom kamere. Gumbi i spremljene vrijednosti i dalje su stvarne Android komponente.
 
+## Gameplay — uhvati svaki zlatni prsten
+
+Zamahni krilima i proleti između velikih kamenih stupova s krunama, crvenim zastavama i cvjetnim rubovima. U svijetu Zeleni otoci čeka te niz **stvarnih zlatnih prstenova**, raznolikih prolaza i prepreka koje prate fiziku leta — sve bez internetske veze.
+
+Tijekom leta **SCORE se mijenja prema stvarnom rezultatu**, a novčići pokazuju spremljeni lokalni iznos. Ljubičasti brojač prati kristale prikupljene u tom letu; ne prikazuje izmišljenu valutu. **Pause** zaustavlja fizičku simulaciju, a otvaranje trgovine traži potvrdu kako se let ne bi prekinuo slučajno.
+
+Bopi, Sova i Lisac imaju zasebna krila, pilotske naočale i vlastite 3D detalje. Svaki zadržava jednako preciznu fizičku zonu sudara. Snimke Gameplaya u galeriji ispod nastaju **iz stvarne Android aplikacije**, a ne iz reklamnih kompozicija.
+
 ## Pogledaj sve zaslone igre
 
 Galerija obuhvaća svih **16 autentičnih Android zaslona**. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
