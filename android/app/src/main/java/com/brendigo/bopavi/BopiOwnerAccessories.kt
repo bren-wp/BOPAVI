@@ -117,9 +117,35 @@ internal object BopiOwnerAccessories {
         p.color=0xfffff0a4.toInt()
         canvas.drawRoundRect(RectF(mx-12f,my+4f,mx+12f,my+8f),2f,2f,p)
 
+        // The owner's goggle pair is secured to one continuous leather
+        // aviator band. Without this curved bridge, the second gold lens
+        // floats away from Bopi's head in both native Home and Splash.
+        val leatherBridge=Path().apply{
+            moveTo(340f,153f)
+            cubicTo(367f,142f,392f,150f,422f,164f)
+            cubicTo(426f,173f,426f,183f,419f,190f)
+            cubicTo(393f,172f,369f,166f,344f,172f)
+            close()
+        }
+        p.color=0x99071a3d.toInt()
+        val bridgeShadow=canvas.save()
+        canvas.translate(0f,5f)
+        canvas.drawPath(leatherBridge,p)
+        canvas.restoreToCount(bridgeShadow)
+        p.shader=LinearGradient(348f,145f,388f,191f,
+            intArrayOf(0xffb86b35.toInt(),0xff754021.toInt(),
+                0xff47251d.toInt()),null,Shader.TileMode.CLAMP)
+        canvas.drawPath(leatherBridge,p)
+        p.shader=null
+        p.color=0xffdf9f57.toInt()
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=3.1f
+        p.strokeCap=Paint.Cap.ROUND
+        canvas.drawArc(RectF(345f,150f,429f,191f),185f,112f,false,p)
+        p.style=Paint.Style.FILL
         // The original approved sprite has one round goggle. The owner's
         // new pilot has two cyan lenses in a tilted brown leather band.
-        // Draw the second lens over the existing right strap, ABOVE eyes.
+        // Draw the second lens over the bridge, ABOVE the right eye.
         val g=canvas.save()
         canvas.rotate(28f,419f,176f)
         p.color=0x6b041b3c
@@ -142,6 +168,13 @@ internal object BopiOwnerAccessories {
         p.strokeWidth=3.5f
         canvas.drawArc(RectF(402f,159f,433f,187f),202f,112f,false,p)
         p.style=Paint.Style.FILL
+        // Gold rivets and the small glass reflection make this lens read as
+        // raised metal, not an isolated blue dot.
+        p.color=0xffe9b967.toInt()
+        canvas.drawCircle(393f,175f,3.6f,p)
+        canvas.drawCircle(443f,175f,3.6f,p)
+        p.color=0x99ffffff.toInt()
+        canvas.drawOval(RectF(405f,160f,415f,167f),p)
         canvas.restoreToCount(g)
     }
 }
