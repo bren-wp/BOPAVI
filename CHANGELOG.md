@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.62 — Shop, karta razina i Gameplay: tri vlasničke reference (build 192)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.62)
+
+- Izvorni offline Shop dobiva zaseban Native Canvas sloj: drvena trgovina, široka crveno-bijela tenda, pozlaćeni natpis, dvije svjetiljke, pult i police te ljubičasti odsjaji istaknute ponude.
+- Šest kartica zadržava stvarne postojeće nadogradnje, cijene, inventar i mogućnost kupnje; promijenjen je samo prikaz naziva, ikonica, opisa i zelenih gumba.
+- Gornje kapsule prikazuju stvarno spremljene novčiće i zarađene zvjezdice. Ljubičasta ikona **ne znači** da je uvedena lažna valuta dragulja, vanjska plaćanja ili lažne ponude.
+- Istaknuta nadogradnja i dalje je stvarni proizvod povezan s postojećom transakcijom. Promotivna vizualna kartica ne glumi novi nenabavljivi skin.
+- Ispravljena stvarna Canvas pogreška zbog koje je drugi prolaz staze resetirao Paint u FILL i crtao ogromni bež trokut preko mape. Oba sloja staze sada se crtaju isključivo kao STROKE.
+- Slojeviti travnati rubovi i svijetli slapovi na tri ploveća otoka; razmještaj stvarnih čvorova, zaključavanja i spremljenih zvjezdica ostaje nepromijenjen.
+- Gornji dio usklađen je s referencom: jedan glavni Back, dvije stvarne ikonične kapsule; dodatno listanje svjetova dostupno je rubnim kontrolama niže na zaslonu.
+- Svijet Sky Meadows koristi osvijetljeni pješčenjak i tamnije kamene konture za stvarne stupove.
+- Prije prvog dodira vidljivi su blagi bijelo-plavi tragovi vjetra iza originalnog Bopija, kao na referenci; oni nisu sudari, stavke ni dodatna fizika.
+- Originalni položaj pilota, stvarni osamnaest-pikselni kolizijski krug, prikupljanje, prvi dodir, sigurni razmaci između prepreka i HUD ostaju funkcionalni.
+- Izvorne referentne datoteke nisu zalijepljene preko interaktivnih elemenata. Svi ključni elementi ostaju izvorni Android Views/Canvas i rade bez interneta.
+- Mjerljiva nulta razlika piksela nije potvrđena. Stvarni snimci iz emulatora provjeravaju se zasebno; ovo izdanje ne smije tvrditi 1:1 bez dokaza.
+
 ## v1.0.61 — Pending (build 191)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.61)
@@ -19,20 +36,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Bopi, Sova and Lisac preserve independent animated wing layers, their original IDs and saved pilot selection; Sova and Lisac use a subtle forward flight perspective on their existing shaded 3D sprites.
 - All active HUD controls are scaled through native safe insets across compact and tall Android layouts.
 - Updated automated Kotlin/HUD geometry checks and Python source contracts; true 0% pixel difference must be assessed against a matching original reference plus actual device/emulator captures, not claimed from compilation.
-
-## v1.0.60 — Splash, Home, Orao i Lisica (build 190)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.60)
-
-- **Orao:** lokalni SVG za stari sprite 9 precrtan je u smeđe-bijelog pilota s jantarno-smeđim očima, zasjenjenim perjem, kožnim remenom, dva tirkizno-plava zlatno obrubljena stakla i plavim šalom.
-- **Lisica:** originalni lokalni SVG za sprite 10 sada prikazuje narančasto-bijelo krzno, pune visoke uši, velik bijeli vrh repa, nasmiješeno lice, crveni šal i zlatnu medalju; krila ostaju zasebni animirani slojevi.
-- **Odabir likova:** korisnički naziv drugog pilota je **ORAO / SKY EAGLE**, a interni stari naziv SOVA, broj spritea 9 i sposobnost PilotAbility.SOVA ostaju zbog kompatibilnosti spremljenog napretka.
-- **QA likova:** automatski audit transparentnih slojeva tijela, oba krila i punih portreta sada obuhvaća svih 11 skinova, uključujući likove 9 i 10.
-- **README:** dodatna marketinška galerija dva pilota prikazuje lokalne SVG resurse; svih 16 stvarnih Android snimki ostaje klikabilno.
-- **Puni natpis:** B, O, P i A više nisu jedan vektorski objekt s zajedničkim even-odd pravilom. Svako slovo ima zaseban zatvoreni obris, unutarnje otvore i samostalan 3D reljef. Time se sprječava gubitak obojenih dijelova na mjestima preklapanja.
-- **Bez rezanja:** drvena podloga i listovi premješteni su unutar vidljivog SVG okvira. Na kompaktnom Homeu logotip se mjeri prema stvarnoj širini prozora, uključujući Android podijeljeni zaslon.
-- **Gornji HUD:** na Homeu se stvarna donja granica coin/gem kapsula ponovno mjeri nakon Android safe-area i notch pomaka. Potpuni logotip ostaje ispod HUD-a uz proporcionalnu prilagodbu, bez rastezanja slova.
-- **Animirani Splash:** početna animacija ostaje 3,5 sekundi (3500 ms), traka se osvježava približno 30 FPS, a plavi indeterminirani odsjaj prelazi veći dio trake. Nakon Splasha automatski se otvara Home; učitavanje razina nije vezano uz proizvoljan postotak.
-- **Puna README galerija:** svih 16 originalnih PNG-ova s GitHub izdanja prikazuje se u jednom stupcu, s pregledima širine 270 px i klikom na originalnu datoteku.
-- **Sve ostale funkcije:** zadržane su klikabilne kontrole, stvarni novčići i dragulji, pilotska animacija i stvarno učitavanje. Nijedan Gameplay zaslon ili fizika nisu mijenjani.
-- **README:** marketinška galerija zadržava svih 16 stvarnih Android snimki. Prikazuje po jednu sliku u redu radi čitljivosti na mobitelima; puni PNG-ovi dolaze u izdanju.
