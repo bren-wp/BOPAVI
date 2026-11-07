@@ -521,7 +521,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
         // Chiseled gold bindings and moss make the world visually match the
         // meadow islands. They never alter the live gate opening or physics.
-        for(x in floatArrayOf(left+9f,right-10f)) {
+        for(side in 0..1) {
+            val x=if(side==0)left+9f else right-10f
             rect(c,x-15f,top+69f,x+15f,top+78f,
                 0xff6c5d62.toInt(),3f)
             rect(c,x-13f,top+68f,x+13f,top+74f,
