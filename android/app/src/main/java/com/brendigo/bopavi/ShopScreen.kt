@@ -65,6 +65,60 @@ internal class ShopScreen(
             }
         }
 
+    /**
+     * Preserve a real native Button underneath a separately rendered price
+     * capsule. Android text/compound drawable autosizing must never silently
+     * remove the price on a physically narrow 941px QA viewport.
+     *
+     * The decorative row has NO click/keyboard/a11y action. A tap goes through
+     * to the existing Button -> onBuy -> ProgressStore transaction.
+     */
+    private fun priceButton(price:Int,gold:Boolean,
+                            accessibility:String,click:()->Unit):View {
+        val shell=FrameLayout(host).apply {
+            isClickable=false
+            isFocusable=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        val real=button("",gold,true,click).apply {
+            background=Bopavi3DTheme.button(
+                if(gold)Bopavi3DTheme.Finish.GOLD
+                else Bopavi3DTheme.Finish.GREEN)
+            contentDescription=accessibility
+            setPadding(0,0,0,0)
+            elevation=dp(1).toFloat()
+        }
+        shell.addView(real,FrameLayout.LayoutParams(-1,-1))
+        val label=LinearLayout(host).apply {
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER
+            isClickable=false
+            isFocusable=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            // The native button has a slight press shadow. This row must be
+            // above that shadow, otherwise the coins remain but price vanishes.
+            elevation=dp(2).toFloat()
+        }
+        val symbol=ImageView(host).apply {
+            setImageDrawable(HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(21)))
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            isClickable=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        label.addView(symbol,LinearLayout.LayoutParams(dp(24),dp(24)))
+        label.addView(message(NumberFormat.getIntegerInstance().format(price),
+            17,if(gold)0xff672918.toInt() else Color.WHITE).apply {
+            maxLines=1
+            isClickable=false
+            isFocusable=false
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            setShadowLayer(2f,0f,2f,if(gold)0x55ffeb9b else 0xff174526.toInt())
+        },LinearLayout.LayoutParams(-2,-1).apply{leftMargin=dp(5)})
+        shell.addView(label,FrameLayout.LayoutParams(-1,-1))
+        return shell
+    }
+
     private fun perkCard(item:ShopItemState,onBuy:(Int)->Unit):View {
         // A native product card with four independent text/image regions,
         // not a flattened product screenshot. Existing six offline purchases
@@ -108,7 +162,9 @@ internal class ShopScreen(
         // Reference buy capsules stay saturated emerald even for a new
         // player. Tapping an unaffordable item gives truthful feedback;
         // it never mutates coins or bypasses ProgressStore.buyPerk().
-        val buy=button(NumberFormat.getIntegerInstance().format(item.price),false,true){
+        val buy=priceButton(item.price,false,item.accessibility+
+            if(item.canBuy)". Buy for ${item.price} coins"
+            else ". Tap for purchase requirements"){
             when {
                 item.soldOut -> android.widget.Toast.makeText(host,
                     "Inventory full (99).",android.widget.Toast.LENGTH_SHORT).show()
@@ -116,17 +172,6 @@ internal class ShopScreen(
                     "Not enough coins.",android.widget.Toast.LENGTH_SHORT).show()
                 else -> onBuy(item.index)
             }
-        }.apply{
-            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
-            setTextColor(Color.WHITE)
-            setCompoundDrawablesRelativeWithIntrinsicBounds(
-                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.COIN,dp(26)),
-                null,null,null)
-            compoundDrawablePadding=dp(3)
-            gravity=Gravity.CENTER
-            contentDescription=item.accessibility+
-                if(item.canBuy)". Buy for ${item.price} coins"
-                else ". Tap for purchase requirements"
         }
         card.addView(buy,LinearLayout.LayoutParams(-1,0,.90f).apply{
             topMargin=dp(4)
@@ -222,7 +267,11 @@ internal class ShopScreen(
         },24f,18f,119f,99f,minTouch=true)
         // Match the owner arrow silhouette, without replacing the actual
         // HOME action with a decorative non-clickable screenshot.
-        stage.place(ReferenceArrowOverlayView(host),24f,18f,119f,99f)
+        stage.place(ReferenceArrowOverlayView(host).apply {
+            // Native blue back Button is elevated to 4dp; the arrow was
+            // underneath its background and therefore invisible in QA.
+            elevation=dp(6).toFloat()
+        },24f,18f,119f,99f)
         stage.place(ShopEmbossedTitle(host),
             266f,136f,409f,154f)
         val coins=progress.coins()
@@ -284,7 +333,8 @@ internal class ShopScreen(
         stage.place(FrameLayout(host).apply {
             background=ShopFeaturedPanelDrawable()
             contentDescription="Featured: "+featured.accessibility
-            elevation=dp(8).toFloat()
+            // A raised background sorts above later sibling labels on Android.
+            // Keep the purple panel at Z=0 so native item text/icon/CTA show.
         },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
             ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
         stage.place(message("FEATURED!",23).apply {
@@ -305,18 +355,12 @@ internal class ShopScreen(
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },516f,593f,343f,253f)
-        stage.place(button(NumberFormat.getIntegerInstance().format(featured.price),
-            true,true){
+        stage.place(priceButton(featured.price,true,
+            "Featured "+featured.accessibility){
             if(featured.canBuy)onBuy(featured.index)
             else android.widget.Toast.makeText(host,
                 if(featured.soldOut)"Inventory full (99)." else "Not enough coins.",
                 android.widget.Toast.LENGTH_SHORT).show()
-        }.apply {
-            setCompoundDrawablesRelativeWithIntrinsicBounds(
-                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.COIN,dp(30)),
-                null,null,null)
-            compoundDrawablePadding=dp(8)
-            contentDescription="Featured "+featured.accessibility
         },96f,771f,322f,84f,minTouch=true)
         val bonus=progress.bonusCoinsAvailable()
         if(bonus>0) {
