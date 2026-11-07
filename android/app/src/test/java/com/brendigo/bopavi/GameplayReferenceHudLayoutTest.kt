@@ -30,4 +30,27 @@ class GameplayReferenceHudLayoutTest {
         assertEquals(0,h.hitArea(3f,4f,320,0,0))
         assertEquals(1,h.hitArea(451f*.5f,35f*.5f,240,400,0))
     }
+    @Test fun shortDisplaysAndNotchesFitControlsAndAgreeWithTouchMapping() {
+        val h=GameplayReferenceHudLayout
+        for(viewport in listOf(Triple(320,480,40),Triple(240,320,84),
+            Triple(480,640,55),Triple(864,1536,60),Triple(1080,2400,65))) {
+            val (width,height,safe)=viewport
+            val scale=h.scaleFor(width,height,safe)
+            assertTrue(scale>0f)
+            val originX=(width-480f*scale)*.5f
+            // All HUD content, including the pause button, fits in safe area.
+            assertTrue(originX+h.pause.right*scale<=width)
+            assertTrue(safe+(h.pause.bottom+1f)*scale<=height)
+            val pauseX=originX+451f*scale
+            val pauseY=safe+36f*scale
+            val plusX=originX+107f*scale
+            val plusY=safe+26f*scale
+            assertEquals("pause touch mismatch on $viewport",1,
+                h.hitArea(pauseX,pauseY,width,height,safe))
+            assertEquals("wallet touch mismatch on $viewport",2,
+                h.hitArea(plusX,plusY,width,height,safe))
+        }
+        assertEquals(0f,h.scaleFor(240,80,84),0f)
+        assertEquals(0,h.hitArea(10f,10f,240,80,84))
+    }
 }
