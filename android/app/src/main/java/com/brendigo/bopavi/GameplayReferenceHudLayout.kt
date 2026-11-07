@@ -13,10 +13,20 @@ internal object GameplayReferenceHudLayout {
     val score=FlightHudBox(154f,48f,325f,124f)
     val pause=FlightHudBox(426f,10f,475f,63f)
 
+    /** Keep controls INSIDE the usable screen below a notch/status inset.
+     * Rendering and hit testing must use precisely the same transform on
+     * narrow, tall and short Android screens, including landscape/rotation.
+     */
+    fun scaleFor(screenW:Int,screenH:Int,safeTop:Int):Float {
+        if(screenW<=0 || screenH<=0)return 0f
+        val usableHeight=(screenH-safeTop.coerceAtLeast(0)-2).coerceAtLeast(0)
+        if(usableHeight<=0)return 0f
+        return minOf(screenW/480f,usableHeight/640f)
+    }
+
     fun hitArea(pixelX:Float,pixelY:Float,screenW:Int,screenH:Int,
                 safeTop:Int):Int {
-        if(screenW<=0 || screenH<=0)return 0
-        val scale=minOf(screenW/480f,screenH/640f)
+        val scale=scaleFor(screenW,screenH,safeTop)
         if(scale<=0f)return 0
         val x=(pixelX-(screenW-480f*scale)*.5f)/scale
         val y=(pixelY-safeTop-scale)/scale
