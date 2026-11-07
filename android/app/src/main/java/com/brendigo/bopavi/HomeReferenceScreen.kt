@@ -101,8 +101,10 @@ internal class HomeReferenceScreen(private val host:Activity,
                 if(isWide && childCount==2){
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
                     val h=View.MeasureSpec.getSize(heightMeasureSpec)
+                    val heightFraction=if(isPlay).76f else .71f
                     textMeasure.textSize=minOf(
-                        font*host.resources.displayMetrics.scaledDensity,h*.66f)
+                        font*host.resources.displayMetrics.scaledDensity,
+                        h*heightFraction)
                     val cluster=ReferenceButtonCluster.measure(
                         w,h,textMeasure.measureText(text),
                         if(isPlay).70f else .61f,.29f)
@@ -155,7 +157,8 @@ internal class HomeReferenceScreen(private val host:Activity,
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
+        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay,
+            if(isPlay).76f else .71f,.94f)
         if(isWide){
             group.addView(symbol,LinearLayout.LayoutParams(0,-1))
             group.addView(title,LinearLayout.LayoutParams(0,-1))
