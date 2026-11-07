@@ -358,7 +358,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)
         canvas.restoreToCount(trackCheckpoint)
-        if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(60L)
+        if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(33L)
         canvas.restoreToCount(checkpoint)
     }
 
