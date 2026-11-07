@@ -198,41 +198,28 @@ internal class LevelMapScreen(
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)
 
-        val title=TextView(host).apply{
-            text="LEVEL MAP"
-            textSize=13f
-            maxLines=1
-            includeFontPadding=false
-            setAutoSizeTextTypeUniformWithConfiguration(10,13,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-            setTextColor(Color.WHITE)
-            gravity=Gravity.CENTER
-            contentDescription="LEVEL MAP"
-            background=GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xaa104d9b.toInt(),0xbb071d4d.toInt())).apply{
-                cornerRadius=dp(18).toFloat()
-            }
-        }
-        stage.place(title,342f,20f,125f,77f)
+        // Owner's map has a single primary Back action. Keep page-changing
+        // controls available, but move them away from the currency header and
+        // volcano sign so the top 110px remains reference-aligned.
         stage.place(nativeButton("‹","Home",blue){onBack()},
-            20f,16f,131f,95f,minTouch=true)
-        stage.place(nativeButton("‹","Previous worlds",blue,
-            LevelMapGeometry.pageStart(selected)>0){
-            onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
-        },167f,27f,63f,65f,minTouch=true)
-        stage.place(nativeButton("›","More worlds",blue,
-            LevelMapGeometry.pageStart(selected)+3<LevelEngine.WORLD_COUNT){
-            onWorld(LevelMapGeometry.pageStart(selected)+3)
-        },248f,27f,63f,65f,minTouch=true)
-
-        // The reference includes currency capsules, not a row-wide status
+            20f,16f,122f,95f,minTouch=true)
+        if(LevelMapGeometry.pageStart(selected)>0) {
+            stage.place(nativeButton("‹","Previous worlds",blue){
+                onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
+            },19f,1353f,66f,77f,minTouch=true)
+        }
+        if(LevelMapGeometry.pageStart(selected)+3<LevelEngine.WORLD_COUNT) {
+            stage.place(nativeButton("›","More worlds",blue){
+                onWorld(LevelMapGeometry.pageStart(selected)+3)
+            },855f,1353f,66f,77f,minTouch=true)
+        }
+                // The reference includes currency capsules, not a row-wide status
         // banner. Only genuinely earned coins and level-rating stars exist.
         val totalStars=(0 until LevelEngine.WORLD_COUNT)
             .sumOf{progress.worldStars(it)}
         fun statChip(number:Int,kind:String):TextView=TextView(host).apply{
-            text="$kind  "+java.text.NumberFormat.getIntegerInstance().format(number)
+            text=java.text.NumberFormat.getIntegerInstance().format(number)
+            setPadding(dp(20),0,dp(3),0)
             textSize=20f
             setTextColor(Color.WHITE)
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
@@ -247,7 +234,17 @@ internal class LevelMapScreen(
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
         }
         stage.place(statChip(progress.coins(),"COINS"),481f,23f,203f,73f)
+        stage.place(ImageView(host).apply{
+            setImageDrawable(HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(32)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },477f,26f,57f,63f)
         stage.place(statChip(totalStars,"STARS"),706f,23f,211f,73f)
+        stage.place(ImageView(host).apply{
+            setImageDrawable(HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.GEM,dp(32)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },700f,25f,66f,64f)
 
         val captions=arrayOf("SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
             "NIGHT CASTLES","PEARL SEA","SKY TOWERS","MAGIC FOREST","STAR ABYSS")
