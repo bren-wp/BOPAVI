@@ -21,6 +21,8 @@ assert 'versionCode = 188' in gradle
 assert 'val cursor=width*.66f' in track
 assert 'if(ready)return Segment(0f,width)' in track
 assert 'val track=LoadingArtBox(161f,1350f,780f,1454f)' in layout
+assert 'val pilot=LoadingArtBox(100f,364f,757f,1021f)' in layout
+assert 'verticalAnchor=.95f' in home
 assert 'const val captionBaselineY=1515f' in layout
 assert 'android.os.SystemClock.uptimeMillis()-scanStartedAtMs' in splash
 

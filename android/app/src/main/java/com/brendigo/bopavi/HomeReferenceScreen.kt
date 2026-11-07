@@ -226,9 +226,10 @@ internal class HomeReferenceScreen(private val host:Activity,
         return control
     }
 
-    private fun place(stage:LevelMapStage,view:View,b:HomeBounds,interactive:Boolean=false){
+    private fun place(stage:LevelMapStage,view:View,b:HomeBounds,
+                      interactive:Boolean=false,verticalAnchor:Float=.5f){
         stage.place(view,b.x,b.y,b.w,b.h,minTouch=interactive,
-            referenceAligned=true)
+            referenceAligned=true,verticalAnchor=verticalAnchor)
     }
 
     fun create(pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
@@ -269,7 +270,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },HomeReferenceLayout.logo)
+        },HomeReferenceLayout.logo,verticalAnchor=.05f)
         // All original 512×512 wing and body layers align pixel-for-pixel.
         val bodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
@@ -294,7 +295,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         val actor=HomeWingActor(host,
             left[chosen],right[chosen],bodies[chosen],
             allowMotion=!progress.lessMotion())
-        place(stage,actor,HomeReferenceLayout.hero)
+        place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.25f)
 
         // The white wings in the owner's Home sit BEHIND the gold native
         // PLAY action; the hit target remains one accessible Android View.
@@ -302,29 +303,29 @@ internal class HomeReferenceScreen(private val host:Activity,
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
             0xfffff07a.toInt(),0xffff9904.toInt(),0xffa3560b.toInt(),58,onPlay),
-            HomeReferenceLayout.play,true)
+            HomeReferenceLayout.play,true,verticalAnchor=.50f)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
             0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),36,onSkins),
-            HomeReferenceLayout.skins,true)
+            HomeReferenceLayout.skins,true,verticalAnchor=.62f)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
             0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),37,onShop),
-            HomeReferenceLayout.shop,true)
+            HomeReferenceLayout.shop,true,verticalAnchor=.62f)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
             0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),29,onSettings),
-            HomeReferenceLayout.settings,true)
+            HomeReferenceLayout.settings,true,verticalAnchor=.73f)
 
         place(stage,footerShortcut("ACHIEVEMENTS",
             "Pogledaj svoja postignuća",BopaviUiIconDrawable.Kind.RECORDS,
-            onAchievements),HomeReferenceLayout.achievements,true)
+            onAchievements),HomeReferenceLayout.achievements,true,verticalAnchor=.95f)
         place(stage,footerShortcut("LEADERBOARD",
             "Pogledaj svoje rekorde",BopaviUiIconDrawable.Kind.LEADERBOARD,
-            onLeaderboard),HomeReferenceLayout.leaderboard,true)
+            onLeaderboard),HomeReferenceLayout.leaderboard,true,verticalAnchor=.95f)
         place(stage,footerShortcut("SOUND",
             "Otvori zvučne postavke",BopaviUiIconDrawable.Kind.SOUND,
-            onSound),HomeReferenceLayout.sound,true)
+            onSound),HomeReferenceLayout.sound,true,verticalAnchor=.95f)
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()

@@ -34,12 +34,13 @@ class FlightLoadingLayoutTest {
     @Test fun titlePilotAndTrackStayInReferenceVerticalOrder(){
         val l=FlightLoadingLayout
         assertTrue(l.logo.bottom<l.pilotPaintedTop)
-        assertTrue("Hero must start before 400 on the owner grid",l.pilotPaintedTop<400f)
+        assertTrue("Painted hero feathers follow the source image",
+            l.pilotPaintedTop in 450f..490f)
         assertTrue(l.pilot.bottom<l.track.top)
         assertTrue(l.captionBaselineY>l.track.bottom)
         assertTrue(l.captionBaselineY<l.track.bottom+90f)
         assertEquals(619f,l.track.width,0f)
-        assertEquals(670f,l.pilot.width,0f)
+        assertEquals(657f,l.pilot.width,0f)
         assertEquals(1515f,l.captionBaselineY,0f)
         assertTrue(l.track.bottom<l.referenceHeight)
     }

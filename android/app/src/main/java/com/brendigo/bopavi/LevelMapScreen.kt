@@ -390,7 +390,8 @@ internal class LevelMapScreen(
 /** Uniform reference camera for native taps and the painted landscape. */
 internal class LevelMapStage(context:Context):ViewGroup(context){
     private data class Slot(val view:View,val bounds:RectF,val full:Boolean,
-                            val minTouch:Boolean,val referenceAligned:Boolean)
+                            val minTouch:Boolean,val referenceAligned:Boolean,
+                            val verticalAnchor:Float)
     private val slots=ArrayList<Slot>()
     private var safeLeft=0
     private var safeTop=0
@@ -405,9 +406,10 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
      */
     fun place(view:View,x:Float,y:Float,w:Float,h:Float,
               full:Boolean=false,minTouch:Boolean=false,
-              referenceAligned:Boolean=false){
+              referenceAligned:Boolean=false,verticalAnchor:Float=.5f){
+        // Default center anchoring leaves every non-Home map unchanged.
         slots.add(Slot(view,RectF(x,y,x+w,y+h),full,minTouch,
-            referenceAligned))
+            referenceAligned,verticalAnchor.coerceIn(0f,1f)))
         addView(view,ViewGroup.LayoutParams(-2,-2))
     }
     fun setSafe(left:Int,top:Int,right:Int,bottom:Int) {
@@ -435,16 +437,20 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
                           reference:Triple<Float,Float,Float>
     ):Triple<Float,Float,Float>{
         if(!slot.referenceAligned)return safe
-        if(!slot.minTouch)return reference
-        val scale=reference.first
-        val x=reference.second
-        val y=reference.third
+        val extraHeight=(height-LevelMapGeometry.height*reference.first)
+            .coerceAtLeast(0f)
+        val aligned=Triple(reference.first,reference.second,
+            extraHeight*slot.verticalAnchor)
+        if(!slot.minTouch)return aligned
+        val scale=aligned.first
+        val x=aligned.second
+        val y=aligned.third
         val b=slot.bounds
         val inside=x+b.left*scale>=safeLeft &&
             x+b.right*scale<=width-safeRight &&
             y+b.top*scale>=safeTop &&
             y+b.bottom*scale<=height-safeBottom
-        return if(inside)reference else safe
+        return if(inside)aligned else safe
     }
     override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
         val w=View.MeasureSpec.getSize(widthMeasureSpec)

@@ -22,12 +22,10 @@ internal object FlightLoadingLayout {
     // the crown/raised enamel letter height of the owner's actual reference.
     // Rasterize the original SVG at its natural ratio; do not stretch PNGs.
     val logo=LoadingArtBox(91f,95f,850f,384f)
-    // The approved sprite has painted alpha x=13..499 and y=81..430
-    // in a square 512px source. The prior anchor put Bopi's first visible
-    // feather at y≈476 and feet near 957: too low compared with the owner's
-    // flying hero. A 670-square rig below the wordmark paints at about
-    // x=127..773, y=386..843, while preserving the original sprite ratios.
-    val pilot=LoadingArtBox(110f,280f,780f,950f)
+    // In the owner's 864x1536 Splash the first painted feathers start near
+    // y=430px and the feet end near y=840px. Preserve the square 512x512
+    // source canvas so the real native wing layers never become stretched.
+    val pilot=LoadingArtBox(100f,364f,757f,1021f)
     val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f
     // The owner's 941x1672 splash puts a broad gold/blue winged track near
     // the lower edge and the real "Loading..." caption BELOW the track.

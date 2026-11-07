@@ -27,14 +27,18 @@ internal object HomeReferenceLayout {
     // Position the first visible alpha (y≈86 in the original 512px rig)
     // immediately below the winged wordmark, not ~60px below the owner.
     // All three original body/wing sprite layers retain equal square bounds.
-    val hero=HomeBounds(100f,282f,660f,660f)
+    // Source 864px Home: painted Bopi spans roughly x=118..651 and
+    // y=365..744. Keep source body and wing layers on a SQUARE canvas.
+    val hero=HomeBounds(116f,294f,615f,615f)
     // Extents of alpha>12 in the approved classic 512px body/wing union:
     // x=18..493 and y=86..424. Only painted pixels, not the transparent
     // square canvas, must clear the logo and the native Play touch target.
     val heroArtwork=HomeBounds(
         hero.x+18f*hero.w/512f,hero.y+86f*hero.h/512f,
         475f*hero.w/512f,339f*hero.h/512f)
-    val play=HomeBounds(149f,894f,645f,191f)
+    // Gold enamel body is x~175..688 on the owner image. The native
+    // button remains clickable; the white wings extend outside its body.
+    val play=HomeBounds(190f,902f,560f,186f)
     // Visual wings extend beyond the native gold button on both sides.
     val playWings=HomeBounds(112f,904f,719f,171f)
 

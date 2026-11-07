@@ -186,6 +186,30 @@ if recover_launcher_anr; then
   sleep 3
   dump_ui
 fi
+# Wait for real accessible native Home controls before tapping Settings.
+# This is a bounded stability check, not a simulated pass: absent controls
+# still fail and their genuine UI hierarchy is kept for diagnosis.
+home_ready=0
+for attempt in 1 2 3 4 5 6 7 8; do
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY_HOME'
+import sys, xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+actions={n.get("content-desc","") for n in nodes
+         if n.get("clickable")=="true" and n.get("enabled")=="true"}
+expected={"▶  PLAY","Otvori opcije igre","Otvori izbor likova",
+          "Otvori trgovinu nadogradnji"}
+sys.exit(0 if expected.issubset(actions) else 1)
+PY_HOME
+  then home_ready=1; break; fi
+  echo "Waiting for real Home buttons ($attempt/8)" >&2
+  sleep 2
+done
+if [ "$home_ready" -ne 1 ]; then
+  echo "FAIL: Home native controls remained inaccessible" >&2
+  cp qa/screenshots/android-current-ui.xml qa/screenshots/android-home-failed-ui.xml || true
+  adb logcat -d -t 250 > qa/screenshots/android-home-failed-logcat.txt 2>&1 || true
+  exit 1
+fi
 capture android-home
 # A freshly recovered hosted Launcher can swallow one tap. Recheck the
 # ACTUAL legal dialog and owner body text rather than counting a tap as success.
