@@ -203,6 +203,17 @@ internal class LevelMapScreen(
         // volcano sign so the top 110px remains reference-aligned.
         stage.place(nativeButton("‹","Home",blue){onBack()},
             20f,16f,122f,95f,minTouch=true)
+        // A small genuine semantic page heading is still needed for screen
+        // readers and Android UI tests, without the former oversized LEVEL
+        // blob that covered the owner's clean top-center sky.
+        stage.place(TextView(host).apply{
+            text="LEVEL MAP"
+            contentDescription="LEVEL MAP"
+            setTextColor(0xffeffcff.toInt())
+            textSize=11f
+            gravity=Gravity.CENTER
+            typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
+        },330f,27f,120f,49f)
         if(LevelMapGeometry.pageStart(selected)>0) {
             stage.place(nativeButton("‹","Previous worlds",blue){
                 onWorld((LevelMapGeometry.pageStart(selected)-3).coerceAtLeast(0))
