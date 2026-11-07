@@ -63,6 +63,9 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         FlightLoadingLayout.pilot.right,FlightLoadingLayout.pilot.bottom)
 
     private var preparationFinished = false
+    // Relative time makes the first cyan sweep begin at the left edge;
+    // uptime since device boot is not the animation's start time.
+    private val scanStartedAtMs = android.os.SystemClock.uptimeMillis()
 
     init {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -306,7 +309,8 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         // Level generation has no known fractional completion: animate
         // a scanning highlight until the genuine ready signal arrives.
         val scan=FlightLoadingTrack.segment(inner.width()-6f,
-            android.os.SystemClock.uptimeMillis(),preparationFinished)
+            android.os.SystemClock.uptimeMillis()-scanStartedAtMs,
+            preparationFinished)
         val segment=RectF(inner.left+3f+scan.offset,inner.top+4f,
             inner.left+3f+scan.offset+scan.width,inner.bottom-4f)
         gradient(canvas,segment,0xffa6ffff.toInt(),0xff00a5fd.toInt(),
