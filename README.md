@@ -32,14 +32,14 @@ BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i
 
 ### Tri junaka, bezbroj pokušaja
 
-**Bopi** donosi osmijeh svakom zamahu, **Orao** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
+**Bopi** donosi osmijeh svakom zamahu, **Sova** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
 
-### Nova pilotska družina: Orao i Lisica
+### Nova pilotska družina: Sova i Lisica
 
-Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Orao** nosi smeđe-bijelo perje, raskošna krila, plavi šal i dvije zlatne pilotske naočale. **Lisica** leti s narančasto-bijelim krznom, velikim ušima, raskošnim svijetlim repom, crvenim šalom i zlatnom medaljom. Svaki lik ima **stvarna animirana lijeva i desna krila**, a odabir se sprema lokalno.
+Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Sova** nosi smeđe-bijelo perje, raskošna krila, plavi šal i dvije zlatne pilotske naočale. **Lisica** leti s narančasto-bijelim krznom, velikim ušima, raskošnim svijetlim repom, crvenim šalom i zlatnom medaljom. Svaki lik ima **stvarna animirana lijeva i desna krila**, a odabir se sprema lokalno.
 
 <div align="center">
-<img src="docs/assets/sova.svg" alt="Orao — smeđe-bijeli pilot s plavim šalom i zlatnim naočalama" width="220">
+<img src="docs/assets/sova.svg" alt="Sova — smeđe-bijeli pilot s plavim šalom i zlatnim naočalama" width="220">
 <img src="docs/assets/lisac.svg" alt="Lisica — narančasto-bijeli pilot s velikim repom i crvenim šalom" width="220">
 </div>
 
@@ -51,7 +51,7 @@ Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Orao** nosi
 - ☁️ **Čarobni svijet iznad oblaka.** Leti između lebdećih otoka i živopisnih krajolika.
 - 🍓 **Prikupi bobice.** Izvuci najbolje iz svakog leta.
 - 🏆 **Sruši svoj rekord.** Prati svoje uspjehe i napredak na uređaju.
-- 🎮 **Odaberi svojega junaka.** Bopi, Orao ili Lisac čekaju tvoj poziv.
+- 🎮 **Odaberi svojega junaka.** Bopi, Sova ili Lisac čekaju tvoj poziv.
 - 💙 **Igraj bez ometanja.** Ne trebaju ti račun ni obvezna mrežna veza.
 
 ## S ljubavlju izrađeni detalji
@@ -123,7 +123,7 @@ Galerija obuhvaća svih **16 autentičnih Android zaslona**. Jedna snimka u svak
 
 ## Kako igrati?
 
-**1.** Odaberi Bopija, Orla ili Lisca pa pritisni **IGRAJ**.
+**1.** Odaberi Bopija, Sovu ili Lisca pa pritisni **IGRAJ**.
 
 **2.** Dodiruj zaslon kako bi junak zamahivao krilima.
 
