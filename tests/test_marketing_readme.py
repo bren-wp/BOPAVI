@@ -16,7 +16,7 @@ class MarketingReadmeTests(unittest.TestCase):
             self.assertTrue((ROOT / path).is_file(), path)
         for name in ("Home", "Splash", "Skins", "Shop", "Settings", "Achievements", "Leaderboard", "Level-Map", "Options", "Records", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
             self.assertIn(f"releases/latest/download/BOPAVI-Android-{name}.png", content)
-        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 16)
+        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 32)
         self.assertIn("https://brendigo.com", content)
         # Public store URL is a requested navigation link, not a claim
         # that a particular Android release has reached production.
