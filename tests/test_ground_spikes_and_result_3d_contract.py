@@ -30,8 +30,10 @@ assert "spikeTipsRemainInExistingSolidGround" in unit
 assert "visualSpikesNeverReduceTheBirdsAllowedMovement" in unit
 assert "val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(" in view
 assert "if(showGameplayObstacles) {" in view
-assert "if(game.level.world==6)drawEnchantedForestGroundSpikes(canvas)" in view
-assert "if(game.level.world==0)drawEnchantedForestGroundSpikes(canvas)" not in view
+# Both illustrated Sky Meadows and Enchanted Forest keep spike tips wholly
+# within the pre-existing collision-solid floor. This is not a new hazard.
+assert "if(game.level.world==0 || game.level.world==6)" in view
+assert "drawEnchantedForestGroundSpikes(canvas)" in view
 assert "val tip=g.tipY(i)" in view
 assert "val base=g.spineBottom" in view
 assert "drawEnchantedForestGroundSpikes" in view.split("private fun drawWorldAtmosphere",1)[0]
