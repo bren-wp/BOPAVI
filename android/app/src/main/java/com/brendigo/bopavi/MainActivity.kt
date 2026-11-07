@@ -786,17 +786,32 @@ class MainActivity : Activity() {
             gravity=Gravity.CENTER_HORIZONTAL
             topMargin=d(1)
         })
-        content.addView(ImageView(this).apply{
-            setImageResource(portraitDrawableIds[selectedPilotChoice])
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,d(
+        // Compact Home uses the same original flying body/wings as the
+        // reference Home. Keep the real ScrollView and >=48dp tap controls.
+        val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(
+            selectedPilotChoice)){
+            9->HomeWingActor(this,R.drawable.bopileft9,
+                R.drawable.bopiright9,R.drawable.bopi9,!progress.lessMotion())
+            10->HomeWingActor(this,R.drawable.bopileft10,
+                R.drawable.bopiright10,R.drawable.bopi10,!progress.lessMotion())
+            else->HomeWingActor(this,R.drawable.bopileft0,
+                R.drawable.bopiright0,R.drawable.bopi0,!progress.lessMotion())
+        }
+        content.addView(compactWingedBopi,LinearLayout.LayoutParams(-1,d(
             heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
         // The reference places PLAY immediately after the flying hero,
         // with no huge stretchable blank strip on tall 20:9 displays.
         action(content,"▶  PLAY"){startGame()}
         (content.getChildAt(content.childCount-1) as Button).apply{
+            text="PLAY"
+            contentDescription="▶  PLAY"
+            setCompoundDrawablesRelativeWithIntrinsicBounds(
+                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.PLAY,d(28)),
+                null,null,null)
+            compoundDrawablePadding=d(8)
+            background=HomeEnamelDrawable(0xffffe75f.toInt(),
+                0xffff9206.toInt(),0xffa35011.toInt(),0xfffff4ae.toInt())
             setTextColor(Color.WHITE)
             setShadowLayer(d(2).toFloat(),0f,d(3).toFloat(),0xff743c00.toInt())
             setAutoSizeTextTypeUniformWithConfiguration(18,26,1,
@@ -827,11 +842,11 @@ class MainActivity : Activity() {
                 compoundDrawablePadding=d(7)
                 contentDescription=description
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                        intArrayOf(top,bottom)).apply{
-                        cornerRadius=d(25).toFloat()
-                        setStroke(d(3),0xffb4efff.toInt())
-                    },null)
+                    HomeEnamelDrawable(top,bottom,
+                        if(kind==BopaviUiIconDrawable.Kind.SHOP)
+                            0xff166532.toInt() else 0xff44186f.toInt(),
+                        if(kind==BopaviUiIconDrawable.Kind.SHOP)
+                            0xffd1ff89.toInt() else 0xffffb9fd.toInt()),null)
                 elevation=d(4).toFloat()
                 isClickable=true;isFocusable=true
                 setOnClickListener{sound.effect("click");onClick()}
@@ -859,9 +874,9 @@ class MainActivity : Activity() {
                 uiIcon(BopaviUiIconDrawable.Kind.SETTINGS,Color.WHITE,28),null,null,null)
             compoundDrawablePadding=d(9)
             background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                gradient(0xff36d7ff.toInt(),0xff075ac4.toInt(),25).apply{
-                    setStroke(d(3),0xffb5edff.toInt())
-                },null)
+                HomeEnamelDrawable(0xff39d3ff.toInt(),
+                    0xff0655c6.toInt(),0xff0a3275.toInt(),
+                    0xffc5f7ff.toInt()),null)
             contentDescription="Otvori opcije igre"
             elevation=d(4).toFloat()
             isClickable=true;isFocusable=true
@@ -889,11 +904,7 @@ class MainActivity : Activity() {
             group.addView(ImageView(this).apply{
                 setImageDrawable(uiIcon(kind,0xffffcd40.toInt(),35))
                 scaleType=ImageView.ScaleType.CENTER_INSIDE
-                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff2363b9.toInt(),0xff051c42.toInt())).apply{
-                    shape=GradientDrawable.OVAL
-                    setStroke(d(2),0xffffd979.toInt())
-                }
+                background=HomeMedalDrawable()
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(d(if(tinyDisplay)43 else 53),
                 d(if(tinyDisplay)43 else 53)))
