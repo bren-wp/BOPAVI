@@ -124,7 +124,20 @@ home_art=enrich_background(home_art)
 home_art.save(a/'drawable-nodpi/homeback.png',optimize=True)
 # The SPLASH needs reference-located castles, waterfall cliffs and clouds,
 # but Home remains unmodified and its native buttons are NEVER rasterized.
-loading_art=paint_loading_reference(home_art)
+loading_detail=paint_loading_reference(home_art)
+# Owner-reference comparison: the earlier scenery already matches the left
+# flowing waterfall better than a fully opaque second island. Feather only
+# the new side/deep distance details; keep the entire central flight lane and
+# existing waterfall visible. Artwork remains a BACKGROUND, with no controls.
+from PIL import ImageFilter
+loading_mask=Image.new('L',home_art.size,0)
+loading_mask_draw=ImageDraw.Draw(loading_mask)
+loading_mask_draw.rectangle((0,0,185,370),fill=128)
+loading_mask_draw.rectangle((0,785,190,1600),fill=128)
+loading_mask_draw.rectangle((710,0,900,870),fill=128)
+loading_mask_draw.rectangle((710,870,900,1600),fill=192)
+loading_mask=loading_mask.filter(ImageFilter.GaussianBlur(24))
+loading_art=Image.composite(loading_detail,home_art,loading_mask)
 loading_art.save(a/'drawable-nodpi/loadingback.png',optimize=True)
 # The approved SPLASH / LOADING reference stacks the original winged logo
 # ABOVE Bopi, who is already centered in the shared illustrated landscape.
