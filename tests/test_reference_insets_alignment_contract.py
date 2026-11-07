@@ -11,7 +11,12 @@ assert "val referenceAligned:Boolean" in stage
 assert "referenceAligned:Boolean=false" in stage
 assert "private fun referenceTransform(width:Int,height:Int)" in stage
 assert "private fun placement(slot:Slot,width:Int,height:Int," in stage
-assert "if(!slot.referenceAligned)return safe" in stage
+# Level Map keeps safe-area geometry; only Shop opts into full-bleed art.
+assert "if(!slot.referenceAligned && !shopFullBleed)return safe" in stage
+assert "private var shopFullBleed=false" in stage
+assert "fun useShopFullBleedReferenceCamera()" in stage
+shop=(src/"ShopScreen.kt").read_text()
+assert "stage.useShopFullBleedReferenceCamera()" in shop
 assert "if(!slot.minTouch)return aligned" in stage
 assert "extraHeight*slot.verticalAnchor" in stage
 assert "verticalAnchor.coerceIn(0f,1f)" in stage
