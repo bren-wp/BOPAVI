@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Detect lower spikes appearing only after real first flap on Android.
+"""Detect genuine disappearance of the native ready tutorial on first flap.
 
-Reads original non-resized 941x1672 PNG emulator captures with standard
-library only. The central bottom strip has no tutorial/avatar/HUD, and
-must transition from ordinary scenery to live 3D solid-floor spikes.
-Not a claim of overall pixel-perfect 1:1 matching.
+The supplied owner reference has REAL gates, rings and crystals already
+visible behind "Tap to fly"; those previews must not be confused with
+simulation activity. We compare the actual instruction box before/after the
+first real tap, not a fictitious first-frame floor spike rack. Full-size,
+unscaled 941x1672 Android screenshots and stdlib-only PNG decoding remain
+mandatory. Not a claim of overall pixel-perfect 1:1 matching.
 """
 from pathlib import Path
 import struct
@@ -12,7 +14,7 @@ import sys
 import zlib
 
 WIDTH, HEIGHT = 941, 1672
-ROI = (210, 1535, 830, 1615)
+ROI = (265, 1200, 700, 1390)
 
 
 def paeth(a, b, c):
@@ -89,10 +91,10 @@ def validate(ready_path, active_path):
     fraction=changed/(expected//3)
     if fraction<.06:
         raise AssertionError(
-            f'FAIL: floor-hazard region changed only {fraction:.1%} '
-            'after first flap. Spikes may already be drawn on idle Gameplay '
-            'or may not appear after the real gameplay start.')
-    print(f'PASS: first flap reveals real floor hazards: {fraction:.1%} '
+            f'FAIL: ready tutorial region changed only {fraction:.1%} '
+            'after first flap. The active state may not have been entered '
+            'or the Tap to fly instruction may still cover the game.')
+    print(f'PASS: first flap removes native ready tutorial: {fraction:.1%} '
           f'of pixels changed in native ROI {ROI}')
 
 
