@@ -13,6 +13,6 @@ assert 'textMeasure.measureText(label)' in over
 assert 'marginStart=cluster.gap' in home and 'marginStart=cluster.gap' in over
 assert 'val gap=(width*.016f).toInt().coerceIn(4,12)' in model
 assert 'safeTop+e.b.y*scale' not in rail
-assert 'maxOf(safeTop,(e.b.y*scale).toInt())' in rail
+assert 'maxOf(safeTop,(it.b.y*scale).toInt())' in rail
 assert 'setOnClickListener{onClick()}' in over
 print("PASS: compact 3D CTA spacing and pinned safe wallet geometry")

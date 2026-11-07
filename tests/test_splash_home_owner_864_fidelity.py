@@ -20,7 +20,9 @@ assert "fill-rule=\"evenodd\"" in svg
 # The previous polygonal trace rendered angular, indistinct letters.
 warm=next(e for e in xml.iter() if e.attrib.get("id")=="ownerWarm")
 assert warm.attrib["d"].count(" C") >= 120
-assert warm.attrib["d"].count("M") >= 6
+assert warm.attrib["d"].count("M") >= 9
+# Four distinct letters with five internal counter outlines.
+assert warm.attrib["d"].count(" Z") >= 9
 assert warm.attrib["d"].count(" Z") >= 6
 assert "0 37" in svg and "0 82" in svg
 assert 'cx="675"' in svg and 'rx="17"' in svg
