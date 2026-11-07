@@ -504,25 +504,24 @@ nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 flight=[n for n in nodes if n.get("class")=="android.view.View"
         and n.get("clickable")=="true"
-        and "ŽIVOTI:" in label(n)
         and "DODIRNI ZA ZAMAH KRILIMA" in label(n)
-        and "BODOVI:" not in label(n) and "HRANA:" not in label(n)
-        and "MOĆ:" not in label(n)]
-pause=[n for n in nodes if n.get("clickable")=="true"
-       and ("PAUZIRAJ IGRU" in label(n) or "PAUSE GAME" in label(n))]
-sys.exit(0 if len(flight)==1 and len(pause)==0 else 1)
+        and all(token in label(n) for token in
+                ("REZULTAT:","NOVČIĆI:","KRISTALI:","GORE DESNO PAUZA"))]
+# SCORE and Pause are drawn as true touch targets within the same
+# native GameView, not exported as a second, fake accessibility node.
+sys.exit(0 if len(flight)==1 else 1)
 PY
   then flying=1; break; fi
   sleep 1
 done
-test "$flying" -eq 1 || { echo "FAIL: lives-only active GameView not accessible"; exit 1; }
+test "$flying" -eq 1 || { echo "FAIL: active GameView score/coins/crystals/pause accessibility not found"; exit 1; }
 capture android-gameplay-active
-printf 'STATE: flight-active confirmed with lives-only native HUD\n' >> qa/screenshots/state-evidence.txt
+printf 'STATE: real native active Gameplay with live SCORE, local coins, crystals and Pause\n' >> qa/screenshots/state-evidence.txt
 if cmp -s qa/screenshots/android-gameplay-ready.png qa/screenshots/android-gameplay-active.png; then
   echo "FAIL: active flight still duplicates idle screenshot" >&2; exit 1
 fi
-# No pause icon exists in gameplay. Android system Back opens the accessible
-# Pause dialog; verify there is no hidden tappable Pause overlay in the flight.
+# The visible orange Pause button and Android system Back both open the same
+# real native dialog. Exercise Back as the accessibility alternative here;
 adb shell input keyevent 4
 pause_ready=0
 for attempt in $(seq 1 12); do
@@ -570,11 +569,12 @@ import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
 click=[label(n) for n in nodes if n.get("clickable")=="true"]
-active=any("ŽIVOTI:" in label(n) and n.get("class")=="android.view.View"
+active=any(n.get("class")=="android.view.View" and
+           all(token in label(n) for token in
+               ("REZULTAT:","NOVČIĆI:","KRISTALI:","GORE DESNO PAUZA"))
            for n in nodes)
-overlay=any("PAUZIRAJ IGRU" in s for s in click)
 modal=any("NASTAVI" in s for s in click)
-sys.exit(0 if active and not overlay and not modal else 1)
+sys.exit(0 if active and not modal else 1)
 PY
   then flight_resumed=1; break; fi
   sleep 1
