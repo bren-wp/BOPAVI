@@ -28,6 +28,8 @@ assert "tipY(i)<solidFloorTop" in spikes
 assert "stoneTop>=solidFloorTop" in spikes
 assert "spikeTipsRemainInExistingSolidGround" in unit
 assert "visualSpikesNeverReduceTheBirdsAllowedMovement" in unit
+assert "val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(" in view
+assert "if(showGameplayObstacles) {" in view
 assert "if(game.level.world==0)drawSkyMeadowsGroundSpikes(canvas)" in view
 assert "val tip=g.tipY(i)" in view
 assert "val base=g.spineBottom" in view

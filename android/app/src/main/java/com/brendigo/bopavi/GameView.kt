@@ -348,25 +348,32 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             oval(canvas,x+24f,y-12f,x+74f,y+24f,mist)
         }
         drawWorldAtmosphere(canvas)
-        // The owner's visible lower row belongs to the EXISTING solid floor,
-        // not an invented obstacle in the playable flight corridor.
-        if(game.level.world==0)drawSkyMeadowsGroundSpikes(canvas)
-        // Upcoming gates enter from the right BEFORE the previous level ends.
-        // Cache is produced by the simulation; no per-frame level generation.
-        // The hot drawing path needs no iterator/IndexedValue wrappers.
-        val upcoming=game.upcomingGates()
-        for(i in upcoming.indices) {
-            val g=upcoming[i]
-            val x=game.upcomingGateX(g)
-            if(x >= -100f && x<=550f)drawGate(canvas,g,x,i,true)
-        }
-        for(i in game.level.gates.indices) {
-            val g=game.level.gates[i];val x=game.gateX(g)
-            if(x < -100f || x>550f)continue
-            drawGate(canvas,g,x,i)
+        // Nothing that can collide with Bopi is painted on the ready-to-fly
+        // screen. First tap calls GameSimulation.flap(), which sets active=true;
+        // that SAME real event makes spikes, pillars, maces and pickups appear.
+        // Pause/resume keeps active, whereas Retry creates a fresh idle run.
+        val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
+            game.active,game.finished)
+        if(showGameplayObstacles) {
+            // Sky Meadows' floor spikes stay inside the existing solid collider.
+            if(game.level.world==0)drawSkyMeadowsGroundSpikes(canvas)
+            // No per-frame generation: both current and incoming gates reuse
+            // the cached real simulation data, including pickup visibility.
+            val upcoming=game.upcomingGates()
+            for(i in upcoming.indices) {
+                val g=upcoming[i]
+                val x=game.upcomingGateX(g)
+                if(x >= -100f && x<=550f)drawGate(canvas,g,x,i,true)
+            }
+            for(i in game.level.gates.indices) {
+                val g=game.level.gates[i];val x=game.gateX(g)
+                if(x < -100f || x>550f)continue
+                drawGate(canvas,g,x,i)
+            }
         }
         drawBird(canvas)
-        if(collisionOverlayEnabled) drawCollisionDebugOverlay(canvas)
+        if(collisionOverlayEnabled && showGameplayObstacles)
+            drawCollisionDebugOverlay(canvas)
         // The gameplay camera and HUD are different coordinate spaces. On tall
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
