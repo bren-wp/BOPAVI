@@ -34,6 +34,17 @@ BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i
 
 **Bopi** donosi osmijeh svakom zamahu, **Orao** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
 
+### Nova pilotska družina: Orao i Lisica
+
+Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Orao** nosi smeđe-bijelo perje, raskošna krila, plavi šal i dvije zlatne pilotske naočale. **Lisica** leti s narančasto-bijelim krznom, velikim ušima, raskošnim svijetlim repom, crvenim šalom i zlatnom medaljom. Svaki lik ima **stvarna animirana lijeva i desna krila**, a odabir se sprema lokalno.
+
+<div align="center">
+<img src="docs/assets/sova.svg" alt="Orao — smeđe-bijeli pilot s plavim šalom i zlatnim naočalama" width="220">
+<img src="docs/assets/lisac.svg" alt="Lisica — narančasto-bijeli pilot s velikim repom i crvenim šalom" width="220">
+</div>
+
+*Prikazi likova su lokalni izvorni SVG resursi. Stvarne snimke svih 16 Android zaslona nalaze se u galeriji ispod.*
+
 ## Zašto zaigrati?
 
 - 🪽 **Jedan dodir, potpuna kontrola.** Dodirni zaslon i upravljaj zamahom krila.
