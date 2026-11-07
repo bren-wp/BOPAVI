@@ -24,8 +24,8 @@ for required in (
     assert required in view,required
 assert "val logo=LoadingArtBox(91f,95f,850f,384f)" in layout
 assert "val pilot=LoadingArtBox(110f,280f,780f,950f)" in layout
-assert "val track=LoadingArtBox(161f,1318f,780f,1422f)" in layout
-assert "const val captionBaselineY=1483f" in layout
+assert "val track=LoadingArtBox(161f,1350f,780f,1454f)" in layout
+assert "const val captionBaselineY=1515f" in layout
 assert "val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f" in layout
 assert "assertTrue(l.captionBaselineY>l.track.bottom)" in test
 assert "realReferenceArtworkRetainsItsNaturalProportions" in test
@@ -45,7 +45,8 @@ assert "ring(canvas,546f,1057f,37f,54f,-21f)" in view
 assert "ring(canvas,666f,1081f,25f,37f,-19f)" in view
 assert "postInvalidateDelayed(60L)" in view
 assert "isAttachedToWindow" in view
-assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in view
+assert "android.os.SystemClock.uptimeMillis()-scanStartedAtMs," in view
+assert "preparationFinished)" in view
 assert "feather(canvas," not in view
 assert 'val loading=FlightLoadingView(this,chosenPilot)' in main
 assert "Thread({" in main and 'loading.completePreparation()' in main

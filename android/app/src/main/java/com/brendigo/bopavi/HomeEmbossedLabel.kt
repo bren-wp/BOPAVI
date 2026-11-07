@@ -26,7 +26,8 @@ internal class HomeEmbossedLabel(
     nominalSp:Float,
     private val primary:Boolean,
     private val paintHeightFraction:Float=.66f,
-    private val paintWidthFraction:Float=.87f
+    private val paintWidthFraction:Float=.87f,
+    private val footer:Boolean=false
 ):TextView(context){
     private val ink=Paint(Paint.ANTI_ALIAS_FLAG).apply{
         textAlign=Paint.Align.CENTER
@@ -62,14 +63,16 @@ internal class HomeEmbossedLabel(
         val metrics=ink.fontMetrics
         val x=width/2f
         val y=height/2f-(metrics.ascent+metrics.descent)/2f
-        val rim=if(primary)0xff9b3608.toInt() else 0xff11246c.toInt()
-        val drop=if(primary)0xff6f2d06.toInt() else 0xff08265d.toInt()
+        val rim=if(primary)0xff9b3608.toInt() else
+            if(footer)0xff0b1834.toInt() else 0xff11246c.toInt()
+        val drop=if(primary)0xff6f2d06.toInt() else
+            if(footer)0xff060e23.toInt() else 0xff08265d.toInt()
 
         ink.style=Paint.Style.STROKE
-        ink.strokeWidth=ink.textSize*.16f
+        ink.strokeWidth=ink.textSize*(if(footer).13f else .16f)
         ink.color=drop
-        canvas.drawText(caption,x,y+height*.073f,ink)
-        ink.strokeWidth=ink.textSize*.115f
+        canvas.drawText(caption,x,y+height*(if(footer).035f else .073f),ink)
+        ink.strokeWidth=ink.textSize*(if(footer).075f else .115f)
         ink.color=rim
         canvas.drawText(caption,x,y,ink)
         ink.style=Paint.Style.FILL
@@ -80,7 +83,8 @@ internal class HomeEmbossedLabel(
         ink.shader=LinearGradient(0f,y-ink.textSize,0f,
             y+ink.textSize*.13f,
             Color.WHITE,if(primary)0xffffe8aa.toInt() else
-                0xffcdeaff.toInt(),Shader.TileMode.CLAMP)
+                if(footer)0xfff4fbff.toInt() else
+                    0xffcdeaff.toInt(),Shader.TileMode.CLAMP)
         canvas.drawText(caption,x,y,ink)
         ink.shader=null
 

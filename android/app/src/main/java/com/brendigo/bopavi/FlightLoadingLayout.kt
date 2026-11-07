@@ -31,9 +31,9 @@ internal object FlightLoadingLayout {
     val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f
     // The owner's 941x1672 splash puts a broad gold/blue winged track near
     // the lower edge and the real "Loading..." caption BELOW the track.
-    val track=LoadingArtBox(161f,1318f,780f,1422f)
+    val track=LoadingArtBox(161f,1350f,780f,1454f)
     const val captionCenterX=470f
-    const val captionBaselineY=1483f
+    const val captionBaselineY=1515f
 
     fun aspectError(a:LoadingArtBox,sourceWidth:Float,sourceHeight:Float):Float =
         kotlin.math.abs(a.width/a.height-sourceWidth/sourceHeight)

@@ -61,18 +61,20 @@ internal class HomeMedalDrawable:Drawable() {
             LinearGradient(0f,0f,0f,100f,
                 intArrayOf(0xfffff8c0.toInt(),0xffffbf36.toInt(),
                     0xffaa590f.toInt()),null,Shader.TileMode.CLAMP))
-        // The sky-blue center has a distinct inner bevel and lower extrusion.
+        // The owner's three shortcuts have a dark glossy navy enamel face,
+        // not the sky-blue fill inherited from a level-selection button.
+        // Keep a distinct inner bevel and a gold, genuinely raised rim.
         fill(canvas,0xff06214e.toInt(),RectF(11f,9f+shift,89f,83f))
         fill(canvas,Color.WHITE,RectF(14f,10f+shift,86f,79f),
             LinearGradient(0f,8f,0f,84f,
-                intArrayOf(0xff73e9ff.toInt(),0xff197bde.toInt(),
-                    0xff06316e.toInt()),null,Shader.TileMode.CLAMP))
+                intArrayOf(0xff284e7b.toInt(),0xff12325e.toInt(),
+                    0xff06172f.toInt()),null,Shader.TileMode.CLAMP))
         // Delicate upper-left enamel glare, like the source 3D medallions.
         p.reset()
         p.isAntiAlias=true
-        p.color=0xb9ffffff.toInt()
+        p.color=0x99d8f5ff.toInt()
         p.style=Paint.Style.STROKE
-        p.strokeWidth=4f
+        p.strokeWidth=3.3f
         p.strokeCap=Paint.Cap.ROUND
         canvas.drawArc(RectF(20f,15f+shift,79f,69f+shift),
             204f,105f,false,p)

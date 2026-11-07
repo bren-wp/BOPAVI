@@ -16,13 +16,14 @@ for required in ("R.drawable.loadingback","R.drawable.logo",
                  "max(w / bg.width, h / bg.height)",
                  "FlightLoadingLayout.track.left"):
     assert required in loading,required
-assert "val track=LoadingArtBox(161f,1318f,780f,1422f)" in layout
+assert "val track=LoadingArtBox(161f,1350f,780f,1454f)" in layout
 assert "trackWings(canvas)" in loading
 assert "outer.left-3f,outer.top-4f" in loading
 assert "0xff482614.toInt()" in loading
 assert "paint.color=0xfffff6d2.toInt()" in loading
 assert "FlightLoadingTrack.segment(inner.width()-6f," in loading
-assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in loading
+assert "android.os.SystemClock.uptimeMillis()-scanStartedAtMs," in loading
+assert "preparationFinished)" in loading
 assert ".61f+.07f" not in loading
 assert "ring(canvas,546f,1057f,37f,54f,-21f)" in loading
 assert "paint.pathEffect=" not in loading

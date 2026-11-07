@@ -108,6 +108,35 @@ def cinematic_detail(flat: Image.Image) -> Image.Image:
     rng=Random(9411672)
     result=flat.convert("RGBA")
 
+    # Owner Splash/Home references have a luminous, multilayered white cloud
+    # sea behind the flying hero. The old cyan blank centre produced huge
+    # whole-screen errors even when logo/button geometry was source-aligned.
+    # These are scenic *background* pigment layers, never image UI elements.
+    # Keep the castles/rock terraces and native pilot above the cloud banks.
+    bank=Image.new("RGBA",(w,h),(0,0,0,0))
+    cloud_pigment=ImageDraw.Draw(bank,"RGBA")
+    for index,(cx,cy,rx,ry) in enumerate((
+        (425,227,190,84),(596,278,155,87),(-16,601,155,105),
+        (932,678,144,115),(447,1068,188,76),(280,1293,142,93))):
+        cloud_rng=Random(837100+index)
+        for j in range(28):
+            dx=cloud_rng.uniform(-1.0,1.0)*rx*.74
+            dy=cloud_rng.uniform(-1.0,1.0)*ry*.52
+            ar=cloud_rng.uniform(.24,.63)*rx
+            br=cloud_rng.uniform(.34,.70)*ry
+            cloud_pigment.ellipse((cx+dx-ar,cy+dy-br,
+                                  cx+dx+ar,cy+dy+br),
+                fill=(248,253,255,cloud_rng.randint(48,107)))
+        # The lower pearl-white edge is denser than the translucent skyward
+        # diffusion, matching the owner's airy sculpted cloud banks.
+        cloud_pigment.ellipse((cx-rx*.67,cy-ry*.13,
+                              cx+rx*.77,cy+ry*.45),
+                             fill=(252,255,255,89))
+    result=Image.alpha_composite(
+        result,bank.filter(ImageFilter.GaussianBlur(20)))
+    result=Image.alpha_composite(
+        result,bank.filter(ImageFilter.GaussianBlur(3)))
+
     # Puffy, semi-transparent cloud banks around the outer thirds.
     mist=Image.new("L",(w,h),0)
     pen=ImageDraw.Draw(mist)
