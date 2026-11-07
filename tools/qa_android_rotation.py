@@ -76,7 +76,7 @@ def main():
     adb("shell", "am", "force-stop", APP)
     adb("shell", "cmd", "window", "user-rotation", "lock", "0")
     # Debug-only QA holds a genuine first-flap GameSimulation state steady.
-    # This makes a score/lives continuity comparison deterministic across rotation.
+    # This makes a SCORE/crystals continuity comparison deterministic across rotation.
     adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity",
         "--ez", "bopavi_qa_capture_first_flap", "true")
     try:
@@ -122,14 +122,13 @@ def main():
                 current = hierarchy()
                 flights = [n for n in current.iter("node")
                            if n.get("clickable") == "true"
-                           and "ŽIVOTI:" in label(n)
-                           and "BODOVI:" not in label(n)
-                           and "MOĆ:" not in label(n)]
+                           and all(word in label(n).upper() for word in
+                                   ("REZULTAT:","NOVČIĆI:","KRISTALI:","GORE DESNO PAUZA"))]
                 pauses = find_action(current, "PAUZIRAJ IGRU")
                 if len(flights) == 1 and not pauses:
                     return flights[0]
                 time.sleep(1)
-            raise AssertionError("FAIL: active lives HUD missing or Pause overlay returned")
+            raise AssertionError("FAIL: active SCORE HUD missing or Pause overlay returned")
 
         def assert_flight_visible(flight, width, height):
             match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
@@ -141,14 +140,14 @@ def main():
 
         active = active_flight()
         flight_before = active.get("content-desc")
-        assert flight_before and "Životi:" in flight_before
+        assert flight_before and "Rezultat:" in flight_before
         assert_flight_visible(active, w, h)
         screenshot("android-flight-landscape-active")
 
         portrait_w, portrait_h = rotate(0)
         active = active_flight()
         assert active.get("content-desc") == flight_before, (
-            "FAIL: rotation reset current lives, active pilot or GameView state")
+            "FAIL: rotation reset current score, active pilot or GameView state")
         assert_flight_visible(active, portrait_w, portrait_h)
         assert adb("shell", "pidof", APP) == initial_pid, "FAIL: rotation killed process"
         screenshot("android-flight-portrait-active")
@@ -158,7 +157,7 @@ def main():
         tap(active)
         assert adb("shell", "pidof", APP) == initial_pid, (
             "FAIL: resuming the rotated flight killed the process")
-        print("PASS: landscape/portrait retained genuine active flight, lives-only HUD and process", flush=True)
+        print("PASS: landscape/portrait retained genuine active flight, SCORE HUD and process", flush=True)
     finally:
         adb("shell", "cmd", "window", "user-rotation", "free")
 
