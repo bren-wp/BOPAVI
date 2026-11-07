@@ -34,6 +34,11 @@ assert "addControl(nativeButton(" in mapSource
 assert "contentDescription=\"LEVEL MAP\"" in mapSource
 assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
 assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
+assert "stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)" in mapSource
+arrow=(src/"ReferenceBackArrow.kt").read_text()
+assert "internal class ReferenceArrowOverlayView(" in arrow
+assert "isClickable=false" in arrow and "isFocusable=false" in arrow
+assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in arrow
 assert "if(enabled)onPlay(selected,level.toLong())" in mapSource
 assert "root.addView(scroll,FrameLayout.LayoutParams(-1,-1))" in mapSource
 assert "compactAndLargeTextDevicesUseActualNativeScrollControls" in unit
