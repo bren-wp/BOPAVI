@@ -114,3 +114,46 @@ internal class GameOverFeathers(context:Context):View(context){
         canvas.restoreToCount(saved)
     }
 }
+
+
+/**
+ * Actual wood-and-ivory score plate matching the owner's three result rows.
+ * Values are NOT painted here: the independent accessible TextViews in
+ * GameOverScreen remain authoritative and fully dynamic.
+ */
+internal class GameOverScoreFrameDrawable:android.graphics.drawable.Drawable(){
+    private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+    private var opacity=255
+    private var tint:android.graphics.ColorFilter?=null
+    override fun draw(c:Canvas){
+        if(bounds.isEmpty)return
+        val saved=c.save()
+        c.translate(bounds.left.toFloat(),bounds.top.toFloat())
+        c.scale(bounds.width()/695f,bounds.height()/310f)
+        p.reset();p.isAntiAlias=true
+        p.alpha=opacity;p.colorFilter=tint
+        p.color=0xff603015.toInt()
+        c.drawRoundRect(2f,9f,693f,309f,35f,35f,p)
+        p.color=0xffab672d.toInt()
+        c.drawRoundRect(0f,3f,695f,301f,34f,34f,p)
+        p.shader=LinearGradient(0f,7f,0f,296f,
+            intArrayOf(0xffffedd0.toInt(),0xfffff9e7.toInt(),
+                0xffe9bd87.toInt()),null,Shader.TileMode.CLAMP)
+        c.drawRoundRect(10f,10f,685f,291f,27f,27f,p)
+        p.shader=null
+        p.style=Paint.Style.STROKE;p.strokeWidth=3f
+        p.color=0xffffdca9.toInt()
+        c.drawRoundRect(13f,13f,682f,288f,25f,25f,p)
+        p.style=Paint.Style.FILL
+        for(i in 0..2){
+            val y=22f+i*91f
+            p.color=if(i%2==0)0x44b57f47 else 0x34e7c098
+            c.drawRoundRect(23f,y,672f,y+83f,29f,29f,p)
+        }
+        c.restoreToCount(saved)
+    }
+    override fun setAlpha(value:Int){opacity=value.coerceIn(0,255);invalidateSelf()}
+    override fun setColorFilter(filter:android.graphics.ColorFilter?){tint=filter;invalidateSelf()}
+    @Suppress("DEPRECATION")
+    override fun getOpacity():Int=android.graphics.PixelFormat.TRANSLUCENT
+}

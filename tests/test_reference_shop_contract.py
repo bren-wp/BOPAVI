@@ -76,6 +76,8 @@ assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
 assert 'LinearLayout.LayoutParams(0,-1,2.15f)' in shop
 assert 'LinearLayout.LayoutParams(0,-1,.85f)' in shop
 assert 'background=ShopCreamCardDrawable()' in shop
+assert 'row.addView(ShopPerkArtwork(host,item),' in shop
+assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
@@ -129,6 +131,10 @@ assert "chest(c,666f,474f,101f,88f)" in decor
 assert "chest(c,138f,518f,78f,45f)" in decor
 assert "kioskSparkles(c)" in decor
 assert "class ShopForegroundFoliage(" in decor
+assert "internal class ShopPerkArtwork(" in decor
+assert "internal class ShopCounterFront(" in decor
+assert "if(item.tier>=2)drawSymbol" in decor
+assert "if(item.tier>=3)drawSymbol" in decor
 assert "isClickable=false" in decor and "isFocusable=false" in decor
 assert 'stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f)' in shop
 assert "if(featured.canBuy)onBuy(featured.index)" in shop

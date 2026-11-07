@@ -56,7 +56,11 @@ icons=(src/"HomeHeroIconDrawable.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.GATE->distancePin(canvas)' in icons
 assert 'BopaviUiIconDrawable.Kind.CROWN_COIN->crownCoin(canvas)' in icons
 assert "BopaviUiIconDrawable.Kind.GEM->gem(canvas)" in icons
-assert 'BopaviUiIconDrawable.Kind.GEM' in screen
+assert 'BopaviUiIconDrawable.Kind.STAR' in screen
+assert 'if(stats.thirdLabel=="Stars Collected")' in screen
+assert 'BopaviUiIconDrawable.Kind.GEM' not in screen
+assert 'background=GameOverScoreFrameDrawable()' in screen
+assert "class GameOverScoreFrameDrawable:" in (src/"GameOverFlourish.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.CROWN_COIN' in screen
 assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons
 assert 'LinearLayout.LayoutParams(0,-1,.15f)' in screen

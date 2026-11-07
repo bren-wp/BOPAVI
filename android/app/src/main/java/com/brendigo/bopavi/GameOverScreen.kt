@@ -189,7 +189,7 @@ internal class GameOverScreen(private val host:Activity) {
         val statistics=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             setPadding(12,14,12,14)
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            background=GameOverScoreFrameDrawable()
             contentDescription="Game Over statistics"
         }
         val rows=listOf(
@@ -202,7 +202,7 @@ internal class GameOverScreen(private val host:Activity) {
                 gold),
             statRow(stats.thirdLabel,stats.third,
                 if(stats.thirdLabel=="Stars Collected")
-                    BopaviUiIconDrawable.Kind.GEM
+                    BopaviUiIconDrawable.Kind.STAR
                 else BopaviUiIconDrawable.Kind.RECORDS,
                 0xffbf37f5.toInt())
         )

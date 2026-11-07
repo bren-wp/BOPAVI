@@ -291,3 +291,90 @@ internal class ShopForegroundFoliage(context:Context):View(context) {
         c.restoreToCount(saved)
     }
 }
+
+
+/**
+ * Distinct offline artwork for each existing shield/magnet SKU. The tier
+ * changes the illustration, not just a numeral next to a recycled icon.
+ * No reference screenshot, bitmap button, sample inventory or price is used.
+ */
+internal class ShopPerkArtwork(context:Context,private val item:ShopItemState):View(context) {
+    private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+    private val symbol=HomeHeroIconDrawable(
+        if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
+        else BopaviUiIconDrawable.Kind.MAGNET,116)
+    init { importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO }
+    private fun drawSymbol(c:Canvas,l:Int,t:Int,r:Int,b:Int){
+        symbol.setBounds(l,t,r,b)
+        symbol.draw(c)
+    }
+    override fun onDraw(c:Canvas){
+        if(width<=0 || height<=0)return
+        val saved=c.save()
+        c.scale(width/172f,height/178f)
+        p.reset();p.isAntiAlias=true
+        p.shader=RadialGradient(86f,91f,85f,
+            if(item.isShield)0xb0d7faff.toInt() else 0xb0fff0ac.toInt(),
+            0x00ffffff,Shader.TileMode.CLAMP)
+        c.drawCircle(86f,91f,83f,p)
+        p.shader=null
+        if(item.isShield){
+            // The double and triple protection products display separate
+            // embossed shield layers, rather than the same plain pictogram.
+            if(item.tier>=2)drawSymbol(c,0,40,103,150)
+            if(item.tier>=3)drawSymbol(c,71,42,174,151)
+            drawSymbol(c,32,12,141,155)
+        }else{
+            drawSymbol(c,25,12,151,151)
+            // The stronger magnets visibly attract more actual coin glyphs.
+            for(i in 0 until item.tier){
+                val cx=if(i%2==0)26f+i*50f else 151f-i*16f
+                val cy=25f+i*49f
+                p.style=Paint.Style.FILL
+                p.color=0xffb56a05.toInt()
+                c.drawCircle(cx,cy+3f,17f,p)
+                p.color=0xffffc22c.toInt()
+                c.drawCircle(cx,cy,16f,p)
+                p.color=0xffffee98.toInt()
+                c.drawCircle(cx,cy-4f,8f,p)
+            }
+        }
+        // Small consistent enamel glints, outside the main icon's silhouette.
+        p.style=Paint.Style.STROKE
+        p.strokeWidth=3f;p.strokeCap=Paint.Cap.ROUND
+        p.color=0xfffff6c2.toInt()
+        for(i in 0..2){
+            val x=16f+i*68f
+            val y=60f+(i%2)*83f
+            c.drawLine(x-5f,y,x+5f,y,p)
+            c.drawLine(x,y-5f,x,y+5f,p)
+        }
+        p.style=Paint.Style.FILL
+        c.restoreToCount(saved)
+    }
+}
+
+/** Passive wooden lip in front of the Shop mascot, behind the live offers. */
+internal class ShopCounterFront(context:Context):View(context){
+    private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+    init {
+        importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
+        isClickable=false
+        isFocusable=false
+    }
+    override fun onDraw(c:Canvas){
+        if(width<=0||height<=0)return
+        val saved=c.save()
+        c.scale(width/895f,height/36f)
+        p.color=0xff51270f.toInt()
+        c.drawRoundRect(0f,7f,895f,36f,9f,9f,p)
+        p.shader=LinearGradient(0f,0f,0f,31f,
+            intArrayOf(0xffffd281.toInt(),0xffc27a35.toInt(),
+                0xff86411c.toInt()),null,Shader.TileMode.CLAMP)
+        c.drawRoundRect(2f,0f,893f,30f,9f,9f,p)
+        p.shader=null
+        p.color=0x88fff6cf.toInt()
+        c.drawRoundRect(13f,3f,880f,8f,3f,3f,p)
+        c.restoreToCount(saved)
+    }
+}

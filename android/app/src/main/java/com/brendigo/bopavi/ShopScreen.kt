@@ -142,13 +142,8 @@ internal class ShopScreen(
         // Flexible weights fill the reference card instead of multiplying
         // hardcoded dp icon widths by a device's physical pixel density.
         // The art stays fully inside the cream panel at every screen scale.
-        row.addView(ImageView(host).apply{
-            setImageDrawable(HomeHeroIconDrawable(
-                if(item.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,dp(52)))
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,-1,2.15f))
+        row.addView(ShopPerkArtwork(host,item),
+            LinearLayout.LayoutParams(0,-1,2.15f))
         row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
             setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -332,6 +327,10 @@ internal class ShopScreen(
         // like a tiny floating badge. Preserve the full source square and
         // let transparent wings/scarf reach the owner's shelf silhouette.
         },130f,235f,570f,420f)
+        // A separate raised wood lip obscures the lower character edge,
+        // so Bopi is BEHIND the counter rather than floating over its front.
+        // The strip is purely decorative and never intercepts purchases.
+        stage.place(ShopCounterFront(host),23f,546f,895f,36f)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
