@@ -15,6 +15,20 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageStat
 
 SIZE = (941, 1672)
+# Owner's acceptance threshold: at most 10% normalized 8-bit RGB MAE.
+# Both WHOLE screens and EVERY named region must independently satisfy it.
+TARGET_MAX_DEVIATION_PERCENT = 10.0
+TARGET_MAX_RGB_MAE = 255.0 * TARGET_MAX_DEVIATION_PERCENT / 100.0
+
+
+def deviation_percent(rgb_mae: float) -> float:
+    return rgb_mae * 100.0 / 255.0
+
+
+def passes_target(rgb_mae: float) -> bool:
+    # Compare the unrounded source value; rounding cannot sneak through 10%.
+    return rgb_mae <= TARGET_MAX_RGB_MAE
+
 REGIONS = {
     "Home": {
         "wallet_and_safe_top": (445, 8, 930, 105),
@@ -59,16 +73,26 @@ def mae(owner: Image.Image, actual: Image.Image,
 def compare(owner_path: str | Path, actual_path: str | Path,
             name: str) -> dict:
     owner, actual = load_png(owner_path), load_png(actual_path)
-    regions = {key: round(mae(owner, actual, bounds), 3)
+    regions = {key: mae(owner, actual, bounds)
                for key, bounds in REGIONS[name].items()}
+    full = mae(owner, actual)
+    all_regions_pass = all(passes_target(value) for value in regions.values())
     return {
         "screen": name,
         "resolution": list(SIZE),
         "owner_sha256": hashlib.sha256(Path(owner_path).read_bytes()).hexdigest(),
         "actual_sha256": hashlib.sha256(Path(actual_path).read_bytes()).hexdigest(),
-        "whole_screen_rgb_mae": round(mae(owner, actual), 3),
+        "target_max_deviation_percent": TARGET_MAX_DEVIATION_PERCENT,
+        "target_max_rgb_mae": TARGET_MAX_RGB_MAE,
+        "whole_screen_rgb_mae": round(full, 3),
+        "whole_screen_deviation_percent": round(deviation_percent(full), 3),
+        "whole_screen_target_met": passes_target(full),
+        "all_regions_target_met": all_regions_pass,
+        "meets_target": passes_target(full) and all_regions_pass,
         "regions_ranked": [
-            {"name": key, "rgb_mae": value,
+            {"name": key, "rgb_mae": round(value, 3),
+             "deviation_percent": round(deviation_percent(value), 3),
+             "meets_target": passes_target(value),
              "box": list(REGIONS[name][key])}
             for key, value in sorted(regions.items(), key=lambda kv: -kv[1])
         ],
@@ -83,10 +107,17 @@ def main() -> None:
     parser.add_argument("--splash-reference", required=True, type=Path)
     parser.add_argument("--splash-actual", required=True, type=Path)
     parser.add_argument("--json-report", type=Path)
+    parser.add_argument("--enforce-target", action="store_true",
+                        help="exit nonzero unless both screens and every ROI are within 10%%")
     args = parser.parse_args()
 
     report = {
         "measurement": "8-bit RGB channel mean absolute error, native 941x1672",
+        "acceptance_target": {
+            "maximum_deviation_percent": TARGET_MAX_DEVIATION_PERCENT,
+            "maximum_rgb_mae": TARGET_MAX_RGB_MAE,
+            "applies_to": "both complete screens AND every named region",
+        },
         "warnings": [
             "Animated wing phases and authentic counters need aligned runtime state.",
             "A build passing tests does not prove visual equivalence.",
@@ -97,11 +128,16 @@ def main() -> None:
             compare(args.splash_reference, args.splash_actual, "Splash"),
         ],
     }
+    report["both_screens_meet_target"] = all(
+        screen["meets_target"] for screen in report["screens"])
     output = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     if args.json_report:
         args.json_report.parent.mkdir(parents=True, exist_ok=True)
         args.json_report.write_text(output, encoding="utf-8")
     print(output, end="")
+    if args.enforce_target and not report["both_screens_meet_target"]:
+        raise SystemExit("FAIL: Home and Splash must BOTH be <=10% RGB deviation "
+                         "overall AND in every named 3D/UI/background region")
 
 
 if __name__ == "__main__":
