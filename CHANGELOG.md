@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.59 — Splash i Home: bolji 3D detalji i galerija svih zaslona (build 189)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.59)
+
+- Nastavljeno izravno na main: isključivo Splash i Home izgled; ostale zaslone i gameplay fiziku ne mijenjamo.
+- Splash/Home: osvijetljeniji plavi gradijent neba te slojeviti oblačni vrtovi, zelenilo i sitno bijelo cvijeće u donjoj trećini pozadine; svi dekorativni slojevi ostaju ispod funkcionalnog Android sučelja.
+- Splash/Home: B, O, P i A ponovno su četiri odvojene 3D konture s vlastitim tamnoplavim rubom i autentičnim izrezima; prethodna spojena silueta bila je nečitljiva.
+- Splash/Home: novi vektorski obris BOPA izravno je rekonstruiran iz dostavljene 864px vlasničke reference, s mekim kubnim krivuljama i očuvanim otvorima slova; slojevi reljefa ostaju odvojeni i lokalni.
+- Home: COINS i GEM sada su jedna zajednički poravnata gornja HUD traka i fizički izrez zaslona ne može spustiti samo jedan novčanik preko logotipa.
+- Stabilnost: za Android 16 emulator prednost ima provjerena AOSP sistemska slika, čime se uklanja nepotrebno prvo pokretanje Google usluga koje je pratilo stvarni ANR u CI-u; testni prolaz i dalje je obavezan.
+- Splash: krilati BOPAVI logotip s odvojenim plavim slovima V/i, zasebno prilagođen leteći Bopi, zlatni prstenovi, izvorna traka učitavanja s istinitim indeterminiranim stanjem i bolji položaj na visokim Android zaslonima.
+- Home: zaobljena bijela tipografija s tanjim 3D rubom i manjim tamnim pomakom natpisa na glavnim gumbima.
+- Home: prilagođene veličine 3D natpisa i ikonica Skins, Shop i Settings; postojeći Play, ostali gumbi, stvarna spremljena stanja i pristupačnost nastavljaju raditi.
+- Novi README donosi opis igre i **16 stvarnih Android snimki**: Home, Splash, Skins, Shop, Settings, Achievements, Leaderboard, Level Map, Options, Records, Privacy, Terms, Flight Preview, Flight Active, Pause, Results.
+- Objavljujemo stvarne PNG datoteke iz Android 15 emulatora, a ne konceptne slike. Nema skrivenog rasta broja valuta, zamjene interaktivnih zaslona snimkom ili fingiranja uspješne provjere.
+- Ugrađen je strogi test stvarnog odstupanja od referenci na 864×1536. **0% odstupanja ostaje cilj, nije dokazano.** Pozadinska ilustracija, Bopi i 3D slojevi ostaju glavni vizualni nedostaci.
+
 ## v1.0.58 — Splash and Home deeper owner-reference 3D artwork (build 188)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.58)
@@ -14,14 +31,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Offline 900×1600 fantasy landscape now has translucent, painterly stacked cloud banks at the top, sides and distance. The still-inexact source towers and waterfalls are not replaced with a flattened screenshot.
 - Baseline measured from published **v1.0.57** native Android 941×1672 screenshots against two user-owned 864×1536 JPEG originals, resampled for diagnostic comparison only: Splash **70.673/255 = 27.715%** normalized RGB MAE, Home **64.734/255 = 25.386%**. These are baseline values, **not measured results for v1.0.58** and not 1:1.
 - Every major button, route, saved currency, audio control, indeterminate loading and TalkBack interaction remains truly native; no extra network permission, online purchases or fictional game scores.
-
-## v1.0.57 — Splash and Home source-contour 3D fidelity (build 187)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.57)
-
-- Replace regular DejaVu BOPAVI title with owner-derived irregular native SVG wordmark contours, including separated blue i-dot, crown, wings, layered golden/cyan enamel and wood backing.
-- Restore six hollow metallic gold rings in Splash's source perspective, including a partly cropped lower-left foreground ring. Maintain genuine Android stream preparation, accessible Loading label and indeterminate animation without fake completion.
-- Deepen Home gold Play, purple Skins, green Shop and blue Settings buttons with authentic raised dark-navy sidewalls. Keep independent working clickable controls, real balance values, and three bottom shortcuts.
-- Add owner 864×1536 versus native emulator 941×1672 comparison tooling and tests. Reference JPEGs are not bundled in the app or committed to this public repository.
-- Baseline before changes: Splash 29.56% normalized RGB deviation and Home 27.21%. These numbers are **not** proof that the new revision is pixel-identical or within 10%; new on-device measurements and separately approved background/character layers are still required.
-- Preserve other screens and gameplay physics. No new network permissions, purchases or fictional currencies.
