@@ -43,7 +43,7 @@ assert "0xffffbc27.toInt()" in view
 assert "paint.pathEffect=android.graphics.DashPathEffect" not in view
 assert "ring(canvas,546f,1057f,37f,54f,-21f)" in view
 assert "ring(canvas,666f,1081f,25f,37f,-19f)" in view
-assert "postInvalidateDelayed(60L)" in view
+assert "postInvalidateDelayed(33L)" in view
 assert "isAttachedToWindow" in view
 assert "android.os.SystemClock.uptimeMillis()-scanStartedAtMs," in view
 assert "preparationFinished)" in view
@@ -53,7 +53,7 @@ assert "Thread({" in main and 'loading.completePreparation()' in main
 assert "Thread.sleep" not in main
 assert 'FlightLoadingView(this,selectedPilotChoice,startup=true)' in main
 assert 'selectedScreen="splash"' in main
-assert "},2450L)" in main  # Actual branded startup duration, retained deliberately
+assert "},3500L)" in main  # Animated startup runs for 3.5 s
 assert 'selectedScreen="loading"' in main
 assert "progress.consumePerks()" in main
 print("PASS: owner Splash retains original Bopi, cyan enamel bar and truthful loading")
