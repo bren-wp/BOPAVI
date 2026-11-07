@@ -119,6 +119,14 @@ class MainActivity : Activity() {
                             android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                         controller?.hide(android.view.WindowInsets.Type.statusBars()
                             or android.view.WindowInsets.Type.navigationBars())
+                    } else if(selectedScreen=="shop" || selectedScreen=="levels") {
+                        // Owner 941px references show both Shop and Level Map
+                        // as full-bleed illustrated screens. The same native
+                        // swipe gesture still reveals transient system bars.
+                        controller?.systemBarsBehavior=
+                            android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        controller?.hide(android.view.WindowInsets.Type.statusBars()
+                            or android.view.WindowInsets.Type.navigationBars())
                     } else {
                         controller?.hide(android.view.WindowInsets.Type.statusBars())
                         controller?.show(android.view.WindowInsets.Type.navigationBars())
@@ -131,7 +139,8 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                (if(selectedScreen=="game")
+                (if(selectedScreen=="game" || selectedScreen=="shop" ||
+                    selectedScreen=="levels")
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                  else 0)
@@ -625,6 +634,7 @@ class MainActivity : Activity() {
         showPauseAfterBackground=false
         sound.stop()
         selectedScreen="shop"
+        applyPremiumSystemBars()
         val view=ReferenceMenus(this,progress).shop(
             onBuy={index->
                 // Filter only a repeated same-product tap in a short window,
@@ -655,6 +665,7 @@ class MainActivity : Activity() {
         showPauseAfterBackground=false
         sound.stop()
         selectedScreen="levels"
+        applyPremiumSystemBars()
         val view=ReferenceMenus(this,progress).levels(progress.chosenWorld(),
             onWorld={world->progress.chooseWorld(world);showLevels()},
             onPlay={world,number->startLevel(world,number)},
