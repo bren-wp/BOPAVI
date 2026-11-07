@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.61 — Pending (build 191)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.61)
+
+- First-world pillars now use carved warm sandstone, bevelled golden crown plaques, red crown banners, real anchored climbing leaves and daisies.
+- Alternating metal cone caps end at the existing collision-solid edge: no visually dangerous, non-collidable protrusions and no change to the 18-unit physical Bopi/Sova/Lisac collider.
+- In the first world, six curved gold rings per eligible pillar are now individually collectible in both finite and endless flight. The renderer and swept contact use the same world/viewport coordinates, and ring flags prevent duplicate rewards.
+- Real finite central coin pickups remain unchanged. Additional royal rings increment true collected coins and live score rather than displaying fake, uncollectible bonus items.
+- The first royal pillar enters the screen after the first genuine flap; sky-world floor spikes are removed to match the supplied pillar-based gameplay references (the separate forest biome retains its original ground decoration).
+- Sky Meadows draws from the locally generated castle/waterfall background without baked gameplay controls or pilot artwork.
+- During the game, Android navigation bars hide for a genuinely full-bleed viewport and return outside gameplay. Live lives are still available to accessibility even when the visual HUD uses the reference SCORE plaque.
+- Active flight displays a live native SCORE plaque, actual offline saved coin balance, real collected crystals (not a purchasable gem currency) and a working on-screen Pause action. Both + controls request the real offline shop with an explicit leave-flight confirmation.
+- Idle flight still hides obstacles until the actual first flap; the ready/tutorial state remains unchanged.
+- Bopi, Sova and Lisac preserve independent animated wing layers, their original IDs and saved pilot selection; Sova and Lisac use a subtle forward flight perspective on their existing shaded 3D sprites.
+- All active HUD controls are scaled through native safe insets across compact and tall Android layouts.
+- Updated automated Kotlin/HUD geometry checks and Python source contracts; true 0% pixel difference must be assessed against a matching original reference plus actual device/emulator captures, not claimed from compilation.
+
 ## v1.0.60 — Splash, Home, Orao i Lisica (build 190)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.60)
@@ -19,20 +36,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Puna README galerija:** svih 16 originalnih PNG-ova s GitHub izdanja prikazuje se u jednom stupcu, s pregledima širine 270 px i klikom na originalnu datoteku.
 - **Sve ostale funkcije:** zadržane su klikabilne kontrole, stvarni novčići i dragulji, pilotska animacija i stvarno učitavanje. Nijedan Gameplay zaslon ili fizika nisu mijenjani.
 - **README:** marketinška galerija zadržava svih 16 stvarnih Android snimki. Prikazuje po jednu sliku u redu radi čitljivosti na mobitelima; puni PNG-ovi dolaze u izdanju.
-
-## v1.0.59 — Splash i Home: bolji 3D detalji i galerija svih zaslona (build 189)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.59)
-
-- Nastavljeno izravno na main: isključivo Splash i Home izgled; ostale zaslone i gameplay fiziku ne mijenjamo.
-- Splash/Home: osvijetljeniji plavi gradijent neba te slojeviti oblačni vrtovi, zelenilo i sitno bijelo cvijeće u donjoj trećini pozadine; svi dekorativni slojevi ostaju ispod funkcionalnog Android sučelja.
-- Splash/Home: B, O, P i A ponovno su četiri odvojene 3D konture s vlastitim tamnoplavim rubom i autentičnim izrezima; prethodna spojena silueta bila je nečitljiva.
-- Splash/Home: novi vektorski obris BOPA izravno je rekonstruiran iz dostavljene 864px vlasničke reference, s mekim kubnim krivuljama i očuvanim otvorima slova; slojevi reljefa ostaju odvojeni i lokalni.
-- Home: COINS i GEM sada su jedna zajednički poravnata gornja HUD traka i fizički izrez zaslona ne može spustiti samo jedan novčanik preko logotipa.
-- Stabilnost: za Android 16 emulator prednost ima provjerena AOSP sistemska slika, čime se uklanja nepotrebno prvo pokretanje Google usluga koje je pratilo stvarni ANR u CI-u; testni prolaz i dalje je obavezan.
-- Splash: krilati BOPAVI logotip s odvojenim plavim slovima V/i, zasebno prilagođen leteći Bopi, zlatni prstenovi, izvorna traka učitavanja s istinitim indeterminiranim stanjem i bolji položaj na visokim Android zaslonima.
-- Home: zaobljena bijela tipografija s tanjim 3D rubom i manjim tamnim pomakom natpisa na glavnim gumbima.
-- Home: prilagođene veličine 3D natpisa i ikonica Skins, Shop i Settings; postojeći Play, ostali gumbi, stvarna spremljena stanja i pristupačnost nastavljaju raditi.
-- Novi README donosi opis igre i **16 stvarnih Android snimki**: Home, Splash, Skins, Shop, Settings, Achievements, Leaderboard, Level Map, Options, Records, Privacy, Terms, Flight Preview, Flight Active, Pause, Results.
-- Objavljujemo stvarne PNG datoteke iz Android 15 emulatora, a ne konceptne slike. Nema skrivenog rasta broja valuta, zamjene interaktivnih zaslona snimkom ili fingiranja uspješne provjere.
-- Ugrađen je strogi test stvarnog odstupanja od referenci na 864×1536. **0% odstupanja ostaje cilj, nije dokazano.** Pozadinska ilustracija, Bopi i 3D slojevi ostaju glavni vizualni nedostaci.
