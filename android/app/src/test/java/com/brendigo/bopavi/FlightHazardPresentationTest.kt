@@ -22,7 +22,7 @@ class FlightHazardPresentationTest {
     }
 
     @Test fun actualSimulationFlapBeginsAndRetainsActiveRun() {
-        val simulation=GameSimulation(LevelEngine.createStream(0,1),endless=false)
+        val simulation=GameSimulation(LevelEngine.createStream(0,1L),endless=false)
         assertFalse(simulation.active)
         assertFalse(FlightHazardPresentation.obstaclesVisible(
             simulation.active,simulation.finished))
@@ -38,9 +38,9 @@ class FlightHazardPresentationTest {
     }
 
     @Test fun newRunStartsHiddenAgainWithoutOldStateLeak() {
-        val previous=GameSimulation(LevelEngine.createStream(0,1))
+        val previous=GameSimulation(LevelEngine.createStream(0,1L))
         previous.flap()
-        val replay=GameSimulation(LevelEngine.createStream(0,1))
+        val replay=GameSimulation(LevelEngine.createStream(0,1L))
         assertTrue(previous.active)
         assertFalse(replay.active)
         assertFalse(FlightHazardPresentation.obstaclesVisible(
