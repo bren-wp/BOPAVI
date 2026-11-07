@@ -14,6 +14,22 @@ class ShopItemStateTest {
         assertEquals(listOf(true,false,true,false,true,false),all.map{it.isShield})
         assertEquals(listOf(1,1,2,2,3,3),all.map{it.tier})
     }
+    @Test fun storefrontCardsHaveSixDistinctRealProducts() {
+        val names=listOf("SHIELD","MAGNET","DOUBLE SHIELD",
+            "LONG MAGNET","TRIPLE SHIELD","SUPER MAGNET")
+        val all=(0..5).map {
+            ShopItemState(it,"Stored perk $it",100,1,1000)
+        }
+        assertEquals(names,all.map { it.storefrontTitle })
+        assertEquals(6,all.map { it.storefrontTitle }.distinct().size)
+        assertEquals(listOf("×1","8s","×2","12s","×3","18s"),
+            all.map{it.iconTierLabel})
+        assertEquals(listOf("Blocks one hit","Attracts rewards for 8s",
+            "Blocks two hits","Attracts rewards for 12s",
+            "Blocks three hits","Attracts rewards for 18s"),
+            all.map{it.perkEffect})
+        assertTrue(all.all{it.canBuy})
+    }
     @Test fun insufficientBalanceAndMaxInventoryBlockActualButton() {
         val poor=ShopItemState(0,"Shield",80,0,79)
         assertFalse(poor.canBuy)
