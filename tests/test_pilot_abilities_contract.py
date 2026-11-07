@@ -14,7 +14,7 @@ tests=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotAbilityTest.kt")
 other=(root/"android/app/src/test/java/com/brendigo/bopavi/FlightChallengePolicyTest.kt").read_text(encoding="utf-8")
 
 for needle in (
-    'pilotNames=arrayOf("Bopi","Orao","Lisac")',
+    'pilotNames=arrayOf("Bopi","Sova","Lisac")',
     'PilotAbility.fromChoice(chosenPilot)',
     'progress.chooseArcadePilot(index)',
     'portraitDrawableIds[selectedPilotChoice]',
