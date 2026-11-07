@@ -279,6 +279,14 @@ internal class LevelMapScreen(
             button.setAutoSizeTextTypeUniformWithConfiguration(11,18,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             button.isSelected=chosen
+            // Chiseled wood, cyan crystal and glowing volcanic stone follow
+            // the three owner reference sign materials. The real native
+            // Button still owns the selected-world click and earned stars.
+            button.background=RippleDrawable(
+                ColorStateList.valueOf(0x44ffffff),
+                LevelMapPlaqueDrawable(idx),null)
+            button.setTextColor(if(idx==0)0xfffff2b5.toInt() else Color.WHITE)
+            button.setShadowLayer(2f,0f,2f,0xff362014.toInt())
             stage.place(button,pos.x,pos.y,if(idx==0)342f else 286f,109f,
                 minTouch=true)
         }
@@ -367,6 +375,9 @@ internal class LevelMapScreen(
         }
 
         val chosenStars=progress.bestLevelStars(selected,frontier.toLong())
+        // Vector feather wings sit BEHIND the real, enabled gold CTA. They
+        // cannot consume touch events or pretend to launch a locked level.
+        stage.place(LevelMapPlayWings(host),98f,1440f,745f,141f)
         stage.place(nativeButton("▶  PLAY LEVEL",
             "PLAY LEVEL $frontier, $chosenStars STARS",
             gold){onPlay(selected,frontier.toLong())}.apply{
