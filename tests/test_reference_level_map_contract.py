@@ -86,4 +86,13 @@ assert 'node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)' in qa
 assert 'node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)' in qa
 assert '"wm","size","reset"' in qa
 assert "http://" not in mapSource and "https://" not in mapSource
+
+# Avoid the historical filled-road bug: Paint.reset() in color() switches
+# back to FILL. After coloring the pale path, explicitly restore STROKE.
+assert 'color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE' in mapSource
+assert 'color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE' in mapSource
+assert 'color(0xffffdeb2.toInt());p.strokeWidth=21f' not in mapSource
+assert 'stage.place(nativeButton("‹","Home",blue)' in mapSource
+assert 'stage.place(ImageView(host).apply{' in mapSource
+
 print("PASS: interactive Level Map nodes, 8 worlds, saved ratings, native touch, no fake locks")
