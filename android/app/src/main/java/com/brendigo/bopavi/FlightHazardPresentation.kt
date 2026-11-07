@@ -1,14 +1,16 @@
 package com.brendigo.bopavi
 
 /**
- * The reference ready-to-fly state shows only scenery, Bopi, lives and
- * the first-tap instruction. Gameplay-only obstacles must not appear
- * before the first real flap.
+ * The supplied 941×1672 "Tap to fly" gameplay reference visibly includes
+ * stone obstacles, golden rings and crystals BEFORE the first flap.
  *
- * This is a presentation rule, not a physics flag: GameSimulation remains
- * authoritative and continues to compute collisions from its own state.
+ * Render the SAME cached, physically real gate positions in both ready and
+ * active views, without changing their geometry, pickups or collision rules.
+ * GameSimulation.step() still refuses to advance or apply damage until the
+ * first real flap. Finishing the game hides gameplay hazards over the result.
  */
 internal object FlightHazardPresentation {
+    @Suppress("UNUSED_PARAMETER")
     fun obstaclesVisible(firstFlapReceived:Boolean,finished:Boolean):Boolean =
-        firstFlapReceived && !finished
+        !finished
 }
