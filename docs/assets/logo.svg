@@ -25,9 +25,10 @@
   </defs>
   <!-- Owner's tall 3D wordmark: scale the ORIGINAL vector geometry before
        rasterization, never stretch a low-resolution PNG at runtime. -->
-  <g transform="scale(1 1.25)">
+  <g transform="scale(1 1)">
   <!-- Wings are behind both lettering groups. Each feather is locally drawn. -->
   <g stroke-linejoin="round" stroke-linecap="round">
+    <g transform="translate(0 37)">
     <path d="M165 111Q99 100 28 73Q20 114 96 139Q63 138 31 128Q49 165 112 171Q79 179 45 167Q91 199 172 151Z"
       fill="#08245a" stroke="#061d50" stroke-width="14"/>
     <path d="M164 105Q98 93 32 82Q36 116 111 138Q70 136 39 132Q72 163 128 162Q89 176 52 173Q112 189 172 146Z"
@@ -36,7 +37,9 @@
       fill="#08245a" stroke="#061d50" stroke-width="14"/>
     <path d="M596 105Q662 93 728 82Q724 116 649 138Q690 136 721 132Q688 163 632 162Q671 176 708 173Q648 189 588 146Z"
       fill="url(#feather)" stroke="#4d87ce" stroke-width="3"/>
+    </g>
     <!-- Wooden plaque and leaves under the raised enamel lettering. -->
+    <g transform="translate(0 43)">
     <path d="M160 151Q366 204 602 151L589 193Q379 223 175 190Z"
       fill="#532716" stroke="#36201b" stroke-width="11"/>
     <path d="M169 153Q367 194 591 154L582 185Q373 211 177 184Z"
@@ -48,6 +51,7 @@
       fill="#3bad25" stroke="#075725" stroke-width="6"/>
     <path d="M127 182Q150 185 167 194M634 182Q613 185 596 194"
       fill="none" stroke="#a7f35d" stroke-width="4"/>
+    </g>
     <!-- Dark crown silhouette, warm gold face and three tiny jewels. -->
     <path d="M325 63L331 17L363 42L389 7L415 41L445 18L450 62L438 83Q390 95 341 82Z"
       fill="#071a55" stroke="#07133c" stroke-width="13"/>
@@ -56,18 +60,24 @@
     <circle cx="337" cy="28" r="5" fill="#fff7bb"/><circle cx="388" cy="16" r="6" fill="#fff7bb"/>
     <circle cx="439" cy="29" r="5" fill="#fff7bb"/>
   </g>
-  <!-- Extrusions are separate shapes, while the face retains live SVG text. -->
-  <g font-family="DejaVu Sans,Arial Rounded MT Bold,Arial,sans-serif"
-    font-size="126" font-weight="900" text-anchor="middle" letter-spacing="-5"
-    stroke-linecap="round" stroke-linejoin="round" paint-order="stroke">
-    <text x="318" y="164" fill="#071743" stroke="#04123c" stroke-width="39">BOPA</text>
-    <text x="595" y="164" fill="#071743" stroke="#04123c" stroke-width="39">Vi</text>
-    <text x="318" y="156" fill="#7b250c" stroke="#102b60" stroke-width="26">BOPA</text>
-    <text x="595" y="156" fill="#064493" stroke="#102b60" stroke-width="26">Vi</text>
-    <text x="318" y="150" fill="url(#goldText)" stroke="#b3450a" stroke-width="8">BOPA</text>
-    <text x="595" y="150" fill="url(#cyanText)" stroke="#035bb1" stroke-width="8">Vi</text>
-    <text x="318" y="150" fill="#fffef0" stroke="none" opacity=".12">BOPA</text>
-    <text x="595" y="150" fill="#e3ffff" stroke="none" opacity=".13">Vi</text>
+  <!-- The irregular BOPA / Vi face silhouettes are 3px-tolerance SVG
+       traces of the user-supplied Splash reference, not DejaVu text.
+       Keep them as individually shaded native vectors at build time. -->
+  <defs>
+    <path id="ownerWarm" fill-rule="evenodd" d="M509,121 497,113 473,118 449,161 445,125 430,107 418,101 381,97 352,107 342,116 343,149 325,121 310,112 289,109 245,136 236,181 225,173 233,156 233,143 224,122 210,111 184,107 186,110 142,120 146,130 122,151 119,133 112,153 140,260 150,275 178,273 224,258 240,245 251,218 275,240 313,240 334,225 348,195 355,241 361,246 386,245 394,236 393,205 424,196 438,183 424,219 426,236 457,241 468,225 496,228 502,247 518,249 533,246 539,232Z M195,205 198,211 183,221 179,206Z M485,173 489,187 480,188Z M289,156 303,163 306,175 304,186 295,194 288,193 280,182 281,164Z M178,153 184,160 171,168 167,156Z M390,141 407,149 405,155 394,163Z"/>
+    <path id="ownerBlue" fill-rule="evenodd" d="M524,118 521,132 546,250 565,258 580,256 623,188 607,263 618,272 643,273 671,188 664,174 680,155 678,140 655,132 643,144 644,134 637,146 629,140 609,136 602,141 601,136 587,161 583,158 586,164 577,181 568,120 533,115 539,120 531,124 529,119 527,133Z"/>
+  </defs>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <use href="#ownerWarm" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
+    <use href="#ownerBlue" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
+    <use href="#ownerWarm" transform="translate(0 6)" fill="#a43a0b" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerBlue" transform="translate(0 6)" fill="#084c9a" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerWarm" fill="url(#goldText)" stroke="#8d320d" stroke-width="5"/>
+    <use href="#ownerBlue" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
+    <path d="M145 150Q165 116 190 119 M275 121Q292 110 310 119 M361 109Q384 100 409 115 M472 130Q484 114 493 123"
+       fill="none" stroke="#fffcc2" stroke-width="5" stroke-opacity=".74"/>
+    <path d="M541 130Q549 119 555 133 M626 148Q645 126 663 141"
+       fill="none" stroke="#e1fbff" stroke-width="4" stroke-opacity=".64"/>
   </g>
   </g>
 </svg>
