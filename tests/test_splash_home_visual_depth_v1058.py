@@ -19,7 +19,8 @@ gradle=(root/"android/app/build.gradle.kts").read_text()
 assert 'versionName = "1.0.60"' in gradle
 assert 'versionCode = 190' in gradle
 assert 'val cursor=width*.70f' in track
-assert 'val travel=(width-cursor).coerceAtMost(width*.045f)' in track
+assert 'val travel=(width-cursor).coerceAtMost(width*.10f)' in track
+assert 'postInvalidateDelayed(33L)' in splash
 assert 'if(ready)return Segment(0f,width)' in track
 assert 'val track=LoadingArtBox(161f,1350f,780f,1454f)' in layout
 assert 'val pilot=LoadingArtBox(100f,364f,757f,1021f)' in layout
