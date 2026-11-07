@@ -65,7 +65,7 @@ assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
 assert 'LinearLayout.LayoutParams(-1,0,1.25f)' in shop
 assert 'dp(40),dp(40)' in shop
-assert 'message(item.storefrontTitle,18' in shop
+assert 'message(item.storefrontTitle,15' in shop
 assert 'message(item.perkEffect,13' in shop
 assert 'item.iconTierLabel' in shop
 assert 'val storefrontTitle:String get()' in model
