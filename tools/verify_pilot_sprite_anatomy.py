@@ -40,7 +40,9 @@ def anatomy_pixels(picture: Image.Image, skin: int):
 
 
 def main():
-    for skin in range(9):
+    # Include both redesigned reference pilots (9=legacy SOVA/visible ORAO,
+    # 10=LISAC) in the same pixel/anatomy tests as every other playable skin.
+    for skin in range(11):
         body = open_sprite(f"bopi{skin}", f"Bopi{skin}")
         left = open_sprite(f"bopileft{skin}", f"BopiLeft{skin}")
         right = open_sprite(f"bopiright{skin}", f"BopiRight{skin}")
@@ -68,8 +70,8 @@ def main():
             if wing >= 160 and torso < 32
         )
         assert visible_feathers >= 150, (skin, "wings hidden behind torso")
-    print("PASS: nine Android pilots have shaded attached bills, "
-          "nine uncut left/right wing pairs and full portraits")
+    print("PASS: eleven Android pilots have shaded attached bills, "
+          "eleven uncut left/right wing pairs and full portraits")
 
 
 if __name__ == "__main__":
