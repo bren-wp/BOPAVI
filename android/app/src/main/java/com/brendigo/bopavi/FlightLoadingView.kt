@@ -358,7 +358,12 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)
         canvas.restoreToCount(trackCheckpoint)
-        if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(33L)
+        // Keep the startup first-focus event responsive on slow API35 emulators
+        // and entry-level phones. This cosmetic loading shimmer does not need
+        // a 30Hz full-screen redraw while the native Home is being prepared.
+        // Actual gameplay continues at its existing independent cadence.
+        if(!preparationFinished && isAttachedToWindow)
+            postInvalidateDelayed(if(startup)80L else 48L)
         canvas.restoreToCount(checkpoint)
     }
 
