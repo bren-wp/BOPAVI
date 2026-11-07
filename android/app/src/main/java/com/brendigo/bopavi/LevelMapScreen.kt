@@ -409,6 +409,13 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
                             val minTouch:Boolean,val referenceAligned:Boolean,
                             val verticalAnchor:Float)
     private val slots=ArrayList<Slot>()
+    // Opt-in for the Shop ONLY: the reference scene occupies its entire
+    // 941x1672 camera. The Map retains its existing safe-area positioning.
+    private var shopFullBleed=false
+    fun useShopFullBleedReferenceCamera() {
+        shopFullBleed=true
+        requestLayout()
+    }
     private var safeLeft=0
     private var safeTop=0
     private var safeRight=0
@@ -452,7 +459,11 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
                           safe:Triple<Float,Float,Float>,
                           reference:Triple<Float,Float,Float>
     ):Triple<Float,Float,Float>{
-        if(!slot.referenceAligned)return safe
+        // Keep the illustrated Shop kiosk, its Bopi art, the featured
+        // panel and six product cards at the owner's original coordinates.
+        // Only actionable native controls fall back into safe insets when
+        // an actual display cutout would make the target unreachable.
+        if(!slot.referenceAligned && !shopFullBleed)return safe
         val extraHeight=(height-LevelMapGeometry.height*reference.first)
             .coerceAtLeast(0f)
         val aligned=Triple(reference.first,reference.second,
