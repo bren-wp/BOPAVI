@@ -10,8 +10,9 @@ class FlightLoadingLayoutTest {
         assertTrue(layout.pilot.isInsideReference())
         assertTrue(layout.track.isInsideReference())
         assertTrue("Splash logo should keep side margins",layout.logo.left>=90f && layout.logo.right<=850f)
+        assertTrue("Visible pilot cannot overlap wordmark",layout.logo.bottom<layout.pilotPaintedTop)
         assertTrue("Branded wordmark must not be stretched",
-            layout.aspectError(layout.logo,780f,236f)<.01f)
+            layout.aspectError(layout.logo,780f,297f)<.01f)
         assertEquals("Shared wing/body canvases must remain square",
             1f,layout.pilot.width/layout.pilot.height,0f)
     }
@@ -32,12 +33,12 @@ class FlightLoadingLayoutTest {
     }
     @Test fun titlePilotAndTrackStayInReferenceVerticalOrder(){
         val l=FlightLoadingLayout
-        assertTrue(l.logo.bottom<l.pilot.top)
+        assertTrue(l.logo.bottom<l.pilotPaintedTop)
         assertTrue(l.pilot.bottom<l.track.top)
         assertTrue(l.captionBaselineY>l.track.bottom)
         assertTrue(l.captionBaselineY<l.track.bottom+90f)
         assertEquals(591f,l.track.width,0f)
-        assertEquals(760f,l.pilot.width,0f)
+        assertEquals(704f,l.pilot.width,0f)
         assertEquals(1483f,l.captionBaselineY,0f)
         assertTrue(l.track.bottom<l.referenceHeight)
     }

@@ -18,14 +18,15 @@ internal data class LoadingArtBox(
 internal object FlightLoadingLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
-    // Winged crown wordmark is proportionate to original 780 x 236 logo PNG.
-    // The previous 885px wordmark extended nearly edge-to-edge; the
-    // approved owner artwork has a more balanced lateral sky margin.
-    // 757/229 ~= 780/236 retains the source logo's natural ratio.
-    val logo=LoadingArtBox(92f,128f,849f,357f)
-    // Bopi's BODY and both animated-gameplay wing layers are all square
-    // 512x512 canvases. Paint them in the same rectangle, no distortion.
-    val pilot=LoadingArtBox(90f,381f,850f,1141f)
+    // The source vector is now 780×297 with a TALLER wordmark, matching
+    // the crown/raised enamel letter height of the owner's actual reference.
+    // Rasterize the original SVG at its natural ratio; do not stretch PNGs.
+    val logo=LoadingArtBox(91f,95f,850f,384f)
+    // Sprite layers share a 512×512 source canvas. The approved composite
+    // alpha starts at y=81: the 704-square view paints its first visible
+    // feather/head at y≈476, safely below the actual wordmark.
+    val pilot=LoadingArtBox(90f,365f,794f,1069f)
+    val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f
     // The owner's 941x1672 splash puts a broad gold/blue winged track near
     // the lower edge and the real "Loading..." caption BELOW the track.
     val track=LoadingArtBox(175f,1320f,766f,1422f)

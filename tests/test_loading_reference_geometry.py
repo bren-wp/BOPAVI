@@ -22,10 +22,11 @@ for required in (
     "paint.shader = LinearGradient",
 ):
     assert required in view,required
-assert "val logo=LoadingArtBox(92f,128f,849f,357f)" in layout
-assert "val pilot=LoadingArtBox(90f,381f,850f,1141f)" in layout
+assert "val logo=LoadingArtBox(91f,95f,850f,384f)" in layout
+assert "val pilot=LoadingArtBox(90f,365f,794f,1069f)" in layout
 assert "val track=LoadingArtBox(175f,1320f,766f,1422f)" in layout
 assert "const val captionBaselineY=1483f" in layout
+assert "val pilotPaintedTop:Float get()=pilot.top+81f*pilot.height/512f" in layout
 assert "assertTrue(l.captionBaselineY>l.track.bottom)" in test
 assert "realReferenceArtworkRetainsItsNaturalProportions" in test
 assert "titlePilotAndTrackStayInReferenceVerticalOrder" in test

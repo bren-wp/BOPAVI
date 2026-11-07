@@ -14,7 +14,22 @@ assert "Random(9411672)" in d and "ImageFilter.GaussianBlur" in d
 assert "return cinematic_detail(Image.alpha_composite(" in d
 for item in ("castle(102,426,.66)","castle(773,487,.58)","enrich_background(source)"):
     assert item in d,item
-assert "R.drawable.homeback" in home and "R.drawable.homeback" in loading
+assert "R.drawable.homeback" in home
+assert "R.drawable.loadingback" in loading
+assert "from paint_loading_reference import paint_loading_reference" in g
+assert "loading_detail=paint_loading_reference(home_art)" in g
+assert "loading_art=Image.composite(loading_detail,home_art,loading_mask)" in g
+assert "loading_mask_draw.rectangle((0,0,185,370),fill=128)" in g
+assert "loading_mask_draw.rectangle((710,870,900,1600),fill=192)" in g
+assert "loading_art.save(a/'drawable-nodpi/loadingback.png',optimize=True)" in g
+paint=(root/"tools/paint_loading_reference.py").read_text()
+for marker in ("def paint_loading_reference(base: Image.Image)",
+               "castle(72,257,1.14)","castle(834,377,.65)",
+               "cliff(50,253,254,420)","Random(9411672 + 54)"):
+    assert marker in paint,marker
+for unwanted in ("RETRY","HOME BUTTON","Loading...","BOPAVI"):
+    # File mentions the brand in comments, but must not draw UI labels.
+    assert f'draw.text("{unwanted}"' not in paint
 assert "wallet(\"COINS\",progress.coins()" in home
 assert "HomeWingActor(host" in home and "setOnClickListener{onClick()}" in home
 assert "image(canvas, brand, logoRect)" in loading
