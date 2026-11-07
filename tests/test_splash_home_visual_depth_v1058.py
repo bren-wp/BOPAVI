@@ -19,8 +19,8 @@ gradle=(root/"android/app/build.gradle.kts").read_text()
 # The visual contract must survive future releases; pin minimum, not a
 # versionName that causes every legitimate next APK to fail the audit.
 import re
-name=re.search(r'versionName\\s*=\\s*"(\\d+)\\.(\\d+)\\.(\\d+)"',gradle)
-code=re.search(r'versionCode\\s*=\\s*(\\d+)',gradle)
+name=re.search(r'versionName *=[ ]*"([0-9]+)[.]([0-9]+)[.]([0-9]+)"',gradle)
+code=re.search(r'versionCode *=[ ]*([0-9]+)',gradle)
 assert name and tuple(map(int,name.groups())) >= (1,0,60)
 assert code and int(code.group(1))>=190
 assert 'val cursor=width*.70f' in track
