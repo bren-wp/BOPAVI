@@ -3,6 +3,8 @@ package com.brendigo.bopavi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -72,7 +74,15 @@ internal class HomeEmbossedLabel(
         canvas.drawText(caption,x,y,ink)
         ink.style=Paint.Style.FILL
         ink.color=Color.WHITE
+        // The owner's 3D capitals have a warm pearly lower bevel on gold
+        // Play and a cool ice-blue lower bevel on the other Home actions.
+        // Preserve real TextView text and parent accessibility navigation.
+        ink.shader=LinearGradient(0f,y-ink.textSize,0f,
+            y+ink.textSize*.13f,
+            Color.WHITE,if(primary)0xffffe8aa.toInt() else
+                0xffcdeaff.toInt(),Shader.TileMode.CLAMP)
         canvas.drawText(caption,x,y,ink)
+        ink.shader=null
 
         val checkpoint=canvas.save()
         canvas.clipRect(0f,0f,width.toFloat(),y-ink.textSize*.17f)
