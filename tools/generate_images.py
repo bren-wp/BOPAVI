@@ -222,6 +222,41 @@ def render_bird_pilot(part):
     part=re.sub(r'</svg>.*','',part,flags=re.S)
     xml='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="512" height="512">'+part+'</svg>'
     return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=xml.encode(),output_width=512,output_height=512))).convert('RGBA')
+
+def polish_companion_3d(sprite, character):
+    """Offline directional enamel/feather bevel; never resizes a flight sprite.
+
+    The same 512x512 pose, visible alpha contour, collision bounds and
+    articulated left/right wing rig are preserved for Bopi, Sova and Lisac.
+    Enrich only the two alternative pilots, not the owner-approved Bopi art.
+    """
+    from PIL import ImageChops, ImageFilter
+    if character not in ('sova','lisac'):
+        return sprite
+    src=sprite.convert('RGBA')
+    original_alpha=src.getchannel('A')
+    # Directional INNER rim: bright upper-left feathers and the shaded
+    # lower-right extrusion evoke the approved rounded, glossy 3D Bopi.
+    contracted=original_alpha.filter(ImageFilter.MinFilter(7))
+    inner_rim=ImageChops.subtract(original_alpha,contracted)
+    upper_left=ImageChops.subtract(
+        original_alpha,ImageChops.offset(original_alpha,3,3))
+    lower_right=ImageChops.subtract(
+        original_alpha,ImageChops.offset(original_alpha,-3,-3))
+    bright=ImageChops.multiply(inner_rim,upper_left).point(
+        lambda n:min(116,round(n*.40)))
+    dark=ImageChops.multiply(inner_rim,lower_right).point(
+        lambda n:min(155,round(n*.54)))
+    light_color=(255,241,214) if character=='lisac' else (254,246,225)
+    shade_color=(108,38,32) if character=='lisac' else (62,35,53)
+    shadow=Image.new('RGBA',src.size,(*shade_color,0))
+    shadow.putalpha(dark)
+    lit=Image.new('RGBA',src.size,(*light_color,0))
+    lit.putalpha(bright)
+    src=Image.alpha_composite(Image.alpha_composite(src,shadow),lit)
+    src.putalpha(original_alpha)
+    return src
+
 for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion'),(9,'sova'),(10,'lisac')):
     source=(r/'docs/assets'/f'{character}.svg').read_text()
     defs=re.search(r'<defs>(.*?)</defs>',source,re.S)
@@ -234,7 +269,7 @@ for skin, character in ((6,'vihor'),(7,'iskra'),(8,'orion'),(9,'sova'),(10,'lisa
            ('<defs>'+defs.group(1)+'</defs>'+left.group(0),f'bopileft{skin}',f'BopiLeft{skin}'),
            ('<defs>'+defs.group(1)+'</defs>'+right.group(0),f'bopiright{skin}',f'BopiRight{skin}'))
     for markup, name, catalog in parts:
-        sprite=render_bird_pilot(markup)
+        sprite=polish_companion_3d(render_bird_pilot(markup),character)
         if sprite.getbbox() is None:
             raise RuntimeError(f'{character}: empty native flight sprite {name}')
         sprite.save(a/'drawable-nodpi'/(name+'.png'),optimize=True)
