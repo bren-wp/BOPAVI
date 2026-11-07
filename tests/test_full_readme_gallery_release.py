@@ -13,7 +13,7 @@ assert gallery.count("<tr>")==8
 assert gallery.count('width="154"')==16
 for name in names:
     filename=f"BOPAVI-Android-{name}.png"
-    assert readme.count(f"releases/latest/download/{filename}")==1, filename
+    assert readme.count(f"releases/latest/download/{filename}")==2, filename
     assert f":'{filename}'" in workflow, filename
     assert f"dist/{filename}" in workflow, filename
     assert filename in cleanup or name in (
