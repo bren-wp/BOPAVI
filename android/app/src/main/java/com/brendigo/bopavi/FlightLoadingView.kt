@@ -33,7 +33,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
     private val progressGlossClip = Path()
     private val imageOptions = BitmapFactory.Options().apply { inScaled = false }
     private val backdrop: Bitmap? =
-        BitmapFactory.decodeResource(resources, R.drawable.homeback, imageOptions)
+        BitmapFactory.decodeResource(resources, R.drawable.loadingback, imageOptions)
     private val brand: Bitmap? =
         BitmapFactory.decodeResource(resources, R.drawable.logo, imageOptions)
     // The previous portrait-only sprite cropped away Bopi's flying silhouette.
