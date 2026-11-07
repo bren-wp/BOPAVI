@@ -1335,6 +1335,23 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawSkyMace(c,g,x,index,a)
         val mid=x+w*.5f
         val cy=(a.top+a.bottom)*.5f
+        // The six curved golden rings are NOT fake scenery: each has a
+        // matching swept GameSimulation collector and per-gate run flag.
+        // Vary decorative size only, never the true pickup coordinate.
+        if(RoyalRingTrail.enabled(g)) {
+            for(ring in 0 until RoyalRingTrail.count) {
+                if(!game.royalRingVisible(index,ring,incoming))continue
+                val ringX=RoyalRingTrail.x(x,ring)
+                if(ringX < -24f || ringX > 504f)continue
+                val ringY=RoyalRingTrail.y(a,ring)
+                val ringScale=.60f+ring*.075f
+                c.save()
+                c.translate(ringX,ringY)
+                c.scale(ringScale,ringScale)
+                drawRoyalRing(c,0f,0f)
+                c.restore()
+            }
+        }
         if(game.endless) {
             if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
             else if(game.berryVisible(index,incoming)) drawBerry(c,mid,cy,13f)
