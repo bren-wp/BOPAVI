@@ -362,8 +362,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
             game.active,game.finished)
         if(showGameplayObstacles) {
-            // Sky Meadows' floor spikes stay inside the existing solid collider.
-            if(game.level.world==0)drawSkyMeadowsGroundSpikes(canvas)
+            // The owner's Sky Meadows gameplay reference has open cloud scenery:
+            // no permanent FLOOR spike rack. The optional forest rack belongs
+            // only to its distinct biome, fully below the solid ground line.
+            if(game.level.world==6)drawEnchantedForestGroundSpikes(canvas)
             // No per-frame generation: both current and incoming gates reuse
             // the cached real simulation data, including pickup visibility.
             val upcoming=game.upcomingGates()
@@ -515,7 +517,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * ground contact plane as GameSimulation. No hitbox, RNG or allocations
      * are introduced into the 120 Hz render path.
      */
-    private fun drawSkyMeadowsGroundSpikes(c:Canvas) {
+    private fun drawEnchantedForestGroundSpikes(c:Canvas) {
         val g=FlightGroundSpikeGeometry
         // Garden-rock terrace follows the physical boundary. The open
         // corridor above stays transparent and fully usable.
