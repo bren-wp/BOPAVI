@@ -73,7 +73,7 @@ assert 'subprocess.run(["adb","shell","am","force-stop",launcher],check=True)' i
 assert 'subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,' in qa
 # Dismissing the OS overlay must never substitute for real native screen checks.
 assert 'test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight"' in qa
-assert 'test "$home_ready" -ne 1' in qa
+assert 'if [ "$home_ready" -ne 1 ]; then' in qa
 assert 'assert "BOPAVI" not in titles' not in qa  # No broad ANR dismissal
 
 print("PASS: Android 15 transport-only one-retry gate never bypasses gameplay QA")
