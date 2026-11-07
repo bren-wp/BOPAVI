@@ -10,6 +10,8 @@ import android.graphics.PixelFormat
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
+import android.content.Context
+import android.view.View
 
 /**
  * Native independent decorative enamel layers for the owner's Shop.
@@ -117,4 +119,49 @@ internal class ShopFeaturedPanelDrawable:Drawable() {
     override fun setColorFilter(value:ColorFilter?){filter=value;invalidateSelf()}
     @Suppress("DEPRECATION")
     override fun getOpacity():Int=PixelFormat.TRANSLUCENT
+}
+
+
+/**
+ * Rounded emerald + capsule matching the reference wallet. The hit target
+ * itself remains 96x99 logical px (>=48dp on the reference emulator), but
+ * its VISUAL green face is 47x57px: no oversized green box or lost touch area.
+ * This is a real accessible View, not a painted fake button.
+ */
+internal class ShopPlusControl(context:Context,description:String,
+    private val onTap:()->Unit):View(context) {
+    private val ink=Paint(Paint.ANTI_ALIAS_FLAG)
+    init {
+        contentDescription=description
+        isClickable=true
+        isFocusable=true
+        setOnClickListener { onTap() }
+    }
+    override fun onDraw(canvas:Canvas) {
+        if(width<=0 || height<=0)return
+        val saved=canvas.save()
+        val scale=minOf(width/96f,height/99f)
+        canvas.translate((width-96f*scale)*.5f,(height-99f*scale)*.5f)
+        canvas.scale(scale,scale)
+        fun face(l:Float,t:Float,r:Float,b:Float,rad:Float,color:Int) {
+            ink.reset();ink.isAntiAlias=true;ink.color=color
+            canvas.drawRoundRect(l,t,r,b,rad,rad,ink)
+        }
+        face(26f,23f,74f,82f,15f,0xff093b17.toInt())
+        face(26f,15f,74f,76f,15f,0xffd8ff8b.toInt())
+        ink.reset();ink.isAntiAlias=true;ink.color=Color.WHITE
+        ink.shader=LinearGradient(0f,17f,0f,73f,
+            intArrayOf(0xffa7ff73.toInt(),0xff42d325.toInt(),0xff0e8c24.toInt()),
+            floatArrayOf(0f,.42f,1f),Shader.TileMode.CLAMP)
+        canvas.drawRoundRect(29f,18f,71f,73f,12f,12f,ink)
+        ink.shader=null
+        ink.color=0xff064c1b.toInt();ink.strokeWidth=10f
+        ink.strokeCap=Paint.Cap.ROUND
+        canvas.drawLine(49f,30f,49f,60f,ink)
+        canvas.drawLine(35f,45f,63f,45f,ink)
+        ink.color=0xffffffff.toInt();ink.strokeWidth=6f
+        canvas.drawLine(49f,30f,49f,59f,ink)
+        canvas.drawLine(35f,45f,63f,45f,ink)
+        canvas.restoreToCount(saved)
+    }
 }

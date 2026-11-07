@@ -218,30 +218,48 @@ internal class ShopScreen(
             266f,136f,409f,154f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
-        stage.place(message(NumberFormat.getIntegerInstance().format(coins),
-            27).apply{
+        // Two glass counters retain only REAL offline values. Their green
+        // reference plus buttons are functional native touch surfaces: coin
+        // bonus claims only genuine earned coins, while the star button
+        // explains the actual level-based reward (no fictitious gems).
+        stage.place(FrameLayout(host).apply {
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
+        },458f,20f,214f,78f)
+        stage.place(message(NumberFormat.getIntegerInstance().format(coins),
+            27).apply {
             contentDescription="Earned coins: $coins"
             isFocusable=true
-            setPadding(dp(24),0,dp(3),0)
-        },466f,20f,201f,78f)
+        },520f,31f,101f,53f)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 BopaviUiIconDrawable.Kind.COIN,dp(31)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },463f,21f,60f,63f)
-        stage.place(message(NumberFormat.getIntegerInstance().format(stars),
-            27).apply{
+        },461f,21f,59f,63f)
+        stage.place(ShopPlusControl(host,
+            if(progress.bonusCoinsAvailable()>0)"Claim earned coins"
+            else "How to earn coins") {
+            if(progress.bonusCoinsAvailable()>0)onClaim()
+            else android.widget.Toast.makeText(host,
+                "Earn coins by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
+        },598f,0f,96f,99f,minTouch=true)
+
+        stage.place(FrameLayout(host).apply {
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
+        },695f,20f,220f,78f)
+        stage.place(message(NumberFormat.getIntegerInstance().format(stars),
+            27).apply {
             contentDescription="Earned stars: $stars"
             isFocusable=true
-            setPadding(dp(24),0,dp(3),0)
-        },695f,20f,220f,78f)
+        },762f,31f,102f,53f)
         stage.place(ImageView(host).apply {
             setImageDrawable(BopaviUiIconDrawable(
                 BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },694f,22f,65f,65f)
+        stage.place(ShopPlusControl(host,"How to earn stars") {
+            android.widget.Toast.makeText(host,
+                "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
+        },833f,0f,96f,99f,minTouch=true)
         stage.place(ImageView(host).apply {
             setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER

@@ -109,6 +109,13 @@ enamels=(src/"ShopReferenceEnamels.kt").read_text()
 for cls in ("ShopCreamCardDrawable","ShopFeaturedPanelDrawable"):
     assert "class "+cls in enamels
 assert "LinearGradient" in enamels and "RadialGradient" in enamels
+assert "class ShopPlusControl(" in enamels
+assert "isClickable=true" in enamels and "setOnClickListener { onTap() }" in enamels
+assert 'stage.place(ShopPlusControl(host,"How to earn stars")' in shop
+assert 'stage.place(ShopPlusControl(host,' in shop
+assert 'if(progress.bonusCoinsAvailable()>0)onClaim()' in shop
+assert '"Earn coins by completing levels."' in shop
+assert '"Earn stars by completing levels."' in shop
 assert 'R.drawable.reference_screenshot' not in enamels
 
 print("PASS: reference 3x2 Shop preserves six prices, offline buys, native access and bonuses")

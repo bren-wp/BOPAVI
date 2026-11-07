@@ -410,7 +410,9 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
-          script: sh tools/qa_android_emulator.sh
+          script: |
+            sh tools/qa_android_emulator.sh
+            python3 tools/qa_android_shop_focus.py
       - name: Preserve Android16 emulator evidence
         if: always()
         uses: actions/upload-artifact@v4
