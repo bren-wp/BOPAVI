@@ -47,7 +47,11 @@ object LevelEngine {
             last = center
             val active = (zone >= 2 && i >= 5 && (i + number + world) % 3 == 0) || (type == 2 && i >= 4 && i % 3 == 0) || (world == 4 && i >= 4 && i % 4 == 0)
             gates += Gate(
-                x = 420f + i * (228f - zone * 2), center = center,
+                // Royal Meadows: first real pillar must already be on the active
+                // camera after the first flap, not a thin offscreen sliver.
+                // Only initial world-zero spawn changes; following cadence,
+                // full collision width and all other worlds stay identical.
+                x = (if(world==0)330f else 420f) + i * (228f - zone * 2), center = center,
                 // A rhythm of tall/short pillars: the opening changes per obstacle,
                 // not by an almost invisible 0–3px. Intro gates stay forgiving.
                 // Gap >=164 before difficulty/movement; hard mode remains >=145.
