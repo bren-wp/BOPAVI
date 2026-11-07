@@ -67,6 +67,8 @@ assert 'fun useShopFullBleedReferenceCamera()' in stage
 assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
 assert '},130f,235f,570f,420f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
+assert 'BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)' in shop
+assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
