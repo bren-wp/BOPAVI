@@ -10,6 +10,15 @@ for p in [a/'drawable',a/'drawable-nodpi']:p.mkdir(parents=True,exist_ok=True)
 icon=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/icon.svg'),output_width=1024,output_height=1024))).convert('RGB')
 icon.resize((512,512),Image.Resampling.LANCZOS).save(a/'drawable/app_icon.png',optimize=True)
 brand=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/logo.svg'),output_width=780))).convert('RGBA')
+# Reject cropped crown, wings, wordmark or wooden plaque at the SVG raster
+# boundary. Native Home and Splash use FIT_CENTER; the source itself must
+# include transparent bleed on ALL four edges before Android scales it.
+_logo_bbox=brand.getchannel('A').getbbox()
+if _logo_bbox is None:
+    raise RuntimeError('BOPAVI logo has no painted content')
+_l,_t,_r,_b=_logo_bbox
+if min(_l,_t,brand.width-_r,brand.height-_b)<5:
+    raise RuntimeError(f'BOPAVI logo is clipped at SVG boundary: {_logo_bbox}')
 brand.save(a/'drawable-nodpi/logo.png',optimize=True)
 # This in-memory scene is required for launch composition and bird sprite extraction.
 # It is NOT a standalone packaged runtime PNG or unreferenced runtime Hero asset.
