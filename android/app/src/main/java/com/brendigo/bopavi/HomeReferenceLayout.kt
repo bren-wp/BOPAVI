@@ -52,7 +52,11 @@ internal object HomeReferenceLayout {
     // squeezing labelled controls into the fixed reference artwork grid.
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,
                  fontScale:Float=1f):Boolean =
-        portrait && pxWidth>=860 && pxHeight>=1480 &&
+        // The reference stage uniformly fits a 720x1280 viewport.
+        // This enables the same 3D artwork/controls on compact phones,
+        // instead of switching to unrelated portrait/button art.
+        // Truly small devices retain the native scroll-safe composition.
+        portrait && pxWidth>=720 && pxHeight>=1280 &&
         fontScale>=.85f && fontScale<1.3f
 
     fun valid():Boolean {
