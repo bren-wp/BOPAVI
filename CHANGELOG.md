@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.54 — Splash / Loading highest pixel discrepancy (build 184)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.54)
+
+- Redraw the winged original BOPAVI logo using taller vector geometry
+- Reposition the winged, selected native Bopi 512×512 sprite group on a
+- Generate **Splash-only**, entirely offline `loadingback.png` from the
+- Retain the real asynchronous preparation event and honest indeterminate
+- No Gameplay / Game Over physics, lives, hitboxes, Retry/Home actions,
+- [ ] Python source, privacy/security, dead-code and asset audits
+- [ ] Gradle 9 / Android 36 JVM tests and debug APK + unsigned release APK/AAB
+- [ ] Android 15 Play → first flap → lifecycle → Retry QA
+- [ ] Android 16 API36 smoke
+- [ ] New native 941×1672 Splash screenshot reviewed against original
+- [ ] Home, Gameplay and Game Over visually regressions checked
+- [ ] Screenshot ROI errors measured; any increase investigated and corrected
+
 ## v1.0.53 — Gameplay floor 3D and Game Over Retry/Home (build 183)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.53)
@@ -13,13 +30,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Game Over Bopi:** tilt the original blue aviator's seated head gently
 - **Game Over Sky Meadows:** use the same enhanced, offline island backdrop
 - Add JVM collision-boundary unit tests and mandatory source/UI contracts.
-
-## v1.0.52 — Splash / Home visual geometry and fantasy scenery (build 182)
-
-**Published:** 2026-11-06 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.52)
-
-- **Splash / Loading:** reduce the oversized logo from 885×268 to 757×229
-- **Home:** replace the non-square 745×483 aviator container with a square
-- **Splash + Home scenery:** add deterministic, offline clouds, lush side
-- Preserve native 3D Play, Skins, Shop, Settings, three Home footer actions,
-- Refresh Kotlin/source assertions for these reference coordinates.
