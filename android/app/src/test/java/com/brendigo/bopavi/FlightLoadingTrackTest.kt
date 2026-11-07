@@ -8,10 +8,10 @@ class FlightLoadingTrackTest {
         val beginning=FlightLoadingTrack.segment(100f,0L,false)
         val farEnd=FlightLoadingTrack.segment(100f,775L,false)
         val nextCycle=FlightLoadingTrack.segment(100f,1550L,false)
-        assertEquals(66f,beginning.width,.001f)
+        assertEquals(70f,beginning.width,.001f)
         assertEquals(0f,beginning.offset,.001f)
-        assertEquals(34f,farEnd.offset,.001f)
-        assertEquals(66f,farEnd.width,.001f)
+        assertEquals(4.5f,farEnd.offset,.001f)
+        assertEquals(70f,farEnd.width,.001f)
         assertEquals(beginning.offset,nextCycle.offset,.001f)
     }
 
