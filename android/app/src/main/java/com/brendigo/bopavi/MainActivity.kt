@@ -162,7 +162,7 @@ class MainActivity : Activity() {
             if(selectedScreen=="splash" && !isDestroyed && !isFinishing){
                 showHome()
             }
-        },2450L)
+        },3500L)
     }
     /** Android large-screen rotation must not recreate a live simulation.
      * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
