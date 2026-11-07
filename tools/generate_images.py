@@ -2,6 +2,7 @@
 from pathlib import Path
 from PIL import Image
 from paint_fantasy_backdrop import enrich_background
+from paint_loading_reference import paint_loading_reference
 import io, json, cairosvg
 r=Path(__file__).resolve().parents[1]
 a=r/'android/app/src/main/res'
@@ -121,6 +122,10 @@ home_art=launch.copy()
 home_art.paste(scene_only,(0,340),mask)
 home_art=enrich_background(home_art)
 home_art.save(a/'drawable-nodpi/homeback.png',optimize=True)
+# The SPLASH needs reference-located castles, waterfall cliffs and clouds,
+# but Home remains unmodified and its native buttons are NEVER rasterized.
+loading_art=paint_loading_reference(home_art)
+loading_art.save(a/'drawable-nodpi/loadingback.png',optimize=True)
 # The approved SPLASH / LOADING reference stacks the original winged logo
 # ABOVE Bopi, who is already centered in the shared illustrated landscape.
 # The lower foreground stays unprinted for an honest NATIVE loading indicator.
