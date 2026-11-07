@@ -73,10 +73,10 @@ def score(name: str, owner_file: Path, native_file: Path, expected_sha: str) -> 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--owner-splash", type=Path, required=True)
-    parser.add_argument("--owner-home", type=Path, required=True)
-    parser.add_argument("--native-splash", type=Path, required=True)
-    parser.add_argument("--native-home", type=Path, required=True)
+    parser.add_argument("--owner-splash", type=Path)
+    parser.add_argument("--owner-home", type=Path)
+    parser.add_argument("--native-splash", type=Path)
+    parser.add_argument("--native-home", type=Path)
     parser.add_argument("--report", type=Path)
     parser.add_argument("--owner-gameplay", type=Path)
     parser.add_argument("--native-gameplay", type=Path)
@@ -86,27 +86,26 @@ def main() -> None:
     parser.add_argument("--native-shop", type=Path)
     args = parser.parse_args()
     result = {
-        "goal": "0% RGB difference in both original 864x1536 images",
+        "goal": "0% unscaled RGB difference on every selected owner screen",
         "warning": "Passing a pixel comparison alone does not establish that the "
                    "capture came from a running, interactive Android app. "
                    "Retain adb screen-state and native UI hierarchy evidence.",
-        "screens": [
-            score("Splash", args.owner_splash, args.native_splash,
-                  OWNER_SHA256["Splash"]),
-            score("Home", args.owner_home, args.native_home,
-                  OWNER_SHA256["Home"]),
-        ],
+        "screens": [],
     }
-    extras = (
+    pairs = (
+        ("Splash", args.owner_splash, args.native_splash),
+        ("Home", args.owner_home, args.native_home),
         ("Gameplay", args.owner_gameplay, args.native_gameplay),
         ("LevelMap", args.owner_level_map, args.native_level_map),
         ("Shop", args.owner_shop, args.native_shop),
     )
-    for name, owner, native in extras:
+    for name, owner, native in pairs:
         if (owner is None) != (native is None):
             parser.error(f"{name}: supply both --owner and --native file")
         if owner is not None:
             result["screens"].append(score(name, owner, native, OWNER_SHA256[name]))
+    if not result["screens"]:
+        parser.error("Provide at least one paired original and actual Android screenshot")
     result["both_zero"] = all(s["zero_pixel_deviation"] for s in result["screens"])
     result["all_selected_zero"] = result["both_zero"]
     output = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
