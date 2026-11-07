@@ -38,7 +38,7 @@ assert 'nowMs-lastTime<intervalMs' in purchaseGate
 assert 'secondAccidentalTapCannotChargeTwiceImmediately' in gateTest
 assert 'distinctProductsAndLaterDeliberateBuysRemainAvailable' in gateTest
 assert 'if(progress.claimBonusCoins()>0)' in app
-assert 'val rows=floatArrayOf(900f,1216f)' in geom
+assert 'val rows=floatArrayOf(886f,1208f)' in geom
 assert 'val columns=floatArrayOf(35f,331f,627f)' in geom
 assert 'val row=item.index/3' in shop and 'val col=item.index%3' in shop
 assert 'val featured=items.last()' in shop
@@ -63,8 +63,8 @@ assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,1.10f)' in shop
-assert 'dp(68),dp(68)' in shop
+assert 'LinearLayout.LayoutParams(-1,0,1.25f)' in shop
+assert 'dp(40),dp(40)' in shop
 assert 'message(item.storefrontTitle,18' in shop
 assert 'message(item.perkEffect,13' in shop
 assert 'item.iconTierLabel' in shop
