@@ -7,6 +7,18 @@ shell=(root/"tools/qa_android_emulator.sh").read_text()
 activity=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
 splash=(root/"tools/qa_splash_viewports.py").read_text()
 responsive=(root/"tools/qa_responsive_home_splash.py").read_text()
+workflow=(root/".github/workflows/native-ci.yml").read_text()
+android15_job=workflow.split("  android-smoke:\n",1)[1].split(
+    "  android16-smoke:\n",1)[0]
+# A dedicated Actions job runs on its own fresh Ubuntu VM. The Pillow
+# dependency used to analyze the true Splash screenshots must be installed
+# INSIDE the Android 15 job, not only in the separate asset audit job.
+assert "from PIL import Image, ImageStat" in splash
+assert "actions/setup-python@v5" in android15_job
+assert "python -m pip install --quiet pillow" in android15_job
+assert 'from PIL import Image, ImageStat;' in android15_job
+assert android15_job.index("python -m pip install --quiet pillow") < (
+    android15_job.index("BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh"))
 
 specs=(
     "480x800:160:small","600x960:240:short","720x1280:320:compact",
