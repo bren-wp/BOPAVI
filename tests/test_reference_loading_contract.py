@@ -24,7 +24,7 @@ assert "paint.color=0xfffff6d2.toInt()" in loading
 assert "FlightLoadingTrack.segment(inner.width()-6f," in loading
 assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in loading
 assert ".61f+.07f" not in loading
-assert "ring(canvas,549f,1033f,37f,54f,-21f)" in loading
+assert "ring(canvas,546f,1057f,37f,54f,-21f)" in loading
 assert "paint.pathEffect=" not in loading
 assert "FlightLoadingLayout.captionBaselineY" in loading
 assert "Thread({" in activity and '"Bopavi-Level-Preparation"' in activity
