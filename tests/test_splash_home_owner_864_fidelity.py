@@ -16,15 +16,17 @@ for identifier in ("ownerWarm","ownerBlue"):
     assert any(x.attrib.get("id")==identifier for x in xml.iter()),identifier
 assert "DejaVu Sans" not in svg
 assert "fill-rule=\"evenodd\"" in svg
-# Four independent soft B/O/P/A glyph outlines with visible counters.
-# The previous polygonal trace rendered angular, indistinct letters.
+# Separate glyphs prevent the even-odd subtraction of overlapping letters.
 warm=next(e for e in xml.iter() if e.attrib.get("id")=="ownerWarm")
-assert warm.attrib["d"].count(" C") >= 120
-assert warm.attrib["d"].count("M") >= 9
-# Four distinct letters with five internal counter outlines.
-assert warm.attrib["d"].count(" Z") >= 9
-assert warm.attrib["d"].count(" Z") >= 6
-assert "0 37" in svg and "0 82" in svg
+letters={item.attrib.get("id"):item for item in warm}
+assert set(letters)=={"ownerB","ownerO","ownerP","ownerA"}
+for name,counters in (("ownerB",2),("ownerO",1),("ownerP",1),("ownerA",1)):
+    glyph=letters[name]
+    assert glyph.attrib["fill-rule"]=="evenodd"
+    assert glyph.attrib["d"].count("M")==counters+1
+    assert glyph.attrib["d"].count(" Z")==counters+1
+assert sum(item.attrib["d"].count(" C") for item in letters.values())>=120
+assert "0 37" in svg and "0 50" in svg
 assert 'cx="675"' in svg and 'rx="17"' in svg
 for trace in (
     "ring(canvas,80f,1230f,150f,190f,-21f)",
