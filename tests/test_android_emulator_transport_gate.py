@@ -56,4 +56,24 @@ for primary,retry,marker,expected in [
 ]:
     assert release_gate(primary,retry,marker)==expected
 
+# Regression: fullscreen gameplay triggers Android's FIRST-USE immersive
+# education on API 35, and API 36 AOSP launcher is Quickstep. Recover only
+# their exact OS-owned UI; the real GameView/Home assertions remain mandatory.
+assert 'acknowledge_verified_fullscreen_education(){' in qa
+assert 'n.get("package")=="android"' in qa
+assert 'system_text("Viewing full screen")' in qa
+assert '"To exit, swipe down from the top of your screen"' in qa
+assert 'n.get("text")=="Got it"' in qa
+assert 'if acknowledge_verified_fullscreen_education; then' in qa
+assert '"Quickstep isn\'t responding"' in qa
+assert '"com.android.launcher3"' in qa
+assert '"com.google.android.apps.nexuslauncher"' in qa
+assert '["System UI isn\'t responding"]' in qa
+assert 'subprocess.run(["adb","shell","am","force-stop",launcher],check=True)' in qa
+assert 'subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,' in qa
+# Dismissing the OS overlay must never substitute for real native screen checks.
+assert 'test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight"' in qa
+assert 'test "$home_ready" -ne 1' in qa
+assert 'assert "BOPAVI" not in titles' not in qa  # No broad ANR dismissal
+
 print("PASS: Android 15 transport-only one-retry gate never bypasses gameplay QA")
