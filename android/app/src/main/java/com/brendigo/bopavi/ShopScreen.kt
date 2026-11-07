@@ -239,7 +239,10 @@ internal class ShopScreen(
             setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },335f,289f,280f,270f)
+        // Bopi fills the illustrated counter opening rather than looking
+        // like a tiny floating badge. Preserve the full source square and
+        // let transparent wings/scarf reach the owner's shelf silhouette.
+        },130f,235f,570f,420f)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
