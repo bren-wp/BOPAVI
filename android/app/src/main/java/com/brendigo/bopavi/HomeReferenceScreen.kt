@@ -273,11 +273,28 @@ internal class HomeReferenceScreen(private val host:Activity,
             BopaviUiIconDrawable.Kind.GEM,"Otvori kartu razina",onStars),
             HomeReferenceLayout.stars)
 
-        place(stage,ImageView(host).apply{
+        val logoView=ImageView(host).apply{
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },HomeReferenceLayout.logo,verticalAnchor=.05f)
+        }
+        place(stage,logoView,HomeReferenceLayout.logo,verticalAnchor=.05f)
+        // The wallet rail follows a notch/safe-area whereas the visual
+        // logo follows the reference camera. Keep the WHOLE native logo
+        // below the actual wallet row, not beneath clickable coin counters.
+        walletRail.onRowBottomChanged={rowBottom->
+            logoView.post{
+                if(logoView.isAttachedToWindow && logoView.height>0){
+                    val gap=8f*host.resources.displayMetrics.density
+                    val room=(logoView.bottom-rowBottom-gap).coerceAtLeast(0f)
+                    val scale=(room/logoView.height).coerceIn(0f,1f)
+                    logoView.pivotX=logoView.width/2f
+                    logoView.pivotY=logoView.height.toFloat()
+                    logoView.scaleX=scale
+                    logoView.scaleY=scale
+                }
+            }
+        }
         // All original 512×512 wing and body layers align pixel-for-pixel.
         val bodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi1,R.drawable.bopi2,
             R.drawable.bopi3,R.drawable.bopi4,R.drawable.bopi5,R.drawable.bopi6,
