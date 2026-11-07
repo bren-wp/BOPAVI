@@ -36,16 +36,21 @@ def main():
         adb("shell","am","start","-W","-n",APP+"/.MainActivity",
             "--ez","bopavi_qa_capture_first_flap","true")
         tap(expect_one("▶  PLAY"))
-        active=expect_one("ŽIVOTI:")
-        tap(active)
-        # A genuine first flap begins one GameSimulation; no QA result injection.
-        expect_one("ŽIVOTI:")
+        ready=expect_one("ŽIVOTI:")
+        tap(ready)
+        # After the real first flap the approved active HUD uses SCORE, coins,
+        # collected crystals and an actual Pause touch target, NOT idle lives.
+        active=expect_one("REZULTAT:")
+        for token in ("NOVČIĆI:","KRISTALI:","Gore desno pauza"):
+            if token.upper() not in label(active).upper():
+                raise AssertionError("FAIL: active Gameplay HUD misses "+token)
         adb("shell","input","keyevent","4")
         assert_pause()
         w,h=screenshot("android-pause-reference-size")
         assert (w,h)==(941,1672),f"FAIL: Pause viewport {(w,h)} is not 941x1672"
         tap(expect_one("NASTAVI"))
-        expect_one("ŽIVOTI:")
+        resumed=expect_one("REZULTAT:")
+        assert "GORE DESNO PAUZA" in label(resumed).upper()
         assert not [n for n in hierarchy().iter("node")
                     if "NASTAVI" in label(n)],"FAIL: Pause remained after Resume"
         print("PASS: real reference-size Pause screenshot and unchanged flight Resume",flush=True)
