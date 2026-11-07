@@ -32,13 +32,14 @@ assert "val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(" in
 assert "game.active,game.finished)" in on_draw
 hazards=on_draw.split("if(showGameplayObstacles) {",1)[1].split(
     "        drawBird(canvas)",1)[0]
-for item in ("drawSkyMeadowsGroundSpikes(canvas)",
+for item in ("drawEnchantedForestGroundSpikes(canvas)",
              "game.upcomingGates()", "drawGate(canvas,g,x,i,true)",
              "drawGate(canvas,g,x,i)"):
     assert item in hazards,item
 # All dynamic hazard drawing must happen after the real state guard.
 before=on_draw.split("if(showGameplayObstacles) {",1)[0]
-assert "drawSkyMeadowsGroundSpikes(canvas)" not in before
+assert "drawEnchantedForestGroundSpikes(canvas)" not in before
+assert "if(game.level.world==0)drawEnchantedForestGroundSpikes(canvas)" not in on_draw
 assert "drawGate(canvas," not in before
 assert "if(collisionOverlayEnabled && showGameplayObstacles)" in on_draw
 
