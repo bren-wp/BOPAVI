@@ -30,6 +30,10 @@ Krilati znak na početnom zaslonu, leteći Bopi i živopisno nebo uvode te u pus
 
 BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i pokušaj ponovno**.
 
+### Tri junaka, bezbroj pokušaja
+
+**Bopi** donosi osmijeh svakom zamahu, **Sova** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
+
 ## Zašto zaigrati?
 
 - 🪽 **Jedan dodir, potpuna kontrola.** Dodirni zaslon i upravljaj zamahom krila.

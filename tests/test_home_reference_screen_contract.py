@@ -95,6 +95,8 @@ assert "glyph(kind,40)" in view
 assert "HomeEmbossedLabel(host,text,21f,false," in view
 assert "footer=true)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
+assert 'Typeface.create("sans-serif-rounded",Typeface.BOLD)' in lettering
+assert "ink.strokeWidth=ink.textSize*(if(footer).075f else .09f)" in lettering
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
 for required in ("LinearGradient(","Paint.Style.STROKE",

@@ -31,7 +31,7 @@ internal class HomeEmbossedLabel(
 ):TextView(context){
     private val ink=Paint(Paint.ANTI_ALIAS_FLAG).apply{
         textAlign=Paint.Align.CENTER
-        typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+        typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
         strokeJoin=Paint.Join.ROUND
         strokeCap=Paint.Cap.ROUND
         isSubpixelText=true
@@ -40,7 +40,7 @@ internal class HomeEmbossedLabel(
     init {
         text=caption
         setTextSize(TypedValue.COMPLEX_UNIT_SP,nominalSp)
-        typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+        typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
         setTextColor(Color.WHITE)
         gravity=Gravity.CENTER
         maxLines=1
@@ -69,10 +69,10 @@ internal class HomeEmbossedLabel(
             if(footer)0xff060e23.toInt() else 0xff08265d.toInt()
 
         ink.style=Paint.Style.STROKE
-        ink.strokeWidth=ink.textSize*(if(footer).13f else .16f)
+        ink.strokeWidth=ink.textSize*(if(footer).13f else .13f)
         ink.color=drop
-        canvas.drawText(caption,x,y+height*(if(footer).035f else .073f),ink)
-        ink.strokeWidth=ink.textSize*(if(footer).075f else .115f)
+        canvas.drawText(caption,x,y+height*(if(footer).035f else .058f),ink)
+        ink.strokeWidth=ink.textSize*(if(footer).075f else .09f)
         ink.color=rim
         canvas.drawText(caption,x,y,ink)
         ink.style=Paint.Style.FILL
