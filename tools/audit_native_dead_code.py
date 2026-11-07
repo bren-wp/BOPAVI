@@ -30,7 +30,7 @@ def main():
     require(referenced["raw"]==names,"Audio resource references missing")
     dynamic={*(f"world{i}" for i in range(8)),*(f"bopi{i}" for i in range(11)),
              *(f"bopileft{i}" for i in range(11)),*(f"bopiright{i}" for i in range(11)),
-             "bopiportrait0","bopiportrait9","bopiportrait10","logo","homeback"}
+             "bopiportrait0","bopiportrait9","bopiportrait10","logo","homeback","loadingback"}
     require(dynamic<=referenced["drawable"],f"Missing drawable references: {dynamic-referenced['drawable']}")
     require(not (ROOT/"android/app/src/main/res/drawable-nodpi/hero.png").exists(),"Orphan hero raster")
     require((ROOT/"docs/assets/hero.svg").is_file(),"Approved hero SVG missing")
