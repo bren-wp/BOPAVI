@@ -237,7 +237,14 @@ class LevelEngineTest {
         for (world in 0 until LevelEngine.WORLD_COUNT) for (number in listOf(1,30,61,360,1001)) {
             val level=LevelEngine.create(world,number)
             assertEquals(level.gates,LevelEngine.create(world,number).gates)
-            assertEquals("First obstacle already visible at world=$world level=$number",420f,level.gates.first().x,0f)
+            assertEquals("First obstacle fits the intended world-specific opening composition",
+                if(world==0)330f else 420f,level.gates.first().x,0f)
+            if(world==0){
+                val first=level.gates.first()
+                val x=FlightCameraComposition.gateX(first.x,0.0,0.0)
+                assertTrue("First genuine royal pillar must fit into 480-wide camera",
+                    x>=GameSimulation(level).birdX+65f && x+first.width<480f)
+            }
             assertTrue("Intro retains familiar shafts",level.gates.take(2).all { it.width in 64f..91f })
             assertTrue("Every gate uses an honestly rendered collision width",
                 level.gates.all { it.width in 54f..110f })
