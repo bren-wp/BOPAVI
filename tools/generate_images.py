@@ -19,6 +19,25 @@ if _logo_bbox is None:
 _l,_t,_r,_b=_logo_bbox
 if min(_l,_t,brand.width-_r,brand.height-_b)<5:
     raise RuntimeError(f'BOPAVI logo is clipped at SVG boundary: {_logo_bbox}')
+# Verify the four gold glyphs on independent alpha masks, not merely
+# the whole logo's rectangular bounding box. An SVG can have all its edges
+# intact while still dropping part of B, O, P or A in its even/odd contours.
+# Validate each counter and full-size enamel silhouette before packaging.
+import xml.etree.ElementTree as ET
+logo_root=ET.parse(r/'docs/assets/logo.svg').getroot()
+gold_paths={node.get('id'):node.get('d') for node in logo_root.iter()
+            if node.get('id') in ('ownerB','ownerO','ownerP','ownerA')}
+if set(gold_paths)!={'ownerB','ownerO','ownerP','ownerA'}:
+    raise RuntimeError('BOPAVI wordmark has missing gold-letter contours')
+for _name,_count in [('ownerB',2),('ownerO',1),('ownerP',1),('ownerA',1)]:
+    _d=gold_paths[_name]
+    if _d.count('M ')!=_count+1 or _d.count(' Z')!=_count+1:
+        raise RuntimeError(f'{_name} outer silhouette/counter paths damaged')
+    _piece=f'<svg xmlns="http://www.w3.org/2000/svg" width="844" height="352" viewBox="0 0 844 352"><path fill="#ffffff" fill-rule="evenodd" d="{_d}"/></svg>'
+    _alpha=Image.open(io.BytesIO(cairosvg.svg2png(bytestring=_piece.encode()))).convert('RGBA').getchannel('A')
+    _area=sum(v>128 for v in _alpha.getdata())
+    if _area<2000 or _alpha.getbbox() is None:
+        raise RuntimeError(f'{_name} lost too much visible enamel: {_area}px')
 brand.save(a/'drawable-nodpi/logo.png',optimize=True)
 # This in-memory scene is required for launch composition and bird sprite extraction.
 # It is NOT a standalone packaged runtime PNG or unreferenced runtime Hero asset.
