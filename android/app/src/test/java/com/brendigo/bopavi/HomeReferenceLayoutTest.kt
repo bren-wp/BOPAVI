@@ -64,6 +64,8 @@ class HomeReferenceLayoutTest {
     @Test fun upperRightLiveWalletsAndThreeIndependentFooterControls(){
         val home=HomeReferenceLayout
         assertFalse(home.coins.overlaps(home.stars))
+        assertEquals("Coins and gems must share the same HUD row",
+            home.coins.y,home.stars.y,0f)
         assertTrue(home.coins.x>home.logo.x)
         assertTrue(home.stars.x>home.coins.x)
         assertTrue(home.coins.bottom<home.logo.y)

@@ -53,24 +53,38 @@ internal class HomeTopWalletRail(context:Context):ViewGroup(context) {
     override fun onLayout(changed:Boolean,l:Int,t:Int,r:Int,b:Int){
         val scale=(r-l-safeLeft-safeRight).coerceAtLeast(1)/
             HomeReferenceLayout.width
-        for(e in entries){
-            val x=(safeLeft+e.b.x*scale).toInt()
-            // Avoid double-counting the reference's 21px top margin.
-            // Status bar/cutout safety remains mandatory if it is visible.
-            var y=maxOf(safeTop,(e.b.y*scale).toInt())
-            // The Home reference is full-screen. With hidden status bars
-            // the wallets belong at y≈21, except if a physical cutout
-            // actually covers this particular native clickable control.
-            for(cutout in cutouts) {
-                val candidate=Rect(x,y,x+e.child.measuredWidth,
-                    y+e.child.measuredHeight)
-                if(Rect.intersects(candidate,cutout)) {
-                    y=maxOf(y,cutout.bottom+
-                        (4f*resources.displayMetrics.density).toInt())
+        // Both native wallet chips form ONE horizontal owner HUD row.
+        // A cutout intersecting either chip must shift the pair together:
+        // moving only COINS or only GEM causes the exact logo overlap seen
+        // in the supplied failure screenshot.
+        var sharedTop=entries.maxOfOrNull{
+            maxOf(safeTop,(it.b.y*scale).toInt())
+        } ?: safeTop
+        for(pass in 0..cutouts.size){
+            var revised=sharedTop
+            for(e in entries){
+                val x=(safeLeft+e.b.x*scale).toInt()
+                for(cutout in cutouts){
+                    val area=Rect(x,sharedTop,x+e.child.measuredWidth,
+                        sharedTop+e.child.measuredHeight)
+                    if(Rect.intersects(area,cutout)){
+                        revised=maxOf(revised,cutout.bottom+
+                            (4f*resources.displayMetrics.density).toInt())
+                    }
                 }
             }
-            y=y.coerceAtMost((b-t-e.child.measuredHeight).coerceAtLeast(0))
-            e.child.layout(x,y,x+e.child.measuredWidth,y+e.child.measuredHeight)
+            if(revised==sharedTop)break
+            sharedTop=revised
+        }
+        val minBottomSpace=entries.maxOfOrNull{
+            it.child.measuredHeight
+        } ?: 0
+        sharedTop=sharedTop.coerceAtMost(
+            (b-t-minBottomSpace).coerceAtLeast(0))
+        for(e in entries){
+            val x=(safeLeft+e.b.x*scale).toInt()
+            e.child.layout(x,sharedTop,x+e.child.measuredWidth,
+                sharedTop+e.child.measuredHeight)
         }
     }
 }

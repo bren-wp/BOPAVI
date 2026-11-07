@@ -19,9 +19,9 @@ assert "fill-rule=\"evenodd\"" in svg
 # Four independent soft B/O/P/A glyph outlines with visible counters.
 # The previous polygonal trace rendered angular, indistinct letters.
 warm=next(e for e in xml.iter() if e.attrib.get("id")=="ownerWarm")
-assert warm.attrib["d"].count(" C") >= 22
-assert warm.attrib["d"].count("M") >= 9
-assert warm.attrib["d"].count(" Z") >= 8
+assert warm.attrib["d"].count(" C") >= 120
+assert warm.attrib["d"].count("M") >= 6
+assert warm.attrib["d"].count(" Z") >= 6
 assert "0 37" in svg and "0 82" in svg
 assert 'cx="675"' in svg and 'rx="17"' in svg
 for trace in (

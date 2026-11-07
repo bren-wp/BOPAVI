@@ -29,7 +29,15 @@ announce() {
 
 # Both API35 and API36 can use verified stock AOSP if Google's hosted
 # Google APIs download is broken. Never accept a partial system image.
-targets=(google_apis default)
+# API36 Google APIs images saturate hosted emulator CPU with first-boot
+# services and can trigger a real Home ANR even though the same build
+# passes on API35. Prefer verified lean AOSP on Android 16; still fall
+# back to Google APIs when AOSP is unavailable. Both are real API36.
+if [ "$api" = 36 ]; then
+  targets=(default google_apis)
+else
+  targets=(google_apis default)
+fi
 for target in "${targets[@]}"; do
   image="$sdk_root/system-images/android-$api/$target/x86_64"
   package="system-images;android-$api;$target;x86_64"

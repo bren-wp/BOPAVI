@@ -43,6 +43,10 @@ BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i
 - 🎮 **Odaberi svojega junaka.** Bopi, Sova ili Lisac čekaju tvoj poziv.
 - 💙 **Igraj bez ometanja.** Ne trebaju ti račun ni obvezna mrežna veza.
 
+## S ljubavlju izrađeni detalji
+
+Svaki let počinje krilatim logotipom, veselim pilotskim naočalama i nebeskim krajolicima. Uživaj u šarenim 3D detaljima, pronađi svoj ritam i nastavi prema sljedećem osobnom rekordu.
+
 ## Pogledaj sve zaslone igre
 
 Ovdje su stvarne snimke Android aplikacije, zabilježene tijekom provjera na emulatoru. Nisu konceptni prikazi. Svaka se snimka može otvoriti u punoj rezoluciji kroz datoteke posljednjeg verificiranog GitHub izdanja.

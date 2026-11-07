@@ -6,7 +6,9 @@
 
 - Nastavljeno izravno na main: isključivo Splash i Home izgled; ostale zaslone i gameplay fiziku ne mijenjamo.
 - Splash/Home: osvijetljeniji plavi gradijent neba te slojeviti oblačni vrtovi, zelenilo i sitno bijelo cvijeće u donjoj trećini pozadine; svi dekorativni slojevi ostaju ispod funkcionalnog Android sučelja.
-- Splash/Home: logotip BOPA dobio je četiri odvojena, zaobljena vektorska slova s pravim otvorima B/O/P/A, svjetlosne poteze i slojeve 3D reljefa; nativni logotip i dalje se crta iz lokalnih vektorskih resursa.
+- Splash/Home: novi vektorski obris BOPA izravno je rekonstruiran iz dostavljene 864px vlasničke reference, s mekim kubnim krivuljama i očuvanim otvorima slova; slojevi reljefa ostaju odvojeni i lokalni.
+- Home: COINS i GEM sada su jedna zajednički poravnata gornja HUD traka i fizički izrez zaslona ne može spustiti samo jedan novčanik preko logotipa.
+- Stabilnost: za Android 16 emulator prednost ima provjerena AOSP sistemska slika, čime se uklanja nepotrebno prvo pokretanje Google usluga koje je pratilo stvarni ANR u CI-u; testni prolaz i dalje je obavezan.
 - Splash: krilati BOPAVI logotip s odvojenim plavim slovima V/i, zasebno prilagođen leteći Bopi, zlatni prstenovi, izvorna traka učitavanja s istinitim indeterminiranim stanjem i bolji položaj na visokim Android zaslonima.
 - Home: zaobljena bijela tipografija s tanjim 3D rubom i manjim tamnim pomakom natpisa na glavnim gumbima.
 - Home: prilagođene veličine 3D natpisa i ikonica Skins, Shop i Settings; postojeći Play, ostali gumbi, stvarna spremljena stanja i pristupačnost nastavljaju raditi.
