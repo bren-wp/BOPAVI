@@ -227,7 +227,7 @@ class GameSimulation(initialLevel: LevelEngine.Level, val endless: Boolean = fal
                 val oldOpening=LevelEngine.opening(gate,previousTime,difficulty)
                 for(ring in 0 until RoyalRingTrail.count) {
                     val bit=1 shl ring
-                    if(collectedRoyalRingBits[i] and bit!=0)continue
+                    if((collectedRoyalRingBits[i] and bit)!=0)continue
                     if(BerryCollision.touched(
                         RoyalRingTrail.x(x+travel,ring)-birdX,
                         RoyalRingTrail.y(oldOpening,ring)-previousY,
