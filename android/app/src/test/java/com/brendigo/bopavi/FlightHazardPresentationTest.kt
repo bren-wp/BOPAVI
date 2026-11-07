@@ -4,8 +4,8 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class FlightHazardPresentationTest {
-    @Test fun noHazardsBeforeRealFirstFlap() {
-        assertFalse(FlightHazardPresentation.obstaclesVisible(
+    @Test fun ownerReferenceShowsRealGatePreviewBeforeFirstFlap() {
+        assertTrue(FlightHazardPresentation.obstaclesVisible(
             firstFlapReceived=false,finished=false))
     }
 
@@ -24,8 +24,14 @@ class FlightHazardPresentationTest {
     @Test fun actualSimulationFlapBeginsAndRetainsActiveRun() {
         val simulation=GameSimulation(LevelEngine.createStream(0,1L),endless=false)
         assertFalse(simulation.active)
-        assertFalse(FlightHazardPresentation.obstaclesVisible(
+        assertTrue(FlightHazardPresentation.obstaclesVisible(
             simulation.active,simulation.finished))
+        // Rendering preview must NOT activate physics or consume any pickups.
+        assertEquals(0,simulation.flaps)
+        assertEquals(0,simulation.coins)
+        simulation.step(1f/60f)
+        assertEquals(0,simulation.flaps)
+        assertEquals(0,simulation.coins)
         simulation.flap()
         assertTrue(simulation.active)
         assertEquals(1,simulation.flaps)
@@ -37,13 +43,15 @@ class FlightHazardPresentationTest {
             simulation.active,simulation.finished))
     }
 
-    @Test fun newRunStartsHiddenAgainWithoutOldStateLeak() {
+    @Test fun newRunStartsWithHonestRealGatePreviewWithoutOldStateLeak() {
         val previous=GameSimulation(LevelEngine.createStream(0,1L))
         previous.flap()
         val replay=GameSimulation(LevelEngine.createStream(0,1L))
         assertTrue(previous.active)
         assertFalse(replay.active)
-        assertFalse(FlightHazardPresentation.obstaclesVisible(
+        assertTrue(FlightHazardPresentation.obstaclesVisible(
             replay.active,replay.finished))
+        assertEquals(0,replay.flaps)
+        assertEquals(0,replay.coins)
     }
 }
