@@ -115,7 +115,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         BitmapFactory.Options().apply{inScaled=false})
     private var wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],
         BitmapFactory.Options().apply{inScaled=false})
-    private val worldBitmaps=intArrayOf(R.drawable.world0,R.drawable.world1,
+    // Sky Meadows uses the richer locally rendered castle/waterfall scene
+    // without baked UI, mascot or obstacles. Pillars and pickups remain
+    // individually animated, collision-aligned runtime layers.
+    private val worldBitmaps=intArrayOf(R.drawable.loadingback,R.drawable.world1,
         R.drawable.world2,R.drawable.world3,R.drawable.world4,R.drawable.world5,
         R.drawable.world6,R.drawable.world7)
     private var worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],
