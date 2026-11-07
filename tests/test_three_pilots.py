@@ -15,7 +15,15 @@ assert "private fun showSkins()" in main
 home=main.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
 assert "showSkins()" in home
 assert "showHome()" not in home
-assert "setImageResource(portraitDrawableIds[selectedPilotChoice])" in home
+# Both compact and large Home must respect the historical 0/9/10
+# sprite mapping. Compact now uses the genuine winged actor instead of a
+# static portrait; portrait assets remain for other application screens.
+assert "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(" in home
+for selection in ("R.drawable.bopi0","R.drawable.bopi9","R.drawable.bopi10",
+                  "R.drawable.bopileft0","R.drawable.bopileft9",
+                  "R.drawable.bopileft10","R.drawable.bopiright0",
+                  "R.drawable.bopiright9","R.drawable.bopiright10"):
+    assert selection in home,selection
 assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice),progress.hapticEnabled()" in main
 assert "arcade_pilot" in store and 'prefs.getInt("skin_index", 0)' in store
 assert "bopiportrait9" in main and "bopiportrait10" in main
