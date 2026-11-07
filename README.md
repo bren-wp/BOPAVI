@@ -72,7 +72,7 @@ Bopi, Sova i Lisac imaju zasebna krila, pilotske naočale i vlastite 3D detalje.
 
 ## Pogledaj sve zaslone igre
 
-Galerija obuhvaća svih **16 autentičnih Android zaslona**. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
+Galerija obuhvaća svih **16 autentičnih Android zaslona** — snimljenih iz stvarne pokrenute Android aplikacije na emulatoru posljednjega uspješno objavljenog izdanja, a ne generiranih prikaza. Prije objave novog izdanja automatska provjera zahtijeva svih 16 različitih PNG snimaka. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
 
 <div align="center">
 

@@ -59,7 +59,12 @@ assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopiportrait0' in shop
 assert 'contentDescription="HOME"' in shop
-assert 'stage.place(ReferenceArrowOverlayView(host),24f,18f,119f,99f)' in shop
+assert 'stage.place(ReferenceArrowOverlayView(host).apply {' in shop
+assert 'elevation=dp(6).toFloat()' in shop
+assert 'stage.useShopFullBleedReferenceCamera()' in shop
+stage=(src/"LevelMapScreen.kt").read_text()
+assert 'fun useShopFullBleedReferenceCamera()' in stage
+assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
 assert '},130f,235f,570f,420f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'if(bonus>0)' in shop
@@ -70,6 +75,19 @@ assert 'LinearLayout.LayoutParams(0,-1,2.15f)' in shop
 assert 'LinearLayout.LayoutParams(0,-1,.85f)' in shop
 assert 'background=ShopCreamCardDrawable()' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
+feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
+    '},ShopReferenceLayout.featureLeft',1)[0]
+assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
+# Real clickable native Buttons remain below passive price artwork.
+assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
+assert 'val real=button("",gold,true,click).apply {' in shop
+assert 'val label=LinearLayout(host).apply {' in shop
+assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
+assert 'label.addView(message(NumberFormat.getIntegerInstance().format(price),' in shop
+assert 'shell.addView(real,FrameLayout.LayoutParams(-1,-1))' in shop
+assert 'shell.addView(label,FrameLayout.LayoutParams(-1,-1))' in shop
+assert 'stage.place(priceButton(featured.price,true,' in shop
+assert 'val buy=priceButton(item.price,false,item.accessibility+' in shop
 assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)' not in shop
 assert 'contentDescription="OWNED: ${item.owned}/99. "+item.accessibility' in shop
 assert 'message("OWNED: ${item.owned}/99  •  TIER' not in shop

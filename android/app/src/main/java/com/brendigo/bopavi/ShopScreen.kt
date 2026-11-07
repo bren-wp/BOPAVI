@@ -255,6 +255,10 @@ internal class ShopScreen(
             return root
         }
         val stage=LevelMapStage(host)
+        // On the portrait reference camera the entire Shop must occupy the
+        // original 941×1672 artwork grid, not a safe-inset-scaled miniature.
+        // Interactive buttons retain the native cutout safety fallback.
+        stage.useShopFullBleedReferenceCamera()
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         // Full storefront artwork is a separate passive native Canvas layer.
         // Dynamic prices, avatar, balances and buttons remain Android Views.
