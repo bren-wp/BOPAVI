@@ -19,8 +19,8 @@ assert "HomeReferenceLayout.supports(resources.displayMetrics.widthPixels," in a
 for box in (
     "val coins=HomeBounds(457f,21f,220f,64f)",
     "val stars=HomeBounds(705f,21f,215f,64f)",
-    "val logo=HomeBounds(122f,112f,697f,273f)",
-    "val hero=HomeBounds(152f,342f,645f,645f)",
+    "val logo=HomeBounds(110f,100f,720f,285f)",
+    "val hero=HomeBounds(100f,282f,660f,660f)",
     "val play=HomeBounds(149f,894f,645f,191f)",
     "val playWings=HomeBounds(112f,904f,719f,171f)",
     "val skins=HomeBounds(135f,1097f,325f,137f)",
@@ -69,6 +69,8 @@ assert "Measure actual painted text." in view
 assert "ReferenceButtonCluster.measure(" in view
 assert "textMeasure.measureText(text)" in view
 assert "width=cluster.labelWidth" in view
+assert "val heightFraction=if(isPlay).76f else .71f" in view
+assert "if(isPlay).76f else .71f,.94f)" in view
 assert "marginStart=cluster.gap" in view
 assert "val titleW=(w*when(kind)" not in view
 assert "HomeTopWalletRail(host)" in view
@@ -86,8 +88,8 @@ assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
 assert "glyph(kind,40)" in view
-assert "HomeEmbossedLabel(host,text,15f,false)" in view
-assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert "HomeEmbossedLabel(host,text,17f,false)" in view
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
 for required in ("LinearGradient(","Paint.Style.STROKE",
@@ -101,7 +103,7 @@ for required in ("internal class HomeEmbossedLabel(", ":TextView(context)",
     assert required in lettering,required
 # The emulator requires exactly one text-bearing SKINS/SHOP child inside
 # the actual clickable 3D button, not a silent custom Canvas View.
-assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 assert "HomeWingActor(host," in view
 for anchor in ("left[chosen],right[chosen],bodies[chosen]",
                "addView(leftWing,LayoutParams(-1,-1))",

@@ -184,12 +184,26 @@ def cinematic_detail(flat: Image.Image) -> Image.Image:
     foliage=ImageDraw.Draw(fringe,"RGBA")
     for side in (-1,1):
         anchor=0 if side<0 else w
-        for k in range(19):
-            x=anchor+side*rng.randrange(-80,190)
-            y=rng.randrange(1480,1700)
-            rx,ry=rng.randrange(28,87),rng.randrange(16,57)
+        # Both supplied Home/Splash references have dense, defocused
+        # foreground leaves that frame the bottom, NOT an empty blue sea.
+        # Keep the centre of the three native Home footer controls free.
+        for k in range(35):
+            x=anchor+side*rng.randrange(-105,205)
+            y=rng.randrange(1455,1730)
+            rx,ry=rng.randrange(35,113),rng.randrange(21,77)
             foliage.ellipse((x-rx,y-ry,x+rx,y+ry),
-                            fill=(12,58+((k*9)%32),34,90+(k%4)*23))
+                            fill=(9,45+((k*7)%38),27,138+(k%5)*17))
+            if k%4==0:
+                foliage.arc((x-rx+8,y-ry+6,x+rx-9,y+ry-5),
+                            210,330,fill=(122,178,74,98),width=3)
+        # A separate closer silhouette keeps the bottom corners dark
+        # without painting over gameplay controls or the central Bopi.
+        for k in range(13):
+            x=anchor+side*rng.randrange(-78,126)
+            y=rng.randrange(1582,1740)
+            rx,ry=rng.randrange(55,126),rng.randrange(31,85)
+            foliage.ellipse((x-rx,y-ry,x+rx,y+ry),
+                            fill=(5,31+(k%4)*9,22,202))
     result=Image.alpha_composite(result,layer)
     result=Image.alpha_composite(result,
         fringe.filter(ImageFilter.GaussianBlur(9)))

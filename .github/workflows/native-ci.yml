@@ -108,6 +108,9 @@ jobs:
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_reference_pixel_diff_tool.py
+      - run: python tests/test_two_owner_screen_comparator.py
+      - run: python tests/test_responsive_home_splash.py
+      - run: python tests/test_responsive_home_splash_capture_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_reference_button_cluster_contract.py
@@ -239,6 +242,16 @@ jobs:
         with:
           name: BOPAVI-Android-APK
           path: qa/apk
+      # The seven-screen native Splash audit checks PNG colour variance with
+      # Pillow. This job runs on its own clean VM: installing Pillow in the
+      # source-audit/art-render jobs does NOT make it available here.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install and verify native screenshot QA dependency
+        run: |
+          python -m pip install --quiet pillow
+          python -c 'from PIL import Image, ImageStat; print("PASS: Android 15 visual QA Pillow available")'
       - name: Enable KVM acceleration on hosted runner
         run: |
           if [ -e /dev/kvm ]; then

@@ -162,8 +162,10 @@ internal class HomeHeroIconDrawable(
             quadTo(94f,49f,82f,42f)
             close()
         }
-        enamel(canvas,triangle,Color.WHITE,0xffe6efff.toInt(),
-            0xff9b4514.toInt(),7f)
+        // Owner's HOME Play arrow is raised warm GOLD, not a flat
+        // white triangle. Keep the original native icon hit target.
+        enamel(canvas,triangle,0xffffffe0.toInt(),0xffffbb27.toInt(),
+            0xff903915.toInt(),8f)
         setup(0x88ffffff.toInt(),Paint.Style.STROKE,4f)
         canvas.drawLine(27f,24f,27f,73f,paint)
     }

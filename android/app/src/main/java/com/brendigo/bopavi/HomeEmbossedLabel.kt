@@ -3,6 +3,8 @@ package com.brendigo.bopavi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -22,7 +24,9 @@ internal class HomeEmbossedLabel(
     context:Context,
     private val caption:String,
     nominalSp:Float,
-    private val primary:Boolean
+    private val primary:Boolean,
+    private val paintHeightFraction:Float=.66f,
+    private val paintWidthFraction:Float=.87f
 ):TextView(context){
     private val ink=Paint(Paint.ANTI_ALIAS_FLAG).apply{
         textAlign=Paint.Align.CENTER
@@ -49,9 +53,12 @@ internal class HomeEmbossedLabel(
         if(width<=0 || height<=0)return
         // The reference stage measures in image pixels, while SP uses device
         // density; clamp to the actual native label bounds on every screen.
-        ink.textSize=min(textSize,height*.66f)
+        // The Home reference uses taller white 3D letters than the other
+        // game's result dialogs. Optional fractions let Home match that art
+        // without changing every reused native embossed label elsewhere.
+        ink.textSize=min(textSize,height*paintHeightFraction)
         val measured=ink.measureText(caption).coerceAtLeast(1f)
-        ink.textSize*=min(1f,(width*.87f)/measured)
+        ink.textSize*=min(1f,(width*paintWidthFraction)/measured)
         val metrics=ink.fontMetrics
         val x=width/2f
         val y=height/2f-(metrics.ascent+metrics.descent)/2f
@@ -67,7 +74,15 @@ internal class HomeEmbossedLabel(
         canvas.drawText(caption,x,y,ink)
         ink.style=Paint.Style.FILL
         ink.color=Color.WHITE
+        // The owner's 3D capitals have a warm pearly lower bevel on gold
+        // Play and a cool ice-blue lower bevel on the other Home actions.
+        // Preserve real TextView text and parent accessibility navigation.
+        ink.shader=LinearGradient(0f,y-ink.textSize,0f,
+            y+ink.textSize*.13f,
+            Color.WHITE,if(primary)0xffffe8aa.toInt() else
+                0xffcdeaff.toInt(),Shader.TileMode.CLAMP)
         canvas.drawText(caption,x,y,ink)
+        ink.shader=null
 
         val checkpoint=canvas.save()
         canvas.clipRect(0f,0f,width.toFloat(),y-ink.textSize*.17f)

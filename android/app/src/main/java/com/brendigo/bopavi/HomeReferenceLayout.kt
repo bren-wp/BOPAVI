@@ -17,12 +17,17 @@ internal object HomeReferenceLayout {
     // in the upper right. Never hardcode the illustration's sample numbers.
     val coins=HomeBounds(457f,21f,220f,64f)
     val stars=HomeBounds(705f,21f,215f,64f)
-    val logo=HomeBounds(122f,112f,697f,273f)
+    // The approved logo including crown, enamel and feathers is higher and
+    // slightly wider than the previous reference box. Preserve the SVG
+    // aspect ratio inside this box; Home does not stretch logo pixels.
+    val logo=HomeBounds(110f,100f,720f,285f)
     // The original Bopi layers use a SQUARE 512x512 transparency grid.
-    // A 745x483 container with FIT_CENTER shrank all wing/body pixels to 483px,
-    // making Bopi visibly too small. Preserve square source proportions while
-    // sizing the painted silhouette to the owner's 941x1672 reference.
-    val hero=HomeBounds(152f,342f,645f,645f)
+    // Source canvas is square, and the painted alpha is inset. Align its
+    // visible upper feathers near reference y≈393, and feet near y≈830.
+    // Position the first visible alpha (y≈86 in the original 512px rig)
+    // immediately below the winged wordmark, not ~60px below the owner.
+    // All three original body/wing sprite layers retain equal square bounds.
+    val hero=HomeBounds(100f,282f,660f,660f)
     // Extents of alpha>12 in the approved classic 512px body/wing union:
     // x=18..493 and y=86..424. Only painted pixels, not the transparent
     // square canvas, must clear the logo and the native Play touch target.
@@ -47,7 +52,11 @@ internal object HomeReferenceLayout {
     // squeezing labelled controls into the fixed reference artwork grid.
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,
                  fontScale:Float=1f):Boolean =
-        portrait && pxWidth>=860 && pxHeight>=1480 &&
+        // The reference stage uniformly fits a 720x1280 viewport.
+        // This enables the same 3D artwork/controls on compact phones,
+        // instead of switching to unrelated portrait/button art.
+        // Truly small devices retain the native scroll-safe composition.
+        portrait && pxWidth>=720 && pxHeight>=1280 &&
         fontScale>=.85f && fontScale<1.3f
 
     fun valid():Boolean {

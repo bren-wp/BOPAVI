@@ -101,8 +101,10 @@ internal class HomeReferenceScreen(private val host:Activity,
                 if(isWide && childCount==2){
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
                     val h=View.MeasureSpec.getSize(heightMeasureSpec)
+                    val heightFraction=if(isPlay).76f else .71f
                     textMeasure.textSize=minOf(
-                        font*host.resources.displayMetrics.scaledDensity,h*.66f)
+                        font*host.resources.displayMetrics.scaledDensity,
+                        h*heightFraction)
                     val cluster=ReferenceButtonCluster.measure(
                         w,h,textMeasure.measureText(text),
                         if(isPlay).70f else .61f,.29f)
@@ -155,7 +157,8 @@ internal class HomeReferenceScreen(private val host:Activity,
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay)
+        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay,
+            if(isPlay).76f else .71f,.94f)
         if(isWide){
             group.addView(symbol,LinearLayout.LayoutParams(0,-1))
             group.addView(title,LinearLayout.LayoutParams(0,-1))
@@ -216,7 +219,7 @@ internal class HomeReferenceScreen(private val host:Activity,
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
-        control.addView(HomeEmbossedLabel(host,text,15f,false),
+        control.addView(HomeEmbossedLabel(host,text,17f,false),
             LinearLayout.LayoutParams(-1,0,0f))
         return control
     }
@@ -296,19 +299,19 @@ internal class HomeReferenceScreen(private val host:Activity,
         place(stage,HomePlayWings(host),HomeReferenceLayout.playWings)
         place(stage,pill("PLAY","▶  PLAY",
             BopaviUiIconDrawable.Kind.PLAY,
-            0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),46,onPlay),
+            0xffffe75f.toInt(),0xffff9206.toInt(),0xffa35011.toInt(),58,onPlay),
             HomeReferenceLayout.play,true)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),28,onSkins),
+            0xffe871ff.toInt(),0xff9110e2.toInt(),0xffffb9fd.toInt(),36,onSkins),
             HomeReferenceLayout.skins,true)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),29,onShop),
+            0xffa6fc72.toInt(),0xff28bd16.toInt(),0xffd1ff89.toInt(),37,onShop),
             HomeReferenceLayout.shop,true)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),24,onSettings),
+            0xff39d3ff.toInt(),0xff0655c6.toInt(),0xffc5f7ff.toInt(),29,onSettings),
             HomeReferenceLayout.settings,true)
 
         place(stage,footerShortcut("ACHIEVEMENTS",
@@ -325,7 +328,16 @@ internal class HomeReferenceScreen(private val host:Activity,
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
                     or android.view.WindowInsets.Type.displayCutout())
                 stage.setSafe(bars.left,bars.top,bars.right,bars.bottom)
-                walletRail.setSafe(bars.left,bars.top,bars.right)
+                // A hidden status bar must not pull the full-screen
+                // Home currency HUD down to its invisible inset height.
+                // Explicit cutout bounds are checked per wallet instead.
+                val statusTop=if(insets.isVisible(
+                    android.view.WindowInsets.Type.statusBars()))
+                    insets.getInsets(
+                        android.view.WindowInsets.Type.statusBars()).top
+                    else 0
+                walletRail.setSafe(bars.left,statusTop,bars.right,
+                    insets.displayCutout?.boundingRects.orEmpty())
             }else{
                 @Suppress("DEPRECATION")
                 stage.setSafe(insets.systemWindowInsetLeft,insets.systemWindowInsetTop,

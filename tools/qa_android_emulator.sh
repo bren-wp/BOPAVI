@@ -660,6 +660,18 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
     # real finger swipe rather than wrongly requiring all actions on page 1.
     # The helper rejects missing/duplicate, clipped and <48dp hit targets.
     python3 tools/qa_home_viewports.py "$dims" "$density" "$label"
+    # Capture the same native Splash/Loading View used in production,
+    # held via the debug-only QA flag so no invented progress percentage
+    # or timed startup animation is needed for a deterministic screenshot.
+    adb shell am force-stop com.brendigo.bopavi
+    adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
+      --ez bopavi_qa_loading_preview true
+    sleep 2
+    adb shell pidof com.brendigo.bopavi >/dev/null || {
+      echo "FAIL: native Loading disappeared at $dims/$density" >&2; exit 1;
+    }
+    capture "android-loading-$label"
+    python3 tools/qa_splash_viewports.py "$dims" "$density" "$label"
   done
   adb shell wm size reset
   adb shell wm density reset

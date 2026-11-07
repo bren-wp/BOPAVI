@@ -9,7 +9,13 @@ qa=(root/"tools/qa_android_emulator.sh").read_text()
 home=main.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
 assert "val heroHeight=if(compactDisplay)" in home
 assert "(resources.configuration.screenHeightDp-468).coerceIn(225,320)" in home
-assert "portraitDrawableIds[selectedPilotChoice]" in home
+assert "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(" in home
+for anchor in ("HomeWingActor(this,R.drawable.bopileft0",
+               "HomeWingActor(this,R.drawable.bopileft9",
+               "HomeWingActor(this,R.drawable.bopileft10",
+               "R.drawable.bopiright0,R.drawable.bopi0,!progress.lessMotion())",
+               "content.addView(compactWingedBopi,"):
+    assert anchor in home, anchor
 assert "setImageResource(R.drawable.logo)" in home
 assert "progress.coins()" in home and "progress.worldStars(it)" in home
 assert 'resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.COIN' in home
