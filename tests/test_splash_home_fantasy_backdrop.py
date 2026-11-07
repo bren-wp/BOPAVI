@@ -22,7 +22,7 @@ assert "loading_art.save(a/'drawable-nodpi/loadingback.png',optimize=True)" in g
 paint=(root/"tools/paint_loading_reference.py").read_text()
 for marker in ("def paint_loading_reference(base: Image.Image)",
                "castle(72,257,1.14)","castle(834,377,.65)",
-               "cliff(50,253,254,420,True)","Random(9411672 + 54)"):
+               "cliff(50,253,254,420)","Random(9411672 + 54)"):
     assert marker in paint,marker
 for unwanted in ("RETRY","HOME BUTTON","Loading...","BOPAVI"):
     # File mentions the brand in comments, but must not draw UI labels.
