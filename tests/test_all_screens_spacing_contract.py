@@ -28,7 +28,10 @@ assert "contentDescription=caption" in options
 # Actual Home hero stays native and accommodates smaller windows/font scales.
 assert 'val compactDisplay=resources.configuration.screenHeightDp<770' in home
 assert 'val tinyDisplay=resources.configuration.screenHeightDp<610' in home
-assert 'portraitDrawableIds[selectedPilotChoice]' in home
+# The small-screen Home uses the approved 3-piece flying actor now:
+# frame geometry, tap actions and accessibility remain independent.
+assert 'val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(' in home
+assert 'content.addView(compactWingedBopi,' in home
 assert 'contentDescription="Otvori izbor likova"' not in home or 'showSkins()' in home
 assert 'LinearLayout.LayoutParams(0,d(77),1f)' in home
 assert "FitViewportColumn(this)" in home
