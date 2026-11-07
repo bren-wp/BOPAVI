@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BOPAVI native layout invariants across Home, Options and all nine UI captures.
+"""BOPAVI native layout invariants and complete 16-screen real capture gallery.
 
 These guards check measurable UI geometry and actual release capture origins,
 not unverified owner-reference pixel identity. Emulator smoke tests confirm
@@ -48,14 +48,16 @@ for item in ("android-home","android-options","android-records","android-privacy
     assert item in qa,item
 for item in ("Options","Records","Privacy","Terms"):
     assert f"BOPAVI-Android-{item}.png" in wf,item
-for item in ("Home","Flight-Preview","Flight-Active","Pause","Results"):
+for item in ("Home","Splash","Skins","Shop","Settings","Achievements",
+             "Leaderboard","Level-Map","Options","Records","Privacy","Terms",
+             "Flight-Preview","Flight-Active","Pause","Results"):
     assert f"BOPAVI-Android-{item}.png" in wf,item
-assert "test \"$(wc -l < SHA256SUMS.txt)\" -eq 14" in wf
+assert "test \"$(wc -l < SHA256SUMS.txt)\" -eq 21" in wf
 assert "source.stat().st_size < 2000" in wf
-assert "all four native submenus have distinct authentic captures" in wf
+assert "all 16 gallery pictures have distinct authentic captures" in wf
 
 # Both icon types use the same exact owner-approved Bopi drawable XML.
 res=root/"android/app/src/main/res/mipmap-anydpi-v26"
 assert (res/"ic_launcher_round.xml").read_bytes()==(res/"ic_launcher.xml").read_bytes()
 assert 'android:roundIcon="@mipmap/ic_launcher_round"' in (root/"android/app/src/main/AndroidManifest.xml").read_text()
-print("PASS: fully measured Options controls, Home heading, original round launcher and nine genuine Android UI captures")
+print("PASS: fully measured Options controls, Home heading, original round launcher and sixteen genuine Android UI captures")
