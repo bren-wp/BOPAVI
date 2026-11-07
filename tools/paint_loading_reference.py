@@ -18,7 +18,7 @@ def paint_loading_reference(base: Image.Image) -> Image.Image:
     layer = Image.new("RGBA", scenery.size)
     draw = ImageDraw.Draw(layer, "RGBA")
 
-    def cliff(cx, top, width, depth, waterfall):
+    def cliff(cx, top, width, depth):
         """Jagged ivy-covered waterfall cliff, kept outside the pilot's core."""
         left, right = cx - width / 2, cx + width / 2
         # Existing reference has tapered, fractured sandstone rather than
@@ -101,12 +101,12 @@ def paint_loading_reference(base: Image.Image) -> Image.Image:
 
     # The owner's source has a prominent LEFT castle on cliff, and a smaller
     # secondary castle high on the right. Both are scenic, not Android Views.
-    cliff(50,253,254,420,True)
+    cliff(50,253,254,420)
     castle(72,257,1.14)
-    cliff(855,378,205,270,True)
+    cliff(855,378,205,270)
     castle(834,377,.65)
-    cliff(41,948,171,280,True)
-    cliff(865,1085,155,230,True)
+    cliff(41,948,171,280)
+    cliff(865,1085,155,230)
 
     # Tiny far islands create depth against blue sky without reproducing UI.
     for cx,yy,scale in ((251,66,.65),(619,58,.43),(715,740,.35),
