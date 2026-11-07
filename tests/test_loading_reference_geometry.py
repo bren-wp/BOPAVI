@@ -43,7 +43,7 @@ assert "0xffffbc27.toInt()" in view
 assert "paint.pathEffect=android.graphics.DashPathEffect" not in view
 assert "ring(canvas,546f,1057f,37f,54f,-21f)" in view
 assert "ring(canvas,666f,1081f,25f,37f,-19f)" in view
-assert "postInvalidateDelayed(33L)" in view
+assert "postInvalidateDelayed(if(startup)80L else 48L)" in view
 assert "isAttachedToWindow" in view
 assert "android.os.SystemClock.uptimeMillis()-scanStartedAtMs," in view
 assert "preparationFinished)" in view
