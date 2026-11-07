@@ -108,6 +108,7 @@ jobs:
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_reference_pixel_diff_tool.py
+      - run: python tests/test_two_owner_screen_comparator.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_reference_button_cluster_contract.py
