@@ -25,7 +25,11 @@ for name,counters in (("ownerB",2),("ownerO",1),("ownerP",1),("ownerA",1)):
     assert glyph.attrib["fill-rule"]=="evenodd"
     assert glyph.attrib["d"].count("M")==counters+1
     assert glyph.attrib["d"].count(" Z")==counters+1
-assert sum(item.attrib["d"].count(" C") for item in letters.values())>=120
+# Reconstructed, non-self-intersecting glyphs retain the owner's B/O/P/A
+# counters without the former hundreds of tiny defective cubic segments.
+assert sum(item.attrib["d"].count(" C") for item in letters.values())>=24
+assert 'viewBox="-42 -37 844 352"' in svg
+assert all(len(item.attrib["d"])>200 for item in letters.values())
 assert "0 37" in svg and "0 50" in svg
 assert 'cx="675"' in svg and 'rx="17"' in svg
 for trace in (
