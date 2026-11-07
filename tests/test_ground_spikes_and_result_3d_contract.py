@@ -30,11 +30,12 @@ assert "spikeTipsRemainInExistingSolidGround" in unit
 assert "visualSpikesNeverReduceTheBirdsAllowedMovement" in unit
 assert "val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(" in view
 assert "if(showGameplayObstacles) {" in view
-assert "if(game.level.world==0)drawSkyMeadowsGroundSpikes(canvas)" in view
+assert "if(game.level.world==6)drawEnchantedForestGroundSpikes(canvas)" in view
+assert "if(game.level.world==0)drawEnchantedForestGroundSpikes(canvas)" not in view
 assert "val tip=g.tipY(i)" in view
 assert "val base=g.spineBottom" in view
-assert "drawSkyMeadowsGroundSpikes" in view.split("private fun drawWorldAtmosphere",1)[0]
-assert "private fun drawSkyMeadowsGroundSpikes(c:Canvas)" in view
+assert "drawEnchantedForestGroundSpikes" in view.split("private fun drawWorldAtmosphere",1)[0]
+assert "private fun drawEnchantedForestGroundSpikes(c:Canvas)" in view
 
 # Two full native click actions, real run stats and selected alternate skins.
 assert 'stage.place(action("RETRY",true,onRetry)' in result
