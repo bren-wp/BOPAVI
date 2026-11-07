@@ -755,6 +755,12 @@ for name in ("android-gameplay-ready-reference-size.png",
     assert struct.unpack(">II",shot[16:24])==(941,1672),name+" dimensions mismatch"
 print("PASS: real idle AND active gameplay at 941x1672, distinct unscaled frames")
 PY
+  # Read actual non-resized emulator pixels. The lower hazard strip must
+  # visibly change only after the first genuine flap, independent of the
+  # disappearing tutorial prompt or animated Bopi near the centre of screen.
+  python3 tools/qa_first_flap_hazards.py \
+    qa/screenshots/android-gameplay-ready-reference-size.png \
+    qa/screenshots/android-gameplay-active-reference-size.png
   printf 'STATE: real flight-idle AND first-flap active at 941x1672 captured\n' >> qa/screenshots/state-evidence.txt
   adb shell wm size reset
   adb shell wm density reset
