@@ -52,9 +52,13 @@ for item in (
 # 3D owner-reference pills must be rounded and physically extruded rather
 # than flat Android backgrounds; major icons must have independent art.
 assert "val radius=min(h*.48f,w*.24f)" in bevel
-assert "val drop=min(22f,h*.13f)" in bevel
-assert "val inset=min(12f,h*.075f)" in bevel
+assert "val drop=min(if(sourceHome)30f else 22f," in bevel
+assert "h*(if(sourceHome).155f else .13f)" in bevel
+assert "val inset=min(if(sourceHome)8f else 12f," in bevel
+assert "h*(if(sourceHome).054f else .075f)" in bevel
 assert "canvas.clipPath(faceClip)" in bevel
+assert "sourceHome=true" in view
+assert "if(sourceHome)0xff102347.toInt() else 0x77001b4e" in bevel
 assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
 assert "enamel(canvas,speaker,0xfffff9af.toInt(),0xffffae22.toInt()," in icons
 assert 'wallet("STARS",earnedStars,' in view
@@ -88,7 +92,7 @@ assert "val emblem=minOf(" in view
 assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
 assert "glyph(kind,40)" in view
-assert "HomeEmbossedLabel(host,text,17f,false)" in view
+assert "HomeEmbossedLabel(host,text,19f,false)" in view
 assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
@@ -127,7 +131,7 @@ assert "val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)" in view
 assert "allowMotion=!progress.lessMotion()" in view
 assert "setImageResource(skinPortraitRes)" in view
 assert "0xff9110e2.toInt()" in view
-assert "0xff28bd16.toInt()" in view
+assert "0xff2abe1c.toInt()" in view
 assert "assertTrue(HomeReferenceLayout.valid())" not in unit or "assertTrue(home.valid())" in unit
 assert "assertTrue(HomeReferenceLayout.supports(941,1672,true))" in unit
 assert 'capture "android-home-$label"' in qa

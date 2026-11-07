@@ -21,7 +21,8 @@ internal class HomeEnamelDrawable(
     private val highlight:Int,
     private val middle:Int,
     private val shadow:Int,
-    private val edge:Int
+    private val edge:Int,
+    private val sourceHome:Boolean=false
 ):Drawable(){
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private var opacity=255
@@ -57,8 +58,11 @@ internal class HomeEnamelDrawable(
         // readable and physically separate from its live accessibility label.
         if(!enabled)canvas.saveLayerAlpha(0f,0f,w,h,145)
         val radius=min(h*.48f,w*.24f)
-        val drop=min(22f,h*.13f)*(if(pressed).48f else 1f)
-        val inset=min(12f,h*.075f)
+        val drop=min(if(sourceHome)30f else 22f,
+            h*(if(sourceHome).155f else .13f))*
+            (if(pressed).48f else 1f)
+        val inset=min(if(sourceHome)8f else 12f,
+            h*(if(sourceHome).054f else .075f))
         fun coat(color:Int){
             p.reset()
             p.isAntiAlias=true
@@ -70,15 +74,17 @@ internal class HomeEnamelDrawable(
         fun rounded(l:Float,t:Float,r:Float,b:Float,rad:Float){
             canvas.drawRoundRect(RectF(l,t,r,b),rad,rad,p)
         }
-        // Dark offset extrusion, visible even against white clouds.
-        coat(0x77001b4e)
+        // Owner Home source buttons have a broad brown/navy stroke around
+        // the entire lower enamel wall, not the pale flat-white frame
+        // of the generic controls. Restrict to the actual Home CTAs.
+        coat(if(sourceHome)0xff102347.toInt() else 0x77001b4e)
         rounded(3f,drop+3f,w-2f,h, radius)
         coat(shadow)
         rounded(1f,drop*.65f,w-1f,h-3f,radius)
         // Raised outer gold/ice rim with a light lip.
         coat(edge)
         rounded(0f,0f,w-2f,h-drop*.72f,radius)
-        coat(0xfffaffff.toInt())
+        coat(if(sourceHome)0x66fff8e4 else 0xfffaffff.toInt())
         rounded(inset*.34f,inset*.34f,w-inset*.34f-2f,
             h-drop*.85f-inset*.28f,radius*.96f)
         // Inset glossy face, deliberately non-flat across all button sizes.
@@ -111,10 +117,11 @@ internal class HomeEnamelDrawable(
                 face.left+4f,face.top+face.height()*.52f)
             close()
         }
-        coat(0x77ffffff)
+        coat(if(sourceHome)0x54ffffff else 0x77ffffff)
         p.shader=LinearGradient(face.left,face.top,face.left,
             face.top+face.height()*.52f,
-            0x99ffffff.toInt(),0x06ffffff,Shader.TileMode.CLAMP)
+            if(sourceHome)0x74ffffff else 0x99ffffff.toInt(),
+            0x06ffffff,Shader.TileMode.CLAMP)
         canvas.drawPath(upper,p)
         p.shader=null
         // An off-center enamel glint is visible even on short footer pills.

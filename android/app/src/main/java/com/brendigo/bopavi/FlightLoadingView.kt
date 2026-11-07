@@ -260,10 +260,16 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
 
         // Ring positions follow the ORIGINAL Loading reference, not the
         // Game Over screenshot. They are illustrative, never wallet values.
-        ring(canvas,108f,880f,58f,92f,-18f)
-        ring(canvas,355f,1015f,69f,108f,-25f)
-        ring(canvas,549f,1033f,37f,54f,-21f)
-        ring(canvas,658f,1047f,26f,40f,-19f)
+        // The owner Splash shows a genuine PERSPECTIVE trail: tiny
+        // far rings on the right, larger hoops toward lower left, and
+        // one oversized partly cropped ring in the extreme foreground.
+        // They are decorative geometry, not earned coins.
+        ring(canvas,746f,1097f,14f,23f,-18f)
+        ring(canvas,666f,1081f,25f,37f,-19f)
+        ring(canvas,546f,1057f,37f,54f,-21f)
+        ring(canvas,350f,989f,72f,106f,-25f)
+        ring(canvas,104f,830f,61f,87f,-18f)
+        ring(canvas,80f,1230f,150f,190f,-21f)
 
         // Owner's supplied Splash has a raised, blue-tinted progress track
         // near the bottom. Its cyan animation remains indeterminate: no fake

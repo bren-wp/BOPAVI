@@ -34,14 +34,15 @@ assert "private fun ring(canvas: Canvas" in view
 assert "android.graphics.DashPathEffect(" not in view
 assert "paint.color=0xffffc70a.toInt()" not in view  # Splash gold uses its own palette
 assert "paint.color=0xffffb800.toInt()" in view
-assert "ring(canvas,108f,880f,58f,92f,-18f)" in view
+assert "ring(canvas,104f,830f,61f,87f,-18f)" in view
+assert "ring(canvas,80f,1230f,150f,190f,-21f)" in view
 assert "coin(canvas," not in view
-assert "ring(canvas,355f,1015f,69f,108f,-25f)" in view
+assert "ring(canvas,350f,989f,72f,106f,-25f)" in view
 assert "trackWings(canvas)" in view
 assert "0xffffbc27.toInt()" in view
 assert "paint.pathEffect=android.graphics.DashPathEffect" not in view
-assert "ring(canvas,549f,1033f,37f,54f,-21f)" in view
-assert "ring(canvas,658f,1047f,26f,40f,-19f)" in view
+assert "ring(canvas,546f,1057f,37f,54f,-21f)" in view
+assert "ring(canvas,666f,1081f,25f,37f,-19f)" in view
 assert "postInvalidateDelayed(60L)" in view
 assert "isAttachedToWindow" in view
 assert "android.os.SystemClock.uptimeMillis(),preparationFinished)" in view
