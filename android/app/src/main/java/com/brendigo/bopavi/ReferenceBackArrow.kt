@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable
 internal class ReferenceBackArrow(private val px:Int):Drawable(){
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private val shape=Path()
-    private var alpha=255
+    private var requestedAlpha=255
     private var filter:ColorFilter?=null
 
     init {
@@ -37,20 +37,20 @@ internal class ReferenceBackArrow(private val px:Int):Drawable(){
         canvas.scale(bounds.width()/66f,bounds.height()/66f)
         p.reset();p.isAntiAlias=true
         p.strokeJoin=Paint.Join.ROUND
-        p.color=0xff003279.toInt();p.alpha=alpha
+        p.color=0xff003279.toInt();p.alpha=requestedAlpha
         p.style=Paint.Style.STROKE;p.strokeWidth=8f
         p.colorFilter=filter
         canvas.drawPath(shape,p)
         p.style=Paint.Style.FILL;p.color=0xfffcffff.toInt()
-        p.alpha=alpha;canvas.drawPath(shape,p)
+        p.alpha=requestedAlpha;canvas.drawPath(shape,p)
         p.style=Paint.Style.STROKE
         p.strokeWidth=3f;p.color=0xff82c8fa.toInt()
-        p.alpha=alpha
+        p.alpha=requestedAlpha
         canvas.save();canvas.translate(-1f,-1f)
         canvas.drawPath(shape,p);canvas.restore()
         canvas.restoreToCount(saved)
     }
-    override fun setAlpha(value:Int){alpha=value.coerceIn(0,255);invalidateSelf()}
+    override fun setAlpha(value:Int){requestedAlpha=value.coerceIn(0,255);invalidateSelf()}
     override fun setColorFilter(value:ColorFilter?){filter=value;invalidateSelf()}
     override fun getOpacity():Int=PixelFormat.TRANSLUCENT
     override fun getIntrinsicWidth():Int=px
