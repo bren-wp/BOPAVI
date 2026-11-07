@@ -16,6 +16,25 @@ internal data class ShopItemState(
     val canBuy:Boolean get()=!soldOut && affordable
     val isShield:Boolean get()=index%2==0
     val tier:Int get()=index/2+1
+    // Presentation-only copy mirrors the functional three shield/magnet tiers;
+    // no GEM PACK, random skin or virtual gem wallet is advertised unless
+    // those products are backed by a real offline transaction.
+    val storefrontTitle:String get()=when(index){
+        0 -> "SHIELD"
+        1 -> "MAGNET"
+        2 -> "DOUBLE SHIELD"
+        3 -> "LONG MAGNET"
+        4 -> "TRIPLE SHIELD"
+        else -> "SUPER MAGNET"
+    }
+    val perkEffect:String get()=if(isShield) {
+        when(tier){1->"Blocks one hit";2->"Blocks two hits";else->"Blocks three hits"}
+    } else {
+        val seconds=when(tier){1->8;2->12;else->18}
+        "Attracts rewards for ${seconds}s"
+    }
+    val iconTierLabel:String get()=if(isShield)"×${tier}" else
+        "${when(tier){1->8;2->12;else->18}}s"
     val buttonLabel:String get()=when {
         soldOut->"MAX 99"
         !affordable->"NEED $price COINS"
