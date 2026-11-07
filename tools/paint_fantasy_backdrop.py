@@ -233,7 +233,56 @@ def cinematic_detail(flat: Image.Image) -> Image.Image:
             rx,ry=rng.randrange(55,126),rng.randrange(31,85)
             foliage.ellipse((x-rx,y-ry,x+rx,y+ry),
                             fill=(5,31+(k%4)*9,22,202))
+    # White cloud terraces and soft-focus flower beds fill the formerly
+    # empty blue Home/Splash lower third. They are scenic pixels only: all
+    # Home buttons, wallet figures, loading track and live pilot remain native.
+    garden=Image.new("RGBA",(w,h),(0,0,0,0))
+    flowers=ImageDraw.Draw(garden,"RGBA")
+    flower_rng=Random(9411672+350)
+    for cx,cy,rx,ry in (
+        (170,1265,165,95),(750,1290,160,94),
+        (420,1443,225,96),(-35,1430,120,95),
+        (965,1450,116,102)):
+        for k in range(13):
+            dx=flower_rng.randint(-100,100)*rx/165
+            dy=flower_rng.randint(-42,42)*ry/95
+            r=flower_rng.randint(30,67)
+            flowers.ellipse((cx+dx-r,cy+dy-r*.58,
+                             cx+dx+r,cy+dy+r*.58),
+                            fill=(249,253,255,flower_rng.randint(24,62)))
+    # Low foreground vegetation should frame, not cover, the footer labels.
+    for k in range(89):
+        x=flower_rng.randrange(-22,w+22)
+        y=flower_rng.randrange(1515,1680)
+        rx=flower_rng.randrange(14,52)
+        ry=flower_rng.randrange(16,47)
+        green=(13+flower_rng.randrange(0,45),
+               54+flower_rng.randrange(0,68),
+               21+flower_rng.randrange(0,29),
+               flower_rng.randrange(112,190))
+        flowers.ellipse((x-rx,y-ry,x+rx,y+ry),fill=green)
+        if k%7==0:
+            flowers.ellipse((x-rx*.38,y-ry*.55,
+                             x+rx*.20,y+ry*.12),
+                            fill=(115,189,64,flower_rng.randrange(67,125)))
+    for x,y,scale in ((82,1517,.78),(322,1536,.95),
+                      (584,1550,.67),(820,1527,.83)):
+        flowers.line((x,y+13*scale,x+7*scale,y+59*scale),
+                     fill=(24,116,55,163),width=3)
+        for petal in range(8):
+            from math import cos, sin, pi
+            angle=2*pi*petal/8
+            cx=x+cos(angle)*13*scale
+            cy=y+sin(angle)*13*scale
+            flowers.ellipse((cx-8*scale,cy-7*scale,
+                             cx+8*scale,cy+7*scale),
+                            fill=(255,253,235,216))
+        flowers.ellipse((x-7*scale,y-7*scale,
+                         x+7*scale,y+7*scale),
+                        fill=(255,187,36,236))
     result=Image.alpha_composite(result,layer)
+    result=Image.alpha_composite(
+        result,garden.filter(ImageFilter.GaussianBlur(3)))
     result=Image.alpha_composite(result,
         fringe.filter(ImageFilter.GaussianBlur(9)))
     return result.convert("RGB")

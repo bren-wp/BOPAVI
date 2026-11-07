@@ -18,7 +18,7 @@ hero=Image.open(io.BytesIO(cairosvg.svg2png(url=str(r/'docs/assets/hero.svg'),ou
 launch=Image.new('RGB',(900,1600),(18,110,201))
 from PIL import ImageDraw
 draw=ImageDraw.Draw(launch)
-stops=[(0,(16,100,190)),(520,(45,168,240)),(1200,(105,208,247)),(1600,(51,152,219))]
+stops=[(0,(33,132,231)),(520,(65,177,246)),(1200,(125,215,246)),(1600,(64,165,223))]
 for y in range(1600):
     for i in range(len(stops)-1):
         y0,c0=stops[i];y1,c1=stops[i+1]
