@@ -9,7 +9,6 @@ import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.view.View
-import kotlin.math.sin
 
 /**
  * Native, offline 941x1672 Shop storefront artwork.  No screenshot or fake
