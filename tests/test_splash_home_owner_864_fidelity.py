@@ -16,7 +16,8 @@ for identifier in ("ownerWarm","ownerBlue"):
     assert any(x.attrib.get("id")==identifier for x in xml.iter()),identifier
 assert "DejaVu Sans" not in svg
 assert "fill-rule=\"evenodd\"" in svg
-assert "0 37" in svg and "0 43" in svg
+assert "0 37" in svg and "0 82" in svg
+assert 'cx="675"' in svg and 'rx="17"' in svg
 for trace in (
     "ring(canvas,80f,1230f,150f,190f,-21f)",
     "ring(canvas,350f,989f,72f,106f,-25f)",
