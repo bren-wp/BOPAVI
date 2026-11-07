@@ -22,7 +22,10 @@ for old_theme in ('name="android:statusBarColor"', 'name="android:navigationBarC
 assert "window.setDecorFitsSystemWindows(false)" in app
 assert "decor.post {" in app
 assert "if(decor.isAttachedToWindow)" in app
-assert "decor.windowInsetsController?.hide(" in app
+assert "val controller=decor.windowInsetsController" in app
+assert "controller?.hide(android.view.WindowInsets.Type.statusBars()" in app
+assert "or android.view.WindowInsets.Type.navigationBars())" in app
+assert "controller?.show(android.view.WindowInsets.Type.navigationBars())" in app
 assert "window.insetsController?.hide(" not in app
 assert "View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION" in app
 assert "applySafeViewportInsets(view,insets)" in app
