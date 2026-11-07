@@ -195,13 +195,19 @@ try:
 except (OSError,ET.ParseError):
     sys.exit(1)
 nodes=list(root.iter("node"))
+# AOSP API35 reports package "android"; AOSP API36 reports
+# "com.android.systemui" for the SAME built-in immersive guidance.
+system_packages=("android","com.android.systemui")
+titles=[n for n in nodes if n.get("package") in system_packages
+        and n.get("text")=="Viewing full screen"]
+if len(titles)!=1:sys.exit(1)
+system_package=titles[0].get("package")
 def system_text(value):
-    return [n for n in nodes if n.get("package")=="android" and
+    return [n for n in nodes if n.get("package")==system_package and
             n.get("text")==value]
-if len(system_text("Viewing full screen"))!=1 or len(system_text(
-    "To exit, swipe down from the top of your screen"))!=1:
+if len(system_text("To exit, swipe down from the top of your screen"))!=1:
     sys.exit(1)
-buttons=[n for n in nodes if n.get("package")=="android" and
+buttons=[n for n in nodes if n.get("package")==system_package and
          n.get("class")=="android.widget.Button" and n.get("text")=="Got it"
          and n.get("clickable")=="true" and n.get("enabled")=="true"]
 if len(buttons)!=1:sys.exit(1)
