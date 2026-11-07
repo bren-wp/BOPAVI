@@ -1,4 +1,4 @@
-"""Final-heart state and genuine on-screen touch targets, without a Pause HUD."""
+"""Idle last-heart HUD and active reference SCORE/Pause both use real state."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
@@ -16,6 +16,10 @@ assert 'lifeColorsMatchTheRealState' in unit
 assert 'finalLifeWarningOnlyWhenOneHeartRemains' in unit
 assert 'fun isFinalLife(' in policy and 'fun lifeCountColor(' in policy
 assert 'gamePauseButton' not in activity
-assert 'PAUZIRAJ IGRU" in label(n)' in emulator
-assert 'len(pause)==0' in emulator
-print("PASS: last-life cue and on-screen HUD without Pause overlap")
+# The active flight now has a real orange Pause touch region; the ready
+# state still keeps the old accessible lives badge and no fake shop currency.
+assert '"GORE DESNO PAUZA"' in emulator
+assert 'GameplayReferenceHudLayout.hitArea(' in view
+assert 'showPremiumPause(current)' in activity
+assert 'adb shell input keyevent 4' in emulator
+print("PASS: idle last-life cue and real active SCORE/Pause HUD without overlap")
