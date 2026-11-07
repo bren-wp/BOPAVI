@@ -238,6 +238,12 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         val checkpoint = canvas.save()
         canvas.translate(offsetX, offsetY)
         canvas.scale(scale, scale)
+        // The reference stays exact at its original aspect ratio. On taller
+        // Android displays pin the separate logo near the top, flying Bopi
+        // above centre and real loading track near the lower edge instead of
+        // centering one short strip with empty sky above and below.
+        val extraHeight=((h/scale)-FlightLoadingLayout.referenceHeight)
+            .coerceAtLeast(0f)
 
         // Translucent wind trails follow the original flying pose without
         // obscuring the islands or pretending to be a flat UI container.
@@ -254,7 +260,12 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         canvas.drawArc(RectF(-80f,628f,895f,1100f),
             44f,95f,false,paint)
         paint.style=Paint.Style.FILL
+        val logoCheckpoint=canvas.save()
+        canvas.translate(0f,-extraHeight*.45f)
         image(canvas, brand, logoRect)
+        canvas.restoreToCount(logoCheckpoint)
+        val pilotCheckpoint=canvas.save()
+        canvas.translate(0f,-extraHeight*.25f)
         // Compose the same original pilot as actual gameplay, wings behind
         // the head/body. Unlike a portrait, this contains real wing geometry.
         if(selected==0)BopiOwnerAccessories.drawBack(canvas,pilotRect)
@@ -262,6 +273,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         image(canvas, rightWing, pilotRect)
         image(canvas, body, pilotRect)
         if(selected==0)BopiOwnerAccessories.drawFront(canvas,pilotRect)
+        canvas.restoreToCount(pilotCheckpoint)
 
         // Ring positions follow the ORIGINAL Loading reference, not the
         // Game Over screenshot. They are illustrative, never wallet values.
@@ -277,7 +289,11 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         ring(canvas,80f,1230f,150f,190f,-21f)
 
         // Owner's supplied Splash has a raised, blue-tinted progress track
-        // near the bottom. Its cyan animation remains indeterminate: no fake
+        // near the bottom.
+        val trackCheckpoint=canvas.save()
+        canvas.translate(0f,extraHeight*.45f)
+        // Preserve a single genuine native loading state. The housing,
+        // animated fill, wings and caption must move together. Its cyan animation remains indeterminate: no fake
         // completion percentage or arbitrary network-dependent wait.
         val outer=RectF(FlightLoadingLayout.track.left,
             FlightLoadingLayout.track.top,
@@ -341,6 +357,7 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
         outlinedText(canvas,"Loading...",
             FlightLoadingLayout.captionCenterX,
             FlightLoadingLayout.captionBaselineY,53f)
+        canvas.restoreToCount(trackCheckpoint)
         if(!preparationFinished && isAttachedToWindow)postInvalidateDelayed(60L)
         canvas.restoreToCount(checkpoint)
     }

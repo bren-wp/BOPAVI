@@ -31,6 +31,24 @@ class FlightLoadingLayoutTest {
             }
         }
     }
+    @Test fun tallScreenPinsBrandedHeaderAndProgressToOppositeEnds(){
+        val l=FlightLoadingLayout
+        val w=1080f
+        val h=2400f
+        val scale=kotlin.math.min(w/l.referenceWidth,h/l.referenceHeight)
+        val extraHeight=(h/scale-l.referenceHeight).coerceAtLeast(0f)
+        assertTrue(extraHeight>0f)
+        val centerOffset=(h-l.referenceHeight*scale)/2f
+        val headerTop=centerOffset+scale*(l.logo.top-extraHeight*.45f)
+        val barBottom=centerOffset+scale*(l.track.bottom+extraHeight*.45f)
+        val paintedHeroTop=centerOffset+scale*
+            (l.pilotPaintedTop-extraHeight*.25f)
+        assertTrue(headerTop>=0f)
+        assertTrue(headerTop<h*.10f)
+        assertTrue(paintedHeroTop>headerTop)
+        assertTrue(barBottom>h*.80f)
+        assertTrue(barBottom<h)
+    }
     @Test fun titlePilotAndTrackStayInReferenceVerticalOrder(){
         val l=FlightLoadingLayout
         assertTrue(l.logo.bottom<l.pilotPaintedTop)
