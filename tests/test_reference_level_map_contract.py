@@ -65,7 +65,7 @@ assert "setAutoSizeTextTypeUniformWithConfiguration(11,18,1," in mapSource
 assert "button.maxLines=3" in mapSource
 assert "button.setPadding(dp(3),0,dp(3),0)" in mapSource
 assert "setAutoSizeTextTypeUniformWithConfiguration(11,20,1," in mapSource
-assert "setAutoSizeTextTypeUniformWithConfiguration(10,13,1," in mapSource
+assert 'stage.place(nativeButton("‹","Home",blue)' in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
