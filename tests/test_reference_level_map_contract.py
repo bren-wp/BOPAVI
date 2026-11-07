@@ -89,6 +89,12 @@ assert 'screenshot=adb("exec-out","screencap","-p")' not in qa
 assert 'node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)' in qa
 assert 'node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)' in qa
 assert 'node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)' in qa
+assert 'def acknowledge_native_fullscreen_education(root):' in qa
+assert 'n.get("package") in system' in qa
+assert 'n.get("text")=="Viewing full screen"' in qa
+assert 'n.get("text")=="Got it"' in qa
+assert 'tap(buttons[0])' in qa
+assert 'if acknowledge_native_fullscreen_education(root):' in qa
 assert '"wm","size","reset"' in qa
 assert "http://" not in mapSource and "https://" not in mapSource
 
