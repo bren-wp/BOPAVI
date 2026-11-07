@@ -69,6 +69,8 @@ assert "Measure actual painted text." in view
 assert "ReferenceButtonCluster.measure(" in view
 assert "textMeasure.measureText(text)" in view
 assert "width=cluster.labelWidth" in view
+assert "val heightFraction=if(isPlay).76f else .71f" in view
+assert "if(isPlay).76f else .71f,.94f)" in view
 assert "marginStart=cluster.gap" in view
 assert "val titleW=(w*when(kind)" not in view
 assert "HomeTopWalletRail(host)" in view
@@ -87,7 +89,7 @@ assert "width=emblem" in view and "height=emblem" in view
 assert "LinearLayout.LayoutParams(-1,0,1f)" in view
 assert "glyph(kind,40)" in view
 assert "HomeEmbossedLabel(host,text,15f,false)" in view
-assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 for kind in ("PLAY","SHIRT","SHOP","SETTINGS","RECORDS","LEADERBOARD","SOUND"):
     assert f"BopaviUiIconDrawable.Kind.{kind}->" in icons,kind
 for required in ("LinearGradient(","Paint.Style.STROKE",
@@ -101,7 +103,7 @@ for required in ("internal class HomeEmbossedLabel(", ":TextView(context)",
     assert required in lettering,required
 # The emulator requires exactly one text-bearing SKINS/SHOP child inside
 # the actual clickable 3D button, not a silent custom Canvas View.
-assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay)" in view
+assert "HomeEmbossedLabel(host,text,font.toFloat(),isPlay," in view
 assert "HomeWingActor(host," in view
 for anchor in ("left[chosen],right[chosen],bodies[chosen]",
                "addView(leftWing,LayoutParams(-1,-1))",
