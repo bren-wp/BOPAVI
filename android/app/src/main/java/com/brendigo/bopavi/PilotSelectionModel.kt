@@ -10,9 +10,11 @@ internal object PilotSelectionModel {
                      val ability:PilotAbility)
     val pilots=listOf(
         Pilot(0,"CLASSIC AVIATOR","BOPI",PilotAbility.BOPI),
-        Pilot(1,"WISE OWL","SOVA",PilotAbility.SOVA),
+        Pilot(1,"SKY EAGLE","ORAO",PilotAbility.SOVA),
         Pilot(2,"SKY FOX","LISAC",PilotAbility.LISAC)
     )
+    // Legacy enum SOVA and sprite id 9 are preserved for saved games;
+    // the owner-facing aviator is presented as ORAO / SKY EAGLE.
     // Sprite IDs differ from the three selectable pilot indices.
     // Splash, Home and Flight must resolve the very same playable character.
     fun spriteIdForChoice(index:Int):Int = when(safeChoice(index)){

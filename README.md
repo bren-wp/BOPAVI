@@ -32,7 +32,7 @@ BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i
 
 ### Tri junaka, bezbroj pokušaja
 
-**Bopi** donosi osmijeh svakom zamahu, **Sova** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
+**Bopi** donosi osmijeh svakom zamahu, **Orao** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
 
 ## Zašto zaigrati?
 
@@ -40,7 +40,7 @@ BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i
 - ☁️ **Čarobni svijet iznad oblaka.** Leti između lebdećih otoka i živopisnih krajolika.
 - 🍓 **Prikupi bobice.** Izvuci najbolje iz svakog leta.
 - 🏆 **Sruši svoj rekord.** Prati svoje uspjehe i napredak na uređaju.
-- 🎮 **Odaberi svojega junaka.** Bopi, Sova ili Lisac čekaju tvoj poziv.
+- 🎮 **Odaberi svojega junaka.** Bopi, Orao ili Lisac čekaju tvoj poziv.
 - 💙 **Igraj bez ometanja.** Ne trebaju ti račun ni obvezna mrežna veza.
 
 ## S ljubavlju izrađeni detalji
@@ -96,7 +96,7 @@ Galerija obuhvaća svih **16 autentičnih Android zaslona**. Dva stupca osigurav
 
 ## Kako igrati?
 
-**1.** Odaberi Bopija, Sovu ili Lisca pa pritisni **IGRAJ**.
+**1.** Odaberi Bopija, Orla ili Lisca pa pritisni **IGRAJ**.
 
 **2.** Dodiruj zaslon kako bi junak zamahivao krilima.
 

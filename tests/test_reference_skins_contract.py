@@ -12,7 +12,7 @@ qa=(root/"tools/qa_android_reference_menus.py").read_text()
 junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTest.kt").read_text()
 assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onBack)" in menu
 assert "progress.chooseArcadePilot(index)" in main
-for word in ("CLASSIC AVIATOR","WISE OWL","SKY FOX","FREE • UNLOCKED",
+for word in ("CLASSIC AVIATOR","SKY EAGLE","SKY FOX","FREE • UNLOCKED",
              "Choose ","Selected "):
     assert word in model,word
 for expected in (
@@ -37,8 +37,8 @@ assert "GradientDrawable.OVAL" in screen
 assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
 assert "const val referenceWidth=941f" in layout
 assert "val skins=intArrayOf(" in screen
-assert "Selected WISE OWL" in junit
-assert 'tap(node_with("CHOOSE WISE OWL"))' in qa
+assert "Selected SKY EAGLE" in junit
+assert 'tap(node_with("CHOOSE SKY EAGLE"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
 assert "selectOrBuy(" not in screen  # No fake purchase of playable pilots

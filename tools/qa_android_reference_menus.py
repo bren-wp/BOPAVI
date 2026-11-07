@@ -80,7 +80,7 @@ def main():
         adb("shell","wm","size","941x1672")
         resized=True
         adb("shell","wm","density","320")
-        node_with("CHOOSE WISE OWL")
+        node_with("CHOOSE SKY EAGLE")
         width,height=capture_png("android-skins-reference-size")
         assert (width,height)==(941,1672),"FAIL: skins is not 941x1672"
         print("PASS: real native Skins screenshot 941x1672",flush=True)
@@ -88,15 +88,15 @@ def main():
         if resized:
             adb("shell","wm","size","reset")
             adb("shell","wm","density","reset")
-    tap(node_with("CHOOSE WISE OWL"))
-    node_with("SELECTED WISE OWL")
+    tap(node_with("CHOOSE SKY EAGLE"))
+    node_with("SELECTED SKY EAGLE")
     home()
     # A fresh process must restore the REAL saved arcade_pilot, not just a
     # transient selected card inside the current Activity.
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
     tap(node_with("OTVORI IZBOR LIKOVA"))
-    node_with("SELECTED WISE OWL")
+    node_with("SELECTED SKY EAGLE")
     home()
     tap(node_with("OTVORI IZBOR LIKOVA"))
     tap(node_with("CHOOSE CLASSIC AVIATOR"))

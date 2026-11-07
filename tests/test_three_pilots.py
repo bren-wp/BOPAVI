@@ -8,7 +8,7 @@ main=(K/"MainActivity.kt").read_text()
 view=(K/"GameView.kt").read_text()
 store=(K/"ProgressStore.kt").read_text()
 generator=(ROOT/"tools/generate_images.py").read_text()
-assert 'pilotNames=arrayOf("Bopi","Sova","Lisac")' in main
+assert 'pilotNames=arrayOf("Bopi","Orao","Lisac")' in main
 assert "fun spriteIdForChoice(index:Int):Int" in (K/"PilotSelectionModel.kt").read_text()
 assert "progress.chooseArcadePilot(index)" in main
 assert "private fun showSkins()" in main
