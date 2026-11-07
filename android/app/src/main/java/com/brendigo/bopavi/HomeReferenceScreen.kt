@@ -220,7 +220,8 @@ internal class HomeReferenceScreen(private val host:Activity,
                 FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
         }
         control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
-        control.addView(HomeEmbossedLabel(host,text,19f,false),
+        control.addView(HomeEmbossedLabel(host,text,21f,false,
+            footer=true),
             LinearLayout.LayoutParams(-1,0,0f))
         return control
     }
