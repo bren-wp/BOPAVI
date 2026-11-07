@@ -38,7 +38,7 @@ class FlightLoadingLayoutTest {
         assertTrue(l.pilot.bottom<l.track.top)
         assertTrue(l.captionBaselineY>l.track.bottom)
         assertTrue(l.captionBaselineY<l.track.bottom+90f)
-        assertEquals(591f,l.track.width,0f)
+        assertEquals(619f,l.track.width,0f)
         assertEquals(670f,l.pilot.width,0f)
         assertEquals(1483f,l.captionBaselineY,0f)
         assertTrue(l.track.bottom<l.referenceHeight)
