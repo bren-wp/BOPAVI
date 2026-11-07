@@ -31,7 +31,7 @@ class RoyalRingTrailTest {
     @Test fun anActualFlapCanCollectRingOnlyOnceAndChangeRealScore() {
         val base=LevelEngine.create(0,1)
         val safe=base.gates.first().copy(
-            x=330f,center=311f,gap=340f,width=70f,
+            x=280f,center=311f,gap=340f,width=70f,
             movement=0f,phase=0f,coin=true,star=false,power=0)
         val flight=GameSimulation(
             base.copy(gates=listOf(safe),speed=1f,wind=0f),endless=true)
