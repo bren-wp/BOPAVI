@@ -37,7 +37,12 @@ def score(name: str, owner_file: Path, native_file: Path, expected_sha: str) -> 
             raise ValueError(f"{name}: native capture must be an unscaled 864x1536 PNG")
         actual = image.convert("RGB")
     difference = ImageChops.difference(reference, actual)
-    changed = sum(1 for rgb in difference.getdata() if any(rgb))
+    # Count every changed RGB pixel exactly, even when only the blue
+    # channel differs by one unit. The maximum of all three channel
+    # deltas is zero ONLY for a truly identical pixel.
+    red, green, blue = difference.split()
+    changed = SIZE[0] * SIZE[1] - ImageChops.lighter(
+        ImageChops.lighter(red, green), blue).histogram()[0]
     channel_mae = sum(ImageStat.Stat(difference).mean) / 3.0
     return {
         "screen": name,
@@ -47,8 +52,8 @@ def score(name: str, owner_file: Path, native_file: Path, expected_sha: str) -> 
         "height": SIZE[1],
         "total_pixels": SIZE[0] * SIZE[1],
         "different_pixels": changed,
-        "rgb_mae": round(channel_mae, 6),
-        "rgb_deviation_percent": round(channel_mae / 255 * 100, 6),
+        "rgb_mae": channel_mae,
+        "rgb_deviation_percent": channel_mae / 255 * 100,
         "zero_pixel_deviation": changed == 0,
     }
 

@@ -35,6 +35,7 @@ class ZeroPixelAcceptanceTests(unittest.TestCase):
             failed = score("Splash", owner, native, expected)
             self.assertEqual(failed["different_pixels"], 1)
             self.assertGreater(failed["rgb_mae"], 0)
+            self.assertGreater(failed["rgb_deviation_percent"], 0)
             self.assertFalse(failed["zero_pixel_deviation"])
 
     def test_wrong_reference_sha_or_capture_dimensions_rejected(self):
