@@ -66,7 +66,11 @@ for name in ('generatedWorldsAreFasterButBoundedAndDeterministic',
              'movingPillarsStayBoundedAndZeroRemainsStill'):
     assert name in other,name
 qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
-assert 'and "MOĆ:" not in label(n)' in qa
+# Active Gameplay exposes real SCORE/coin/crystal state without an obsolete
+# pilot-power rail; reserve power abilities for the physical simulation.
+assert '"REZULTAT:"' in qa and '"KRISTALI:"' in qa
+assert '"MOĆ:" not in label(n)' not in qa
+assert "drawHudPowerIcon(" not in view
 manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
 assert 'android.permission.INTERNET' not in manifest
 print("PASS: three unique native abilities, active abilities without a cluttered status rail, bounded true pillar physics")
