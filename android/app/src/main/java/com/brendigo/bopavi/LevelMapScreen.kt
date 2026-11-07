@@ -508,8 +508,15 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         color(rock);c.drawPath(path,p)
         color(0x66442823);p.style=Paint.Style.STROKE;p.strokeWidth=7f
         c.drawPath(path,p);p.style=Paint.Style.FILL
+        // Raised bright turf lip with a darker, cut-rock overhang.
+        color(0xff284e43.toInt())
+        c.drawOval(cx-rx-4f,y-27f,cx+rx+4f,y+52f,p)
         color(top);c.drawOval(cx-rx,y-37f,cx+rx,y+43f,p)
         color(highlight);c.drawOval(cx-rx*.82f,y-34f,cx+rx*.82f,y+12f,p)
+        color(0x99ffffff.toInt())
+        p.style=Paint.Style.STROKE;p.strokeWidth=4f
+        c.drawArc(cx-rx*.88f,y-34f,cx+rx*.84f,y+21f,189f,157f,false,p)
+        p.style=Paint.Style.FILL
         // Three stepped waterfall ribbons with matching island shadows.
         color(0xff80eaff.toInt())
         for(i in 0..2)c.drawRoundRect(cx+rx*.34f+i*11f,y+27f,
@@ -517,6 +524,11 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         color(0xffd8fcff.toInt())
         for(i in 0..1)c.drawRoundRect(cx+rx*.34f+i*15f+3f,y+31f,
             cx+rx*.34f+i*15f+5f,y+deep*.70f,2f,2f,p)
+        // Fine blue-white spray highlights overlap the naturally running
+        // waterfall only. These are passive map decorations, not pickups.
+        color(0x66dfffff)
+        c.drawOval(cx+rx*.28f,y+deep*.62f,
+            cx+rx*.61f,y+deep*.79f,p)
     }
 
     /** Deterministic layered rock facets give floating land a cut-stone edge.
@@ -689,7 +701,16 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
                 to.x+54f,to.y+52f)
         }
         canvas.drawPath(path,p)
-        color(0xffffdeb2.toInt());p.strokeWidth=21f;canvas.drawPath(path,p)
+        // Paint.reset() inside color() restores FILL. The old code drew a
+        // gigantic beige filled triangle between the three floating worlds!
+        // Both passes must remain STROKE: this is a narrow winding walkway,
+        // never an opaque polygon that conceals castles, waterfalls or clouds.
+        color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE
+        p.strokeWidth=21f;p.strokeCap=Paint.Cap.ROUND
+        canvas.drawPath(path,p)
+        color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE
+        p.strokeWidth=3f;p.strokeCap=Paint.Cap.ROUND
+        canvas.drawPath(path,p)
         p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
         // Tiny floral highlights around Sky Meadows, excluding controls.
         for(i in 0..21){
