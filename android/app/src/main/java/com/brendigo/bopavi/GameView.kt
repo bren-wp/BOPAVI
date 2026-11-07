@@ -42,6 +42,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     private val savedCoinsAtFlightStart=ProgressStore(context).coins()
     private var lastReferenceScore=-1
     private var lastReferenceCrystals=-1
+    private var lastReferenceLives=-1
     private var referenceScoreLabel="0"
     private var referenceCrystalLabel="0"
     private val referenceCoinLabel=String.format(java.util.Locale.US,"%,d",savedCoinsAtFlightStart)
@@ -1697,10 +1698,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             lastReferenceCrystals=game.stars
             referenceCrystalLabel=game.stars.toString()
         }
-        if(scoreChanged || crystalsChanged){
-            contentDescription=flightHint()+" Rezultat: $score. "+
-                "Novčići: $savedCoinsAtFlightStart. Kristali: ${game.stars}. "+
-                "Gore desno pauza."
+        // Keep live life state accessible even when the reference visual HUD
+        // uses a SCORE plaque rather than a separate hearts rail. A shield
+        // hit can change lives without changing the score or crystal count.
+        val livesChanged=lastReferenceLives!=game.lives
+        if(scoreChanged || crystalsChanged || livesChanged){
+            lastReferenceLives=game.lives
+            contentDescription=flightHint()+" Životi: ${game.lives}/${game.maxLives}. "+
+                "Rezultat: $score. Novčići: $savedCoinsAtFlightStart. "+
+                "Kristali: ${game.stars}. Gore desno pauza."
         }
         hudGlass(c,h.coinWallet.left,h.coinWallet.top,
             h.coinWallet.right,h.coinWallet.bottom)
