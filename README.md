@@ -24,6 +24,12 @@ Iznad oblaka čeka te svijet nebeskih otoka, slapova i neočekivanih prepreka. U
 
 **Jednostavno za naučiti. Uzbudljivo za savladati.** Odaberi junaka, pritisni **IGRAJ** i uhvati ritam leta.
 
+## Svijet koji te poziva na još jedan let
+
+Krilati znak na početnom zaslonu, leteći Bopi i živopisno nebo uvode te u pustolovinu već pri pokretanju. Nastavi kroz kratke letove, usavrši osjećaj za prepreke i pokušaj svaki put biti spretniji.
+
+BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i pokušaj ponovno**.
+
 ## Zašto zaigrati?
 
 - 🪽 **Jedan dodir, potpuna kontrola.** Dodirni zaslon i upravljaj zamahom krila.
