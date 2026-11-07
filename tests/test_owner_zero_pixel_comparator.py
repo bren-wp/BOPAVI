@@ -10,7 +10,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from qa_owner_zero_pixel import SIZE, score
+from qa_owner_zero_pixel import SIZE, SCREEN_SIZE, OWNER_SHA256, score
 
 
 class ZeroPixelAcceptanceTests(unittest.TestCase):
@@ -51,9 +51,31 @@ class ZeroPixelAcceptanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "wrong owner reference"):
                 score("Home", owner, native, "0" * 64)
 
+    def test_three_owner_941_screens_require_unscaled_real_pixels(self):
+        for name in ("Gameplay","LevelMap","Shop"):
+            self.assertEqual(SCREEN_SIZE[name],(941,1672))
+            self.assertEqual(len(OWNER_SHA256[name]),64)
+            with tempfile.TemporaryDirectory() as temp:
+                root=Path(temp)
+                reference=root/"owner.png"
+                capture=root/"actual.png"
+                Image.new("RGB",(941,1672),(48,144,223)).save(reference)
+                digest=hashlib.sha256(reference.read_bytes()).hexdigest()
+                Image.new("RGB",(941,1672),(48,144,223)).save(capture)
+                self.assertTrue(score(name,reference,capture,digest)["zero_pixel_deviation"])
+                changed=Image.open(capture).convert("RGB")
+                changed.putpixel((470,800),(48,144,224))
+                changed.save(capture)
+                self.assertEqual(score(name,reference,capture,digest)["different_pixels"],1)
+                with self.assertRaisesRegex(ValueError,"wrong owner reference"):
+                    score(name,reference,capture,"0"*64)
+                Image.new("RGB",(864,1536),(48,144,223)).save(capture)
+                with self.assertRaisesRegex(ValueError,"unscaled"):
+                    score(name,reference,capture,digest)
+
     def test_unsupported_screens_never_pass(self):
-        with self.assertRaisesRegex(ValueError, "Only Splash and Home"):
-            score("Gameplay", Path("x"), Path("y"), "")
+        with self.assertRaisesRegex(ValueError, "Only registered owner"):
+            score("Unknown", Path("x"), Path("y"), "")
 
 
 if __name__ == "__main__":
