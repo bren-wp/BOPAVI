@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.60 — Splash, Home, Orao i Lisica (build 190)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.60)
+
+- **Orao:** lokalni SVG za stari sprite 9 precrtan je u smeđe-bijelog pilota s jantarno-smeđim očima, zasjenjenim perjem, kožnim remenom, dva tirkizno-plava zlatno obrubljena stakla i plavim šalom.
+- **Lisica:** originalni lokalni SVG za sprite 10 sada prikazuje narančasto-bijelo krzno, pune visoke uši, velik bijeli vrh repa, nasmiješeno lice, crveni šal i zlatnu medalju; krila ostaju zasebni animirani slojevi.
+- **Odabir likova:** korisnički naziv drugog pilota je **ORAO / SKY EAGLE**, a interni stari naziv SOVA, broj spritea 9 i sposobnost PilotAbility.SOVA ostaju zbog kompatibilnosti spremljenog napretka.
+- **QA likova:** automatski audit transparentnih slojeva tijela, oba krila i punih portreta sada obuhvaća svih 11 skinova, uključujući likove 9 i 10.
+- **README:** dodatna marketinška galerija dva pilota prikazuje lokalne SVG resurse; svih 16 stvarnih Android snimki ostaje klikabilno.
+- **Puni natpis:** B, O, P i A više nisu jedan vektorski objekt s zajedničkim even-odd pravilom. Svako slovo ima zaseban zatvoreni obris, unutarnje otvore i samostalan 3D reljef. Time se sprječava gubitak obojenih dijelova na mjestima preklapanja.
+- **Bez rezanja:** drvena podloga i listovi premješteni su unutar vidljivog SVG okvira. Na kompaktnom Homeu logotip se mjeri prema stvarnoj širini prozora, uključujući Android podijeljeni zaslon.
+- **Gornji HUD:** na Homeu se stvarna donja granica coin/gem kapsula ponovno mjeri nakon Android safe-area i notch pomaka. Potpuni logotip ostaje ispod HUD-a uz proporcionalnu prilagodbu, bez rastezanja slova.
+- **Animirani Splash:** početna animacija ostaje 3,5 sekundi (3500 ms), traka se osvježava približno 30 FPS, a plavi indeterminirani odsjaj prelazi veći dio trake. Nakon Splasha automatski se otvara Home; učitavanje razina nije vezano uz proizvoljan postotak.
+- **Puna README galerija:** svih 16 originalnih PNG-ova s GitHub izdanja prikazuje se u jednom stupcu, s pregledima širine 270 px i klikom na originalnu datoteku.
+- **Sve ostale funkcije:** zadržane su klikabilne kontrole, stvarni novčići i dragulji, pilotska animacija i stvarno učitavanje. Nijedan Gameplay zaslon ili fizika nisu mijenjani.
+- **README:** marketinška galerija zadržava svih 16 stvarnih Android snimki. Prikazuje po jednu sliku u redu radi čitljivosti na mobitelima; puni PNG-ovi dolaze u izdanju.
+
 ## v1.0.59 — Splash i Home: bolji 3D detalji i galerija svih zaslona (build 189)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.59)
@@ -19,15 +36,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Novi README donosi opis igre i **16 stvarnih Android snimki**: Home, Splash, Skins, Shop, Settings, Achievements, Leaderboard, Level Map, Options, Records, Privacy, Terms, Flight Preview, Flight Active, Pause, Results.
 - Objavljujemo stvarne PNG datoteke iz Android 15 emulatora, a ne konceptne slike. Nema skrivenog rasta broja valuta, zamjene interaktivnih zaslona snimkom ili fingiranja uspješne provjere.
 - Ugrađen je strogi test stvarnog odstupanja od referenci na 864×1536. **0% odstupanja ostaje cilj, nije dokazano.** Pozadinska ilustracija, Bopi i 3D slojevi ostaju glavni vizualni nedostaci.
-
-## v1.0.58 — Splash and Home deeper owner-reference 3D artwork (build 188)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.58)
-
-- Splash and Home only: replace a rough warm BOPA letter silhouette with six much more accurate source-contour vector paths, including independently hollow counters, preserving the existing crown, wings and native vector layers.
-- Splash: relocate the gold/navy/cyan winged loading track and raised caption downward by 32 source px. The cyan highlight is now a broad 66% *moving indeterminate scanner*, **not** a fake readiness percentage. The sweep begins relative to this view's creation; only successful level preparation fills the complete track.
-- Home: three bottom shortcut medallions gain reference-dark navy enamel centres and gold sidewalls. Their embossed white captions have smaller shadow offsets and accurately raised strokes.
-- Original blue Bopi on Splash/Home receives independently drawn native red flying scarf, gold crown clasp and second cyan aviator lens. Existing three sprite layers and animated wings remain active. Other skins, game characters, hitboxes and gameplay stay untouched.
-- Offline 900×1600 fantasy landscape now has translucent, painterly stacked cloud banks at the top, sides and distance. The still-inexact source towers and waterfalls are not replaced with a flattened screenshot.
-- Baseline measured from published **v1.0.57** native Android 941×1672 screenshots against two user-owned 864×1536 JPEG originals, resampled for diagnostic comparison only: Splash **70.673/255 = 27.715%** normalized RGB MAE, Home **64.734/255 = 25.386%**. These are baseline values, **not measured results for v1.0.58** and not 1:1.
-- Every major button, route, saved currency, audio control, indeterminate loading and TalkBack interaction remains truly native; no extra network permission, online purchases or fictional game scores.
