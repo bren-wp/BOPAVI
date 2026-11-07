@@ -16,5 +16,5 @@ for name in names:
         "Home","Options","Records","Privacy","Terms",
         "Flight-Preview","Flight-Active","Pause","Results"), filename
 assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 21' in workflow
-assert "if width < 320 or height < 600" not in workflow
+assert "if width < 320 or height < 600 or height <= width" in workflow
 print("PASS: 16 real screens and 21 checksummed artifacts are required")
