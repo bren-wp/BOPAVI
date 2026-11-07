@@ -68,9 +68,9 @@ assert 'dp(68),dp(68)' in shop
 assert 'message(item.storefrontTitle,18' in shop
 assert 'message(item.perkEffect,13' in shop
 assert 'item.iconTierLabel' in shop
-assert 'fun storefrontTitle:String get()' in model
-assert 'fun perkEffect:String get()' in model
-assert 'fun iconTierLabel:String get()' in model
+assert 'val storefrontTitle:String get()' in model
+assert 'val perkEffect:String get()' in model
+assert 'val iconTierLabel:String get()' in model
 assert 'storefrontCardsHaveSixDistinctRealProducts' in test
 assert 'capture_png("android-shop-reference-size")' in qa
 assert '"GEMS COLLECTED"' in qa
