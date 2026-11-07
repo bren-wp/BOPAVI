@@ -65,4 +65,11 @@ for case in ("noHazardsBeforeRealFirstFlap",
 for capture in ("android-gameplay-ready-reference-size",
                 "android-gameplay-active-reference-size"):
     assert capture in qa,capture
+assert "python3 tools/qa_first_flap_hazards.py" in qa
+probe=(root/"tools/qa_first_flap_hazards.py").read_text(encoding="utf-8")
+for marker in ("WIDTH, HEIGHT = 941, 1672", "ROI = (210, 1535, 830, 1615)",
+               "read_rgb_crop(ready_path)", "read_rgb_crop(active_path)",
+               "if fraction<.06:", "import zlib"):
+    assert marker in probe,marker
+assert "import PIL" not in probe and "cv2" not in probe
 print("PASS: native idle Gameplay has no dynamic spikes/pillars/maces until real first flap")
