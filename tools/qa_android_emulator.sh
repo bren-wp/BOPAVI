@@ -190,7 +190,10 @@ fi
 # This is a bounded stability check, not a simulated pass: absent controls
 # still fail and their genuine UI hierarchy is kept for diagnosis.
 home_ready=0
-for attempt in 1 2 3 4 5 6 7 8; do
+# API 36 hosted emulators sometimes finish drawing the first Home frame only
+# after system launcher/input stabilizes. Still require the SAME real, enabled
+# Play/Settings/Skins/Shop View hierarchy; no synthetic screen accepted.
+for attempt in $(seq 1 16); do
   if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY_HOME'
 import sys, xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
@@ -201,11 +204,19 @@ expected={"▶  PLAY","Otvori opcije igre","Otvori izbor likova",
 sys.exit(0 if expected.issubset(actions) else 1)
 PY_HOME
   then home_ready=1; break; fi
-  echo "Waiting for real Home buttons ($attempt/8)" >&2
+  echo "Waiting for real Home buttons ($attempt/16)" >&2
+  # Recover only a positively identified Pixel Launcher/System UI hang.
+  # Never restart, force-stop or silently skip a failing BOPAVI Activity.
+  if recover_launcher_anr; then
+    echo "Recovered confirmed SYSTEM-owned dialog; rechecking real Home" >&2
+  fi
   sleep 2
 done
 if [ "$home_ready" -ne 1 ]; then
   echo "FAIL: Home native controls remained inaccessible" >&2
+  echo "Last real UI hierarchy follows (limited to 120 lines):" >&2
+  head -n 120 qa/screenshots/android-current-ui.xml >&2 || true
+  adb shell dumpsys activity activities | tail -n 45 >&2 || true
   cp qa/screenshots/android-current-ui.xml qa/screenshots/android-home-failed-ui.xml || true
   # Capture the actual ANR diagnostics rather than treating an inaccessible
   # Home as a UI-automation flake. The next build must fix the main thread.
