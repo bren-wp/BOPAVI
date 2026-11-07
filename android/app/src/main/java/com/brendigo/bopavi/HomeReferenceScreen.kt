@@ -286,10 +286,16 @@ internal class HomeReferenceScreen(private val host:Activity,
             logoView.post{
                 if(logoView.isAttachedToWindow && logoView.height>0){
                     val gap=8f*host.resources.displayMetrics.density
-                    val room=(logoView.bottom-rowBottom-gap).coerceAtLeast(0f)
-                    val scale=(room/logoView.height).coerceIn(0f,1f)
+                    val placement=HomeLogoPlacement.fit(
+                        rowBottom.toFloat(),logoView.top.toFloat(),
+                        logoView.height.toFloat(),gap)
+                    val scale=placement.scale
                     logoView.pivotX=logoView.width/2f
                     logoView.pivotY=logoView.height.toFloat()
+                    // Uniform scaling preserves *all* BOPAVI letters. In an
+                    // extreme notch layout a small vertical shift is safer
+                    // than shrinking the brand to an invisible 0x0 point.
+                    logoView.translationY=placement.offsetY
                     logoView.scaleX=scale
                     logoView.scaleY=scale
                 }

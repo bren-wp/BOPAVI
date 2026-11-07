@@ -21,3 +21,5 @@
 - **Paketi:** debug APK, nepotpisani release APK i AAB, SHA-256 datoteka i stvarne snimke. Ključ za produkcijsko potpisivanje nije ugrađen.
 
 **Vizualni opseg:** Splash, Home i novi izgled likova Orao/Lisica; gameplay fizika i spremanje napretka ostaju neizmijenjeni.
+
+- **Rubni slučaj HUD-a:** novi izračun čuva barem 62% čitljive veličine kompletnog logotipa i po potrebi ga pomiče ispod HUD-a; Kotlin testovi pokrivaju referentni, notched i ekstremni raspored.
