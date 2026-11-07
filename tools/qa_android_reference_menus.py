@@ -103,7 +103,34 @@ def main():
     home()
     print("PASS: Skins opens, persists pilot selection and returns Home",flush=True)
 
-    tap(node_with("OTVORI TRGOVINU NADOGRADNJI"))
+    # The hosted emulator may drop one Home tap immediately after restoring
+    # the 941px skin-selection viewport. Check the ACTUAL native Shop hierarchy
+    # after each tap, and retry only while Home is still visibly present.
+    shop_ready=False
+    for shop_attempt in range(3):
+        tap(node_with("OTVORI TRGOVINU NADOGRADNJI",attempts=6))
+        for _ in range(6):
+            root=hierarchy()
+            has_wallet=bool(matching_nodes(root,"EARNED COINS:"))
+            has_inventory=bool(matching_nodes(root,"OWNED:"))
+            if has_wallet and has_inventory:
+                shop_ready=True
+                break
+            time.sleep(1)
+        if shop_ready:
+            break
+        root=hierarchy()
+        if not matching_nodes(root,"OTVORI TRGOVINU NADOGRADNJI",clickable=True):
+            raise AssertionError("FAIL: Shop did not open and Home input is not recoverable")
+        print("QA: real Home still visible after Shop tap; retrying native input",flush=True)
+    if not shop_ready:
+        # Save the real native hierarchy; do not pretend the Shop existed.
+        from pathlib import Path
+        import xml.etree.ElementTree as ET
+        Path("qa/screenshots/android-shop-failed-ui.xml").write_bytes(
+            ET.tostring(hierarchy(),encoding="utf-8"))
+        capture_png("android-shop-failed")
+        raise AssertionError("FAIL: real Shop wallet or product inventory did not appear")
     node_with("EARNED COINS:",clickable=False)
     assert exists("OWNED:",enabled=None),"FAIL: no real persisted shop inventory"
     assert not exists("GEMS COLLECTED"),"FAIL: fake gem balance"
