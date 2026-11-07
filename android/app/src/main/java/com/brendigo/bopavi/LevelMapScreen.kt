@@ -201,8 +201,11 @@ internal class LevelMapScreen(
         // Owner's map has a single primary Back action. Keep page-changing
         // controls available, but move them away from the currency header and
         // volcano sign so the top 110px remains reference-aligned.
-        stage.place(nativeButton("‹","Home",blue){onBack()},
-            20f,16f,122f,95f,minTouch=true)
+        stage.place(nativeButton("‹","Home",blue){onBack()}.apply {
+            text=""
+        },20f,16f,122f,95f,minTouch=true)
+        // Decorative feather-edged arrow cannot consume native Back taps.
+        stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)
         // A small genuine semantic page heading is still needed for screen
         // readers and Android UI tests, without the former oversized LEVEL
         // blob that covered the owner's clean top-center sky.
