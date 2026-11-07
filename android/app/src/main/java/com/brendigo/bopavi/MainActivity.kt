@@ -110,8 +110,19 @@ class MainActivity : Activity() {
             val decor=window.decorView
             decor.post {
                 if(decor.isAttachedToWindow) {
-                    decor.windowInsetsController?.hide(
-                        android.view.WindowInsets.Type.statusBars())
+                    val controller=decor.windowInsetsController
+                    if(selectedScreen=="game") {
+                        // True full-bleed flight: the persistent Android
+                        // navigation strip must not cover the illustrated
+                        // foreground. Swipe still reveals transient controls.
+                        controller?.systemBarsBehavior=
+                            android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        controller?.hide(android.view.WindowInsets.Type.statusBars()
+                            or android.view.WindowInsets.Type.navigationBars())
+                    } else {
+                        controller?.hide(android.view.WindowInsets.Type.statusBars())
+                        controller?.show(android.view.WindowInsets.Type.navigationBars())
+                    }
                 }
             }
         } else {
@@ -119,7 +130,11 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                (if(selectedScreen=="game")
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                 else 0)
         }
     }
     override fun onCreate(state: Bundle?) {
@@ -664,9 +679,9 @@ class MainActivity : Activity() {
         loadingGeneration++
         activeStage=null
         showPauseAfterBackground=false
-        applyPremiumSystemBars()
         gameView?.paused=true;gameView=null
         sound.stop();selectedScreen="home"
+        applyPremiumSystemBars()
         // The owner's Home reference is 941×1672. Use fixed reference-camera
         // coordinates on large portrait windows; retain the legacy scroll-safe
         // native composition for compact/landscape displays.
@@ -1156,8 +1171,8 @@ class MainActivity : Activity() {
     }
     private fun openFlight(simulation:GameSimulation,world:Int){
         showPauseAfterBackground=false
-        applyPremiumSystemBars()
         selectedScreen="game"
+        applyPremiumSystemBars()
         val frame=FrameLayout(this).apply{setBackgroundColor(0xff092044.toInt())}
         sound.startWorld(world)
         val game=GameView(this,simulation,progress.lessMotion(),
