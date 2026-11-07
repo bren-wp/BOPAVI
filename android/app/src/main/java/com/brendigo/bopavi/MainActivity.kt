@@ -944,6 +944,33 @@ class MainActivity : Activity() {
         viewport.requestApplyInsets()
     }
 
+    private fun confirmGameplayShop(game:GameView){
+        if(gameView!==game || selectedScreen!="game" || game.game.finished ||
+            isFinishing || isDestroyed)return
+        // Preserve the live run if the player declines leaving for the shop.
+        game.paused=true
+        sound.pause()
+        android.app.AlertDialog.Builder(this)
+            .setTitle("TRGOVINA")
+            .setMessage("Za otvaranje trgovine potrebno je napustiti trenutačni let.")
+            .setPositiveButton("OTVORI"){_,_->
+                if(gameView===game && selectedScreen=="game")showShop()
+            }
+            .setNegativeButton("NASTAVI"){_,_->
+                if(gameView===game && selectedScreen=="game"){
+                    game.paused=false
+                    sound.resume()
+                }
+            }
+            .setOnCancelListener{
+                if(gameView===game && selectedScreen=="game"){
+                    game.paused=false
+                    sound.resume()
+                }
+            }
+            .show()
+    }
+
     private fun showPremiumPause(game:GameView){
         // Single modal only, whether triggered by Back or foreground restoration.
         if(gameView!==game || selectedScreen!="game" || game.game.finished ||
@@ -1139,6 +1166,12 @@ class MainActivity : Activity() {
             onFlap={sound.effect("tap")},
             onCollect={sound.effect("collect")},
             onShieldImpact={sound.effect("hit")},
+            onPauseRequested={gameView?.let { current ->
+                if(selectedScreen=="game")showPremiumPause(current)
+            }},
+            onWalletRequested={gameView?.let { current ->
+                if(selectedScreen=="game")confirmGameplayShop(current)
+            }},
             qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
             qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
         gameView=game
