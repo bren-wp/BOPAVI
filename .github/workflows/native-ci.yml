@@ -6,11 +6,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# A superseded pull-request build should not occupy multiple emulators while
-# a newer BOPAVI visual revision is being tested.
+# Only the newest commit on main may consume long emulator time and
+# publish a version. Older CI runs were otherwise still building obsolete
+# artwork while newer Splash/Home commits were queued behind them.
 concurrency:
   group: native-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 jobs:
   graphics:
     name: Render and verify Android art
@@ -539,6 +540,11 @@ jobs:
         run: |
           set -euo pipefail
           tag="$BOPAVI_TAG"
+          main_head="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$main_head" != "$GITHUB_SHA" ]; then
+            echo "::error::Superseded commit $GITHUB_SHA must not publish $tag; main is $main_head."
+            exit 1
+          fi
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             existing="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)"
             if [ "$existing" != "$GITHUB_SHA" ]; then
