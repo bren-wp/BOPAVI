@@ -156,6 +156,13 @@ internal class HomeReferenceScreen(private val host:Activity,
             else
                 setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
             scaleType=ImageView.ScaleType.FIT_CENTER
+            // Owner artwork uses a much larger facial portrait / shop
+            // pictogram than the old tiny square glyph. Transform only
+            // the decorative ImageView; retain the native parent hit box.
+            if(!isPlay){
+                scaleX=if(kind==BopaviUiIconDrawable.Kind.SHIRT)1.22f else 1.12f
+                scaleY=scaleX
+            }
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay,
@@ -306,15 +313,15 @@ internal class HomeReferenceScreen(private val host:Activity,
             HomeReferenceLayout.play,true,verticalAnchor=.50f)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),36,onSkins),
+            0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),27,onSkins),
             HomeReferenceLayout.skins,true,verticalAnchor=.62f)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),37,onShop),
+            0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),28,onShop),
             HomeReferenceLayout.shop,true,verticalAnchor=.62f)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),29,onSettings),
+            0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),22,onSettings),
             HomeReferenceLayout.settings,true,verticalAnchor=.73f)
 
         place(stage,footerShortcut("ACHIEVEMENTS",
