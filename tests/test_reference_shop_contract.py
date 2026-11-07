@@ -64,7 +64,14 @@ assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
 assert 'LinearLayout.LayoutParams(-1,0,1.10f)' in shop
-assert 'dp(49),dp(49)' in shop
+assert 'dp(68),dp(68)' in shop
+assert 'message(item.storefrontTitle,18' in shop
+assert 'message(item.perkEffect,13' in shop
+assert 'item.iconTierLabel' in shop
+assert 'fun storefrontTitle:String get()' in model
+assert 'fun perkEffect:String get()' in model
+assert 'fun iconTierLabel:String get()' in model
+assert 'storefrontCardsHaveSixDistinctRealProducts' in test
 assert 'capture_png("android-shop-reference-size")' in qa
 assert '"GEMS COLLECTED"' in qa
 assert 'R.drawable.reference_screenshot' not in shop
