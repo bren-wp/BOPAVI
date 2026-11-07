@@ -11,10 +11,20 @@ import math
 from pathlib import Path
 from PIL import Image, ImageChops, ImageStat
 
+# Coarse normalized masks for the user's portrait gameplay compositions.
+# Separate top corners, full-width HUD and both pillar halves: a low
+# environment error must never conceal a badly sized Bopi/fox/owl or cap.
+# Overlap is deliberate; each region is a separate diagnostic, not a sum.
 REGIONS = {
-    "hud": (0.00, 0.00, 0.43, 0.14),
-    "hero": (0.09, 0.31, 0.60, 0.54),
-    "obstacles": (0.57, 0.08, 1.00, 0.88),
+    "hud": (0.00, 0.00, 1.00, 0.15),
+    "hud_wallets": (0.00, 0.00, 0.49, 0.07),
+    "hud_score": (0.27, 0.02, 0.73, 0.15),
+    "hud_pause": (0.84, 0.00, 1.00, 0.10),
+    "hero": (0.07, 0.31, 0.59, 0.59),
+    "obstacles": (0.30, 0.08, 0.96, 0.94),
+    "upper_pillar": (0.29, 0.08, 0.92, 0.47),
+    "lower_pillar": (0.31, 0.50, 0.92, 0.94),
+    "pickups": (0.10, 0.24, 1.00, 0.67),
     "tutorial": (0.27, 0.71, 0.72, 0.84),
     "bottom": (0.00, 0.84, 1.00, 1.00),
 }
@@ -37,7 +47,8 @@ def metrics(ref: Image.Image, actual: Image.Image, threshold: int) -> dict:
     }
 
 
-def compare(reference: Image.Image, capture: Image.Image, threshold: int = 8) -> dict:
+def compare(reference: Image.Image, capture: Image.Image, threshold: int = 8,
+            max_changed_percent: float | None = None) -> dict:
     if reference.size != capture.size:
         raise ValueError(
             f"Size mismatch reference={reference.size}, capture={capture.size}. "
@@ -45,6 +56,8 @@ def compare(reference: Image.Image, capture: Image.Image, threshold: int = 8) ->
         )
     if threshold not in range(256):
         raise ValueError("threshold must be an integer from 0 through 255")
+    if max_changed_percent is not None and not 0 <= max_changed_percent <= 100:
+        raise ValueError("max_changed_percent must be between 0 and 100")
     reference = reference.convert("RGB")
     capture = capture.convert("RGB")
     width, height = reference.size
@@ -55,13 +68,27 @@ def compare(reference: Image.Image, capture: Image.Image, threshold: int = 8) ->
                min(width, int(x1 * width)), min(height, int(y1 * height)))
         regions[name] = {"box": box,
                          **metrics(reference.crop(box), capture.crop(box), threshold)}
-    return {
+    overall = metrics(reference, capture, threshold)
+    result = {
         "dimensions": {"width": width, "height": height},
         "threshold": threshold,
         "same_state_and_animation_phase": "must be confirmed externally",
-        "overall": metrics(reference, capture, threshold),
+        "overall": overall,
         "regions": regions,
     }
+    if max_changed_percent is not None:
+        limit = max_changed_percent / 100.0
+        result["tolerance"] = {
+            "max_changed_percent": max_changed_percent,
+            "overall_within_limit": overall["changed_fraction"] <= limit,
+            "region_within_limit": {
+                name: value["changed_fraction"] <= limit
+                for name, value in regions.items()
+            },
+            "visual_equivalence_proven": False,
+            "note": "Numeric tolerance only; verify matching game state and capture.",
+        }
+    return result
 
 
 def main() -> None:
@@ -71,9 +98,11 @@ def main() -> None:
     parser.add_argument("--report", type=Path)
     parser.add_argument("--diff", type=Path, help="Optional absolute diff image (file only)")
     parser.add_argument("--threshold", type=int, default=8)
+    parser.add_argument("--max-changed-percent", type=float,
+                        help="Optional per-region pixel-difference acceptance threshold")
     args = parser.parse_args()
     with Image.open(args.reference) as r, Image.open(args.capture) as c:
-        result = compare(r, c, args.threshold)
+        result = compare(r, c, args.threshold, args.max_changed_percent)
         if args.diff:
             args.diff.parent.mkdir(parents=True, exist_ok=True)
             ImageChops.difference(r.convert("RGB"), c.convert("RGB")).save(args.diff)
@@ -82,6 +111,11 @@ def main() -> None:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(rendered + "\n", encoding="utf-8")
     print(rendered)
+    if "tolerance" in result:
+        gates = result["tolerance"]
+        if not gates["overall_within_limit"] or not all(
+                gates["region_within_limit"].values()):
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":
