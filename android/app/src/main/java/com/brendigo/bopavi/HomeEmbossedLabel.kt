@@ -22,7 +22,9 @@ internal class HomeEmbossedLabel(
     context:Context,
     private val caption:String,
     nominalSp:Float,
-    private val primary:Boolean
+    private val primary:Boolean,
+    private val paintHeightFraction:Float=.66f,
+    private val paintWidthFraction:Float=.87f
 ):TextView(context){
     private val ink=Paint(Paint.ANTI_ALIAS_FLAG).apply{
         textAlign=Paint.Align.CENTER
@@ -49,9 +51,12 @@ internal class HomeEmbossedLabel(
         if(width<=0 || height<=0)return
         // The reference stage measures in image pixels, while SP uses device
         // density; clamp to the actual native label bounds on every screen.
-        ink.textSize=min(textSize,height*.66f)
+        // The Home reference uses taller white 3D letters than the other
+        // game's result dialogs. Optional fractions let Home match that art
+        // without changing every reused native embossed label elsewhere.
+        ink.textSize=min(textSize,height*paintHeightFraction)
         val measured=ink.measureText(caption).coerceAtLeast(1f)
-        ink.textSize*=min(1f,(width*.87f)/measured)
+        ink.textSize*=min(1f,(width*paintWidthFraction)/measured)
         val metrics=ink.fontMetrics
         val x=width/2f
         val y=height/2f-(metrics.ascent+metrics.descent)/2f
