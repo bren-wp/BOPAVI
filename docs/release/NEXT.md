@@ -1,6 +1,6 @@
 # Next Android release
 
-## v1.0.54 (build 184) — Splash / Loading highest pixel discrepancy
+## v1.0.54 — Splash / Loading highest pixel discrepancy (build 184)
 
 **Candidate only. NOT verified, signed, merged or published.**
 
