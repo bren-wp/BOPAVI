@@ -79,9 +79,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // validation. This optional art never alters the same 18px body collider.
     private val referenceBopi0=selectedSkin==0 &&
         resources.getIdentifier("bopireference0","drawable",context.packageName)!=0
-    // At 142 logical px (vs 124), Bopi more closely matches the provided
-    // screenshot's 29%-wide bird without returning to oversized 176px art.
-    private val birdSize=142f
+    // Preserve the original 142px Bopi source while giving the full-size
+    // flying owl and fox their reference body/wing/tail silhouettes. Rendering
+    // changes do NOT alter the shared 18px physical body collision circle.
+    private val birdSize=PilotFlightVisual.diameter(selectedSkin)
     private val birdRect=RectF(-birdSize*.5f,-birdSize*.5f,birdSize*.5f,birdSize*.5f)
     // Shoulder pivots are image-specific. Imported 224x192 screenshot layers
     // have actual joints at (106,118) and (157,129), measured from (112,96).
