@@ -80,7 +80,13 @@ class TwoScreenPixelComparisonTests(unittest.TestCase):
             self.assertGreater(result["whole_screen_rgb_mae"], 0)
             self.assertEqual("wallet_and_safe_top",
                              result["regions_ranked"][0]["name"])
-            self.assertGreater(result["regions_ranked"][0]["rgb_mae"], 200)
+            # PIL's rectangle includes x=918 and y=84: exactly 469×70
+            # changed pixels inside the 485×97 wallet ROI. Compute the
+            # exact expected mean instead of asserting an impossible >200.
+            expected=(469 * 70 * 255) / (485 * 97)
+            self.assertAlmostEqual(result["regions_ranked"][0]["rgb_mae"],
+                                   expected, delta=.001)
+            self.assertFalse(result["regions_ranked"][0]["meets_target"])
 
     def test_every_roi_stays_inside_original_reference_grid(self):
         for regions in REGIONS.values():
