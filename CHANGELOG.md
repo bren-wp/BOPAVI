@@ -3,6 +3,23 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.56 — Home and Splash <=10 percent RGB deviation target (build 186)
+
+**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.56)
+
+- Move original 512×512 three-layer animated pilot from (152,342,645²)
+- Place the original flying crown wordmark at (110,100,720×285).
+- Keep real native Play, Skins, Shop, Settings and footer controls
+- Keep live coin/star balances; account for actually VISIBLE status bars
+- Strengthen softly blurred dark lower foliage in the offline local sky.
+- Move original three-layer flying pilot to (110,280,670×670).
+- Widen gold/navy/cyan 3D winged loading frame to (161,1318)–(780,1422).
+- Preserve honest indeterminate animation until genuine stream preparation
+- Keep local offline BOPAVI art; no rasterized whole-screen UI substitute.
+- [ ] Source privacy, dead-code, release version, image generator audits
+- [ ] Kotlin/JVM, Android 15 and 16 emulator tests pass
+- [ ] Genuine Home AND Splash emulator PNGs at all seven dimensions
+
 ## v1.0.55 — Gameplay hazards activate on first real flap (build 185)
 
 **Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.55)
@@ -19,20 +36,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - [ ] Android 16 API36 smoke and navigation pass.
 - [ ] Genuine emulator screenshots confirm that idle obstacles are hidden
 - [ ] Recompare all four priority owner-reference screens and document
-
-## v1.0.54 — Splash / Loading highest pixel discrepancy (build 184)
-
-**Published:** 2026-11-07 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.54)
-
-- Redraw the winged original BOPAVI logo using taller vector geometry
-- Reposition the winged, selected native Bopi 512×512 sprite group on a
-- Generate **Splash-only**, entirely offline `loadingback.png` from the
-- Retain the real asynchronous preparation event and honest indeterminate
-- No Gameplay / Game Over physics, lives, hitboxes, Retry/Home actions,
-- [ ] Python source, privacy/security, dead-code and asset audits
-- [ ] Gradle 9 / Android 36 JVM tests and debug APK + unsigned release APK/AAB
-- [ ] Android 15 Play → first flap → lifecycle → Retry QA
-- [ ] Android 16 API36 smoke
-- [ ] New native 941×1672 Splash screenshot reviewed against original
-- [ ] Home, Gameplay and Game Over visually regressions checked
-- [ ] Screenshot ROI errors measured; any increase investigated and corrected
