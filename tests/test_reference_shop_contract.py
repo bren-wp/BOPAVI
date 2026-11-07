@@ -59,6 +59,8 @@ assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopiportrait0' in shop
 assert 'contentDescription="HOME"' in shop
+assert 'stage.place(ReferenceArrowOverlayView(host),24f,18f,119f,99f)' in shop
+assert '},130f,235f,570f,420f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
