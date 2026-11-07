@@ -60,11 +60,12 @@
     <circle cx="337" cy="28" r="5" fill="#fff7bb"/><circle cx="388" cy="16" r="6" fill="#fff7bb"/>
     <circle cx="439" cy="29" r="5" fill="#fff7bb"/>
   </g>
-  <!-- The irregular BOPA / Vi face silhouettes are 3px-tolerance SVG
-       traces of the user-supplied Splash reference, not DejaVu text.
-       Keep them as individually shaded native vectors at build time. -->
+  <!-- Rounded hand-drawn B, O, P and A use separate cubic outlines and
+       real punched counters. The previous straight segments produced angular
+       and unreadable glyphs in actual Android captures. All four letters
+       retain the native orange/gold bevel, navy extrusion and glossy edge. -->
   <defs>
-    <path id="ownerWarm" fill-rule="evenodd" d="M521,127 507,118 490,118 479,125 475,125 464,145 458,146 453,126 438,113 438,111 429,109 382,109 382,113 366,123 359,122 359,116 364,111 361,111 357,118 352,119 351,135 346,135 333,122 313,115 291,116 274,122 255,139 251,139 245,169 233,167 240,152 238,131 216,116 184,114 151,123 153,131 137,144 128,142 128,134 125,139 120,140 148,236 157,247 175,248 212,240 239,229 251,219 258,204 262,204 274,215 288,220 320,219 341,207 353,190 359,191 364,220 370,224 393,223 399,220 403,214 402,191 420,187 435,181 442,181 432,203 432,212 437,216 451,220 465,220 477,206 500,207 505,210 510,224 536,226 536,171Z M187,191 202,189 206,192 204,201 192,204Z M491,168 497,169 497,179 488,178Z M297,150 308,152 314,160 315,175 306,182 299,182 289,173 288,160Z M180,147 192,150 192,158 184,162 180,162 176,158 175,150Z M399,137 405,137 415,143 415,152 407,157 398,155Z"/>
+    <path id="ownerWarm" fill-rule="evenodd" d="M148 136 C145 124 151 117 164 115 L196 111 C227 108 249 120 253 144 C256 163 248 177 234 184 C253 188 260 202 254 221 C246 239 222 246 178 253 C162 256 155 248 151 233 Z M182 142 C197 135 216 139 218 152 C220 163 210 171 185 174 Z M187 196 C208 187 226 191 226 202 C225 212 211 218 192 222 Z M285 121 C319 111 343 130 350 156 C364 196 342 228 310 234 C278 241 252 222 247 189 C241 157 252 131 285 121 Z M294 152 C310 146 326 154 330 173 C334 192 326 208 311 210 C295 212 283 197 281 181 C279 168 285 156 294 152 Z M359 129 C356 118 364 112 380 111 L411 108 C441 106 458 124 457 151 C457 180 439 196 405 197 L406 223 C407 239 392 243 375 243 C361 243 354 235 355 222 Z M392 138 L393 172 C414 174 426 168 428 155 C428 144 415 138 392 138 Z M474 132 C485 115 511 114 522 137 C530 154 536 204 545 226 C550 243 537 251 519 251 C502 251 493 242 489 229 L471 229 C464 246 457 251 445 249 C423 248 413 234 421 215 L448 158 C455 144 463 134 474 132 Z M480 166 C476 174 472 187 470 199 L490 199 C486 187 483 176 480 166 Z"/>
     <!-- The blue V and lowercase i must be TWO distinct glyph contours. A
          single connected silhouette looked like W in real Android captures. -->
     <path id="ownerBlue" d="M528 115 Q551 108 560 130 L574 203 L601 130 Q607 114 621 118 L635 123 Q644 130 635 148 L591 248 Q585 264 566 261 L553 258 Q546 257 542 239 L520 135 Q517 118 528 115 Z"/>
@@ -80,8 +81,10 @@
     <use href="#ownerWarm" fill="url(#goldText)" stroke="#8d320d" stroke-width="5"/>
     <use href="#ownerBlue" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
     <use href="#ownerI" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
-    <path d="M145 150Q165 116 190 119 M275 121Q292 110 310 119 M361 109Q384 100 409 115 M472 130Q484 114 493 123"
+    <path d="M157 135 Q169 123 196 122 M264 158 Q273 132 289 128 M372 129 Q385 116 409 120 M456 158 Q466 132 483 129"
        fill="none" stroke="#fffcc2" stroke-width="5" stroke-opacity=".74"/>
+    <path d="M164 235 Q183 238 198 234 M263 205 Q276 226 297 227 M371 221 Q378 228 393 225 M505 234 Q517 241 529 236"
+       fill="none" stroke="#8a2507" stroke-width="4" stroke-opacity=".47"/>
     <path d="M541 130Q549 119 555 133 M626 148Q645 126 663 141"
        fill="none" stroke="#e1fbff" stroke-width="4" stroke-opacity=".64"/>
     <!-- The separated round dot above the small blue i is an essential
