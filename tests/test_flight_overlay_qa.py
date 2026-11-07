@@ -17,6 +17,13 @@ assert "input keyevent 4" in qa
 assert "val hudScale=GameplayReferenceHudLayout.scaleFor(" in view
 assert "val scale=scaleFor(screenW,screenH,safeTop)" in (src/"GameplayReferenceHudLayout.kt").read_text()
 assert "onPauseRequested()" in view
+# The active score-reference HUD must also expose real life state; Android
+# background/resume QA must not fail just because the visual hearts rail
+# was replaced with the reference's winged SCORE plaque.
+assert 'private var lastReferenceLives=-1' in view
+assert 'val livesChanged=lastReferenceLives!=game.lives' in view
+assert '" Životi: ${game.lives}/${game.maxLives}. "' in view
+assert 'if(scoreChanged || crystalsChanged || livesChanged)' in view
 assert 'hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)' in view
 assert "if (x > birdX + radius + (if(endless) 7f else 115f)) break" in physics
 assert "optimizedGateBroadphaseStillDetectsFirstPaintedLipContact" in units
