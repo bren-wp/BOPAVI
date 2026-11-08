@@ -74,6 +74,10 @@ internal class PilotSelectionScreen(
         },FrameLayout.LayoutParams(-1,-1))
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        // Decorative wood sign, ropes, grass and layered stone podium;
+        // actual pilot choice and wallets remain native and clickable.
+        stage.place(SkinsReferenceDecor(host),0f,0f,941f,1672f,
+            referenceAligned=true)
 
         // Both counters show genuine locally-earned currency only.
         stage.place(action("‹",false,onBack).apply{
@@ -102,24 +106,16 @@ internal class PilotSelectionScreen(
         // Wood-colored hanging-name plaque is decorative but the selected
         // title remains a real, accessible TextView in the hierarchy.
         stage.place(text(item.title,38f,Color.WHITE).apply {
-            background=Bopavi3DTheme.custom(
-                0xffb87a42.toInt(),0xff6c3918.toInt(),0xffffdfac.toInt())
+            background=null
+            setShadowLayer(dp(4).toFloat(),0f,dp(4).toFloat(),
+                0xff5d260b.toInt())
             contentDescription=item.title
         },PilotSelectionLayout.bannerLeft,PilotSelectionLayout.bannerTop,
             PilotSelectionLayout.bannerWidth,PilotSelectionLayout.bannerHeight)
         stage.place(text(item.shortName,23f,0xffffeec3.toInt()),354f,266f,233f,52f)
 
-        // Genuine transparent original character portrait; the platform is
-        // a separate native enamel oval and never a fake clickable screenshot.
-        stage.place(View(host).apply{
-            background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0xffffec9b.toInt(),0xffb37338.toInt())).apply {
-                shape=GradientDrawable.OVAL
-                setStroke(dp(5),0xfffff4c9.toInt())
-            }
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },PilotSelectionLayout.platformLeft,PilotSelectionLayout.platformTop,
-            PilotSelectionLayout.platformWidth,PilotSelectionLayout.platformHeight)
+        // The original transparent chosen hero hovers over the separately
+        // painted stone platform; no flat oval hides the layered podium.
         // The owner's large floating Skins hero is the COMPLETE winged
         // aviator, not the face-only portrait used for small selection cards.
         // These original transparent 512×512 layers align exactly and share
@@ -148,9 +144,7 @@ internal class PilotSelectionScreen(
                 gravity=Gravity.CENTER_HORIZONTAL
                 setPadding(dp(6),dp(5),dp(6),dp(9))
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    Bopavi3DTheme.panel(if(isSelected)
-                        Bopavi3DTheme.Finish.CREAM else
-                        Bopavi3DTheme.Finish.SKY),null)
+                    SkinsCardEnamelDrawable(isSelected),null)
                 isClickable=true;isFocusable=true
                 minimumHeight=dp(48)
                 contentDescription=PilotSelectionModel.accessibility(selected,index)

@@ -60,6 +60,10 @@ assert 'BopaviUiIconDrawable.Kind.STAR' in screen
 assert 'if(stats.thirdLabel=="Stars Collected")' in screen
 assert 'BopaviUiIconDrawable.Kind.GEM' not in screen
 assert 'background=GameOverScoreFrameDrawable()' in screen
+assert 'background=ResultRowEnamelDrawable()' in screen
+result_art=(src/"ResultSharedEnamelDrawable.kt").read_text()
+assert "class ResultRowEnamelDrawable" in result_art
+assert "class LevelCompleteRewardPlateDrawable" in result_art
 assert "class GameOverScoreFrameDrawable:" in (src/"GameOverFlourish.kt").read_text()
 assert 'BopaviUiIconDrawable.Kind.CROWN_COIN' in screen
 assert 'BopaviUiIconDrawable.Kind.BERRY->berry(canvas)' in icons

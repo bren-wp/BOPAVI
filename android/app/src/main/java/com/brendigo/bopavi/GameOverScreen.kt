@@ -28,7 +28,7 @@ internal class GameOverScreen(private val host:Activity) {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(8,0,8,0)
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            background=ResultRowEnamelDrawable()
             contentDescription="$label: $value"
             isFocusable=true
         }

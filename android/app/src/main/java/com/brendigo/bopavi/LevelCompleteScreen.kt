@@ -54,7 +54,15 @@ internal class LevelCompleteScreen(private val host:Activity) {
             setAutoSizeTextTypeUniformWithConfiguration(17,30,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             minimumHeight=dp(48)
-            background=Bopavi3DTheme.button(if(gold)Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
+            background=ResultActionEnamelDrawable(gold)
+            if(gold || label=="HOME"){
+                setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    HomeHeroIconDrawable(
+                        if(gold)BopaviUiIconDrawable.Kind.PLAY
+                        else BopaviUiIconDrawable.Kind.HOME,dp(26)),
+                    null,null,null)
+                compoundDrawablePadding=dp(6)
+            }
             contentDescription=label
             elevation=dp(5).toFloat()
             setOnClickListener{onClick()}
@@ -140,7 +148,7 @@ internal class LevelCompleteScreen(private val host:Activity) {
         // The reference uses one large cream reward area, not three floating
         // unrelated cards. Each statistic still has live Android text.
         stage.place(View(host).apply {
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            background=LevelCompleteRewardPlateDrawable()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },100f,929f,741f,278f)
         stage.place(statRow,123f,949f,697f,112f)
@@ -153,6 +161,7 @@ internal class LevelCompleteScreen(private val host:Activity) {
         }
         stage.place(reward,206f,1168f,529f,45f)
 
+        stage.place(HomePlayWings(host),113f,1234f,714f,151f)
         stage.place(button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP",
             true,onNext),151f,1234f,639f,151f,minTouch=true)
         stage.place(button("HOME",false,onHome),

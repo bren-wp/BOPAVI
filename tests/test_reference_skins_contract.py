@@ -33,7 +33,13 @@ assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
 assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
 assert "allowMotion=!progress.lessMotion()" in screen
 assert "PilotSelectionLayout.heroLeft" in screen
-assert "GradientDrawable.OVAL" in screen
+assert "GradientDrawable.OVAL" not in screen
+assert "SkinsReferenceDecor(host)" in screen
+assert "SkinsCardEnamelDrawable(isSelected)" in screen
+decor=(src/"SkinsReferenceDecor.kt").read_text()
+assert "class SkinsReferenceDecor(" in decor
+assert "class SkinsCardEnamelDrawable(" in decor
+assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in decor
 assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
 assert "const val referenceWidth=941f" in layout
 assert "val skins=intArrayOf(" in screen

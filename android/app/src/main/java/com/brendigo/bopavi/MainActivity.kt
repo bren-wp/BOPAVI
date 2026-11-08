@@ -1025,16 +1025,14 @@ class MainActivity : Activity() {
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
             setPadding(d(17),d(13),d(17),d(18))
-            background=HomeEnamelDrawable(
-                0xff238ee9.toInt(),0xff145cbb.toInt(),
-                0xff061b45.toInt(),0xffc4f6ff.toInt())
+            background=PauseFantasyPanelDrawable()
         }
 
 
         // Original transparent Bopi portrait floats above a locally drawn
         // gold/cyan portal. No screenshot replaces native Pause controls.
         val hero=FrameLayout(this).apply {
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            background=PauseHeroFrameDrawable()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         hero.addView(View(this).apply {
@@ -1057,7 +1055,7 @@ class MainActivity : Activity() {
         content.addView(hero,
             LinearLayout.LayoutParams(-1,d(PauseModalLayout.heroHeightDp(compactPause)))
                 .apply { bottomMargin=d(7) })
-        title(content,"♛  PAUZA",if(compactPause)27 else 32,Color.WHITE)
+        title(content,"PAUZA",if(compactPause)27 else 32,Color.WHITE)
         // Gold plaque is a native TextView with real accessible lettering,
         // never Canvas-only embossing or a clickable screenshot.
         (content.getChildAt(content.childCount-1) as TextView).apply {
@@ -1083,7 +1081,7 @@ class MainActivity : Activity() {
                 setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                background=Bopavi3DTheme.button(finish)
+                background=ResultActionEnamelDrawable(style==0)
                 elevation=d(5).toFloat()
                 minHeight=d(PauseModalLayout.minTouchDp)
                 contentDescription=text

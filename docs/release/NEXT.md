@@ -1,14 +1,13 @@
 # Next Android release
 
-## v1.0.66 — Splash/Home reference camera and nine-screen pixel audit (build 196)
+## v1.0.67 — Skins / Game Over / Pause / Level Complete (build 197)
 
-- Splash and reference-size Home now hide navigation bars with swipe-to-reveal transient system controls, following the full-bleed 941×1672 owner artwork. Compact/large-font Home remains navigation-safe.
-- Splash: a sky haze and lower olive shadow are composited only over the landscape before the native mascot, logo, rings and genuine loading track; this improves color-depth alignment without inventing a loading percentage.
-- Home: lightened upper sky and darkened foreground foliage under native buttons, matching the owner's blue/green depth progression.
-- Home's actual wing/body actor uses an enlarged 680×680 reference square at (80,274), rather than the too-small 615×615 actor at (116,294); all three real pilot layers and gameplay semantics stay unchanged.
-- Added tools/qa_owner_941_all_screens.py with SHA-256 checks for ALL NINE unmodified 941×1672 owner PNG references, no image resizing/cropping/masking, RGB-MAE and exact changed pixel counts, and focused Splash/Home regions.
-- Added regression tests proving that a single one-channel, one-pixel difference cannot pass strict 0%, and connected those tests to GitHub Actions.
-- Independent real native Android snapshots and working accessible UI controls remain required. Pixel equality of a flattened screenshot alone cannot pass functional acceptance.
-- Baseline v1.0.63 measured RGB channel deviation: Home 24.42%, Splash 25.34%, Game Over 26.62%, Settings 26.77%, Shop 27.25%, Gameplay 28.29%, Skins 28.72%, Level Map 29.02%. Level Complete was not in that QA capture set.
-- These are baseline measurements, NOT claims that v1.0.66 has achieved 0%; this release must pass native Android emulator UI flows and produce real fresh APK/AAB/screenshots before publication.
-- Offline wallet, saves, navigation destinations, purchases and physics remain unchanged. Debug APK is for QA; Play AAB/release APK remain unsigned pending private publisher signing.
+- Skins: native noninteractive wood-and-rope sign with real selected-pilot name, green leaves and stone/grass glowing platform. The selected, independently clickable pilot cards now have a more pronounced gold/blue 3D enamel appearance. All three playable pilots remain available, saved, and genuinely selectable.
+- Skins: no fictitious fourth pilot, locked product, fake wallet, or screenshot-shaped action; the fourth illustrative reference card cannot be introduced without an actual new gameplay pilot.
+- Game Over: three native data rows use cream beveled enamel within the existing wood frame; distance, food/coin, score/stars remain actual recorded run values. Retry/Home and the seated classic aviator remain unchanged.
+- Pause: gold-rimmed blue dusk panel and avatar flight halo; consistent native golden primary and blue secondary actions. Device-dependent crown emoji removed from the heading. Existing continue, replay of finite/endless mode, and exit still work as before.
+- Level Complete: additional raised reward-board frame, Home-style white wings behind the main action, and native vector play/home icons; stars, coins, rating, chest receipt, next route, Home and Share remain real and unchanged.
+- CI regression: first-use Android 15/16 immersive education may appear above Splash/Home after the full-bleed update. The Android smoke loop now dismisses only this verified operating-system tutorial BEFORE checking Home controls, and still requires true native accessible actions.
+- Baseline measured from v1.0.65 native 941x1672 PNGs: Skins RGB MAE deviation 28.72%; Game Over 26.52%. These are baseline values, not claims of new pixel-perfect acceptance.
+- Pixel-perfect 0% is a strict acceptance GOAL. No screen can be certified at 0% without a native build screenshot with zero changed RGB pixels against its corresponding owner reference and successful interactive flows.
+- Release APK and AAB remain unsigned and require private Play upload signing, debug APK only for local QA; no keystores or secrets are added to repository.

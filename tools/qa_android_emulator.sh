@@ -254,6 +254,12 @@ PY_HOME
   if recover_launcher_anr; then
     echo "Recovered confirmed SYSTEM-owned dialog; rechecking real Home" >&2
   fi
+  # Splash/Home's immersive camera can trigger Android's first-use tutorial
+  # before Play. Dismiss ONLY the verified system-owned tutorial, then
+  # require real native Home actions on the next iteration.
+  if acknowledge_verified_fullscreen_education; then
+    echo "Dismissed OS immersive tutorial on Home; rechecking native controls" >&2
+  fi
   sleep 2
 done
 if [ "$home_ready" -ne 1 ]; then

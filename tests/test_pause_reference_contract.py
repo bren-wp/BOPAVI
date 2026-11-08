@@ -44,6 +44,13 @@ for item in (
 ):
     assert item in pause,item
 assert "screenHeightDp<690 || fontScale>=1.3f" in layout
+art=(src/"PauseReferenceArt.kt").read_text()
+assert "PauseFantasyPanelDrawable()" in pause
+assert "PauseHeroFrameDrawable()" in pause
+assert 'title(content,"PAUZA",' in pause
+assert "ResultActionEnamelDrawable(style==0)" in pause
+assert "class PauseFantasyPanelDrawable" in art
+assert "class PauseHeroFrameDrawable" in art
 assert "compactDeviceAndLargeTextKeepFullSizeControls" in layout_unit
 assert "bothModalModesFitTheirOwnHeroAndButtons" in layout_unit
 print("PASS: native 3D Pause artwork, single modal, true replay, full-size CTA")

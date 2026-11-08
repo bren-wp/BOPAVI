@@ -67,6 +67,8 @@ assert 'n.get("package")==system_package' in qa
 assert '"To exit, swipe down from the top of your screen"' in qa
 assert 'n.get("text")=="Got it"' in qa
 assert 'if acknowledge_verified_fullscreen_education; then' in qa
+assert qa.index('if acknowledge_verified_fullscreen_education; then') < qa.index('if [ "$home_ready" -ne 1 ]; then')
+assert 'Dismissed OS immersive tutorial on Home; rechecking native controls' in qa
 assert '"Quickstep isn\'t responding"' in qa
 assert '"com.android.launcher3"' in qa
 assert '"com.google.android.apps.nexuslauncher"' in qa

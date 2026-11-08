@@ -48,6 +48,9 @@ for detail in (
     "paint.color=0xaafff3ce.toInt()",
 ):
     assert detail in view,detail
+assert "LevelCompleteRewardPlateDrawable()" in view
+assert "stage.place(HomePlayWings(host),113f,1234f,714f,151f)" in view
+assert "ResultActionEnamelDrawable(gold)" in view
 assert "replayAndNonMilestoneDoNotPretendToGrantChestLoot" in unit
 assert "endOfWorldDoesNotProduceInvalidNextLevel" in unit
 assert "val electric" not in main
