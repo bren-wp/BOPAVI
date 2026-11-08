@@ -47,7 +47,9 @@ assert "ResultActionEnamelDrawable(primary)" in result
 assert "setOnTouchListener{v,event->" in result and "\n                false\n" in result
 assert "HomeEmbossedLabel(host,label,60f,primary)" in result
 assert "contentDescription=label" in result
-assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)" in result
+assert "background=ResultRowEnamelDrawable()" in result
+enamel=(src/"ResultSharedEnamelDrawable.kt").read_text()
+assert "class ResultRowEnamelDrawable" in enamel
 assert 'contentDescription="$label: $value"' in result
 assert "GameOverSeatedBopi(host)" in result
 seated=(src/"GameOverSeatedBopi.kt").read_text()
