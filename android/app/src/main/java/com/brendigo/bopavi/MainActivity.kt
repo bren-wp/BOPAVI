@@ -99,6 +99,18 @@ class MainActivity : Activity() {
      * The window itself draws behind the transparent navigation area; no
      * deprecated status/navigation-bar color setters are required.
      */
+    // The owner's original Splash/Home artwork covers the full 941x1672
+    // display. Keep compact/large-font Home in the navigation-safe fallback.
+    // Gestures remain available with transient system bars on reference screens.
+    private fun ownerImmersiveReferenceScreen():Boolean =
+        selectedScreen=="splash" ||
+        (selectedScreen=="home" && HomeReferenceLayout.supports(
+            resources.displayMetrics.widthPixels,
+            resources.displayMetrics.heightPixels,
+            resources.configuration.orientation==
+                android.content.res.Configuration.ORIENTATION_PORTRAIT,
+            resources.configuration.fontScale))
+
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
         if (Build.VERSION.SDK_INT >= 30) {
@@ -119,7 +131,8 @@ class MainActivity : Activity() {
                             android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                         controller?.hide(android.view.WindowInsets.Type.statusBars()
                             or android.view.WindowInsets.Type.navigationBars())
-                    } else if(selectedScreen=="shop" || selectedScreen=="levels") {
+                    } else if(selectedScreen=="shop" || selectedScreen=="levels" ||
+                        ownerImmersiveReferenceScreen()) {
                         // Owner 941px references show both Shop and Level Map
                         // as full-bleed illustrated screens. The same native
                         // swipe gesture still reveals transient system bars.
@@ -140,7 +153,7 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 (if(selectedScreen=="game" || selectedScreen=="shop" ||
-                    selectedScreen=="levels")
+                    selectedScreen=="levels" || ownerImmersiveReferenceScreen())
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                  else 0)
@@ -178,6 +191,7 @@ class MainActivity : Activity() {
 
     private fun showBrandedStartup(){
         selectedScreen="splash"
+        applyPremiumSystemBars()
         val intro=FlightLoadingView(this,selectedPilotChoice,startup=true)
         showNativeView(intro)
         // One user-visible introduction, not a network wait or a falsified

@@ -11,7 +11,7 @@ assert "val referenceAligned:Boolean" in stage
 assert "referenceAligned:Boolean=false" in stage
 assert "private fun referenceTransform(width:Int,height:Int)" in stage
 assert "private fun placement(slot:Slot,width:Int,height:Int," in stage
-# Level Map keeps safe-area geometry; only Shop opts into full-bleed art.
+# Level Map keeps safe-area geometry; Shop opts into full-bleed artwork.
 assert "if(!slot.referenceAligned && !shopFullBleed)return safe" in stage
 assert "private var shopFullBleed=false" in stage
 assert "fun useShopFullBleedReferenceCamera()" in stage
@@ -36,11 +36,15 @@ assert "stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f," in home
 assert "minTouch=true,referenceAligned=true)" in result
 assert "stage.setSafe(" in home and "stage.setSafe(" in result
 # The owner captures for Gameplay, Level Map and Shop all cover the
-# complete 941x1672 viewport. Keep these three illustrated scenes immersive,
-# but restore system navigation on Home/Results and other menus.
+# complete 941x1672 viewport. Splash and reference-size Home must also be
+# immersive; compact fallback Home and non-reference menus restore navigation.
 activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
-assert 'else if(selectedScreen=="shop" || selectedScreen=="levels") {' in activity
+assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
+assert 'ownerImmersiveReferenceScreen()' in activity
+assert 'selectedScreen=="splash" ||' in activity
+assert 'selectedScreen=="home" && HomeReferenceLayout.supports(' in activity
+assert 'selectedScreen="splash"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
 assert 'android.view.WindowInsets.Type.navigationBars())' in activity

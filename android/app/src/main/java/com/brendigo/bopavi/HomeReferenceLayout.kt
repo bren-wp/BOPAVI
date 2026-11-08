@@ -29,7 +29,7 @@ internal object HomeReferenceLayout {
     // All three original body/wing sprite layers retain equal square bounds.
     // Source 864px Home: painted Bopi spans roughly x=118..651 and
     // y=365..744. Keep source body and wing layers on a SQUARE canvas.
-    val hero=HomeBounds(116f,294f,615f,615f)
+    val hero=HomeBounds(80f,274f,680f,680f)
     // Extents of alpha>12 in the approved classic 512px body/wing union:
     // x=18..493 and y=86..424. Only painted pixels, not the transparent
     // square canvas, must clear the logo and the native Play touch target.
