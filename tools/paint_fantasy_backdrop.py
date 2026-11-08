@@ -47,6 +47,21 @@ def enrich_background(source: Image.Image) -> Image.Image:
     castle(102,426,.66)
     castle(773,487,.58)
     castle(809,943,.27)
+    # The owner's Home has a prominent red-roofed castle on the LEFT
+    # upper floating island. The earlier backplate was nearly empty at
+    # this altitude, making the 941px Home feel unfinished.
+    castle(85,278,1.75)
+    # Tiny parapets and contrasting lit tower faces add apparent depth
+    # without replacing the game's genuine foreground hero.
+    for tx,ty,radius in ((40,218,16),(95,170,23),(159,224,14)):
+        pen.rectangle((tx-radius,ty-12,tx+radius,ty+42),
+                      fill=(239,228,208,205))
+        pen.polygon(((tx-radius-5,ty-12),(tx,ty-radius*2.3),
+                     (tx+radius+5,ty-12)),fill=(198,78,64,232))
+        pen.line((tx-radius+5,ty+31,tx+radius-5,ty+31),
+                 fill=(134,116,112,128),width=3)
+        pen.rectangle((tx-4,ty+3,tx+4,ty+16),
+                      fill=(43,92,137,225))
 
     # Waterfalls glow over rocky faces and retain readable silhouettes.
     for x,y,length,wide in ((116,436,194,15),(776,491,242,13),(817,949,119,8)):
@@ -78,6 +93,27 @@ def enrich_background(source: Image.Image) -> Image.Image:
     pen.polygon(((787,427),(831,427),(822,438),(799,438)),
                 fill=(133,88,55,199))
     pen.ellipse((854,377,875,399),fill=(249,204,128,190))
+    # Riveted amber airship, paired engine propeller and hanging cabin.
+    # These scenic strokes are BEHIND the live native Home controls.
+    for ox in (766,793,820,845):
+        pen.arc((ox-14,366,ox+16,415),265,85,
+                fill=(244,217,158,151),width=3)
+    pen.arc((745,366,860,418),188,351,
+            fill=(255,239,196,224),width=4)
+    pen.line((770,421,791,439),fill=(102,77,64,196),width=3)
+    pen.line((839,420,830,439),fill=(102,77,64,196),width=3)
+    pen.rounded_rectangle((789,431,832,451),radius=4,
+                          fill=(122,76,46,235),outline=(63,46,48,202),width=2)
+    for x in (799,811,823):
+        pen.rectangle((x,435,x+6,442),fill=(238,220,154,214))
+    for i in range(4):
+        from math import cos, sin, pi
+        angle=pi*i/2+.22
+        x=867+cos(angle)*21
+        y=387+sin(angle)*22
+        pen.line((867,387,x,y),fill=(173,107,44,214),width=8)
+        pen.ellipse((x-5,y-5,x+5,y+5),fill=(254,204,114,220))
+    pen.ellipse((861,381,873,393),fill=(109,70,49,231))
 
     # Soft edges only: keep the central pilot and letterform edges unobscured.
     for x,y,s in ((-80,585,.66),(967,670,.62),

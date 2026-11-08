@@ -9,10 +9,11 @@ class FlightLoadingLayoutTest {
         assertTrue(layout.logo.isInsideReference())
         assertTrue(layout.pilot.isInsideReference())
         assertTrue(layout.track.isInsideReference())
-        assertTrue("Splash logo should keep side margins",layout.logo.left>=90f && layout.logo.right<=850f)
+        assertTrue("Enlarged logo respects the reference side margins",
+            layout.logo.left>=70f && layout.logo.right<=871f)
         assertTrue("Visible pilot cannot overlap wordmark",layout.logo.bottom<layout.pilotPaintedTop)
         assertTrue("Branded wordmark must not be stretched",
-            layout.aspectError(layout.logo,780f,297f)<.01f)
+            layout.aspectError(layout.logo,780f,325f)<.01f)
         assertEquals("Shared wing/body canvases must remain square",
             1f,layout.pilot.width/layout.pilot.height,0f)
     }

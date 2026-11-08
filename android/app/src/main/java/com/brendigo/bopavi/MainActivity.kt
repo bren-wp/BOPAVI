@@ -103,7 +103,7 @@ class MainActivity : Activity() {
     // display. Keep compact/large-font Home in the navigation-safe fallback.
     // Gestures remain available with transient system bars on reference screens.
     private fun ownerImmersiveReferenceScreen():Boolean =
-        selectedScreen=="splash" ||
+        selectedScreen=="splash" || selectedScreen=="loading" ||
         (selectedScreen=="home" && HomeReferenceLayout.supports(
             resources.displayMetrics.widthPixels,
             resources.displayMetrics.heightPixels,

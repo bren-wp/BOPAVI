@@ -21,7 +21,7 @@ internal object FlightLoadingLayout {
     // The source vector is now 780×297 with a TALLER wordmark, matching
     // the crown/raised enamel letter height of the owner's actual reference.
     // Rasterize the original SVG at its natural ratio; do not stretch PNGs.
-    val logo=LoadingArtBox(91f,95f,850f,384f)
+    val logo=LoadingArtBox(75f,76f,867f,406f)
     // In the owner's 864x1536 Splash the first painted feathers start near
     // y=430px and the feet end near y=840px. Preserve the square 512x512
     // source canvas so the real native wing layers never become stretched.

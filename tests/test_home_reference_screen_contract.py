@@ -19,7 +19,7 @@ assert "HomeReferenceLayout.supports(resources.displayMetrics.widthPixels," in a
 for box in (
     "val coins=HomeBounds(457f,21f,220f,64f)",
     "val stars=HomeBounds(705f,21f,215f,64f)",
-    "val logo=HomeBounds(110f,100f,720f,285f)",
+    "val logo=HomeBounds(72f,72f,798f,351f)",
     "val hero=HomeBounds(80f,274f,680f,680f)",
     "val play=HomeBounds(190f,902f,560f,186f)",
     "val playWings=HomeBounds(112f,904f,719f,171f)",
@@ -62,6 +62,10 @@ assert "if(sourceHome)0xff102347.toInt() else 0x77001b4e" in bevel
 assert "BopaviUiIconDrawable.Kind.LEADERBOARD->podium(canvas)" in icons
 assert "enamel(canvas,speaker,0xfffff9af.toInt(),0xffffae22.toInt()," in icons
 assert 'wallet("STARS",earnedStars,' in view
+assert 'BopaviUiIconDrawable.Kind.STAR,"Otvori kartu razina",onStars)' in view
+assert 'private val logoScale=minOf(logo.w/780f,logo.h/325f)' in geometry
+assert 'val logoArtwork=HomeBounds(' in geometry
+assert 'val paintedTop=logoView.top+logoView.height*.12f' in view
 assert "BopaviUiIconDrawable.Kind.GEM->gem(canvas)" in icons
 for feature in ("LinearGradient(","canvas.drawRoundRect(",
                 "ColorFilter","setAlpha(alpha:Int)","shadow:Int"):

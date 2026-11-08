@@ -51,6 +51,10 @@ assert 'private val hasOwnerAviator=bodyRes==R.drawable.bopi0' in actor
 for required in ('fun drawBack(', 'fun drawFront(', 'canvas.scale(box.width()/512f,box.height()/512f)',
                  '0xffff6545.toInt()', '0xffffb724.toInt()', '0xffb7faff.toInt()'):
     assert required in accessories, required
+# No large flat red wedge over the chest or disconnected second lens.
+assert 'moveTo(230f,321f)' in accessories
+assert 'canvas.translate(-26f,1f)' in accessories
+assert 'castle(85,278,1.75)' in backdrop
 
 # Each live Home button and actual wallet balance is still a native,
 # individually clickable View. Nothing is replaced with a screenshot.

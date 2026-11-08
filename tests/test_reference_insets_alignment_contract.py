@@ -42,7 +42,7 @@ activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
 assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
 assert 'ownerImmersiveReferenceScreen()' in activity
-assert 'selectedScreen=="splash" ||' in activity
+assert 'selectedScreen=="splash" || selectedScreen=="loading" ||' in activity
 assert 'selectedScreen=="home" && HomeReferenceLayout.supports(' in activity
 assert 'selectedScreen="splash"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity

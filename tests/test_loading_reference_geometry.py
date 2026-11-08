@@ -22,7 +22,7 @@ for required in (
     "paint.shader = LinearGradient",
 ):
     assert required in view,required
-assert "val logo=LoadingArtBox(91f,95f,850f,384f)" in layout
+assert "val logo=LoadingArtBox(75f,76f,867f,406f)" in layout
 assert "val pilot=LoadingArtBox(100f,364f,757f,1021f)" in layout
 assert "val track=LoadingArtBox(161f,1350f,780f,1454f)" in layout
 assert "const val captionBaselineY=1515f" in layout

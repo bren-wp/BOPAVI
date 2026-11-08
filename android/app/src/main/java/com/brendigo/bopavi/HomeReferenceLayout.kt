@@ -20,7 +20,15 @@ internal object HomeReferenceLayout {
     // The approved logo including crown, enamel and feathers is higher and
     // slightly wider than the previous reference box. Preserve the SVG
     // aspect ratio inside this box; Home does not stretch logo pixels.
-    val logo=HomeBounds(110f,100f,720f,285f)
+    val logo=HomeBounds(72f,72f,798f,351f)
+    // Source logo PNG is 780x325; its real nontransparent pixels occupy
+    // x=57..723 and y=34..294. The 941px reference must compare PAINTED
+    // logo with Bopi, not the unused transparent bleed in its ImageView.
+    private val logoScale=minOf(logo.w/780f,logo.h/325f)
+    val logoArtwork=HomeBounds(
+        logo.x+(logo.w-780f*logoScale)/2f+57f*logoScale,
+        logo.y+(logo.h-325f*logoScale)/2f+34f*logoScale,
+        666f*logoScale,260f*logoScale)
     // The original Bopi layers use a SQUARE 512x512 transparency grid.
     // Source canvas is square, and the painted alpha is inset. Align its
     // visible upper feathers near reference y≈393, and feet near y≈830.
@@ -64,13 +72,13 @@ internal object HomeReferenceLayout {
         fontScale>=.85f && fontScale<1.3f
 
     fun valid():Boolean {
-        val all=listOf(coins,stars,logo,hero)+actions
+        val all=listOf(coins,stars,logo,logoArtwork,hero)+actions
         if(!all.all{it.inside()} || !playWings.inside() ||
             coins.overlaps(stars))return false
         if(playWings.x>=play.x || playWings.right<=play.right ||
             playWings.y<play.y || playWings.bottom>play.bottom)return false
-        if(coins.bottom>=logo.y || stars.bottom>=logo.y)return false
-        if(!heroArtwork.inside() || logo.bottom>=heroArtwork.y ||
+        if(coins.bottom>=logoArtwork.y || stars.bottom>=logoArtwork.y)return false
+        if(!heroArtwork.inside() || logoArtwork.bottom>=heroArtwork.y ||
             heroArtwork.bottom>=play.y)return false
         if(skins.y!=shop.y || achievements.y!=leaderboard.y ||
             leaderboard.y!=sound.y || settings.y<=skins.y ||

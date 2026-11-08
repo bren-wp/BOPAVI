@@ -271,7 +271,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         val earnedStars=(0 until LevelEngine.WORLD_COUNT)
             .sumOf{progress.worldStars(it)}
         walletRail.attach(wallet("STARS",earnedStars,
-            BopaviUiIconDrawable.Kind.GEM,"Otvori kartu razina",onStars),
+            BopaviUiIconDrawable.Kind.STAR,"Otvori kartu razina",onStars),
             HomeReferenceLayout.stars)
 
         val logoView=ImageView(host).apply{
@@ -287,7 +287,12 @@ internal class HomeReferenceScreen(private val host:Activity,
             logoView.post{
                 if(logoView.isAttachedToWindow && logoView.height>0){
                     val gap=8f*host.resources.displayMetrics.density
-                    val placement=HomeLogoPlacement.fit(
+                    // Only shrink when the real PAINTED crown overlaps
+                    // the native wallet, never for empty logo PNG padding.
+                    val paintedTop=logoView.top+logoView.height*.12f
+                    val placement=if(rowBottom+gap<=paintedTop)
+                        HomeLogoFit(1f,0f)
+                    else HomeLogoPlacement.fit(
                         rowBottom.toFloat(),logoView.top.toFloat(),
                         logoView.height.toFloat(),gap)
                     val scale=placement.scale

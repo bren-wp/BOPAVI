@@ -64,11 +64,14 @@ internal object BopiOwnerAccessories {
         p.style=Paint.Style.FILL
         // Owner reference red scarf crossing the white chest.
         val band=Path().apply{
-            moveTo(232f,308f)
-            cubicTo(266f,330f,313f,338f,357f,306f)
-            cubicTo(371f,325f,380f,343f,383f,355f)
-            cubicTo(347f,386f,293f,398f,242f,363f)
-            cubicTo(226f,350f,218f,333f,232f,308f)
+            // Rounded neck-wrap, not the old triangular red wedge that
+            // concealed the white chest on 941px Splash and Home.
+            moveTo(230f,321f)
+            cubicTo(256f,338f,294f,356f,322f,350f)
+            cubicTo(345f,346f,360f,334f,369f,325f)
+            cubicTo(372f,344f,353f,364f,330f,376f)
+            cubicTo(293f,391f,253f,369f,235f,350f)
+            cubicTo(228f,341f,225f,328f,230f,321f)
             close()
         }
         p.color=0xff752131.toInt()
@@ -79,8 +82,8 @@ internal object BopiOwnerAccessories {
         canvas.drawPath(band,p)
         p.shader=null
         val fold=Path().apply{
-            moveTo(245f,322f)
-            cubicTo(280f,349f,321f,353f,356f,333f)
+            moveTo(246f,333f)
+            cubicTo(279f,355f,315f,363f,354f,338f)
         }
         p.color=0xbaff9b73.toInt()
         p.style=Paint.Style.STROKE
@@ -147,6 +150,10 @@ internal object BopiOwnerAccessories {
         // new pilot has two cyan lenses in a tilted brown leather band.
         // Draw the second lens over the bridge, ABOVE the right eye.
         val g=canvas.save()
+        // The old oval hovered too far to the right of the real head.
+        // Translate only the second 3D lens 26/512 units toward Bopi's
+        // original left lens; no real eye or gameplay sprite is modified.
+        canvas.translate(-26f,1f)
         canvas.rotate(28f,419f,176f)
         p.color=0x6b041b3c
         canvas.drawOval(RectF(389f,151f,453f,210f),p)
