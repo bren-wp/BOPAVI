@@ -71,10 +71,9 @@ internal class PilotSelectionScreen(
                 GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(0xff9aecff.toInt(),0xff168df2.toInt(),
                         0xff0651b2.toInt())).apply {
-                    // The owner-style circle is a fully rounded native
-                    // RECTANGLE; no obsolete flat platform is reintroduced.
-                    shape=GradientDrawable.RECTANGLE
-                    cornerRadius=dp(64).toFloat()
+                    // Only the *navigation arrow* is an oval. The platform
+                    // beneath Bopi remains a separately painted stone dais.
+                    shape=GradientDrawable.OVAL
                     setStroke(dp(4),0xffffd164.toInt())
                 },null)
             elevation=dp(5).toFloat()
