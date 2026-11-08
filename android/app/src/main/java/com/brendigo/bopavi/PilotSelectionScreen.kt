@@ -71,7 +71,10 @@ internal class PilotSelectionScreen(
                 GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(0xff9aecff.toInt(),0xff168df2.toInt(),
                         0xff0651b2.toInt())).apply {
-                    shape=GradientDrawable.OVAL
+                    // The owner-style circle is a fully rounded native
+                    // RECTANGLE; no obsolete flat platform is reintroduced.
+                    shape=GradientDrawable.RECTANGLE
+                    cornerRadius=dp(64).toFloat()
                     setStroke(dp(4),0xffffd164.toInt())
                 },null)
             elevation=dp(5).toFloat()
