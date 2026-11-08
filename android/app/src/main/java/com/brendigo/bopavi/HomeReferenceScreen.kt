@@ -251,7 +251,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(host).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x180e3e83,0x0062d2ff,0x55092c43))
+                intArrayOf(0x24ffffff,0x00ffffff,0x00ffffff,
+                    0x00ffffff,0x9911130e.toInt()))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 

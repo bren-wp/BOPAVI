@@ -69,6 +69,11 @@ assert 'Random(9411672)' in backdrop
 assert 'No UI labels' in backdrop
 assert 'id="ownerWarm"' in logo and 'fill-rule="evenodd"' in logo
 assert 'R.drawable.logo' in splash and 'R.drawable.logo' in home
+# Original owner sky is brighter and lower foliage darkens, but only the
+# BACKDROP receives a color-depth glaze. Hero and real buttons render above.
+assert '0x993c4309.toInt()' in splash
+assert 'canvas.drawRect(0f,0f,w,h,paint)' in splash
+assert '0x9911130e.toInt()' in home
 
 # Enforce the scope: gameplay and physics do not import cosmetic overlays.
 for path in ('GameView.kt','GameSimulation.kt'):

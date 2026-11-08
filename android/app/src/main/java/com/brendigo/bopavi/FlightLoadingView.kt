@@ -231,6 +231,19 @@ internal class FlightLoadingView(context: Context, pilotChoice: Int, private val
             )
         }
 
+        // Reference sky is brighter above the castle and the leafy foreground
+        // darkens to olive below the winged loading bar. Paint this over the
+        // WORLD ONLY, before Bopi, the logo, rings and live loading track, so
+        // none of those functional/UI layers lose their original contrast.
+        paint.reset()
+        paint.isAntiAlias=true
+        paint.shader=LinearGradient(0f,0f,0f,h,
+            intArrayOf(0x44ffffff,0x00ffffff,0x003c4309,
+                0x993c4309.toInt()),
+            floatArrayOf(0f,.40f,.73f,1f),Shader.TileMode.CLAMP)
+        canvas.drawRect(0f,0f,w,h,paint)
+        paint.shader=null
+
         val scale = min(w / FlightLoadingLayout.referenceWidth,
             h / FlightLoadingLayout.referenceHeight)
         val offsetX = (w - FlightLoadingLayout.referenceWidth * scale) / 2f
