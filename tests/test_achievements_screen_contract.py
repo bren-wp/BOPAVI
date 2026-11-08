@@ -30,10 +30,12 @@ assert 'referenceGridIsSafeOnlyForNormalSizedPortraitText' in test
 assert 'val total=goals.size' in screen
 assert '"$achieved / $total GOALS REACHED"' in screen
 assert 'Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY' in screen
-assert 'FrameLayout.LayoutParams(dp(31),dp(31),Gravity.CENTER)' in screen
+assert 'FrameLayout.LayoutParams(dp(24),dp(24),Gravity.CENTER)' in screen
+assert 'col.addView(heading,LinearLayout.LayoutParams(-1,dp(32)))' in screen
+assert 'setSingleLine(true)' in screen
 assert 'contentDescription=g.accessibility' in screen
 assert 'isFillViewport=true' in screen
-assert 'LinearLayout.LayoutParams(-1,dp(12))' in screen
+assert 'LinearLayout.LayoutParams(-1,dp(6))' in screen
 assert 'freshInstallHasEightUnreachedGoals' in test
 assert 'cappedPercentHandlesExtremeFlapsAndFailingRuns' in test
 assert 'capture_png("android-achievements-reference-size")' in qa

@@ -28,6 +28,9 @@ assert "fontScale<1.25f" in layout
 assert "LeaderboardLayout.supports(" in screen
 assert "leaderboardReferenceIsOnlyUsedWhenTextAndOrientationFit" in unit
 assert "isFillViewport=true" in screen
+assert "setSingleLine(true)" in screen
+assert "LinearLayout.LayoutParams(dp(31),-1)" in screen
+assert "LinearLayout.LayoutParams(dp(91),-1)" in screen
 assert "contentDescription=item.description" in screen
 assert "1->Bopavi3DTheme.Finish.GOLD" in screen
 assert "2->Bopavi3DTheme.Finish.STONE" in screen

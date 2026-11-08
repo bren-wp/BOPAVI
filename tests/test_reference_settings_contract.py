@@ -52,6 +52,9 @@ assert 'setPadding(dp(8),0,dp(9),0)' in settings
 assert 'Bopavi3DTheme.panel(when(kind){' in settings
 assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in settings
 assert 'FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER)' in settings
+assert 'setSingleLine(true)' in settings
+assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
+assert 'line("Mode",BopaviUiIconDrawable.Kind.STAR,' in settings
 assert 'title("SETTINGS",57).apply{' in settings
 assert 'title("SETTINGS",31).apply{' in settings
 assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)' in settings
@@ -63,10 +66,10 @@ assert 'isFillViewport=true' in settings
 # Three independent difficulty options need at least 48dp width each.
 # The group allocates 180dp; two 2dp margins per button leave 56dp.
 # Do not silently regress this to the old 140dp selector.
-assert 'controlWidthDp:Int=140' in settings
+assert 'controlWidthDp:Int=114' in settings
 assert 'LinearLayout.LayoutParams(dp(controlWidthDp),-1)' in settings
-assert 'difficulty(onDifficulty),controlWidthDp=180' in settings
+assert 'difficulty(onDifficulty),controlWidthDp=162' in settings
 assert 'minWidth=0' in settings and 'minimumWidth=0' in settings
-assert (180-3*4)//3>=48
+assert (162-3*4)//3>=48
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings full page, real preferences, small-screen scroll and legal routes")

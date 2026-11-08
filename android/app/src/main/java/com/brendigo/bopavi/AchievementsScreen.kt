@@ -26,7 +26,9 @@ internal class AchievementsScreen(private val host:Activity){
         setTextColor(color)
         typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         gravity=Gravity.CENTER
-        setAutoSizeTextTypeUniformWithConfiguration(12,size,1,
+        setSingleLine(true)
+        ellipsize=android.text.TextUtils.TruncateAt.END
+        setAutoSizeTextTypeUniformWithConfiguration(10,size,1,
             android.util.TypedValue.COMPLEX_UNIT_SP)
     }
     private fun kind(s:String)=when(s){
@@ -43,7 +45,7 @@ internal class AchievementsScreen(private val host:Activity){
         val col=LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
-            setPadding(dp(9),dp(5),dp(9),dp(6))
+            setPadding(dp(7),dp(3),dp(7),dp(3))
             background=Bopavi3DTheme.panel(if(g.achieved)
                 Bopavi3DTheme.Finish.CREAM else Bopavi3DTheme.Finish.STONE)
             elevation=dp(if(g.achieved)6 else 3).toFloat()
@@ -63,18 +65,18 @@ internal class AchievementsScreen(private val host:Activity){
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             addView(ImageView(host).apply {
                 setImageDrawable(BopaviUiIconDrawable(kind(g.icon),
-                    if(g.achieved)0xff7d390d.toInt() else 0xffffffff.toInt(),dp(31)))
+                    if(g.achieved)0xff7d390d.toInt() else 0xffffffff.toInt(),dp(24)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(31),dp(31),Gravity.CENTER))
-        },LinearLayout.LayoutParams(dp(43),dp(43)).apply {
-            marginEnd=dp(5)
+            },FrameLayout.LayoutParams(dp(24),dp(24),Gravity.CENTER))
+        },LinearLayout.LayoutParams(dp(29),dp(29)).apply {
+            marginEnd=dp(4)
         })
-        heading.addView(label(g.title,17,ink),LinearLayout.LayoutParams(0,-1,1f))
-        col.addView(heading,LinearLayout.LayoutParams(-1,0,1f))
-        col.addView(label(g.detail,13,0xff385574.toInt()),
+        heading.addView(label(g.title,15,ink),LinearLayout.LayoutParams(0,-1,1f))
+        col.addView(heading,LinearLayout.LayoutParams(-1,dp(32)))
+        col.addView(label(g.detail,12,0xff385574.toInt()),
             LinearLayout.LayoutParams(-1,0,.65f))
-        col.addView(label("${g.current} / ${g.target}",18,ink),
+        col.addView(label("${g.current} / ${g.target}",16,ink),
             LinearLayout.LayoutParams(-1,0,.75f))
         col.addView(ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal).apply{
             max=100
@@ -84,9 +86,9 @@ internal class AchievementsScreen(private val host:Activity){
                 if(g.achieved)0xffdca21e.toInt() else 0xff258fe0.toInt())
             progressBackgroundTintList=ColorStateList.valueOf(0xffbecad4.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(-1,dp(12)))
+        },LinearLayout.LayoutParams(-1,dp(6)))
         col.addView(label(if(g.achieved)"✓ GOAL REACHED" else "IN PROGRESS",
-            13,if(g.achieved)0xff23742c.toInt() else 0xff34618c.toInt()),
+            12,if(g.achieved)0xff23742c.toInt() else 0xff34618c.toInt()),
             LinearLayout.LayoutParams(-1,0,.65f))
         return col
     }

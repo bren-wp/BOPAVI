@@ -55,7 +55,9 @@ internal class SettingsScreen(private val host:Activity,
             setTextColor(if(selected)navy else Color.WHITE)
             gravity=Gravity.CENTER
             minimumHeight=dp(48)
-            setAutoSizeTextTypeUniformWithConfiguration(12,20,1,
+            setSingleLine(true)
+            ellipsize=android.text.TextUtils.TruncateAt.END
+            setAutoSizeTextTypeUniformWithConfiguration(9,20,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             background=Bopavi3DTheme.button(if(selected)
                 Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.SKY)
@@ -64,7 +66,7 @@ internal class SettingsScreen(private val host:Activity,
             setOnClickListener{click()}
         }
     private fun line(text:String,kind:BopaviUiIconDrawable.Kind,control:View,
-                     controlWidthDp:Int=140):View {
+                     controlWidthDp:Int=114):View {
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
@@ -90,9 +92,13 @@ internal class SettingsScreen(private val host:Activity,
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER))
-        },LinearLayout.LayoutParams(dp(43),dp(43)))
-        row.addView(title(text,18,navy).apply{
+        },LinearLayout.LayoutParams(dp(36),dp(36)))
+        row.addView(title(text,17,navy).apply{
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
+            setSingleLine(true)
+            ellipsize=android.text.TextUtils.TruncateAt.END
+            setAutoSizeTextTypeUniformWithConfiguration(11,17,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
         },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(6)})
         // Difficulty is a three-way selector. A 140dp group makes each option
@@ -151,6 +157,11 @@ internal class SettingsScreen(private val host:Activity,
                     selected=index==progress.difficulty()){
                     if(index!=progress.difficulty())onChange(index)
                 }.apply{
+                    // Reserve a single readable line for each real difficulty.
+                    setSingleLine(true)
+                    ellipsize=android.text.TextUtils.TruncateAt.END
+                    setAutoSizeTextTypeUniformWithConfiguration(9,15,1,
+                        android.util.TypedValue.COMPLEX_UNIT_SP)
                     // Android's default Button minWidth can override the equal
                     // weights and clip the remaining difficulty options.
                     minWidth=0
@@ -183,8 +194,8 @@ internal class SettingsScreen(private val host:Activity,
                 switchControl("Vibracija",progress.hapticEnabled(),onHaptic)),
             line("Reduced Motion",BopaviUiIconDrawable.Kind.WING,
                 switchControl("Smanjeni pokret",progress.lessMotion(),onMotion)),
-            line("Difficulty",BopaviUiIconDrawable.Kind.STAR,
-                difficulty(onDifficulty),controlWidthDp=180),
+            line("Mode",BopaviUiIconDrawable.Kind.STAR,
+                difficulty(onDifficulty),controlWidthDp=162),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
                 button("OPEN",click=onPrivacy).apply{
                     contentDescription="Pročitaj politiku privatnosti"

@@ -1,22 +1,10 @@
 # Next Android release
 
-## v1.0.67 — Skins / Game Over / Pause / Level Complete (build 197)
+## v1.0.68 — Production text readability and accessible UI (build 198)
 
-- Skins: native noninteractive wood-and-rope sign with real selected-pilot name, green leaves and stone/grass glowing platform. The selected, independently clickable pilot cards now have a more pronounced gold/blue 3D enamel appearance. All three playable pilots remain available, saved, and genuinely selectable.
-- Skins: no fictitious fourth pilot, locked product, fake wallet, or screenshot-shaped action; the fourth illustrative reference card cannot be introduced without an actual new gameplay pilot.
-- Game Over: three native data rows use cream beveled enamel within the existing wood frame; distance, food/coin, score/stars remain actual recorded run values. Retry/Home and the seated classic aviator remain unchanged.
-- Pause: gold-rimmed blue dusk panel and avatar flight halo; consistent native high-contrast golden primary and blue secondary actions. Device-dependent crown emoji removed from the heading. Existing continue, replay of finite/endless mode, and exit still work as before.
-- Level Complete: additional raised reward-board frame, Home-style white wings behind the main action, and native vector play/home icons; stars, coins, rating, chest receipt, next route, Home and Share remain real and unchanged.
-- CI regression: first-use Android 15/16 immersive education may appear above Splash/Home after the full-bleed update. The Android smoke loop now dismisses only this verified operating-system tutorial BEFORE checking Home controls, and still requires true native accessible actions.
-- Baseline measured from v1.0.65 native 941x1672 PNGs: Skins RGB MAE deviation 28.72%; Game Over 26.52%. These are baseline values, not claims of new pixel-perfect acceptance.
-- Pixel-perfect 0% is a strict acceptance GOAL. No screen can be certified at 0% without a native build screenshot with zero changed RGB pixels against its corresponding owner reference and successful interactive flows.
-- Release APK and AAB remain unsigned and require private Play upload signing, debug APK only for local QA; no keystores or secrets are added to repository.
-
-## Further native screen alignment
-
-- Skins: larger full 630×630 winged hero positioned above the illustrated stone plinth, plus two accessible round native previous/next arrows cycling only the three real playable pilots.
-- Skins: real green EQUIP control adjacent to the selected hero's description, bound to persisted pilot selection instead of an inert mock purchase.
-- Game Over: seated aviator occupies the larger 560×497 center composition; dynamic stats and retry/home routes remain unchanged.
-- Pause: a single dialog click commit prevents duplicate continue/replay/exit navigation on rapid taps, including finite-level retry.
-- Level Complete: winner is now the genuine winged 512×512 character selected by the player, rather than a static cropped portrait; star count, chest receipt and NEXT/HOME/SHARE actions are unchanged.
-- Zero RGB deviation is still unverified; production builds must pass real Android capture and native interaction QA.
+- Audited original 941×1672 native Android screenshots from v1.0.65 and observed specific production blockers: Settings row labels break mid-word, Achievements progress labels collide with the bottom of their cards, and Leaderboard rows/rank labels clip.
+- Settings: native one-line adaptive labels, smaller decorative icon tiles, better label-to-control allocation, and three real difficulty controls in a 162dp group (at least 50dp per button after margins). The displayed setting is called Mode for legibility; saved difficulty values and TalkBack semantics remain unchanged.
+- Achievements: fixed-size icon/header within each real goal card, reduced padding and progress bar height to allocate genuine vertical room for goal text, counts and status. No goal is invented or reset.
+- Leaderboard: native one-line adaptive labels, smaller rank badges within the native score rows and a narrower score column to preserve player/world names. Actual local scores remain unchanged.
+- The existing Android 15/16 UI flow, Settings legal links, touch target, image verification and privacy/security audits remain mandatory release gates. The prior CI run blocked the candidate before publication; the production gate must not be bypassed.
+- Visual identity improves readability but absolute pixel-to-pixel equality is NOT claimed. A new 941×1672 Android screenshot is required to verify changes. Google Play upload requires signing the unsigned release AAB with publisher-held private material.

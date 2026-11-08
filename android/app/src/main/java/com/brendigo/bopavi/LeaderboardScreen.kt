@@ -26,7 +26,9 @@ internal class LeaderboardScreen(private val host:Activity){
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(color)
             gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(11,size,1,
+            setSingleLine(true)
+            ellipsize=android.text.TextUtils.TruncateAt.END
+            setAutoSizeTextTypeUniformWithConfiguration(10,size,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
         }
     private fun home(back:()->Unit):Button=Button(host).apply{
@@ -88,8 +90,8 @@ internal class LeaderboardScreen(private val host:Activity){
                 else->Bopavi3DTheme.Finish.SKY
             })
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(dp(43),-1).apply{
-            marginEnd=dp(7)
+        },LinearLayout.LayoutParams(dp(31),-1).apply{
+            marginEnd=dp(4)
         })
         val player=LinearLayout(host).apply{orientation=LinearLayout.VERTICAL}
         player.addView(label(e.name,16,navy).apply{
@@ -106,7 +108,7 @@ internal class LeaderboardScreen(private val host:Activity){
             0xffa45916.toInt()),LinearLayout.LayoutParams(-1,0,1f))
         numbers.addView(label("${e.gates} GATES",12,navy),
             LinearLayout.LayoutParams(-1,0,1f))
-        card.addView(numbers,LinearLayout.LayoutParams(dp(115),-1))
+        card.addView(numbers,LinearLayout.LayoutParams(dp(91),-1))
         return card
     }
     fun create(summary:LeaderboardSummary,records:List<LeaderboardEntry>,
