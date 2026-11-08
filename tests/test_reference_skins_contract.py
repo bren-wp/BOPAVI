@@ -26,6 +26,13 @@ for expected in (
 ):
     assert expected in screen,expected
 assert "cardLefts=floatArrayOf(34f,339f,644f)" in layout
+assert "const val heroLeft=140f" in layout
+assert "const val heroTop=250f" in layout
+assert "const val heroSize=630f" in layout
+assert 'cycleArrow("‹","Previous hero")' in screen
+assert 'cycleArrow("›","Next hero")' in screen
+assert 'contentDescription="Equip "+item.title' in screen
+assert 'setOnClickListener { onChoose(selected) }' in screen
 assert "heroTop+heroSize<cardTop" in layout
 assert "platformTop+platformHeight<cardTop" in layout
 assert "stage.place(HomeWingActor(host," in screen

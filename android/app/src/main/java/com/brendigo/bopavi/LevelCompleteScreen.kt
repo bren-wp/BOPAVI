@@ -123,11 +123,20 @@ internal class LevelCompleteScreen(private val host:Activity) {
         }
         // Pilot now appears ABOVE the earned star medals, matching the
         // owner's actual layout. The star count stays the true level rating.
-        stage.place(ImageView(host).apply {
-            setImageResource(pilot)
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },209f,376f,523f,455f)
+        // Victory shows the FULL saved pilot with original wing/body layers,
+        // not a static face icon. This is the identical active hero art used
+        // on Home and Skins; the stars remain genuine persisted achievements.
+        val heroLayers=when(pilot){
+            R.drawable.bopiportrait9 -> Triple(
+                R.drawable.bopileft9,R.drawable.bopiright9,R.drawable.bopi9)
+            R.drawable.bopiportrait10 -> Triple(
+                R.drawable.bopileft10,R.drawable.bopiright10,R.drawable.bopi10)
+            else -> Triple(
+                R.drawable.bopileft0,R.drawable.bopiright0,R.drawable.bopi0)
+        }
+        stage.place(HomeWingActor(host,heroLayers.first,heroLayers.second,
+            heroLayers.third,allowMotion=android.animation.ValueAnimator.areAnimatorsEnabled()),
+            209f,348f,523f,523f)
         stage.place(stars,259f,811f,423f,142f)
 
         val statRow=LinearLayout(host).apply{

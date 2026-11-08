@@ -59,6 +59,29 @@ internal class PilotSelectionScreen(
             setOnClickListener{onClick()}
         }
 
+    /** Round native navigation buttons, never screenshot-driven hotspots. */
+    private fun cycleArrow(label:String,description:String,onClick:()->Unit):Button =
+        Button(host).apply {
+            text=label
+            textSize=43f
+            isAllCaps=false
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            background=RippleDrawable(ColorStateList.valueOf(0x66ffffff),
+                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xff9aecff.toInt(),0xff168df2.toInt(),
+                        0xff0651b2.toInt())).apply {
+                    shape=GradientDrawable.OVAL
+                    setStroke(dp(4),0xffffd164.toInt())
+                },null)
+            elevation=dp(5).toFloat()
+            minimumHeight=dp(48)
+            contentDescription=description
+            isClickable=true
+            isFocusable=true
+            setOnClickListener { onClick() }
+        }
+
     fun create(choice:Int,onChoose:(Int)->Unit,onBack:()->Unit):View {
         val selected=PilotSelectionModel.safeChoice(choice)
         val root=FrameLayout(host).apply{setBackgroundColor(0xff138cdd.toInt())}
@@ -132,6 +155,13 @@ internal class PilotSelectionScreen(
             heroBodies[heroChoice],allowMotion=!progress.lessMotion()),
             PilotSelectionLayout.heroLeft,PilotSelectionLayout.heroTop,
             PilotSelectionLayout.heroSize,PilotSelectionLayout.heroSize)
+        val pilotCount=PilotSelectionModel.pilots.size
+        stage.place(cycleArrow("‹","Previous hero"){
+            onChoose((selected+pilotCount-1)%pilotCount)
+        },26f,613f,112f,112f,minTouch=true)
+        stage.place(cycleArrow("›","Next hero"){
+            onChoose((selected+1)%pilotCount)
+        },803f,613f,112f,112f,minTouch=true)
 
         // Three genuinely available pilots. The reference illustrates four
         // cosmetic examples, but a fictitious fourth item would break the
@@ -168,15 +198,37 @@ internal class PilotSelectionScreen(
         }
 
         val selectedInfo=LinearLayout(host).apply{
-            orientation=LinearLayout.VERTICAL
-            setPadding(dp(15),dp(8),dp(12),dp(7))
+            orientation=LinearLayout.HORIZONTAL
+            gravity=Gravity.CENTER_VERTICAL
+            setPadding(dp(9),dp(8),dp(9),dp(8))
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
-            addView(text(item.title,30f,Color.WHITE),
-                LinearLayout.LayoutParams(-1,0,.48f))
-            addView(text(item.ability.shortTitle+" — "+item.ability.description,
-                    19f,0xffe2f8ff.toInt()),
-                LinearLayout.LayoutParams(-1,0,.52f))
             contentDescription="Selected "+item.title+". "+item.ability.description
+            val details=LinearLayout(host).apply {
+                orientation=LinearLayout.VERTICAL
+                gravity=Gravity.CENTER_VERTICAL
+                addView(text(item.title,28f,Color.WHITE),
+                    LinearLayout.LayoutParams(-1,0,.48f))
+                addView(text(item.ability.shortTitle+" — "+
+                    item.ability.description,17f,0xffe2f8ff.toInt()),
+                    LinearLayout.LayoutParams(-1,0,.52f))
+            }
+            addView(details,LinearLayout.LayoutParams(0,-1,.64f))
+            addView(Button(host).apply{
+                text="EQUIP"
+                isAllCaps=false
+                textSize=25f
+                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+                setTextColor(Color.WHITE)
+                background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
+                contentDescription="Equip "+item.title
+                isClickable=true
+                isFocusable=true
+                minimumHeight=dp(48)
+                elevation=dp(3).toFloat()
+                setOnClickListener { onChoose(selected) }
+            },LinearLayout.LayoutParams(0,-1,.36f).apply{
+                leftMargin=dp(4)
+            })
         }
         stage.place(selectedInfo,49f,1315f,842f,150f)
         // This is informative rather than a nonfunctional purchasable CTA.

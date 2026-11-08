@@ -183,7 +183,7 @@ internal class GameOverScreen(private val host:Activity) {
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        stage.place(resultPilot,224f,431f,494f,445f,
+        stage.place(resultPilot,190f,393f,560f,497f,
             referenceAligned=true)
 
         val statistics=LinearLayout(host).apply{

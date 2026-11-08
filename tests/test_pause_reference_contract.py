@@ -53,4 +53,7 @@ assert "class PauseFantasyPanelDrawable" in art
 assert "class PauseHeroFrameDrawable" in art
 assert "compactDeviceAndLargeTextKeepFullSizeControls" in layout_unit
 assert "bothModalModesFitTheirOwnHeroAndButtons" in layout_unit
+assert 'var pauseActionCommitted=false' in pause
+assert 'if(pauseActionCommitted)return@setOnClickListener' in pause
+assert 'pauseActionCommitted=true' in pause
 print("PASS: native 3D Pause artwork, single modal, true replay, full-size CTA")

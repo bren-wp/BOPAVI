@@ -8,9 +8,9 @@ internal object PilotSelectionLayout {
     const val bannerTop=166f
     const val bannerWidth=495f
     const val bannerHeight=128f
-    const val heroLeft=206f
-    const val heroTop=340f
-    const val heroSize=522f
+    const val heroLeft=140f
+    const val heroTop=250f
+    const val heroSize=630f
     const val platformLeft=166f
     const val platformTop=811f
     const val platformWidth=612f

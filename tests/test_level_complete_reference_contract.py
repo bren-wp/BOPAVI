@@ -21,7 +21,8 @@ for phrase in (
     'ResultEmblemLabel(host,"COMPLETE!",88f,',
     'contentDescription="Level Complete!"',
     'stage.place(stars,259f,811f,423f,142f)',
-    '},209f,376f,523f,455f)',
+    'stage.place(HomeWingActor(host,heroLayers.first,heroLayers.second,',
+    '209f,348f,523f,523f)',
     '},100f,929f,741f,278f)',
     'stage.place(statRow,123f,949f,697f,112f)',
     'stage.place(reward,206f,1168f,529f,45f)',
@@ -39,6 +40,9 @@ assert 'val nextAvailable:Boolean get()=level<LevelEngine.LEVELS_PER_WORLD.toLon
 assert 'if(justAwardedCoins>0)' in model
 assert '"NO NEW BONUS"' in model
 assert 'label(data.rewardText,25f,' in view
+assert 'R.drawable.bopiportrait9 -> Triple(' in view
+assert 'R.drawable.bopiportrait10 -> Triple(' in view
+assert 'R.drawable.bopileft0,R.drawable.bopiright0,R.drawable.bopi0' in view
 for detail in (
     "canvas.translate(0f,radius*.11f)",
     "if(earned)0xff98521a.toInt() else 0xff344660.toInt()",

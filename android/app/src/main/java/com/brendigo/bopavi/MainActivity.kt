@@ -1021,6 +1021,8 @@ class MainActivity : Activity() {
             resources.configuration.screenHeightDp,
             resources.configuration.fontScale)
         val dialog=android.app.AlertDialog.Builder(this).create()
+        // Repeated press events must never launch two replays or two exits.
+        var pauseActionCommitted=false
         val content=LinearLayout(this).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
@@ -1085,7 +1087,14 @@ class MainActivity : Activity() {
                 elevation=d(5).toFloat()
                 minHeight=d(PauseModalLayout.minTouchDp)
                 contentDescription=text
-                setOnClickListener{sound.effect("click");dialog.dismiss();action()}
+                setOnClickListener{
+                    if(pauseActionCommitted)return@setOnClickListener
+                    pauseActionCommitted=true
+                    isEnabled=false
+                    sound.effect("click")
+                    dialog.dismiss()
+                    action()
+                }
             }
             content.addView(b,LinearLayout.LayoutParams(-1,
                 d(PauseModalLayout.buttonHeightDp(compactPause))).apply{

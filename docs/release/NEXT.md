@@ -11,3 +11,12 @@
 - Baseline measured from v1.0.65 native 941x1672 PNGs: Skins RGB MAE deviation 28.72%; Game Over 26.52%. These are baseline values, not claims of new pixel-perfect acceptance.
 - Pixel-perfect 0% is a strict acceptance GOAL. No screen can be certified at 0% without a native build screenshot with zero changed RGB pixels against its corresponding owner reference and successful interactive flows.
 - Release APK and AAB remain unsigned and require private Play upload signing, debug APK only for local QA; no keystores or secrets are added to repository.
+
+## Further native screen alignment
+
+- Skins: larger full 630×630 winged hero positioned above the illustrated stone plinth, plus two accessible round native previous/next arrows cycling only the three real playable pilots.
+- Skins: real green EQUIP control adjacent to the selected hero's description, bound to persisted pilot selection instead of an inert mock purchase.
+- Game Over: seated aviator occupies the larger 560×497 center composition; dynamic stats and retry/home routes remain unchanged.
+- Pause: a single dialog click commit prevents duplicate continue/replay/exit navigation on rapid taps, including finite-level retry.
+- Level Complete: winner is now the genuine winged 512×512 character selected by the player, rather than a static cropped portrait; star count, chest receipt and NEXT/HOME/SHARE actions are unchanged.
+- Zero RGB deviation is still unverified; production builds must pass real Android capture and native interaction QA.
