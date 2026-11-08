@@ -1081,7 +1081,7 @@ class MainActivity : Activity() {
                 setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
                 setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-                background=ResultActionEnamelDrawable(style==0)
+                background=Bopavi3DTheme.button(finish)
                 elevation=d(5).toFloat()
                 minHeight=d(PauseModalLayout.minTouchDp)
                 contentDescription=text
