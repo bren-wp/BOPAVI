@@ -73,7 +73,7 @@ class HomeReferenceLayoutTest {
             home.coins.y,home.stars.y,0f)
         assertTrue(home.coins.x>home.logo.x)
         assertTrue(home.stars.x>home.coins.x)
-        assertTrue(home.coins.bottom<home.logo.y)
+        assertTrue(home.coins.bottom<home.logoArtwork.y)
         assertTrue(home.leaderboard.inside())
         assertFalse(home.leaderboard.overlaps(home.achievements))
         assertFalse(home.leaderboard.overlaps(home.sound))
