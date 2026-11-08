@@ -301,16 +301,12 @@ if not m:raise SystemExit("FAIL: invalid native Settings tap bounds")
 x,y,z,w=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((x+z)//2),str((y+w)//2)],check=True)
 PY
-  sleep 1
-  python3 - <<'PY'
-import re,subprocess
-size=subprocess.check_output(["adb","shell","wm","size"],text=True)
-m=re.findall(r"(\d+)x(\d+)",size)
-if not m:raise SystemExit("FAIL: emulator dimensions missing for Settings scroll")
-w,h=map(int,m[-1])
-subprocess.run(["adb","shell","input","swipe",str(w//2),str(h*4//5),
-                str(w//2),str(h//4),"430"],check=True)
-PY
+  # Settings has TWO valid layouts: the fixed 941px reference camera
+  # (both legal buttons already visible), and a compact ScrollView (links
+  # may be below the fold). Never send an unconditional swipe before reading
+  # real native controls. On the fixed camera that gesture could land over
+  # the Terms row and open the WRONG modal during the Privacy check.
+  # Search/scroll below only if the requested accessible control is absent.
   sleep 1
   for legal_attempt in 1 2 3; do
     dump_ui
