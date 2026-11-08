@@ -40,7 +40,10 @@ assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
 assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
 assert "allowMotion=!progress.lessMotion()" in screen
 assert "PilotSelectionLayout.heroLeft" in screen
-assert "GradientDrawable.OVAL" not in screen
+# The only oval is a real, accessible previous/next button—not a
+# flat placeholder obscuring the new stone platform and floating hero.
+assert "shape=GradientDrawable.OVAL" in screen.split("private fun cycleArrow(",1)[1].split("fun create(",1)[0]
+assert "SkinsReferenceDecor(host)" in screen
 assert "SkinsReferenceDecor(host)" in screen
 assert "SkinsCardEnamelDrawable(isSelected)" in screen
 decor=(src/"SkinsReferenceDecor.kt").read_text()
