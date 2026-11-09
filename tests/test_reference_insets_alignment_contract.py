@@ -11,7 +11,8 @@ assert "val referenceAligned:Boolean" in stage
 assert "referenceAligned:Boolean=false" in stage
 assert "private fun referenceTransform(width:Int,height:Int)" in stage
 assert "private fun placement(slot:Slot,width:Int,height:Int," in stage
-# Level Map keeps safe-area geometry; Shop opts into full-bleed artwork.
+# Level Map keeps safe-area geometry; Shop, Skins and Settings opt into
+# the reference full-bleed camera while keeping native hit targets cutout-safe.
 assert "if(!slot.referenceAligned && !shopFullBleed)return safe" in stage
 assert "private var shopFullBleed=false" in stage
 assert "fun useShopFullBleedReferenceCamera()" in stage
@@ -42,8 +43,13 @@ activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
 assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
 assert 'ownerImmersiveReferenceScreen()' in activity
-assert 'selectedScreen=="splash" || selectedScreen=="loading" ||' in activity
-assert 'selectedScreen=="home" && HomeReferenceLayout.supports(' in activity
+assert 'if(selectedScreen=="splash" || selectedScreen=="loading")return true' in activity
+assert '"home" -> HomeReferenceLayout.supports(' in activity
+assert '"skins","settings","result" -> portrait &&' in activity
+assert 'stage.useShopFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.kt").read_text()
+assert 'stage.useShopFullBleedReferenceCamera()' in (src/"SettingsScreen.kt").read_text()
+assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in activity
+assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="splash"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
