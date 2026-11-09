@@ -1,10 +1,9 @@
 # Next Android release
 
-## v1.0.70 — Gameplay bez donjih šiljaka i sigurnije pokretanje (build 200)
+## v1.0.71 — Level Complete: vjerodostojna nagradna ploča (build 201)
 
-- **Gameplay:** uklonjena je dekoracija od pet zlatnih donjih šiljaka u prvom i sedmom svijetu, uključujući početni kadar prije prvog zamaha. Uklonjeni su neiskorišteni renderer i geometrija te obnovljeni regresijski testovi. Stvarni stupovi, skupljanje predmeta, viseće prepreke, radijus kolizije i granica tla ostaju nepromijenjeni.
-- **Sigurnost:** razvojni QA parametri za Splash, prvi zamah i prikaz kolizija sada se prihvaćaju samo u debug izdanju. Izdana aplikacija ignorira takve vanjski zadane parametre.
-- **Postavke:** smanjeni su preveliki nazivi redova, a odabir težine koristi kratke čitljive oznake EASY / NORMAL / HARD uz puni izvorni naziv u opisima pristupačnosti i iste spremljene vrijednosti.
-- **QA:** novi regresijski testovi provjeravaju zabranu donjih šiljaka i produkcijsku zaštitu QA parametara. Analiza osam izvornih Android snimki od 8. 11. 2026. utvrdila je odstupanja između 23,50% i 29,03% RGB-MAE u odnosu na reference vlasnika. Izvještaj je u `docs/qa/OWNER-RGB-COMPARISON-2026-11-09.md`.
-- **Transparentnost:** potpuno pixel-perfect 1:1 podudaranje, fizički uređaji, puna penetracijska provjera i odobrenje Google Playa nisu potvrđeni. Nedostaje vjerodostojna snimka zaslona Level Complete za završno numeričko mjerenje.
-- **Distribucija:** Android CI proizvodi stvarne APK i AAB artefakte; release APK i Google Play AAB ostaju **nepotpisani**. Potpis izdavateljevom postojećom privatnom upload ključem potreban je prije Google Play predaje.
+- **Level Complete:** referentna nagradna ploča sada ima dvije velike ikone i dinamičke brojke koje su stvarno zabilježene tijekom završene razine: novčiće i ocjenu zvjezdicama. Povećana škrinja smještena je uz njih unutar zajedničke krem ploče umjesto ispod tri samostalne kartice.
+- **Stvarno stanje:** nema izmišljene gem valute, naplate niti lažnog otključavanja. Score ostaje u opisu pristupačnosti bez dodatne vizualne kartice koja nije na vlasnikovoj referenci. Riječi LEVEL COMPLETE! i broj razine imaju pristupačan puni opis.
+- **UI:** uklonjen je dodatni vidljivi natpis LEVEL n koji nema ekvivalent u vlasnikovoj ilustraciji. Akcije NEXT LEVEL / LEVEL MAP, HOME i SHARE ostaju pravi Android gumbi s postojećim funkcijama.
+- **Priprema:** ovu promjenu treba usporediti s izvornim PNG-om Level Complete na stvarnoj Android snimci 941 × 1672. Takav QA par još nije dostupan; tvrdnja o 0% odstupanja ili o dovršetku svih devet zaslona nije opravdana.
+- **Distribucija:** build 201 se ne smije javno izdati bez uspješne potpune Android 15/16 CI provjere. GitHub release AAB i release APK su nepotpisani; Play predaja zahtijeva postojeći izdavateljev upload ključ. Prijašnja verzija v1.0.70 ne smije se preskočiti u dokumentaciji ako još čeka objavu.

@@ -24,13 +24,6 @@ import android.widget.TextView
 internal class LevelCompleteScreen(private val host:Activity) {
     private val navy=0xff082b61.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
-    private fun panel(top:Int,bottom:Int,border:Int,radius:Int)=
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(top,bottom)).apply{
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),border)
-        }
-
     private fun label(message:String,size:Float,color:Int):TextView =
         TextView(host).apply{
             text=message
@@ -68,16 +61,28 @@ internal class LevelCompleteScreen(private val host:Activity) {
             setOnClickListener{onClick()}
         }
 
-    private fun status(labelText:String,value:String,color:Int):View =
+    // The owner victory reference has two reward pictograms above their
+    // live values, inside ONE cream reward plate. Do not use three stacked
+    // rectangular cards or pretend the game has a spendable gem wallet.
+    private fun status(labelText:String,value:String,color:Int,
+                       icon:BopaviUiIconDrawable.Kind):View =
         LinearLayout(host).apply{
             orientation=LinearLayout.VERTICAL
             gravity=Gravity.CENTER
-            setPadding(dp(9),dp(8),dp(9),dp(8))
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
+            setPadding(dp(5),dp(3),dp(5),dp(2))
             contentDescription=labelText+": "+value
-            isFocusable=true
-            addView(label(value,28f,color),LinearLayout.LayoutParams(-1,0,1f))
-            addView(label(labelText,13f,navy),LinearLayout.LayoutParams(-1,dp(30)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            addView(ImageView(host).apply {
+                setImageDrawable(HomeHeroIconDrawable(icon,dp(57)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,0,1.25f))
+            addView(label(value,26f,color).apply {
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,0,.60f))
+            addView(label(labelText,14f,navy).apply {
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,0,.40f))
         }
 
     fun create(backdrop:Int,pilot:Int,data:LevelCompleteState,
@@ -103,14 +108,12 @@ internal class LevelCompleteScreen(private val host:Activity) {
         stage.place(ResultWingDecoration(host),139f,129f,663f,177f)
         stage.place(ResultEmblemLabel(host,"LEVEL",89f,
             ResultEmblemLabel.Tone.ICE).apply {
-            contentDescription="Level Complete!"
+            contentDescription="Level ${data.level} complete!"
         },194f,91f,553f,133f)
         stage.place(ResultEmblemLabel(host,"COMPLETE!",88f,
             ResultEmblemLabel.Tone.GOLD).apply {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },112f,204f,718f,160f)
-        stage.place(label("LEVEL "+data.level.toString(),19f,
-            0xfffff0b5.toInt()),347f,362f,247f,43f)
         val stars=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -142,33 +145,36 @@ internal class LevelCompleteScreen(private val host:Activity) {
         val statRow=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
-            setPadding(dp(8),0,dp(8),0)
+            // Preserve score for assistive users without adding an extra
+            // non-reference visual tile. Every on-screen value remains true.
+            contentDescription="Coins picked up: ${data.collectedText}. "+
+                "Stars earned: ${data.rating}. Score: ${data.scoreText}"
+            isFocusable=true
+            setPadding(dp(4),0,dp(4),0)
         }
+        statRow.addView(status("COINS",data.collectedText,
+            0xffcb6d00.toInt(),BopaviUiIconDrawable.Kind.CROWN_COIN),
+            LinearLayout.LayoutParams(0,-1,1f))
         statRow.addView(status("STARS",data.rating,
-            0xffed9500.toInt()),LinearLayout.LayoutParams(0,-1,1f).apply {
-            marginEnd=dp(8)
-        })
-        statRow.addView(status("COINS PICKED UP",data.collectedText,
-            0xffcb6d00.toInt()),LinearLayout.LayoutParams(0,-1,1f).apply{
-            marginEnd=dp(8)
-        })
-        statRow.addView(status("SCORE",data.scoreText,
-            0xff1677c3.toInt()),LinearLayout.LayoutParams(0,-1,1f))
+            0xffed9500.toInt(),BopaviUiIconDrawable.Kind.STAR),
+            LinearLayout.LayoutParams(0,-1,1f))
         // The reference uses one large cream reward area, not three floating
         // unrelated cards. Each statistic still has live Android text.
         stage.place(View(host).apply {
             background=LevelCompleteRewardPlateDrawable()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },100f,929f,741f,278f)
-        stage.place(statRow,123f,949f,697f,112f)
-        stage.place(LevelCompleteChest(host),365f,1054f,211f,120f)
+        // Large native collectible icons and a raised reward chest share
+        // the same single plate, as in the owner-supplied 941px illustration.
+        stage.place(statRow,151f,975f,422f,187f)
+        stage.place(LevelCompleteChest(host),567f,975f,222f,192f)
         val reward=label(data.rewardText,25f,
             if(data.justAwardedCoins>0)0xffffea90.toInt() else Color.WHITE).apply {
             contentDescription=if(data.justAwardedCoins>0)
                 "Milestone bonus awarded: "+data.justAwardedCoins+" coins"
             else "No milestone coins awarded for this clear"
         }
-        stage.place(reward,206f,1168f,529f,45f)
+        stage.place(reward,547f,1158f,269f,45f)
 
         stage.place(HomePlayWings(host),113f,1234f,714f,151f)
         stage.place(button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP",
