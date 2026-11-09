@@ -28,9 +28,9 @@ for expected in (
 ):
     assert expected in screen,expected
 assert "cardLefts=floatArrayOf(34f,339f,644f)" in layout
-assert "const val heroLeft=100f" in layout
-assert "const val heroTop=220f" in layout
-assert "const val heroSize=740f" in layout
+assert "const val heroLeft=140f" in layout
+assert "const val heroTop=240f" in layout
+assert "const val heroSize=660f" in layout
 assert 'cycleArrow("‹","Previous hero")' in screen
 assert 'cycleArrow("›","Next hero")' in screen
 assert 'contentDescription="Equip "+item.title' in screen

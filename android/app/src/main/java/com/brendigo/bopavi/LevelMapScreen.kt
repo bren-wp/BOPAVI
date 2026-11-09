@@ -529,11 +529,18 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         color(0x55032048)
         c.drawOval(cx-rx-9f,y+deep-12f,cx+rx+9f,y+deep+21f,p)
         path.reset()
+        // The owner map islands are irregular multi-plane cliffs, not
+        // mathematically perfect triangular pyramids. All facets are passive
+        // scenery and remain behind native level controls.
         path.moveTo(cx-rx,y+7f)
+        path.lineTo(cx-rx*.88f,y+deep*.27f)
+        path.lineTo(cx-rx*.65f,y+deep*.64f)
+        path.lineTo(cx-rx*.34f,y+deep*.88f)
+        path.lineTo(cx-rx*.06f,y+deep)
+        path.lineTo(cx+rx*.27f,y+deep*.88f)
+        path.lineTo(cx+rx*.64f,y+deep*.67f)
+        path.lineTo(cx+rx*.87f,y+deep*.28f)
         path.lineTo(cx+rx,y+7f)
-        path.lineTo(cx+rx*.61f,y+deep*.69f)
-        path.lineTo(cx,y+deep)
-        path.lineTo(cx-rx*.63f,y+deep*.70f)
         path.close()
         color(rock);c.drawPath(path,p)
         color(0x66442823);p.style=Paint.Style.STROKE;p.strokeWidth=7f
@@ -768,28 +775,32 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         path.cubicTo(624f,273f,640f,223f,710f,270f)
         path.cubicTo(750f,289f,776f,247f,824f,263f)
         canvas.drawPath(path,p);p.style=Paint.Style.FILL
-        // A gently curving rope path through the six real level markers.
+        // Footpaths must stay on their *own* island. The former one-piece
+        // path joined Meadow -> Crystal -> Volcano through open sky, creating
+        // two enormous wooden columns absent from the owner's world map.
+        // A stage remains operable through its real native level marker.
         val pts=LevelMapGeometry.nodes
-        color(0xff694630.toInt());p.style=Paint.Style.STROKE
-        p.strokeWidth=35f;p.strokeCap=Paint.Cap.ROUND
-        path.reset()
-        path.moveTo(pts[0].x+52f,pts[0].y+53f)
-        for(i in 1 until pts.size){
-            val from=pts[i-1];val to=pts[i]
-            path.quadTo((from.x+to.x)/2f+54f,(from.y+to.y)/2f,
-                to.x+54f,to.y+52f)
+        for(group in arrayOf(0..2,3..4)) {
+            path.reset()
+            path.moveTo(pts[group.first].x+54f,pts[group.first].y+52f)
+            for(i in group.first+1..group.last) {
+                val from=pts[i-1];val to=pts[i]
+                path.quadTo((from.x+to.x)*.5f+54f,
+                    (from.y+to.y)*.5f+40f,
+                    to.x+54f,to.y+52f)
+            }
+            // color() resets Paint to FILL; explicitly enable STROKE for
+            // all three rope/stone passes to avoid filling the landscape.
+            color(0xff68472d.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=25f;p.strokeCap=Paint.Cap.ROUND
+            canvas.drawPath(path,p)
+            color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=16f;p.strokeCap=Paint.Cap.ROUND
+            canvas.drawPath(path,p)
+            color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE
+            p.strokeWidth=3f;p.strokeCap=Paint.Cap.ROUND
+            canvas.drawPath(path,p)
         }
-        canvas.drawPath(path,p)
-        // Paint.reset() inside color() restores FILL. The old code drew a
-        // gigantic beige filled triangle between the three floating worlds!
-        // Both passes must remain STROKE: this is a narrow winding walkway,
-        // never an opaque polygon that conceals castles, waterfalls or clouds.
-        color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE
-        p.strokeWidth=21f;p.strokeCap=Paint.Cap.ROUND
-        canvas.drawPath(path,p)
-        color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE
-        p.strokeWidth=3f;p.strokeCap=Paint.Cap.ROUND
-        canvas.drawPath(path,p)
         p.style=Paint.Style.FILL;p.strokeCap=Paint.Cap.BUTT
         // Tiny floral highlights around Sky Meadows, excluding controls.
         for(i in 0..21){

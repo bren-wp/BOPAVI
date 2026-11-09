@@ -82,6 +82,12 @@ assert 'stage.place(nativeButton("‹","Home",blue)' in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
+# Keep independent stage footpaths on their own floating islands, not as
+# vertical wood columns bridging the open sky between 3 worlds.
+assert "for(group in arrayOf(0..2,3..4))" in mapSource
+assert "for(i in 1 until pts.size)" not in mapSource
+assert "p.strokeWidth=16f;p.strokeCap=Paint.Cap.ROUND" in mapSource
+assert "path.lineTo(cx-rx*.65f,y+deep*.64f)" in mapSource
 assert "full=true" not in mapSource
 assert "fun displayedWorlds(selected:Int)" in geometry
 assert "1L..20L" in store  # 20 stages x 3 genuine rating stars
