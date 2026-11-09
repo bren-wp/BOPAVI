@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.71 — Level Complete: vjerodostojna nagradna ploča (build 201)
+
+**Published:** 2026-11-09 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.71)
+
+- **Level Complete:** referentna nagradna ploča sada ima dvije velike ikone i dinamičke brojke koje su stvarno zabilježene tijekom završene razine: novčiće i ocjenu zvjezdicama. Povećana škrinja smještena je uz njih unutar zajedničke krem ploče umjesto ispod tri samostalne kartice.
+- **Stvarno stanje:** nema izmišljene gem valute, naplate niti lažnog otključavanja. Score ostaje u opisu pristupačnosti bez dodatne vizualne kartice koja nije na vlasnikovoj referenci. Riječi LEVEL COMPLETE! i broj razine imaju pristupačan puni opis.
+- **UI:** uklonjen je dodatni vidljivi natpis LEVEL n koji nema ekvivalent u vlasnikovoj ilustraciji. Akcije NEXT LEVEL / LEVEL MAP, HOME i SHARE ostaju pravi Android gumbi s postojećim funkcijama.
+- **Priprema:** ovu promjenu treba usporediti s izvornim PNG-om Level Complete na stvarnoj Android snimci 941 × 1672. Takav QA par još nije dostupan; tvrdnja o 0% odstupanja ili o dovršetku svih devet zaslona nije opravdana.
+- **Distribucija:** build 201 se ne smije javno izdati bez uspješne potpune Android 15/16 CI provjere. GitHub release AAB i release APK su nepotpisani; Play predaja zahtijeva postojeći izdavateljev upload ključ. Prijašnja verzija v1.0.70 ne smije se preskočiti u dokumentaciji ako još čeka objavu.
+
 ## v1.0.69 — Splash i Home: bolji izvorni kadar i 3D grafika (build 199)
 
 **Published:** 2026-11-08 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.69)
@@ -17,14 +27,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Izmjene su ograničene na Splash/Home, offline izradu zajedničke pozadine i njihove regresijske testove. Sve akcije ostaju stvarni, dostupni Android gumbi; Loading ne prikazuje izmišljeni postotak.
 - Referenca: 941 × 1672; posljednja prethodno verificirana v1.0.68 odstupanja bila su Home 24,02% i Splash 24,66% RGB MAE. To je početna mjera, a NE novo mjerenje niti 0% podudarnosti.
 - Produkcijska objava dopuštena je tek nakon uspješnog Android CI-a, stvarnih snimki i testiranja na Androidu 15/16. Play upload AAB zahtijeva potpis izdavatelja.
-
-## v1.0.68 — Production text readability and accessible UI (build 198)
-
-**Published:** 2026-11-08 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.68)
-
-- Audited original 941×1672 native Android screenshots from v1.0.65 and observed specific production blockers: Settings row labels break mid-word, Achievements progress labels collide with the bottom of their cards, and Leaderboard rows/rank labels clip.
-- Settings: native one-line adaptive labels, smaller decorative icon tiles, better label-to-control allocation, and three real difficulty controls in a 162dp group (at least 50dp per button after margins). The displayed setting is called Mode for legibility; saved difficulty values and TalkBack semantics remain unchanged.
-- Achievements: fixed-size icon/header within each real goal card, reduced padding and progress bar height to allocate genuine vertical room for goal text, counts and status. No goal is invented or reset.
-- Leaderboard: native one-line adaptive labels, smaller rank badges within the native score rows and a narrower score column to preserve player/world names. Actual local scores remain unchanged.
-- The existing Android 15/16 UI flow, Settings legal links, touch target, image verification and privacy/security audits remain mandatory release gates. The prior CI run blocked the candidate before publication; the production gate must not be bypassed.
-- Visual identity improves readability but absolute pixel-to-pixel equality is NOT claimed. A new 941×1672 Android screenshot is required to verify changes. Google Play upload requires signing the unsigned release AAB with publisher-held private material.
