@@ -57,3 +57,14 @@ position-synchronized hanging-mace hazards appearing later in play.
    devices; verify no overlap, animation frame drops, or regressions.
 5. Inspect final unsigned AAB + release-signing workflow before distributing
    an update to Play; do not infer readiness from source checks alone.
+
+## Additional hardening: exported Activity QA extras
+
+Found `MainActivity` accepted `bopavi_qa_loading_preview` and
+first-flap/overlay extras from an external launcher Intent on production
+builds, although `GameView` already guarded its screenshot flags.
+Hardened all three launch extras behind `FLAG_DEBUGGABLE` in
+`MainActivity.qaIntentEnabled`. A release launch now follows the ordinary
+user path regardless of user-supplied QA extras. The existing debug emulator
+capture workflow retains those flags. Added lifecycle source regression
+assertions for this behavior.

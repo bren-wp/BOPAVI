@@ -46,6 +46,15 @@ assert 'if(pauseDialog?.isShowing!=true)showPremiumPause(view)' in activity
 assert 'selectedScreen=="game"' in activity
 assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
 assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity
+# The exported launcher may not accept debug QA intent extras in release.
+assert 'private fun qaIntentEnabled(key:String):Boolean' in activity
+assert 'ApplicationInfo.FLAG_DEBUGGABLE != 0' in activity
+assert activity.count('intent?.getBooleanExtra(')==1
+assert 'if(qaIntentEnabled("bopavi_qa_loading_preview"))' in activity
+assert '!qaIntentEnabled("bopavi_qa_capture_first_flap")' in activity
+assert '!qaIntentEnabled("bopavi_qa_collision_overlay")' in activity
+assert 'qaCaptureFirstFlap=qaIntentEnabled(' in activity
+assert 'qaCollisionOverlay=qaIntentEnabled(' in activity
 assert "drawStoneCourses(" in game and "fun courses(yStart" not in game
 assert "targets=(google_apis default)" in install
 assert "id: image35" in flow and "id: image36" in flow

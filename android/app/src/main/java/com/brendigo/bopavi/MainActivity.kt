@@ -159,6 +159,12 @@ class MainActivity : Activity() {
                  else 0)
         }
     }
+    // QA launch extras must never be honored by an exported release Activity.
+    // Emulator regression builds remain able to capture truthful native frames.
+    private fun qaIntentEnabled(key:String):Boolean =
+        (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) &&
+            intent?.getBooleanExtra(key,false)==true
+
     override fun onCreate(state: Bundle?) {
         setTheme(R.style.BopaviTheme)
         super.onCreate(state)
@@ -178,13 +184,13 @@ class MainActivity : Activity() {
                 android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback)
             platformBackCallback=callback
         }
-        if(intent?.getBooleanExtra("bopavi_qa_loading_preview",false)==true) {
+        if(qaIntentEnabled("bopavi_qa_loading_preview")) {
             // QA captures the exact same native Loading view used by the game.
             selectedScreen="loading"
             showNativeView(FlightLoadingView(this,selectedPilotChoice))
         } else if(state==null &&
-            intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)!=true &&
-            intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)!=true) {
+            !qaIntentEnabled("bopavi_qa_capture_first_flap") &&
+            !qaIntentEnabled("bopavi_qa_collision_overlay")) {
             showBrandedStartup()
         } else showHome()
     }
@@ -1219,8 +1225,8 @@ class MainActivity : Activity() {
             onWalletRequested={gameView?.let { current ->
                 if(selectedScreen=="game")confirmGameplayShop(current)
             }},
-            qaCaptureFirstFlap=intent?.getBooleanExtra("bopavi_qa_capture_first_flap",false)==true,
-            qaCollisionOverlay=intent?.getBooleanExtra("bopavi_qa_collision_overlay",false)==true)
+            qaCaptureFirstFlap=qaIntentEnabled("bopavi_qa_capture_first_flap"),
+            qaCollisionOverlay=qaIntentEnabled("bopavi_qa_collision_overlay"))
         gameView=game
         frame.addView(game,FrameLayout.LayoutParams(-1,-1))
         showNativeView(frame)
