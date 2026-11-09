@@ -422,13 +422,10 @@ jobs:
             # teardown can then block for the entire job timeout and falsely
             # cancel a passing Android 16 smoke test. Stop only that emulator
             # after the assertions, never before or instead of them.
+            # android-emulator-runner executes script lines as separate sh -c
+            # invocations. Keep cleanup strictly one command per line.
             adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
-            for attempt in 1 2 3 4 5; do
-              if ! pgrep -f '[q]emu-system-x86_64-headless' >/dev/null; then
-                break
-              fi
-              sleep 1
-            done
+            sleep 2
             pkill -TERM -f '[q]emu-system-x86_64-headless' || true
             sleep 1
             pkill -KILL -f '[q]emu-system-x86_64-headless' || true
