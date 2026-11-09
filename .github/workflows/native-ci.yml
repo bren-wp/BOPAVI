@@ -413,8 +413,26 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none
           disable-animations: true
           script: |
+            set -e
             sh tools/qa_android_emulator.sh
             python3 tools/qa_android_shop_focus.py
+            # Both independent native suites have completed successfully.
+            # On some Linux runners qemu keeps a headless child process alive
+            # after adb's "OK: killing emulator" response. The emulator-runner
+            # teardown can then block for the entire job timeout and falsely
+            # cancel a passing Android 16 smoke test. Stop only that emulator
+            # after the assertions, never before or instead of them.
+            adb -s emulator-5554 emu kill >/dev/null 2>&1 || true
+            for attempt in 1 2 3 4 5; do
+              if ! pgrep -f '[q]emu-system-x86_64-headless' >/dev/null; then
+                break
+              fi
+              sleep 1
+            done
+            pkill -TERM -f '[q]emu-system-x86_64-headless' || true
+            sleep 1
+            pkill -KILL -f '[q]emu-system-x86_64-headless' || true
+            echo 'PASS: real Android 16 QA completed and emulator stopped'
       - name: Preserve Android16 emulator evidence
         if: always()
         uses: actions/upload-artifact@v4
