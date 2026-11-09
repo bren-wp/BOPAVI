@@ -19,16 +19,16 @@ for phrase in (
     'stage.place(ResultWingDecoration(host),139f,129f,663f,177f)',
     'ResultEmblemLabel(host,"LEVEL",89f,',
     'ResultEmblemLabel(host,"COMPLETE!",88f,',
-    'contentDescription="Level Complete!"',
+    'contentDescription="Level ${data.level} complete!"',
     'stage.place(stars,259f,811f,423f,142f)',
     'stage.place(HomeWingActor(host,heroLayers.first,heroLayers.second,',
     '209f,348f,523f,523f)',
     '},100f,929f,741f,278f)',
-    'stage.place(statRow,123f,949f,697f,112f)',
-    'stage.place(reward,206f,1168f,529f,45f)',
+    'stage.place(statRow,151f,975f,422f,187f)',
+    'stage.place(reward,547f,1158f,269f,45f)',
     'for(index in 0..2)',
     'index<data.stars',
-    'stage.place(LevelCompleteChest(host),365f,1054f,211f,120f)',
+    'stage.place(LevelCompleteChest(host),567f,975f,222f,192f)',
     'button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP"',
     'stage.place(button("HOME",false,onHome)',
     'stage.place(button("SHARE",false,onShare)',
@@ -53,6 +53,13 @@ for detail in (
 ):
     assert detail in view,detail
 assert "LevelCompleteRewardPlateDrawable()" in view
+assert 'status("COINS",data.collectedText,' in view
+assert 'status("STARS",data.rating,' in view
+assert 'BopaviUiIconDrawable.Kind.CROWN_COIN' in view
+assert 'BopaviUiIconDrawable.Kind.STAR' in view
+assert 'Score: ${data.scoreText}' in view
+assert 'status("SCORE",data.scoreText,' not in view
+assert 'R.drawable.reference_screenshot' not in view
 assert "stage.place(HomePlayWings(host),113f,1234f,714f,151f)" in view
 assert "ResultActionEnamelDrawable(gold)" in view
 assert "replayAndNonMilestoneDoNotPretendToGrantChestLoot" in unit
