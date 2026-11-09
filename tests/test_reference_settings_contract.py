@@ -54,6 +54,13 @@ assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in setting
 assert 'FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER)' in settings
 assert 'setSingleLine(true)' in settings
 assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
+# Row labels and difficulty values must never rely on clipped visible text.
+assert 'row.addView(title(text,14,navy).apply{' in settings
+assert 'setAutoSizeTextTypeUniformWithConfiguration(11,14,1,' in settings
+assert 'val shortLabel=when(index)' in settings
+for label in ('"EASY"','"NORMAL"','"HARD"'):
+    assert label in settings,label
+assert 'contentDescription=(if(index==progress.difficulty())' in settings
 assert 'line("Mode",BopaviUiIconDrawable.Kind.STAR,' in settings
 assert 'title("SETTINGS",57).apply{' in settings
 assert 'title("SETTINGS",31).apply{' in settings

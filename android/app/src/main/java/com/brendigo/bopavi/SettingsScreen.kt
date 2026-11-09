@@ -93,11 +93,11 @@ internal class SettingsScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER))
         },LinearLayout.LayoutParams(dp(36),dp(36)))
-        row.addView(title(text,17,navy).apply{
+        row.addView(title(text,14,navy).apply{
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setSingleLine(true)
             ellipsize=android.text.TextUtils.TruncateAt.END
-            setAutoSizeTextTypeUniformWithConfiguration(11,17,1,
+            setAutoSizeTextTypeUniformWithConfiguration(11,14,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
         },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(6)})
@@ -153,7 +153,14 @@ internal class SettingsScreen(private val host:Activity,
             gravity=Gravity.CENTER
             orientation=LinearLayout.HORIZONTAL
             for(index in progress.difficultyNames.indices){
-                addView(button(progress.difficultyNames[index],
+                // The full local difficulty name remains in accessibility.
+                // Short visible names prevent clipped ellipses on 941px art.
+                val shortLabel=when(index) {
+                    0 -> "EASY"
+                    1 -> "NORMAL"
+                    else -> "HARD"
+                }
+                addView(button(shortLabel,
                     selected=index==progress.difficulty()){
                     if(index!=progress.difficulty())onChange(index)
                 }.apply{
