@@ -725,9 +725,9 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
             floatArrayOf(613f,685f,303f,1f),
             floatArrayOf(344f,1137f,393f,2f))) {
             val glow=when(tint.toInt()){
-                0 -> 0x44ffad65
-                1 -> 0x4479e6ff
-                else -> 0x449ffb72
+                0 -> if(selected%3==2)0x55ffad65 else 0x33ffad65
+                1 -> if(selected%3==1)0x5579e6ff else 0x3379e6ff
+                else -> if(selected%3==0)0x559ffb72 else 0x339ffb72
             }
             color(glow)
             canvas.drawOval(x-r,y-r*.58f,x+r,y+r*.58f,p)
