@@ -228,6 +228,7 @@ internal class SettingsScreen(private val host:Activity,
             host.resources.configuration.fontScale<1.25f
         if(reference){
             val stage=LevelMapStage(host)
+            stage.useShopFullBleedReferenceCamera()
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
             stage.place(artwork(R.drawable.logo),203f,20f,535f,213f)
             stage.place(artwork(R.drawable.bopiportrait0),266f,216f,409f,332f)

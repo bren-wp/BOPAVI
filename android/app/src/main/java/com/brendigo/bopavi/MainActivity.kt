@@ -99,17 +99,24 @@ class MainActivity : Activity() {
      * The window itself draws behind the transparent navigation area; no
      * deprecated status/navigation-bar color setters are required.
      */
-    // The owner's original Splash/Home artwork covers the full 941x1672
-    // display. Keep compact/large-font Home in the navigation-safe fallback.
-    // Gestures remain available with transient system bars on reference screens.
-    private fun ownerImmersiveReferenceScreen():Boolean =
-        selectedScreen=="splash" || selectedScreen=="loading" ||
-        (selectedScreen=="home" && HomeReferenceLayout.supports(
-            resources.displayMetrics.widthPixels,
-            resources.displayMetrics.heightPixels,
-            resources.configuration.orientation==
-                android.content.res.Configuration.ORIENTATION_PORTRAIT,
-            resources.configuration.fontScale))
+    // Use the owner's complete 941x1672 illustrated camera on selected
+    // portrait reference pages. The native stage still repositions touch
+    // targets away from real cutouts and falls back on smaller/large-font UI.
+    private fun ownerImmersiveReferenceScreen():Boolean {
+        if(selectedScreen=="splash" || selectedScreen=="loading")return true
+        val portrait=resources.configuration.orientation==
+            android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val dm=resources.displayMetrics
+        val fontScale=resources.configuration.fontScale
+        return when(selectedScreen) {
+            "home" -> HomeReferenceLayout.supports(
+                dm.widthPixels,dm.heightPixels,portrait,fontScale)
+            "skins","settings","result" -> portrait &&
+                dm.widthPixels>=860 && dm.heightPixels>=1480 &&
+                fontScale<1.25f
+            else -> false
+        }
+    }
 
     @Suppress("DEPRECATION")
     private fun applyPremiumSystemBars() {
@@ -612,6 +619,7 @@ class MainActivity : Activity() {
         showPauseAfterBackground=false
         sound.stop()
         selectedScreen="skins"
+        applyPremiumSystemBars()
         val view=ReferenceMenus(this,progress).skins(selectedPilotChoice,
             onChoose={index->
                 selectedPilotChoice=index
@@ -626,6 +634,7 @@ class MainActivity : Activity() {
     private fun showSettingsScreen(){
         showPauseAfterBackground=false
         selectedScreen="settings"
+        applyPremiumSystemBars()
         val page=SettingsScreen(this,progress).create(
             onBack={showHome()},
             onMusic={value->

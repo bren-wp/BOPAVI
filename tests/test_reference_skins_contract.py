@@ -11,6 +11,8 @@ main=(src/"MainActivity.kt").read_text()
 qa=(root/"tools/qa_android_reference_menus.py").read_text()
 junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTest.kt").read_text()
 assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onBack)" in menu
+assert 'stage.useShopFullBleedReferenceCamera()' in screen
+assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in main
 assert "progress.chooseArcadePilot(index)" in main
 for word in ("CLASSIC AVIATOR","SKY OWL","SKY FOX","FREE • UNLOCKED",
              "Choose ","Selected "):

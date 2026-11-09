@@ -411,8 +411,9 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
                             val minTouch:Boolean,val referenceAligned:Boolean,
                             val verticalAnchor:Float)
     private val slots=ArrayList<Slot>()
-    // Opt-in for the Shop ONLY: the reference scene occupies its entire
-    // 941x1672 camera. The Map retains its existing safe-area positioning.
+    // Opt-in for native portrait reference scenes (Shop, Skins, Settings):
+    // art fills the original 941x1672 camera; actual tappable controls
+    // still fall back to safe-area positioning around physical cutouts.
     private var shopFullBleed=false
     fun useShopFullBleedReferenceCamera() {
         shopFullBleed=true

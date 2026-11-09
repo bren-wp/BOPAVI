@@ -34,6 +34,8 @@ for marker in (
     assert (marker in settings if marker!="android.widget.ScrollView"
             else "import android.widget.ScrollView" in settings),marker
 assert 'val rows=floatArrayOf(620f,720f,820f,920f,1020f,1120f,1220f,1320f)' in geometry
+assert 'stage.useShopFullBleedReferenceCamera()' in settings
+assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
             '"haptic_enabled"','"less_motion"','"difficulty"'):
     assert key in store,key

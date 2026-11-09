@@ -98,6 +98,16 @@ internal class PilotSelectionScreen(
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
         val stage=LevelMapStage(host)
+        val dm=host.resources.displayMetrics
+        if(host.resources.configuration.orientation==
+                android.content.res.Configuration.ORIENTATION_PORTRAIT &&
+            dm.widthPixels>=860 && dm.heightPixels>=1480 &&
+            host.resources.configuration.fontScale<1.25f) {
+            // Keep the complete owner art and native hero/card geometry on
+            // the same full-bleed camera; safe-inset fallback remains active
+            // for accessible touch targets near a notch.
+            stage.useShopFullBleedReferenceCamera()
+        }
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         // Decorative wood sign, ropes, grass and layered stone podium;
         // actual pilot choice and wallets remain native and clickable.
