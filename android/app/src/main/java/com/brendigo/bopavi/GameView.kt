@@ -1583,12 +1583,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // Fixed reference geometry + reused Paint avoids frame allocations.
         rect(c,a.left+2f,a.top+7f,a.right+2f,a.bottom+7f,
             0x6906204d,24f)
+        // The ready-state glass instruction is a soft, translucent cyan
+        // pill on the owner reference, not a nearly opaque navy rectangle.
+        // This is presentation-only; input still goes to the real GameView.
         rect(c,a.left-3f,a.top-3f,a.right+3f,a.bottom+3f,
-            0x342fe2ff,26f)
+            0x6c69eaff,26f)
         rect(c,a.left,a.top,a.right,a.bottom,
-            0xc2164c91.toInt(),23f)
+            0xad287fc0.toInt(),23f)
         rect(c,a.left+3f,a.top+3f,a.right-3f,a.bottom-4f,
-            0x982981cc.toInt(),20f)
+            0x9852b4e9.toInt(),20f)
         // Broad enamel reflection, small highlights, dark lower relief.
         rect(c,a.left+8f,a.top+5f,a.right-8f,a.top+16f,
             0x729eedff,13f)

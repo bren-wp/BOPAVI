@@ -65,7 +65,7 @@ assert 'stage.useShopFullBleedReferenceCamera()' in shop
 stage=(src/"LevelMapScreen.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
 assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
-assert '},130f,235f,570f,420f)' in shop
+assert '},105f,211f,630f,460f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)' in shop
 assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop

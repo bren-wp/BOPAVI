@@ -326,7 +326,7 @@ internal class ShopScreen(
         // Bopi fills the illustrated counter opening rather than looking
         // like a tiny floating badge. Preserve the full source square and
         // let transparent wings/scarf reach the owner's shelf silhouette.
-        },130f,235f,570f,420f)
+        },105f,211f,630f,460f)
         // A separate raised wood lip obscures the lower character edge,
         // so Bopi is BEHIND the counter rather than floating over its front.
         // The strip is purely decorative and never intercepts purchases.

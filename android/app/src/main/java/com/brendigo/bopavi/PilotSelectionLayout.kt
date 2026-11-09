@@ -8,9 +8,11 @@ internal object PilotSelectionLayout {
     const val bannerTop=166f
     const val bannerWidth=495f
     const val bannerHeight=128f
-    const val heroLeft=140f
-    const val heroTop=250f
-    const val heroSize=630f
+    // Increase the complete winged hero silhouette toward the owner's
+    // dominant central character, without moving interactive skin cards.
+    const val heroLeft=100f
+    const val heroTop=220f
+    const val heroSize=740f
     const val platformLeft=166f
     const val platformTop=811f
     const val platformWidth=612f

@@ -134,8 +134,10 @@ internal class GameOverScreen(private val host:Activity) {
         },FrameLayout.LayoutParams(-1,-1))
         root.addView(View(host).apply{
             background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x88092358.toInt(),0x332b70b5,
-                    0x11ffb7ac,0x77432a65))
+                // Lift the saturated sunset/blue sky while keeping the
+                // darker royal-blue loss mood of the owner reference.
+                intArrayOf(0x68092358,0x22368cc4,
+                    0x18ffbb9e,0x69412a5c))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 
