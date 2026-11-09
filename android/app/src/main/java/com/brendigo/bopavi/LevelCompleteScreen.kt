@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -24,13 +23,6 @@ import android.widget.TextView
 internal class LevelCompleteScreen(private val host:Activity) {
     private val navy=0xff082b61.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
-    private fun panel(top:Int,bottom:Int,border:Int,radius:Int)=
-        GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(top,bottom)).apply{
-            cornerRadius=dp(radius).toFloat()
-            setStroke(dp(3),border)
-        }
-
     private fun label(message:String,size:Float,color:Int):TextView =
         TextView(host).apply{
             text=message
