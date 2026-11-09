@@ -36,7 +36,9 @@ assert shell.index('capture "android-home-$label"') < shell.index(
 assert 'python3 tools/qa_home_viewports.py "$dims" "$density" "$label"' in shell
 assert 'python3 tools/qa_splash_viewports.py "$dims" "$density" "$label"' in shell
 assert '--ez bopavi_qa_loading_preview true' in shell
-assert 'if(intent?.getBooleanExtra("bopavi_qa_loading_preview",false)==true)' in activity
+# Screenshot-only launch extras are accepted exclusively in debuggable builds.
+assert 'if(qaIntentEnabled("bopavi_qa_loading_preview"))' in activity
+assert 'ApplicationInfo.FLAG_DEBUGGABLE != 0' in activity
 assert 'showNativeView(FlightLoadingView(this,selectedPilotChoice))' in activity
 assert 'android-loading-{label}.png' in splash
 assert 'android-loading-{label}.xml' in splash
