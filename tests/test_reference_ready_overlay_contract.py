@@ -22,8 +22,9 @@ assert "liveHudStillFitsWhenGameIsReady" in unit
 assert "vectorHandRemainsInTheReferenceCallout" in unit
 assert "fun cueDecorationFits():Boolean" in layout
 assert "drawTutorialHand(c,a.handCenterX,a.handCenterY)" in view
-for color in ("0x342fe2ff", "0xc2164c91.toInt()",
-              "0x729eedff", "0x65031e50", "0xffb2faff.toInt()"):
+for color in ("0x6c69eaff", "0xad287fc0.toInt()",
+              "0x9852b4e9.toInt()", "0x729eedff",
+              "0x65031e50", "0xffb2faff.toInt()"):
     assert color in view,color
 assert "3D cyan-glass CTA is only a visual cue" in view
 assert "r-13f,t+10f,r-11f,b-12f,0x35ecfbff" in view
