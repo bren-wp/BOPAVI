@@ -249,8 +249,10 @@ internal class LevelMapScreen(
         },477f,26f,57f,63f)
         stage.place(statChip(totalStars,"STARS"),706f,23f,211f,73f)
         stage.place(ImageView(host).apply{
+            // Real earned STAR ratings must never be illustrated as
+            // spendable pink gems; this game has no gem wallet.
             setImageDrawable(HomeHeroIconDrawable(
-                BopaviUiIconDrawable.Kind.GEM,dp(32)))
+                BopaviUiIconDrawable.Kind.STAR,dp(32)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },700f,25f,66f,64f)
 
@@ -715,9 +717,21 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         super.onDraw(canvas)
         val checkpoint=canvas.save()
         canvas.scale(width/LevelMapGeometry.width,height/LevelMapGeometry.height)
-        // Atmospheric distance: no rectangular screenshot overlay.
-        color(0x55ffffff)
-        canvas.drawOval(35f,220f,950f,1110f,p)
+        // The older giant white fog oval washed out the three vivid island
+        // palettes on the 941px owner reference. Keep atmospheric depth as
+        // three local, softly colored glows, not a flat desaturating veil.
+        for((x,y,r,tint) in arrayOf(
+            floatArrayOf(706f,235f,287f,0f),
+            floatArrayOf(613f,685f,303f,1f),
+            floatArrayOf(344f,1137f,393f,2f))) {
+            val glow=when(tint.toInt()){
+                0 -> 0x44ffad65
+                1 -> 0x4479e6ff
+                else -> 0x449ffb72
+            }
+            color(glow)
+            canvas.drawOval(x-r,y-r*.58f,x+r,y+r*.58f,p)
+        }
         island(canvas,709f,239f,231f,222f,
             0xffe55b3d.toInt(),0xff664454.toInt(),0xfffa9b54.toInt())
         island(canvas,621f,690f,264f,252f,
@@ -731,15 +745,9 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         crystalCluster(canvas)
         meadowCastle(canvas)
         meadowCanopy(canvas)
-        // A ring on the actual selected world, not a false unlock indicator.
-        val focus=selected%3
-        val focusX=floatArrayOf(347f,621f,709f)[focus]
-        val focusY=floatArrayOf(1140f,690f,239f)[focus]
-        color(0xaaeaffff.toInt())
-        p.style=Paint.Style.STROKE
-        p.strokeWidth=6f
-        canvas.drawOval(focusX-110f,focusY-50f,focusX+110f,focusY+34f,p)
-        p.style=Paint.Style.FILL
+        // The reference contains no large floating selection halo across
+        // the scenery. World selection is already visible through the real
+        // pressed/selected sign and enabled stage plates.
         // Crystal spires are local vector shapes, not reward hitboxes.
         for(i in 0..6){
             val x=460f+i*63f

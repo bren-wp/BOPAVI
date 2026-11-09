@@ -32,6 +32,11 @@ assert "val scroll=ScrollView(host).apply" in mapSource
 assert "isFillViewport=true" in mapSource
 assert "addControl(nativeButton(" in mapSource
 assert "contentDescription=\"LEVEL MAP\"" in mapSource
+# Match the reference's world-color hierarchy and genuine star wallet.
+assert 'BopaviUiIconDrawable.Kind.STAR,dp(32)' in mapSource
+assert 'BopaviUiIconDrawable.Kind.GEM,dp(32)' not in mapSource
+assert 'canvas.drawOval(35f,220f,950f,1110f,p)' not in mapSource
+assert 'canvas.drawOval(focusX-110f' not in mapSource
 assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
 assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
 assert "stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)" in mapSource
