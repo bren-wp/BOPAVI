@@ -131,6 +131,33 @@ subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=T
 PY
   sleep 1
   dump_ui
+  # Android's own one-time immersive-mode education popup may intercept the
+  # return to Home on a fresh emulator. Dismiss ONLY this exact OS window,
+  # never a BOPAVI dialog, and still require the real Home hierarchy below.
+  if python3 - <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+title=[n for n in nodes if n.get("package")=="android" and
+       n.get("resource-id")=="android:id/immersive_cling_title" and
+       n.get("text")=="Viewing full screen"]
+if not title:
+    sys.exit(1)
+ok=[n for n in nodes if n.get("package")=="android" and
+    n.get("resource-id")=="android:id/ok" and
+    n.get("text")=="Got it" and n.get("clickable")=="true"]
+if len(title)!=1 or len(ok)!=1:
+    raise SystemExit("FAIL: unexpected immersive system dialog")
+m=re.fullmatch(r"\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]",ok[0].get("bounds",""))
+if not m:
+    raise SystemExit("FAIL: immersive education button bounds invalid")
+a,b,c,d=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+print("PASS: dismissed exact Android immersive-mode education dialog")
+PY
+  then
+    sleep 1
+    dump_ui
+  fi
   python3 - <<'PY'
 import xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
