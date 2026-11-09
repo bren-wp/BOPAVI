@@ -35,15 +35,13 @@ assert "val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(" in
 assert "game.active,game.finished)" in on_draw
 hazards=on_draw.split("if(showGameplayObstacles) {",1)[1].split(
     "        drawBird(canvas)",1)[0]
-for item in ("drawEnchantedForestGroundSpikes(canvas)",
-             "game.upcomingGates()", "drawGate(canvas,g,x,i,true)",
+for item in ("game.upcomingGates()", "drawGate(canvas,g,x,i,true)",
              "drawGate(canvas,g,x,i)"):
     assert item in hazards,item
 # All physical gate drawing must happen inside the preview visibility guard.
 before=on_draw.split("if(showGameplayObstacles) {",1)[0]
-assert "drawEnchantedForestGroundSpikes(canvas)" not in before
-assert "if(game.level.world==0 || game.level.world==6)" in on_draw
-assert "drawEnchantedForestGroundSpikes(canvas)" in on_draw
+assert "drawEnchantedForestGroundSpikes" not in view
+assert "FlightGroundSpikeGeometry" not in view
 assert "drawGate(canvas," not in before
 assert "if(collisionOverlayEnabled && showGameplayObstacles)" in on_draw
 
@@ -77,4 +75,4 @@ for marker in ("WIDTH, HEIGHT = 941, 1672", "ROI = (265, 1200, 700, 1390)",
                "if fraction<.06:", "import zlib"):
     assert marker in probe,marker
 assert "import PIL" not in probe and "cv2" not in probe
-print("PASS: ready Gameplay previews real gates and safe ground-edge cones; collisions still start on first tap")
+print("PASS: ready Gameplay previews real gates without any lower spikes; collisions start on first tap")

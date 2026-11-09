@@ -372,12 +372,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
             game.active,game.finished)
         if(showGameplayObstacles) {
-            // Owner's Sky Meadows reference has five gold cones at the
-            // foreground's lower stone terrace. Their tips stay inside the
-            // SAME solid ground y>=753 used by GameSimulation, so the art
-            // cannot introduce an unfair or invisible collision.
-            if(game.level.world==0 || game.level.world==6)
-                drawEnchantedForestGroundSpikes(canvas)
+            // Owner requirement: never paint ground-edge spikes, including
+            // the idle/first-flap preview. Existing pillars, pickups and the
+            // physical bottom boundary are unaffected.
             // No per-frame generation: both current and incoming gates reuse
             // the cached real simulation data, including pickup visibility.
             val upcoming=game.upcomingGates()
@@ -585,88 +582,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
         p.alpha=255
         p.style=Paint.Style.FILL
-    }
-
-    /** Shared owner-reference lower stone terrace and golden spikes.
-     * All pixels lie within the solid ground y>=753; never in the flight lane.
-     * No extra physical collider or per-frame sprite allocation is needed.
-     */
-    private fun drawEnchantedForestGroundSpikes(c:Canvas) {
-        val g=FlightGroundSpikeGeometry
-        // Garden-rock terrace follows the physical boundary. The open
-        // corridor above stays transparent and fully usable.
-        rect(c,95f,g.stoneTop,431f,800f,0xff3e3850.toInt(),3f)
-        rect(c,101f,g.stoneTop+3f,424f,800f,0xff88624e.toInt(),3f)
-        rect(c,107f,g.stoneTop+6f,417f,800f,0xffb88a62.toInt(),3f)
-        for(i in 0 until 9){
-            val xx=110f+i*35f
-            path.reset()
-            path.moveTo(xx,g.stoneTop+7f)
-            path.lineTo(xx+23f,g.stoneTop+7f)
-            path.lineTo(xx+14f,799f)
-            path.lineTo(xx-2f,799f)
-            path.close()
-            fill(if(i%2==0)0x77624a53 else 0x779c8575)
-            c.drawPath(path,p)
-            fill(0x88fff0c6.toInt())
-            p.style=Paint.Style.STROKE
-            p.strokeWidth=1.2f
-            c.drawLine(xx+2f,g.stoneTop+8f,xx+13f,791f,p)
-            p.style=Paint.Style.FILL
-        }
-        for(i in 0 until g.spikeCount){
-            val cx=g.centerX(i)
-            val tip=g.tipY(i)
-            val half=g.spikeHalfWidth
-            val base=g.spineBottom
-
-            // Bronze/navy silhouette and a visible offset lower extrusion.
-            path.reset()
-            path.moveTo(cx,tip)
-            path.lineTo(cx+half+2f,base)
-            path.lineTo(cx-half-2f,base)
-            path.close()
-            fill(0xff4a2a25.toInt())
-            c.drawPath(path,p)
-            path.reset()
-            path.moveTo(cx,tip+1f)
-            path.lineTo(cx+half,base-3f)
-            path.lineTo(cx-half,base-3f)
-            path.close()
-            fill(0xffffb91d.toInt())
-            c.drawPath(path,p)
-
-            // Three illuminated facets turn the cone into real-looking 3D
-            // metal without inventing a collision area above the floor.
-            path.reset()
-            path.moveTo(cx,tip+2f)
-            path.lineTo(cx-2f,base-4f)
-            path.lineTo(cx-half+3f,base-4f)
-            path.close()
-            fill(0xffffed86.toInt())
-            c.drawPath(path,p)
-            path.reset()
-            path.moveTo(cx+1f,tip+3f)
-            path.lineTo(cx+half-2f,base-4f)
-            path.lineTo(cx-1f,base-4f)
-            path.close()
-            fill(0xffc77215.toInt())
-            c.drawPath(path,p)
-            fill(0xcfffffff.toInt())
-            p.style=Paint.Style.STROKE
-            p.strokeWidth=1.4f
-            p.strokeCap=Paint.Cap.ROUND
-            c.drawLine(cx-2f,tip+7f,cx-5f,base-10f,p)
-            p.style=Paint.Style.FILL
-            p.strokeCap=Paint.Cap.BUTT
-
-            // Fastened base: small brass rivets stay inside the stone lip.
-            oval(c,cx-10f,base-4f,cx+10f,base+2f,0xff6f3c16.toInt())
-            oval(c,cx-7f,base-4f,cx+7f,base,0xffffce63.toInt())
-        }
-        // Distinct turf rim under the spikes, never into the flight lane.
-        rect(c,98f,g.spineBottom,426f,793f,0xff316c34.toInt(),2f)
-        rect(c,105f,g.spineBottom+1f,420f,791f,0xff8fda50.toInt(),2f)
     }
 
     private fun drawBackground(c:Canvas){
