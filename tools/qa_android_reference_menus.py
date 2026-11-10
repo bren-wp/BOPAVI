@@ -91,7 +91,10 @@ def open_native_skins():
               and "STAR PILOT" in label(n)]
         return len(titles)==1 and len(owl)==1 and len(star)==1
 
-    for attempt in range(4):
+    taps=0
+    # Fresh start may still show the actual animated Splash/Loading page.
+    # Wait for a verified native Home action; never tap an unknown window.
+    for poll in range(16):
         root=hierarchy()
         if acknowledge_native_fullscreen_education(root):
             time.sleep(1)
@@ -102,14 +105,17 @@ def open_native_skins():
         if adb("shell","pidof",APP)!=initial_pid:
             raise AssertionError("FAIL: BOPAVI process restarted while opening Skins")
         buttons=matching_nodes(root,"OTVORI IZBOR LIKOVA",clickable=True)
-        if len(buttons)!=1:
-            Path("qa/screenshots/android-skins-navigation-failed.xml").write_bytes(
-                ET.tostring(root,encoding="utf-8"))
-            capture_png("android-skins-navigation-failed")
-            raise AssertionError("FAIL: neither real Home action nor Skins gallery found")
-        tap(buttons[0])
-        print(f"QA: tapped verified Home Skins action ({attempt+1}/4)",flush=True)
-        time.sleep(2)
+        if len(buttons)>1:
+            raise AssertionError("FAIL: duplicate real Home Skins actions")
+        if len(buttons)==1 and taps<4:
+            tap(buttons[0])
+            taps+=1
+            print(f"QA: tapped verified Home Skins action ({taps}/4)",flush=True)
+            time.sleep(2)
+        else:
+            # Real splash-to-home transition, or a still-animating Skins
+            # window: re-read the actual device instead of fabricating state.
+            time.sleep(1)
 
     root=hierarchy()
     if not verified_gallery(root):
