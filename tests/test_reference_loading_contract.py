@@ -44,9 +44,9 @@ assert 'openFlight(simulation,world)' in activity
 assert 'private var loadingGeneration = 0' in activity
 assert 'loadingGeneration++' in activity
 assert 'bopavi_qa_loading_preview' in activity and 'bopavi_qa_loading_preview' in qa
-assert "showBrandedStartup()" in activity
-assert "},3500L)" in activity
-assert "startup=true" in activity
+assert "showBrandedStartup()" not in activity
+assert 'selectedScreen="splash"' not in activity
+assert 'else showHome()' in activity
 assert "PilotSelectionModel.spriteIdForChoice(pilotChoice)" in loading
 assert 'android-loading.png' in qa
 assert 'python3 tools/qa_android_loading.py' in runner
