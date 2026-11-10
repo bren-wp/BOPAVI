@@ -43,7 +43,7 @@ activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
 assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
 assert 'ownerImmersiveReferenceScreen()' in activity
-assert 'if(selectedScreen=="splash" || selectedScreen=="loading")return true' in activity
+assert 'if(selectedScreen=="loading")return true' in activity
 assert '"home" -> HomeReferenceLayout.supports(' in activity
 assert '"skins","settings","result" -> portrait &&' in activity
 assert 'stage.useShopFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.kt").read_text()
