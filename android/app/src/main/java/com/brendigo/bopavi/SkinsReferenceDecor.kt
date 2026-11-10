@@ -155,8 +155,10 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
     }
 }
 
-/** Three LIVE touch cards styled like the owner gallery's glossy enamel. */
-internal class SkinsCardEnamelDrawable(private val selected:Boolean):Drawable(){
+/** Four real touch cards: selected gold, available blue, locked purple. */
+internal class SkinsCardEnamelDrawable(
+    private val selected:Boolean,private val locked:Boolean=false
+):Drawable(){
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private var alphaValue=255
     private var tint:ColorFilter?=null
@@ -164,31 +166,36 @@ internal class SkinsCardEnamelDrawable(private val selected:Boolean):Drawable(){
         if(bounds.isEmpty)return
         val save=c.save()
         c.translate(bounds.left.toFloat(),bounds.top.toFloat())
-        c.scale(bounds.width()/263f,bounds.height()/324f)
+        c.scale(bounds.width()/207f,bounds.height()/307f)
         p.reset();p.isAntiAlias=true;p.alpha=alphaValue;p.colorFilter=tint
         p.color=0x77071d48
-        c.drawRoundRect(1f,15f,262f,324f,31f,31f,p)
-        p.shader=LinearGradient(0f,4f,0f,307f,
-            if(selected)intArrayOf(0xffffed94.toInt(),0xffffba21.toInt(),
-                0xffb46916.toInt())
-            else intArrayOf(0xffa6eaff.toInt(),0xff1b84d8.toInt(),
-                0xff073a86.toInt()),null,Shader.TileMode.CLAMP)
-        c.drawRoundRect(0f,0f,263f,314f,30f,30f,p);p.shader=null
-        p.color=if(selected)0xfffff8da.toInt() else 0xff2f6ebc.toInt()
-        c.drawRoundRect(8f,8f,255f,303f,25f,25f,p)
-        p.shader=LinearGradient(0f,19f,0f,280f,
-            if(selected)0xffffffff.toInt() else 0xff75c8ff.toInt(),
-            if(selected)0xffffdf99.toInt() else 0xff0e458f.toInt(),
+        c.drawRoundRect(1f,15f,206f,307f,28f,28f,p)
+        p.shader=LinearGradient(0f,4f,0f,296f,
+            if(selected)intArrayOf(0xffffed94.toInt(),0xffffba21.toInt(),0xffb46916.toInt())
+            else if(locked)intArrayOf(0xffb7a9fa.toInt(),0xff594895.toInt(),0xff1d1a51.toInt())
+            else intArrayOf(0xffa6eaff.toInt(),0xff1b84d8.toInt(),0xff073a86.toInt()),
+            null,Shader.TileMode.CLAMP)
+        c.drawRoundRect(0f,0f,207f,297f,27f,27f,p);p.shader=null
+        p.color=if(selected)0xfffff8da.toInt()
+            else if(locked)0xff504481.toInt() else 0xff2f6ebc.toInt()
+        c.drawRoundRect(8f,8f,199f,287f,23f,23f,p)
+        p.shader=LinearGradient(0f,19f,0f,274f,
+            if(selected)0xffffffff.toInt()
+                else if(locked)0xff846bc4.toInt() else 0xff75c8ff.toInt(),
+            if(selected)0xffffdf99.toInt()
+                else if(locked)0xff241c5c.toInt() else 0xff0e458f.toInt(),
             Shader.TileMode.CLAMP)
-        c.drawRoundRect(13f,13f,250f,290f,22f,22f,p);p.shader=null
+        c.drawRoundRect(13f,13f,194f,274f,20f,20f,p);p.shader=null
         p.style=Paint.Style.STROKE
-        p.strokeWidth=4f;p.color=0xffe7f9ff.toInt()
-        c.drawRoundRect(13f,13f,250f,290f,22f,22f,p)
-        p.strokeWidth=3f;p.color=if(selected)0xffa66724.toInt() else 0xff164b8b.toInt()
-        c.drawRoundRect(1f,1f,262f,313f,29f,29f,p)
+        p.strokeWidth=3f;p.color=0xffe7f9ff.toInt()
+        c.drawRoundRect(13f,13f,194f,274f,20f,20f,p)
+        p.strokeWidth=3f
+        p.color=if(selected)0xffa66724.toInt()
+            else if(locked)0xff262154.toInt() else 0xff164b8b.toInt()
+        c.drawRoundRect(1f,1f,206f,296f,26f,26f,p)
         p.style=Paint.Style.FILL
         p.color=0x88ffffff.toInt()
-        c.drawRoundRect(28f,19f,210f,26f,4f,4f,p)
+        c.drawRoundRect(24f,19f,181f,26f,4f,4f,p)
         c.restoreToCount(save)
     }
     override fun setAlpha(alpha:Int){alphaValue=alpha.coerceIn(0,255);invalidateSelf()}

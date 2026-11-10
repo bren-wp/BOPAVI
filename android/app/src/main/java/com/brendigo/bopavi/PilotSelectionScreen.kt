@@ -19,8 +19,8 @@ import java.text.NumberFormat
 /**
  * Owner's reference-style Skins composition at 941×1672.
  *
- * One native selected hero above three real playable character thumbnails:
- * no locked fake skins, sample wallets, bitmap UI overlays or network calls.
+ * One native selected hero, three historical pilots and a genuine fourth
+ * Star Pilot earned through the existing Orion cosmetic skin.
  * Each selectable card and equipped action remains a real Android view.
  */
 internal class PilotSelectionScreen(
@@ -84,7 +84,8 @@ internal class PilotSelectionScreen(
             setOnClickListener { onClick() }
         }
 
-    fun create(choice:Int,onChoose:(Int)->Unit,onBack:()->Unit):View {
+    fun create(choice:Int,onChoose:(Int)->Unit,onUnlock:()->Unit,
+               onBack:()->Unit):View {
         val selected=PilotSelectionModel.safeChoice(choice)
         val root=FrameLayout(host).apply{setBackgroundColor(0xff138cdd.toInt())}
         root.addView(ImageView(host).apply {
@@ -136,7 +137,7 @@ internal class PilotSelectionScreen(
 
         val item=PilotSelectionModel.pilots[selected]
         val skins=intArrayOf(R.drawable.bopiportrait0,
-            R.drawable.bopiportrait9,R.drawable.bopiportrait10)
+            R.drawable.bopiportrait9,R.drawable.bopiportrait10,R.drawable.bopiportrait8)
 
         // Wood-colored hanging-name plaque is decorative but the selected
         // title remains a real, accessible TextView in the hierarchy.
@@ -156,57 +157,79 @@ internal class PilotSelectionScreen(
         // These original transparent 512×512 layers align exactly and share
         // the same saved choice-to-sprite mapping as Splash/Home/Gameplay.
         val heroId=PilotSelectionModel.spriteIdForChoice(selected)
-        val heroBodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi9,R.drawable.bopi10)
+        val heroBodies=intArrayOf(R.drawable.bopi0,R.drawable.bopi9,R.drawable.bopi10,R.drawable.bopi8)
         val heroLeftWings=intArrayOf(
-            R.drawable.bopileft0,R.drawable.bopileft9,R.drawable.bopileft10)
+            R.drawable.bopileft0,R.drawable.bopileft9,R.drawable.bopileft10,R.drawable.bopileft8)
         val heroRightWings=intArrayOf(
-            R.drawable.bopiright0,R.drawable.bopiright9,R.drawable.bopiright10)
-        val heroChoice=when(heroId){0->0;9->1;else->2}
+            R.drawable.bopiright0,R.drawable.bopiright9,R.drawable.bopiright10,R.drawable.bopiright8)
+        val heroChoice=when(heroId){0->0;9->1;10->2;else->3}
         stage.place(HomeWingActor(host,
             heroLeftWings[heroChoice],heroRightWings[heroChoice],
             heroBodies[heroChoice],allowMotion=!progress.lessMotion()),
             PilotSelectionLayout.heroLeft,PilotSelectionLayout.heroTop,
             PilotSelectionLayout.heroSize,PilotSelectionLayout.heroSize)
         val pilotCount=PilotSelectionModel.pilots.size
+        val orionOwned=progress.owned(8)
+        fun chooseOrUnlock(index:Int) {
+            if(PilotSelectionModel.locked(index,orionOwned))onUnlock()
+            else onChoose(index)
+        }
         stage.place(cycleArrow("‹","Previous hero"){
-            onChoose((selected+pilotCount-1)%pilotCount)
+            chooseOrUnlock((selected+pilotCount-1)%pilotCount)
         },26f,613f,112f,112f,minTouch=true)
         stage.place(cycleArrow("›","Next hero"){
-            onChoose((selected+1)%pilotCount)
+            chooseOrUnlock((selected+1)%pilotCount)
         },803f,613f,112f,112f,minTouch=true)
 
-        // Three genuinely available pilots. The reference illustrates four
-        // cosmetic examples, but a fictitious fourth item would break the
-        // actual saved three-pilot selection semantics.
+        // Four real native cards, with Orion locked until owned(8).
         for(candidate in PilotSelectionModel.pilots) {
             val index=candidate.id
             val isSelected=PilotSelectionModel.selected(selected,index)
+            val isLocked=PilotSelectionModel.locked(index,orionOwned)
             val card=LinearLayout(host).apply {
                 orientation=LinearLayout.VERTICAL
                 gravity=Gravity.CENTER_HORIZONTAL
-                setPadding(dp(6),dp(5),dp(6),dp(9))
+                setPadding(dp(5),dp(5),dp(5),dp(7))
                 background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    SkinsCardEnamelDrawable(isSelected),null)
-                isClickable=true;isFocusable=true
+                    SkinsCardEnamelDrawable(isSelected,isLocked),null)
+                isClickable=true
+                isFocusable=true
                 minimumHeight=dp(48)
-                contentDescription=PilotSelectionModel.accessibility(selected,index)
-                setOnClickListener{onChoose(index)}
+                contentDescription=PilotSelectionModel.accessibility(
+                    selected,index,orionOwned) +
+                    if(isLocked)" — ${progress.costs[8]} coins" else ""
+                setOnClickListener{chooseOrUnlock(index)}
                 elevation=dp(if(isSelected)9 else 4).toFloat()
             }
             card.addView(ImageView(host).apply {
                 setImageResource(skins[index])
                 scaleType=ImageView.ScaleType.FIT_CENTER
+                alpha=if(isLocked).72f else 1f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,1.55f))
-            card.addView(text(candidate.title,19f,if(isSelected)navy else Color.WHITE),
-                LinearLayout.LayoutParams(-1,0,.38f))
-            card.addView(text(if(isSelected)"✓ EQUIPPED" else "EQUIP",
-                17f,if(isSelected)0xff247128.toInt() else Color.WHITE),
-                LinearLayout.LayoutParams(-1,0,.27f))
-            stage.place(card,PilotSelectionLayout.cardLefts[index],
-                PilotSelectionLayout.cardTop,
+            },LinearLayout.LayoutParams(-1,0,1.60f))
+            card.addView(text(candidate.title,17f,if(isSelected)navy else Color.WHITE).apply{
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,0,.42f))
+            card.addView(text(
+                if(isLocked)"${progress.costs[8]} COINS"
+                else if(isSelected)"✓ EQUIPPED" else "AVAILABLE",
+                12f,if(isSelected)0xff247128.toInt() else Color.WHITE).apply{
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,0,.23f))
+            val left=PilotSelectionLayout.cardLefts[index]
+            stage.place(card,left,PilotSelectionLayout.cardTop,
                 PilotSelectionLayout.cardWidth,PilotSelectionLayout.cardHeight,
                 minTouch=true)
+            if(isLocked) {
+                // Passive overlay, no touch capture; the actual card is live.
+                stage.place(LevelMapLockGlyph(host),left+154f,
+                    PilotSelectionLayout.cardTop+9f,40f,46f)
+            } else if(isSelected) {
+                stage.place(text("✓",30f,Color.WHITE).apply{
+                    background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
+                    importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                },left+158f,PilotSelectionLayout.cardTop+5f,42f,42f)
+            }
         }
 
         val selectedInfo=LinearLayout(host).apply{
@@ -243,10 +266,8 @@ internal class PilotSelectionScreen(
             })
         }
         stage.place(selectedInfo,49f,1315f,842f,150f)
-        // This is informative rather than a nonfunctional purchasable CTA.
-        stage.place(text(PilotSelectionModel.priceLabel(),19f,Color.WHITE).apply{
-            contentDescription="All pilots are free and unlocked"
-        },296f,1477f,350f,57f)
+        // The reference ends at the genuine selected-info panel; no extra
+        // misleading "FREE • UNLOCKED" footer under the earnable fourth hero.
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
