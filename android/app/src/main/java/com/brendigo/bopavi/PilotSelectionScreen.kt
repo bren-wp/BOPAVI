@@ -252,11 +252,11 @@ internal class PilotSelectionScreen(
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 // The approved full-winged 512px character has transparent
                 // margins.  A 1.14 zoom fills the owner's 195x201 avatar art.
-                scaleX=1.14f
-                scaleY=1.14f
+                scaleX=1.30f
+                scaleY=1.30f
                 alpha=if(isLocked).78f else 1f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,1.55f))
+            },LinearLayout.LayoutParams(-1,0,1.70f))
             card.addView(text(candidate.title.lowercase()
                 .split(" ").joinToString(" "){word->
                     word.replaceFirstChar { ch->ch.titlecase() }
@@ -267,12 +267,13 @@ internal class PilotSelectionScreen(
                 isSingleLine=false
                 includeFontPadding=false
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.78f))
-            card.addView(text(
-                if(isLocked)"${progress.costs[8]} COINS" else "",
-                11f,if(isSelected)0xff247128.toInt() else Color.WHITE).apply{
+            },LinearLayout.LayoutParams(-1,0,.82f))
+            // Lock state and its genuine coin price remain in TalkBack and
+            // the native purchase dialog. The owner card uses a lock glyph,
+            // not an extra tiny price caption that clipped beneath the name.
+            card.addView(text("",11f,Color.WHITE).apply{
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.24f))
+            },LinearLayout.LayoutParams(-1,0,.08f))
             val left=PilotSelectionLayout.cardLefts[index]
             stage.place(card,left,PilotSelectionLayout.cardTop,
                 PilotSelectionLayout.cardWidth,PilotSelectionLayout.cardHeight,
@@ -300,17 +301,17 @@ internal class PilotSelectionScreen(
                 gravity=Gravity.CENTER_VERTICAL
                 addView(text(item.title.lowercase().split(" ").joinToString(" "){
                     word->word.replaceFirstChar { ch->ch.titlecase() }
-                },27f,Color.WHITE).apply {
+                },25f,Color.WHITE).apply {
                     gravity=Gravity.START or Gravity.CENTER_VERTICAL
                     setPadding(dp(11),0,0,0)
-                },LinearLayout.LayoutParams(-1,0,.48f))
+                },LinearLayout.LayoutParams(-1,0,.42f))
                 addView(text(if(selected==0)
                     "The original hero, always ready for a new adventure!"
                     else item.ability.description,
-                    17f,0xffe2f8ff.toInt()).apply {
+                    14f,0xffe2f8ff.toInt()).apply {
                     gravity=Gravity.START or Gravity.CENTER_VERTICAL
                     setPadding(dp(11),0,0,0)
-                },LinearLayout.LayoutParams(-1,0,.52f))
+                },LinearLayout.LayoutParams(-1,0,.58f))
             }
             addView(details,LinearLayout.LayoutParams(0,-1,.62f))
             addView(Button(host).apply{
