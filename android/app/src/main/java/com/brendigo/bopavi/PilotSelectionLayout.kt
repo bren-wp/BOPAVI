@@ -24,7 +24,7 @@ internal object PilotSelectionLayout {
     const val cardTop=973f
     const val cardWidth=207f
     const val cardHeight=307f
-    const val activeSelectionTop=1308f
+    const val activeSelectionTop=1299f
     fun fitsReference():Boolean=cardLefts.size==4 &&
         cardLefts.all{it>=0f && it+cardWidth<=referenceWidth} &&
         (0 until cardLefts.lastIndex).all{index->
@@ -35,5 +35,5 @@ internal object PilotSelectionLayout {
         heroTop+heroSize<cardTop &&
         platformTop+platformHeight<cardTop &&
         cardTop+cardHeight<activeSelectionTop &&
-        activeSelectionTop+182f<=referenceHeight
+        activeSelectionTop+193f<=referenceHeight
 }
