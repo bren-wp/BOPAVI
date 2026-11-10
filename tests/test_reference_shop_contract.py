@@ -57,7 +57,7 @@ assert 'earned>0' in shop
 assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
-assert 'R.drawable.bopiportrait0' in shop
+assert 'R.drawable.bopavi_owner_shop_kiosk' in shop
 assert 'scaleX=1.26f' in shop and 'scaleY=1.26f' in shop # kiosk mascot must fill owner's reference counter
 assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
 assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
@@ -81,7 +81,7 @@ assert 'LinearLayout.LayoutParams(-1,0,1.30f)' in shop
 
 assert 'background=ShopCreamCardDrawable()' in shop
 assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
-assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
+assert '},24f,302f,894f,276f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]

@@ -305,22 +305,15 @@ internal class ShopScreen(
             android.widget.Toast.makeText(host,
                 "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
         },833f,0f,96f,99f,minTouch=true)
+        // The user's original illustrated kiosk and merchant; passive art.
+        // All real live balances, stock and purchase Buttons remain native.
         stage.place(ImageView(host).apply {
-            setImageResource(R.drawable.bopiportrait0)
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            // Reference Bopi leans across the counter rather than appearing
-            // as a small badge; enlarge the actual local transparent sprite.
-            scaleX=1.26f
-            scaleY=1.26f
+            setImageResource(R.drawable.bopavi_owner_shop_kiosk)
+            scaleType=ImageView.ScaleType.FIT_XY
+            isClickable=false
+            isFocusable=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        // Bopi fills the illustrated counter opening rather than looking
-        // like a tiny floating badge. Preserve the full source square and
-        // let transparent wings/scarf reach the owner's shelf silhouette.
-        },105f,211f,630f,460f)
-        // A separate raised wood lip obscures the lower character edge,
-        // so Bopi is BEHIND the counter rather than floating over its front.
-        // The strip is purely decorative and never intercepts purchases.
-        stage.place(ShopCounterFront(host),23f,546f,895f,36f)
+        },24f,302f,894f,276f)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
