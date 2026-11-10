@@ -309,7 +309,7 @@ internal class PilotSelectionScreen(
             }
             addView(details,LinearLayout.LayoutParams(0,-1,.62f))
             addView(Button(host).apply{
-                text=if(selected==progress.arcadePilot())"EQUIPPED" else "EQUIP"
+                text="EQUIP"
                 isAllCaps=false
                 textSize=25f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
