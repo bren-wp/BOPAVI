@@ -669,6 +669,39 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         }
     }
 
+    /** Layered hanging greenery follows the cliff contours, not the road.
+     * Deterministic scenery: no animation allocations or interactive hitboxes.
+     * This restores the long moss and leaf clusters visible below the three
+     * owner-reference floating islands without touching their playable nodes.
+     */
+    private fun hangingVines(c:Canvas,cx:Float,y:Float,rx:Float,depth:Float){
+        for(i in 0..10){
+            val fraction=(i+1f)/12f
+            val x=cx-rx*.86f+fraction*rx*1.72f
+            val start=y+31f+(i%3)*7f
+            val finish=start+depth*(.31f+(i%4)*.09f)
+            path.reset()
+            path.moveTo(x,start)
+            path.cubicTo(x-13f,start+38f,x+17f,finish-37f,x-5f,finish)
+            color(0xff245d39.toInt())
+            p.style=Paint.Style.STROKE
+            p.strokeWidth=4.5f+(i%3)
+            p.strokeCap=Paint.Cap.ROUND
+            c.drawPath(path,p)
+            p.style=Paint.Style.FILL
+            // Paired tapered leaf silhouettes, darker on the cliff's far side.
+            for(j in 0..2){
+                val yy=start+24f+j*(finish-start)/3.5f
+                val xx=x+(if(j%2==0)8f else -9f)
+                color(if(j%2==0)0xff4eb54d.toInt() else 0xff27794a.toInt())
+                c.drawOval(xx-10f,yy-14f,xx+9f,yy+6f,p)
+                color(0x88c4ef7a.toInt())
+                c.drawOval(xx-5f,yy-11f,xx+1f,yy+2f,p)
+            }
+        }
+        p.strokeCap=Paint.Cap.BUTT
+    }
+
     /** Passive ivory towers and orange roofs behind the live Meadow nodes. */
     private fun meadowCastle(c:Canvas){
         for(i in 0..2){
@@ -829,6 +862,9 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         cliffCracks(canvas,709f,239f,231f,222f)
         cliffCracks(canvas,621f,690f,264f,252f)
         cliffCracks(canvas,347f,1140f,352f,290f)
+        hangingVines(canvas,709f,239f,231f,222f)
+        hangingVines(canvas,621f,690f,264f,252f)
+        hangingVines(canvas,347f,1140f,352f,290f)
         islandRim(canvas,709f,239f,231f)
         islandRim(canvas,621f,690f,264f)
         islandRim(canvas,347f,1140f,352f)
