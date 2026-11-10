@@ -81,7 +81,7 @@ internal class ShopScreen(
             // The owner-sized 270px card uses weighted rows; native Button's
             // default vertical insets previously clipped the price baseline.
             setPadding(dp(4),0,dp(4),0)
-            minHeight=0
+            minimumHeight=0
             background=Bopavi3DTheme.button(
                 if(gold)Bopavi3DTheme.Finish.GOLD
                 else Bopavi3DTheme.Finish.GREEN)
