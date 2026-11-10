@@ -125,12 +125,16 @@ internal class PilotSelectionScreen(
             background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },19f,17f,335f,105f)
-        stage.place(action("‹",false,onBack).apply {
+        stage.place(action("",false,onBack).apply {
             contentDescription="Back to Home"
             background=android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
-            textSize=44f
             elevation=0f
         },23f,21f,112f,96f,minTouch=true)
+        stage.place(ReferenceArrowOverlayView(host).apply{
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            isClickable=false
+            elevation=dp(6).toFloat()
+        },23f,21f,112f,96f)
         stage.place(text("SKINS",39f).apply {
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             setShadowLayer(dp(3).toFloat(),0f,dp(3).toFloat(),
@@ -246,10 +250,17 @@ internal class PilotSelectionScreen(
             card.addView(ImageView(host).apply {
                 setImageResource(skins[index])
                 scaleType=ImageView.ScaleType.FIT_CENTER
-                alpha=if(isLocked).72f else 1f
+                // The approved full-winged 512px character has transparent
+                // margins.  A 1.14 zoom fills the owner's 195x201 avatar art.
+                scaleX=1.14f
+                scaleY=1.14f
+                alpha=if(isLocked).78f else 1f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,0,1.78f))
-            card.addView(text(candidate.title,19f,if(isSelected)navy else Color.WHITE).apply{
+            card.addView(text(candidate.title.lowercase()
+                .split(" ").joinToString(" "){word->
+                    word.replaceFirstChar { ch->ch.titlecase() }
+                },19f,if(isSelected)navy else Color.WHITE).apply{
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,0,.62f))
             card.addView(text(
@@ -282,15 +293,23 @@ internal class PilotSelectionScreen(
             val details=LinearLayout(host).apply {
                 orientation=LinearLayout.VERTICAL
                 gravity=Gravity.CENTER_VERTICAL
-                addView(text(item.title,28f,Color.WHITE),
-                    LinearLayout.LayoutParams(-1,0,.48f))
-                addView(text(item.ability.shortTitle+" — "+
-                    item.ability.description,17f,0xffe2f8ff.toInt()),
-                    LinearLayout.LayoutParams(-1,0,.52f))
+                addView(text(item.title.lowercase().split(" ").joinToString(" "){
+                    word->word.replaceFirstChar { ch->ch.titlecase() }
+                },27f,Color.WHITE).apply {
+                    gravity=Gravity.START or Gravity.CENTER_VERTICAL
+                    setPadding(dp(11),0,0,0)
+                },LinearLayout.LayoutParams(-1,0,.48f))
+                addView(text(if(selected==0)
+                    "The original hero, always ready for a new adventure!"
+                    else item.ability.description,
+                    17f,0xffe2f8ff.toInt()).apply {
+                    gravity=Gravity.START or Gravity.CENTER_VERTICAL
+                    setPadding(dp(11),0,0,0)
+                },LinearLayout.LayoutParams(-1,0,.52f))
             }
             addView(details,LinearLayout.LayoutParams(0,-1,.62f))
             addView(Button(host).apply{
-                text="EQUIP"
+                text=if(selected==progress.arcadePilot())"EQUIPPED" else "EQUIP"
                 isAllCaps=false
                 textSize=25f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
