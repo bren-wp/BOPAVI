@@ -5,12 +5,12 @@ repo=Path(__file__).resolve().parents[1]
 readme=(repo/"README.md").read_text()
 workflow=(repo/".github/workflows/native-ci.yml").read_text()
 cleanup=(repo/"tools/cleanup_legacy_releases.py").read_text()
-names=["Home","Splash","Skins","Shop","Settings","Achievements","Leaderboard","Level-Map","Options","Records","Privacy","Terms","Flight-Preview","Flight-Active","Pause","Results"]
-assert len(names)==16 and len(set(names))==16
-assert readme.count('<td align="center">')==16
+names=["Home","Skins","Shop","Settings","Achievements","Leaderboard","Level-Map","Options","Records","Privacy","Terms","Flight-Preview","Flight-Active","Pause","Results"]
+assert len(names)==15 and len(set(names))==15
+assert readme.count('<td align="center">')==15
 gallery=readme.split("## Pogledaj sve zaslone igre",1)[1].split("</table>",1)[0]
-assert gallery.count("<tr>")==16
-assert gallery.count('width="270"')==16
+assert gallery.count("<tr>")==15
+assert gallery.count('width="270"')==15
 for name in names:
     filename=f"BOPAVI-Android-{name}.png"
     assert readme.count(f"releases/latest/download/{filename}")==2, filename
@@ -19,6 +19,6 @@ for name in names:
     assert filename in cleanup or name in (
         "Home","Options","Records","Privacy","Terms",
         "Flight-Preview","Flight-Active","Pause","Results"), filename
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 21' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 20' in workflow
 assert "if width < 320 or height < 600 or height <= width" in workflow
-print("PASS: 16 real screens and 21 checksummed artifacts are required")
+print("PASS: 15 real screens and 20 checksummed artifacts, no splash")
