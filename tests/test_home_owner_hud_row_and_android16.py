@@ -14,7 +14,8 @@ main=(root/'android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt').read
 assert 'walletRail.onRowBottomChanged={rowBottom->' in home
 assert 'logoView.scaleX=scale' in home
 assert 'logoView.scaleY=scale' in home
-assert '},3500L)' in main
+assert '},3500L)' not in main
+assert 'showBrandedStartup()' not in main
 assert 'e.child.layout(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val area=Rect(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val coins=HomeBounds(457f,21f,220f,64f)' in layout
