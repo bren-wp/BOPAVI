@@ -58,6 +58,8 @@ assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopiportrait0' in shop
+assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
+assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
 assert 'stage.place(ReferenceArrowOverlayView(host).apply {' in shop
 assert 'elevation=dp(6).toFloat()' in shop
@@ -72,7 +74,7 @@ assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
+assert 'LinearLayout.LayoutParams(-1,0,1.30f)' in shop
 
 
 assert 'background=ShopCreamCardDrawable()' in shop
@@ -87,8 +89,8 @@ assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
 assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
-assert '232f,123f,482f,170f' in shop
-assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.70f))' in shop
+assert '183f,123f,575f,201f' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))' in shop
 
 
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
