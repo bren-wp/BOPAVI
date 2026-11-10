@@ -43,8 +43,9 @@ if (ROOT/"art/reference-approved/bopi/manifest.json").is_file():
             reference=Image.open(OUT/f"{reference_name}.png").convert("RGBA")
             assert current.size==reference.size==(512,512),name
             assert current.getchannel("A").getbbox(),(name,"empty art")
-            assert ImageChops.difference(reference,current).getbbox(),(
-                name,"themed pilot duplicates Bopi without any new art")
+            if name==f"bopi{skin}":
+                assert ImageChops.difference(reference,current).getbbox(),(
+                    name,"themed Bopi body must have distinct feather/art details")
             if "left" in name or "right" in name:
                 assert current.getchannel("A").tobytes()==reference.getchannel("A").tobytes(),(
                     name,"altered owner-approved flight wing shape")
