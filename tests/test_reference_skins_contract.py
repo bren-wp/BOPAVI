@@ -40,6 +40,9 @@ assert "cardLefts.size==4" in layout
 assert "const val cardWidth=207f" in layout
 assert "const val cardHeight=307f" in layout
 assert "const val heroSize=760f" in layout
+assert "const val heroLeft=90f" in layout
+assert "activeSelectionTop+193f<=referenceHeight" in layout
+assert 'textSize=30f' in screen # selected hero EQUIP
 assert "const val heroTop=205f" in layout
 assert "const val activeSelectionTop=1299f" in layout
 assert "stage.place(selectedInfo,30f,1299f,881f,193f)" in screen
