@@ -68,6 +68,13 @@ assert "Selected SKY OWL" in junit
 assert "bopiportrait8" in (src/"HomeReferenceScreen.kt").read_text()
 assert "portraits[pilotIndex.coerceIn(0,3)]" in (src/"HomeReferenceScreen.kt").read_text()
 assert 'node_with("STAR PILOT",clickable=True)' in qa
+assert "def open_native_skins():" in qa
+assert "initial_pid=adb(\"shell\",\"pidof\",APP)" in qa
+assert "four-card Skins gallery not reached after verified Home taps" in qa
+assert "android-skins-navigation-failed.xml" in qa
+assert "open_native_skins()" in qa
+assert qa.count("    open_native_skins()")>=3
+assert 'len(titles)==1 and len(owl)==1 and len(star)==1' in qa
 assert "Locked STAR PILOT" in junit
 assert 'tap(node_with("CHOOSE SKY OWL"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
