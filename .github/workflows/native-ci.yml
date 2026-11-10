@@ -112,6 +112,7 @@ jobs:
       - run: python tests/test_reference_menus_contract.py
       - run: python tests/test_reference_skins_contract.py
       - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_direct_home_shop_skins.py
       - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_reference_pixel_diff_tool.py
       - run: python tests/test_two_owner_screen_comparator.py
