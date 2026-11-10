@@ -59,6 +59,11 @@ assert "contentDescription=PilotSelectionModel.accessibility(" in screen
 assert "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO" in screen
 assert "SkinsReferenceDecor(host)" in screen
 assert "SkinsCardEnamelDrawable(isSelected,isLocked)" in screen
+assert "OwnerSkinsPortraitView(host,index,skins[index])" in screen
+owner_art=(src/"OwnerSkinsPortraitView.kt").read_text()
+assert "R.drawable.bopavi_owner_skins_atlas" in owner_art
+assert "clipOutRect" in owner_art
+assert "isClickable=false" in owner_art
 decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
 assert "class SkinsCardEnamelDrawable(" in decor

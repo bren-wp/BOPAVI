@@ -247,15 +247,11 @@ internal class PilotSelectionScreen(
                 setOnClickListener{chooseOrUnlock(index)}
                 elevation=dp(if(isSelected)9 else 4).toFloat()
             }
-            card.addView(ImageView(host).apply {
-                setImageResource(skins[index])
-                scaleType=ImageView.ScaleType.FIT_CENTER
-                // The approved full-winged 512px character has transparent
-                // margins.  A 1.14 zoom fills the owner's 195x201 avatar art.
-                scaleX=1.30f
-                scaleY=1.30f
+            // Use only the illustrated portrait region from the user's
+            // supplied Skins reference. The live native card still owns
+            // its label, status, purchase confirmation and click handler.
+            card.addView(OwnerSkinsPortraitView(host,index,skins[index]).apply {
                 alpha=if(isLocked).78f else 1f
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             },LinearLayout.LayoutParams(-1,0,1.70f))
             card.addView(text(candidate.title.lowercase()
                 .split(" ").joinToString(" "){word->
