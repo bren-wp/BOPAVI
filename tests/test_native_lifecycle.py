@@ -51,8 +51,10 @@ assert 'private fun qaIntentEnabled(key:String):Boolean' in activity
 assert 'ApplicationInfo.FLAG_DEBUGGABLE != 0' in activity
 assert activity.count('intent?.getBooleanExtra(')==1
 assert 'if(qaIntentEnabled("bopavi_qa_loading_preview"))' in activity
-assert '!qaIntentEnabled("bopavi_qa_capture_first_flap")' in activity
-assert '!qaIntentEnabled("bopavi_qa_collision_overlay")' in activity
+assert 'showBrandedStartup()' not in activity
+assert 'else showHome()' in activity
+assert 'selectedScreen="splash"' not in activity
+assert '<activity android:name=".MainActivity"' in (r/"android/app/src/main/AndroidManifest.xml").read_text()
 assert 'qaCaptureFirstFlap=qaIntentEnabled(' in activity
 assert 'qaCollisionOverlay=qaIntentEnabled(' in activity
 assert "drawStoneCourses(" in game and "fun courses(yStart" not in game
