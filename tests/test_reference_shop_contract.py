@@ -61,8 +61,9 @@ assert 'R.drawable.bopiportrait0' in shop
 assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
 assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
-assert 'stage.place(ReferenceArrowOverlayView(host).apply {' in shop
-assert 'elevation=dp(6).toFloat()' in shop
+assert 'stage.place(ShopBackControl(host,onBack),' in shop
+assert 'contentDescription="HOME"' in (src/"ReferenceBackArrow.kt").read_text()
+assert 'glyph.draw(canvas)' in (src/"ReferenceBackArrow.kt").read_text()
 assert 'stage.useShopFullBleedReferenceCamera()' in shop
 stage=(src/"LevelMapScreen.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
