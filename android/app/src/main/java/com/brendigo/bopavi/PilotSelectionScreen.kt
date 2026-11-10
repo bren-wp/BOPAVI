@@ -90,7 +90,7 @@ internal class PilotSelectionScreen(
         }
 
     fun create(choice:Int,onChoose:(Int)->Unit,onUnlock:()->Unit,
-               onBack:()->Unit):View {
+               onShop:()->Unit,onBack:()->Unit):View {
         val selected=PilotSelectionModel.safeChoice(choice)
         val root=FrameLayout(host).apply{setBackgroundColor(0xff138cdd.toInt())}
         root.addView(ImageView(host).apply {
@@ -120,25 +120,62 @@ internal class PilotSelectionScreen(
         stage.place(SkinsReferenceDecor(host),0f,0f,941f,1672f,
             referenceAligned=true)
 
-        // Both counters show genuine locally-earned currency only.
-        stage.place(action("‹",false,onBack).apply{
+        // Unified enamel header, with a genuine Back button over one surface.
+        stage.place(FrameLayout(host).apply {
+            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },19f,17f,335f,105f)
+        stage.place(action("‹",false,onBack).apply {
             contentDescription="Back to Home"
-        },18f,16f,123f,99f,minTouch=true)
-        stage.place(text("SKINS",41f).apply{
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
-        },148f,18f,215f,99f)
+            background=android.graphics.drawable.ColorDrawable(Color.TRANSPARENT)
+            textSize=44f
+            elevation=0f
+        },23f,21f,112f,96f,minTouch=true)
+        stage.place(text("SKINS",39f).apply {
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            setShadowLayer(dp(3).toFloat(),0f,dp(3).toFloat(),
+                0xff092b68.toInt())
+        },137f,21f,204f,96f)
+
+        // Two live blue wallet capsules. These are real earned coins and
+        // ratings, never fake spendable gems. Green + opens the actual Shop.
         val coins=progress.coins()
         val totalStars=(0 until LevelEngine.WORLD_COUNT).sumOf{
             progress.worldStars(it)
         }
-        fun wallet(label:String,count:Int):TextView=text(
-            "$label  "+NumberFormat.getIntegerInstance().format(count),20f
+        fun wallet(value:Int,description:String):TextView=text(
+            NumberFormat.getIntegerInstance().format(value),25f
         ).apply {
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
-            contentDescription="$label: $count"
+            contentDescription="$description: $value"
+            maxLines=1
+            setAutoSizeTextTypeUniformWithConfiguration(14,25,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
         }
-        stage.place(wallet("COINS",coins),466f,21f,203f,72f)
-        stage.place(wallet("STARS",totalStars),696f,21f,215f,72f)
+        stage.place(FrameLayout(host).apply{
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },454f,21f,214f,76f)
+        stage.place(ImageView(host).apply{
+            setImageDrawable(HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(31)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },455f,23f,63f,65f)
+        stage.place(wallet(coins,"Earned coins"),522f,27f,104f,60f)
+        stage.place(ShopPlusControl(host,"Open Shop for coins"){onShop()},
+            591f,1f,98f,98f,minTouch=true)
+
+        stage.place(FrameLayout(host).apply{
+            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },694f,21f,220f,76f)
+        stage.place(ImageView(host).apply{
+            setImageDrawable(BopaviUiIconDrawable(
+                BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)))
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },695f,23f,65f,65f)
+        stage.place(wallet(totalStars,"Earned stars"),762f,27f,111f,60f)
+        stage.place(ShopPlusControl(host,"Open Shop for rewards"){onShop()},
+            830f,1f,98f,98f,minTouch=true)
 
         val item=PilotSelectionModel.pilots[selected]
         val skins=intArrayOf(R.drawable.bopiportrait0,
@@ -211,16 +248,15 @@ internal class PilotSelectionScreen(
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 alpha=if(isLocked).72f else 1f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,1.60f))
-            card.addView(text(candidate.title,17f,if(isSelected)navy else Color.WHITE).apply{
+            },LinearLayout.LayoutParams(-1,0,1.78f))
+            card.addView(text(candidate.title,19f,if(isSelected)navy else Color.WHITE).apply{
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.42f))
+            },LinearLayout.LayoutParams(-1,0,.62f))
             card.addView(text(
-                if(isLocked)"${progress.costs[8]} COINS"
-                else if(isSelected)"✓ EQUIPPED" else "AVAILABLE",
-                12f,if(isSelected)0xff247128.toInt() else Color.WHITE).apply{
+                if(isLocked)"${progress.costs[8]} COINS" else "",
+                11f,if(isSelected)0xff247128.toInt() else Color.WHITE).apply{
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.23f))
+            },LinearLayout.LayoutParams(-1,0,.12f))
             val left=PilotSelectionLayout.cardLefts[index]
             stage.place(card,left,PilotSelectionLayout.cardTop,
                 PilotSelectionLayout.cardWidth,PilotSelectionLayout.cardHeight,
@@ -252,7 +288,7 @@ internal class PilotSelectionScreen(
                     item.ability.description,17f,0xffe2f8ff.toInt()),
                     LinearLayout.LayoutParams(-1,0,.52f))
             }
-            addView(details,LinearLayout.LayoutParams(0,-1,.64f))
+            addView(details,LinearLayout.LayoutParams(0,-1,.62f))
             addView(Button(host).apply{
                 text="EQUIP"
                 isAllCaps=false
@@ -266,11 +302,11 @@ internal class PilotSelectionScreen(
                 minimumHeight=dp(48)
                 elevation=dp(3).toFloat()
                 setOnClickListener { onChoose(selected) }
-            },LinearLayout.LayoutParams(0,-1,.36f).apply{
+            },LinearLayout.LayoutParams(0,-1,.38f).apply{
                 leftMargin=dp(4)
             })
         }
-        stage.place(selectedInfo,49f,1315f,842f,150f)
+        stage.place(selectedInfo,30f,1308f,881f,182f)
         // The reference ends at the genuine selected-info panel; no extra
         // misleading "FREE • UNLOCKED" footer under the earnable fourth hero.
 
