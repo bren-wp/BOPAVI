@@ -115,6 +115,43 @@ PY
 # This verifies a real application route rather than treating Back as success.
 return_home_from_settings(){
   dump_ui
+  # A real Android 16 device can deliver the native ZATVORI click while the
+  # legal dialog's window is still transitioning. Retry ONLY a verified
+  # BOPAVI-owned legal dialog (exact title and close button), never blindly
+  # press Back or bypass the subsequent real Settings/Home assertions.
+  legal_close_attempt=1
+  while [ "$legal_close_attempt" -le 3 ]; do
+    if python3 - <<'PY'
+import re,subprocess,sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+titles=[n for n in nodes
+    if n.get("package")=="com.brendigo.bopavi"
+    and n.get("resource-id")=="android:id/alertTitle"
+    and n.get("text") in ("Politika privatnosti","Uvjeti korištenja")]
+if len(titles)!=1:
+    sys.exit(1)
+closing=[n for n in nodes
+    if n.get("package")=="com.brendigo.bopavi"
+    and n.get("resource-id")=="android:id/button1"
+    and n.get("text")=="ZATVORI"
+    and n.get("clickable")=="true"]
+if len(closing)!=1:
+    raise SystemExit("FAIL: recognized legal dialog lacks native Close")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",closing[0].get("bounds",""))
+if not m:
+    raise SystemExit("FAIL: legal close bounds invalid")
+x,y,z,w=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((x+z)//2),str((y+w)//2)],check=True)
+print("QA: retried verified legal dialog close",flush=True)
+PY
+    then
+      sleep 2
+      dump_ui
+    else
+      break
+    fi
+    legal_close_attempt=$((legal_close_attempt+1))
+  done
   python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
