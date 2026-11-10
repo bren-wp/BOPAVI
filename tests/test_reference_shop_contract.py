@@ -76,19 +76,19 @@ assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
 
 
 assert 'background=ShopCreamCardDrawable()' in shop
-assert 'row.addView(ShopPerkArtwork(host,item),' in shop
+assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
 assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
 assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
-# Real clickable native Buttons remain below passive price artwork.
+# Price content and actual buy callback are on the same Android Button.
 assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
 assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert '232f,123f,482f,170f' in shop
-assert 'LinearLayout.LayoutParams(0,-1,2.58f)' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.70f))' in shop
 
 
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
@@ -101,8 +101,8 @@ assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)' not in shop
 assert 'contentDescription="OWNED: ${item.owned}/99. "+item.accessibility' in shop
 assert 'message("OWNED: ${item.owned}/99  •  TIER' not in shop
 assert 'stage.place(message("TIER ${featured.tier}' not in shop
-assert 'message(item.storefrontTitle,15' in shop
-assert 'message(item.perkEffect,13' in shop
+assert 'message(item.storefrontTitle,17' in shop
+assert 'message(item.perkEffect,14' in shop
 assert 'item.iconTierLabel' in shop
 assert 'val storefrontTitle:String get()' in model
 assert 'val perkEffect:String get()' in model
