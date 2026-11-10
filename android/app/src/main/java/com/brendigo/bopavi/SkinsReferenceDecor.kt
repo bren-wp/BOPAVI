@@ -108,24 +108,56 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
             leaf(c,723f-i*11f,295f,55f-i*17f,.95f)
         }
 
-        // A platform with three distinct rocky strata; the luminous upper
-        // ellipse is behind the transparent 512x512 flying character.
+        // The owner's podium is a floating cut-stone dais, NOT a flat
+        // rectangular card. Keep all of its relief behind the native hero,
+        // carousel arrows and selectable skin cards.
         p.reset();p.isAntiAlias=true
         p.color=0x88092348.toInt()
-        c.drawOval(169f,898f,778f,962f,p)
-        rounded(c,151f,836f,796f,975f,43f,
-            0xffa1a2a7.toInt(),0xff373c4a.toInt())
-        rounded(c,165f,846f,784f,951f,38f,
-            0xffc7b6a0.toInt(),0xff676069.toInt())
-        for(i in 0..5){
-            val x=170f+i*104f
-            p.color=if(i%2==0)0x77634e49 else 0x775a5862
-            c.drawRoundRect(x,885f,x+91f,960f,18f,18f,p)
-            p.color=0x66fff2c9
-            c.drawLine(x+11f,895f,x+79f,895f,p)
+        c.drawOval(163f,907f,788f,985f,p)
+        outline.reset()
+        outline.moveTo(156f,853f)
+        outline.cubicTo(194f,825f,718f,824f,786f,856f)
+        outline.lineTo(793f,897f)
+        outline.lineTo(759f,957f)
+        outline.lineTo(696f,980f)
+        outline.lineTo(235f,980f)
+        outline.lineTo(176f,951f)
+        outline.lineTo(147f,893f)
+        outline.close()
+        p.shader=LinearGradient(177f,833f,759f,978f,
+            intArrayOf(0xffe5c7a3.toInt(),0xff97847c.toInt(),
+                0xff373f54.toInt()),null,Shader.TileMode.CLAMP)
+        c.drawPath(outline,p);p.shader=null
+        p.color=0xff564c59.toInt();p.style=Paint.Style.STROKE
+        p.strokeWidth=7f;c.drawPath(outline,p);p.style=Paint.Style.FILL
+        // Offset stone joints and angled facets read as stacked rock blocks,
+        // rather than the previous six identical vertical rounded rectangles.
+        for(i in 0..6){
+            val x=182f+i*88f
+            val topY=854f+(i%2)*6f
+            val footY=952f-(i%3)*8f
+            outline.reset()
+            outline.moveTo(x,topY)
+            outline.lineTo(x+77f,topY+6f)
+            outline.lineTo(x+67f,footY)
+            outline.lineTo(x+18f,footY+12f)
+            outline.close()
+            p.color=if(i%2==0)0x667b6057 else 0x66566572
+            c.drawPath(outline,p)
+            p.color=0x66fff4d7;p.strokeWidth=2.5f
+            p.style=Paint.Style.STROKE
+            c.drawLine(x+7f,topY+6f,x+67f,topY+12f,p)
+            p.style=Paint.Style.FILL
         }
-        rounded(c,160f,800f,785f,865f,30f,
-            0xff79d74b.toInt(),0xff287c25.toInt())
+        p.color=0xff256c39.toInt()
+        c.drawOval(160f,792f,788f,883f,p)
+        p.shader=LinearGradient(170f,797f,760f,865f,
+            0xffc3f36b.toInt(),0xff278342.toInt(),Shader.TileMode.CLAMP)
+        c.drawOval(169f,791f,778f,863f,p);p.shader=null
+        p.color=0x99fbffc8.toInt()
+        p.style=Paint.Style.STROKE;p.strokeWidth=4f
+        c.drawArc(187f,799f,750f,853f,189f,156f,false,p)
+        p.style=Paint.Style.FILL
         p.shader=RadialGradient(472f,821f,275f,
             intArrayOf(0xffffffd9.toInt(),0xffffcf51.toInt(),
                 0xffad622c.toInt()),null,Shader.TileMode.CLAMP)
