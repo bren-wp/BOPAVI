@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Native hero-first Skins gallery with only the three genuinely playable pilots."""
+"""Four native Skins cards: 3 old pilots and genuine earned Orion.
+
+The Skins gallery must never advertise an unowned hero as equipped, and
+purchasing Star Pilot requires an explicit confirmation + existing coin ledger.
+"""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
@@ -8,57 +12,62 @@ model=(src/"PilotSelectionModel.kt").read_text()
 layout=(src/"PilotSelectionLayout.kt").read_text()
 menu=(src/"ReferenceMenus.kt").read_text()
 main=(src/"MainActivity.kt").read_text()
+store=(src/"ProgressStore.kt").read_text()
 qa=(root/"tools/qa_android_reference_menus.py").read_text()
 junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTest.kt").read_text()
-assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onBack)" in menu
-assert 'stage.useShopFullBleedReferenceCamera()' in screen
+
+assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onBack)" in menu
+assert "stage.useShopFullBleedReferenceCamera()" in screen
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in main
-assert "progress.chooseArcadePilot(index)" in main
-for word in ("CLASSIC AVIATOR","SKY OWL","SKY FOX","FREE • UNLOCKED",
-             "Choose ","Selected "):
-    assert word in model,word
-for expected in (
-    "R.drawable.bopiportrait0","R.drawable.bopiportrait9",
-    "R.drawable.bopiportrait10","stage.setOnApplyWindowInsetsListener",
-    "PilotSelectionModel.accessibility(selected,index)",
-    "setOnClickListener{onChoose(index)}",
-    "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO",
-    "progress.coins()","minimumHeight=dp(48)",
-    "item.ability.shortTitle","item.ability.description",
-):
-    assert expected in screen,expected
-assert "cardLefts=floatArrayOf(34f,339f,644f)" in layout
-assert "const val heroLeft=140f" in layout
-assert "const val heroTop=240f" in layout
+for name in ("CLASSIC AVIATOR","SKY OWL","SKY FOX","STAR PILOT"):
+    assert name in model,name
+assert "Pilot(3,\"STAR PILOT\",\"ORION\",PilotAbility.BOPI)" in model
+assert "fun locked(candidate:Int,orionOwned:Boolean)" in model
+assert "val orionOwned=progress.owned(8)" in screen
+assert "PilotSelectionModel.locked(index,orionOwned)" in screen
+assert "setOnClickListener{chooseOrUnlock(index)}" in screen
+assert "onUnlock()" in screen
+assert "stage.place(LevelMapLockGlyph(host)" in screen
+assert "R.drawable.bopiportrait8" in screen and "R.drawable.bopi8" in screen
+assert "R.drawable.bopileft8" in screen and "R.drawable.bopiright8" in screen
+assert 'cardLefts=floatArrayOf(23f,252f,481f,710f)' in layout
+assert "cardLefts.size==4" in layout
+assert "const val cardWidth=207f" in layout
+assert "const val cardHeight=307f" in layout
 assert "const val heroSize=660f" in layout
-assert 'cycleArrow("‹","Previous hero")' in screen
-assert 'cycleArrow("›","Next hero")' in screen
-assert 'contentDescription="Equip "+item.title' in screen
-assert 'setOnClickListener { onChoose(selected) }' in screen
-assert "heroTop+heroSize<cardTop" in layout
-assert "platformTop+platformHeight<cardTop" in layout
-assert "stage.place(HomeWingActor(host," in screen
 assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
 assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
 assert "allowMotion=!progress.lessMotion()" in screen
-assert "PilotSelectionLayout.heroLeft" in screen
-# The only oval is a real, accessible previous/next button—not a
-# flat placeholder obscuring the new stone platform and floating hero.
-assert "shape=GradientDrawable.OVAL" in screen.split("private fun cycleArrow(",1)[1].split("fun create(",1)[0]
+assert 'cycleArrow("‹","Previous hero")' in screen
+assert 'cycleArrow("›","Next hero")' in screen
+assert 'contentDescription="Equip "+item.title' in screen
+assert "setOnClickListener { onChoose(selected) }" in screen
+assert "stage.setOnApplyWindowInsetsListener" in screen
+assert "minimumHeight=dp(48)" in screen
+assert "contentDescription=PilotSelectionModel.accessibility(" in screen
+assert "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO" in screen
 assert "SkinsReferenceDecor(host)" in screen
-assert "SkinsReferenceDecor(host)" in screen
-assert "SkinsCardEnamelDrawable(isSelected)" in screen
+assert "SkinsCardEnamelDrawable(isSelected,isLocked)" in screen
 decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
 assert "class SkinsCardEnamelDrawable(" in decor
-assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in decor
-assert "Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in screen
-assert "const val referenceWidth=941f" in layout
-assert "val skins=intArrayOf(" in screen
+assert "private val selected:Boolean,private val locked:Boolean=false" in decor
+assert "c.scale(bounds.width()/207f,bounds.height()/307f)" in decor
+assert "shape=GradientDrawable.OVAL" in screen
+assert "val cost=progress.costs[8]" in main
+assert 'setTitle("Unlock Star Pilot")' in main
+assert 'setNegativeButton("Cancel",null)' in main
+assert 'setPositiveButton("Unlock")' in main
+assert "progress.selectOrBuy(8)" in main
+assert "progress.chooseArcadePilot(3)" in main
+assert "if(index !in 0..3 || (index==3 && !owned(8)))return false" in store
+assert 'return if(value==3 && !owned(8))0 else value' in store
+assert 'val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)' in store
+assert "selectOrBuy(" not in screen  # card tap does NOT silently spend coins
 assert "Selected SKY OWL" in junit
+assert "Locked STAR PILOT" in junit
 assert 'tap(node_with("CHOOSE SKY OWL"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
-assert "selectOrBuy(" not in screen  # No fake purchase of playable pilots
 assert "http://" not in screen and "https://" not in screen
-print("PASS: native selected pilot hero, three real selection cards, persisted free choices")
+print("PASS: four real native skins; saved Orion lock, confirmation and earned-coin purchase")

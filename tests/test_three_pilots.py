@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Three user-facing animals keep old pilot resources and safe, private selection."""
+"""Three legacy animals plus real Orion cosmetic preserve pilot resources and safe, private selection."""
 from pathlib import Path
 import re
 ROOT=Path(__file__).resolve().parents[1]
@@ -8,7 +8,7 @@ main=(K/"MainActivity.kt").read_text()
 view=(K/"GameView.kt").read_text()
 store=(K/"ProgressStore.kt").read_text()
 generator=(ROOT/"tools/generate_images.py").read_text()
-assert 'pilotNames=arrayOf("Bopi","Sova","Lisac")' in main
+assert 'pilotNames=arrayOf("Bopi","Sova","Lisac","Orion")' in main
 assert "fun spriteIdForChoice(index:Int):Int" in (K/"PilotSelectionModel.kt").read_text()
 assert "progress.chooseArcadePilot(index)" in main
 assert "private fun showSkins()" in main
@@ -19,10 +19,10 @@ assert "showHome()" not in home
 # sprite mapping. Compact now uses the genuine winged actor instead of a
 # static portrait; portrait assets remain for other application screens.
 assert "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(" in home
-for selection in ("R.drawable.bopi0","R.drawable.bopi9","R.drawable.bopi10",
+for selection in ("R.drawable.bopi0","R.drawable.bopi9","R.drawable.bopi10","R.drawable.bopi8",
                   "R.drawable.bopileft0","R.drawable.bopileft9",
-                  "R.drawable.bopileft10","R.drawable.bopiright0",
-                  "R.drawable.bopiright9","R.drawable.bopiright10"):
+                  "R.drawable.bopileft10","R.drawable.bopileft8","R.drawable.bopiright0",
+                  "R.drawable.bopiright9","R.drawable.bopiright10","R.drawable.bopiright8"):
     assert selection in home,selection
 assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice),progress.hapticEnabled()" in main
 assert "arcade_pilot" in store and 'prefs.getInt("skin_index", 0)' in store
@@ -38,4 +38,5 @@ for animal in ("sova","lisac"):
 assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
 assert "startSceneryDrift(" not in main
 assert "val radius = 18f" in (K/"GameSimulation.kt").read_text()
-print("PASS: 3 offline characters, 2 original animal sources, old save compatibility, adaptive vsync pacing")
+assert "if(value==3 && !owned(8))0 else value" in store
+print("PASS: 3 legacy characters, genuinely unlockable Orion, stable save IDs, adaptive vsync pacing")
