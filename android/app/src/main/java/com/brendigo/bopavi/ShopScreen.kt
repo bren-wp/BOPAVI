@@ -75,9 +75,13 @@ internal class ShopScreen(
                             accessibility:String,click:()->Unit):View {
         return button(NumberFormat.getIntegerInstance().format(price),
             gold,true,click).apply {
-            textSize=if(gold)26f else 23f
-            setAutoSizeTextTypeUniformWithConfiguration(18,if(gold)26 else 23,
+            textSize=if(gold)26f else 22f
+            setAutoSizeTextTypeUniformWithConfiguration(17,if(gold)26 else 22,
                 1,android.util.TypedValue.COMPLEX_UNIT_SP)
+            // The owner-sized 270px card uses weighted rows; native Button's
+            // default vertical insets previously clipped the price baseline.
+            setPadding(dp(4),0,dp(4),0)
+            minHeight=0
             background=Bopavi3DTheme.button(
                 if(gold)Bopavi3DTheme.Finish.GOLD
                 else Bopavi3DTheme.Finish.GREEN)
@@ -130,10 +134,10 @@ internal class ShopScreen(
             Gravity.TOP or Gravity.RIGHT).apply{
             topMargin=dp(2);rightMargin=dp(3)
         })
-        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.70f))
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))
         card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
                 maxLines=2
-        },LinearLayout.LayoutParams(-1,0,.60f))
+        },LinearLayout.LayoutParams(-1,0,.48f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
@@ -150,7 +154,7 @@ internal class ShopScreen(
                 else -> onBuy(item.index)
             }
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,.90f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.30f).apply{
             topMargin=dp(4)
         })
         return card
@@ -254,7 +258,7 @@ internal class ShopScreen(
             elevation=dp(6).toFloat()
         },24f,18f,119f,99f)
         stage.place(ShopEmbossedTitle(host),
-            232f,123f,482f,170f)
+            183f,123f,575f,201f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green
@@ -335,13 +339,21 @@ internal class ShopScreen(
             77f,707f,464f,47f)
         // The featured panel already exposes the real owned quantity to
         // TalkBack; avoid an extra visible tier line across the reference art.
+        // Golden Bopi is the reference hero's real, local, full-winged
+        // variant. It is decorative: the CTA still explicitly purchases
+        // the featured genuine magnet/shield perk, NOT an unimplemented skin.
+        stage.place(ImageView(host).apply {
+            setImageResource(R.drawable.bopiportrait1)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },490f,581f,390f,274f)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,dp(95)))
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(40)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },516f,593f,343f,253f)
+        },805f,768f,66f,63f)
         stage.place(priceButton(featured.price,true,
             "Featured "+featured.accessibility){
             if(featured.canBuy)onBuy(featured.index)
