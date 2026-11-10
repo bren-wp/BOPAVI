@@ -75,13 +75,15 @@ internal class ShopScreen(
                             accessibility:String,click:()->Unit):View {
         return button(NumberFormat.getIntegerInstance().format(price),
             gold,true,click).apply {
-            textSize=if(gold)25f else 20f
-            setAutoSizeTextTypeUniformWithConfiguration(15,if(gold)25 else 20,
+            textSize=if(gold)26f else 23f
+            setAutoSizeTextTypeUniformWithConfiguration(18,if(gold)26 else 23,
                 1,android.util.TypedValue.COMPLEX_UNIT_SP)
             background=Bopavi3DTheme.button(
                 if(gold)Bopavi3DTheme.Finish.GOLD
                 else Bopavi3DTheme.Finish.GREEN)
             setTextColor(if(gold)0xff5b240c.toInt() else Color.WHITE)
+            setSingleLine(true)
+            maxLines=1
             val coin=HomeHeroIconDrawable(
                 BopaviUiIconDrawable.Kind.COIN,dp(22))
             coin.setBounds(0,0,dp(25),dp(25))
@@ -105,27 +107,33 @@ internal class ShopScreen(
             elevation=dp(4).toFloat()
             contentDescription="OWNED: ${item.owned}/99. "+item.accessibility
         }
-        card.addView(message(item.storefrontTitle,15,0xff5f260e.toInt()).apply{
+        card.addView(message(item.storefrontTitle,17,0xff5f260e.toInt()).apply{
             maxLines=2
             setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
-        },LinearLayout.LayoutParams(-1,0,.72f))
-        val row=LinearLayout(host).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        // Flexible weights fill the reference card instead of multiplying
-        // hardcoded dp icon widths by a device's physical pixel density.
-        // The art stays fully inside the cream panel at every screen scale.
-        row.addView(ShopPerkArtwork(host,item),
-            LinearLayout.LayoutParams(0,-1,2.58f))
-        row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
-            setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,-1,.42f))
-        card.addView(row,LinearLayout.LayoutParams(-1,0,1.55f))
-        card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
-                maxLines=2
         },LinearLayout.LayoutParams(-1,0,.65f))
+        // Product art now occupies the full card width, as in the reference.
+        // Tier remains a small passive corner badge instead of squeezing the
+        // actual shield/magnet into a narrow horizontal row.
+        val illustration=FrameLayout(host).apply {
+            clipChildren=true
+            clipToPadding=true
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        illustration.addView(ShopPerkArtwork(host,item),
+            FrameLayout.LayoutParams(-1,-1))
+        illustration.addView(message(item.iconTierLabel,15,
+            0xffffae22.toInt()).apply {
+            maxLines=1
+            setShadowLayer(2f,0f,2f,0xff633112.toInt())
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(dp(45),dp(40),
+            Gravity.TOP or Gravity.RIGHT).apply{
+            topMargin=dp(2);rightMargin=dp(3)
+        })
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.70f))
+        card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
+                maxLines=2
+        },LinearLayout.LayoutParams(-1,0,.60f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
