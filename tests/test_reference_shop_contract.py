@@ -58,7 +58,8 @@ assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopavi_owner_shop_kiosk' in shop
-assert 'scaleX=1.26f' in shop and 'scaleY=1.26f' in shop # kiosk mascot must fill owner's reference counter
+assert 'R.drawable.bopavi_owner_shop_kiosk' in shop  # actual owner's reference kiosk artwork
+assert '},24f,302f,894f,276f)' in shop
 assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
 assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
