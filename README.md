@@ -56,11 +56,11 @@ Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Sova** nosi
 
 ## S ljubavlju izrađeni detalji
 
-Svaki let počinje krilatim logotipom, veselim pilotskim naočalama i nebeskim krajolicima. Uživaj u šarenim 3D detaljima, pronađi svoj ritam i nastavi prema sljedećem osobnom rekordu.
+Home prikazuje krilati logotip, vesele pilotske naočale i nebeske krajolike. Uživaj u šarenim 3D detaljima, pronađi svoj ritam i nastavi prema sljedećem osobnom rekordu.
 
-## Animirani početak i pregledan Home
+## Odmah u igru
 
-Pri pokretanju BOPAVI prikazuje **3,5 sekundi animiranog Splasha** s krilatim logotipom i živom trakom učitavanja. Na Homeu se brojači novčića i dragulja prilagođavaju zaslonu tako da ne prekrivaju puni natpis BOPAVI, uključujući uređaje s izrezom kamere. Gumbi i spremljene vrijednosti i dalje su stvarne Android komponente.
+BOPAVI se odmah otvara na **Home** bez zasebne uvodne animacije ili čekanja. Brojači stvarno zarađenih novčića i zvjezdica prilagođavaju se zaslonu, uključujući uređaje s izrezom kamere. Odabir junaka i trgovina koriste stvarne Android kontrole, a spremljeni napredak ostaje na uređaju.
 
 ## Gameplay — uhvati svaki zlatni prsten
 
@@ -72,14 +72,11 @@ Bopi, Sova i Lisac imaju zasebna krila, pilotske naočale i vlastite 3D detalje.
 
 ## Pogledaj sve zaslone igre
 
-Galerija obuhvaća svih **16 autentičnih Android zaslona** — snimljenih iz stvarne pokrenute Android aplikacije na emulatoru posljednjega uspješno objavljenog izdanja, a ne generiranih prikaza. Prije objave novog izdanja automatska provjera zahtijeva svih 16 različitih PNG snimaka. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
+Galerija obuhvaća **15 autentičnih Android zaslona** — snimljenih iz stvarne pokrenute Android aplikacije na emulatoru posljednjega uspješno objavljenog izdanja, a ne generiranih prikaza. Prije objave novog izdanja automatska provjera zahtijeva 15 različitih PNG snimaka. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
 
 <div align="center">
 
 <table>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Splash.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Splash.png" alt="Stvarna Android snimka: Čarobni početak" width="270"></a><p><strong>Čarobni početak</strong></p></td>
-</tr>
 <tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Home.png" alt="Stvarna Android snimka: Početna avantura" width="270"></a><p><strong>Početna avantura</strong></p></td>
 </tr>
