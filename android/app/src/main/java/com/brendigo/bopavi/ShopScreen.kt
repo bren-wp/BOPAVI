@@ -245,18 +245,10 @@ internal class ShopScreen(
         // Dynamic prices, avatar, balances and buttons remain Android Views.
         stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)
         // Native header, real locally saved counters and original character.
-        stage.place(button("‹",false,click=onBack).apply{
-            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
-            contentDescription="HOME"
-            text=""
-        },24f,18f,119f,99f,minTouch=true)
-        // Match the owner arrow silhouette, without replacing the actual
-        // HOME action with a decorative non-clickable screenshot.
-        stage.place(ReferenceArrowOverlayView(host).apply {
-            // Native blue back Button is elevated to 4dp; the arrow was
-            // underneath its background and therefore invisible in QA.
-            elevation=dp(6).toFloat()
-        },24f,18f,119f,99f)
+        // One native clickable control paints its own enamel and arrow,
+        // avoiding the displaced twin-button look on API36.
+        stage.place(ShopBackControl(host,onBack),
+            24f,18f,119f,99f,minTouch=true)
         stage.place(ShopEmbossedTitle(host),
             183f,123f,575f,201f)
         val coins=progress.coins()
@@ -346,7 +338,7 @@ internal class ShopScreen(
             setImageResource(R.drawable.bopiportrait1)
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },490f,581f,390f,274f)
+        },410f,573f,510f,296f)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
