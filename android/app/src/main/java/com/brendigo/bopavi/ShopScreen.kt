@@ -300,6 +300,10 @@ internal class ShopScreen(
         stage.place(ImageView(host).apply {
             setImageResource(R.drawable.bopiportrait0)
             scaleType=ImageView.ScaleType.FIT_CENTER
+            // Reference Bopi leans across the counter rather than appearing
+            // as a small badge; enlarge the actual local transparent sprite.
+            scaleX=1.26f
+            scaleY=1.26f
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         // Bopi fills the illustrated counter opening rather than looking
         // like a tiny floating badge. Preserve the full source square and
