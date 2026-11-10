@@ -73,8 +73,8 @@ assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
 assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
-assert 'LinearLayout.LayoutParams(0,-1,2.15f)' in shop
-assert 'LinearLayout.LayoutParams(0,-1,.85f)' in shop
+
+
 assert 'background=ShopCreamCardDrawable()' in shop
 assert 'row.addView(ShopPerkArtwork(host,item),' in shop
 assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
@@ -84,12 +84,17 @@ feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
 assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
 # Real clickable native Buttons remain below passive price artwork.
 assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
-assert 'val real=button("",gold,true,click).apply {' in shop
-assert 'val label=LinearLayout(host).apply {' in shop
+assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
+assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
+assert 'Bopavi3DTheme.Finish.GREEN' in shop
+assert '232f,123f,482f,170f' in shop
+assert 'LinearLayout.LayoutParams(0,-1,2.58f)' in shop
+
+
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
-assert 'label.addView(message(NumberFormat.getIntegerInstance().format(price),' in shop
-assert 'shell.addView(real,FrameLayout.LayoutParams(-1,-1))' in shop
-assert 'shell.addView(label,FrameLayout.LayoutParams(-1,-1))' in shop
+
+
+
 assert 'stage.place(priceButton(featured.price,true,' in shop
 assert 'val buy=priceButton(item.price,false,item.accessibility+' in shop
 assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)' not in shop
