@@ -54,6 +54,11 @@ for landscape in ("private fun cliffFacets(", "private fun meadowCanopy(",
                   "meadowCanopy(canvas)"):
     assert landscape in mapSource, landscape
 assert "meadowCastle(canvas)" in mapSource
+assert "cliffCracks(canvas,709f,239f,231f,222f)" in mapSource
+assert "islandRim(canvas,621f,690f,264f)" in mapSource
+assert "c.drawRoundRect(fallX-16f,fallTop,fallX+26f,fallBottom" in mapSource
+assert "p.shader=android.graphics.LinearGradient(" in mapSource
+assert 'text="←"' in mapSource
 assert "private fun meadowCastle(c:Canvas)" in mapSource
 assert 'contentDescription="LEVEL MAP"' in mapSource
 assert "LevelMapLockGlyph(host)" in mapSource
@@ -78,7 +83,7 @@ assert "setAutoSizeTextTypeUniformWithConfiguration(11,18,1," in mapSource
 assert "button.maxLines=3" in mapSource
 assert "button.setPadding(dp(3),0,dp(3),0)" in mapSource
 assert "setAutoSizeTextTypeUniformWithConfiguration(11,20,1," in mapSource
-assert 'stage.place(nativeButton("‹","Home",blue)' in mapSource
+assert 'stage.place(nativeButton("←","Home",blue)' in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
@@ -117,7 +122,7 @@ assert "http://" not in mapSource and "https://" not in mapSource
 assert 'color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE' in mapSource
 assert 'color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE' in mapSource
 assert 'color(0xffffdeb2.toInt());p.strokeWidth=21f' not in mapSource
-assert 'stage.place(nativeButton("‹","Home",blue)' in mapSource
+assert 'stage.place(nativeButton("←","Home",blue)' in mapSource
 assert 'stage.place(ImageView(host).apply{' in mapSource
 
 print("PASS: interactive Level Map nodes, 8 worlds, saved ratings, native touch, no fake locks")

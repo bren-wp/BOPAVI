@@ -112,6 +112,9 @@ def main():
         resized=True
         adb("shell","wm","density","320")
         node_with("CHOOSE SKY OWL")
+        # The reference gallery has FOUR real card targets, including the
+        # saved-coin Orion lock rather than a screenshot-only fourth tile.
+        node_with("STAR PILOT",clickable=True)
         width,height=capture_png("android-skins-reference-size")
         assert (width,height)==(941,1672),"FAIL: skins is not 941x1672"
         print("PASS: real native Skins screenshot 941x1672",flush=True)

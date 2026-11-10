@@ -65,6 +65,9 @@ assert 'return if(value==3 && !owned(8))0 else value' in store
 assert 'val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)' in store
 assert "selectOrBuy(" not in screen  # card tap does NOT silently spend coins
 assert "Selected SKY OWL" in junit
+assert "bopiportrait8" in (src/"HomeReferenceScreen.kt").read_text()
+assert "portraits[pilotIndex.coerceIn(0,3)]" in (src/"HomeReferenceScreen.kt").read_text()
+assert 'node_with("STAR PILOT",clickable=True)' in qa
 assert "Locked STAR PILOT" in junit
 assert 'tap(node_with("CHOOSE SKY OWL"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa

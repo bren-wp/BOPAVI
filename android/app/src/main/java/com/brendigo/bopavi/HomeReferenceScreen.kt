@@ -319,14 +319,15 @@ internal class HomeReferenceScreen(private val host:Activity,
             R.drawable.bopiright2,R.drawable.bopiright3,R.drawable.bopiright4,
             R.drawable.bopiright5,R.drawable.bopiright6,R.drawable.bopiright7,
             R.drawable.bopiright8,R.drawable.bopiright9,R.drawable.bopiright10)
-        // MainActivity stores a three-item PILOT CHOICE, while art uses
-        // sprite IDs 0,9,10. Do not display skin 1 for selected Sova (id 9).
+        // Save-backed pilot choices 0..3 resolve to real sprite IDs 0,9,10,8;
+        // the fourth choice is the existing Orion collectible appearance.
         val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)
         val portraits=intArrayOf(R.drawable.bopiportrait0,
-            R.drawable.bopiportrait9,R.drawable.bopiportrait10)
-        skinPortraitRes=portraits[pilotIndex.coerceIn(0,2)]
-        // Preserve the three registered original sprite layers; only the
-        // transparent wings animate, never the painted physical collider.
+            R.drawable.bopiportrait9,R.drawable.bopiportrait10,
+            R.drawable.bopiportrait8)
+        skinPortraitRes=portraits[pilotIndex.coerceIn(0,3)]
+        // Preserve the original sprite body + wing layers; only wings
+        // animate and the actual collision geometry remains unchanged.
         // The actor stops all animators when the window is hidden/detached.
         val actor=HomeWingActor(host,
             left[chosen],right[chosen],bodies[chosen],
