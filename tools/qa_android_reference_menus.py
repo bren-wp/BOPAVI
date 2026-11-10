@@ -197,7 +197,7 @@ def main():
         adb("shell","wm","size","941x1672")
         resized=True
         adb("shell","wm","density","320")
-        node_with("CHOOSE SKY OWL")
+        node_with("CHOOSE ROYAL BOPI")
         # The reference gallery has FOUR real card targets, including the
         # saved-coin Orion lock rather than a screenshot-only fourth tile.
         node_with("STAR PILOT",clickable=True)
@@ -208,15 +208,15 @@ def main():
         if resized:
             adb("shell","wm","size","reset")
             adb("shell","wm","density","reset")
-    tap(node_with("CHOOSE SKY OWL"))
-    node_with("SELECTED SKY OWL")
+    tap(node_with("CHOOSE ROYAL BOPI"))
+    node_with("SELECTED ROYAL BOPI")
     home()
     # A fresh process must restore the REAL saved arcade_pilot, not just a
     # transient selected card inside the current Activity.
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
     open_native_skins()
-    node_with("SELECTED SKY OWL")
+    node_with("SELECTED ROYAL BOPI")
     home()
     open_native_skins()
     tap(node_with("CHOOSE CLASSIC AVIATOR"))
