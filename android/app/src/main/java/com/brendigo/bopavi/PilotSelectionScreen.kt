@@ -301,14 +301,14 @@ internal class PilotSelectionScreen(
                 gravity=Gravity.CENTER_VERTICAL
                 addView(text(item.title.lowercase().split(" ").joinToString(" "){
                     word->word.replaceFirstChar { ch->ch.titlecase() }
-                },25f,Color.WHITE).apply {
+                },30f,Color.WHITE).apply {
                     gravity=Gravity.START or Gravity.CENTER_VERTICAL
                     setPadding(dp(11),0,0,0)
                 },LinearLayout.LayoutParams(-1,0,.42f))
                 addView(text(if(selected==0)
                     "The original hero, always ready for a new adventure!"
                     else item.ability.description,
-                    14f,0xffe2f8ff.toInt()).apply {
+                    18f,0xffe2f8ff.toInt()).apply {
                     gravity=Gravity.START or Gravity.CENTER_VERTICAL
                     setPadding(dp(11),0,0,0)
                 },LinearLayout.LayoutParams(-1,0,.58f))
@@ -317,7 +317,7 @@ internal class PilotSelectionScreen(
             addView(Button(host).apply{
                 text="EQUIP"
                 isAllCaps=false
-                textSize=25f
+                textSize=30f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
@@ -331,7 +331,7 @@ internal class PilotSelectionScreen(
                 leftMargin=dp(4)
             })
         }
-        stage.place(selectedInfo,30f,1308f,881f,182f)
+        stage.place(selectedInfo,30f,1299f,881f,193f)
         // The reference ends at the genuine selected-info panel; no extra
         // misleading "FREE • UNLOCKED" footer under the earnable fourth hero.
 
