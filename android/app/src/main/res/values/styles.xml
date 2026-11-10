@@ -5,7 +5,4 @@
         <!-- A plain startup surface is replaced by Home immediately; no intro art. -->
         <item name="android:windowBackground">#168fe1</item>
     </style>
-    <style name="BopaviLaunchTheme" parent="BopaviTheme">
-        <item name="android:windowBackground">@drawable/bopavi_startup</item>
-    </style>
 </resources>
