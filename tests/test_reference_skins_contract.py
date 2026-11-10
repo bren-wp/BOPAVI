@@ -18,6 +18,11 @@ junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTe
 
 assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onBack)" in menu
 assert "stage.useShopFullBleedReferenceCamera()" in screen
+# Android AutoSizeTextTypeUniformWithConfiguration requires max > min.
+# A 12sp status label must NOT pass an illegal 12..12 range.
+assert 'if(size.toInt()>12)' in screen
+assert 'setAutoSizeTextTypeUniformWithConfiguration(12,size.toInt(),1,' in screen
+assert "12..12 interval that crashes Skins on API 35" in screen
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in main
 for name in ("CLASSIC AVIATOR","SKY OWL","SKY FOX","STAR PILOT"):
     assert name in model,name

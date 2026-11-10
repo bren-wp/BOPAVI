@@ -36,8 +36,13 @@ internal class PilotSelectionScreen(
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(color)
             gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(12,size.toInt(),1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
+            // Android rejects minSize == maxSize for uniform auto-size.
+            // The 12sp card-status labels have a fixed size instead of a
+            // nonsensical 12..12 interval that crashes Skins on API 35.
+            if(size.toInt()>12) {
+                setAutoSizeTextTypeUniformWithConfiguration(12,size.toInt(),1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            }
             maxLines=2
         }
 
