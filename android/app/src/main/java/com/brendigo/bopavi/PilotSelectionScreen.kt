@@ -256,18 +256,23 @@ internal class PilotSelectionScreen(
                 scaleY=1.14f
                 alpha=if(isLocked).78f else 1f
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,1.78f))
+            },LinearLayout.LayoutParams(-1,0,1.55f))
             card.addView(text(candidate.title.lowercase()
                 .split(" ").joinToString(" "){word->
                     word.replaceFirstChar { ch->ch.titlecase() }
                 },19f,if(isSelected)navy else Color.WHITE).apply{
+                // Card captions are at most two lines in the 941px owner
+                // screenshot; previously 69px for two 19sp lines clipped.
+                maxLines=2
+                isSingleLine=false
+                includeFontPadding=false
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.62f))
+            },LinearLayout.LayoutParams(-1,0,.78f))
             card.addView(text(
                 if(isLocked)"${progress.costs[8]} COINS" else "",
                 11f,if(isSelected)0xff247128.toInt() else Color.WHITE).apply{
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,0,.12f))
+            },LinearLayout.LayoutParams(-1,0,.24f))
             val left=PilotSelectionLayout.cardLefts[index]
             stage.place(card,left,PilotSelectionLayout.cardTop,
                 PilotSelectionLayout.cardWidth,PilotSelectionLayout.cardHeight,
@@ -275,12 +280,12 @@ internal class PilotSelectionScreen(
             if(isLocked) {
                 // Passive overlay, no touch capture; the actual card is live.
                 stage.place(LevelMapLockGlyph(host),left+154f,
-                    PilotSelectionLayout.cardTop+9f,40f,46f)
+                    PilotSelectionLayout.cardTop+8f,50f,54f)
             } else if(isSelected) {
                 stage.place(text("✓",30f,Color.WHITE).apply{
                     background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                },left+158f,PilotSelectionLayout.cardTop+5f,42f,42f)
+                },left+158f,PilotSelectionLayout.cardTop+4f,55f,55f)
             }
         }
 
