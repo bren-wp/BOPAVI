@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Standalone nine-screen pixel comparator tests, no copied UI screenshots."""
 import importlib.util
+import tempfile
 from pathlib import Path
 import unittest
 from PIL import Image
@@ -32,6 +33,25 @@ class Owner941PixelTests(unittest.TestCase):
         self.assertEqual(diff['different_pixels'],1)
         self.assertGreater(diff['rgb_mae'],0)
         self.assertEqual(diff['regions_by_deviation'][0]['name'],'footer')
+
+    def test_artifacts_preserve_unmasked_pixel_delta(self):
+        # Artifacts are forensic QA output, not a composited app screenshot.
+        with tempfile.TemporaryDirectory() as directory:
+            baseline=Image.new('RGB',checker.SIZE,(20,40,60))
+            actual=baseline.copy()
+            actual.putpixel((122,1410),(24,40,60))
+            result=checker.save_visual_artifacts(
+                'Gameplay',baseline,actual,Path(directory))
+            raw=Image.open(result['raw_difference_png']).convert('RGB')
+            heatmap=Image.open(result['colorized_heatmap_png']).convert('RGB')
+            self.assertEqual(raw.size,checker.SIZE)
+            self.assertEqual(heatmap.size,checker.SIZE)
+            self.assertEqual(raw.getpixel((122,1410)),(4,0,0))
+            self.assertEqual(raw.getpixel((122,1411)),(0,0,0))
+            self.assertEqual(baseline.getpixel((122,1410)),(20,40,60))
+            self.assertEqual(actual.getpixel((122,1410)),(24,40,60))
+            self.assertNotEqual(heatmap.getpixel((122,1410)),
+                                heatmap.getpixel((122,1411)))
 
     def test_unsupported_and_resized_references_fail(self):
         im=Image.new('RGB',checker.SIZE,(1,2,3))
