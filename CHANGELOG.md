@@ -3,6 +3,17 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.75 — Shop / Skins i izravni ulaz u Home (build 205)
+
+**Published:** 2026-11-10 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.75)
+
+- **Pokretanje:** uklonjen je 3,5-sekundni prilagođeni startup/splash prikaz. Launcher Activity sada odmah učitava stvarni Home. Uklonjeni su stari launch theme i njegova slikovna podloga. Androidov sistemski splash na API 31+ može se kratko prikazati po pravilima sustava; aplikacija ne dodaje vlastito čekanje.
+- **Shop:** cijena i ikona novčića sada se iscrtavaju na stvarnom Android Buttonu, umjesto kroz dekorativni sloj koji je nestajao na snimkama. Zadržani su stvarni troškovi i atomarne transakcije iz ProgressStore. Povećana je širina grafike proizvoda i približene dimenzije Shop naslova referenci.
+- **Skins:** povezana plava naslovna traka, zasebne kapsule sa stvarnim novčićima i zvjezdicama, dva aktivna + gumba koja otvaraju stvarni Shop. Četiri stvarne kartice likova imaju čitljiviji naslov i veći prostor za info panel / EQUIP.
+- **Distribucija:** galerija za novo izdanje sadrži 15 stvarno snimljenih Android ekrana, bez splash prikaza. Potrebna je provjera svih objavljenih snimaka, SHA-256 i novih APK/AAB paketa.
+- **Vizualna istinitost:** izvorne reference 941×1672 ostaju strogi cilj, ali **nema potvrđene 1:1 podudarnosti** dok nove stvarne emulator snimke ne prođu usporedbu. Ne dodavati lažne dragulje, izmišljene kupnje ili statične snimke kao funkcionalne kontrole.
+- **Potpisivanje:** standardni release APK i AAB su nepotpisani i zahtijevaju postojeći privatni ključ za produkcijsku distribuciju.
+
 ## v1.0.74 — Level Map / Skins: stjenovita dubina i precizniji QA (build 204)
 
 **Published:** 2026-11-10 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.74)
@@ -13,15 +24,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Vizualni QA:** devet referenci 941 × 1672 px provjerava se bez skaliranja. Alat sada može izvesti izvorne RGB difference PNG datoteke i odvojene toplinske karte za analizu. Toplinska karta ne mijenja izmjereni RGB-MAE.
 - **Verifikacija:** potrebni su stvarni Android 15/16 screenshotovi i novi RGB rezultati. Nijedan ekran nije deklariran 1:1 odnosno 0% samo na temelju izvornog koda ili sintetskih testova.
 - **Distribucija:** izdanja su Android-only. Debug APK namijenjen je testiranju, a release APK i AAB moraju se potpisati privatnim postojećim ključem prije Google Play distribucije.
-
-## v1.0.73 — Odabir junaka / Karta razina (build 203)
-
-**Published:** 2026-11-10 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.73)
-
-- Skins: četiri jednako raspoređene, stvarne kartice umjesto prethodne tri, uz izvorni raspored vlasnikove reference 941×1672. Postojeći Bopi, Sova i Lisac ostaju sa starim ID-jevima, podacima o spremanju i pravim sposobnostima.
-- Star Pilot: četvrti junak koristi **postojeći Orion** (cosmetic skin #8), čiji se pravi sprite generira u projektu. Prikazuje se zaključan dok taj skin nije kupljen prikupljenim novčićima. Otključavanje koristi postojeću cijenu (240), provjeru stanja, **zasebnu potvrdu korisnika** i trajno spremanje odabira. Nema in-app naplate, izmišljene gem valute ili prečaca preko spremljenog stanja.
-- Skins: redizajnirane su kartice u četiri stupca, izbornik ima native touch kontrole te je uklonjen netočan dodatni natpis FREE • UNLOCKED ispod info panela.
-- Level Map: vizualne korekcije natpisa i proceduralnog scenografskog sloja usklađuju oblik/platforme s referencom bez lažnog otključavanja ili promjene brojača zvjezdica.
-- Testovi: provjeriti jednostruku kupnju, odbijanje nedovoljnih novčića, save ID kompatibilnost, oba smjera navigacije, četvrti sprite na Home/Flight/Result i rezolucije s urezima zaslona.
-- Vizualno: cilj 1:1, ali ne izjavljuje se 0% prije stvarnih screenshotova i mjerenja. Baseline v1.0.72: Level Map 28,781% / Skins 27,885% RGB-MAE na originalnim 941×1672 kadrovima.
-- Distribucija: objaviti tek nakon Android 15/16, testova i uspješne GitHub Actions verifikacije. APK za release i AAB su nepotpisani; Play ažuriranje treba postojeći upload ključ.
