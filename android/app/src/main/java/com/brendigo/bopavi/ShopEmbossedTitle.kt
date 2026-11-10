@@ -28,7 +28,7 @@ internal class ShopEmbossedTitle(context:Context):TextView(context){
 
     init {
         text="SHOP"
-        setTextSize(TypedValue.COMPLEX_UNIT_SP,76f)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP,91f)
         setTextColor(0xffffc11d.toInt())
         gravity=Gravity.CENTER
         includeFontPadding=false
@@ -39,7 +39,7 @@ internal class ShopEmbossedTitle(context:Context):TextView(context){
 
     override fun onDraw(c:Canvas) {
         if(width<=0 || height<=0)return
-        val wanted=min(textSize,height*.80f)
+        val wanted=min(textSize,height*.86f)
         ink.textSize=wanted
         val measured=ink.measureText("SHOP").coerceAtLeast(1f)
         ink.textSize*=min(1f,(width*.94f)/measured)

@@ -404,8 +404,23 @@ PY
   # the Terms row and open the WRONG modal during the Privacy check.
   # Search/scroll below only if the requested accessible control is absent.
   sleep 1
+  dump_ui
+  # A fresh Settings transition may trigger the exact Android OS one-time
+  # immersive tutorial BEFORE Settings becomes accessible. A failing API35
+  # run proved that its system-only window hides the legal controls even
+  # though BOPAVI itself is healthy. Acknowledge ONLY the verified Android
+  # system guidance, then still require the real Settings legal link.
+  if acknowledge_verified_fullscreen_education; then
+    sleep 1
+    dump_ui
+    echo "QA: resumed real Settings after AOSP immersive education"
+  fi
   for legal_attempt in 1 2 3; do
     dump_ui
+    if acknowledge_verified_fullscreen_education; then
+      sleep 1
+      dump_ui
+    fi
     if ! python3 - "$legal_link" <<'PY'
 import re,subprocess,sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
@@ -438,6 +453,8 @@ subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=T
 PY
     then
       echo 'FAIL: Settings legal control missing' >&2
+      cp qa/screenshots/android-current-ui.xml qa/screenshots/android-settings-legal-failed.xml || true
+      adb shell dumpsys activity activities > qa/screenshots/android-settings-legal-activities.txt 2>&1 || true
       return 1
     fi
     sleep 2

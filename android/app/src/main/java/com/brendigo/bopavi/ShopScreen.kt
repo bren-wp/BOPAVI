@@ -66,57 +66,37 @@ internal class ShopScreen(
         }
 
     /**
-     * Preserve a real native Button underneath a separately rendered price
-     * capsule. Android text/compound drawable autosizing must never silently
-     * remove the price on a physically narrow 941px QA viewport.
-     *
-     * The decorative row has NO click/keyboard/a11y action. A tap goes through
-     * to the existing Button -> onBuy -> ProgressStore transaction.
+     * Price is rendered by the actual clickable Android Button rather than
+     * by a passive sibling overlay. The old decorative overlay disappeared
+     * on GPU-rendered 941px captures, leaving blank gold/green capsules.
+     * Native text, symbol and click now share a single guaranteed draw pass.
      */
     private fun priceButton(price:Int,gold:Boolean,
                             accessibility:String,click:()->Unit):View {
-        val shell=FrameLayout(host).apply {
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        val real=button("",gold,true,click).apply {
+        return button(NumberFormat.getIntegerInstance().format(price),
+            gold,true,click).apply {
+            textSize=if(gold)26f else 22f
+            setAutoSizeTextTypeUniformWithConfiguration(17,if(gold)26 else 22,
+                1,android.util.TypedValue.COMPLEX_UNIT_SP)
+            // The owner-sized 270px card uses weighted rows; native Button's
+            // default vertical insets previously clipped the price baseline.
+            setPadding(dp(4),0,dp(4),0)
+            minimumHeight=0
             background=Bopavi3DTheme.button(
                 if(gold)Bopavi3DTheme.Finish.GOLD
                 else Bopavi3DTheme.Finish.GREEN)
-            contentDescription=accessibility
-            setPadding(0,0,0,0)
-            elevation=dp(1).toFloat()
-        }
-        shell.addView(real,FrameLayout.LayoutParams(-1,-1))
-        val label=LinearLayout(host).apply {
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            // The native button has a slight press shadow. This row must be
-            // above that shadow, otherwise the coins remain but price vanishes.
-            elevation=dp(2).toFloat()
-        }
-        val symbol=ImageView(host).apply {
-            setImageDrawable(HomeHeroIconDrawable(
-                BopaviUiIconDrawable.Kind.COIN,dp(21)))
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            isClickable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        label.addView(symbol,LinearLayout.LayoutParams(dp(24),dp(24)))
-        label.addView(message(NumberFormat.getIntegerInstance().format(price),
-            17,if(gold)0xff672918.toInt() else Color.WHITE).apply {
+            setTextColor(if(gold)0xff5b240c.toInt() else Color.WHITE)
+            setSingleLine(true)
             maxLines=1
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            setShadowLayer(2f,0f,2f,if(gold)0x55ffeb9b else 0xff174526.toInt())
-        },LinearLayout.LayoutParams(-2,-1).apply{leftMargin=dp(5)})
-        shell.addView(label,FrameLayout.LayoutParams(-1,-1))
-        return shell
+            val coin=HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(22))
+            coin.setBounds(0,0,dp(25),dp(25))
+            setCompoundDrawablesRelative(coin,null,null,null)
+            compoundDrawablePadding=dp(7)
+            gravity=Gravity.CENTER
+            contentDescription=accessibility
+            elevation=dp(3).toFloat()
+        }
     }
 
     private fun perkCard(item:ShopItemState,onBuy:(Int)->Unit):View {
@@ -131,27 +111,33 @@ internal class ShopScreen(
             elevation=dp(4).toFloat()
             contentDescription="OWNED: ${item.owned}/99. "+item.accessibility
         }
-        card.addView(message(item.storefrontTitle,15,0xff5f260e.toInt()).apply{
+        card.addView(message(item.storefrontTitle,17,0xff5f260e.toInt()).apply{
             maxLines=2
             setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
-        },LinearLayout.LayoutParams(-1,0,.72f))
-        val row=LinearLayout(host).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        // Flexible weights fill the reference card instead of multiplying
-        // hardcoded dp icon widths by a device's physical pixel density.
-        // The art stays fully inside the cream panel at every screen scale.
-        row.addView(ShopPerkArtwork(host,item),
-            LinearLayout.LayoutParams(0,-1,2.15f))
-        row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
-            setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,-1,.85f))
-        card.addView(row,LinearLayout.LayoutParams(-1,0,1.55f))
-        card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
-                maxLines=2
         },LinearLayout.LayoutParams(-1,0,.65f))
+        // Product art now occupies the full card width, as in the reference.
+        // Tier remains a small passive corner badge instead of squeezing the
+        // actual shield/magnet into a narrow horizontal row.
+        val illustration=FrameLayout(host).apply {
+            clipChildren=true
+            clipToPadding=true
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        illustration.addView(ShopPerkArtwork(host,item),
+            FrameLayout.LayoutParams(-1,-1))
+        illustration.addView(message(item.iconTierLabel,15,
+            0xffffae22.toInt()).apply {
+            maxLines=1
+            setShadowLayer(2f,0f,2f,0xff633112.toInt())
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },FrameLayout.LayoutParams(dp(45),dp(40),
+            Gravity.TOP or Gravity.RIGHT).apply{
+            topMargin=dp(2);rightMargin=dp(3)
+        })
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))
+        card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
+                maxLines=2
+        },LinearLayout.LayoutParams(-1,0,.48f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
@@ -168,7 +154,7 @@ internal class ShopScreen(
                 else -> onBuy(item.index)
             }
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,.90f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.30f).apply{
             topMargin=dp(4)
         })
         return card
@@ -259,20 +245,12 @@ internal class ShopScreen(
         // Dynamic prices, avatar, balances and buttons remain Android Views.
         stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)
         // Native header, real locally saved counters and original character.
-        stage.place(button("‹",false,click=onBack).apply{
-            background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
-            contentDescription="HOME"
-            text=""
-        },24f,18f,119f,99f,minTouch=true)
-        // Match the owner arrow silhouette, without replacing the actual
-        // HOME action with a decorative non-clickable screenshot.
-        stage.place(ReferenceArrowOverlayView(host).apply {
-            // Native blue back Button is elevated to 4dp; the arrow was
-            // underneath its background and therefore invisible in QA.
-            elevation=dp(6).toFloat()
-        },24f,18f,119f,99f)
+        // One native clickable control paints its own enamel and arrow,
+        // avoiding the displaced twin-button look on API36.
+        stage.place(ShopBackControl(host,onBack),
+            24f,18f,119f,99f,minTouch=true)
         stage.place(ShopEmbossedTitle(host),
-            266f,136f,409f,154f)
+            183f,123f,575f,201f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green
@@ -353,13 +331,21 @@ internal class ShopScreen(
             77f,707f,464f,47f)
         // The featured panel already exposes the real owned quantity to
         // TalkBack; avoid an extra visible tier line across the reference art.
+        // Golden Bopi is the reference hero's real, local, full-winged
+        // variant. It is decorative: the CTA still explicitly purchases
+        // the featured genuine magnet/shield perk, NOT an unimplemented skin.
+        stage.place(ImageView(host).apply {
+            setImageResource(R.drawable.bopiportrait1)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },410f,573f,510f,296f)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 if(featured.isShield)BopaviUiIconDrawable.Kind.SHIELD
-                else BopaviUiIconDrawable.Kind.MAGNET,dp(95)))
+                else BopaviUiIconDrawable.Kind.MAGNET,dp(40)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },516f,593f,343f,253f)
+        },805f,768f,66f,63f)
         stage.place(priceButton(featured.price,true,
             "Featured "+featured.accessibility){
             if(featured.canBuy)onBuy(featured.index)

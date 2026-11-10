@@ -59,6 +59,29 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
         if(width<=0 || height<=0)return
         val save=c.save()
         c.scale(width/941f,height/1672f)
+        // The owner reference has a warm radial bloom and narrow light rays
+        // BEHIND the floating hero. No taps, currency or UI are painted here.
+        p.reset();p.isAntiAlias=true
+        p.shader=RadialGradient(473f,585f,415f,
+            intArrayOf(0x93fffbdc.toInt(),0x59efffff,0x04ffffff),
+            floatArrayOf(0f,.42f,1f),Shader.TileMode.CLAMP)
+        c.drawCircle(473f,585f,415f,p)
+        p.shader=null
+        for(i in 0..21){
+            val theta=i*kotlin.math.PI.toFloat()/11f
+            val c1=theta-.055f
+            val c2=theta+.055f
+            val radius=470f
+            outline.reset()
+            outline.moveTo(473f,617f)
+            outline.lineTo(473f+kotlin.math.cos(c1)*radius,
+                           617f+kotlin.math.sin(c1)*radius)
+            outline.lineTo(473f+kotlin.math.cos(c2)*radius,
+                           617f+kotlin.math.sin(c2)*radius)
+            outline.close()
+            p.color=if(i%2==0)0x27fff6ba else 0x16ffffff
+            c.drawPath(outline,p)
+        }
         // Two suspended ropes with braided amber highlights.
         for(x in floatArrayOf(304f,617f)){
             p.reset();p.isAntiAlias=true

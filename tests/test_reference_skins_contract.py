@@ -16,7 +16,7 @@ store=(src/"ProgressStore.kt").read_text()
 qa=(root/"tools/qa_android_reference_menus.py").read_text()
 junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTest.kt").read_text()
 
-assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onBack)" in menu
+assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onShop,onBack)" in menu
 assert "stage.useShopFullBleedReferenceCamera()" in screen
 # Android AutoSizeTextTypeUniformWithConfiguration requires max > min.
 # A 12sp status label must NOT pass an illegal 12..12 range.
@@ -24,7 +24,7 @@ assert 'if(size.toInt()>12)' in screen
 assert 'setAutoSizeTextTypeUniformWithConfiguration(12,size.toInt(),1,' in screen
 assert "12..12 interval that crashes Skins on API 35" in screen
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in main
-for name in ("CLASSIC AVIATOR","SKY OWL","SKY FOX","STAR PILOT"):
+for name in ("CLASSIC AVIATOR","ROYAL BOPI","FOREST EXPLORER","STAR PILOT"):
     assert name in model,name
 assert "Pilot(3,\"STAR PILOT\",\"ORION\",PilotAbility.BOPI)" in model
 assert "fun locked(candidate:Int,orionOwned:Boolean)" in model
@@ -69,7 +69,7 @@ assert "if(index !in 0..3 || (index==3 && !owned(8)))return false" in store
 assert 'return if(value==3 && !owned(8))0 else value' in store
 assert 'val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)' in store
 assert "selectOrBuy(" not in screen  # card tap does NOT silently spend coins
-assert "Selected SKY OWL" in junit
+assert "Selected ROYAL BOPI" in junit
 assert "bopiportrait8" in (src/"HomeReferenceScreen.kt").read_text()
 assert "portraits[pilotIndex.coerceIn(0,3)]" in (src/"HomeReferenceScreen.kt").read_text()
 assert 'node_with("STAR PILOT",clickable=True)' in qa
@@ -86,9 +86,9 @@ assert "four-card Skins gallery not reached after verified Home taps" in qa
 assert "android-skins-navigation-failed.xml" in qa
 assert "open_native_skins()" in qa
 assert qa.count("    open_native_skins()")>=3
-assert 'len(titles)==1 and len(owl)==1 and len(star)==1' in qa
+assert 'len(titles)==1 and len(royal)==1 and len(star)==1' in qa
 assert "Locked STAR PILOT" in junit
-assert 'tap(node_with("CHOOSE SKY OWL"))' in qa
+assert 'tap(node_with("CHOOSE ROYAL BOPI"))' in qa
 assert 'capture_png("android-skins-reference-size")' in qa
 assert '"941x1672"' in qa
 assert "http://" not in screen and "https://" not in screen

@@ -76,3 +76,35 @@ internal class ReferenceArrowOverlayView(context:android.content.Context):androi
         arrow.draw(canvas)
     }
 }
+
+
+/**
+ * One coherent owner-reference sky-blue back control for Shop.
+ * The previous Button background and independent arrow overlay were rendered
+ * at different positions on API36 and looked like two separate buttons.
+ * This native View draws its own enamel background and arrow in one Canvas
+ * coordinate system; the same surface handles touch, focus and accessibility.
+ */
+internal class ShopBackControl(
+    context:android.content.Context,
+    onBack:()->Unit
+):android.view.View(context) {
+    private val glyph=ReferenceBackArrow(58)
+    init {
+        background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)
+        contentDescription="HOME"
+        isClickable=true
+        isFocusable=true
+        minimumWidth=(48f*context.resources.displayMetrics.density).toInt()
+        minimumHeight=(48f*context.resources.displayMetrics.density).toInt()
+        setOnClickListener { onBack() }
+    }
+    override fun onDraw(canvas:Canvas) {
+        super.onDraw(canvas)
+        val size=minOf(width*.63f,height*.67f).toInt().coerceAtLeast(1)
+        val x=(width-size)/2
+        val y=(height-size)/2
+        glyph.setBounds(x,y,x+size,y+size)
+        glyph.draw(canvas)
+    }
+}

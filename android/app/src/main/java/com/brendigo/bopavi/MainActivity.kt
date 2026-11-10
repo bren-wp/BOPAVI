@@ -104,7 +104,7 @@ class MainActivity : Activity() {
     // portrait reference pages. The native stage still repositions touch
     // targets away from real cutouts and falls back on smaller/large-font UI.
     private fun ownerImmersiveReferenceScreen():Boolean {
-        if(selectedScreen=="splash" || selectedScreen=="loading")return true
+        if(selectedScreen=="loading")return true
         val portrait=resources.configuration.orientation==
             android.content.res.Configuration.ORIENTATION_PORTRAIT
         val dm=resources.displayMetrics
@@ -177,9 +177,8 @@ class MainActivity : Activity() {
         setTheme(R.style.BopaviTheme)
         super.onCreate(state)
         applyPremiumSystemBars()
-        // Android owns the launch window. The full-size branded FlightLoading
-        // artwork follows on a genuine cold launch for a short readable beat;
-        // the progress animation remains indeterminate, never a fake value.
+        // No custom splash or timed startup screen: show the playable Home
+        // immediately after loading the lightweight local preferences.
         progress=ProgressStore(this)
         selectedPilotChoice=progress.arcadePilot()
         sound=Soundscape(this)
@@ -193,28 +192,10 @@ class MainActivity : Activity() {
             platformBackCallback=callback
         }
         if(qaIntentEnabled("bopavi_qa_loading_preview")) {
-            // QA captures the exact same native Loading view used by the game.
+            // Debug-only preview of the level preparation screen, never boot UI.
             selectedScreen="loading"
             showNativeView(FlightLoadingView(this,selectedPilotChoice))
-        } else if(state==null &&
-            !qaIntentEnabled("bopavi_qa_capture_first_flap") &&
-            !qaIntentEnabled("bopavi_qa_collision_overlay")) {
-            showBrandedStartup()
         } else showHome()
-    }
-
-    private fun showBrandedStartup(){
-        selectedScreen="splash"
-        applyPremiumSystemBars()
-        val intro=FlightLoadingView(this,selectedPilotChoice,startup=true)
-        showNativeView(intro)
-        // One user-visible introduction, not a network wait or a falsified
-        // loading percentage. No navigation survives a newer screen change.
-        intro.postDelayed({
-            if(selectedScreen=="splash" && !isDestroyed && !isFinishing){
-                showHome()
-            }
-        },3500L)
     }
     /** Android large-screen rotation must not recreate a live simulation.
      * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
@@ -669,6 +650,7 @@ class MainActivity : Activity() {
                         }.show()
                 }
             },
+            onShop={showShop()},
             onBack={showHome()})
         showNativeView(view)
     }

@@ -114,14 +114,14 @@ def open_native_skins():
                 if n.get("package")==APP
                 and n.get("class")=="android.widget.TextView"
                 and n.get("text")=="SKINS"]
-        owl=[n for n in root.iter("node") if n.get("clickable")=="true"
-             and ("CHOOSE SKY OWL" in label(n) or "SELECTED SKY OWL" in label(n))]
+        royal=[n for n in root.iter("node") if n.get("clickable")=="true"
+             and ("CHOOSE ROYAL BOPI" in label(n) or "SELECTED ROYAL BOPI" in label(n))]
         star=[n for n in root.iter("node") if n.get("clickable")=="true"
               and "STAR PILOT" in label(n)]
-        return len(titles)==1 and len(owl)==1 and len(star)==1
+        return len(titles)==1 and len(royal)==1 and len(star)==1
 
     taps=0
-    # Fresh start may still show the actual animated Splash/Loading page.
+    # Fresh start may still show the actual animated Loading state.
     # Wait for a verified native Home action; never tap an unknown window.
     for poll in range(16):
         root=hierarchy()
@@ -129,7 +129,7 @@ def open_native_skins():
             time.sleep(1)
             root=hierarchy()
         if verified_gallery(root):
-            print("PASS: real Skins header, Sky Owl and Star Pilot cards visible",flush=True)
+            print("PASS: real Skins header, Royal Bopi and Star Pilot cards visible",flush=True)
             return
         died_or_restarted(running_pid())
         buttons=matching_nodes(root,"OTVORI IZBOR LIKOVA",clickable=True)
@@ -141,7 +141,7 @@ def open_native_skins():
             print(f"QA: tapped verified Home Skins action ({taps}/4)",flush=True)
             time.sleep(2)
         else:
-            # Real splash-to-home transition, or a still-animating Skins
+            # A real home-to-skins transition, or a still-animating Skins
             # window: re-read the actual device instead of fabricating state.
             time.sleep(1)
 
@@ -197,7 +197,7 @@ def main():
         adb("shell","wm","size","941x1672")
         resized=True
         adb("shell","wm","density","320")
-        node_with("CHOOSE SKY OWL")
+        node_with("CHOOSE ROYAL BOPI")
         # The reference gallery has FOUR real card targets, including the
         # saved-coin Orion lock rather than a screenshot-only fourth tile.
         node_with("STAR PILOT",clickable=True)
@@ -208,15 +208,15 @@ def main():
         if resized:
             adb("shell","wm","size","reset")
             adb("shell","wm","density","reset")
-    tap(node_with("CHOOSE SKY OWL"))
-    node_with("SELECTED SKY OWL")
+    tap(node_with("CHOOSE ROYAL BOPI"))
+    node_with("SELECTED ROYAL BOPI")
     home()
     # A fresh process must restore the REAL saved arcade_pilot, not just a
     # transient selected card inside the current Activity.
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
     open_native_skins()
-    node_with("SELECTED SKY OWL")
+    node_with("SELECTED ROYAL BOPI")
     home()
     open_native_skins()
     tap(node_with("CHOOSE CLASSIC AVIATOR"))

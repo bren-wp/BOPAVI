@@ -43,14 +43,15 @@ activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
 assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
 assert 'ownerImmersiveReferenceScreen()' in activity
-assert 'if(selectedScreen=="splash" || selectedScreen=="loading")return true' in activity
+assert 'if(selectedScreen=="loading")return true' in activity
 assert '"home" -> HomeReferenceLayout.supports(' in activity
 assert '"skins","settings","result" -> portrait &&' in activity
 assert 'stage.useShopFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.kt").read_text()
 assert 'stage.useShopFullBleedReferenceCamera()' in (src/"SettingsScreen.kt").read_text()
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in activity
-assert 'selectedScreen="splash"\n        applyPremiumSystemBars()' in activity
+assert 'selectedScreen="splash"' not in activity
+assert 'selectedScreen="loading"' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
 assert 'android.view.WindowInsets.Type.navigationBars())' in activity

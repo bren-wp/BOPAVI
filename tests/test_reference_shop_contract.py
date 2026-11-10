@@ -58,9 +58,12 @@ assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
 assert 'R.drawable.bopiportrait0' in shop
+assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
+assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
-assert 'stage.place(ReferenceArrowOverlayView(host).apply {' in shop
-assert 'elevation=dp(6).toFloat()' in shop
+assert 'stage.place(ShopBackControl(host,onBack),' in shop
+assert 'contentDescription="HOME"' in (src/"ReferenceBackArrow.kt").read_text()
+assert 'glyph.draw(canvas)' in (src/"ReferenceBackArrow.kt").read_text()
 assert 'stage.useShopFullBleedReferenceCamera()' in shop
 stage=(src/"LevelMapScreen.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
@@ -72,32 +75,37 @@ assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,.90f)' in shop
-assert 'LinearLayout.LayoutParams(0,-1,2.15f)' in shop
-assert 'LinearLayout.LayoutParams(0,-1,.85f)' in shop
+assert 'LinearLayout.LayoutParams(-1,0,1.30f)' in shop
+
+
 assert 'background=ShopCreamCardDrawable()' in shop
-assert 'row.addView(ShopPerkArtwork(host,item),' in shop
+assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
 assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
 assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
-# Real clickable native Buttons remain below passive price artwork.
+# Price content and actual buy callback are on the same Android Button.
 assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
-assert 'val real=button("",gold,true,click).apply {' in shop
-assert 'val label=LinearLayout(host).apply {' in shop
+assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
+assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
+assert 'Bopavi3DTheme.Finish.GREEN' in shop
+assert '183f,123f,575f,201f' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))' in shop
+
+
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
-assert 'label.addView(message(NumberFormat.getIntegerInstance().format(price),' in shop
-assert 'shell.addView(real,FrameLayout.LayoutParams(-1,-1))' in shop
-assert 'shell.addView(label,FrameLayout.LayoutParams(-1,-1))' in shop
+
+
+
 assert 'stage.place(priceButton(featured.price,true,' in shop
 assert 'val buy=priceButton(item.price,false,item.accessibility+' in shop
 assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)' not in shop
 assert 'contentDescription="OWNED: ${item.owned}/99. "+item.accessibility' in shop
 assert 'message("OWNED: ${item.owned}/99  •  TIER' not in shop
 assert 'stage.place(message("TIER ${featured.tier}' not in shop
-assert 'message(item.storefrontTitle,15' in shop
-assert 'message(item.perkEffect,13' in shop
+assert 'message(item.storefrontTitle,17' in shop
+assert 'message(item.perkEffect,14' in shop
 assert 'item.iconTierLabel' in shop
 assert 'val storefrontTitle:String get()' in model
 assert 'val perkEffect:String get()' in model

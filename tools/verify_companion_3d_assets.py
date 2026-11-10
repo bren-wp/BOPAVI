@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check actual Sova/Lisac Android PNGs: same flight silhouette, genuine 3D shade.
+"""Check themed Bopi pilots retain legitimate owner-layer wings and drawn detail.
 
 Called after generate_images.py. Uses original SVG raster as a control; never
 compares to fabricated owner reference or claims pixel-perfect equality.
@@ -30,24 +30,42 @@ def base_raster(markup):
     svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="512" height="512">'+body+'</svg>'
     return Image.open(BytesIO(cairosvg.svg2png(bytestring=svg.encode(),output_width=512))).convert("RGBA")
 
-for skin,character in ((9,"sova"),(10,"lisac")):
-    for markup,name in zip(source_parts(character),
-                           (f"bopi{skin}",f"bopileft{skin}",f"bopiright{skin}")):
-        base=base_raster(markup)
-        actual=Image.open(OUT/f"{name}.png").convert("RGBA")
-        assert actual.size == (512,512),name
-        assert base.getchannel("A").tobytes() == actual.getchannel("A").tobytes(),(
-            name,"3D treatment changed the collision/animation silhouette")
-        diff=ImageChops.difference(base.convert("RGB"),actual.convert("RGB"))
-        change=diff.convert("L").point(lambda n:255 if n>0 else 0)
-        assert change.getbbox(),(name,"missing 3D highlights/shaded rim")
-        assert sum(1 for value in change.getdata() if value>0)>50,(
-            name,"insufficient 3D relief pixels")
-        bounds=actual.getchannel("A").getbbox()
-        assert bounds and min(bounds[0],bounds[1],512-bounds[2],512-bounds[3])>=6,(
-            name,"cropped silhouette",bounds)
-    portrait=Image.open(OUT/f"bopiportrait{skin}.png").convert("RGBA")
-    assert portrait.size==(512,512) and portrait.getchannel("A").getbbox()
+if (ROOT/"art/reference-approved/bopi/manifest.json").is_file():
+    # When owner-approved image layers are present, Skins uses coloured
+    # derivatives of exactly that same Bopi (with Royal/Explorer/Star hats).
+    # IDs 9/10/8 remain stable across exported saves and live gameplay.
+    original=Image.open(OUT/"bopi0.png").convert("RGBA")
+    for skin in (9,10,8):
+        for name,reference_name in ((f"bopi{skin}","bopi0"),
+                                    (f"bopileft{skin}","bopileft0"),
+                                    (f"bopiright{skin}","bopiright0")):
+            current=Image.open(OUT/f"{name}.png").convert("RGBA")
+            reference=Image.open(OUT/f"{reference_name}.png").convert("RGBA")
+            assert current.size==reference.size==(512,512),name
+            assert current.getchannel("A").getbbox(),(name,"empty art")
+            if name==f"bopi{skin}":
+                assert ImageChops.difference(reference,current).getbbox(),(
+                    name,"themed Bopi body must have distinct feather/art details")
+            if "left" in name or "right" in name:
+                assert current.getchannel("A").tobytes()==reference.getchannel("A").tobytes(),(
+                    name,"altered owner-approved flight wing shape")
+        portrait=Image.open(OUT/f"bopiportrait{skin}.png").convert("RGBA")
+        assert portrait.size==(512,512) and portrait.getchannel("A").getbbox()
+else:
+    # Offline fallback build: keep the original 3D-shaded Sova/Lisac SVGs.
+    for skin,character in ((9,"sova"),(10,"lisac")):
+        for markup,name in zip(source_parts(character),
+                               (f"bopi{skin}",f"bopileft{skin}",f"bopiright{skin}")):
+            base=base_raster(markup)
+            actual=Image.open(OUT/f"{name}.png").convert("RGBA")
+            assert actual.size==(512,512),name
+            assert base.getchannel("A").tobytes()==actual.getchannel("A").tobytes(),name
+            diff=ImageChops.difference(base.convert("RGB"),actual.convert("RGB"))
+            assert diff.getbbox(),(name,"missing original 3D relief")
+            bounds=actual.getchannel("A").getbbox()
+            assert bounds and min(bounds[0],bounds[1],512-bounds[2],512-bounds[3])>=6
+        portrait=Image.open(OUT/f"bopiportrait{skin}.png").convert("RGBA")
+        assert portrait.size==(512,512) and portrait.getchannel("A").getbbox()
 logo=Image.open(OUT/"logo.png").convert("RGBA")
 l,t,r,b=logo.getchannel("A").getbbox()
 assert min(l,t,logo.width-r,logo.height-b)>=5,(

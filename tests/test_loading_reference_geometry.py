@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Supplied Splash: winged 3D gold/cyan bar, golden rings, original pilot."""
+"""Internal level-loading art only; cold boot must open Home directly."""
 from pathlib import Path
 repo=Path(__file__).resolve().parents[1]
 src=repo/"android/app/src/main/java/com/brendigo/bopavi"
@@ -51,9 +51,9 @@ assert "feather(canvas," not in view
 assert 'val loading=FlightLoadingView(this,chosenPilot)' in main
 assert "Thread({" in main and 'loading.completePreparation()' in main
 assert "Thread.sleep" not in main
-assert 'FlightLoadingView(this,selectedPilotChoice,startup=true)' in main
-assert 'selectedScreen="splash"' in main
-assert "},3500L)" in main  # Animated startup runs for 3.5 s
+assert 'FlightLoadingView(this,selectedPilotChoice,startup=true)' not in main
+assert 'selectedScreen="splash"' not in main
+assert "},3500L)" not in main  # No timed application Splash
 assert 'selectedScreen="loading"' in main
 assert "progress.consumePerks()" in main
-print("PASS: owner Splash retains original Bopi, cyan enamel bar and truthful loading")
+print("PASS: internal level-loading art retained; no app startup splash")
