@@ -27,7 +27,7 @@ class PilotSelectionModelTest {
     @Test fun selectedBadgeAndTalkBackFollowSavedArcadeChoice() {
         assertTrue(PilotSelectionModel.selected(1,1))
         assertFalse(PilotSelectionModel.selected(1,0))
-        assertEquals("Selected SKY OWL",PilotSelectionModel.accessibility(1,1))
+        assertEquals("Selected ROYAL BOPI",PilotSelectionModel.accessibility(1,1))
         assertEquals("Choose CLASSIC AVIATOR",PilotSelectionModel.accessibility(1,0))
         assertEquals("Locked STAR PILOT. Unlock with earned coins",
             PilotSelectionModel.accessibility(0,3,false))
