@@ -204,8 +204,11 @@ internal class LevelMapScreen(
         // Owner's map has a single primary Back action. Keep page-changing
         // controls available, but move them away from the currency header and
         // volcano sign so the top 110px remains reference-aligned.
-        stage.place(nativeButton("‹","Home",blue){onBack()}.apply {
-            text=""
+        stage.place(nativeButton("←","Home",blue){onBack()}.apply {
+            // Keep a visible native glyph even on GPU drivers that omit the
+            // passive vector overlay after texture-context restoration.
+            text="←"
+            textSize=42f
         },20f,16f,122f,95f,minTouch=true)
         // Decorative feather-edged arrow cannot consume native Back taps.
         stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)
@@ -542,8 +545,16 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         path.lineTo(cx+rx*.87f,y+deep*.28f)
         path.lineTo(cx+rx,y+7f)
         path.close()
-        color(rock);c.drawPath(path,p)
-        color(0x66442823);p.style=Paint.Style.STROKE;p.strokeWidth=7f
+        // Layered stone gradient gives the islands a deep, warm-lit
+        // undercut instead of one flat trapezoid/polygon fill.
+        color(rock)
+        p.shader=android.graphics.LinearGradient(cx-rx,y+20f,cx+rx*.50f,
+            y+deep, intArrayOf(highlight,rock,0xff242e56.toInt()),
+            null,android.graphics.Shader.TileMode.CLAMP)
+        c.drawPath(path,p)
+        p.shader=null
+        color(0x88442823.toInt())
+        p.style=Paint.Style.STROKE;p.strokeWidth=7f
         c.drawPath(path,p);p.style=Paint.Style.FILL
         // Raised bright turf lip with a darker, cut-rock overhang.
         color(0xff284e43.toInt())
@@ -566,6 +577,25 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         color(0x66dfffff)
         c.drawOval(cx+rx*.28f,y+deep*.62f,
             cx+rx*.61f,y+deep*.79f,p)
+        // Genuine decorative hanging water ribbon continues BELOW the
+        // island's underside, as on the illustrated reference. It does not
+        // affect native stage markers, world selection or collisions.
+        val fallX=cx+rx*.44f
+        val fallTop=y+39f
+        val fallBottom=y+deep+148f
+        color(0x7791e8ff)
+        c.drawRoundRect(fallX-16f,fallTop,fallX+26f,fallBottom,15f,15f,p)
+        color(0x668be5ff)
+        c.drawRoundRect(fallX-7f,fallTop,fallX+9f,fallBottom+24f,8f,8f,p)
+        color(0x99ecffff.toInt())
+        for(i in 0..3) {
+            val xx=fallX-10f+i*8f
+            c.drawRoundRect(xx,fallTop+11f,xx+3f,
+                fallBottom-19f+(i%3)*7f,2f,2f,p)
+        }
+        color(0x44d7ffff)
+        c.drawOval(fallX-30f,fallBottom-15f,
+            fallX+42f,fallBottom+22f,p)
     }
 
     /** Deterministic layered rock facets give floating land a cut-stone edge.
@@ -589,6 +619,53 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
             p.style=Paint.Style.STROKE
             c.drawLine(x-16f,y+35f,x-11f,bottomY-20f,p)
             p.style=Paint.Style.FILL
+        }
+    }
+
+    /**
+     * Deterministic, noninteractive stone relief. The reference has many
+     * short intersecting rock edges; the earlier flat color bands left
+     * giant empty cliff faces. All geometry is confined to existing cliffs.
+     */
+    private fun cliffCracks(c:Canvas,cx:Float,y:Float,rx:Float,depth:Float){
+        for(i in 0..16) {
+            val unit=(i+1f)/18f
+            val x=cx-rx*.79f+unit*rx*1.58f
+            val yy=y+37f+(i*37%((depth*.53f).toInt().coerceAtLeast(1)))
+            val length=17f+(i%4)*12f
+            path.reset()
+            path.moveTo(x,yy)
+            path.lineTo(x+if(i%2==0)13f else -9f,yy+length*.49f)
+            path.lineTo(x+if(i%3==0)25f else 3f,yy+length)
+            color(0x7754424a)
+            p.style=Paint.Style.STROKE;p.strokeWidth=if(i%3==0)4f else 2f
+            c.drawPath(path,p)
+            color(0x55f9dcaf)
+            p.style=Paint.Style.STROKE;p.strokeWidth=1.5f
+            c.save();c.translate(3f,-2f);c.drawPath(path,p);c.restore()
+            p.style=Paint.Style.FILL
+        }
+    }
+
+    /** Living grass, small shrubs, and flowers rim each floating island. */
+    private fun islandRim(c:Canvas,cx:Float,y:Float,rx:Float){
+        for(i in 0..20) {
+            val x=cx-rx*.92f+(i/20f)*rx*1.84f
+            val yy=y-19f+(i%4)*6f
+            color(if(i%2==0)0xff167547.toInt() else 0xff27974a.toInt())
+            c.drawOval(x-13f,yy-12f,x+17f,yy+10f,p)
+            color(if(i%3==0)0xffb6ef66.toInt() else 0xff65c95c.toInt())
+            c.drawOval(x-8f,yy-16f,x+13f,yy+4f,p)
+            if(i%4==0){
+                color(0xfffffff1.toInt())
+                for(k in 0..3) {
+                    val angle=k*kotlin.math.PI.toFloat()*.5f
+                    c.drawCircle(x+kotlin.math.cos(angle)*7f,
+                        yy-13f+kotlin.math.sin(angle)*7f,4.5f,p)
+                }
+                color(0xffffc63b.toInt())
+                c.drawCircle(x,yy-13f,3.5f,p)
+            }
         }
     }
 
@@ -749,6 +826,12 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
         cliffFacets(canvas,709f,239f,231f,222f)
         cliffFacets(canvas,621f,690f,264f,252f)
         cliffFacets(canvas,347f,1140f,352f,290f)
+        cliffCracks(canvas,709f,239f,231f,222f)
+        cliffCracks(canvas,621f,690f,264f,252f)
+        cliffCracks(canvas,347f,1140f,352f,290f)
+        islandRim(canvas,709f,239f,231f)
+        islandRim(canvas,621f,690f,264f)
+        islandRim(canvas,347f,1140f,352f)
         volcanoCrown(canvas)
         crystalCluster(canvas)
         meadowCastle(canvas)

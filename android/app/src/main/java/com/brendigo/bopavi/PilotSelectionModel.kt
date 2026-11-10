@@ -1,9 +1,10 @@
 package com.brendigo.bopavi
 
 /**
- * Three real BOPAVI gameplay pilots. This UI does NOT sell or unlock them:
- * all three have always been available. Historical cosmetic skin purchases
- * remain stored separately in ProgressStore, never overwritten here.
+ * Four real BOPAVI appearances: the three legacy playable pilots keep their
+ * save IDs, while the fourth uses the existing Orion cosmetic (skin index 8).
+ * Orion becomes available ONLY after the legitimate local-coin purchase has
+ * been recorded by ProgressStore. Nothing is a fake gallery tile.
  */
 internal object PilotSelectionModel {
     data class Pilot(val id:Int,val title:String,val shortName:String,
@@ -11,7 +12,8 @@ internal object PilotSelectionModel {
     val pilots=listOf(
         Pilot(0,"CLASSIC AVIATOR","BOPI",PilotAbility.BOPI),
         Pilot(1,"SKY OWL","SOVA",PilotAbility.SOVA),
-        Pilot(2,"SKY FOX","LISAC",PilotAbility.LISAC)
+        Pilot(2,"SKY FOX","LISAC",PilotAbility.LISAC),
+        Pilot(3,"STAR PILOT","ORION",PilotAbility.BOPI)
     )
     // Legacy enum SOVA and sprite id 9 are preserved for saved games;
     // the owner-facing aviator is presented as SOVA / SKY OWL.
@@ -20,11 +22,15 @@ internal object PilotSelectionModel {
     fun spriteIdForChoice(index:Int):Int = when(safeChoice(index)){
         0 -> 0
         1 -> 9
-        else -> 10
+        2 -> 10
+        else -> 8 // Orion: existing collectible skin, not a fabricated sprite
     }
-    fun safeChoice(index:Int):Int=index.coerceIn(0,2)
+    fun safeChoice(index:Int):Int=index.coerceIn(0,3)
     fun selected(index:Int,candidate:Int):Boolean = safeChoice(index)==candidate
-    fun accessibility(index:Int,candidate:Int):String =
-        (if(selected(index,candidate))"Selected " else "Choose ")+pilots[candidate].title
-    fun priceLabel():String="FREE • UNLOCKED"
+    fun locked(candidate:Int,orionOwned:Boolean):Boolean =
+        candidate==3 && !orionOwned
+    fun accessibility(index:Int,candidate:Int,orionOwned:Boolean=true):String =
+        if(locked(candidate,orionOwned))"Locked STAR PILOT. Unlock with earned coins"
+        else (if(selected(index,candidate))"Selected " else "Choose ")+pilots[candidate].title
+    fun priceLabel():String="THREE FREE PILOTS • STAR PILOT EARNED WITH COINS"
 }

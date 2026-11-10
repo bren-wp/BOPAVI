@@ -56,10 +56,17 @@ class ProgressStore(context: Context) {
         return skins.indexOf(normalized)
     }
     val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)
-    // Saved arcade choice is independent of legacy skin purchases and imports.
-    fun arcadePilot():Int = prefs.getInt("arcade_pilot",0).coerceIn(0,2)
-    fun chooseArcadePilot(index:Int) {
-        if(index in 0..2) prefs.edit().putInt("arcade_pilot",index).apply()
+    // Saved arcade IDs 0..2 never change. The new Star Pilot uses exactly
+    // the long-standing Orion skin ownership bit (index 8) as its real lock.
+    // Malformed/old saves cannot equip the locked appearance.
+    fun arcadePilot():Int {
+        val value=prefs.getInt("arcade_pilot",0).coerceIn(0,3)
+        return if(value==3 && !owned(8))0 else value
+    }
+    fun chooseArcadePilot(index:Int):Boolean {
+        if(index !in 0..3 || (index==3 && !owned(8)))return false
+        prefs.edit().putInt("arcade_pilot",index).apply()
+        return true
     }
     fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
     fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)

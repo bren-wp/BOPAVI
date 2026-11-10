@@ -1,6 +1,6 @@
 package com.brendigo.bopavi
 
-/** Actual owner 941×1672 composition: a hero above three real pilots. */
+/** Actual owner 941×1672 composition: a hero above four genuine pilots. */
 internal object PilotSelectionLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
@@ -20,13 +20,16 @@ internal object PilotSelectionLayout {
     const val platformTop=811f
     const val platformWidth=612f
     const val platformHeight=129f
-    val cardLefts=floatArrayOf(34f,339f,644f)
-    const val cardTop=974f
-    const val cardWidth=263f
-    const val cardHeight=324f
+    val cardLefts=floatArrayOf(23f,252f,481f,710f)
+    const val cardTop=973f
+    const val cardWidth=207f
+    const val cardHeight=307f
     const val activeSelectionTop=1315f
-    fun fitsReference():Boolean=cardLefts.size==3 &&
+    fun fitsReference():Boolean=cardLefts.size==4 &&
         cardLefts.all{it>=0f && it+cardWidth<=referenceWidth} &&
+        (0 until cardLefts.lastIndex).all{index->
+            cardLefts[index]+cardWidth+10f<=cardLefts[index+1]
+        } &&
         bannerLeft>=0f && bannerLeft+bannerWidth<=referenceWidth &&
         heroLeft>=0f && heroLeft+heroSize<=referenceWidth &&
         heroTop+heroSize<cardTop &&

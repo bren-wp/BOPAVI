@@ -66,6 +66,93 @@ def home():
     adb("shell","input","keyevent","4")
     node_with("OTVORI IZBOR LIKOVA")
 
+
+def open_native_skins():
+    """Open the real Skins page after a cold start, never accept a Home label.
+
+    Hosted Android 15 occasionally drops the first tap following repeated
+    screen-size/density tests. Retry a native tap ONLY while the verified Home
+    control still exists; require the genuine hero gallery and preserve real
+    failure diagnostics instead of treating the Home SKINS caption as a pass.
+    """
+    import xml.etree.ElementTree as ET
+    from pathlib import Path
+    initial_pid=adb("shell","pidof",APP)
+    assert initial_pid,"FAIL: BOPAVI not running before opening Skins"
+    # Gather fresh app-process death evidence; no failure is retried away.
+    import subprocess
+    subprocess.run(["adb","logcat","-c"],capture_output=True,timeout=20)
+
+    def died_or_restarted(current_pid):
+        if current_pid==initial_pid:
+            return False
+        crash=subprocess.run(
+            ["adb","logcat","-d","-v","threadtime","-t","2200"],
+            text=True,capture_output=True,timeout=25)
+        Path("qa/screenshots/android-skins-process-death-logcat.txt").write_text(
+            crash.stdout,encoding="utf-8")
+        suspects=("FATAL EXCEPTION","AndroidRuntime","OutOfMemoryError",
+                  "Fatal signal","lowmemorykiller","com.brendigo.bopavi")
+        matching=[line for line in crash.stdout.splitlines()
+                  if any(word in line for word in suspects)]
+        print("FAIL: BOPAVI process exited/restarted while opening real Skins",
+              "initial PID:",initial_pid,"current PID:",repr(current_pid),flush=True)
+        for line in matching[-65:]:
+            print("ANDROID CRASH:",line,flush=True)
+        raise AssertionError("FAIL: Skins app process exited; inspect "
+              "android-skins-process-death-logcat.txt")
+
+    def running_pid():
+        current=subprocess.run(["adb","shell","pidof",APP],
+            text=True,capture_output=True,timeout=20)
+        if current.returncode:
+            return ""
+        return current.stdout.strip()
+
+    def verified_gallery(root):
+        titles=[n for n in root.iter("node")
+                if n.get("package")==APP
+                and n.get("class")=="android.widget.TextView"
+                and n.get("text")=="SKINS"]
+        owl=[n for n in root.iter("node") if n.get("clickable")=="true"
+             and ("CHOOSE SKY OWL" in label(n) or "SELECTED SKY OWL" in label(n))]
+        star=[n for n in root.iter("node") if n.get("clickable")=="true"
+              and "STAR PILOT" in label(n)]
+        return len(titles)==1 and len(owl)==1 and len(star)==1
+
+    taps=0
+    # Fresh start may still show the actual animated Splash/Loading page.
+    # Wait for a verified native Home action; never tap an unknown window.
+    for poll in range(16):
+        root=hierarchy()
+        if acknowledge_native_fullscreen_education(root):
+            time.sleep(1)
+            root=hierarchy()
+        if verified_gallery(root):
+            print("PASS: real Skins header, Sky Owl and Star Pilot cards visible",flush=True)
+            return
+        died_or_restarted(running_pid())
+        buttons=matching_nodes(root,"OTVORI IZBOR LIKOVA",clickable=True)
+        if len(buttons)>1:
+            raise AssertionError("FAIL: duplicate real Home Skins actions")
+        if len(buttons)==1 and taps<4:
+            tap(buttons[0])
+            taps+=1
+            print(f"QA: tapped verified Home Skins action ({taps}/4)",flush=True)
+            time.sleep(2)
+        else:
+            # Real splash-to-home transition, or a still-animating Skins
+            # window: re-read the actual device instead of fabricating state.
+            time.sleep(1)
+
+    root=hierarchy()
+    if not verified_gallery(root):
+        Path("qa/screenshots/android-skins-navigation-failed.xml").write_bytes(
+            ET.tostring(root,encoding="utf-8"))
+        capture_png("android-skins-navigation-failed")
+        raise AssertionError("FAIL: four-card Skins gallery not reached after verified Home taps")
+    print("PASS: real Skins gallery opened on final attempt",flush=True)
+
 def main():
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
@@ -102,8 +189,7 @@ def main():
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
 
-    tap(node_with("OTVORI IZBOR LIKOVA"))
-    node_with("SKINS",clickable=False)
+    open_native_skins()
     # Real 941x1672 Android screenshot BEFORE and AFTER changing selected pilot.
     # Native capture helper preserves PNG bytes; no bitmap resizing is allowed.
     resized=False
@@ -112,6 +198,9 @@ def main():
         resized=True
         adb("shell","wm","density","320")
         node_with("CHOOSE SKY OWL")
+        # The reference gallery has FOUR real card targets, including the
+        # saved-coin Orion lock rather than a screenshot-only fourth tile.
+        node_with("STAR PILOT",clickable=True)
         width,height=capture_png("android-skins-reference-size")
         assert (width,height)==(941,1672),"FAIL: skins is not 941x1672"
         print("PASS: real native Skins screenshot 941x1672",flush=True)
@@ -126,10 +215,10 @@ def main():
     # transient selected card inside the current Activity.
     adb("shell","am","force-stop",APP)
     adb("shell","am","start","-W","-n",APP+"/.MainActivity")
-    tap(node_with("OTVORI IZBOR LIKOVA"))
+    open_native_skins()
     node_with("SELECTED SKY OWL")
     home()
-    tap(node_with("OTVORI IZBOR LIKOVA"))
+    open_native_skins()
     tap(node_with("CHOOSE CLASSIC AVIATOR"))
     home()
     print("PASS: Skins opens, persists pilot selection and returns Home",flush=True)

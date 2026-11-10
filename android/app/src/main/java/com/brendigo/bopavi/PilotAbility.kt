@@ -23,6 +23,7 @@ enum class PilotAbility(
             0 -> BOPI
             1 -> SOVA
             2 -> LISAC
+            3 -> BOPI // Star Pilot is a cosmetic variant of classic Bopi
             else -> BOPI
         }
     }
