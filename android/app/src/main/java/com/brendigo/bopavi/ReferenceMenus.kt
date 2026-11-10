@@ -5,8 +5,9 @@ import android.view.View
 
 /** Typed routes for real offline screens. No duplicated/dead UI builders. */
 internal class ReferenceMenus(private val host:Activity, private val progress:ProgressStore) {
-    fun skins(choice:Int,onChoose:(Int)->Unit,onBack:()->Unit):View =
-        PilotSelectionScreen(host,progress).create(choice,onChoose,onBack)
+    fun skins(choice:Int,onChoose:(Int)->Unit,onUnlock:()->Unit,
+              onBack:()->Unit):View =
+        PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onBack)
 
     fun shop(onBuy:(Int)->Unit,onClaim:()->Unit,onBack:()->Unit):View =
         ShopScreen(host,progress).create(onBuy,onClaim,onBack)

@@ -36,9 +36,10 @@ class MainActivity : Activity() {
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
     private val primaryButtonInk = 0xff061b49.toInt()
-    // Three arcade pilots preserve all historical save-backed skin identifiers.
-    private val pilotNames=arrayOf("Bopi","Sova","Lisac")
-    private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0,R.drawable.bopiportrait9,R.drawable.bopiportrait10)
+    // Legacy playable pilot IDs 0..2 stay stable; Orion is a saved cosmetic.
+    private val pilotNames=arrayOf("Bopi","Sova","Lisac","Orion")
+    private val portraitDrawableIds=intArrayOf(R.drawable.bopiportrait0,
+        R.drawable.bopiportrait9,R.drawable.bopiportrait10,R.drawable.bopiportrait8)
     // Results show the world from the actual completed flight, not a fixed
     // forest image if gameplay is later started in a different biome.
     private val resultWorldDrawableIds=intArrayOf(
@@ -622,10 +623,42 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         val view=ReferenceMenus(this,progress).skins(selectedPilotChoice,
             onChoose={index->
-                selectedPilotChoice=index
-                progress.chooseArcadePilot(index)
-                sound.effect("click")
-                showSkins()
+                // Never equip a purchase-locked cosmetic through a card tap.
+                if(progress.chooseArcadePilot(index)) {
+                    selectedPilotChoice=progress.arcadePilot()
+                    sound.effect("click")
+                    showSkins()
+                }
+            },
+            onUnlock={
+                // A separate confirmation guards the real local-coin purchase.
+                // Tapping a locked card alone NEVER spends anything.
+                val cost=progress.costs[8]
+                if(progress.owned(8)) {
+                    if(progress.chooseArcadePilot(3)) {
+                        selectedPilotChoice=progress.arcadePilot()
+                        showSkins()
+                    }
+                } else if(progress.coins()<cost) {
+                    android.widget.Toast.makeText(this,
+                        "Star Pilot requires $cost earned coins",
+                        android.widget.Toast.LENGTH_SHORT).show()
+                } else {
+                    android.app.AlertDialog.Builder(this)
+                        .setTitle("Unlock Star Pilot")
+                        .setMessage("Spend $cost earned coins to unlock Orion?")
+                        .setNegativeButton("Cancel",null)
+                        .setPositiveButton("Unlock"){_,_->
+                            if(progress.selectOrBuy(8) &&
+                                    progress.chooseArcadePilot(3)) {
+                                selectedPilotChoice=progress.arcadePilot()
+                                sound.effect("click")
+                                showSkins()
+                            } else android.widget.Toast.makeText(this,
+                                "Unable to unlock Star Pilot",
+                                android.widget.Toast.LENGTH_SHORT).show()
+                        }.show()
+                }
             },
             onBack={showHome()})
         showNativeView(view)
@@ -853,6 +886,8 @@ class MainActivity : Activity() {
                 R.drawable.bopiright9,R.drawable.bopi9,!progress.lessMotion())
             10->HomeWingActor(this,R.drawable.bopileft10,
                 R.drawable.bopiright10,R.drawable.bopi10,!progress.lessMotion())
+            8->HomeWingActor(this,R.drawable.bopileft8,
+                R.drawable.bopiright8,R.drawable.bopi8,!progress.lessMotion())
             else->HomeWingActor(this,R.drawable.bopileft0,
                 R.drawable.bopiright0,R.drawable.bopi0,!progress.lessMotion())
         }
