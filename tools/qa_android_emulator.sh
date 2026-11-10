@@ -119,6 +119,13 @@ return_home_from_settings(){
   # legal dialog's window is still transitioning. Retry ONLY a verified
   # BOPAVI-owned legal dialog (exact title and close button), never blindly
   # press Back or bypass the subsequent real Settings/Home assertions.
+  # A fresh fullscreen navigation can surface a SYSTEM tutorial over
+  # Settings after the legal dialog closes. Acknowledge only its fully
+  # verified AOSP title/description/button, then re-read the native page.
+  if acknowledge_verified_fullscreen_education; then
+    sleep 1
+    dump_ui
+  fi
   legal_close_attempt=1
   while [ "$legal_close_attempt" -le 3 ]; do
     if python3 - <<'PY'
@@ -152,6 +159,31 @@ PY
     fi
     legal_close_attempt=$((legal_close_attempt+1))
   done
+  # A valid legal AlertDialog may ignore adb's synthetic coordinate tap
+  # when the emulator window is still animating. Use Android's native Back
+  # dismissal only after verifying the exact app-owned modal and its close
+  # button. Then require real Settings and a real Home button as usual.
+  if python3 - qa/screenshots/android-current-ui.xml <<'PY_LEGAL_STILL_OPEN'
+import sys,xml.etree.ElementTree as ET
+nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
+titles=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+    and n.get("resource-id")=="android:id/alertTitle"
+    and n.get("text") in ("Politika privatnosti","Uvjeti korištenja")]
+closing=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+    and n.get("resource-id")=="android:id/button1"
+    and n.get("text")=="ZATVORI" and n.get("enabled")=="true"]
+sys.exit(0 if len(titles)==1 and len(closing)==1 else 1)
+PY_LEGAL_STILL_OPEN
+  then
+    adb shell input keyevent KEYCODE_BACK
+    sleep 2
+    dump_ui
+    echo "QA: dismissed verified native legal modal by Android Back"
+  fi
+  if acknowledge_verified_fullscreen_education; then
+    sleep 1
+    dump_ui
+  fi
   python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
