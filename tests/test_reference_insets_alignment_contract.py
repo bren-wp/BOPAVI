@@ -50,7 +50,8 @@ assert 'stage.useShopFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.k
 assert 'stage.useShopFullBleedReferenceCamera()' in (src/"SettingsScreen.kt").read_text()
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in activity
-assert 'selectedScreen="splash"\n        applyPremiumSystemBars()' in activity
+assert 'selectedScreen="splash"' not in activity
+assert 'selectedScreen="loading"' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
 assert 'android.view.WindowInsets.Type.navigationBars())' in activity
