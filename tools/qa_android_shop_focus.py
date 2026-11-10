@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Strict single-screen Shop smoke on a REAL API36 Android emulator.
+"""Strict Shop and Skins smoke on a REAL API36 Android emulator.
 
 Captures the unscaled 941x1672 pixels. No fake screenshots, prerecorded wallet
 balances, stub purchases, or silently successful duplicate actions.
@@ -50,7 +50,21 @@ def main():
         # The real Home back action remains tappable after help feedback.
         tap(node_with("HOME",attempts=8))
         require("OTVORI TRGOVINU NADOGRADNJI",clickable=True)
-        print("PASS: real Shop 941x1672, six native items, two live plus controls and Home navigation")
+
+        # Independently capture the second owner-requested screen on exactly
+        # the same API36 viewport, even if other, unrelated menu QA fails.
+        # Verify the native accessibility actions, not just a wallpaper.
+        tap(node_with("OTVORI IZBOR LIKOVA",attempts=8))
+        require("SKINS",clickable=False)
+        require("CHOOSE ROYAL BOPI",clickable=True)
+        require("FOREST EXPLORER",clickable=True)
+        require("STAR PILOT",clickable=True)
+        w,h=screenshot("android-skins-focus-reference-size")
+        assert (w,h)==(941,1672),(w,h)
+        assert adb("shell","pidof",APP)==pid,"FAIL: Skins screen restarted process"
+        tap(node_with("BACK TO HOME",attempts=8))
+        require("OTVORI TRGOVINU NADOGRADNJI",clickable=True)
+        print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, four live pilots, no process restart")
     finally:
         adb("shell","wm","size","reset")
         adb("shell","wm","density","reset")
