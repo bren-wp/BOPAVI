@@ -66,57 +66,31 @@ internal class ShopScreen(
         }
 
     /**
-     * Preserve a real native Button underneath a separately rendered price
-     * capsule. Android text/compound drawable autosizing must never silently
-     * remove the price on a physically narrow 941px QA viewport.
-     *
-     * The decorative row has NO click/keyboard/a11y action. A tap goes through
-     * to the existing Button -> onBuy -> ProgressStore transaction.
+     * Price is rendered by the actual clickable Android Button rather than
+     * by a passive sibling overlay. The old decorative overlay disappeared
+     * on GPU-rendered 941px captures, leaving blank gold/green capsules.
+     * Native text, symbol and click now share a single guaranteed draw pass.
      */
     private fun priceButton(price:Int,gold:Boolean,
                             accessibility:String,click:()->Unit):View {
-        val shell=FrameLayout(host).apply {
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        val real=button("",gold,true,click).apply {
+        return button(NumberFormat.getIntegerInstance().format(price),
+            gold,true,click).apply {
+            textSize=if(gold)25f else 20f
+            setAutoSizeTextTypeUniformWithConfiguration(15,if(gold)25 else 20,
+                1,android.util.TypedValue.COMPLEX_UNIT_SP)
             background=Bopavi3DTheme.button(
                 if(gold)Bopavi3DTheme.Finish.GOLD
                 else Bopavi3DTheme.Finish.GREEN)
-            contentDescription=accessibility
-            setPadding(0,0,0,0)
-            elevation=dp(1).toFloat()
-        }
-        shell.addView(real,FrameLayout.LayoutParams(-1,-1))
-        val label=LinearLayout(host).apply {
-            orientation=LinearLayout.HORIZONTAL
+            setTextColor(if(gold)0xff5b240c.toInt() else Color.WHITE)
+            val coin=HomeHeroIconDrawable(
+                BopaviUiIconDrawable.Kind.COIN,dp(22))
+            coin.setBounds(0,0,dp(25),dp(25))
+            setCompoundDrawablesRelative(coin,null,null,null)
+            compoundDrawablePadding=dp(7)
             gravity=Gravity.CENTER
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            // The native button has a slight press shadow. This row must be
-            // above that shadow, otherwise the coins remain but price vanishes.
-            elevation=dp(2).toFloat()
+            contentDescription=accessibility
+            elevation=dp(3).toFloat()
         }
-        val symbol=ImageView(host).apply {
-            setImageDrawable(HomeHeroIconDrawable(
-                BopaviUiIconDrawable.Kind.COIN,dp(21)))
-            scaleType=ImageView.ScaleType.FIT_CENTER
-            isClickable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        label.addView(symbol,LinearLayout.LayoutParams(dp(24),dp(24)))
-        label.addView(message(NumberFormat.getIntegerInstance().format(price),
-            17,if(gold)0xff672918.toInt() else Color.WHITE).apply {
-            maxLines=1
-            isClickable=false
-            isFocusable=false
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            setShadowLayer(2f,0f,2f,if(gold)0x55ffeb9b else 0xff174526.toInt())
-        },LinearLayout.LayoutParams(-2,-1).apply{leftMargin=dp(5)})
-        shell.addView(label,FrameLayout.LayoutParams(-1,-1))
-        return shell
     }
 
     private fun perkCard(item:ShopItemState,onBuy:(Int)->Unit):View {
@@ -143,11 +117,11 @@ internal class ShopScreen(
         // hardcoded dp icon widths by a device's physical pixel density.
         // The art stays fully inside the cream panel at every screen scale.
         row.addView(ShopPerkArtwork(host,item),
-            LinearLayout.LayoutParams(0,-1,2.15f))
+            LinearLayout.LayoutParams(0,-1,2.58f))
         row.addView(message(item.iconTierLabel,15,0xffffac17.toInt()).apply{
             setShadowLayer(2f,0f,2f,0xff6f300b.toInt())
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },LinearLayout.LayoutParams(0,-1,.85f))
+        },LinearLayout.LayoutParams(0,-1,.42f))
         card.addView(row,LinearLayout.LayoutParams(-1,0,1.55f))
         card.addView(message(item.perkEffect,13,0xff723d20.toInt()).apply {
                 maxLines=2
@@ -272,7 +246,7 @@ internal class ShopScreen(
             elevation=dp(6).toFloat()
         },24f,18f,119f,99f)
         stage.place(ShopEmbossedTitle(host),
-            266f,136f,409f,154f)
+            232f,123f,482f,170f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green
