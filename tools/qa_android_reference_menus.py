@@ -79,6 +79,35 @@ def open_native_skins():
     from pathlib import Path
     initial_pid=adb("shell","pidof",APP)
     assert initial_pid,"FAIL: BOPAVI not running before opening Skins"
+    # Gather fresh app-process death evidence; no failure is retried away.
+    import subprocess
+    subprocess.run(["adb","logcat","-c"],capture_output=True,timeout=20)
+
+    def died_or_restarted(current_pid):
+        if current_pid==initial_pid:
+            return False
+        crash=subprocess.run(
+            ["adb","logcat","-d","-v","threadtime","-t","2200"],
+            text=True,capture_output=True,timeout=25)
+        Path("qa/screenshots/android-skins-process-death-logcat.txt").write_text(
+            crash.stdout,encoding="utf-8")
+        suspects=("FATAL EXCEPTION","AndroidRuntime","OutOfMemoryError",
+                  "Fatal signal","lowmemorykiller","com.brendigo.bopavi")
+        matching=[line for line in crash.stdout.splitlines()
+                  if any(word in line for word in suspects)]
+        print("FAIL: BOPAVI process exited/restarted while opening real Skins",
+              "initial PID:",initial_pid,"current PID:",repr(current_pid),flush=True)
+        for line in matching[-65:]:
+            print("ANDROID CRASH:",line,flush=True)
+        raise AssertionError("FAIL: Skins app process exited; inspect "
+              "android-skins-process-death-logcat.txt")
+
+    def running_pid():
+        current=subprocess.run(["adb","shell","pidof",APP],
+            text=True,capture_output=True,timeout=20)
+        if current.returncode:
+            return ""
+        return current.stdout.strip()
 
     def verified_gallery(root):
         titles=[n for n in root.iter("node")
@@ -102,8 +131,7 @@ def open_native_skins():
         if verified_gallery(root):
             print("PASS: real Skins header, Sky Owl and Star Pilot cards visible",flush=True)
             return
-        if adb("shell","pidof",APP)!=initial_pid:
-            raise AssertionError("FAIL: BOPAVI process restarted while opening Skins")
+        died_or_restarted(running_pid())
         buttons=matching_nodes(root,"OTVORI IZBOR LIKOVA",clickable=True)
         if len(buttons)>1:
             raise AssertionError("FAIL: duplicate real Home Skins actions")

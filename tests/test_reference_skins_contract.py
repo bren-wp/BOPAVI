@@ -69,6 +69,13 @@ assert "bopiportrait8" in (src/"HomeReferenceScreen.kt").read_text()
 assert "portraits[pilotIndex.coerceIn(0,3)]" in (src/"HomeReferenceScreen.kt").read_text()
 assert 'node_with("STAR PILOT",clickable=True)' in qa
 assert "def open_native_skins():" in qa
+assert "findViewById<android.view.ViewGroup>(android.R.id.content)" in main
+assert "?.removeAllViews()" in main
+assert "android-skins-process-death-logcat.txt" in qa
+assert "def died_or_restarted(current_pid):" in qa
+assert "died_or_restarted(running_pid())" in qa
+assert "FATAL EXCEPTION" in qa and "OutOfMemoryError" in qa
+
 assert "initial_pid=adb(\"shell\",\"pidof\",APP)" in qa
 assert "four-card Skins gallery not reached after verified Home taps" in qa
 assert "android-skins-navigation-failed.xml" in qa

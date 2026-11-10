@@ -621,6 +621,15 @@ class MainActivity : Activity() {
         sound.stop()
         selectedScreen="skins"
         applyPremiumSystemBars()
+        // Skins simultaneously loads the full-size aviator, wings, four
+        // portrait previews and the illustrated map-sized backdrop. Release
+        // the heavy previous Home/Skins view *before* inflating the next one:
+        // retaining both view trees until setContentView() doubles the peak
+        // native bitmap / hardware-layer footprint on tall API35 devices.
+        // The replacement happens synchronously on the UI thread, so there
+        // is no intermediate visible animation frame and no game-state loss.
+        findViewById<android.view.ViewGroup>(android.R.id.content)
+            ?.removeAllViews()
         val view=ReferenceMenus(this,progress).skins(selectedPilotChoice,
             onChoose={index->
                 // Never equip a purchase-locked cosmetic through a card tap.
