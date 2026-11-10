@@ -390,7 +390,11 @@ jobs:
     name: Android 16 API36 system image smoke
     needs: [android]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # SDK Manager can transiently fail its first API36 image download and
+    # succeed on the second. The old 20-minute timeout cancelled the job
+    # just after emulator boot, before any native UI assertion ran.
+    # Keep mandatory API36 QA; allow verified image recovery + full tests.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

@@ -38,10 +38,16 @@ if [ "$api" = 36 ]; then
 else
   targets=(google_apis default)
 fi
+# First inspect ALL installed candidates. A valid preinstalled Google API
+# image should boot immediately rather than spend the entire timeout on an
+# unnecessary missing/default download. Each candidate is still verified.
+for target in "${targets[@]}"; do
+  image="$sdk_root/system-images/android-$api/$target/x86_64"
+  if ready "$image"; then announce "$target"; exit 0; fi
+done
 for target in "${targets[@]}"; do
   image="$sdk_root/system-images/android-$api/$target/x86_64"
   package="system-images;android-$api;$target;x86_64"
-  if ready "$image"; then announce "$target"; exit 0; fi
   for attempt in 1 2; do
     echo "Preparing API $api $target (verified attempt $attempt/2)"
     rm -rf -- "$image"
