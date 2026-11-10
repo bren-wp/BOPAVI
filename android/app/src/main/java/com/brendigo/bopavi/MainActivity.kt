@@ -650,6 +650,7 @@ class MainActivity : Activity() {
                         }.show()
                 }
             },
+            onShop={showShop()},
             onBack={showHome()})
         showNativeView(view)
     }
