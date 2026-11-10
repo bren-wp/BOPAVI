@@ -11,7 +11,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from PIL import Image, ImageChops, ImageStat
+from PIL import Image, ImageChops, ImageStat, ImageOps
 
 SIZE=(941,1672)
 OWNER_SHA256={
@@ -79,6 +79,29 @@ def pixel_report(reference:Image.Image,capture:Image.Image,
         'regions_by_deviation':regions,
     }
 
+def save_visual_artifacts(screen:str,reference:Image.Image,
+                          capture:Image.Image,directory:Path)->dict:
+    """Persist honest, full-resolution differences; never edit either input.
+
+    The RGB difference is raw and unmasked. The colorized heatmap exists
+    ONLY to locate deviations visually; it is not used to calculate MAE.
+    """
+    if screen not in OWNER_SHA256 or reference.size!=SIZE or capture.size!=SIZE:
+        raise ValueError('Visual artifacts require registered, full-size frames')
+    directory.mkdir(parents=True,exist_ok=True)
+    difference=ImageChops.difference(reference.convert('RGB'),capture.convert('RGB'))
+    raw_path=directory/f'{screen}-rgb-difference.png'
+    heatmap_path=directory/f'{screen}-heatmap.png'
+    difference.save(raw_path)
+    red,green,blue=difference.split()
+    magnitude=ImageChops.lighter(ImageChops.lighter(red,green),blue)
+    heatmap=ImageOps.colorize(magnitude,black=(8,22,43),
+        mid=(242,67,71),white=(255,236,132),midpoint=98)
+    heatmap.save(heatmap_path)
+    return {'raw_difference_png':str(raw_path),
+            'colorized_heatmap_png':str(heatmap_path)}
+
+
 def compare(screen:str,reference_path:Path,capture_path:Path)->dict:
     if screen not in OWNER_SHA256:
         raise ValueError(f'Unsupported screen {screen}; expected {sorted(OWNER_SHA256)}')
@@ -100,6 +123,8 @@ def main()->int:
     parser.add_argument('--pair',action='append',nargs=3,
                         metavar=('SCREEN','REFERENCE_PNG','ANDROID_PNG'),required=True)
     parser.add_argument('--report',type=Path)
+    parser.add_argument('--artifact-dir',type=Path,
+        help='Write unmasked RGB difference PNGs and diagnostic heatmaps')
     parser.add_argument('--enforce-exact',action='store_true')
     parser.add_argument('--require-all',action='store_true')
     args=parser.parse_args()
@@ -108,7 +133,13 @@ def main()->int:
     for screen,reference,actual in args.pair:
         if screen in seen:parser.error(f'Duplicate screen {screen}')
         seen.add(screen)
-        try:reports.append(compare(screen,Path(reference),Path(actual)))
+        try:
+            measured=compare(screen,Path(reference),Path(actual))
+            if args.artifact_dir:
+                measured['artifacts']=save_visual_artifacts(screen,
+                    png_rgb(Path(reference)),png_rgb(Path(actual)),
+                    args.artifact_dir)
+            reports.append(measured)
         except (ValueError,OSError) as error:parser.error(str(error))
     missing=sorted(set(OWNER_SHA256)-seen)
     result={
