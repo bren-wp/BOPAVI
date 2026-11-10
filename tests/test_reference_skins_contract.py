@@ -16,7 +16,7 @@ store=(src/"ProgressStore.kt").read_text()
 qa=(root/"tools/qa_android_reference_menus.py").read_text()
 junit=(root/"android/app/src/test/java/com/brendigo/bopavi/PilotSelectionModelTest.kt").read_text()
 
-assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onBack)" in menu
+assert "PilotSelectionScreen(host,progress).create(choice,onChoose,onUnlock,onShop,onBack)" in menu
 assert "stage.useShopFullBleedReferenceCamera()" in screen
 # Android AutoSizeTextTypeUniformWithConfiguration requires max > min.
 # A 12sp status label must NOT pass an illegal 12..12 range.
