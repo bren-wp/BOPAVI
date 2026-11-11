@@ -306,10 +306,10 @@ internal class SettingsScreen(private val host:Activity,
             line(name("Notifications","Obavijesti"),BopaviUiIconDrawable.Kind.STAR,
                 switchControl("Daily notifications",progress.notificationsEnabled(),onNotifications)),
             line(name("Language","Jezik"),BopaviUiIconDrawable.Kind.RECORDS,
-                button(if(croatian)"Hrvatski" else "English",selected=true,onLanguage),
+                button(if(croatian)"Hrvatski" else "English",selected=true,click=onLanguage),
                 controlWidthDp=122),
             line(name("Controls","Kontrole"),BopaviUiIconDrawable.Kind.FLIGHT,
-                button("Touch",selected=true,onControls),controlWidthDp=122),
+                button("Touch",selected=true,click=onControls),controlWidthDp=122),
             line("Cloud Save",BopaviUiIconDrawable.Kind.SHIELD,
                 switchControl("Cloud Save",cloudEnabled,onCloud))
         )
