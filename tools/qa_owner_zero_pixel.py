@@ -22,6 +22,8 @@ SCREEN_SIZE = {
     "Gameplay": (941, 1672),
     "LevelMap": (941, 1672),
     "Shop": (941, 1672),
+    "Skins": (941, 1672),
+    "Settings": (941, 1672),
 }
 OWNER_SHA256 = {
     "Splash": "18dd38645ad3b4255e08723ba1ef7a5b8eaf4702dbda90cae238e77e17524d2a",
@@ -31,6 +33,8 @@ OWNER_SHA256 = {
     "Gameplay": "b80164e67da0e1b56e5b05d2f80fb383721d1a812dca5407255793a4de1ded08",
     "LevelMap": "f648d884b89d8c74049dd2f91841896dc7e931ed381773b5a8dc3e2566448c2a",
     "Shop": "9e7b6f8aebe0a129c1a048459d3f24f58c7fb9c82d797bb12d3fd418305d21d8",
+    "Skins": "37c2ef39d3f5fd09b5bef33ef1ef6242f316c54dd96984a742d697988349b5ff",
+    "Settings": "1c0585aff3c9374b6afe3288358c7b1bec814947409ddb91019d104e1c27dd2a",
 }
 
 
@@ -84,6 +88,10 @@ def main() -> None:
     parser.add_argument("--native-level-map", type=Path)
     parser.add_argument("--owner-shop", type=Path)
     parser.add_argument("--native-shop", type=Path)
+    parser.add_argument("--owner-skins", type=Path)
+    parser.add_argument("--native-skins", type=Path)
+    parser.add_argument("--owner-settings", type=Path)
+    parser.add_argument("--native-settings", type=Path)
     args = parser.parse_args()
     result = {
         "goal": "0% unscaled RGB difference on every selected owner screen",
@@ -98,6 +106,8 @@ def main() -> None:
         ("Gameplay", args.owner_gameplay, args.native_gameplay),
         ("LevelMap", args.owner_level_map, args.native_level_map),
         ("Shop", args.owner_shop, args.native_shop),
+        ("Skins", args.owner_skins, args.native_skins),
+        ("Settings", args.owner_settings, args.native_settings),
     )
     for name, owner, native in pairs:
         if (owner is None) != (native is None):
