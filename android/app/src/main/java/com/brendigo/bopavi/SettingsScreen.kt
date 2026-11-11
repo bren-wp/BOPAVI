@@ -51,7 +51,12 @@ internal class SettingsScreen(private val host:Activity,
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(color)
             gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(13,size,1,
+            // 12sp row labels and the compact version footer must never
+            // use an auto-size minimum larger than their requested maximum.
+            // Android throws IllegalArgumentException during Settings creation
+            // for an invalid 13..12sp interval, then returns to the launcher.
+            val minAutoSp=if(size>13)13 else (size-2).coerceAtLeast(1)
+            setAutoSizeTextTypeUniformWithConfiguration(minAutoSp,size,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(dp(2).toFloat(),0f,dp(3).toFloat(),navy)
         }
