@@ -21,6 +21,23 @@ class Owner941PixelTests(unittest.TestCase):
         self.assertTrue(all(len(v)==64 for v in checker.OWNER_SHA256.values()))
         self.assertEqual(checker.SIZE,(941,1672))
 
+    def test_zero_pixel_legacy_and_nine_screen_registries_agree(self):
+        # Regression: the old zero-pixel tool accidentally swapped the Skins
+        # and Settings originals and reported misleading visual deviations.
+        oldspec=importlib.util.spec_from_file_location('ownerzero',
+            ROOT/'tools/qa_owner_zero_pixel.py')
+        self.assertIsNotNone(oldspec)
+        self.assertIsNotNone(oldspec.loader)
+        legacy=importlib.util.module_from_spec(oldspec)
+        oldspec.loader.exec_module(legacy)
+        for screen in ('Shop','Skins','Settings'):
+            self.assertEqual(checker.OWNER_SHA256[screen],
+                             legacy.OWNER_SHA256[screen],screen)
+        self.assertEqual(legacy.OWNER_SHA256['Skins'],
+            '1c0585aff3c9374b6afe3288358c7b1bec814947409ddb91019d104e1c27dd2a')
+        self.assertEqual(legacy.OWNER_SHA256['Settings'],
+            '37c2ef39d3f5fd09b5bef33ef1ef6242f316c54dd96984a742d697988349b5ff')
+
     def test_one_channel_one_pixel_never_rounds_to_zero(self):
         a=Image.new('RGB',checker.SIZE,(10,55,130))
         b=a.copy()
