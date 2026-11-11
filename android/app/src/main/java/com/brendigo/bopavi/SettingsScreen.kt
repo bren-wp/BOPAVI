@@ -270,6 +270,18 @@ internal class SettingsScreen(private val host:Activity,
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
 
+    private fun restoreButton(action:()->Unit):Button =
+        button("Restore Purchases",click=action).apply {
+            val headset=BopaviUiIconDrawable(
+                BopaviUiIconDrawable.Kind.HEADSET,Color.WHITE,dp(27))
+            headset.setBounds(0,0,dp(27),dp(27))
+            setCompoundDrawablesRelative(headset,null,null,null)
+            compoundDrawablePadding=dp(8)
+            contentDescription="Restore Purchases from BOPAVI backup"
+            // Preserve the button's native ripple, accessible hit area and
+            // real SAF restore action instead of embedding static artwork.
+        }
+
     fun create(onBack:()->Unit,onMusic:(Int)->Unit,onEffects:(Int)->Unit,
                onSound:(Boolean)->Unit,onHaptic:(Boolean)->Unit,
                onMotion:(Boolean)->Unit,onDifficulty:(Int)->Unit,
@@ -373,7 +385,7 @@ internal class SettingsScreen(private val host:Activity,
             }
             // Real recovery of earned coin items and unlocks from an owner
             // selected JSON backup. This is not Play Billing restoration.
-            stage.place(button("Restore Purchases",click=onRestore),203f,
+            stage.place(restoreButton(onRestore),203f,
                 SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
             stage.place(title("v"+installedVersion(),13,0xffe1edf5.toInt()).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -435,7 +447,7 @@ internal class SettingsScreen(private val host:Activity,
                 })
             }
             col.addView(card,LinearLayout.LayoutParams(-1,-2))
-            col.addView(button("Restore Purchases",click=onRestore),
+            col.addView(restoreButton(onRestore),
                 LinearLayout.LayoutParams(-1,dp(60)).apply{topMargin=dp(12)})
             col.addView(button("HOME",click=onBack),
                 LinearLayout.LayoutParams(-1,dp(54)).apply{topMargin=dp(8)})
