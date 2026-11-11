@@ -1,13 +1,16 @@
 # Next Android release
 
-## v1.0.76 — Shop, Skins i Settings: 1:1 vizualni QA (build 206)
+## v1.0.77 — Settings 1:1 native controls, backup and notifications (build 207)
 
-**Status:** U pripremi u PR-u #227. Nije objavljeno niti potvrđeno kao 1:1.
+**Status:** Draft PR #228; in QA. Not published or verified as pixel-identical.
 
-- **Skins:** niskorezolucijski atlas 4 × 76 × 77 px zamijenjen je postojećim lokalnim 512 × 512 px ilustracijama svih četiriju junaka. Središnji leteći Bopi smanjen je prema referentnom položaju iznad kamene platforme; strelice, stvarni status odabira/zaključavanja i EQUIP/UNLOCK ostaju Android kontrole.
-- **Shop:** uklonjen je rastegnuti 3 KB raster cijelog kioska; ostaju nativno crtana drvena prodavaonica i postojeća lokalna 512 px ilustracija junaka. Stvarne offline cijene, zarada, kupljeni predmeti i šest interaktivnih kartica nisu promijenjeni.
-- **Settings:** broj verzije prikazuje stvarnu instaliranu verziju aplikacije u podnožju reference i responzivnom prikazu. Stvarne spremljene postavke, pravni dokumenti i njihove funkcionalne veze nisu promijenjeni.
-- **Provjere:** dodatni Shop/Skins/Settings source-contract testovi, Android lint/JVM, APK/AAB, emulator i stroga usporedba originalnih vlasničkih referenci 941 × 1672 px sa stvarnim snimkama bez skaliranja.
-- **Vizualna iskrenost:** 0 % RGB odstupanja **nije potvrđeno**. Stara osnovna mjerenja: Shop 24,41 %, Skins 33,04 %, Settings 32,29 % (RGB MAE/255, prethodni Android build). Nakon nove emulator snimke ponovno izmjeriti svaki ekran i regiju, bez izmišljanja rezultata.
-- **Funkcionalnost:** nema izmišljene kupovine dragulja, cloud servisa, obavijesti ili IAP obnove. Nema screenshotova koji glume interaktivne elemente.
-- **Distribucija:** debug APK za QA; produkcijski APK i AAB su nepotpisani te zahtijevaju postojeći privatni ključ. Ne objavljivati i ne spajati prije prolaska QA.
+- **Settings reference:** nine real owner-ordered controls: Music, Sound Effects, Notifications, Language, Controls, Vibration, Cloud Save, Privacy Policy, Terms of Service, plus the bottom Restore Purchases button. The large screen uses the reference's 941×1672 geometry, while compact/large-font layouts scroll natively. Existing Sound, Reduced Motion and Difficulty remain available on the scrolling layout and through Controls.
+- **Notifications:** optional daily local 18:00 reminder with an Android 13+ runtime permission, safely off by default, without a push service.
+- **Language:** locally stored English/Croatian setting choice for the Settings interface. This does **not** imply all gameplay copy is translated.
+- **Cloud Save:** optional Android Storage Access Framework (SAF) backup to a provider/document the player explicitly selects (including locally stored or third-party cloud documents); automatic saves while the app is active, and validation of imported save data. No Brendigo account, backend or hidden sync service.
+- **Restore Purchases:** explicit confirmation and restore of locally earned/owned items from a compatible BOPAVI JSON backup. This is **not** Google Play Billing or in-app purchase restoration; no real-money products are claimed.
+- **Privacy:** bundled/offline and public legal documents updated to describe the opt-in storage-provider access, included save contents and optional reminders.
+- **Shop and Skins:** native offline purchase and character-selection behavior retained; decorative assets still need significant owner screenshot alignment.
+- **QA acceptance:** static source, legal, security, Android lint, JVM, unsigned APK/AAB, native Android 15/16 smoke, font-scale and screen-size checks. Strictly compare genuine 941×1672 screenshots against the original owner images per region.
+- **Visual honesty:** 0% RGB deviation is not claimed. The last proven Android16 baseline before this version was Shop 23.3593% and Skins 32.1376% normalized RGB MAE. The Settings metrics must be measured from the new functional nine-row layout.
+- **Distribution:** debug APK for QA. Release APK and Google Play AAB are unsigned until publisher signing, and must not be promoted to stable distribution before the checks pass.
