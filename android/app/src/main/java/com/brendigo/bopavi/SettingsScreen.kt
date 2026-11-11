@@ -96,6 +96,10 @@ internal class SettingsScreen(private val host:Activity,
                 BopaviUiIconDrawable.Kind.FLIGHT->Bopavi3DTheme.Finish.VIOLET
                 BopaviUiIconDrawable.Kind.STAR->Bopavi3DTheme.Finish.GOLD
                 BopaviUiIconDrawable.Kind.RECORDS->Bopavi3DTheme.Finish.GOLD
+                BopaviUiIconDrawable.Kind.BELL->Bopavi3DTheme.Finish.GOLD
+                BopaviUiIconDrawable.Kind.GLOBE->Bopavi3DTheme.Finish.SKY
+                BopaviUiIconDrawable.Kind.GAMEPAD->Bopavi3DTheme.Finish.RED
+                BopaviUiIconDrawable.Kind.CLOUD->Bopavi3DTheme.Finish.SKY
                 else->Bopavi3DTheme.Finish.SKY
             })
             elevation=dp(3).toFloat()
@@ -303,14 +307,14 @@ internal class SettingsScreen(private val host:Activity,
                 controlWidthDp=52)
         )
         val addedRows=listOf(
-            line(name("Notifications","Obavijesti"),BopaviUiIconDrawable.Kind.STAR,
+            line(name("Notifications","Obavijesti"),BopaviUiIconDrawable.Kind.BELL,
                 switchControl("Daily notifications",progress.notificationsEnabled(),onNotifications)),
-            line(name("Language","Jezik"),BopaviUiIconDrawable.Kind.RECORDS,
+            line(name("Language","Jezik"),BopaviUiIconDrawable.Kind.GLOBE,
                 button(if(croatian)"Hrvatski" else "English",selected=true,click=onLanguage),
                 controlWidthDp=122),
-            line(name("Controls","Kontrole"),BopaviUiIconDrawable.Kind.FLIGHT,
+            line(name("Controls","Kontrole"),BopaviUiIconDrawable.Kind.GAMEPAD,
                 button("Touch",selected=true,click=onControls),controlWidthDp=122),
-            line("Cloud Save",BopaviUiIconDrawable.Kind.SHIELD,
+            line("Cloud Save",BopaviUiIconDrawable.Kind.CLOUD,
                 switchControl("Cloud Save",cloudEnabled,onCloud))
         )
         // The owner order remains identical to the nine-row reference:
