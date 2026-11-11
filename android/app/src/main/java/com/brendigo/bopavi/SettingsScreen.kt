@@ -308,7 +308,7 @@ internal class SettingsScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
             },101f,559f,739f,1007f)
-            stage.place(title("SETTINGS",57).apply {
+            stage.place(title("SETTINGS",57).apply{
                 background=SettingsGoldTitleDrawable()
                 setTextColor(Color.WHITE)
                 elevation=dp(8).toFloat()
