@@ -1,6 +1,9 @@
 package com.brendigo.bopavi
 
 import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.Manifest
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -19,6 +22,10 @@ import android.widget.TextView
 /** Fully native Android activity, controls and GPU Canvas game surface. */
 class MainActivity : Activity() {
     private lateinit var progress: ProgressStore
+    private lateinit var cloudBackup:SettingsCloudBackup
+    private val pickCloudDestination=7301
+    private val pickProgressRestore=7302
+    private val requestNotifications=7303
     private lateinit var sound: Soundscape
     private var gameView: GameView? = null
     private var pauseDialog: android.app.AlertDialog? = null
@@ -180,6 +187,10 @@ class MainActivity : Activity() {
         // No custom splash or timed startup screen: show the playable Home
         // immediately after loading the lightweight local preferences.
         progress=ProgressStore(this)
+        cloudBackup=SettingsCloudBackup(this,progress).also { it.start() }
+        // Reconcile a previous opt-in after Activity/process recreation.
+        if(progress.notificationsEnabled())
+            SettingsReminder.configure(this,true)
         selectedPilotChoice=progress.arcadePilot()
         sound=Soundscape(this)
         sound.enabled=progress.soundEnabled()
@@ -259,6 +270,7 @@ class MainActivity : Activity() {
         pauseDialog=null
         gameView?.paused = true
         if (::sound.isInitialized) sound.close()
+        if (::cloudBackup.isInitialized) cloudBackup.stop()
         super.onDestroy()
     }
     // BOPAVI premium visual language: royal blue, cyan outlines, gold CTA.
@@ -384,6 +396,145 @@ class MainActivity : Activity() {
     }
     private fun showTermsNotice() {
         showLegalNotice("Uvjeti korištenja","terms.html")
+    }
+
+    private fun reportBackup(ok:Boolean,message:String) {
+        if(isFinishing || isDestroyed)return
+        android.app.AlertDialog.Builder(this)
+            .setTitle(if(ok)"BOPAVI — sigurnosna kopija" else "BOPAVI — pogreška")
+            .setMessage(message)
+            .setPositiveButton("U redu",null)
+            .show()
+        if(ok && selectedScreen=="settings")showSettingsScreen()
+    }
+
+    private fun chooseCloudDestination() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Cloud Save")
+            .setMessage("Odaberite lokalni ili cloud dokument za automatsku " +
+                "sigurnosnu kopiju napretka. Kopija sadrži ime igrača, " +
+                "zarađene novčiće, otključane likove i rezultate. Pružatelja " +
+                "pohrane odabirete sami. Usluga se može isključiti u bilo kojem trenutku.")
+            .setNegativeButton("Odustani"){_,_->showSettingsScreen()}
+            .setPositiveButton("Odaberi odredište"){_,_->
+                val intent=Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type="application/json"
+                    putExtra(Intent.EXTRA_TITLE,"BOPAVI-backup.json")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                }
+                startActivityForResult(intent,pickCloudDestination)
+            }.show()
+    }
+
+    private fun chooseBackupToRestore() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Restore Purchases")
+            .setMessage("BOPAVI ne prodaje predmete putem Google Play naplate. " +
+                "Ova opcija vraća lokalna otključavanja, kupljena poboljšanja " +
+                "i napredak iz vaše sigurnosne kopije. " +
+                "Podaci u kopiji zamijenit će dio trenutnog napretka. Nastaviti?")
+            .setNegativeButton("Odustani",null)
+            .setPositiveButton("Odaberi kopiju"){_,_->
+                val intent=Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type="application/json"
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                startActivityForResult(intent,pickProgressRestore)
+            }.show()
+    }
+
+    private fun changeLanguage() {
+        val values=arrayOf("English","Hrvatski")
+        val current=if(progress.uiLanguage()=="hr")1 else 0
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Language / Jezik")
+            .setSingleChoiceItems(values,current){dialog,index->
+                progress.setUiLanguage(if(index==1)"hr" else "en")
+                dialog.dismiss()
+                showSettingsScreen()
+            }
+            .setNegativeButton("Cancel",null).show()
+    }
+
+    private fun controlPreferences() {
+        val options=arrayOf(
+            "Touch controls (supported)",
+            "Sound: "+if(progress.soundEnabled())"On" else "Off",
+            "Reduced motion: "+if(progress.lessMotion())"On" else "Off",
+            "Difficulty: "+progress.difficultyNames[progress.difficulty()])
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Controls")
+            .setItems(options){_,which->
+                when(which) {
+                    0 -> android.widget.Toast.makeText(this,
+                        "Touch is the supported control method.",
+                        android.widget.Toast.LENGTH_SHORT).show()
+                    1 -> {
+                        progress.setSoundEnabled(!progress.soundEnabled())
+                        sound.enabled=progress.soundEnabled()
+                        showSettingsScreen()
+                    }
+                    2 -> {
+                        progress.setLessMotion(!progress.lessMotion())
+                        showSettingsScreen()
+                    }
+                    3 -> android.app.AlertDialog.Builder(this)
+                        .setTitle("Difficulty")
+                        .setSingleChoiceItems(progress.difficultyNames,
+                            progress.difficulty()){dialog,index->
+                            progress.setDifficulty(index)
+                            dialog.dismiss()
+                            showSettingsScreen()
+                        }.setNegativeButton("Cancel",null).show()
+                }
+            }.show()
+    }
+
+    private fun changeNotifications(enabled:Boolean) {
+        if(enabled && !SettingsReminder.allowed(this)) {
+            if(Build.VERSION.SDK_INT>=33) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    requestNotifications)
+            }
+            return
+        }
+        progress.setNotificationsEnabled(enabled)
+        SettingsReminder.configure(this,enabled)
+        showSettingsScreen()
+    }
+
+    override fun onRequestPermissionsResult(requestCode:Int,permissions:Array<out String>,
+                                            grantResults:IntArray) {
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults)
+        if(requestCode!=requestNotifications)return
+        val granted=grantResults.isNotEmpty() &&
+            grantResults[0]==PackageManager.PERMISSION_GRANTED
+        progress.setNotificationsEnabled(granted)
+        SettingsReminder.configure(this,granted)
+        if(!granted)android.widget.Toast.makeText(this,
+            "Obavijesti nisu uključene bez dopuštenja.",
+            android.widget.Toast.LENGTH_SHORT).show()
+        if(selectedScreen=="settings")showSettingsScreen()
+    }
+
+    @Deprecated("Uses the system Storage Access Framework with user-picked URIs")
+    override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?) {
+        super.onActivityResult(requestCode,resultCode,data)
+        if(requestCode!=pickCloudDestination && requestCode!=pickProgressRestore)return
+        val uri=if(resultCode==RESULT_OK)data?.data else null
+        if(uri==null){
+            if(selectedScreen=="settings")showSettingsScreen()
+            return
+        }
+        if(requestCode==pickCloudDestination) {
+            cloudBackup.activate(uri,::reportBackup)
+        } else {
+            cloudBackup.restoreFrom(uri,::reportBackup)
+        }
     }
 
     /**
