@@ -14,6 +14,15 @@ assert 'n.get("resource-id")=="android:id/button1"' in shell
 assert 'n.get("text")=="ZATVORI"' in shell
 assert 'retried verified legal dialog close' in shell
 assert 'while [ "$legal_close_attempt" -le 3 ]' in shell
+# Both the legal dialog's scroll and the accessible Settings page's scroll
+# are real native widgets. The title/HOME check must first return to the
+# actual top of the app; never accept a launcher or a hidden fake button.
+assert 'PY_SCROLL_TO_SETTINGS_TOP' in shell
+assert 'Settings top unreachable; actual app ScrollView absent' in shell
+assert 'Settings header and native HOME are visible' in shell
+assert 'after 8 upward scrolls' in shell
+assert 'and n.get("content-desc")=="HOME"' in shell
+assert 'and n.get("class")=="android.widget.ScrollView"' in shell
 assert 'PY_LEGAL_STILL_OPEN' in shell
 assert 'adb shell input keyevent KEYCODE_BACK' in shell
 assert 'dismissed verified native legal modal by Android Back' in shell
