@@ -80,5 +80,18 @@ assert 'LinearLayout.LayoutParams(dp(controlWidthDp),-1)' in settings
 assert 'difficulty(onDifficulty),controlWidthDp=162' in settings
 assert 'minWidth=0' in settings and 'minimumWidth=0' in settings
 assert (162-3*4)//3>=48
+# Exact-reference artwork is decorative only; native widgets own all state.
+decor=(src/"SettingsReferenceDecor.kt").read_text()
+assert "class SettingsWoodPanelDrawable : Drawable()" in decor
+assert "class SettingsGoldTitleDrawable : Drawable()" in decor
+assert "no text," in decor and "hit targets" in decor
+assert "background=SettingsWoodPanelDrawable()" in settings
+assert "background=SettingsGoldTitleDrawable()" in settings
+assert "trackDrawable=StateListDrawable().apply" in settings
+assert "android.R.attr.state_checked" in settings
+assert "thumbDrawable=GradientDrawable(" in settings
+assert "progressDrawable=LayerDrawable(arrayOf(trackBack," in settings
+assert "ClipDrawable(trackFill,Gravity.START,ClipDrawable.HORIZONTAL)" in settings
+assert "bar?.progress?.let(::save)" in settings
 assert "http://" not in settings and "https://" not in settings
-print("PASS: native Settings full page, real preferences, small-screen scroll and legal routes")
+print("PASS: native Settings reference art, real persisted sliders/toggles, mobile scroll and legal routes")
