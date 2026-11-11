@@ -51,7 +51,8 @@ assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
 assert "allowMotion=!progress.lessMotion()" in screen
 assert 'cycleArrow("‹","Previous hero")' in screen
 assert 'cycleArrow("›","Next hero")' in screen
-assert 'contentDescription="Equip "+item.title' in screen
+assert '"UNLOCK" else "EQUIP"' in screen
+assert '"Unlock " else "Equip ")+item.title' in screen
 assert "if(PilotSelectionModel.locked(selected,orionOwned))onUnlock()" in screen
 assert "else onChoose(selected)" in screen
 assert "setOnClickListener { onChoose(selected) }" not in screen
@@ -61,6 +62,14 @@ assert "contentDescription=PilotSelectionModel.accessibility(" in screen
 assert "importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO" in screen
 assert "SkinsReferenceDecor(host)" in screen
 assert "SkinsCardEnamelDrawable(isSelected,isLocked)" in screen
+assert "SkinsEquippedBadgeDrawable()" in screen
+assert "SkinsSelectedInfoDrawable()" in screen
+controls=(src/"SkinsReferenceControls.kt").read_text()
+for cls in ("SkinsCarouselArrowDrawable","SkinsEquippedBadgeDrawable",
+            "SkinsSelectedInfoDrawable"):
+    assert "class "+cls in controls
+assert "p.shader=LinearGradient(" in controls
+assert "isClickable=false" in screen
 assert "OwnerSkinsPortraitView(host,index,skins[index])" in screen
 owner_art=(src/"OwnerSkinsPortraitView.kt").read_text()
 assert "R.drawable.bopavi_owner_skins_atlas" in owner_art
@@ -71,7 +80,7 @@ assert "class SkinsReferenceDecor(" in decor
 assert "class SkinsCardEnamelDrawable(" in decor
 assert "private val selected:Boolean,private val locked:Boolean=false" in decor
 assert "c.scale(bounds.width()/207f,bounds.height()/307f)" in decor
-assert "shape=GradientDrawable.OVAL" in screen
+assert 'SkinsCarouselArrowDrawable(right=label=="›")' in screen
 assert "val cost=progress.costs[8]" in main
 assert 'setTitle("Unlock Star Pilot")' in main
 assert 'setNegativeButton("Cancel",null)' in main
