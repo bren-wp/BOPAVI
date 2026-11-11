@@ -33,8 +33,11 @@ OWNER_SHA256 = {
     "Gameplay": "b80164e67da0e1b56e5b05d2f80fb383721d1a812dca5407255793a4de1ded08",
     "LevelMap": "f648d884b89d8c74049dd2f91841896dc7e931ed381773b5a8dc3e2566448c2a",
     "Shop": "9e7b6f8aebe0a129c1a048459d3f24f58c7fb9c82d797bb12d3fd418305d21d8",
-    "Skins": "37c2ef39d3f5fd09b5bef33ef1ef6242f316c54dd96984a742d697988349b5ff",
-    "Settings": "1c0585aff3c9374b6afe3288358c7b1bec814947409ddb91019d104e1c27dd2a",
+    # Cross-checked against the user's ORIGINAL PNGs and the independent
+    # qa_owner_941_all_screens.py registry. Prior hashes were swapped, so
+    # earlier "Skins" RGB scores were actually against the Settings artwork.
+    "Skins": "1c0585aff3c9374b6afe3288358c7b1bec814947409ddb91019d104e1c27dd2a",
+    "Settings": "37c2ef39d3f5fd09b5bef33ef1ef6242f316c54dd96984a742d697988349b5ff",
 }
 
 
