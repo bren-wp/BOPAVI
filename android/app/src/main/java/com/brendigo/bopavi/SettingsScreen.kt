@@ -362,7 +362,7 @@ internal class SettingsScreen(private val host:Activity,
                     intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },151f,1226f,638f,4f)
+            },151f,1244f,638f,4f)
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
