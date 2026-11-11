@@ -3,10 +3,12 @@ package com.brendigo.bopavi
 import android.app.Activity
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.Gravity
+import android.view.TouchDelegate
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
@@ -134,10 +136,10 @@ internal class ShopScreen(
             Gravity.TOP or Gravity.RIGHT).apply{
             topMargin=dp(2);rightMargin=dp(3)
         })
-        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))
         card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
                 maxLines=2
-        },LinearLayout.LayoutParams(-1,0,.48f))
+        },LinearLayout.LayoutParams(-1,0,.58f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
@@ -154,9 +156,21 @@ internal class ShopScreen(
                 else -> onBuy(item.index)
             }
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.30f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.00f).apply{
             topMargin=dp(4)
         })
+        // Match the slimmer green price capsules without shrinking their
+        // effective touch area on high-density owner reference devices.
+        // The extra hit area remains internal to the same product card.
+        card.post {
+            val hit=Rect()
+            buy.getHitRect(hit)
+            val missing=(dp(48)-hit.height()).coerceAtLeast(0)
+            if(missing>0) {
+                hit.top=(hit.top-missing).coerceAtLeast(0)
+                card.touchDelegate=TouchDelegate(hit,buy)
+            }
+        }
         return card
     }
 
