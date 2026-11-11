@@ -131,7 +131,7 @@ for element in ("private fun woodenBoard(","private fun awning(",
     assert element in decor, element
 assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
 assert 'ShopEmbossedTitle(host)' in shop
-assert 'contentDescription="SHOP"' in shop
+assert 'contentDescription="SHOP"' in (src/"ShopEmbossedTitle.kt").read_text()
 assert '183f,123f,575f,201f' in shop
 headline=(src/"ShopEmbossedTitle.kt").read_text()
 assert 'internal class ShopEmbossedTitle(context:Context):TextView(context)' in headline
