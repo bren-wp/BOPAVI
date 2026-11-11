@@ -53,7 +53,9 @@ assert "com.brendigo.bopavi.DAILY_REMINDER" in reminder
 assert "onCloud={enabled->" in activity
 assert "onRestore={chooseBackupToRestore()}" in activity
 assert "onNotifications={value->changeNotifications(value)}" in activity
-assert "button(\"Restore Purchases\",click=onRestore)" in settings
+assert "button(\"Restore Purchases\",click=action)" in settings
+assert "restoreButton(onRestore)" in settings
+assert "BopaviUiIconDrawable.Kind.HEADSET" in settings
 
 # Backup must never restore permissions or a document URI just because the
 # user imported a third-party JSON file. Language may safely survive import.
