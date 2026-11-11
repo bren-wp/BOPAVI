@@ -328,6 +328,9 @@ internal class ShopScreen(
             isFocusable=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },232f,310f,480f,268f)
+        // The character must be visually BEHIND the stall's raised counter,
+        // not pasted over its front edge. This narrow relief is passive.
+        stage.place(ShopCounterFront(host),23f,546f,895f,36f)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
