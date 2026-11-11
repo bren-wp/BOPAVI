@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.StateListDrawable
@@ -285,21 +284,11 @@ internal class SettingsScreen(private val host:Activity,
             line("Mode",BopaviUiIconDrawable.Kind.STAR,
                 difficulty(onDifficulty),controlWidthDp=162),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
-                button("›",click=onPrivacy).apply{
-                    contentDescription="Pročitaj politiku privatnosti"
-                    background=ColorDrawable(Color.TRANSPARENT)
-                    setTextColor(0xff214a88.toInt())
-                    textSize=30f
-                    elevation=0f
-                },controlWidthDp=52),
+                SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy),
+                controlWidthDp=52),
             line("Terms of Service",BopaviUiIconDrawable.Kind.RECORDS,
-                button("›",click=onTerms).apply{
-                    contentDescription="Pročitaj uvjete korištenja"
-                    background=ColorDrawable(Color.TRANSPARENT)
-                    setTextColor(0xff214a88.toInt())
-                    textSize=30f
-                    elevation=0f
-                },controlWidthDp=52)
+                SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms),
+                controlWidthDp=52)
         )
         val root=FrameLayout(host).apply{setBackgroundColor(0xff248fdf.toInt())}
         root.addView(ImageView(host).apply{
@@ -327,11 +316,17 @@ internal class SettingsScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
             },101f,559f,739f,1007f)
-            stage.place(title("SETTINGS",57).apply{
-                background=SettingsGoldTitleDrawable()
-                setTextColor(Color.WHITE)
+            stage.place(SettingsEmbossedTitle(host).apply {
                 elevation=dp(8).toFloat()
             },182f,486f,577f,101f)
+            // An etched separator groups the actual legal links below the
+            // six real offline preferences. It is visual-only and non-clickable.
+            stage.place(View(host).apply {
+                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                isClickable=false
+            },151f,1226f,638f,4f)
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
@@ -340,10 +335,10 @@ internal class SettingsScreen(private val host:Activity,
             }
             stage.place(button("HOME",click=onBack),203f,
                 SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
-            stage.place(title("v"+installedVersion(),16,0xffe1edf5.toInt()).apply {
+            stage.place(title("v"+installedVersion(),13,0xffe1edf5.toInt()).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 setShadowLayer(1f,0f,1f,0xff183c56.toInt())
-            },803f,1598f,109f,45f)
+            },778f,1598f,139f,45f)
             stage.setOnApplyWindowInsetsListener{_,insets->
                 if(Build.VERSION.SDK_INT>=30){
                     val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
