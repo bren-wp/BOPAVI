@@ -33,9 +33,11 @@ for marker in (
     # ScrollView is imported rather than referenced by fully qualified name.
     assert (marker in settings if marker!="android.widget.ScrollView"
             else "import android.widget.ScrollView" in settings),marker
-assert 'val rows=floatArrayOf(620f,706f,796f,885f,975f,1066f,1156f,1257f,1340f)' in geometry
-assert 'const val homeTop=1430f' in geometry
+assert 'val rows=floatArrayOf(610f,706f,802f,898f,994f,1090f,1186f,1282f,1378f)' in geometry
+assert 'const val homeTop=1486f' in geometry
 assert 'stage.useShopFullBleedReferenceCamera()' in settings
+assert 'SettingsReferenceLayout.supportsNativeTouchTargets(' in settings
+assert 'fun supportsNativeTouchTargets(screenW:Int,screenH:Int,density:Float)' in geometry
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
             '"haptic_enabled"','"less_motion"','"difficulty"'):
