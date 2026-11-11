@@ -7,7 +7,6 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PixelFormat
-import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
 
@@ -72,38 +71,22 @@ internal class SkinsCarouselArrowDrawable(private val right:Boolean):Drawable() 
 }
 
 /** Real selected-info card background; no raster text or static EQUIP button. */
+/**
+ * Keep selected-info 3D relief aligned with the proven existing SKY enamel.
+ * A real 941x1672 comparison of the former custom panel increased the owner's
+ * info-region RGB-MAE from ~34.48% to ~37.72%; the original shared surface
+ * is measurably closer. Text and EQUIP stay native sibling components.
+ */
 internal class SkinsSelectedInfoDrawable:Drawable() {
-    private val p=Paint(Paint.ANTI_ALIAS_FLAG)
+    private val enamel=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
     private var opacity=255
     private var filter:ColorFilter?=null
     override fun draw(c:Canvas) {
         if(bounds.isEmpty)return
-        val saved=c.save()
-        c.translate(bounds.left.toFloat(),bounds.top.toFloat())
-        c.scale(bounds.width()/881f,bounds.height()/193f)
-        fun face(l:Float,t:Float,r:Float,b:Float,rad:Float,color:Int){
-            p.reset();p.isAntiAlias=true;p.color=color
-            p.alpha=opacity;p.colorFilter=filter
-            c.drawRoundRect(l,t,r,b,rad,rad,p)
-        }
-        face(4f,13f,878f,193f,47f,0xb0051b40.toInt())
-        face(0f,2f,881f,183f,45f,0xff092c60.toInt())
-        face(4f,1f,877f,179f,43f,0xff4aa7f0.toInt())
-        p.reset();p.isAntiAlias=true;p.alpha=opacity;p.colorFilter=filter
-        p.shader=LinearGradient(0f,11f,0f,177f,
-            intArrayOf(0xff367eb6.toInt(),0xff1e518a.toInt(),
-                0xff143b75.toInt()),null,Shader.TileMode.CLAMP)
-        c.drawRoundRect(9f,9f,872f,174f,39f,39f,p)
-        p.shader=null
-        p.shader=RadialGradient(184f,2f,675f,
-            intArrayOf(0x508bd7ff,0x050d4287,0x00143269),
-            null,Shader.TileMode.CLAMP)
-        c.drawRoundRect(10f,9f,871f,170f,37f,37f,p)
-        p.shader=null
-        p.color=0x77d9f3ff;p.style=Paint.Style.STROKE;p.strokeWidth=3f
-        c.drawRoundRect(13f,12f,867f,168f,35f,35f,p)
-        p.style=Paint.Style.FILL
-        c.restoreToCount(saved)
+        enamel.bounds=bounds
+        enamel.alpha=opacity
+        enamel.colorFilter=filter
+        enamel.draw(c)
     }
     override fun setAlpha(value:Int){opacity=value.coerceIn(0,255);invalidateSelf()}
     override fun setColorFilter(value:ColorFilter?){filter=value;invalidateSelf()}
