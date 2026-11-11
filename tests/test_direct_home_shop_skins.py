@@ -29,7 +29,7 @@ assert not (root/"android/app/src/main/res/drawable/bopavi_startup.xml").exists(
 assert not (root/"android/app/src/main/res/values-v31/styles.xml").exists()
 assert "BOPAVI-Android-Splash.png" not in workflow
 assert "BOPAVI-Android-Splash.png" not in readme
-assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 20' in workflow
+assert 'test "$(wc -l < SHA256SUMS.txt)" -eq 22' in workflow
 
 # Every price must be visible ON the actual native buy button, not on a
 # decorative sibling that may disappear on the GPU/Android Z stack.
