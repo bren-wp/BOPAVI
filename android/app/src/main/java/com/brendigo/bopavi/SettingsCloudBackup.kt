@@ -74,13 +74,34 @@ internal class SettingsCloudBackup(
             report(false,"Spremanje odredišta nije uspjelo.")
             return
         }
-        saveNow(report)
+        saveNow { ok,message ->
+            // A denied, read-only or unavailable destination should not leave
+            // the visible Cloud Save switch enabled after initial setup.
+            if(!ok)deactivate()
+            report(ok,message)
+        }
     }
 
     fun deactivate(){
+        val previous=destination()
         uriPrefs.edit().remove("document_uri").apply()
         pending.set(false)
-        // Do not delete the user's previously saved cloud document.
+        if(previous!=null){
+            val grant=activity.contentResolver.persistedUriPermissions.firstOrNull {
+                it.uri==previous
+            }
+            if(grant!=null){
+                val flags=(if(grant.isReadPermission)
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
+                    (if(grant.isWritePermission)
+                    android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
+                if(flags!=0)runCatching {
+                    activity.contentResolver.releasePersistableUriPermission(
+                        previous,flags)
+                }
+            }
+        }
+        // Never delete the user's previously saved local/cloud document.
     }
 
     private fun destination():Uri? =
