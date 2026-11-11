@@ -40,6 +40,8 @@ assert "cardLefts.size==4" in layout
 assert "const val cardWidth=207f" in layout
 assert "const val cardHeight=307f" in layout
 assert "const val heroSize=688f" in layout
+assert "const val bannerLeft=250f" in layout
+assert "const val bannerWidth=441f" in layout
 assert "const val heroLeft=127f" in layout
 assert "activeSelectionTop+193f<=referenceHeight" in layout
 assert 'textSize=30f' in screen # selected hero EQUIP
@@ -80,6 +82,10 @@ assert "c.clipRect(0,0,width,height)" in owner_art
 assert "isClickable=false" in owner_art
 decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
+assert "c.scale(.89f,.87f)" in decor
+assert "c.restoreToCount(plaqueSave)" in decor
+assert 'stage.place(text(item.title,32f,Color.WHITE)' in screen
+assert 'stage.place(text(item.shortName,20f,' in screen
 assert "class SkinsCardEnamelDrawable(" in decor
 assert "private val selected:Boolean,private val locked:Boolean=false" in decor
 assert "c.scale(bounds.width()/207f,bounds.height()/307f)" in decor
