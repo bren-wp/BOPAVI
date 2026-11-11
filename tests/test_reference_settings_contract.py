@@ -54,7 +54,9 @@ assert 'line("Cloud Save",BopaviUiIconDrawable.Kind.CLOUD,' in settings
 for kind in ("BELL","GLOBE","GAMEPAD","CLOUD"):
     assert "Kind."+kind in (src/"BopaviUiIconDrawable.kt").read_text()
 assert "Finish.RED" in (src/"Bopavi3DTheme.kt").read_text()
-assert 'button("Restore Purchases",click=onRestore)' in settings
+assert 'button("Restore Purchases",click=action)' in settings
+assert 'restoreButton(onRestore)' in settings
+assert "BopaviUiIconDrawable.Kind.HEADSET" in settings
 assert 'val rows=if(reference) listOf(' in settings
 assert 'legacyRows[0],legacyRows[1],addedRows[0],addedRows[1],' in settings
 assert 'addedRows[2],legacyRows[3],addedRows[3],legacyRows[6],legacyRows[7]' in settings
