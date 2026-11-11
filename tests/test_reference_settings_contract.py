@@ -50,15 +50,15 @@ assert 'capture_png("android-settings-reference-size")' in qa
 assert 'line("Cloud Save"' not in settings
 assert 'line("Restore Purchases"' not in settings
 assert 'button("Restore Purchases"' not in settings
-assert 'setPadding(dp(8),0,dp(9),0)' in settings
+assert 'setPadding(dp(12),0,dp(9),0)' in settings
 assert 'Bopavi3DTheme.panel(when(kind){' in settings
 assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in settings
-assert 'FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER)' in settings
+assert 'FrameLayout.LayoutParams(dp(27),dp(27),Gravity.CENTER)' in settings
 assert 'setSingleLine(true)' in settings
 assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
 # Row labels and difficulty values must never rely on clipped visible text.
-assert 'row.addView(title(text,14,navy).apply{' in settings
-assert 'setAutoSizeTextTypeUniformWithConfiguration(11,14,1,' in settings
+assert 'row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{' in settings
+assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in settings
 assert 'val shortLabel=when(index)' in settings
 for label in ('"EASY"','"NORMAL"','"HARD"'):
     assert label in settings,label
@@ -75,10 +75,13 @@ assert 'isFillViewport=true' in settings
 # Three independent difficulty options need at least 48dp width each.
 # The group allocates 180dp; two 2dp margins per button leave 56dp.
 # Do not silently regress this to the old 140dp selector.
-assert 'controlWidthDp:Int=114' in settings
+assert 'controlWidthDp:Int=96' in settings
 assert 'LinearLayout.LayoutParams(dp(controlWidthDp),-1)' in settings
 assert 'difficulty(onDifficulty),controlWidthDp=162' in settings
 assert 'minWidth=0' in settings and 'minimumWidth=0' in settings
+assert 'button("›",click=onPrivacy)' in settings
+assert 'button("›",click=onTerms)' in settings
+assert 'controlWidthDp=52' in settings
 assert (162-3*4)//3>=48
 # Exact-reference artwork is decorative only; native widgets own all state.
 decor=(src/"SettingsReferenceDecor.kt").read_text()
