@@ -48,7 +48,43 @@ REGIONS = {
         "gold_retry_button": (173, 1224, 773, 1394),
         "blue_home_button": (237, 1397, 712, 1544),
     },
+    "shop": {
+        "wallet_and_back": (16, 8, 925, 122),
+        "wooden_shop_title": (177, 116, 762, 329),
+        "storefront_and_mascot": (21, 296, 919, 583),
+        "featured_offer": (35, 560, 906, 874),
+        "upper_product_row": (47, 877, 899, 1200),
+        "lower_product_row": (47, 1202, 899, 1532),
+        "lower_wood_and_foliage": (0, 1532, 941, 1672),
+    },
+    "skins": {
+        "navigation_and_wallets": (12, 10, 933, 133),
+        "hanging_wood_title": (204, 138, 731, 333),
+        "central_winged_hero": (150, 332, 798, 814),
+        "carousel_arrows": (23, 609, 918, 731),
+        "stone_platform": (146, 790, 796, 972),
+        "four_pilot_cards": (18, 970, 916, 1284),
+        "equipped_info_and_button": (26, 1290, 916, 1505),
+        "foreground_foliage": (0, 1505, 941, 1672),
+    },
+    "settings": {
+        "logo_mascot_and_back": (13, 10, 836, 490),
+        "gold_settings_title": (175, 482, 768, 609),
+        "music_and_effects_sliders": (139, 612, 785, 795),
+        "toggles_and_selectors": (139, 790, 785, 1249),
+        "legal_rows": (139, 1251, 785, 1422),
+        "wooden_panel_and_frame": (91, 554, 848, 1580),
+        "bottom_restore_region": (190, 1418, 751, 1560),
+        "bottom_foliage_and_version": (0, 1550, 941, 1672),
+    },
 }
+
+
+def changed_rgb_pixels(delta: Image.Image) -> int:
+    # One RGB channel changed by just 1 counts as a changed pixel.
+    red, green, blue = delta.split()
+    peak = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+    return peak.width * peak.height - peak.histogram()[0]
 
 
 def compare(screen: str, reference: Path, captured: Path) -> dict:
@@ -62,17 +98,26 @@ def compare(screen: str, reference: Path, captured: Path) -> dict:
     result = {}
     for name, region in REGIONS[screen].items():
         delta = ImageChops.difference(ref.crop(region), actual.crop(region))
+        different = changed_rgb_pixels(delta)
+        total = delta.width * delta.height
         result[name] = {
             "box": list(region),
+            "different_pixels": different,
+            "pixel_deviation_percent": round(100 * different / total, 4),
             "mae_rgb": round(sum(ImageStat.Stat(delta).mean) / 3, 4),
-            "exact_rgb_match": delta.getbbox() is None,
+            "exact_rgb_match": different == 0,
         }
     whole = ImageChops.difference(ref, actual)
+    changed = changed_rgb_pixels(whole)
+    total = SIZE[0] * SIZE[1]
     return {
         "screen": screen,
         "size": list(SIZE),
+        "total_pixels": total,
+        "different_pixels": changed,
+        "pixel_deviation_percent": round(100 * changed / total, 4),
         "whole_screen_mae_rgb": round(sum(ImageStat.Stat(whole).mean) / 3, 4),
-        "exact_1_to_1_rgb": whole.getbbox() is None,
+        "exact_1_to_1_rgb": changed == 0,
         "regions": result,
     }
 
