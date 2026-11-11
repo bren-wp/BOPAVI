@@ -34,7 +34,6 @@ internal class ProgressOverviewScreen(
             typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
             gravity=Gravity.CENTER_VERTICAL
             includeFontPadding=true
-            isAllCaps=false
         }
 
     private fun button(label:String,finish:Bopavi3DTheme.Finish,onPress:()->Unit):Button =
