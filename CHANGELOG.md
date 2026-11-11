@@ -3,6 +3,18 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.76 — Shop, Skins i Settings: 1:1 vizualni QA (build 206)
+
+**Published:** 2026-11-11 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.76)
+
+- **Skins:** niskorezolucijski atlas 4 × 76 × 77 px zamijenjen je postojećim lokalnim 512 × 512 px ilustracijama svih četiriju junaka. Središnji leteći Bopi smanjen je prema referentnom položaju iznad kamene platforme; strelice, stvarni status odabira/zaključavanja i EQUIP/UNLOCK ostaju Android kontrole.
+- **Shop:** uklonjen je rastegnuti 3 KB raster cijelog kioska; ostaju nativno crtana drvena prodavaonica i postojeća lokalna 512 px ilustracija junaka. Stvarne offline cijene, zarada, kupljeni predmeti i šest interaktivnih kartica nisu promijenjeni.
+- **Settings:** broj verzije prikazuje stvarnu instaliranu verziju aplikacije u podnožju reference i responzivnom prikazu. Stvarne spremljene postavke, pravni dokumenti i njihove funkcionalne veze nisu promijenjeni.
+- **Provjere:** dodatni Shop/Skins/Settings source-contract testovi, Android lint/JVM, APK/AAB, emulator i stroga usporedba originalnih vlasničkih referenci 941 × 1672 px sa stvarnim snimkama bez skaliranja.
+- **Vizualna iskrenost:** 0 % RGB odstupanja **nije potvrđeno**. Stara osnovna mjerenja: Shop 24,41 %, Skins 33,04 %, Settings 32,29 % (RGB MAE/255, prethodni Android build). Nakon nove emulator snimke ponovno izmjeriti svaki ekran i regiju, bez izmišljanja rezultata.
+- **Funkcionalnost:** nema izmišljene kupovine dragulja, cloud servisa, obavijesti ili IAP obnove. Nema screenshotova koji glume interaktivne elemente.
+- **Distribucija:** debug APK za QA; produkcijski APK i AAB su nepotpisani te zahtijevaju postojeći privatni ključ. Ne objavljivati i ne spajati prije prolaska QA.
+
 ## v1.0.75 — Shop / Skins i izravni ulaz u Home (build 205)
 
 **Published:** 2026-11-10 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.75)
@@ -13,14 +25,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **Distribucija:** galerija za novo izdanje sadrži 15 stvarno snimljenih Android ekrana, bez splash prikaza. Potrebna je provjera svih objavljenih snimaka, SHA-256 i novih APK/AAB paketa.
 - **Vizualna istinitost:** izvorne reference 941×1672 ostaju strogi cilj, ali **nema potvrđene 1:1 podudarnosti** dok nove stvarne emulator snimke ne prođu usporedbu. Ne dodavati lažne dragulje, izmišljene kupnje ili statične snimke kao funkcionalne kontrole.
 - **Potpisivanje:** standardni release APK i AAB su nepotpisani i zahtijevaju postojeći privatni ključ za produkcijsku distribuciju.
-
-## v1.0.74 — Level Map / Skins: stjenovita dubina i precizniji QA (build 204)
-
-**Published:** 2026-11-10 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.74)
-
-- **Skins:** prethodni pravokutni podij zamijenjen je slojevitom kamenom platformom s nepravilnim 3D plohama, svijetlim travnatim rubom i zaobljenim vrhom. Sve četiri postojeće interaktivne kartice, stvarni spriteovi, odabir i valute ostaju netaknuti.
-- **Level Map:** dodane su zasebne viseće loze i listovi uz reljef sva tri lebdeća otoka. Zaključane razine, zvjezdice, staze između čvorova unutar istog otoka i navigacija i dalje se oslanjaju na stvarni ProgressStore.
-- **Gameplay:** zadržana je korisnikova izričita iznimka: nema donjih šiljaka prije prvog dodira ni tijekom leta. Stvarni viseći opasni objekti, prolazi, prstenovi i fizičke kolizije ostaju aktivni.
-- **Vizualni QA:** devet referenci 941 × 1672 px provjerava se bez skaliranja. Alat sada može izvesti izvorne RGB difference PNG datoteke i odvojene toplinske karte za analizu. Toplinska karta ne mijenja izmjereni RGB-MAE.
-- **Verifikacija:** potrebni su stvarni Android 15/16 screenshotovi i novi RGB rezultati. Nijedan ekran nije deklariran 1:1 odnosno 0% samo na temelju izvornog koda ili sintetskih testova.
-- **Distribucija:** izdanja su Android-only. Debug APK namijenjen je testiranju, a release APK i AAB moraju se potpisati privatnim postojećim ključem prije Google Play distribucije.
