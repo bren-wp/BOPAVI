@@ -531,7 +531,7 @@ class MainActivity : Activity() {
             return
         }
         if(requestCode==pickCloudDestination) {
-            cloudBackup.activate(uri,::reportBackup)
+            cloudBackup.activate(uri,data?.flags ?: 0,::reportBackup)
         } else {
             cloudBackup.restoreFrom(uri,::reportBackup)
         }
