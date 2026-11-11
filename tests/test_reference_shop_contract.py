@@ -87,6 +87,14 @@ assert 'background=ShopCreamCardDrawable()' in shop
 assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
 assert '},24f,302f,894f,276f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
+# Dynamic featured SKU remains real, with embossed lettering/ribbon as decor.
+assert 'ShopFeaturedName(host,featured.storefrontTitle)' in shop
+assert 'background=ShopFeaturedRibbonDrawable()' in shop
+feature_art=(src/"ShopFeaturedLettering.kt").read_text()
+assert 'internal class ShopFeaturedName(context:Context,label:String):TextView(context)' in feature_art
+assert 'text=label' in feature_art and 'contentDescription=label' in feature_art
+assert 'internal class ShopFeaturedRibbonDrawable:Drawable()' in feature_art
+assert 'canvas.drawText' not in feature_art  # Draws text via native Canvas c
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
 assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
