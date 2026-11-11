@@ -44,7 +44,9 @@ internal class SkinsCarouselArrowDrawable(private val right:Boolean):Drawable() 
         p.strokeWidth=3.5f
         c.drawArc(20f,13f,92f,84f,196f,137f,false,p)
         p.style=Paint.Style.FILL
-        val dir=if(right)1f else -1f
+        // Source SVG-style chevron path points left for +1: reverse the sign
+        // so the semantic 'right' carousel action actually points RIGHT.
+        val dir=if(right)-1f else 1f
         shape.reset()
         shape.moveTo(56f+dir*17f,28f)
         shape.lineTo(56f-dir*11f,54f)
