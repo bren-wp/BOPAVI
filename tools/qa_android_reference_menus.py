@@ -181,6 +181,20 @@ def main():
         width,height=capture_png("android-leaderboard-reference-size")
         assert (width,height)==(941,1672),"FAIL: actual Leaderboard PNG dimensions"
         tap(node_with("HOME"))
+
+        # The separate Progress page is reachable through existing Options,
+        # without adding non-reference buttons to the illustrated Home.
+        tap(node_with("OTVORI ZVUČNE POSTAVKE"))
+        tap(node_with("NAPREDAK"))
+        node_with("NAJBOLJI REZULTAT",clickable=False)
+        assert exists("SKY MEADOWS"),"FAIL: actual world progress card missing"
+        assert exists("Zvjezdice s prvih 20 razina"),(
+            "FAIL: the first-20 stars milestone was not shown")
+        width,height=capture_png("android-progress-reference-size")
+        assert (width,height)==(941,1672),"FAIL: Progress capture is not 941x1672"
+        tap(node_with("HOME"))
+        print("PASS: real saved Progress page, native navigation and 941px capture",
+              flush=True)
     finally:
         if resized:
             adb("shell","wm","size","reset")
