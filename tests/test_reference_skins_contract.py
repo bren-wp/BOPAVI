@@ -71,6 +71,10 @@ for cls in ("SkinsCarouselArrowDrawable","SkinsEquippedBadgeDrawable",
             "SkinsSelectedInfoDrawable"):
     assert "class "+cls in controls
 assert "p.shader=LinearGradient(" in controls
+# Native arrow semantics must match the actual drawn direction.
+# The previous raster QA showed "next" pointing left and "previous" right.
+assert 'SkinsCarouselArrowDrawable(right=label=="›")' in screen
+assert 'val dir=if(right)-1f else 1f' in controls
 assert "isClickable=false" in screen
 assert "OwnerSkinsPortraitView(host,index,skins[index])" in screen
 owner_art=(src/"OwnerSkinsPortraitView.kt").read_text()
