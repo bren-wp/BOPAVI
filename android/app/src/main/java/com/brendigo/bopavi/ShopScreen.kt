@@ -315,22 +315,19 @@ internal class ShopScreen(
             android.widget.Toast.makeText(host,
                 "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
         },833f,0f,96f,99f,minTouch=true)
-        // The 3 KB kiosk screenshot was scaled across 894px and produced
-        // blocky text-like artifacts and duplicated low-res storefront edges.
-        // ShopStorefrontDecor already draws the entire real kiosk/awning
-        // locally, so add ONLY the sharp 512px character in front of it.
-        // This image is decorative; all balances and buying controls remain
-        // independent, live Android widgets.
+        // Real 941×1672 Android screenshot comparison showed the original
+        // merchant/kiosk decorative crop preserves the owner's scene much
+        // more accurately than a stretched, unrelated full-body portrait:
+        // storefront ROI RGB-MAE 8.86% before vs 30.76% after replacement.
+        // The crop is decoration only: currency, prices, buttons, purchases
+        // and the 3D title all remain separate native Android components.
         stage.place(ImageView(host).apply {
-            setImageResource(R.drawable.bopiportrait0)
-            scaleType=ImageView.ScaleType.CENTER_CROP
+            setImageResource(R.drawable.bopavi_owner_shop_kiosk)
+            scaleType=ImageView.ScaleType.FIT_XY
             isClickable=false
             isFocusable=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },232f,310f,480f,268f)
-        // The character must be visually BEHIND the stall's raised counter,
-        // not pasted over its front edge. This narrow relief is passive.
-        stage.place(ShopCounterFront(host),23f,546f,895f,36f)
+        },24f,302f,894f,276f)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
