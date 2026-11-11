@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full-screen reference Settings: real persisted controls, not fictional IAP/cloud."""
+"""Full-screen reference Settings: real persisted controls, opt-in SAF backup, local reminders."""
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
@@ -33,8 +33,8 @@ for marker in (
     # ScrollView is imported rather than referenced by fully qualified name.
     assert (marker in settings if marker!="android.widget.ScrollView"
             else "import android.widget.ScrollView" in settings),marker
-assert 'val rows=floatArrayOf(620f,720f,820f,920f,1020f,1120f,1236f,1336f)' in geometry
-assert 'const val homeTop=1446f' in geometry
+assert 'val rows=floatArrayOf(620f,718f,816f,914f,1012f,1110f,1208f,1306f,1404f)' in geometry
+assert 'const val homeTop=1510f' in geometry
 assert 'stage.useShopFullBleedReferenceCamera()' in settings
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
@@ -48,9 +48,11 @@ assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in 
 assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
 assert '"Selected " else "Choose "' in settings
 assert 'capture_png("android-settings-reference-size")' in qa
-assert 'line("Cloud Save"' not in settings
-assert 'line("Restore Purchases"' not in settings
-assert 'button("Restore Purchases"' not in settings
+assert 'line("Cloud Save",BopaviUiIconDrawable.Kind.SHIELD,' in settings
+assert 'button("Restore Purchases",click=onRestore)' in settings
+assert 'val rows=if(reference) listOf(' in settings
+assert 'legacyRows[0],legacyRows[1],addedRows[0],addedRows[1],' in settings
+assert 'addedRows[2],legacyRows[3],addedRows[3],legacyRows[6],legacyRows[7]' in settings
 assert 'setPadding(dp(12),0,dp(9),0)' in settings
 assert 'Bopavi3DTheme.panel(when(kind){' in settings
 assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in settings
@@ -122,5 +124,28 @@ assert 'private fun installedVersion():String' in settings
 assert 'host.packageManager.getPackageInfo(host.packageName,0).versionName' in settings
 assert 'stage.place(title("v"+installedVersion(),13,' in settings
 assert 'col.addView(title("v"+installedVersion(),12,' in settings
+# Consent-based notifications and user-selected document backup, not fake buttons.
+backup=(src/"SettingsCloudBackup.kt").read_text()
+reminder=(src/"SettingsReminder.kt").read_text()
+manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text()
+assert 'Intent.ACTION_CREATE_DOCUMENT' in main
+assert 'Intent.ACTION_OPEN_DOCUMENT' in main
+assert 'cloudBackup.activate(uri,::reportBackup)' in main
+assert 'cloudBackup.restoreFrom(uri,::reportBackup)' in main
+assert 'SettingsReminder.configure(this,enabled)' in main
+assert 'onCloud={enabled->' in main
+assert 'onRestore={chooseBackupToRestore()}' in main
+assert 'onLanguage={changeLanguage()}' in main
+assert 'onControls={controlPreferences()}' in main
+assert 'onNotifications={value->changeNotifications(value)}' in main
+assert 'fun notificationsEnabled():Boolean' in store
+assert 'fun uiLanguage():String' in store
+assert 'takePersistableUriPermission' in backup
+assert 'val json=progress.exportJson()' in backup
+assert 'progress.importJson(backup)' in backup
+assert 'SettingsReminderReceiver:BroadcastReceiver()' in reminder
+assert 'AlarmManager.setInexactRepeating' not in reminder # uses manager.setInexactRepeating
+assert 'manager.setInexactRepeating(AlarmManager.RTC_WAKEUP' in reminder
+assert 'POST_NOTIFICATIONS' in manifest
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings reference art, real persisted sliders/toggles, mobile scroll and legal routes")
