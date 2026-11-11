@@ -425,8 +425,11 @@ internal class SettingsScreen(private val host:Activity,
                 orientation=LinearLayout.VERTICAL
                 setPadding(dp(14),dp(7),dp(14),dp(16))
             }
-            col.addView(button("‹  HOME",click=onBack),
-                LinearLayout.LayoutParams(dp(130),dp(52)))
+            col.addView(button("‹  HOME",click=onBack).apply {
+                // The compact UI shows a decorative arrow, but exposes the
+                // exact same HOME action name as the owner-reference camera.
+                contentDescription="HOME"
+            },LinearLayout.LayoutParams(dp(130),dp(52)))
             col.addView(artwork(R.drawable.logo),
                 LinearLayout.LayoutParams(-1,dp(91)))
             col.addView(artwork(R.drawable.bopiportrait0),
