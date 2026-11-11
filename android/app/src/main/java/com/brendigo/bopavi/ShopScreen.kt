@@ -136,10 +136,17 @@ internal class ShopScreen(
             Gravity.TOP or Gravity.RIGHT).apply{
             topMargin=dp(2);rightMargin=dp(3)
         })
-        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))
+        // On actual 941px captures the old 0.58-weight caption clipped
+        // "Attracts rewards for 12s/18s". Give real two-line descriptions
+        // sufficient height; keep the product art legible and price tappable.
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))
         card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
                 maxLines=2
-        },LinearLayout.LayoutParams(-1,0,.58f))
+                isSingleLine=false
+                includeFontPadding=false
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,0,.86f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
