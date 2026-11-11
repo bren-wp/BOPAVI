@@ -66,6 +66,8 @@ assert "SkinsReferenceDecor(host)" in screen
 assert "SkinsCardEnamelDrawable(isSelected,isLocked)" in screen
 assert "SkinsEquippedBadgeDrawable()" in screen
 assert "SkinsSelectedInfoDrawable()" in screen
+# Measured selected panel: custom dark glass was less accurate than SKY enamel.
+assert "private val enamel=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in controls
 controls=(src/"SkinsReferenceControls.kt").read_text()
 for cls in ("SkinsCarouselArrowDrawable","SkinsEquippedBadgeDrawable",
             "SkinsSelectedInfoDrawable"):
