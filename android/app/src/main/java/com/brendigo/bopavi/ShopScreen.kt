@@ -340,11 +340,10 @@ internal class ShopScreen(
         },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
             ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
         stage.place(message("FEATURED!",23).apply {
-            background=plate(0xffff4b86.toInt(),0xffab0341.toInt(),
-                0xffffafc5.toInt(),8)
+            background=ShopFeaturedRibbonDrawable()
             setShadowLayer(2f,1f,3f,0xff6b0632.toInt())
         },70f,578f,275f,62f)
-        stage.place(message(featured.storefrontTitle,32,0xffffe680.toInt()),
+        stage.place(ShopFeaturedName(host,featured.storefrontTitle),
             74f,642f,466f,71f)
         stage.place(message(featured.perkEffect.uppercase(),19),
             77f,707f,464f,47f)
