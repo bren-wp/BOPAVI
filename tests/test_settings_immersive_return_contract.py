@@ -21,6 +21,13 @@ assert 'PY_SCROLL_TO_SETTINGS_TOP' in shell
 assert 'Settings top unreachable; actual app ScrollView absent' in shell
 assert 'Settings header and native HOME are visible' in shell
 assert 'after 8 upward scrolls' in shell
+# Full owner Settings checks must visit offscreen rows on real compact
+# Android ScrollView, not assume every option is in the first hierarchy dump.
+assert 'def scroll_settings(nodes,direction):' in shell
+assert 'def match(nodes,label,clickable):' in shell
+assert 'native Settings item absent after real scrolling' in shell
+assert 'n.get("package")=="com.brendigo.bopavi"' in shell
+assert 'for direction in ("down","up"):' in shell
 assert 'and n.get("content-desc")=="HOME"' in shell
 assert 'and n.get("class")=="android.widget.ScrollView"' in shell
 assert 'PY_LEGAL_STILL_OPEN' in shell
