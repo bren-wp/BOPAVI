@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.StateListDrawable
@@ -69,11 +70,11 @@ internal class SettingsScreen(private val host:Activity,
             setOnClickListener{click()}
         }
     private fun line(text:String,kind:BopaviUiIconDrawable.Kind,control:View,
-                     controlWidthDp:Int=114):View {
+                     controlWidthDp:Int=96):View {
         val row=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
-            setPadding(dp(8),0,dp(9),0)
+            setPadding(dp(12),0,dp(9),0)
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.CREAM)
             minimumHeight=dp(48)
         }
@@ -91,19 +92,19 @@ internal class SettingsScreen(private val host:Activity,
             elevation=dp(3).toFloat()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             addView(ImageView(host).apply{
-                setImageDrawable(BopaviUiIconDrawable(kind,Color.WHITE,dp(32)))
+                setImageDrawable(BopaviUiIconDrawable(kind,Color.WHITE,dp(27)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(32),dp(32),Gravity.CENTER))
-        },LinearLayout.LayoutParams(dp(36),dp(36)))
-        row.addView(title(text,14,navy).apply{
+            },FrameLayout.LayoutParams(dp(27),dp(27),Gravity.CENTER))
+        },LinearLayout.LayoutParams(dp(30),dp(30)))
+        row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setSingleLine(true)
             ellipsize=android.text.TextUtils.TruncateAt.END
-            setAutoSizeTextTypeUniformWithConfiguration(11,14,1,
+            setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
-        },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(6)})
+        },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(9)})
         // Difficulty is a three-way selector. A 140dp group makes each option
         // narrower than the 48dp accessibility minimum once margins are added.
         row.addView(control,LinearLayout.LayoutParams(dp(controlWidthDp),-1))
@@ -274,13 +275,21 @@ internal class SettingsScreen(private val host:Activity,
             line("Mode",BopaviUiIconDrawable.Kind.STAR,
                 difficulty(onDifficulty),controlWidthDp=162),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
-                button("OPEN",click=onPrivacy).apply{
+                button("›",click=onPrivacy).apply{
                     contentDescription="Pročitaj politiku privatnosti"
-                }),
+                    background=ColorDrawable(Color.TRANSPARENT)
+                    setTextColor(0xff214a88.toInt())
+                    textSize=30f
+                    elevation=0f
+                },controlWidthDp=52),
             line("Terms of Service",BopaviUiIconDrawable.Kind.RECORDS,
-                button("OPEN",click=onTerms).apply{
+                button("›",click=onTerms).apply{
                     contentDescription="Pročitaj uvjete korištenja"
-                })
+                    background=ColorDrawable(Color.TRANSPARENT)
+                    setTextColor(0xff214a88.toInt())
+                    textSize=30f
+                    elevation=0f
+                },controlWidthDp=52)
         )
         val root=FrameLayout(host).apply{setBackgroundColor(0xff248fdf.toInt())}
         root.addView(ImageView(host).apply{
