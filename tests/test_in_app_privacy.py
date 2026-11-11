@@ -10,7 +10,7 @@ gradle=(root/"android/app/build.gradle.kts").read_text()
 html=(root/"docs/play/index.html").read_text(encoding="utf-8")
 legal=root/"android/app/src/main/assets/legal"
 
-for source_id,asset,sections in (("privatnost","privacy.html",11),("uvjeti","terms.html",12)):
+for source_id,asset,sections in (("privatnost","privacy.html",12),("uvjeti","terms.html",13)):
     match=re.search(r'<article\s+id="'+source_id+r'"[\s\S]*?</article>',html)
     assert match,source_id
     bundled=(legal/asset).read_text(encoding="utf-8")
@@ -53,4 +53,4 @@ qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "Croatian privacy dialog accessible, offline and dismissible" in qa
 assert "Settings legal control missing" in qa
 assert "native terms dialog accessible" in qa
-print("PASS: exact owner legal documents, 23 sections, offline native presentation and safe links")
+print("PASS: matched public and in-app legal documents, 25 sections, optional cloud backup disclosures")
