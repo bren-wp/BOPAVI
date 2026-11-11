@@ -36,6 +36,9 @@ assert "if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0)"
 assert "takePersistableUriPermission(uri,flags)" in backup
 assert "return if(result.isSuccess)" not in backup  # completion is reported only after writing
 assert "activity.runOnUiThread" in backup
+assert "activity.contentResolver.persistedUriPermissions.firstOrNull" in backup
+assert "releasePersistableUriPermission(" in backup
+assert "if(!ok)deactivate()" in backup
 assert "executor.shutdown()" in backup
 assert "if(!enabled || !allowed(context))return" in reminder
 assert 'prefs.getBoolean("notifications_enabled",false)' in store
