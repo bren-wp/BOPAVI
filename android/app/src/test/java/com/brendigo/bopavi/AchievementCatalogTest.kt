@@ -10,6 +10,13 @@ class AchievementCatalogTest {
         assertFalse(AchievementsLayout.supports(1920,1080,false,1f))
         assertFalse(AchievementsLayout.supports(941,1672,true,1.5f))
     }
+    @Test fun highDensityCardsFallBackBeforeTextClips() {
+        assertTrue(AchievementsLayout.supportsCardContent(941,1672,2f))
+        assertFalse(AchievementsLayout.supportsCardContent(941,1672,3f))
+        assertFalse(AchievementsLayout.supportsCardContent(720,1280,2f))
+        assertFalse(AchievementsLayout.supportsCardContent(941,1672,Float.NaN))
+    }
+
     @Test fun freshInstallHasEightUnreachedGoals() {
         val goals=AchievementCatalog.goals(AchievementSnapshot(0,0,0L,0,0,0,0,0))
         assertEquals(8,goals.size)

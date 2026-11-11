@@ -184,6 +184,51 @@ PY_LEGAL_STILL_OPEN
     sleep 1
     dump_ui
   fi
+  # The real 12-row accessible Settings ScrollView may be scrolled all the
+  # way to Terms after checking legal links. Its header/HOME are offscreen.
+  # Navigate *within the app* back to the top; never bypass navigation or
+  # accept launcher/OS pages in place of Settings.
+  python3 - <<'PY_SCROLL_TO_SETTINGS_TOP'
+import re,subprocess,time,xml.etree.ElementTree as ET
+path="qa/screenshots/android-current-ui.xml"
+for attempt in range(9):
+    nodes=list(ET.parse(path).getroot().iter("node"))
+    title=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+           and n.get("text","").upper()=="SETTINGS"]
+    home=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+          and n.get("clickable")=="true" and n.get("content-desc")=="HOME"]
+    if len(title)==1 and len(home)==1:
+        print("PASS: Settings header and native HOME are visible",flush=True)
+        break
+    scrolling=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+               and n.get("class")=="android.widget.ScrollView"
+               and n.get("scrollable")=="true"]
+    if len(scrolling)!=1:
+        raise SystemExit("FAIL: Settings top unreachable; actual app ScrollView absent")
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                   scrolling[0].get("bounds",""))
+    if not m:
+        raise SystemExit("FAIL: Settings ScrollView bounds invalid")
+    a,b,c,d=map(int,m.groups())
+    x=a+(c-a)//2
+    start=b+max(1,(d-b)//3)
+    end=b+max(2,((d-b)*5)//6)
+    if start>=end:
+        raise SystemExit("FAIL: invalid Settings scroll area")
+    subprocess.run(["adb","shell","input","swipe",str(x),str(start),
+                    str(x),str(end),"320"],check=True,timeout=20)
+    time.sleep(.4)
+    subprocess.run(["adb","shell","uiautomator","dump",
+                    "/sdcard/bopavi-settings-top.xml"],check=True,
+                   timeout=45,capture_output=True)
+    with open(path,"wb") as output:
+        subprocess.run(["adb","exec-out","cat",
+                        "/sdcard/bopavi-settings-top.xml"],check=True,
+                       stdout=output,timeout=25)
+else:
+    raise SystemExit("FAIL: Settings title and HOME not reachable after 8 upward scrolls")
+PY_SCROLL_TO_SETTINGS_TOP
+  dump_ui
   python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
@@ -517,41 +562,120 @@ sleep 1
 dump_ui
 capture android-options
 python3 - <<'PY'
-import subprocess,re,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-alltext=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
-for expected in ("SETTINGS","OPUŠTENO","STANDARDNO","IZAZOVNO","MUSIC","SOUND EFFECTS"):
-    if expected not in alltext:raise SystemExit("FAIL: full-page Settings missing "+expected)
-choice=[n for n in nodes if n.get("clickable")=="true"
-        and n.get("content-desc","").upper()=="CHOOSE OPUŠTENO"]
-if len(choice)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selectable")
-coords=list(map(int,re.findall("[0-9]+",choice[0].get("bounds",""))))
-if len(coords)!=4:raise SystemExit("FAIL: relaxed difficulty bounds invalid")
-a,b,c,d=coords
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
-sleep 1
-dump_ui
-python3 - <<'PY'
-import subprocess,re,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-relaxed=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED OPUŠTENO"]
-if len(relaxed)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selected")
-standard=[n for n in nodes if n.get("clickable")=="true"
-          and n.get("content-desc","").upper()=="CHOOSE STANDARDNO"]
-if len(standard)!=1:raise SystemExit("FAIL: standard flight difficulty missing")
-coords=list(map(int,re.findall("[0-9]+",standard[0].get("bounds",""))))
-if len(coords)!=4:raise SystemExit("FAIL: standard difficulty bounds invalid")
-a,b,c,d=coords
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
-sleep 1
-dump_ui
-python3 - <<'PY'
-import xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-standard=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED STANDARDNO"]
-if len(standard)!=1:raise SystemExit("FAIL: restored standard difficulty not selected")
+import re,subprocess,time,xml.etree.ElementTree as ET
+
+def fresh():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-settings-control-check.xml"],
+                   check=True,capture_output=True,timeout=45)
+    data=subprocess.check_output(["adb","exec-out","cat",
+                                  "/sdcard/bopavi-settings-control-check.xml"],timeout=25)
+    return list(ET.fromstring(data).iter("node"))
+
+def match(nodes,label,clickable):
+    hits=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+          and (n.get("text","")==label or n.get("content-desc","")==label)
+          and (clickable is None or n.get("clickable")=="true")]
+    if len(hits)>1:
+        # Cloud Save owns both a visible title and a real Android Switch
+        # with the same accessible name. Verify that exact paired structure
+        # instead of treating two different native roles as duplicate items.
+        text=[n for n in hits if n.get("class")=="android.widget.TextView"
+              and n.get("text")==label]
+        toggle=[n for n in hits if n.get("class")=="android.widget.Switch"
+                and n.get("content-desc")==label
+                and n.get("clickable")=="true"]
+        if label=="Cloud Save" and len(hits)==2 and len(text)==1 and len(toggle)==1:
+            return toggle[0] if clickable else text[0]
+        raise SystemExit("FAIL: duplicate native Settings item: "+label)
+    return hits[0] if hits else None
+
+def scroll_settings(nodes,direction):
+    # On high-density phones 12 actual Android setting rows exceed viewport.
+    # Move the app's true ScrollView, never skip off-screen controls.
+    scrolling=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+               and n.get("class")=="android.widget.ScrollView"
+               and n.get("scrollable")=="true"]
+    if not scrolling:
+        return False
+    if len(scrolling)!=1:
+        raise SystemExit("FAIL: duplicate Settings scrollers")
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                   scrolling[0].get("bounds",""))
+    if not m:
+        raise SystemExit("FAIL: Settings scroll bounds invalid")
+    a,b,c,d=map(int,m.groups())
+    x=a+(c-a)//2
+    upper=b+(d-b)//4
+    lower=b+4*(d-b)//5
+    if lower<=upper:
+        raise SystemExit("FAIL: Settings scroll gesture bounds invalid")
+    first,second=(lower,upper) if direction=="down" else (upper,lower)
+    subprocess.run(["adb","shell","input","swipe",str(x),str(first),
+                    str(x),str(second),"310"],check=True,timeout=20)
+    time.sleep(.55)
+    return True
+
+def find(label,clickable=None):
+    nodes=fresh()
+    hit=match(nodes,label,clickable)
+    if hit is not None:
+        return hit
+    for direction in ("down","up"):
+        for _ in range(8):
+            if not scroll_settings(nodes,direction):
+                break
+            nodes=fresh()
+            hit=match(nodes,label,clickable)
+            if hit is not None:
+                return hit
+    # Android AlertDialog ListView items can be enabled and tappable while
+    # UIAutomator reports clickable=false on the child TextView. Never require
+    # clickable=true for those list items: tap their displayed bounds and
+    # verify a real persisted difficulty change immediately afterwards.
+    visible=[(n.get("text") or n.get("content-desc") or "")+
+             " ["+n.get("class","")+" enabled="+n.get("enabled","")+
+             " clickable="+n.get("clickable","")+"]"
+             for n in nodes if n.get("text") or n.get("content-desc")]
+    print("QA visible native labels after lookup failure: "+repr(visible[-35:]),
+          flush=True)
+    raise SystemExit("FAIL: native Settings item absent after real scrolling: "+label)
+
+def tap(label,clickable=None):
+    n=find(label,clickable)
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.get("bounds",""))
+    if not m:raise SystemExit("FAIL: invalid native Settings bounds for "+label)
+    a,b,c,d=map(int,m.groups())
+    subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],
+                   check=True,timeout=20)
+    time.sleep(.85)
+
+# Settings menu buttons are native clickable Buttons; Android AlertDialog
+# option labels are native enabled ListView children and can report
+# clickable=false even while their parent ListView handles item clicks.
+# Choose by the real displayed row bounds, then assert persisted state.
+# Reference includes nine options; Difficulty is reached via Controls,
+# not three extra inline buttons that disrupt 1:1 Settings composition.
+for label in ("SETTINGS","Music","Sound Effects","Notifications",
+              "Language","Controls","Vibration","Cloud Save",
+              "Privacy Policy","Terms of Service","Restore Purchases"):
+    find(label)
+tap("Touch",True)
+find("Controls")
+tap("Difficulty: Standardno")
+find("Opušteno")
+tap("Opušteno")
+find("SETTINGS")
+tap("Touch",True)
+find("Difficulty: Opušteno")
+tap("Difficulty: Opušteno")
+tap("Standardno")
+find("SETTINGS")
+tap("Touch",True)
+find("Difficulty: Standardno")
+subprocess.run(["adb","shell","input","keyevent","KEYCODE_BACK"],check=True,timeout=20)
+time.sleep(.6)
+find("SETTINGS")
+print("PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",flush=True)
 PY
 return_home_from_settings
 echo "PASS: full native Settings, persisted difficulty and Home navigation"

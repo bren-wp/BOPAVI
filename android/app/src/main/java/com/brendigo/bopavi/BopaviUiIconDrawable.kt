@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, GEM, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, GEM, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC, BELL, GLOBE, GAMEPAD, CLOUD, HEADSET }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -193,6 +193,69 @@ internal class BopaviUiIconDrawable(
                 paint.style=Paint.Style.STROKE
                 canvas.drawArc(12f,6f,20f,18f,-65f,130f,false,paint)
                 canvas.drawArc(10f,3f,23f,21f,-65f,130f,false,paint)
+            }
+            Kind.HEADSET -> {
+                // Functional restore action gets the owner's white
+                // headset/support pictogram without rasterizing its button.
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.9f
+                canvas.drawArc(4f,3f,20f,21f,190f,160f,false,paint)
+                canvas.drawRoundRect(2.5f,11f,6.7f,19f,1.6f,1.6f,paint)
+                canvas.drawRoundRect(17.3f,11f,21.5f,19f,1.6f,1.6f,paint)
+                canvas.drawArc(11f,15f,21f,23f,10f,130f,false,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(10f,19f,15f,21f,1f,1f,paint)
+            }
+            Kind.BELL -> {
+                // Domed bell, hanging clapper and ring tab from owner Settings.
+                paint.style=Paint.Style.FILL
+                path.moveTo(5f,17f)
+                path.quadTo(7f,15f,7f,9.5f)
+                path.cubicTo(7f,3.5f,17f,3.5f,17f,9.5f)
+                path.quadTo(17f,15f,19f,17f)
+                path.close()
+                canvas.drawPath(path,paint)
+                canvas.drawOval(10f,18f,14f,22f,paint)
+                paint.style=Paint.Style.STROKE
+                canvas.drawLine(4f,17f,20f,17f,paint)
+            }
+            Kind.GLOBE -> {
+                canvas.drawCircle(12f,12f,9f,paint)
+                canvas.drawOval(8f,3f,16f,21f,paint)
+                canvas.drawLine(3f,12f,21f,12f,paint)
+                canvas.drawArc(4f,4.5f,20f,19.5f,20f,140f,false,paint)
+                canvas.drawArc(4f,4.5f,20f,19.5f,200f,140f,false,paint)
+            }
+            Kind.GAMEPAD -> {
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.3f
+                path.moveTo(7f,7f)
+                path.cubicTo(4f,6f,3f,10f,2.5f,16f)
+                path.quadTo(2.4f,19f,5.5f,18.5f)
+                path.lineTo(9f,16.5f)
+                path.lineTo(15f,16.5f)
+                path.lineTo(18.5f,18.5f)
+                path.quadTo(21.6f,19f,21.5f,16f)
+                path.cubicTo(21f,10f,20f,6f,17f,7f)
+                path.close()
+                canvas.drawPath(path,paint)
+                canvas.drawLine(7f,10f,7f,15f,paint)
+                canvas.drawLine(4.5f,12.5f,9.5f,12.5f,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawCircle(16.5f,11.2f,1.4f,paint)
+                canvas.drawCircle(19f,13.6f,1.4f,paint)
+            }
+            Kind.CLOUD -> {
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.2f
+                path.moveTo(6f,19f)
+                path.cubicTo(1f,18f,2f,11f,6.7f,10f)
+                path.cubicTo(8f,3.5f,16f,2.5f,18f,10f)
+                path.cubicTo(23f,10.5f,23f,18f,18f,19f)
+                canvas.drawPath(path,paint)
+                canvas.drawLine(12f,20.2f,12f,11f,paint)
+                canvas.drawLine(8.5f,14.3f,12f,10.8f,paint)
+                canvas.drawLine(15.5f,14.3f,12f,10.8f,paint)
             }
             Kind.RECORDS -> {
                 path.moveTo(7f, 4f)

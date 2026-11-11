@@ -16,6 +16,13 @@ class LevelMapGeometryTest {
         assertFalse(LevelMapGeometry.supports(941,1672,true,1.5f))
         assertFalse(LevelMapGeometry.supports(1920,1080,false,1f))
     }
+    @Test fun sourceMapUsesNativeScrollWhenNodesFallBelow48Dp() {
+        assertTrue(LevelMapGeometry.supportsNodeTouch(941,1672,2f))
+        assertFalse(LevelMapGeometry.supportsNodeTouch(941,1672,3f))
+        assertFalse(LevelMapGeometry.supportsNodeTouch(720,1280,2f))
+        assertFalse(LevelMapGeometry.supportsNodeTouch(941,1672,Float.NaN))
+    }
+
     @Test fun realLevelNodesNeverExceedTheMillionLevelLimit() {
         for(frontier in listOf(1,2,3,20,100,1_048_576,1_048_577)){
             val levels=LevelMapGeometry.nearestLevels(frontier)

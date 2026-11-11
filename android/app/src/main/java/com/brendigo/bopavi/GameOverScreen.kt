@@ -20,10 +20,8 @@ import android.widget.LinearLayout
  */
 internal class GameOverScreen(private val host:Activity) {
     private fun dp(px:Int)=((px*host.resources.displayMetrics.density)+.5f).toInt()
-    private val gold=0xffffbe23.toInt()
 
-    private fun statRow(label:String,value:String,icon:BopaviUiIconDrawable.Kind,
-                        accent:Int):View {
+    private fun statRow(label:String,value:String,icon:BopaviUiIconDrawable.Kind):View {
         val row=LinearLayout(host).apply {
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
@@ -193,18 +191,15 @@ internal class GameOverScreen(private val host:Activity) {
             contentDescription="Game Over statistics"
         }
         val rows=listOf(
-            statRow("Distance",stats.distance,BopaviUiIconDrawable.Kind.GATE,
-                0xffed5434.toInt()),
+            statRow("Distance",stats.distance,BopaviUiIconDrawable.Kind.GATE),
             statRow(stats.collectedLabel,stats.collected,
                 if(stats.collectedLabel=="Food Collected")
                     BopaviUiIconDrawable.Kind.BERRY
-                else BopaviUiIconDrawable.Kind.CROWN_COIN,
-                gold),
+                else BopaviUiIconDrawable.Kind.CROWN_COIN),
             statRow(stats.thirdLabel,stats.third,
                 if(stats.thirdLabel=="Stars Collected")
                     BopaviUiIconDrawable.Kind.STAR
-                else BopaviUiIconDrawable.Kind.RECORDS,
-                0xffbf37f5.toInt())
+                else BopaviUiIconDrawable.Kind.RECORDS)
         )
         for(item in rows){
             statistics.addView(item,LinearLayout.LayoutParams(-1,0,1f).apply {

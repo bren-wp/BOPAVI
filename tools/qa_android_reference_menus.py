@@ -181,6 +181,20 @@ def main():
         width,height=capture_png("android-leaderboard-reference-size")
         assert (width,height)==(941,1672),"FAIL: actual Leaderboard PNG dimensions"
         tap(node_with("HOME"))
+
+        # The separate Progress page is reachable through existing Options,
+        # without adding non-reference buttons to the illustrated Home.
+        tap(node_with("OTVORI ZVUČNE POSTAVKE"))
+        tap(node_with("NAPREDAK"))
+        node_with("NAJBOLJI REZULTAT",clickable=False)
+        assert exists("SKY MEADOWS"),"FAIL: actual world progress card missing"
+        assert exists("Zvjezdice s prvih 20 razina"),(
+            "FAIL: the first-20 stars milestone was not shown")
+        width,height=capture_png("android-progress-reference-size")
+        assert (width,height)==(941,1672),"FAIL: Progress capture is not 941x1672"
+        tap(node_with("HOME"))
+        print("PASS: real saved Progress page, native navigation and 941px capture",
+              flush=True)
     finally:
         if resized:
             adb("shell","wm","size","reset")
@@ -286,7 +300,33 @@ def main():
         adb("shell","wm","size","941x1672")
         resized=True
         adb("shell","wm","density","320")
-        node_with("SETTINGS",clickable=False)
+        # This resize changes the required Settings COMPOSITION: the
+        # original 420dpi scroll view must become the 941px native
+        # nine-row reference. A stale scrolled page is not acceptable.
+        # Verify the real owner Settings header without scrolling it
+        # into or out of view, and preserve evidence when reflow fails.
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        for resize_attempt in range(12):
+            root=hierarchy()
+            if acknowledge_native_fullscreen_education(root):
+                time.sleep(.6)
+                continue
+            actual_title=[n for n in root.iter("node")
+                if n.get("package")==APP
+                and n.get("class")=="android.widget.TextView"
+                and n.get("text")=="SETTINGS"]
+            if len(actual_title)==1:
+                break
+            time.sleep(.5)
+        else:
+            Path("qa/screenshots/android-settings-resize-failed-ui.xml").write_bytes(
+                ET.tostring(root,encoding="utf-8"))
+            capture_png("android-settings-resize-failed")
+            raise AssertionError(
+                "FAIL: Settings was not recomposed after live density/size change")
+        print("PASS: Settings retained live native title after 941px/320dpi reflow",
+              flush=True)
         width,height=capture_png("android-settings-reference-size")
         assert (width,height)==(941,1672),"FAIL: Settings screenshot is not 941x1672"
         print("PASS: native Settings 941x1672",flush=True)

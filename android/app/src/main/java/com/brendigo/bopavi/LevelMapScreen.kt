@@ -183,7 +183,11 @@ internal class LevelMapScreen(
                 host.resources.displayMetrics.heightPixels,
                 host.resources.configuration.orientation==
                     Configuration.ORIENTATION_PORTRAIT,
-                host.resources.configuration.fontScale)){
+                host.resources.configuration.fontScale) ||
+            !LevelMapGeometry.supportsNodeTouch(
+                host.resources.displayMetrics.widthPixels,
+                host.resources.displayMetrics.heightPixels,
+                host.resources.displayMetrics.density)){
             return compactMap(selected,frontier,onWorld,onPlay,onBack)
         }
         val stage=LevelMapStage(host)

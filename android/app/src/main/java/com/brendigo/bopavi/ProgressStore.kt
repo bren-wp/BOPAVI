@@ -102,8 +102,21 @@ class ProgressStore(context: Context) {
         saveLocalScore(game,edit)
         edit.apply()
     }
-    // Keep historical ui_language and backup fields untouched for migrations.
-    // The live game now renders only Croatian without a language picker.
+    // Keep the legacy language key compatible with existing exported saves.
+    // The Settings UI offers English and Croatian without adding a network
+    // translation service or loading unverified external resources.
+    fun uiLanguage():String = when(prefs.getString("ui_language","en")) {
+        "hr" -> "hr"
+        else -> "en"
+    }
+    fun setUiLanguage(value:String) {
+        require(value=="hr" || value=="en")
+        prefs.edit().putString("ui_language",value).apply()
+    }
+    fun notificationsEnabled():Boolean = prefs.getBoolean("notifications_enabled",false)
+    fun setNotificationsEnabled(enabled:Boolean) {
+        prefs.edit().putBoolean("notifications_enabled",enabled).apply()
+    }
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */
@@ -259,6 +272,10 @@ class ProgressStore(context: Context) {
         s.put("perks",JSONArray((0..5).map{perkCount(it)}))
         s.put("collectibles",JSONArray((0..7).map{collectibles(it)})); s.put("soundEnabled",soundEnabled());s.put("hapticEnabled",hapticEnabled())
         s.put("musicVolume",musicVolume());s.put("effectsVolume",effectsVolume())
+        s.put("uiLanguage",uiLanguage())
+        // Consent is device-specific: never export notifications_enabled or
+        // the private document destination. Restoring a save must not enable
+        // system notifications or start cloud syncing without fresh opt-in.
         return JSONObject().put("format", "bopavi-save").put("exportVersion", 6).put("save", s).toString(2)
     }
     fun importJson(contents: String) {
@@ -364,6 +381,10 @@ class ProgressStore(context: Context) {
         e.putInt("effects_volume",s.optInt("effectsVolume",70).coerceIn(0,100))
         e.putBoolean("sound_enabled",s.optBoolean("soundEnabled",true))
         e.putBoolean("haptic_enabled",s.optBoolean("hapticEnabled",true))
-        e.putBoolean("less_motion", s.optBoolean("lessMotion", false)); e.apply()
+        e.putBoolean("less_motion", s.optBoolean("lessMotion", false))
+        val importedLanguage=s.optString("uiLanguage","en")
+        if(importedLanguage=="hr" || importedLanguage=="en")
+            e.putString("ui_language",importedLanguage)
+        e.apply()
     }
 }

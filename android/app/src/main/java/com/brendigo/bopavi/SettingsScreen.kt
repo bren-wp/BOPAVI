@@ -96,6 +96,10 @@ internal class SettingsScreen(private val host:Activity,
                 BopaviUiIconDrawable.Kind.FLIGHT->Bopavi3DTheme.Finish.VIOLET
                 BopaviUiIconDrawable.Kind.STAR->Bopavi3DTheme.Finish.GOLD
                 BopaviUiIconDrawable.Kind.RECORDS->Bopavi3DTheme.Finish.GOLD
+                BopaviUiIconDrawable.Kind.BELL->Bopavi3DTheme.Finish.GOLD
+                BopaviUiIconDrawable.Kind.GLOBE->Bopavi3DTheme.Finish.SKY
+                BopaviUiIconDrawable.Kind.GAMEPAD->Bopavi3DTheme.Finish.RED
+                BopaviUiIconDrawable.Kind.CLOUD->Bopavi3DTheme.Finish.SKY
                 else->Bopavi3DTheme.Finish.SKY
             })
             elevation=dp(3).toFloat()
@@ -266,11 +270,37 @@ internal class SettingsScreen(private val host:Activity,
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
 
+    private fun restoreButton(action:()->Unit):Button =
+        button("Restore Purchases",click=action).apply {
+            val headset=BopaviUiIconDrawable(
+                BopaviUiIconDrawable.Kind.HEADSET,Color.WHITE,dp(27))
+            headset.setBounds(0,0,dp(27),dp(27))
+            setCompoundDrawablesRelative(headset,null,null,null)
+            compoundDrawablePadding=dp(8)
+            contentDescription="Restore Purchases from BOPAVI backup"
+            // Preserve the button's native ripple, accessible hit area and
+            // real SAF restore action instead of embedding static artwork.
+        }
+
     fun create(onBack:()->Unit,onMusic:(Int)->Unit,onEffects:(Int)->Unit,
                onSound:(Boolean)->Unit,onHaptic:(Boolean)->Unit,
                onMotion:(Boolean)->Unit,onDifficulty:(Int)->Unit,
-               onPrivacy:()->Unit,onTerms:()->Unit):View {
-        val rows=listOf(
+               onPrivacy:()->Unit,onTerms:()->Unit,
+               onNotifications:(Boolean)->Unit,onLanguage:()->Unit,
+               onControls:()->Unit,onCloud:(Boolean)->Unit,
+               onRestore:()->Unit,cloudEnabled:Boolean):View {
+        val dm=host.resources.displayMetrics
+        // Owner portrait uses nine live rows. The scrollable variant retains
+        // all historical Sound, Reduced Motion and Difficulty controls.
+        val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
+            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT &&
+            host.resources.configuration.fontScale<1.25f &&
+            SettingsReferenceLayout.supportsNativeTouchTargets(
+                dm.widthPixels,dm.heightPixels,dm.density)
+        val language=progress.uiLanguage()
+        val croatian=language=="hr"
+        fun name(en:String,hr:String)=if(croatian)hr else en
+        val legacyRows=listOf(
             line("Music",BopaviUiIconDrawable.Kind.MUSIC,
                 slider("Glazba",progress.musicVolume(),onMusic)),
             line("Sound Effects",BopaviUiIconDrawable.Kind.SOUND,
@@ -290,6 +320,29 @@ internal class SettingsScreen(private val host:Activity,
                 SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms),
                 controlWidthDp=52)
         )
+        val addedRows=listOf(
+            line(name("Notifications","Obavijesti"),BopaviUiIconDrawable.Kind.BELL,
+                switchControl("Daily notifications",progress.notificationsEnabled(),onNotifications)),
+            line(name("Language","Jezik"),BopaviUiIconDrawable.Kind.GLOBE,
+                button(if(croatian)"Hrvatski" else "English",selected=true,click=onLanguage),
+                controlWidthDp=122),
+            line(name("Controls","Kontrole"),BopaviUiIconDrawable.Kind.GAMEPAD,
+                button("Touch",selected=true,click=onControls),controlWidthDp=122),
+            line("Cloud Save",BopaviUiIconDrawable.Kind.CLOUD,
+                switchControl("Cloud Save",cloudEnabled,onCloud))
+        )
+        // The owner order remains identical to the nine-row reference:
+        // Music, Effects, Notifications, Language, Controls, Vibration,
+        // Cloud Save, Privacy, Terms. The extra legacy controls remain
+        // reachable through Controls and the accessible scroll layout.
+        val rows=if(reference) listOf(
+            legacyRows[0],legacyRows[1],addedRows[0],addedRows[1],
+            addedRows[2],legacyRows[3],addedRows[3],legacyRows[6],legacyRows[7]
+        ) else listOf(
+            legacyRows[0],legacyRows[1],legacyRows[2],addedRows[0],
+            addedRows[1],addedRows[2],legacyRows[3],legacyRows[4],
+            legacyRows[5],addedRows[3],legacyRows[6],legacyRows[7]
+        )
         val root=FrameLayout(host).apply{setBackgroundColor(0xff248fdf.toInt())}
         root.addView(ImageView(host).apply{
             setImageResource(R.drawable.homeback)
@@ -297,20 +350,17 @@ internal class SettingsScreen(private val host:Activity,
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         },FrameLayout.LayoutParams(-1,-1))
 
-        val dm=host.resources.displayMetrics
-        // The fixed artwork grid cannot fit 64dp switches at enlarged font
-        // scales without overlapping adjacent rows. Use the native scroll
-        // layout for accessibility instead of clipping interactive controls.
-        val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
-            host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT &&
-            host.resources.configuration.fontScale<1.25f
+        // Narrow windows and large-font configurations keep a real
+        // scrollable layout; no row is drawn off-screen as static decoration.
         if(reference){
             val stage=LevelMapStage(host)
             stage.useShopFullBleedReferenceCamera()
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
             stage.place(artwork(R.drawable.logo),203f,20f,535f,213f)
             stage.place(artwork(R.drawable.bopiportrait0),266f,216f,409f,332f)
-            stage.place(button("‹",click=onBack),27f,22f,102f,102f,minTouch=true)
+            stage.place(button("‹",click=onBack).apply {
+                contentDescription="HOME"
+            },27f,22f,102f,102f,minTouch=true)
             stage.place(View(host).apply {
                 background=SettingsWoodPanelDrawable()
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -326,19 +376,21 @@ internal class SettingsScreen(private val host:Activity,
                     intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },151f,1226f,638f,4f)
+            },151f,1244f,638f,4f)
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
                     SettingsReferenceLayout.rowWidth,
                     SettingsReferenceLayout.rowHeight,minTouch=true)
             }
-            stage.place(button("HOME",click=onBack),203f,
+            // Real recovery of earned coin items and unlocks from an owner
+            // selected JSON backup. This is not Play Billing restoration.
+            stage.place(restoreButton(onRestore),203f,
                 SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
             stage.place(title("v"+installedVersion(),13,0xffe1edf5.toInt()).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 setShadowLayer(1f,0f,1f,0xff183c56.toInt())
-            },778f,1598f,139f,45f)
+            },778f,1624f,139f,42f)
             stage.setOnApplyWindowInsetsListener{_,insets->
                 if(Build.VERSION.SDK_INT>=30){
                     val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -373,8 +425,11 @@ internal class SettingsScreen(private val host:Activity,
                 orientation=LinearLayout.VERTICAL
                 setPadding(dp(14),dp(7),dp(14),dp(16))
             }
-            col.addView(button("‹  HOME",click=onBack),
-                LinearLayout.LayoutParams(dp(130),dp(52)))
+            col.addView(button("‹  HOME",click=onBack).apply {
+                // The compact UI shows a decorative arrow, but exposes the
+                // exact same HOME action name as the owner-reference camera.
+                contentDescription="HOME"
+            },LinearLayout.LayoutParams(dp(130),dp(52)))
             col.addView(artwork(R.drawable.logo),
                 LinearLayout.LayoutParams(-1,dp(91)))
             col.addView(artwork(R.drawable.bopiportrait0),
@@ -395,8 +450,10 @@ internal class SettingsScreen(private val host:Activity,
                 })
             }
             col.addView(card,LinearLayout.LayoutParams(-1,-2))
-            col.addView(button("HOME",click=onBack),
+            col.addView(restoreButton(onRestore),
                 LinearLayout.LayoutParams(-1,dp(60)).apply{topMargin=dp(12)})
+            col.addView(button("HOME",click=onBack),
+                LinearLayout.LayoutParams(-1,dp(54)).apply{topMargin=dp(8)})
             col.addView(title("v"+installedVersion(),12,0xffe1edf5.toInt()).apply {
                 gravity=Gravity.END or Gravity.CENTER_VERTICAL
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO

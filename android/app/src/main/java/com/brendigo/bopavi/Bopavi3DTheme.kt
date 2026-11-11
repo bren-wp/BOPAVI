@@ -10,7 +10,7 @@ import android.graphics.drawable.RippleDrawable
  * genuine interactive Android buttons share the owner's gloss and 3D lip.
  */
 internal object Bopavi3DTheme {
-    enum class Finish { GOLD, SKY, GREEN, VIOLET, CREAM, STONE }
+    enum class Finish { GOLD, SKY, GREEN, VIOLET, CREAM, STONE, RED }
 
     fun panel(finish:Finish):Drawable = when(finish) {
         Finish.GOLD -> HomeEnamelDrawable(
@@ -31,6 +31,9 @@ internal object Bopavi3DTheme {
         Finish.STONE -> HomeEnamelDrawable(
             0xffe4edf9.toInt(),0xffa3b5cc.toInt(),
             0xff466181.toInt(),0xfff4f8ff.toInt())
+        Finish.RED -> HomeEnamelDrawable(
+            0xffffa2a9.toInt(),0xffeb335d.toInt(),
+            0xff9d1539.toInt(),0xffffeef0.toInt())
     }
 
     fun button(finish:Finish):RippleDrawable =

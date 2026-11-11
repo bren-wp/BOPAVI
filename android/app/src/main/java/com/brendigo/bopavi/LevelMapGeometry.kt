@@ -15,6 +15,19 @@ internal object LevelMapGeometry {
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
         portrait && pxWidth>=860 && pxHeight>=1480 && fontScale<1.25f
 
+    /**
+     * Node hit targets are 108x107 source pixels; ensure the actual
+     * letterboxed node stays >=48dp in both directions before exposing the
+     * fixed-position map. CompactMap has fully native large touch targets.
+     */
+    fun supportsNodeTouch(pxWidth:Int,pxHeight:Int,density:Float):Boolean {
+        if(pxWidth<=0 || pxHeight<=0 || !density.isFinite() || density<=0f)
+            return false
+        val scale=minOf(pxWidth/width,pxHeight/height)
+        return nodeWidth*scale>=48f*density &&
+            nodeHeight*scale>=48f*density
+    }
+
     data class Point(val x:Float,val y:Float)
     // Measured reference centers: three stepping stones on Sky Meadows,
     // two in Crystal Ruins and one on Volcano Peaks (not six on one island).
