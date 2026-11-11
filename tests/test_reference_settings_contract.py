@@ -33,8 +33,8 @@ for marker in (
     # ScrollView is imported rather than referenced by fully qualified name.
     assert (marker in settings if marker!="android.widget.ScrollView"
             else "import android.widget.ScrollView" in settings),marker
-assert 'val rows=floatArrayOf(620f,718f,816f,914f,1012f,1110f,1208f,1306f,1404f)' in geometry
-assert 'const val homeTop=1510f' in geometry
+assert 'val rows=floatArrayOf(620f,706f,796f,885f,975f,1066f,1156f,1257f,1340f)' in geometry
+assert 'const val homeTop=1430f' in geometry
 assert 'stage.useShopFullBleedReferenceCamera()' in settings
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
@@ -114,7 +114,7 @@ assert 'contentDescription=label' in lettering
 assert 'setOnClickListener { onTap() }' in lettering
 assert 'minimumWidth=0' in lettering and 'minimumHeight=0' in lettering
 assert 'background=null' in lettering
-assert '151f,1226f,638f,4f' in settings
+assert '151f,1244f,638f,4f' in settings
 assert "background=SettingsGoldTitleDrawable()" in (src/"SettingsReferenceLettering.kt").read_text()
 assert "trackDrawable=StateListDrawable().apply" in settings
 assert "android.R.attr.state_checked" in settings
