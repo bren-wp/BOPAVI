@@ -33,6 +33,12 @@ internal class SettingsScreen(private val host:Activity,
                               private val progress:ProgressStore) {
     private val navy=0xff092457.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
+    // The footer must show the real installed app version, never the
+    // hard-coded v1.0.0 label baked into an illustration.
+    @Suppress("DEPRECATION")
+    private fun installedVersion():String = runCatching {
+        host.packageManager.getPackageInfo(host.packageName,0).versionName ?: "?"
+    }.getOrDefault("?")
     private fun plate(top:Int,bottom:Int,border:Int,rounded:Int)=
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(top,bottom)).apply{
             cornerRadius=dp(rounded).toFloat()
@@ -329,6 +335,10 @@ internal class SettingsScreen(private val host:Activity,
             }
             stage.place(button("HOME",click=onBack),203f,
                 SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
+            stage.place(title("v"+installedVersion(),16,0xffe1edf5.toInt()).apply {
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                setShadowLayer(1f,0f,1f,0xff183c56.toInt())
+            },803f,1598f,109f,45f)
             stage.setOnApplyWindowInsetsListener{_,insets->
                 if(Build.VERSION.SDK_INT>=30){
                     val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -387,6 +397,10 @@ internal class SettingsScreen(private val host:Activity,
             col.addView(card,LinearLayout.LayoutParams(-1,-2))
             col.addView(button("HOME",click=onBack),
                 LinearLayout.LayoutParams(-1,dp(60)).apply{topMargin=dp(12)})
+            col.addView(title("v"+installedVersion(),12,0xffe1edf5.toInt()).apply {
+                gravity=Gravity.END or Gravity.CENTER_VERTICAL
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,dp(28)).apply{topMargin=dp(6)})
             scroll.addView(col)
             root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
             scroll.requestApplyInsets()
