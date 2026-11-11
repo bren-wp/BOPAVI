@@ -34,14 +34,19 @@ nav,footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;ma
         <p>Službena stranica igre: <a href="https://bopavi.com.hr/">bopavi.com.hr</a>. Stranica izdavača: <a href="https://brendigo.com/">brendigo.com</a>.</p>
 
         <h3>2. Koje podatke igra obrađuje</h3>
-        <p>U trenutačnoj verziji igra ne zahtijeva izradu korisničkog računa ni unos imena, e-mail adrese, telefonskog broja ili drugih identifikacijskih podataka. Za svoje osnovno funkcioniranje igra lokalno pohranjuje podatke o igranju, kao što su osvojeni bodovi, prikupljene bobice, najbolji rezultati i postavke. U lokalnoj pohrani mogu ostati i podaci spremljeni prethodnim verzijama igre.</p>
+        <p>U trenutačnoj verziji igra ne zahtijeva izradu korisničkog računa ni unos e-mail adrese ili telefonskog broja. Igra može pohraniti nadimak igrača ako ga sam odabere. Za svoje osnovno funkcioniranje igra lokalno pohranjuje podatke o igranju, kao što su osvojeni bodovi, prikupljene bobice, najbolji rezultati i postavke. U lokalnoj pohrani mogu ostati i podaci spremljeni prethodnim verzijama igre.</p>
         <div class="facts" aria-label="Sažetak funkcija zaštite privatnosti">
           <div class="fact"><strong>Bez korisničkog računa</strong><span>Prijava i registracija nisu potrebne.</span></div>
           <div class="fact"><strong>Bez oglasa i praćenja</strong><span>U igru nisu ugrađeni sustavi oglašavanja ili analitike.</span></div>
           <div class="fact"><strong>Lokalni rezultati</strong><span>Podaci o napretku ostaju na uređaju.</span></div>
           <div class="fact"><strong>Bez mrežne dozvole</strong><span>Provjerena Android konfiguracija ne traži pristup internetu.</span></div>
         </div>
-        <p>Igra ne pristupa lokaciji, kontaktima, kameri, mikrofonu ili datotekama izvan prostora potrebnog za vlastitu pohranu. Ne koristi kolačiće, identifikatore za oglašavanje, ugrađenu telemetriju ni automatizirano profiliranje.</p>
+        <p>Igra ne pristupa lokaciji, kontaktima, kameri ni mikrofonu. Datoteci izvan prostora vlastite pohrane pristupa samo kad korisnik izričito odabere dokument za sigurnosnu kopiju ili obnovu. Ne koristi kolačiće, identifikatore za oglašavanje, ugrađenu telemetriju ni automatizirano profiliranje.</p>
+
+        <h3>2.a Opcionalna sigurnosna kopija i obavijesti (od izdanja 1.0.76)</h3>
+        <p>Cloud Save je u početku isključen. Ako ga uključite, sami odabirete stvarnu datoteku i pružatelja pohrane putem Androidova sustavskog odabira. Igra u taj dokument može spremati JSON kopiju lokalnog napretka, uključujući ime igrača, rezultat, stanje virtualnih novčića i otključane predmete. Dokument može biti spremljen na uređaju ili kod pružatelja kojeg odaberete, primjerice Google Drive. Brendigo ne dobiva vjerodajnice tog pružatelja, nema pristup korisnikovu računu i ne prima kopiju na svoje poslužitelje.</p>
+        <p>Odabranom dokumentu aplikacija dobiva trajno ograničeno dopuštenje za čitanje i pisanje, kako bi automatski spremala promjene. Isključivanjem Cloud Savea prestaje novo automatsko zapisivanje, ali ranije spremljena datoteka ostaje na odabranom mjestu dok je sami ne izbrišete. Za vraćanje napretka birate dokument i potvrđujete zamjenu dijela trenutačnog napretka. Pružatelj pohrane neovisno obrađuje dokument prema vlastitim pravilima.</p>
+        <p>Opcionalne dnevne lokalne obavijesti mogu se uključiti ili isključiti u Settings. Na Androidu 13 i novijem za njih se traži zasebno sustavsko dopuštenje. Podsjetnik se planira približno za 18:00 prema vremenu uređaja i ne koristi mrežni push servis ni oglašivačke identifikatore.</p>
 
         <h3>3. Svrha obrade i pravna osnova</h3>
         <p>Lokalni podaci o igranju služe isključivo za prikaz rezultata, očuvanje osobnih rekorda, primjenu postavki i pravilno funkcioniranje igre. Brendigo te lokalne zapise ne prima na vlastite poslužitelje i ne koristi ih za identifikaciju igrača, marketing ili izradu profila. U mjeri u kojoj lokalna obrada uključuje osobne podatke, provodi se radi pružanja funkcionalnosti igre na zahtjev korisnika (članak 6. stavak 1. točka (b) Opće uredbe o zaštiti podataka, kada je primjenjivo).</p>
@@ -72,7 +77,7 @@ nav,footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;ma
         <p>Ako ova stranica kasnije bude uključena u drugi sustav za upravljanje sadržajem, s dodatnim kolačićima ili analitikom, odgovarajuće obavijesti i postavke privatnosti moraju se uskladiti prije objave tih funkcija.</p>
 
         <h3>10. Međunarodni prijenosi</h3>
-        <p>BOPAVI ne prenosi rezultate igranja na poslužitelje u Hrvatskoj, Europskom gospodarskom prostoru ni izvan njega. Kada nas kontaktirate ili posjećujete web-stranicu, pružatelji elektroničke pošte i hostinga mogu obrađivati podatke u drugim državama. Ako je riječ o prijenosima izvan EGP-a na koje se primjenjuje GDPR, primjenjuju se odgovarajući zakonski mehanizmi zaštite podataka.</p>
+        <p>BOPAVI ne prenosi rezultate igranja na Brendigove poslužitelje. Ako korisnik odabere cloud pružatelja putem sustavskog odabira, kopija se pohranjuje na odabranoj lokaciji prema pravilima tog pružatelja, koja mogu uključivati međunarodni prijenos. Kada nas kontaktirate ili posjećujete web-stranicu, pružatelji elektroničke pošte i hostinga mogu obrađivati podatke u drugim državama. Ako je riječ o prijenosima izvan EGP-a na koje se primjenjuje GDPR, primjenjuju se odgovarajući zakonski mehanizmi zaštite podataka.</p>
 
         <h3>11. Izmjene politike</h3>
         <p>Politiku možemo ažurirati ako se promijene funkcije igre, tehnički način obrade podataka ili zakonske obveze. Nova verzija bit će objavljena na službenoj stranici igre s naznačenim datumom ažuriranja. U slučaju značajnih promjena koje zahtijevaju dodatnu obavijest ili privolu, postupit ćemo prema važećim propisima.</p>
