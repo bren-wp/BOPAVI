@@ -35,10 +35,10 @@ assert '"Privacy Policy","Terms of Service","Restore Purchases"' in qa
 assert "FAIL: Home Settings inaccessible" in qa
 for contract in (
     'tap("Touch",True)',
-    'tap("Difficulty: Standardno",True)',
-    'tap("Opušteno",True)',
+    'tap("Difficulty: Standardno")',
+    'tap("Opušteno")',
     'find("Difficulty: Opušteno")',
-    'tap("Standardno",True)',
+    'tap("Standardno")',
     'find("Difficulty: Standardno")',
     "PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",
 ):
