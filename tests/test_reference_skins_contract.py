@@ -90,7 +90,15 @@ decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
 assert "c.scale(.89f,.87f)" in decor
 assert "c.restoreToCount(plaqueSave)" in decor
-assert 'stage.place(text(item.title,32f,Color.WHITE)' in screen
+assert 'stage.place(SkinsEmbossedName(host,item.title)' in screen
+nameplate=(src/"SkinsEmbossedName.kt").read_text()
+assert 'internal class SkinsEmbossedName(context:Context, label:String):TextView(context)' in nameplate
+assert 'text=label' in nameplate and 'contentDescription=label' in nameplate
+assert 'canvas.drawText(caption,centerX,baseline' in nameplate
+# The owner podium has a narrower grass crown and raised golden landing circle.
+assert 'c.drawOval(160f,819f,788f,879f,p)' in decor
+assert 'c.drawOval(169f,813f,778f,868f,p)' in decor
+assert 'c.drawOval(252f,819f,690f,872f,p)' in decor
 assert 'stage.place(text(item.shortName,20f,' in screen
 assert "class SkinsCardEnamelDrawable(" in decor
 assert "private val selected:Boolean,private val locked:Boolean=false" in decor
