@@ -41,6 +41,16 @@ assert 'col.addView(button("‹  HOME",click=onBack).apply {' in settings
 assert 'contentDescription="HOME"' in settings
 assert 'fun supportsNativeTouchTargets(screenW:Int,screenH:Int,density:Float)' in geometry
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
+# Density and window-size updates must recompose the actual nine-row screen
+# instead of retaining the old ScrollView and its stale scrolled position.
+assert 'private var settingsReflowPending=false' in main
+assert 'override fun onConfigurationChanged(newConfig:android.content.res.Configuration)' in main
+assert 'if(selectedScreen=="settings" && ::progress.isInitialized &&' in main
+assert 'if(!isFinishing && !isDestroyed && selectedScreen=="settings")' in main
+assert 'showSettingsScreen()' in main.split('override fun onConfigurationChanged(',1)[1].split('private fun showNativeView(',1)[0]
+assert 'android-settings-resize-failed-ui.xml' in qa
+assert 'Settings was not recomposed after live density/size change' in qa
+assert 'Settings retained live native title after 941px/320dpi reflow' in qa
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
             '"haptic_enabled"','"less_motion"','"difficulty"'):
     assert key in store,key
