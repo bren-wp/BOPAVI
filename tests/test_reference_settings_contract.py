@@ -96,5 +96,10 @@ assert "thumbDrawable=GradientDrawable(" in settings
 assert "progressDrawable=LayerDrawable(arrayOf(trackBack," in settings
 assert "ClipDrawable(trackFill,Gravity.START,ClipDrawable.HORIZONTAL)" in settings
 assert "bar?.progress?.let(::save)" in settings
+# Settings footer follows the installed build (not a fictional v1.0.0).
+assert 'private fun installedVersion():String' in settings
+assert 'host.packageManager.getPackageInfo(host.packageName,0).versionName' in settings
+assert 'stage.place(title("v"+installedVersion(),16,' in settings
+assert 'col.addView(title("v"+installedVersion(),12,' in settings
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings reference art, real persisted sliders/toggles, mobile scroll and legal routes")
