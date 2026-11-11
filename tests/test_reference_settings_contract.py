@@ -58,6 +58,16 @@ assert 'setSingleLine(true)' in settings
 assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
 # Row labels and difficulty values must never rely on clipped visible text.
 assert 'row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{' in settings
+# A 13..12sp TextView autosize range crashed both emulator Settings flows.
+# The pure policy and JVM test ensure 12sp controls and fallback footer are safe.
+sizing=(src/"SettingsTextSizePolicy.kt").read_text()
+sizing_test=(root/"android/app/src/test/java/com/brendigo/bopavi/SettingsTextSizePolicyTest.kt").read_text()
+assert 'SettingsTextSizePolicy.minSp(size)' in settings
+assert 'setAutoSizeTextTypeUniformWithConfiguration(minAutoSp,size,1,' in settings
+assert 'if(maxSp>13) 13 else (maxSp-2).coerceAtLeast(1)' in sizing
+assert 'for(maximum in 2..100)' in sizing_test
+assert 'SettingsTextSizePolicy.minSp(12)' in sizing_test
+assert 'setAutoSizeTextTypeUniformWithConfiguration(13,size,1,' not in settings
 assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in settings
 assert 'val shortLabel=when(index)' in settings
 for label in ('"EASY"','"NORMAL"','"HARD"'):
