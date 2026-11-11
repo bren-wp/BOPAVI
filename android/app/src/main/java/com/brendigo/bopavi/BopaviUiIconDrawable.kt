@@ -21,7 +21,7 @@ internal class BopaviUiIconDrawable(
     private val ink: Int,
     private val pixelSize: Int
 ) : Drawable() {
-    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, GEM, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC, BELL, GLOBE, GAMEPAD, CLOUD }
+    enum class Kind { PLAY, PAUSE, RESTART, HOME, EXIT, SETTINGS, RECORDS, STAR, BERRY, GATE, FLIGHT, SHIRT, WING, COIN, CROWN_COIN, GEM, SHOP, LEADERBOARD, SOUND, SHIELD, MAGNET, MUSIC, BELL, GLOBE, GAMEPAD, CLOUD, HEADSET }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 2.1f
@@ -193,6 +193,18 @@ internal class BopaviUiIconDrawable(
                 paint.style=Paint.Style.STROKE
                 canvas.drawArc(12f,6f,20f,18f,-65f,130f,false,paint)
                 canvas.drawArc(10f,3f,23f,21f,-65f,130f,false,paint)
+            }
+            Kind.HEADSET -> {
+                // Functional restore action gets the owner's white
+                // headset/support pictogram without rasterizing its button.
+                paint.style=Paint.Style.STROKE
+                paint.strokeWidth=2.9f
+                canvas.drawArc(4f,3f,20f,21f,190f,160f,false,paint)
+                canvas.drawRoundRect(2.5f,11f,6.7f,19f,1.6f,1.6f,paint)
+                canvas.drawRoundRect(17.3f,11f,21.5f,19f,1.6f,1.6f,paint)
+                canvas.drawArc(11f,15f,21f,23f,10f,130f,false,paint)
+                paint.style=Paint.Style.FILL
+                canvas.drawRoundRect(10f,19f,15f,21f,1f,1f,paint)
             }
             Kind.BELL -> {
                 // Domed bell, hanging clapper and ring tab from owner Settings.
