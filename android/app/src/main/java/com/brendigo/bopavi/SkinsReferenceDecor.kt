@@ -179,31 +179,33 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
             c.drawLine(x+7f,topY+6f,x+67f,topY+12f,p)
             p.style=Paint.Style.FILL
         }
+        // The owner podium has a narrow grassy crown over taller cut-stone
+        // facets; the previous 90px emerald oval covered its stone structure.
         p.color=0xff256c39.toInt()
-        c.drawOval(160f,792f,788f,883f,p)
-        p.shader=LinearGradient(170f,797f,760f,865f,
+        c.drawOval(160f,819f,788f,879f,p)
+        p.shader=LinearGradient(170f,814f,760f,872f,
             0xffc3f36b.toInt(),0xff278342.toInt(),Shader.TileMode.CLAMP)
-        c.drawOval(169f,791f,778f,863f,p);p.shader=null
+        c.drawOval(169f,813f,778f,868f,p);p.shader=null
         p.color=0x99fbffc8.toInt()
         p.style=Paint.Style.STROKE;p.strokeWidth=4f
-        c.drawArc(187f,799f,750f,853f,189f,156f,false,p)
+        c.drawArc(187f,819f,750f,869f,189f,156f,false,p)
         p.style=Paint.Style.FILL
-        p.shader=RadialGradient(472f,821f,275f,
+        p.shader=RadialGradient(472f,835f,270f,
             intArrayOf(0xffffffd9.toInt(),0xffffcf51.toInt(),
                 0xffad622c.toInt()),null,Shader.TileMode.CLAMP)
-        c.drawOval(252f,801f,690f,864f,p);p.shader=null
+        c.drawOval(252f,819f,690f,872f,p);p.shader=null
         p.style=Paint.Style.STROKE;p.color=0xffffeaa2.toInt()
-        p.strokeWidth=6f;c.drawOval(270f,806f,675f,860f,p)
+        p.strokeWidth=5f;c.drawOval(270f,824f,675f,868f,p)
         p.style=Paint.Style.FILL
         for(i in 0..18){
             val x=157f+i*35f
-            val y=832f+(i%4)*5f
+            val y=846f+(i%4)*4f
             p.color=if(i%2==0)0xff3b9c2e.toInt() else 0xff74d04b.toInt()
             c.drawOval(x-10f,y-20f,x+18f,y+5f,p)
         }
         // Small daisies share the cream/gold owner reference palette.
         for(x in floatArrayOf(184f,245f,676f,748f)){
-            val y=849f+(x.toInt()%3)*7f
+            val y=859f+(x.toInt()%3)*5f
             for(i in 0..5){
                 val theta=i*kotlin.math.PI/3.0
                 val px=x+kotlin.math.cos(theta).toFloat()*12f
