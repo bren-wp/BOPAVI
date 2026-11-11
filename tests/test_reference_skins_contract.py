@@ -52,7 +52,9 @@ assert "allowMotion=!progress.lessMotion()" in screen
 assert 'cycleArrow("‹","Previous hero")' in screen
 assert 'cycleArrow("›","Next hero")' in screen
 assert 'contentDescription="Equip "+item.title' in screen
-assert "setOnClickListener { onChoose(selected) }" in screen
+assert "if(PilotSelectionModel.locked(selected,orionOwned))onUnlock()" in screen
+assert "else onChoose(selected)" in screen
+assert "setOnClickListener { onChoose(selected) }" not in screen
 assert "stage.setOnApplyWindowInsetsListener" in screen
 assert "minimumHeight=dp(48)" in screen
 assert "contentDescription=PilotSelectionModel.accessibility(" in screen
