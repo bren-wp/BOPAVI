@@ -57,9 +57,9 @@ assert 'earned>0' in shop
 assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
-assert 'R.drawable.bopavi_owner_shop_kiosk' in shop
-assert 'R.drawable.bopavi_owner_shop_kiosk' in shop  # actual owner's reference kiosk artwork
-assert '},24f,302f,894f,276f)' in shop
+assert 'R.drawable.bopiportrait0' in shop
+assert 'R.drawable.bopiportrait0' in shop  # actual owner's reference kiosk artwork
+assert '},232f,310f,480f,268f)' in shop
 assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
 assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
@@ -70,7 +70,7 @@ assert 'stage.useShopFullBleedReferenceCamera()' in shop
 stage=(src/"LevelMapScreen.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
 assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
-assert '},24f,302f,894f,276f)' in shop
+assert '},232f,310f,480f,268f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)' in shop
 assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
@@ -85,7 +85,7 @@ assert 'card.touchDelegate=TouchDelegate(hit,buy)' in shop
 
 assert 'background=ShopCreamCardDrawable()' in shop
 assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
-assert '},24f,302f,894f,276f)' in shop
+assert '},232f,310f,480f,268f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
