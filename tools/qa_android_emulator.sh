@@ -184,6 +184,51 @@ PY_LEGAL_STILL_OPEN
     sleep 1
     dump_ui
   fi
+  # The real 12-row accessible Settings ScrollView may be scrolled all the
+  # way to Terms after checking legal links. Its header/HOME are offscreen.
+  # Navigate *within the app* back to the top; never bypass navigation or
+  # accept launcher/OS pages in place of Settings.
+  python3 - <<'PY_SCROLL_TO_SETTINGS_TOP'
+import re,subprocess,time,xml.etree.ElementTree as ET
+path="qa/screenshots/android-current-ui.xml"
+for attempt in range(9):
+    nodes=list(ET.parse(path).getroot().iter("node"))
+    title=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+           and n.get("text","").upper()=="SETTINGS"]
+    home=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+          and n.get("clickable")=="true" and n.get("content-desc")=="HOME"]
+    if len(title)==1 and len(home)==1:
+        print("PASS: Settings header and native HOME are visible",flush=True)
+        break
+    scrolling=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+               and n.get("class")=="android.widget.ScrollView"
+               and n.get("scrollable")=="true"]
+    if len(scrolling)!=1:
+        raise SystemExit("FAIL: Settings top unreachable; actual app ScrollView absent")
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                   scrolling[0].get("bounds",""))
+    if not m:
+        raise SystemExit("FAIL: Settings ScrollView bounds invalid")
+    a,b,c,d=map(int,m.groups())
+    x=a+(c-a)//2
+    start=b+max(1,(d-b)//3)
+    end=b+max(2,((d-b)*5)//6)
+    if start>=end:
+        raise SystemExit("FAIL: invalid Settings scroll area")
+    subprocess.run(["adb","shell","input","swipe",str(x),str(start),
+                    str(x),str(end),"320"],check=True,timeout=20)
+    time.sleep(.4)
+    subprocess.run(["adb","shell","uiautomator","dump",
+                    "/sdcard/bopavi-settings-top.xml"],check=True,
+                   timeout=45,capture_output=True)
+    with open(path,"wb") as output:
+        subprocess.run(["adb","exec-out","cat",
+                        "/sdcard/bopavi-settings-top.xml"],check=True,
+                       stdout=output,timeout=25)
+else:
+    raise SystemExit("FAIL: Settings title and HOME not reachable after 8 upward scrolls")
+PY_SCROLL_TO_SETTINGS_TOP
+  dump_ui
   python3 - <<'PY'
 import re,subprocess,xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
