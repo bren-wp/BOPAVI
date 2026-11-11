@@ -138,8 +138,12 @@ internal class ProgressOverviewScreen(
         }
         stats.addView(text("NAJBOLJI REZULTAT   ${store.bestPoints()}",16f),
             LinearLayout.LayoutParams(-1,dp(31)))
-        stats.addView(text("POBJEDE   ${store.wins()}    •    LETOVI   ${store.totalRuns()}",15f),
-            LinearLayout.LayoutParams(-1,dp(31)))
+        stats.addView(text("POBJEDE   ${store.wins()}    •    BESKRAJNI LETOVI   ${store.totalRuns()}",15f)
+            .apply {
+                maxLines=1
+                setAutoSizeTextTypeUniformWithConfiguration(10,15,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },LinearLayout.LayoutParams(-1,dp(31)))
         stats.addView(text("NOVČIĆI   ${store.coins()}    •    ZAMASI KRILA   ${store.totalFlaps()}",14f),
             LinearLayout.LayoutParams(-1,dp(31)))
         column.addView(stats,LinearLayout.LayoutParams(-1,dp(119)).apply{
