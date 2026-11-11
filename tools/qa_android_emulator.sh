@@ -576,6 +576,16 @@ def match(nodes,label,clickable):
           and (n.get("text","")==label or n.get("content-desc","")==label)
           and (clickable is None or n.get("clickable")=="true")]
     if len(hits)>1:
+        # Cloud Save owns both a visible title and a real Android Switch
+        # with the same accessible name. Verify that exact paired structure
+        # instead of treating two different native roles as duplicate items.
+        text=[n for n in hits if n.get("class")=="android.widget.TextView"
+              and n.get("text")==label]
+        toggle=[n for n in hits if n.get("class")=="android.widget.Switch"
+                and n.get("content-desc")==label
+                and n.get("clickable")=="true"]
+        if label=="Cloud Save" and len(hits)==2 and len(text)==1 and len(toggle)==1:
+            return toggle[0] if clickable else text[0]
         raise SystemExit("FAIL: duplicate native Settings item: "+label)
     return hits[0] if hits else None
 
