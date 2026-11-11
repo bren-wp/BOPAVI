@@ -26,6 +26,9 @@ assert 'after 8 upward scrolls' in shell
 assert 'def scroll_settings(nodes,direction):' in shell
 assert 'def match(nodes,label,clickable):' in shell
 assert 'native Settings item absent after real scrolling' in shell
+assert 'if label=="Cloud Save" and len(hits)==2 and len(text)==1 and len(toggle)==1:' in shell
+assert 'n.get("class")=="android.widget.Switch"' in shell
+assert 'n.get("content-desc")==label' in shell
 assert 'n.get("package")=="com.brendigo.bopavi"' in shell
 assert 'for direction in ("down","up"):' in shell
 assert 'and n.get("content-desc")=="HOME"' in shell
