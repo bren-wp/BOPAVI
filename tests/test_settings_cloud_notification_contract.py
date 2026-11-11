@@ -16,7 +16,7 @@ for marker in (
     "Intent.ACTION_CREATE_DOCUMENT","Intent.ACTION_OPEN_DOCUMENT",
     "Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION",
     "takePersistableUriPermission",
-    "cloudBackup.activate(uri,::reportBackup)",
+    "cloudBackup.activate(uri,data?.flags ?: 0,::reportBackup)",
     "cloudBackup.restoreFrom(uri,::reportBackup)",
     "cloudBackup.deactivate()",
 ):
@@ -32,6 +32,8 @@ for marker in (
     assert marker in backup,marker
 assert 'getSharedPreferences("bopavi_cloud_destination_v1"' in backup
 assert "contentResolver.takePersistableUriPermission" in backup
+assert "if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0)" in backup
+assert "takePersistableUriPermission(uri,flags)" in backup
 assert "return if(result.isSuccess)" not in backup  # completion is reported only after writing
 assert "activity.runOnUiThread" in backup
 assert "executor.shutdown()" in backup
