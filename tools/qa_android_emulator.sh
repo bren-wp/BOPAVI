@@ -571,15 +571,54 @@ def fresh():
                                   "/sdcard/bopavi-settings-control-check.xml"],timeout=25)
     return list(ET.fromstring(data).iter("node"))
 
+def match(nodes,label,clickable):
+    hits=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+          and (n.get("text","")==label or n.get("content-desc","")==label)
+          and (clickable is None or n.get("clickable")=="true")]
+    if len(hits)>1:
+        raise SystemExit("FAIL: duplicate native Settings item: "+label)
+    return hits[0] if hits else None
+
+def scroll_settings(nodes,direction):
+    # On high-density phones 12 actual Android setting rows exceed viewport.
+    # Move the app's true ScrollView, never skip off-screen controls.
+    scrolling=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+               and n.get("class")=="android.widget.ScrollView"
+               and n.get("scrollable")=="true"]
+    if not scrolling:
+        return False
+    if len(scrolling)!=1:
+        raise SystemExit("FAIL: duplicate Settings scrollers")
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                   scrolling[0].get("bounds",""))
+    if not m:
+        raise SystemExit("FAIL: Settings scroll bounds invalid")
+    a,b,c,d=map(int,m.groups())
+    x=a+(c-a)//2
+    upper=b+(d-b)//4
+    lower=b+4*(d-b)//5
+    if lower<=upper:
+        raise SystemExit("FAIL: Settings scroll gesture bounds invalid")
+    first,second=(lower,upper) if direction=="down" else (upper,lower)
+    subprocess.run(["adb","shell","input","swipe",str(x),str(first),
+                    str(x),str(second),"310"],check=True,timeout=20)
+    time.sleep(.55)
+    return True
+
 def find(label,clickable=None):
     nodes=fresh()
-    hits=[n for n in nodes if
-          (n.get("text","")==label or n.get("content-desc","")==label)
-          and (clickable is None or n.get("clickable")=="true")]
-    if len(hits)!=1:
-        raise SystemExit("FAIL: native Settings item absent or duplicated: "+label+
-                         " count="+str(len(hits)))
-    return hits[0]
+    hit=match(nodes,label,clickable)
+    if hit is not None:
+        return hit
+    for direction in ("down","up"):
+        for _ in range(8):
+            if not scroll_settings(nodes,direction):
+                break
+            nodes=fresh()
+            hit=match(nodes,label,clickable)
+            if hit is not None:
+                return hit
+    raise SystemExit("FAIL: native Settings item absent after real scrolling: "+label)
 
 def tap(label,clickable=None):
     n=find(label,clickable)
