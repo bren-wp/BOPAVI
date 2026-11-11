@@ -4,9 +4,9 @@ package com.brendigo.bopavi
 internal object PilotSelectionLayout {
     const val referenceWidth=941f
     const val referenceHeight=1672f
-    const val bannerLeft=223f
+    const val bannerLeft=250f
     const val bannerTop=166f
-    const val bannerWidth=495f
+    const val bannerWidth=441f
     const val bannerHeight=128f
     // Increase the complete winged hero silhouette toward the owner's
     // dominant central character, without moving interactive skin cards.
