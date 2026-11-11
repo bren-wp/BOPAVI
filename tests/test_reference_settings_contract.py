@@ -37,6 +37,8 @@ assert 'val rows=floatArrayOf(610f,706f,802f,898f,994f,1090f,1186f,1282f,1378f)'
 assert 'const val homeTop=1486f' in geometry
 assert 'stage.useShopFullBleedReferenceCamera()' in settings
 assert 'SettingsReferenceLayout.supportsNativeTouchTargets(' in settings
+assert 'col.addView(button("‹  HOME",click=onBack).apply {' in settings
+assert 'contentDescription="HOME"' in settings
 assert 'fun supportsNativeTouchTargets(screenW:Int,screenH:Int,density:Float)' in geometry
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
