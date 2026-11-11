@@ -77,7 +77,10 @@ assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,1.30f)' in shop
+assert 'LinearLayout.LayoutParams(-1,0,1.00f)' in shop
+assert 'val hit=Rect()' in shop
+assert 'buy.getHitRect(hit)' in shop
+assert 'card.touchDelegate=TouchDelegate(hit,buy)' in shop
 
 
 assert 'background=ShopCreamCardDrawable()' in shop
@@ -93,7 +96,7 @@ assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert '183f,123f,575f,201f' in shop
-assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.50f))' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))' in shop
 
 
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
