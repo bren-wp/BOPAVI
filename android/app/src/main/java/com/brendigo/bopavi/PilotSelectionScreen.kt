@@ -67,20 +67,15 @@ internal class PilotSelectionScreen(
     /** Round native navigation buttons, never screenshot-driven hotspots. */
     private fun cycleArrow(label:String,description:String,onClick:()->Unit):Button =
         Button(host).apply {
-            text=label
+            // The white outlined chevron is painted into the native button
+            // background, avoiding a font-dependent ‹/› substitution.
+            text=""
             textSize=43f
             isAllCaps=false
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(Color.WHITE)
             background=RippleDrawable(ColorStateList.valueOf(0x66ffffff),
-                GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                    intArrayOf(0xff9aecff.toInt(),0xff168df2.toInt(),
-                        0xff0651b2.toInt())).apply {
-                    // Only the *navigation arrow* is an oval. The platform
-                    // beneath Bopi remains a separately painted stone dais.
-                    shape=GradientDrawable.OVAL
-                    setStroke(dp(4),0xffffd164.toInt())
-                },null)
+                SkinsCarouselArrowDrawable(right=label=="›"),null)
             elevation=dp(5).toFloat()
             minimumHeight=dp(48)
             contentDescription=description
@@ -279,9 +274,10 @@ internal class PilotSelectionScreen(
                 stage.place(LevelMapLockGlyph(host),left+154f,
                     PilotSelectionLayout.cardTop+8f,50f,54f)
             } else if(isSelected) {
-                stage.place(text("✓",30f,Color.WHITE).apply{
-                    background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
+                stage.place(ImageView(host).apply {
+                    setImageDrawable(SkinsEquippedBadgeDrawable())
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    isClickable=false
                 },left+158f,PilotSelectionLayout.cardTop+4f,55f,55f)
             }
         }
@@ -290,7 +286,7 @@ internal class PilotSelectionScreen(
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
             setPadding(dp(9),dp(8),dp(9),dp(8))
-            background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
+            background=SkinsSelectedInfoDrawable()
             contentDescription="Selected "+item.title+". "+item.ability.description
             val details=LinearLayout(host).apply {
                 orientation=LinearLayout.VERTICAL
@@ -311,13 +307,15 @@ internal class PilotSelectionScreen(
             }
             addView(details,LinearLayout.LayoutParams(0,-1,.62f))
             addView(Button(host).apply{
-                text="EQUIP"
+                text=if(PilotSelectionModel.locked(selected,orionOwned))
+                    "UNLOCK" else "EQUIP"
                 isAllCaps=false
                 textSize=30f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(Color.WHITE)
                 background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.GREEN)
-                contentDescription="Equip "+item.title
+                contentDescription=(if(PilotSelectionModel.locked(selected,orionOwned))
+                    "Unlock " else "Equip ")+item.title
                 isClickable=true
                 isFocusable=true
                 minimumHeight=dp(48)
