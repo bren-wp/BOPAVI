@@ -282,7 +282,9 @@ internal class SettingsScreen(private val host:Activity,
         // all historical Sound, Reduced Motion and Difficulty controls.
         val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
             host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT &&
-            host.resources.configuration.fontScale<1.25f
+            host.resources.configuration.fontScale<1.25f &&
+            SettingsReferenceLayout.supportsNativeTouchTargets(
+                dm.widthPixels,dm.heightPixels,dm.density)
         val language=progress.uiLanguage()
         val croatian=language=="hr"
         fun name(en:String,hr:String)=if(croatian)hr else en
