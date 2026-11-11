@@ -57,9 +57,9 @@ assert 'earned>0' in shop
 assert 'fontScale<1.25f' in geom
 assert 'onBuy(featured.index)' in shop
 assert 'featured.canBuy' in shop
-assert 'R.drawable.bopiportrait0' in shop
-assert 'R.drawable.bopiportrait0' in shop  # actual owner's reference kiosk artwork
-assert '},232f,310f,480f,268f)' in shop
+assert 'R.drawable.bopavi_owner_shop_kiosk' in shop
+assert 'R.drawable.bopavi_owner_shop_kiosk' in shop  # actual owner's reference kiosk artwork
+assert '},24f,302f,894f,276f)' in shop
 assert 'R.drawable.bopiportrait1' in shop  # golden mascot behind the real featured perk
 assert 'setPadding(dp(4),0,dp(4),0)' in shop  # unclipped native purchase price
 assert 'contentDescription="HOME"' in shop
@@ -70,7 +70,7 @@ assert 'stage.useShopFullBleedReferenceCamera()' in shop
 stage=(src/"LevelMapScreen.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
 assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
-assert '},232f,310f,480f,268f)' in shop
+assert '},24f,302f,894f,276f)' in shop
 assert 'contentDescription="Earned stars: $stars"' in shop
 assert 'BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)' in shop
 assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
@@ -85,7 +85,7 @@ assert 'card.touchDelegate=TouchDelegate(hit,buy)' in shop
 
 assert 'background=ShopCreamCardDrawable()' in shop
 assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
-assert '},232f,310f,480f,268f)' in shop
+assert '},24f,302f,894f,276f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
@@ -130,7 +130,7 @@ for element in ("private fun woodenBoard(","private fun awning(",
                 "c.scale(width/941f,height/1672f)"):
     assert element in decor, element
 assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
-assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' in shop
+assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' not in shop
 assert 'ShopEmbossedTitle(host)' in shop
 assert 'contentDescription="SHOP"' in (src/"ShopEmbossedTitle.kt").read_text()
 assert '183f,123f,575f,201f' in shop
