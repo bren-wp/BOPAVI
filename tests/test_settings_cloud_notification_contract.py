@@ -61,6 +61,6 @@ assert 's.put("notificationsEnabled"' not in store
 assert 's.put("document_uri"' not in store
 assert 'e.putBoolean("notifications_enabled"' not in store
 assert 'e.putString("document_uri"' not in store
-assert "Pružatelja pohrane" in privacy
+assert "pružatelja pohrane" in privacy
 assert "dnevne lokalne obavijesti" in privacy
 print("PASS: opt-in local reminders, scoped SAF provider, validated backup and consent isolation")
