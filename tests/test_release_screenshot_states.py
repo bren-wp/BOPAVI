@@ -27,10 +27,22 @@ for state in ("privacy","terms"):
     assert '"android-'+state+'"' in qa,state
 assert 'screencap","-p"' in qa
 assert 'FAIL: original Android legal screenshot is invalid' in qa
-assert 'for expected in ("SETTINGS","OPUŠTENO","STANDARDNO"' in qa
+# Release screenshots use the owner's real nine-row Settings page.
+# Difficulty is now checked through the native Controls dialog and must
+# persist through two real selections before capture is accepted.
+assert 'for label in ("SETTINGS","Music","Sound Effects","Notifications",' in qa
+assert '"Privacy Policy","Terms of Service","Restore Purchases"' in qa
 assert "FAIL: Home Settings inaccessible" in qa
-assert "FAIL: relaxed flight difficulty not selected" in qa
-assert "FAIL: restored standard difficulty not selected" in qa
+for contract in (
+    'tap("Touch",True)',
+    'tap("Difficulty: Standardno",True)',
+    'tap("Opušteno",True)',
+    'find("Difficulty: Opušteno")',
+    'tap("Standardno",True)',
+    'find("Difficulty: Standardno")',
+    "PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",
+):
+    assert contract in qa,contract
 assert 'for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE"' in qa
 assert "FAIL: Leaderboard Home action missing" in qa
 assert "PASS: local records screen visible and returns Home" in qa
