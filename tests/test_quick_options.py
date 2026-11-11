@@ -44,10 +44,19 @@ assert 'android.permission.INTERNET' not in manifest
 print("PASS: reachable quick options and records, real difficulty and new offline menu routes")
 
 qa=(root/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
+# The Settings owner design now opens Difficulty through the real
+# Controls dialog, rather than drawing three obsolete inline difficulty
+# buttons. The emulator must actually change both values, reopen Controls
+# and verify that each choice persisted; do not keep the old string markers.
 for contract in (
     "FAIL: Home Settings inaccessible",
-    "FAIL: relaxed flight difficulty not selected",
-    "FAIL: restored standard difficulty not selected",
+    'tap("Touch",True)',
+    'tap("Difficulty: Standardno",True)',
+    'tap("Opušteno",True)',
+    'tap("Difficulty: Opušteno",True)',
+    'tap("Standardno",True)',
+    'find("Difficulty: Standardno")',
+    "PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",
     "FAIL: Home records action missing",
     "PASS: local records screen visible and returns Home",
 ):
