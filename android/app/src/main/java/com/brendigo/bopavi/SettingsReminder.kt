@@ -62,8 +62,8 @@ internal object SettingsReminder {
             Intent(context,MainActivity::class.java).apply {
                 flags=Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             },PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val builder=if(Build.VERSION.SDK_INT>=26) Notification.Builder(context,CHANNEL)
-            else @Suppress("DEPRECATION") Notification.Builder(context)
+        // minSdk is 26; every supported device uses notification channels.
+        val builder=Notification.Builder(context,CHANNEL)
         manager.notify(REQUEST,builder
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("BOPAVI")
