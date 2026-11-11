@@ -517,41 +517,57 @@ sleep 1
 dump_ui
 capture android-options
 python3 - <<'PY'
-import subprocess,re,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-alltext=" ".join((n.get("text","")+" "+n.get("content-desc","")).upper() for n in nodes)
-for expected in ("SETTINGS","OPUŠTENO","STANDARDNO","IZAZOVNO","MUSIC","SOUND EFFECTS"):
-    if expected not in alltext:raise SystemExit("FAIL: full-page Settings missing "+expected)
-choice=[n for n in nodes if n.get("clickable")=="true"
-        and n.get("content-desc","").upper()=="CHOOSE OPUŠTENO"]
-if len(choice)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selectable")
-coords=list(map(int,re.findall("[0-9]+",choice[0].get("bounds",""))))
-if len(coords)!=4:raise SystemExit("FAIL: relaxed difficulty bounds invalid")
-a,b,c,d=coords
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
-sleep 1
-dump_ui
-python3 - <<'PY'
-import subprocess,re,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-relaxed=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED OPUŠTENO"]
-if len(relaxed)!=1:raise SystemExit("FAIL: relaxed flight difficulty not selected")
-standard=[n for n in nodes if n.get("clickable")=="true"
-          and n.get("content-desc","").upper()=="CHOOSE STANDARDNO"]
-if len(standard)!=1:raise SystemExit("FAIL: standard flight difficulty missing")
-coords=list(map(int,re.findall("[0-9]+",standard[0].get("bounds",""))))
-if len(coords)!=4:raise SystemExit("FAIL: standard difficulty bounds invalid")
-a,b,c,d=coords
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-PY
-sleep 1
-dump_ui
-python3 - <<'PY'
-import xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-standard=[n for n in nodes if n.get("content-desc","").upper()=="SELECTED STANDARDNO"]
-if len(standard)!=1:raise SystemExit("FAIL: restored standard difficulty not selected")
+import re,subprocess,time,xml.etree.ElementTree as ET
+
+def fresh():
+    subprocess.run(["adb","shell","uiautomator","dump","/sdcard/bopavi-settings-control-check.xml"],
+                   check=True,capture_output=True,timeout=45)
+    data=subprocess.check_output(["adb","exec-out","cat",
+                                  "/sdcard/bopavi-settings-control-check.xml"],timeout=25)
+    return list(ET.fromstring(data).iter("node"))
+
+def find(label,clickable=None):
+    nodes=fresh()
+    hits=[n for n in nodes if
+          (n.get("text","")==label or n.get("content-desc","")==label)
+          and (clickable is None or n.get("clickable")=="true")]
+    if len(hits)!=1:
+        raise SystemExit("FAIL: native Settings item absent or duplicated: "+label+
+                         " count="+str(len(hits)))
+    return hits[0]
+
+def tap(label,clickable=None):
+    n=find(label,clickable)
+    m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.get("bounds",""))
+    if not m:raise SystemExit("FAIL: invalid native Settings bounds for "+label)
+    a,b,c,d=map(int,m.groups())
+    subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],
+                   check=True,timeout=20)
+    time.sleep(.85)
+
+# Reference includes nine options; actual Difficulty is reached via Controls,
+# not three extra inline buttons that disrupt 1:1 Settings composition.
+for label in ("SETTINGS","Music","Sound Effects","Notifications",
+              "Language","Controls","Vibration","Cloud Save",
+              "Privacy Policy","Terms of Service","Restore Purchases"):
+    find(label)
+tap("Touch",True)
+find("Controls")
+tap("Difficulty: Standardno",True)
+find("Opušteno")
+tap("Opušteno",True)
+find("SETTINGS")
+tap("Touch",True)
+find("Difficulty: Opušteno")
+tap("Difficulty: Opušteno",True)
+tap("Standardno",True)
+find("SETTINGS")
+tap("Touch",True)
+find("Difficulty: Standardno")
+subprocess.run(["adb","shell","input","keyevent","KEYCODE_BACK"],check=True,timeout=20)
+time.sleep(.6)
+find("SETTINGS")
+print("PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",flush=True)
 PY
 return_home_from_settings
 echo "PASS: full native Settings, persisted difficulty and Home navigation"
