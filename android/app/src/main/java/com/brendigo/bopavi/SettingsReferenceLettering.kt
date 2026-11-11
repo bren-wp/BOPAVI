@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.widget.TextView
+import android.widget.Button
 import android.view.View
 import kotlin.math.min
 
@@ -62,11 +63,20 @@ internal class SettingsEmbossedTitle(context:Context):TextView(context){
 }
 
 /** Native accessible legal-navigation control with a true 3D blue chevron. */
-internal class SettingsLegalArrow(context:Context,label:String,onTap:()->Unit):View(context) {
+internal class SettingsLegalArrow(context:Context,label:String,onTap:()->Unit):Button(context) {
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private val line=Path()
     init {
+        // Expose a real Button class to TalkBack and UIAutomator.
+        // A plain View with onClick had no native button semantics, so the
+        // Android 15 font-scale audit could not find either legal action.
         contentDescription=label
+        text=""
+        minWidth=0
+        minimumWidth=0
+        minHeight=0
+        minimumHeight=0
+        background=null
         isClickable=true
         isFocusable=true
         setOnClickListener { onTap() }
