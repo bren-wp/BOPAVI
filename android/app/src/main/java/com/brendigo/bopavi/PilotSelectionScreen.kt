@@ -322,7 +322,12 @@ internal class PilotSelectionScreen(
                 isFocusable=true
                 minimumHeight=dp(48)
                 elevation=dp(3).toFloat()
-                setOnClickListener { onChoose(selected) }
+                setOnClickListener {
+                    // Keep the bottom CTA behind the same owned(8) gate as
+                    // the native selection cards and carousel navigation.
+                    if(PilotSelectionModel.locked(selected,orionOwned))onUnlock()
+                    else onChoose(selected)
+                }
             },LinearLayout.LayoutParams(0,-1,.38f).apply{
                 leftMargin=dp(4)
             })
