@@ -133,7 +133,7 @@ reminder=(src/"SettingsReminder.kt").read_text()
 manifest=(root/"android/app/src/main/AndroidManifest.xml").read_text()
 assert 'Intent.ACTION_CREATE_DOCUMENT' in main
 assert 'Intent.ACTION_OPEN_DOCUMENT' in main
-assert 'cloudBackup.activate(uri,::reportBackup)' in main
+assert 'cloudBackup.activate(uri,data?.flags ?: 0,::reportBackup)' in main
 assert 'cloudBackup.restoreFrom(uri,::reportBackup)' in main
 assert 'SettingsReminder.configure(this,enabled)' in main
 assert 'onCloud={enabled->' in main
