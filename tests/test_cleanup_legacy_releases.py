@@ -166,6 +166,12 @@ class RetentionTests(unittest.TestCase):
             self.assertIn("BOPAVI-Android-Skins.png", current)
             self.assertNotIn("BOPAVI-Android-Splash.png", current)
             self.assertEqual(len(current), 21)
+        extended = cleanup.expected_release_assets("v1.0.79")
+        self.assertEqual(len(extended), 23)
+        self.assertIn("BOPAVI-Android-Game-Over.png", extended)
+        self.assertIn("BOPAVI-Android-Progress.png", extended)
+        self.assertNotIn("BOPAVI-Android-Game-Over.png",
+                         cleanup.expected_release_assets("v1.0.78"))
         self.assertIn("BOPAVI-Android-Splash.png", old)
         self.assertEqual(len(old), 22)
         self.assertNotIn("BOPAVI-Android-Splash.png",

@@ -61,3 +61,10 @@ reference comparisons; do **not** fabricate percentages or label them as 0%.
 
 This PR does not modify the original reference images and does not produce
 mock button screenshots.
+
+## Izdanje v1.0.79 — podrijetlo javnih snimki
+
+- Release galerija sadrži 17 izvornih Android emulator snimki, uključujući Game Over (`android-game-over-reference-size.png`) i Progress (`android-progress-reference-size.png`) na izvornom 941×1672 rasteru.
+- Javne PNG datoteke preuzimaju se s CI emulatora; korisničke izvorne ilustracije u `docs/assets/` ostaju jasno odvojene od stvarnih snimki zaslona.
+- Ovaj dodatak ne dokazuje 0 % RGB podudarnosti: bez provjere izvornog vlasničkog PNG-a i nove neizmijenjene usporedbe postotci se ne smiju prikazivati kao aktualni.
+- Verzijski release manifest zahtijeva dodatne dvije snimke od v1.0.79 i ostavlja povijesna izdanja nepromijenjenima.

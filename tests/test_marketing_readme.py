@@ -14,9 +14,9 @@ class MarketingReadmeTests(unittest.TestCase):
         for path in ("docs/assets/logo.svg", "docs/assets/hero.svg", "docs/play/PRIVACY_POLICY.md"):
             self.assertIn(path, content)
             self.assertTrue((ROOT / path).is_file(), path)
-        for name in ("Home", "Skins", "Shop", "Settings", "Achievements", "Leaderboard", "Level-Map", "Options", "Records", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
+        for name in ("Home", "Skins", "Shop", "Settings", "Achievements", "Progress", "Game-Over", "Leaderboard", "Level-Map", "Options", "Records", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
             self.assertIn(f"releases/latest/download/BOPAVI-Android-{name}.png", content)
-        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 30)
+        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 34)
         self.assertIn("https://brendigo.com", content)
         self.assertNotIn("BOPAVI-Android-Splash.png",content)
         self.assertIn("odmah otvara",content)

@@ -1,78 +1,62 @@
 <div align="center">
 
-<img src="docs/assets/logo.svg" alt="BOPAVI — službeni krilati logotip" width="500">
+<img src="docs/assets/logo.svg" alt="BOPAVI — izvorni krilati logotip" width="500">
 
 ### MALI LETOVI. VELIKE PRIČE.
 
-**Raširi krila. Uhvati ritam. Poleti u čarobnu avanturu.**
+**Zamahni krilima. Preleti prepreke. Stvori svoju priču iznad oblaka.**
 
-<img src="docs/assets/hero.svg" alt="Bopi leti među lebdećim otocima" width="820">
+<img src="docs/assets/hero.svg" alt="Izvorna BOPAVI ilustracija čarobnih lebdećih otoka" width="820">
 
-**[PREUZMI BOPAVI ZA ANDROID](https://github.com/bren-wp/BOPAVI/releases/latest)**
+**[🪽 PREUZMI BOPAVI ZA ANDROID](https://github.com/bren-wp/BOPAVI/releases/latest)**
 
 <a href="https://play.google.com/store/apps/details?id=com.brendigo.bopavi&hl=hr"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Preuzmi BOPAVI na Google Playu" width="220"></a>
 
-*Besplatna igra. Bez oglasa. Bez praćenja. Bez registracije.*
+**Bez oglasa. Bez praćenja. Bez registracije.**
+
+*Offline Android avantura · BRENDIGO*
 
 </div>
 
 ---
 
-## Mala krila, velika avantura
+## Nebeska avantura počinje jednim dodirom ☁️
 
-Iznad oblaka čeka te svijet nebeskih otoka, slapova i neočekivanih prepreka. Upoznaj Bopija i njegove prijatelje te otkrij koliko daleko možeš poletjeti. Svaki dodir pokreće novi zamah krila, a svaki pokušaj novu priliku za osobni rekord.
+Iznad oblaka, između lebdećih otoka i razigranih prepreka, svaki zamah krila vodi prema novom rekordu. **BOPAVI** je arkadna igra za kratke letove i velike male pobjede. Odaberi junaka, uhvati ritam leta i otkrij koliko daleko možeš stići.
 
-**Jednostavno za naučiti. Uzbudljivo za savladati.** Odaberi junaka, pritisni **IGRAJ** i uhvati ritam leta.
+Igra se **odmah otvara** na početnom zaslonu. Pritisni **IGRAJ** i poleti — bez registracije, bez internetske veze i bez obvezne prijave.
 
-## Svijet koji te poziva na još jedan let
+## Što te čeka? ✨
 
-Krilati znak na početnom zaslonu, leteći Bopi i živopisno nebo uvode te u pustolovinu već pri pokretanju. Nastavi kroz kratke letove, usavrši osjećaj za prepreke i pokušaj svaki put biti spretniji.
+- 🪽 **Let jednim dodirom** — izbjegavaj prepreke i svladaj ritam zamaha.
+- 🌤️ **Osam svjetova** — istražuj krajolike, prolaze i izazove.
+- 🦉 **Više junaka** — od Bopija do Sove, Lisca i dodatnih pilota.
+- 🏆 **Rekordi i postignuća** — svaki uspjeh vezan je uz stvarne rezultate igre.
+- 🛡️ **Nadogradnje za novčiće** — štitovi i magneti kupuju se lokalno zarađenom valutom.
+- 🔐 **Tvoj napredak ostaje tvoj** — lokalno spremljeni podaci i kopija koju sam odabireš.
 
-BOPAVI je osmišljen za trenutke kada želiš samo zaigrati: **pokreni, poleti i pokušaj ponovno**.
+## Upoznaj svoje letače 🦊
 
-### Tri junaka, bezbroj pokušaja
-
-**Bopi** donosi osmijeh svakom zamahu, **Sova** otkriva čari letenja, a **Lisac** poziva na još jednu pustolovinu. Igraj svojim ritmom, svladaj prolaze među stijenama i nastavi ondje gdje te čeka osobni izazov.
-
-### Nova pilotska družina: Sova i Lisica
-
-Uz Bopija sada možeš poletjeti s još dva prepoznatljiva junaka. **Sova** nosi smeđe-bijelo perje, raskošna krila, plavi šal i dvije zlatne pilotske naočale. **Lisica** leti s narančasto-bijelim krznom, velikim ušima, raskošnim svijetlim repom, crvenim šalom i zlatnom medaljom. Svaki lik ima **stvarna animirana lijeva i desna krila**, a odabir se sprema lokalno.
+Bopi predvodi pustolovinu. Sova leti s plavim šalom i pilotskim naočalama, a Lisac donosi crveni šal i prepoznatljiv rep. Izaberi svojega omiljenog junaka; otključavanja i odabir spremaju se lokalno.
 
 <div align="center">
-<img src="docs/assets/sova.svg" alt="Sova — smeđe-bijeli pilot s plavim šalom i zlatnim naočalama" width="220">
-<img src="docs/assets/lisac.svg" alt="Lisica — narančasto-bijeli pilot s velikim repom i crvenim šalom" width="220">
+<img src="docs/assets/sova.svg" alt="Izvorna ilustracija BOPAVI junaka Sove" width="220">
+<img src="docs/assets/lisac.svg" alt="Izvorna ilustracija BOPAVI junaka Lisca" width="220">
 </div>
 
-*Prikazi likova su lokalni izvorni SVG resursi. Stvarne snimke svih 16 Android zaslona nalaze se u galeriji ispod.*
+*Iznad su izvorne ilustracije, a u galeriji su stvarne snimke Android aplikacije.*
 
-## Zašto zaigrati?
+## Osam svjetova. Tvoja priča. 🌍
 
-- 🪽 **Jedan dodir, potpuna kontrola.** Dodirni zaslon i upravljaj zamahom krila.
-- ☁️ **Čarobni svijet iznad oblaka.** Leti između lebdećih otoka i živopisnih krajolika.
-- 🍓 **Prikupi bobice.** Izvuci najbolje iz svakog leta.
-- 🏆 **Sruši svoj rekord.** Prati svoje uspjehe i napredak na uređaju.
-- 🎮 **Odaberi svojega junaka.** Bopi, Sova ili Lisac čekaju tvoj poziv.
-- 💙 **Igraj bez ometanja.** Ne trebaju ti račun ni obvezna mrežna veza.
+**Sky Meadows**, **Crystal Ruins**, **Volcano Peaks**, **Night Castles**, **Pearl Sea**, **Sky Towers**, **Magic Forest** i **Star Abyss** čekaju na istraživanje. Karta razina pokazuje otključani put, a zaslon **Napredak** prati završene razine, rezultate, zvjezdice s prvih 20 razina svakog svijeta i druge spremljene statistike.
 
-## S ljubavlju izrađeni detalji
+## Prikupi. Nadogradi. Poleti ponovno. 🎮
 
-Home prikazuje krilati logotip, vesele pilotske naočale i nebeske krajolike. Uživaj u šarenim 3D detaljima, pronađi svoj ritam i nastavi prema sljedećem osobnom rekordu.
-
-## Odmah u igru
-
-BOPAVI se odmah otvara na **Home** bez zasebne uvodne animacije ili čekanja. Brojači stvarno zarađenih novčića i zvjezdica prilagođavaju se zaslonu, uključujući uređaje s izrezom kamere. Odabir junaka i trgovina koriste stvarne Android kontrole, a spremljeni napredak ostaje na uređaju.
-
-## Gameplay — uhvati svaki zlatni prsten
-
-Zamahni krilima i proleti između velikih kamenih stupova s krunama, crvenim zastavama i cvjetnim rubovima. U svijetu Zeleni otoci čeka te niz **stvarnih zlatnih prstenova**, raznolikih prolaza i prepreka koje prate fiziku leta — sve bez internetske veze.
-
-Tijekom leta **SCORE se mijenja prema stvarnom rezultatu**, a novčići pokazuju spremljeni lokalni iznos. Ljubičasti brojač prati kristale prikupljene u tom letu; ne prikazuje izmišljenu valutu. **Pause** zaustavlja fizičku simulaciju, a otvaranje trgovine traži potvrdu kako se let ne bi prekinuo slučajno.
-
-Bopi, Sova i Lisac imaju zasebna krila, pilotske naočale i vlastite 3D detalje. Svaki zadržava jednako preciznu fizičku zonu sudara. Snimke Gameplaya u galeriji ispod nastaju **iz stvarne Android aplikacije**, a ne iz reklamnih kompozicija.
+Proleti između stupova, skupljaj nagrade i pokušaj srušiti vlastiti rekord. Stvarno zarađene novčiće možeš potrošiti na štitove i magnete. Nema lažne kupnje za pravi novac ni izmišljenih globalnih igrača; igra koristi lokalni inventar i rezultate.
 
 ## Pogledaj sve zaslone igre
 
-Galerija obuhvaća **15 autentičnih Android zaslona** — snimljenih iz stvarne pokrenute Android aplikacije na emulatoru posljednjega uspješno objavljenog izdanja, a ne generiranih prikaza. Prije objave novog izdanja automatska provjera zahtijeva 15 različitih PNG snimaka. Jedna snimka u svakom retku osigurava čitljive preglede i na kompaktnim Android zaslonima, bez vodoravnog pomicanja. Za pune PNG datoteke i provjerene pakete otvori [najnovije izdanje](https://github.com/bren-wp/BOPAVI/releases/latest).
+Galerija donosi **17 autentičnih Android PNG snimki** iz stvarnih emulator testova: let, pauza, rezultati, Game Over, odabir junaka, nadogradnje, postavke, postignuća, napredak, poredak, karta i pomoćni izbornici. Nisu generirani mockupovi. Klikom na sliku otvaraš stvarnu snimku iz [najnovijeg GitHub izdanja](https://github.com/bren-wp/BOPAVI/releases/latest).
 
 <div align="center">
 
@@ -93,6 +77,10 @@ Galerija obuhvaća **15 autentičnih Android zaslona** — snimljenih iz stvarne
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Results.png" alt="Stvarna Android snimka: Rezultati" width="270"></a><p><strong>Rezultati</strong></p></td>
 </tr>
 <tr>
+<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Game-Over.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Game-Over.png" alt="Stvarna Android snimka: Kraj igre u rezoluciji 941 × 1672" width="270"></a><p><strong>Kraj igre u rezoluciji 941 × 1672</strong></p></td>
+</tr>
+
+<tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Skins.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Skins.png" alt="Stvarna Android snimka: Odabir junaka" width="270"></a><p><strong>Odabir junaka</strong></p></td>
 </tr>
 <tr>
@@ -104,6 +92,10 @@ Galerija obuhvaća **15 autentičnih Android zaslona** — snimljenih iz stvarne
 <tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png" alt="Stvarna Android snimka: Postignuća" width="270"></a><p><strong>Postignuća</strong></p></td>
 </tr>
+<tr>
+<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Progress.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Progress.png" alt="Stvarna Android snimka: Napredak kroz osam svjetova" width="270"></a><p><strong>Napredak kroz osam svjetova</strong></p></td>
+</tr>
+
 <tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png" alt="Stvarna Android snimka: Poredak" width="270"></a><p><strong>Poredak</strong></p></td>
 </tr>
@@ -126,36 +118,33 @@ Galerija obuhvaća **15 autentičnih Android zaslona** — snimljenih iz stvarne
 
 </div>
 
-## Kako igrati?
+## Kako igrati? 🪽
 
-**1.** Odaberi Bopija, Sovu ili Lisca pa pritisni **IGRAJ**.
+1. Odaberi junaka i pritisni **IGRAJ**.
+2. Dodiruj zaslon za svaki zamah krilima.
+3. Izbjegavaj prepreke, skupljaj nagrade i nadmaši vlastiti rezultat.
+4. Prati **Postignuća**, **Napredak** i **Rekorde** te pokušaj ponovno.
 
-**2.** Dodiruj zaslon kako bi junak zamahivao krilima.
+U postavkama prilagodi zvuk, kontrole i podržane načine igranja.
 
-**3.** Izbjegavaj prepreke, skupljaj bobice i pokušaj odletjeti što dalje.
+## Offline igra i privatnost 🔐
 
-**4.** Pauziraj kada poželiš, pogledaj rezultat i nastavi prema novom rekordu.
-
-Postavke zvuka i težine prilagodi svojem stilu igranja.
-
-## Privatnost je dio avanture
-
-**Bez oglasa. Bez praćenja. Bez registracije.** Rezultati se pohranjuju lokalno i osnovno igranje ne zahtijeva internet.
+**Bez oglasa. Bez praćenja. Bez registracije.** Za osnovno igranje internet nije potreban. Rezultati i otključavanja ostaju lokalno; ako uključiš sigurnosnu kopiju, sam odabireš Android dokument ili podržanog pružatelja. Obavijesti su dobrovoljne.
 
 [Politika privatnosti](docs/play/PRIVACY_POLICY.md) · [Uvjeti korištenja](docs/play/TERMS_OF_USE.md)
 
-## Preuzimanje
+## Preuzmi BOPAVI 🚀
 
-**[Najnovije Android izdanje — APK i dodatne datoteke](https://github.com/bren-wp/BOPAVI/releases/latest)**
+**[Najnovije Android izdanje — APK, AAB i stvarne snimke](https://github.com/bren-wp/BOPAVI/releases/latest)**
 
-Debug APK namijenjen je testiranju. Nepotpisani release APK/AAB zahtijevaju odgovarajući privatni ključ za proizvodnu objavu i kompatibilne nadogradnje.
+Debug APK je za testiranje. **Release APK i AAB nisu potpisani** te ih prije produkcijske distribucije treba potpisati odgovarajućim privatnim ključem. Datoteka `SHA256SUMS.txt` omogućuje provjeru preuzetih paketa i slika.
 
 ---
 
 <div align="center">
 
-**BOPAVI — Mali letovi. Velike priče.**
+**BOPAVI — MALI LETOVI. VELIKE PRIČE.**
 
-Stvorio **[Brendigo](https://brendigo.com)** · © 2026 Brendigo
+**BRENDIGO** · [brendigo.com](https://brendigo.com) · © 2026 BRENDIGO
 
 </div>

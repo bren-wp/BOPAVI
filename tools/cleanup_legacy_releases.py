@@ -114,6 +114,12 @@ def expected_release_assets(tag: str) -> set[str]:
             "BOPAVI-Android-Leaderboard.png",
             "BOPAVI-Android-Level-Map.png",
         })
+    # v1.0.79 adds two actual 941x1672 Android 15 screenshots.
+    # Keep immutable earlier release inventories unchanged.
+    if version >= (1, 0, 79):
+        expected.update({
+            "BOPAVI-Android-Game-Over.png", "BOPAVI-Android-Progress.png",
+        })
     # From v1.0.75 the game opens Home directly: 15 real captures, no
     # Splash screenshot. Historical v1.0.59–v1.0.74 assets stay immutable.
     if (1, 0, 59) <= version < (1, 0, 75):
