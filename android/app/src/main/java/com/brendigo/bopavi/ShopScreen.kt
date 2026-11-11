@@ -263,16 +263,12 @@ internal class ShopScreen(
         // avoiding the displaced twin-button look on API36.
         stage.place(ShopBackControl(host,onBack),
             24f,18f,119f,99f,minTouch=true)
-        // SHOP is a static brand inscription. Display the illustrated
-        // title from the owner's supplied 941x1672 reference, while wallets,
-        // product text, real buy actions and navigation remain native Views.
-        stage.place(ImageView(host).apply {
-            setImageResource(R.drawable.bopavi_owner_shop_title)
-            scaleType=ImageView.ScaleType.FIT_XY
-            contentDescription="SHOP"
-            isClickable=false
-            isFocusable=false
-        },183f,123f,575f,201f)
+        // The source title raster is low-resolution and distorted on real
+        // 941px captures. Reuse the native gold enamel lettering over the
+        // separately drawn wooden winged storefront sign instead.
+        // This keeps the SHOP wordmark sharp and accessible at every DPI.
+        stage.place(ShopEmbossedTitle(host),
+            183f,123f,575f,201f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green
