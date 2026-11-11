@@ -104,7 +104,10 @@ assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert '183f,123f,575f,201f' in shop
-assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))' in shop
+assert '},LinearLayout.LayoutParams(-1,0,.86f))' in shop
+assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in shop
+assert 'includeFontPadding=false' in shop
 
 
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
