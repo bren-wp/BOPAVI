@@ -34,6 +34,10 @@ class MainActivity : Activity() {
     private var showPauseAfterBackground = false
     private var platformBackCallback: android.window.OnBackInvokedCallback? = null
     private var selectedScreen = "home"
+    // A 941px Settings composition must be rebuilt after Android changes
+    // display size/density; requestLayout alone leaves the old ScrollView
+    // (and its previous scroll position) visible on the new reference grid.
+    private var settingsReflowPending=false
     // Cancels an in-flight preflight callback when Back leaves Loading.
     private var loadingGeneration = 0
     // Unlike window focus, the Activity resume state does not flicker during
@@ -209,8 +213,10 @@ class MainActivity : Activity() {
         } else showHome()
     }
     /** Android large-screen rotation must not recreate a live simulation.
-     * GameView.onSizeChanged recomputes the world and camera. Native scrolling menus
-     * remeasure automatically on orientation and window-size changes.
+     * GameView.onSizeChanged recomputes the world and camera. The Settings
+     * screen has two DIFFERENT compositions (941px reference vs native
+     * ScrollView), so resizing must reconstruct its live controls. Keeping
+     * the previous view tree merely remeasures the wrong composition.
      */
     override fun onConfigurationChanged(newConfig:android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -218,6 +224,17 @@ class MainActivity : Activity() {
         window.decorView.requestApplyInsets()
         gameView?.requestLayout()
         gameView?.invalidate()
+        if(selectedScreen=="settings" && ::progress.isInitialized &&
+                ::cloudBackup.isInitialized && !settingsReflowPending){
+            settingsReflowPending=true
+            // Wait until both wm size and density reach the applied metrics.
+            // Recreate only Settings: keep a running flight intact.
+            window.decorView.post {
+                settingsReflowPending=false
+                if(!isFinishing && !isDestroyed && selectedScreen=="settings")
+                    showSettingsScreen()
+            }
+        }
     }
 
     private fun showNativeView(root: View) {
