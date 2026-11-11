@@ -831,7 +831,19 @@ class MainActivity : Activity() {
                 showSettingsScreen()
             },
             onPrivacy={showPrivacyNotice()},
-            onTerms={showTermsNotice()})
+            onTerms={showTermsNotice()},
+            onNotifications={value->changeNotifications(value)},
+            onLanguage={changeLanguage()},
+            onControls={controlPreferences()},
+            onCloud={enabled->
+                if(enabled)chooseCloudDestination()
+                else {
+                    cloudBackup.deactivate()
+                    showSettingsScreen()
+                }
+            },
+            onRestore={chooseBackupToRestore()},
+            cloudEnabled=cloudBackup.enabled())
         showNativeView(page)
     }
     private fun showShop(){
