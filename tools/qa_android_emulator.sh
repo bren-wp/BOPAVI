@@ -628,6 +628,16 @@ def find(label,clickable=None):
             hit=match(nodes,label,clickable)
             if hit is not None:
                 return hit
+    # Android AlertDialog ListView items can be enabled and tappable while
+    # UIAutomator reports clickable=false on the child TextView. Never require
+    # clickable=true for those list items: tap their displayed bounds and
+    # verify a real persisted difficulty change immediately afterwards.
+    visible=[(n.get("text") or n.get("content-desc") or "")+
+             " ["+n.get("class","")+" enabled="+n.get("enabled","")+
+             " clickable="+n.get("clickable","")+"]"
+             for n in nodes if n.get("text") or n.get("content-desc")]
+    print("QA visible native labels after lookup failure: "+repr(visible[-35:]),
+          flush=True)
     raise SystemExit("FAIL: native Settings item absent after real scrolling: "+label)
 
 def tap(label,clickable=None):
@@ -639,7 +649,11 @@ def tap(label,clickable=None):
                    check=True,timeout=20)
     time.sleep(.85)
 
-# Reference includes nine options; actual Difficulty is reached via Controls,
+# Settings menu buttons are native clickable Buttons; Android AlertDialog
+# option labels are native enabled ListView children and can report
+# clickable=false even while their parent ListView handles item clicks.
+# Choose by the real displayed row bounds, then assert persisted state.
+# Reference includes nine options; Difficulty is reached via Controls,
 # not three extra inline buttons that disrupt 1:1 Settings composition.
 for label in ("SETTINGS","Music","Sound Effects","Notifications",
               "Language","Controls","Vibration","Cloud Save",
@@ -647,14 +661,14 @@ for label in ("SETTINGS","Music","Sound Effects","Notifications",
     find(label)
 tap("Touch",True)
 find("Controls")
-tap("Difficulty: Standardno",True)
+tap("Difficulty: Standardno")
 find("Opušteno")
-tap("Opušteno",True)
+tap("Opušteno")
 find("SETTINGS")
 tap("Touch",True)
 find("Difficulty: Opušteno")
-tap("Difficulty: Opušteno",True)
-tap("Standardno",True)
+tap("Difficulty: Opušteno")
+tap("Standardno")
 find("SETTINGS")
 tap("Touch",True)
 find("Difficulty: Standardno")
