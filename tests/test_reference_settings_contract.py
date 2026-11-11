@@ -48,7 +48,10 @@ assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in 
 assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
 assert '"Selected " else "Choose "' in settings
 assert 'capture_png("android-settings-reference-size")' in qa
-assert 'line("Cloud Save",BopaviUiIconDrawable.Kind.SHIELD,' in settings
+assert 'line("Cloud Save",BopaviUiIconDrawable.Kind.CLOUD,' in settings
+for kind in ("BELL","GLOBE","GAMEPAD","CLOUD"):
+    assert "Kind."+kind in (src/"BopaviUiIconDrawable.kt").read_text()
+assert "Finish.RED" in (src/"Bopavi3DTheme.kt").read_text()
 assert 'button("Restore Purchases",click=onRestore)' in settings
 assert 'val rows=if(reference) listOf(' in settings
 assert 'legacyRows[0],legacyRows[1],addedRows[0],addedRows[1],' in settings
