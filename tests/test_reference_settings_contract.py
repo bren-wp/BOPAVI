@@ -104,9 +104,11 @@ assert "background=SettingsWoodPanelDrawable()" in settings
 # not flattened screenshots or placeholder controls.
 lettering=(src/"SettingsReferenceLettering.kt").read_text()
 assert 'internal class SettingsEmbossedTitle(context:Context):TextView(context)' in lettering
-assert 'internal class SettingsLegalArrow(context:Context,label:String,onTap:()->Unit):View(context)' in lettering
+assert 'internal class SettingsLegalArrow(context:Context,label:String,onTap:()->Unit):Button(context)' in lettering
 assert 'contentDescription=label' in lettering
 assert 'setOnClickListener { onTap() }' in lettering
+assert 'minimumWidth=0' in lettering and 'minimumHeight=0' in lettering
+assert 'background=null' in lettering
 assert '151f,1226f,638f,4f' in settings
 assert "background=SettingsGoldTitleDrawable()" in (src/"SettingsReferenceLettering.kt").read_text()
 assert "trackDrawable=StateListDrawable().apply" in settings
