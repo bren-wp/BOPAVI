@@ -102,8 +102,21 @@ class ProgressStore(context: Context) {
         saveLocalScore(game,edit)
         edit.apply()
     }
-    // Keep historical ui_language and backup fields untouched for migrations.
-    // The live game now renders only Croatian without a language picker.
+    // Keep the legacy language key compatible with existing exported saves.
+    // The Settings UI offers English and Croatian without adding a network
+    // translation service or loading unverified external resources.
+    fun uiLanguage():String = when(prefs.getString("ui_language","en")) {
+        "hr" -> "hr"
+        else -> "en"
+    }
+    fun setUiLanguage(value:String) {
+        require(value=="hr" || value=="en")
+        prefs.edit().putString("ui_language",value).apply()
+    }
+    fun notificationsEnabled():Boolean = prefs.getBoolean("notifications_enabled",false)
+    fun setNotificationsEnabled(enabled:Boolean) {
+        prefs.edit().putBoolean("notifications_enabled",enabled).apply()
+    }
     fun lessMotion(): Boolean = prefs.getBoolean("less_motion", false)
     fun setLessMotion(value: Boolean) = prefs.edit().putBoolean("less_motion", value).apply()
     /** Returns reward; retries and previously completed levels never mint currency again. */
