@@ -484,7 +484,7 @@ class MainActivity : Activity() {
                     }
                     3 -> android.app.AlertDialog.Builder(this)
                         .setTitle("Difficulty")
-                        .setSingleChoiceItems(progress.difficultyNames,
+                        .setSingleChoiceItems(progress.difficultyNames.toTypedArray(),
                             progress.difficulty()){dialog,index->
                             progress.setDifficulty(index)
                             dialog.dismiss()
