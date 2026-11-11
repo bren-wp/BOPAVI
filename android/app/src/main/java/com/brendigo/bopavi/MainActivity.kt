@@ -681,6 +681,12 @@ class MainActivity : Activity() {
             optionsDialog.dismiss()
             showLevels()
         }
+        // New progress destination is deliberately in the existing scrollable
+        // menu, keeping the owner-approved Home button geometry unchanged.
+        action(column,"NAPREDAK",false){
+            optionsDialog.dismiss()
+            showProgressOverview()
+        }
         heading("Pravni dokumenti")
         fun legalButton(caption:String,description:String,onClick:()->Unit){
             column.addView(Button(this).apply{
@@ -733,6 +739,17 @@ class MainActivity : Activity() {
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
             ?.setTextColor(0xff9be8ff.toInt())
     }
+    /** Real saved progress across eight worlds, no fictional global stats. */
+    private fun showProgressOverview(){
+        showPauseAfterBackground=false
+        sound.stop()
+        selectedScreen="progress"
+        applyPremiumSystemBars()
+        showNativeView(ProgressOverviewScreen(this,progress).create(
+            onBack={showHome()},
+            onMap={showLevels()}))
+    }
+
     /** Read-only on-device records: no network, accounts or score submissions. */
     private fun showLocalRecords(){
         showPauseAfterBackground=false
