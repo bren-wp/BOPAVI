@@ -53,11 +53,18 @@ internal class SettingsCloudBackup(
     }
 
     /** Called only after ACTION_CREATE_DOCUMENT returned an actual document. */
-    fun activate(uri:Uri,report:(Boolean,String)->Unit){
+    fun activate(uri:Uri,resultFlags:Int,report:(Boolean,String)->Unit){
+        val flags=resultFlags and (
+            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0){
+            report(false,"Odabrani pružatelj nije dodijelio pristup za pisanje.")
+            return
+        }
         try {
-            activity.contentResolver.takePersistableUriPermission(uri,
-                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                    android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            // Persist exactly what this document provider actually granted,
+            // never request permissions that were absent from the result.
+            activity.contentResolver.takePersistableUriPermission(uri,flags)
         } catch(ex:Exception){
             report(false,"Odabrani pružatelj ne dopušta trajni pristup kopiji.")
             return
