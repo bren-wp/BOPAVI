@@ -3,6 +3,16 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.78 — Pouzdana provjera GitHub izdanja (build 208)
+
+**Published:** 2026-11-11 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.78)
+
+- **CI nakon spajanja:** ispravljena završna provjera objavljenih paketa; prethodna v1.0.77 uspješno je kompilirana i objavljena, ali je manifest pogrešno zahtijevao Splash snimku koja više nije u igri.
+- **Povijesna kompatibilnost:** v1.0.59–v1.0.74 i dalje zahtijevaju Splash PNG; od v1.0.75 nadalje isporučuje se 15 autentičnih Android snimaka bez Splasha.
+- **Regresijska zaštita:** novi testovi provjeravaju povijesni prijelaz i odbijaju izostanak bilo kojeg drugog obaveznog artefakta. Stroga SHA-256 provjera svih objavljenih paketa ostaje uključena.
+- **Stabilnost:** bez brisanja prethodnih izdanja i bez promjena Android nativne logike; postojeće offline funkcije, zasloni i postavke zadržavaju se.
+- **Vizualni QA:** nije potvrđeno 0 % RGB odstupanja; devet prioritetnih zaslona zahtijeva nova mjerljiva uspoređivanja sa stvarnim vlasničkim referencama.
+
 ## v1.0.77 — Shop, Skins i Settings: funkcionalne kontrole i sigurnost (build 207)
 
 **Published:** 2026-11-11 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.77)
@@ -19,15 +29,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - **QA:** stvarni 941×1672 emulator screenshot za novi Napredak, uz postojeće Shop, Skins, Settings, Achievements, Leaderboard, Level Map i rezultate. Za Progress i druge ekrane bez izvorne referentne slike ne izmišljati postotak identičnosti.
 - **Usklađivanje referenci:** 3D dekor, nativne kontrole, pristupačni 48dp dodirni ciljevi i skrolajući prikaz na manjim/gušćim zaslonima. Grafika Shop/Skins/Settings i dalje se mora uskladiti s izvornim referencama 941×1672.
 - **Provjere:** statičke regresije, Kotlin/JVM, Android lint, APK/AAB, Android 15/16 emulatori te stvarne usporedbe po regijama. **0 % RGB odstupanja nije potvrđeno.** Starija izmjerena baza (prethodni Android 16): Shop 23,3593 % i Skins 32,1376 % normaliziranog RGB-MAE; za ovu verziju potrebne su nove snimke.
-
-## v1.0.76 — Shop, Skins i Settings: 1:1 vizualni QA (build 206)
-
-**Published:** 2026-11-11 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.76)
-
-- **Skins:** niskorezolucijski atlas 4 × 76 × 77 px zamijenjen je postojećim lokalnim 512 × 512 px ilustracijama svih četiriju junaka. Središnji leteći Bopi smanjen je prema referentnom položaju iznad kamene platforme; strelice, stvarni status odabira/zaključavanja i EQUIP/UNLOCK ostaju Android kontrole.
-- **Shop:** uklonjen je rastegnuti 3 KB raster cijelog kioska; ostaju nativno crtana drvena prodavaonica i postojeća lokalna 512 px ilustracija junaka. Stvarne offline cijene, zarada, kupljeni predmeti i šest interaktivnih kartica nisu promijenjeni.
-- **Settings:** broj verzije prikazuje stvarnu instaliranu verziju aplikacije u podnožju reference i responzivnom prikazu. Stvarne spremljene postavke, pravni dokumenti i njihove funkcionalne veze nisu promijenjeni.
-- **Provjere:** dodatni Shop/Skins/Settings source-contract testovi, Android lint/JVM, APK/AAB, emulator i stroga usporedba originalnih vlasničkih referenci 941 × 1672 px sa stvarnim snimkama bez skaliranja.
-- **Vizualna iskrenost:** 0 % RGB odstupanja **nije potvrđeno**. Stara osnovna mjerenja: Shop 24,41 %, Skins 33,04 %, Settings 32,29 % (RGB MAE/255, prethodni Android build). Nakon nove emulator snimke ponovno izmjeriti svaki ekran i regiju, bez izmišljanja rezultata.
-- **Funkcionalnost:** nema izmišljene kupovine dragulja, cloud servisa, obavijesti ili IAP obnove. Nema screenshotova koji glume interaktivne elemente.
-- **Distribucija:** debug APK za QA; produkcijski APK i AAB su nepotpisani te zahtijevaju postojeći privatni ključ. Ne objavljivati i ne spajati prije prolaska QA.
