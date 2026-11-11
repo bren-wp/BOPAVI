@@ -33,6 +33,7 @@ internal class OwnerSkinsPortraitView(
 
     override fun onDraw(c:Canvas) {
         super.onDraw(c)
+        if(skinIndex !in 0..3) return
         val art=portrait ?: return
         if(width<=0 || height<=0) return
         val saved=c.save()
