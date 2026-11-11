@@ -122,13 +122,13 @@ internal class SettingsScreen(private val host:Activity,
                     0xff128628.toInt())).apply {
                 cornerRadius=dp(25).toFloat()
                 setStroke(dp(2),0xff125b25.toInt())
-                setSize(dp(94),dp(43))
+                setSize(dp(51),dp(29))
             }
             val offTrack=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 intArrayOf(0xfffaf0e0.toInt(),0xffcbbba8.toInt())).apply {
                 cornerRadius=dp(25).toFloat()
                 setStroke(dp(2),0xffb29c88.toInt())
-                setSize(dp(94),dp(43))
+                setSize(dp(51),dp(29))
             }
             trackDrawable=StateListDrawable().apply {
                 addState(intArrayOf(android.R.attr.state_checked),onTrack)
@@ -139,16 +139,16 @@ internal class SettingsScreen(private val host:Activity,
                     0xffc2cbd5.toInt())).apply {
                 shape=GradientDrawable.OVAL
                 setStroke(dp(2),0xff7d8da6.toInt())
-                setSize(dp(37),dp(37))
+                setSize(dp(27),dp(27))
             }
             trackTintList=null
             thumbTintList=null
             setOnCheckedChangeListener{_,checked->onChange(checked)}
         }
 
-    private fun slider(name:String,initial:Int,onChange:(Int)->Unit):SeekBar {
+    private fun slider(name:String,initial:Int,onChange:(Int)->Unit):View {
         var lastSaved=initial
-        return SeekBar(host).apply{
+        val bar=SeekBar(host).apply{
             max=100
             progress=initial
             minimumHeight=dp(48)
@@ -202,6 +202,20 @@ internal class SettingsScreen(private val host:Activity,
                     bar?.progress?.let(::save)
                 }
             })
+        }
+        // An independent speaker emblem ends the real native volume rail.
+        return FrameLayout(host).apply {
+            addView(bar,FrameLayout.LayoutParams(-1,-1).apply {
+                rightMargin=dp(27)
+            })
+            addView(ImageView(host).apply {
+                setImageDrawable(BopaviUiIconDrawable(
+                    BopaviUiIconDrawable.Kind.SOUND,0xff3a6695.toInt(),dp(26)))
+                scaleType=ImageView.ScaleType.FIT_CENTER
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                isClickable=false
+            },FrameLayout.LayoutParams(dp(26),dp(26),
+                Gravity.END or Gravity.CENTER_VERTICAL))
         }
     }
     private fun difficulty(onChange:(Int)->Unit):View=
