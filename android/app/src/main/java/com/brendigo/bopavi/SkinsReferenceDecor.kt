@@ -95,6 +95,12 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
                 c.drawLine(x-7f,y,x+5f,y+7f,p)
             }
         }
+        // The old sign was roughly 540px wide; the owner artwork has a
+        // tighter ~475px plaque and subtitle while ropes remain aligned.
+        val plaqueSave=c.save()
+        c.translate(470f,230f)
+        c.scale(.89f,.87f)
+        c.translate(-470f,-230f)
         // Thick, curved wood plaque behind the live selected hero label.
         outline.reset()
         outline.moveTo(205f,206f)
@@ -120,16 +126,17 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
         p.color=0x44954816
         for(i in 0..4)c.drawRoundRect(248f,192f+i*18f,
             695f,194f+i*18f,2f,2f,p)
-        rounded(c,347f,271f,594f,325f,24f,
+        rounded(c,380f,257f,558f,316f,24f,
             0xffae6631.toInt(),0xff70330f.toInt())
         p.style=Paint.Style.STROKE;p.strokeWidth=5f
         p.color=0xff59280d.toInt()
-        c.drawRoundRect(347f,271f,594f,325f,24f,24f,p)
+        c.drawRoundRect(380f,257f,558f,316f,24f,24f,p)
         p.style=Paint.Style.FILL
         for(i in 0..4){
             leaf(c,220f+i*11f,294f,-55f+i*17f,.95f)
             leaf(c,723f-i*11f,295f,55f-i*17f,.95f)
         }
+        c.restoreToCount(plaqueSave)
 
         // The owner's podium is a floating cut-stone dais, NOT a flat
         // rectangular card. Keep all of its relief behind the native hero,
