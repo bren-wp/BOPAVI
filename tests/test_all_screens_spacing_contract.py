@@ -52,7 +52,7 @@ for item in ("Home","Skins","Shop","Settings","Achievements",
              "Leaderboard","Level-Map","Options","Records","Privacy","Terms",
              "Flight-Preview","Flight-Active","Pause","Results"):
     assert f"BOPAVI-Android-{item}.png" in wf,item
-assert "test \"$(wc -l < SHA256SUMS.txt)\" -eq 20" in wf
+assert "test \"$(wc -l < SHA256SUMS.txt)\" -eq 22" in wf
 assert "source.stat().st_size < 2000" in wf
 assert "all 15 gallery pictures have distinct authentic captures" in wf
 
