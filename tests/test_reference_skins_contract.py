@@ -72,8 +72,11 @@ assert "p.shader=LinearGradient(" in controls
 assert "isClickable=false" in screen
 assert "OwnerSkinsPortraitView(host,index,skins[index])" in screen
 owner_art=(src/"OwnerSkinsPortraitView.kt").read_text()
-assert "R.drawable.bopavi_owner_skins_atlas" in owner_art
-assert "clipOutRect" in owner_art
+assert "private val portrait:Drawable?" in owner_art
+assert "context.getDrawable(fallbackDrawable)" in owner_art
+assert "val scale=1.16f" in owner_art
+assert "R.drawable.bopavi_owner_skins_atlas" not in owner_art
+assert "c.clipRect(0,0,width,height)" in owner_art
 assert "isClickable=false" in owner_art
 decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
