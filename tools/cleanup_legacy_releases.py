@@ -80,6 +80,47 @@ def list_releases(repository: str) -> list[dict]:
     return releases
 
 
+def expected_release_assets(tag: str) -> set[str]:
+    """Exact versioned release inventory, preserving historic Splash assets."""
+    if not STABLE.fullmatch(tag):
+        raise ValueError("Only published v1+ tags have a release inventory")
+    version = tuple(map(int, tag[1:].split(".")))
+    expected = set(EXPECTED) | {f"BOPAVI-Google-Play-listing-{tag}.zip"}
+    # v1.0.12 and newer include private-signing-ready release APK and an
+    # exact-source-commit F-Droid submission recipe as separate release assets.
+    if version >= (1, 0, 12):
+        expected |= {
+            "app-release-unsigned.apk",
+            f"BOPAVI-FDroid-submission-{tag}.zip",
+        }
+    # v1.0.29 adds the fifth authentic native UI state: Pause. Historical
+    # published releases are immutable and retain their original 10 assets.
+    if version >= (1, 0, 29):
+        expected.add("BOPAVI-Android-Pause.png")
+    # v1.0.31 adds actual emulator captures of every accessible Home dialog.
+    # Preserve historical published asset sets and their original checksums.
+    if version >= (1, 0, 31):
+        expected.update({
+            "BOPAVI-Android-Options.png", "BOPAVI-Android-Records.png",
+            "BOPAVI-Android-Privacy.png", "BOPAVI-Android-Terms.png",
+        })
+    # New gallery screenshots are mandatory only for v1.0.59+, not
+    # for any immutable historical release.
+    if version >= (1, 0, 59):
+        expected.update({
+            "BOPAVI-Android-Skins.png",
+            "BOPAVI-Android-Shop.png", "BOPAVI-Android-Settings.png",
+            "BOPAVI-Android-Achievements.png",
+            "BOPAVI-Android-Leaderboard.png",
+            "BOPAVI-Android-Level-Map.png",
+        })
+    # From v1.0.75 the game opens Home directly: 15 real captures, no
+    # Splash screenshot. Historical v1.0.59–v1.0.74 assets stay immutable.
+    if (1, 0, 59) <= version < (1, 0, 75):
+        expected.add("BOPAVI-Android-Splash.png")
+    return expected
+
+
 def verify_current_release(repository: str, tag: str, releases: list[dict]) -> None:
     """Fail before any delete if the new v1+ release/assets/checksums aren't valid."""
     if not STABLE.fullmatch(tag):
@@ -90,38 +131,13 @@ def verify_current_release(repository: str, tag: str, releases: list[dict]) -> N
     ]
     if len(published) != 1:
         raise ValueError(f"New release {tag} is not uniquely published")
-    expected = EXPECTED | {f"BOPAVI-Google-Play-listing-{tag}.zip"}
-    # v1.0.12 and newer include private-signing-ready release APK and an
-    # exact-source-commit F-Droid submission recipe as separate release assets.
-    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 12):
-        expected |= {
-            "app-release-unsigned.apk",
-            f"BOPAVI-FDroid-submission-{tag}.zip",
-        }
-    # v1.0.29 adds the fifth authentic native UI state: Pause. Historical
-    # published releases are immutable and retain their original 10 assets.
-    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 29):
-        expected.add("BOPAVI-Android-Pause.png")
-    # v1.0.31 adds actual emulator captures of every accessible Home dialog.
-    # Preserve historical published asset sets and their original checksums.
-    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 31):
-        expected.update({
-            "BOPAVI-Android-Options.png", "BOPAVI-Android-Records.png",
-            "BOPAVI-Android-Privacy.png", "BOPAVI-Android-Terms.png",
-        })
-    # New gallery screenshots are mandatory only for v1.0.59+, not
-    # for any immutable historical release.
-    if tuple(map(int, tag[1:].split("."))) >= (1, 0, 59):
-        expected.update({
-            "BOPAVI-Android-Splash.png", "BOPAVI-Android-Skins.png",
-            "BOPAVI-Android-Shop.png", "BOPAVI-Android-Settings.png",
-            "BOPAVI-Android-Achievements.png",
-            "BOPAVI-Android-Leaderboard.png",
-            "BOPAVI-Android-Level-Map.png",
-        })
+    expected = expected_release_assets(tag)
     assets = published[0].get("assets")
     if not isinstance(assets, list) or set(assets) != expected or len(assets) != len(expected):
-        raise ValueError(f"New release {tag} has missing or unexpected assets")
+        raise ValueError(f"New release {tag} has missing or unexpected assets: "
+                         f"missing={sorted(expected - set(assets))}, "
+                         f"unexpected={sorted(set(assets) - expected)}, "
+                         f"duplicates={len(assets) - len(set(assets))}")
     with tempfile.TemporaryDirectory(prefix="bopavi-release-verify-") as tmp:
         gh("release", "download", tag, "--repo", repository, "--dir", tmp)
         directory = Path(tmp)

@@ -158,5 +158,29 @@ class RetentionTests(unittest.TestCase):
             prune.assert_not_called()
 
 
+
+    def test_historical_splash_manifest_switch(self):
+        old = cleanup.expected_release_assets("v1.0.74")
+        for version in ("v1.0.75", "v1.0.77", "v1.0.78"):
+            current = cleanup.expected_release_assets(version)
+            self.assertIn("BOPAVI-Android-Skins.png", current)
+            self.assertNotIn("BOPAVI-Android-Splash.png", current)
+            self.assertEqual(len(current), 21)
+        self.assertIn("BOPAVI-Android-Splash.png", old)
+        self.assertEqual(len(old), 22)
+        self.assertNotIn("BOPAVI-Android-Splash.png",
+                         cleanup.expected_release_assets("v1.0.58"))
+
+    def test_release_manifest_keeps_required_artifacts(self):
+        tag = "v1.0.78"
+        missing = "BOPAVI-Android-Shop.png"
+        assets = sorted(cleanup.expected_release_assets(tag) - {missing})
+        with patch.object(cleanup, "gh") as api:
+            with self.assertRaisesRegex(ValueError, missing):
+                cleanup.verify_current_release(
+                    "bren-wp/BOPAVI", tag, [release(tag, assets=assets)]
+                )
+            api.assert_not_called()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
