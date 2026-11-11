@@ -6,6 +6,9 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.ClipDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -112,8 +115,34 @@ internal class SettingsScreen(private val host:Activity,
             showText=false
             minimumHeight=dp(48)
             contentDescription=name
-            thumbTintList=ColorStateList.valueOf(0xfff9fff3.toInt())
-            trackTintList=ColorStateList.valueOf(0xff49bf39.toInt())
+            // Use native Switch touch/semantics but replace the platform's
+            // flat outline with a stateful raised reference-green capsule.
+            val onTrack=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xff86f761.toInt(),0xff32c62f.toInt(),
+                    0xff128628.toInt())).apply {
+                cornerRadius=dp(25).toFloat()
+                setStroke(dp(2),0xff125b25.toInt())
+                setSize(dp(94),dp(43))
+            }
+            val offTrack=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xfffaf0e0.toInt(),0xffcbbba8.toInt())).apply {
+                cornerRadius=dp(25).toFloat()
+                setStroke(dp(2),0xffb29c88.toInt())
+                setSize(dp(94),dp(43))
+            }
+            trackDrawable=StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_checked),onTrack)
+                addState(intArrayOf(),offTrack)
+            }
+            thumbDrawable=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(Color.WHITE,0xffeff1f4.toInt(),
+                    0xffc2cbd5.toInt())).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(dp(2),0xff7d8da6.toInt())
+                setSize(dp(37),dp(37))
+            }
+            trackTintList=null
+            thumbTintList=null
             setOnCheckedChangeListener{_,checked->onChange(checked)}
         }
 
@@ -124,9 +153,36 @@ internal class SettingsScreen(private val host:Activity,
             progress=initial
             minimumHeight=dp(48)
             contentDescription="$name: $initial%"
-            progressTintList=ColorStateList.valueOf(0xff098ce7.toInt())
-            thumbTintList=ColorStateList.valueOf(0xfff8fcff.toInt())
-            progressBackgroundTintList=ColorStateList.valueOf(0xffd7c6af.toInt())
+            // Filled blue enamel track and pearl thumb are drawables owned by
+            // a real SeekBar; dragging still persists the actual volume.
+            val trackBack=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xfff0e7da.toInt(),0xffc7b7a2.toInt())).apply {
+                cornerRadius=dp(11).toFloat()
+                setStroke(dp(1),0xffb9a58e.toInt())
+                setSize(dp(152),dp(14))
+            }
+            val trackFill=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xff58c9ff.toInt(),0xff0a99f4.toInt(),
+                    0xff0870dc.toInt())).apply {
+                cornerRadius=dp(11).toFloat()
+                setStroke(dp(1),0xff0458b3.toInt())
+                setSize(dp(152),dp(14))
+            }
+            progressDrawable=LayerDrawable(arrayOf(trackBack,
+                ClipDrawable(trackFill,Gravity.START,ClipDrawable.HORIZONTAL))).apply {
+                setId(0,android.R.id.background)
+                setId(1,android.R.id.progress)
+            }
+            thumb=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(0xffffffff.toInt(),0xffe2eafa.toInt(),
+                    0xffbdc8da.toInt())).apply {
+                shape=GradientDrawable.OVAL
+                setStroke(dp(2),0xff597198.toInt())
+                setSize(dp(32),dp(32))
+            }
+            thumbTintList=null
+            progressTintList=null
+            progressBackgroundTintList=null
             setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
                 private var tracking=false
                 fun save(value:Int){
@@ -233,14 +289,14 @@ internal class SettingsScreen(private val host:Activity,
             stage.place(artwork(R.drawable.logo),203f,20f,535f,213f)
             stage.place(artwork(R.drawable.bopiportrait0),266f,216f,409f,332f)
             stage.place(button("‹",click=onBack),27f,22f,102f,102f,minTouch=true)
-            stage.place(View(host).apply{
-                background=plate(0xfffff7e1.toInt(),0xffe8c7a0.toInt(),
-                    0xff9b572b.toInt(),34)
+            stage.place(View(host).apply {
+                background=SettingsWoodPanelDrawable()
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                isClickable=false
             },101f,559f,739f,1007f)
-            stage.place(title("SETTINGS",57).apply{
-                background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)
-                setTextColor(0xff61330a.toInt())
+            stage.place(title("SETTINGS",57).apply {
+                background=SettingsGoldTitleDrawable()
+                setTextColor(Color.WHITE)
                 elevation=dp(8).toFloat()
             },182f,486f,577f,101f)
             rows.forEachIndexed{index,row->
