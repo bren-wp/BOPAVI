@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.StateListDrawable
@@ -33,6 +32,12 @@ internal class SettingsScreen(private val host:Activity,
                               private val progress:ProgressStore) {
     private val navy=0xff092457.toInt()
     private fun dp(n:Int)=(n*host.resources.displayMetrics.density+.5f).toInt()
+    // The footer must show the real installed app version, never the
+    // hard-coded v1.0.0 label baked into an illustration.
+    @Suppress("DEPRECATION")
+    private fun installedVersion():String = runCatching {
+        host.packageManager.getPackageInfo(host.packageName,0).versionName ?: "?"
+    }.getOrDefault("?")
     private fun plate(top:Int,bottom:Int,border:Int,rounded:Int)=
         GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,intArrayOf(top,bottom)).apply{
             cornerRadius=dp(rounded).toFloat()
@@ -45,7 +50,12 @@ internal class SettingsScreen(private val host:Activity,
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
             setTextColor(color)
             gravity=Gravity.CENTER
-            setAutoSizeTextTypeUniformWithConfiguration(13,size,1,
+            // 12sp row labels and the compact version footer must never
+            // use an auto-size minimum larger than their requested maximum.
+            // Android throws IllegalArgumentException during Settings creation
+            // for an invalid 13..12sp interval, then returns to the launcher.
+            val minAutoSp=SettingsTextSizePolicy.minSp(size)
+            setAutoSizeTextTypeUniformWithConfiguration(minAutoSp,size,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(dp(2).toFloat(),0f,dp(3).toFloat(),navy)
         }
@@ -274,21 +284,11 @@ internal class SettingsScreen(private val host:Activity,
             line("Mode",BopaviUiIconDrawable.Kind.STAR,
                 difficulty(onDifficulty),controlWidthDp=162),
             line("Privacy Policy",BopaviUiIconDrawable.Kind.SHIELD,
-                button("›",click=onPrivacy).apply{
-                    contentDescription="Pročitaj politiku privatnosti"
-                    background=ColorDrawable(Color.TRANSPARENT)
-                    setTextColor(0xff214a88.toInt())
-                    textSize=30f
-                    elevation=0f
-                },controlWidthDp=52),
+                SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy),
+                controlWidthDp=52),
             line("Terms of Service",BopaviUiIconDrawable.Kind.RECORDS,
-                button("›",click=onTerms).apply{
-                    contentDescription="Pročitaj uvjete korištenja"
-                    background=ColorDrawable(Color.TRANSPARENT)
-                    setTextColor(0xff214a88.toInt())
-                    textSize=30f
-                    elevation=0f
-                },controlWidthDp=52)
+                SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms),
+                controlWidthDp=52)
         )
         val root=FrameLayout(host).apply{setBackgroundColor(0xff248fdf.toInt())}
         root.addView(ImageView(host).apply{
@@ -316,11 +316,17 @@ internal class SettingsScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
             },101f,559f,739f,1007f)
-            stage.place(title("SETTINGS",57).apply{
-                background=SettingsGoldTitleDrawable()
-                setTextColor(Color.WHITE)
+            stage.place(SettingsEmbossedTitle(host).apply {
                 elevation=dp(8).toFloat()
             },182f,486f,577f,101f)
+            // An etched separator groups the actual legal links below the
+            // six real offline preferences. It is visual-only and non-clickable.
+            stage.place(View(host).apply {
+                background=GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                    intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                isClickable=false
+            },151f,1226f,638f,4f)
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
@@ -329,6 +335,10 @@ internal class SettingsScreen(private val host:Activity,
             }
             stage.place(button("HOME",click=onBack),203f,
                 SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
+            stage.place(title("v"+installedVersion(),13,0xffe1edf5.toInt()).apply {
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                setShadowLayer(1f,0f,1f,0xff183c56.toInt())
+            },778f,1598f,139f,45f)
             stage.setOnApplyWindowInsetsListener{_,insets->
                 if(Build.VERSION.SDK_INT>=30){
                     val safe=insets.getInsets(android.view.WindowInsets.Type.systemBars()
@@ -387,6 +397,10 @@ internal class SettingsScreen(private val host:Activity,
             col.addView(card,LinearLayout.LayoutParams(-1,-2))
             col.addView(button("HOME",click=onBack),
                 LinearLayout.LayoutParams(-1,dp(60)).apply{topMargin=dp(12)})
+            col.addView(title("v"+installedVersion(),12,0xffe1edf5.toInt()).apply {
+                gravity=Gravity.END or Gravity.CENTER_VERTICAL
+                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            },LinearLayout.LayoutParams(-1,dp(28)).apply{topMargin=dp(6)})
             scroll.addView(col)
             root.addView(scroll,FrameLayout.LayoutParams(-1,-1))
             scroll.requestApplyInsets()

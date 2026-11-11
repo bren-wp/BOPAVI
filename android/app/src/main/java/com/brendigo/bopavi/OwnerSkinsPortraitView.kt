@@ -1,64 +1,50 @@
 package com.brendigo.bopavi
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
+import android.graphics.drawable.Drawable
 import android.view.View
 
 /**
- * Portrait artwork cropped exclusively from the four user-supplied Skins
- * reference portraits (not a screenshot of an interactive menu).
+ * Crisp native portrait art for the four real Skins cards.
  *
- * 4 atlas cells, each 76x77 px, in a local no-DPI WebP. Only the artwork
- * region is drawn. Native LinearLayout cards continue to supply the real
- * selected state, accessible labels, transactions and touch targets.
+ * The old owner-reference atlas held just four 76x77 crops and became visibly
+ * pixelated on the 207x307 reference cards. All four high-resolution 512px
+ * transparent portraits already ship with the app and are mapped by the
+ * existing PilotSelectionScreen. They contain NO selection, purchase or lock
+ * badges: those states are still rendered by real native sibling views.
  *
- * Static selection/check/lock decorations in the source artwork are masked
- * from the top-right corners so they never lie about a different save state.
- * The actual native checkmark/lock indicator is drawn by the parent screen.
+ * Cropping clips only this illustration; the card's actual click target,
+ * accessibility text and saved purchase behaviour stay unchanged.
  */
 internal class OwnerSkinsPortraitView(
     context:Context,
     private val skinIndex:Int,
-    private val fallbackDrawable:Int
+    fallbackDrawable:Int
 ):View(context) {
-    private val paint=Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-    private val atlas=BitmapFactory.decodeResource(
-        resources,R.drawable.bopavi_owner_skins_atlas)
-    private val src=Rect()
-    private val dst=RectF()
+    private val portrait:Drawable? = context.getDrawable(fallbackDrawable)
 
     init {
         importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
         isClickable=false
         isFocusable=false
+        isFocusableInTouchMode=false
     }
 
-    override fun onDraw(c:Canvas){
+    override fun onDraw(c:Canvas) {
         super.onDraw(c)
-        val bitmap=atlas
-        if(bitmap==null || bitmap.width<4 || bitmap.height<1) {
-            context.getDrawable(fallbackDrawable)?.apply {
-                setBounds(0,0,width,height)
-                draw(c)
-            }
-            return
-        }
-        val cellWidth=bitmap.width/4
-        val id=skinIndex.coerceIn(0,3)
-        src.set(id*cellWidth,0,(id+1)*cellWidth,bitmap.height)
-        dst.set(0f,0f,width.toFloat(),height.toFloat())
+        if(skinIndex !in 0..3) return
+        val art=portrait ?: return
+        if(width<=0 || height<=0) return
         val saved=c.save()
-        if(id==0 || id==3) {
-            // First portrait's pre-existing check and fourth portrait's
-            // lock are NOT authoritative. Real live status overlays follow.
-            val start=if(id==0) .71f else .63f
-            c.clipOutRect(width*start,0f,width.toFloat(),height*.29f)
-        }
-        c.drawBitmap(bitmap,src,dst,paint)
+        c.clipRect(0,0,width,height)
+        // Preserve the entire winged silhouette rather than stretching an
+        // 80px face crop. Apply the same scale for every hero so the gallery
+        // does not jump in size when the selected pilot changes.
+        val scale=1.16f
+        c.scale(scale,scale,width*.5f,height*.52f)
+        art.setBounds(0,0,width,height)
+        art.draw(c)
         c.restoreToCount(saved)
     }
 }

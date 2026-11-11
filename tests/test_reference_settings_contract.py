@@ -23,7 +23,7 @@ assert 'onTerms={showTermsNotice()}' in main
 assert 'selectedScreen=="game"' in main
 for marker in (
     'R.drawable.homeback','R.drawable.bopiportrait0','R.drawable.logo',
-    'title("SETTINGS",57)','SettingsReferenceLayout.rows[index]',
+    'SettingsEmbossedTitle(host)','SettingsReferenceLayout.rows[index]',
     'VolumeGesturePolicy.commitAsProgressChanges(fromUser,tracking)',
     'bar?.progress?.let(::save)','setOnCheckedChangeListener',
     'stage.setSafe(','android.widget.ScrollView',
@@ -33,7 +33,8 @@ for marker in (
     # ScrollView is imported rather than referenced by fully qualified name.
     assert (marker in settings if marker!="android.widget.ScrollView"
             else "import android.widget.ScrollView" in settings),marker
-assert 'val rows=floatArrayOf(620f,720f,820f,920f,1020f,1120f,1220f,1320f)' in geometry
+assert 'val rows=floatArrayOf(620f,720f,820f,920f,1020f,1120f,1236f,1336f)' in geometry
+assert 'const val homeTop=1446f' in geometry
 assert 'stage.useShopFullBleedReferenceCamera()' in settings
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in main
 for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
@@ -43,8 +44,8 @@ assert 'node_with("Music",clickable=False)' in qa
 assert 'node_with("Glazba:",clickable=False)' in qa
 assert 'node_with("Pročitaj politiku privatnosti")' in qa
 assert 'node_with("Pročitaj uvjete korištenja")' in qa
-assert 'contentDescription="Pročitaj politiku privatnosti"' in settings
-assert 'contentDescription="Pročitaj uvjete korištenja"' in settings
+assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in settings
+assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
 assert '"Selected " else "Choose "' in settings
 assert 'capture_png("android-settings-reference-size")' in qa
 assert 'line("Cloud Save"' not in settings
@@ -58,13 +59,23 @@ assert 'setSingleLine(true)' in settings
 assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
 # Row labels and difficulty values must never rely on clipped visible text.
 assert 'row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{' in settings
+# A 13..12sp TextView autosize range crashed both emulator Settings flows.
+# The pure policy and JVM test ensure 12sp controls and fallback footer are safe.
+sizing=(src/"SettingsTextSizePolicy.kt").read_text()
+sizing_test=(root/"android/app/src/test/java/com/brendigo/bopavi/SettingsTextSizePolicyTest.kt").read_text()
+assert 'SettingsTextSizePolicy.minSp(size)' in settings
+assert 'setAutoSizeTextTypeUniformWithConfiguration(minAutoSp,size,1,' in settings
+assert 'if(maxSp>13) 13 else (maxSp-2).coerceAtLeast(1)' in sizing
+assert 'for(maximum in 2..100)' in sizing_test
+assert 'SettingsTextSizePolicy.minSp(12)' in sizing_test
+assert 'setAutoSizeTextTypeUniformWithConfiguration(13,size,1,' not in settings
 assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in settings
 assert 'val shortLabel=when(index)' in settings
 for label in ('"EASY"','"NORMAL"','"HARD"'):
     assert label in settings,label
 assert 'contentDescription=(if(index==progress.difficulty())' in settings
 assert 'line("Mode",BopaviUiIconDrawable.Kind.STAR,' in settings
-assert 'title("SETTINGS",57).apply{' in settings
+assert 'stage.place(SettingsEmbossedTitle(host).apply {' in settings
 assert 'title("SETTINGS",31).apply{' in settings
 assert 'background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.GOLD)' in settings
 assert 'setTextColor(0xff61330a.toInt())' in settings
@@ -79,8 +90,8 @@ assert 'controlWidthDp:Int=96' in settings
 assert 'LinearLayout.LayoutParams(dp(controlWidthDp),-1)' in settings
 assert 'difficulty(onDifficulty),controlWidthDp=162' in settings
 assert 'minWidth=0' in settings and 'minimumWidth=0' in settings
-assert 'button("›",click=onPrivacy)' in settings
-assert 'button("›",click=onTerms)' in settings
+assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in settings
+assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
 assert 'controlWidthDp=52' in settings
 assert (162-3*4)//3>=48
 # Exact-reference artwork is decorative only; native widgets own all state.
@@ -89,12 +100,27 @@ assert "class SettingsWoodPanelDrawable : Drawable()" in decor
 assert "class SettingsGoldTitleDrawable : Drawable()" in decor
 assert "no text," in decor and "hit targets" in decor
 assert "background=SettingsWoodPanelDrawable()" in settings
-assert "background=SettingsGoldTitleDrawable()" in settings
+# The 3D heading and both legal arrows remain accessible Android Views,
+# not flattened screenshots or placeholder controls.
+lettering=(src/"SettingsReferenceLettering.kt").read_text()
+assert 'internal class SettingsEmbossedTitle(context:Context):TextView(context)' in lettering
+assert 'internal class SettingsLegalArrow(context:Context,label:String,onTap:()->Unit):Button(context)' in lettering
+assert 'contentDescription=label' in lettering
+assert 'setOnClickListener { onTap() }' in lettering
+assert 'minimumWidth=0' in lettering and 'minimumHeight=0' in lettering
+assert 'background=null' in lettering
+assert '151f,1226f,638f,4f' in settings
+assert "background=SettingsGoldTitleDrawable()" in (src/"SettingsReferenceLettering.kt").read_text()
 assert "trackDrawable=StateListDrawable().apply" in settings
 assert "android.R.attr.state_checked" in settings
 assert "thumbDrawable=GradientDrawable(" in settings
 assert "progressDrawable=LayerDrawable(arrayOf(trackBack," in settings
 assert "ClipDrawable(trackFill,Gravity.START,ClipDrawable.HORIZONTAL)" in settings
 assert "bar?.progress?.let(::save)" in settings
+# Settings footer follows the installed build (not a fictional v1.0.0).
+assert 'private fun installedVersion():String' in settings
+assert 'host.packageManager.getPackageInfo(host.packageName,0).versionName' in settings
+assert 'stage.place(title("v"+installedVersion(),13,' in settings
+assert 'col.addView(title("v"+installedVersion(),12,' in settings
 assert "http://" not in settings and "https://" not in settings
 print("PASS: native Settings reference art, real persisted sliders/toggles, mobile scroll and legal routes")

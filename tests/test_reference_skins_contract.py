@@ -39,11 +39,13 @@ assert 'cardLefts=floatArrayOf(23f,252f,481f,710f)' in layout
 assert "cardLefts.size==4" in layout
 assert "const val cardWidth=207f" in layout
 assert "const val cardHeight=307f" in layout
-assert "const val heroSize=760f" in layout
-assert "const val heroLeft=90f" in layout
+assert "const val heroSize=688f" in layout
+assert "const val bannerLeft=250f" in layout
+assert "const val bannerWidth=441f" in layout
+assert "const val heroLeft=127f" in layout
 assert "activeSelectionTop+193f<=referenceHeight" in layout
 assert 'textSize=30f' in screen # selected hero EQUIP
-assert "const val heroTop=205f" in layout
+assert "const val heroTop=244f" in layout
 assert "const val activeSelectionTop=1299f" in layout
 assert "stage.place(selectedInfo,30f,1299f,881f,193f)" in screen
 assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
@@ -65,18 +67,39 @@ assert "SkinsCardEnamelDrawable(isSelected,isLocked)" in screen
 assert "SkinsEquippedBadgeDrawable()" in screen
 assert "SkinsSelectedInfoDrawable()" in screen
 controls=(src/"SkinsReferenceControls.kt").read_text()
+# Measured selected panel: custom dark glass was less accurate than SKY enamel.
+assert "private val enamel=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)" in controls
 for cls in ("SkinsCarouselArrowDrawable","SkinsEquippedBadgeDrawable",
             "SkinsSelectedInfoDrawable"):
     assert "class "+cls in controls
 assert "p.shader=LinearGradient(" in controls
+# Native arrow semantics must match the actual drawn direction.
+# The previous raster QA showed "next" pointing left and "previous" right.
+assert 'SkinsCarouselArrowDrawable(right=label=="›")' in screen
+assert 'val dir=if(right)-1f else 1f' in controls
 assert "isClickable=false" in screen
 assert "OwnerSkinsPortraitView(host,index,skins[index])" in screen
 owner_art=(src/"OwnerSkinsPortraitView.kt").read_text()
-assert "R.drawable.bopavi_owner_skins_atlas" in owner_art
-assert "clipOutRect" in owner_art
+assert "private val portrait:Drawable?" in owner_art
+assert "context.getDrawable(fallbackDrawable)" in owner_art
+assert "val scale=1.16f" in owner_art
+assert "R.drawable.bopavi_owner_skins_atlas" not in owner_art
+assert "c.clipRect(0,0,width,height)" in owner_art
 assert "isClickable=false" in owner_art
 decor=(src/"SkinsReferenceDecor.kt").read_text()
 assert "class SkinsReferenceDecor(" in decor
+assert "c.scale(.89f,.87f)" in decor
+assert "c.restoreToCount(plaqueSave)" in decor
+assert 'stage.place(SkinsEmbossedName(host,item.title)' in screen
+nameplate=(src/"SkinsEmbossedName.kt").read_text()
+assert 'internal class SkinsEmbossedName(context:Context, label:String):TextView(context)' in nameplate
+assert 'text=label' in nameplate and 'contentDescription=label' in nameplate
+assert 'canvas.drawText(caption,centerX,baseline' in nameplate
+# The owner podium has a narrower grass crown and raised golden landing circle.
+assert 'c.drawOval(160f,819f,788f,879f,p)' in decor
+assert 'c.drawOval(169f,813f,778f,868f,p)' in decor
+assert 'c.drawOval(252f,819f,690f,872f,p)' in decor
+assert 'stage.place(text(item.shortName,20f,' in screen
 assert "class SkinsCardEnamelDrawable(" in decor
 assert "private val selected:Boolean,private val locked:Boolean=false" in decor
 assert "c.scale(bounds.width()/207f,bounds.height()/307f)" in decor

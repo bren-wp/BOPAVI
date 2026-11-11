@@ -87,6 +87,14 @@ assert 'background=ShopCreamCardDrawable()' in shop
 assert 'illustration.addView(ShopPerkArtwork(host,item),' in shop
 assert '},24f,302f,894f,276f)' in shop
 assert 'background=ShopFeaturedPanelDrawable()' in shop
+# Dynamic featured SKU remains real, with embossed lettering/ribbon as decor.
+assert 'ShopFeaturedName(host,featured.storefrontTitle)' in shop
+assert 'background=ShopFeaturedRibbonDrawable()' in shop
+feature_art=(src/"ShopFeaturedLettering.kt").read_text()
+assert 'internal class ShopFeaturedName(context:Context,label:String):TextView(context)' in feature_art
+assert 'text=label' in feature_art and 'contentDescription=label' in feature_art
+assert 'internal class ShopFeaturedRibbonDrawable:Drawable()' in feature_art
+assert 'canvas.drawText' not in feature_art  # Draws text via native Canvas c
 feature=shop.split('background=ShopFeaturedPanelDrawable()',1)[1].split(
     '},ShopReferenceLayout.featureLeft',1)[0]
 assert 'elevation=dp(8).toFloat()' not in feature, "FEATURED pane hid native labels"
@@ -96,7 +104,10 @@ assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert '183f,123f,575f,201f' in shop
-assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))' in shop
+assert '},LinearLayout.LayoutParams(-1,0,.86f))' in shop
+assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in shop
+assert 'includeFontPadding=false' in shop
 
 
 assert 'importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO' in shop
@@ -130,6 +141,7 @@ for element in ("private fun woodenBoard(","private fun awning(",
                 "c.scale(width/941f,height/1672f)"):
     assert element in decor, element
 assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
+assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' not in shop
 assert 'ShopEmbossedTitle(host)' in shop
 assert 'contentDescription="SHOP"' in (src/"ShopEmbossedTitle.kt").read_text()
 assert '183f,123f,575f,201f' in shop

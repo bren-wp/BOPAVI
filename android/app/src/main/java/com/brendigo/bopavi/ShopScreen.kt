@@ -136,10 +136,17 @@ internal class ShopScreen(
             Gravity.TOP or Gravity.RIGHT).apply{
             topMargin=dp(2);rightMargin=dp(3)
         })
-        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.72f))
+        // On actual 941px captures the old 0.58-weight caption clipped
+        // "Attracts rewards for 12s/18s". Give real two-line descriptions
+        // sufficient height; keep the product art legible and price tappable.
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))
         card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
                 maxLines=2
-        },LinearLayout.LayoutParams(-1,0,.58f))
+                isSingleLine=false
+                includeFontPadding=false
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+        },LinearLayout.LayoutParams(-1,0,.86f))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
@@ -315,8 +322,12 @@ internal class ShopScreen(
             android.widget.Toast.makeText(host,
                 "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
         },833f,0f,96f,99f,minTouch=true)
-        // The user's original illustrated kiosk and merchant; passive art.
-        // All real live balances, stock and purchase Buttons remain native.
+        // Real 941×1672 Android screenshot comparison showed the original
+        // merchant/kiosk decorative crop preserves the owner's scene much
+        // more accurately than a stretched, unrelated full-body portrait:
+        // storefront ROI RGB-MAE 8.86% before vs 30.76% after replacement.
+        // The crop is decoration only: currency, prices, buttons, purchases
+        // and the 3D title all remain separate native Android components.
         stage.place(ImageView(host).apply {
             setImageResource(R.drawable.bopavi_owner_shop_kiosk)
             scaleType=ImageView.ScaleType.FIT_XY
@@ -336,11 +347,10 @@ internal class ShopScreen(
         },ShopReferenceLayout.featureLeft,ShopReferenceLayout.featureTop,
             ShopReferenceLayout.featureWidth,ShopReferenceLayout.featureHeight)
         stage.place(message("FEATURED!",23).apply {
-            background=plate(0xffff4b86.toInt(),0xffab0341.toInt(),
-                0xffffafc5.toInt(),8)
+            background=ShopFeaturedRibbonDrawable()
             setShadowLayer(2f,1f,3f,0xff6b0632.toInt())
         },70f,578f,275f,62f)
-        stage.place(message(featured.storefrontTitle,32,0xffffe680.toInt()),
+        stage.place(ShopFeaturedName(host,featured.storefrontTitle),
             74f,642f,466f,71f)
         stage.place(message(featured.perkEffect.uppercase(),19),
             77f,707f,464f,47f)

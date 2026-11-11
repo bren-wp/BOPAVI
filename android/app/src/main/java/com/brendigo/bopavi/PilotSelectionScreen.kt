@@ -182,14 +182,10 @@ internal class PilotSelectionScreen(
 
         // Wood-colored hanging-name plaque is decorative but the selected
         // title remains a real, accessible TextView in the hierarchy.
-        stage.place(text(item.title,38f,Color.WHITE).apply {
-            background=null
-            setShadowLayer(dp(4).toFloat(),0f,dp(4).toFloat(),
-                0xff5d260b.toInt())
-            contentDescription=item.title
-        },PilotSelectionLayout.bannerLeft,PilotSelectionLayout.bannerTop,
+        stage.place(SkinsEmbossedName(host,item.title),
+            PilotSelectionLayout.bannerLeft,PilotSelectionLayout.bannerTop,
             PilotSelectionLayout.bannerWidth,PilotSelectionLayout.bannerHeight)
-        stage.place(text(item.shortName,23f,0xffffeec3.toInt()),354f,266f,233f,52f)
+        stage.place(text(item.shortName,20f,0xffffeec3.toInt()),389f,253f,162f,53f)
 
         // The original transparent chosen hero hovers over the separately
         // painted stone platform; no flat oval hides the layered podium.
