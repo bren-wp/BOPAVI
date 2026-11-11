@@ -123,7 +123,9 @@ internal class AchievementsScreen(private val host:Activity){
         val reference=AchievementsLayout.supports(
             dm.widthPixels,dm.heightPixels,
             host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT,
-            host.resources.configuration.fontScale)
+            host.resources.configuration.fontScale) &&
+            AchievementsLayout.supportsCardContent(
+                dm.widthPixels,dm.heightPixels,dm.density)
         if(reference){
             val stage=LevelMapStage(host)
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
