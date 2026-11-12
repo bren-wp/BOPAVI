@@ -63,6 +63,7 @@ jobs:
         run: |
           python tools/generate_audio.py
           python tools/verify_audio.py
+      - run: python tests/test_home_three_buttons_contract.py
       - run: python tests/test_native_files.py
       - run: python tests/test_three_pilots.py
       - run: python tests/test_bopavi_3d_shared_skin_contract.py
@@ -71,15 +72,10 @@ jobs:
       - run: python tests/test_modern_pilots_obstacles_contract.py
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_premium_cta_accessibility.py
-      - run: python tests/test_quick_options.py
       - run: python tests/test_reference_settings_contract.py
       - run: python tests/test_settings_cloud_notification_contract.py
       - run: python tests/test_backup_lifecycle_contract.py
       - run: python tests/test_settings_immersive_return_contract.py
-      - run: python tests/test_achievements_screen_contract.py
-      - run: python tests/test_progress_overview_contract.py
-      - run: python tests/test_progress_map_reflow_contract.py
-      - run: python tests/test_leaderboard_screen_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_legal_dialog_capture.py
@@ -122,8 +118,6 @@ jobs:
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_direct_home_shop_skins.py
-      - run: python tests/test_reference_level_map_contract.py
-      - run: python tests/test_level_map_single_home_contract.py
       - run: python tests/test_reference_pixel_diff_tool.py
       - run: python tests/test_two_owner_screen_comparator.py
       - run: python tests/test_owner_zero_pixel_comparator.py

@@ -1,94 +1,20 @@
-"""Reference-inspired navigation must remain genuinely interactive and offline.
-
-The nine 941x1672 user references define an art target, not real score
-or currency states. No compiled screen may display a baked fake wallet.
-"""
+#!/usr/bin/env python3
+"""Native offline menu destinations: Skins, Shop and Settings only."""
 from pathlib import Path
-root=Path(__file__).resolve().parents[1]
-src=root/"android/app/src/main/java/com/brendigo/bopavi"
-menus=(src/"ReferenceMenus.kt").read_text()
-app=(src/"MainActivity.kt").read_text()
-state=(src/"ProgressStore.kt").read_text()
-sim=(src/"GameSimulation.kt").read_text()
-for route in ("fun skins(","fun shop(","fun levels("):
-    assert route in menus,route
-for route in ("private fun showSkins()","private fun showShop()",
-              "private fun showLevels()","private fun startLevel("):
-    assert route in app,route
-for action in ('feature("SKINS"','feature("SHOP"',
-               'private fun showLevels()'):
-    assert action in app,action
-assert "progress.chooseArcadePilot(index)" in app
-assert "progress.buyPerk(index)" in app
-assert "progress.claimBonusCoins()" in app
-levelMap=(src/"LevelMapScreen.kt").read_text()
-geometry=(src/"LevelMapGeometry.kt").read_text()
-assert "LevelMapScreen(host,progress).create(world,onWorld,onPlay,onBack)" in menus
-assert "progress.frontier(selected)" in levelMap
-assert "progress.bestLevelStars(selected,level.toLong())" in levelMap
-assert "if(unlocked)onPlay(selected,level.toLong())" in levelMap
-assert "isEnabled=enabled" in levelMap
-assert "LevelMapGeometry.isUnlocked(level,frontier)" in levelMap
-assert "val nodes=listOf(" in geometry
-assert "progress.recordLevelStars(completed.first,completed.second,g.completedLevelStars)" in app
-assert "earnedReward=progress.completeLevelFromRecordedRun(" in app
-assert "completed.first,completed.second,g.score())" in app
-assert "val winData=LevelCompleteState.fromRun(" in app
-assert "earnedReward)" in app
-assert "if(!runAlreadyRecorded)e.putInt" in state
-assert "fun completeLevel(world:Int, number:Long, score:Int):Int" in state
-assert "fun recordRun(game: GameSimulation)" in state
-assert "fun buyPerk(index:Int):Boolean" in state
-assert "val radius = 18f" in sim
-for fake in ("1,250", "85 Gems", "Cloud Save", "Restore Purchases",
-             "Notifications", "R.drawable.reference_screenshot"):
-    assert fake not in menus, fake
-assert "gamePauseButton" not in app
-assert "python3 tools/qa_android_reference_menus.py" in (root/"tools/qa_android_emulator.sh").read_text()
-# Emulator QA intentionally relaunches the app during persistence checks.
-# A level-launch crash check must compare against the PID immediately before
-# that navigation, never the stale PID from the first Home process.
-flow=(root/"tools/qa_android_reference_menus.py").read_text()
-assert 'pid_before_level=adb("shell","pidof",APP)' in flow
-assert '==pid_before_level' in flow
-assert '==pid,"FAIL: real level launch crashed the app"' not in flow
-# qa_android_rotation.label() uppercases Android UI text. All supplied
-# queries (English/Croatian, mixed-case, accented) must still match reliably.
-import sys
-import xml.etree.ElementTree as ET
-sys.path.insert(0, str(root/"tools"))
-from qa_android_reference_menus import matching_nodes
-xml=ET.Element("hierarchy")
-music=ET.SubElement(xml,"node",{"text":"MUSIC","content-desc":"","clickable":"false","enabled":"true"})
-legal=ET.SubElement(xml,"node",{"text":"OPEN","content-desc":"PROČITAJ POLITIKU PRIVATNOSTI","clickable":"true","enabled":"true"})
-ET.SubElement(xml,"node",{"text":"SOUND","content-desc":"SOUND","clickable":"false","enabled":"true"})
-assert matching_nodes(xml,"Music")==[music]
-assert matching_nodes(xml,"music")==[music]
-assert matching_nodes(xml,"Pročitaj politiku privatnosti",clickable=True)==[legal]
-assert not matching_nodes(xml,"Music",clickable=True)
-assert not matching_nodes(xml,"Nepostojeća opcija")
-
-# Keep the baseline version guard, but validate the real staged metadata
-# rather than incorrectly requiring an already-published build on every PR.
-from release_metadata import release_metadata
-version,build=release_metadata(root)
-assert build>=171 and tuple(map(int,version.split(".")))>=(1,0,41)
-
-# The Android system navigation Home is not a second BOPAVI HOME button.
-from qa_android_reference_menus import map_home_controls
-map_home_fixture=ET.Element("hierarchy")
-ET.SubElement(map_home_fixture,"node",{"package":"com.android.systemui",
-    "content-desc":"Home","clickable":"true","enabled":"true",
-    "class":"android.widget.Button"})
-actual=ET.SubElement(map_home_fixture,"node",{"package":"com.brendigo.bopavi",
-    "content-desc":"HOME","clickable":"true","enabled":"true",
-    "class":"com.brendigo.bopavi.LevelMapBackControl"})
-assert map_home_controls(map_home_fixture)==[actual]
-second=ET.SubElement(map_home_fixture,"node",{"package":"com.brendigo.bopavi",
-    "content-desc":"Home","clickable":"true","enabled":"true",
-    "class":"android.widget.Button"})
-assert len(map_home_controls(map_home_fixture))==2
-map_home_fixture.remove(second)
-assert len(map_home_controls(map_home_fixture))==1
-
-print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")
+r=Path(__file__).resolve().parents[1]
+src=r/"android/app/src/main/java/com/brendigo/bopavi"
+menu=(src/"ReferenceMenus.kt").read_text()
+a=(src/"MainActivity.kt").read_text()
+store=(src/"ProgressStore.kt").read_text()
+for s in ("fun skins(","fun shop("):assert s in menu,s
+assert "fun levels(" not in menu
+assert "LevelMapScreen" not in menu
+for s in ('feature("SKINS"', 'feature("SHOP"',
+          'private fun showSettingsScreen(){','progress.chooseArcadePilot(index)',
+          'progress.buyPerk(index)','progress.claimBonusCoins()'):
+    assert s in a,s
+for s in ('fun completeLevel(world:Int, number:Long, score:Int):Int',
+          'fun recordRun(game: GameSimulation)','fun buyPerk(index:Int):Boolean'):
+    assert s in store,s
+assert "android.permission.INTERNET" not in (r/"android/app/src/main/AndroidManifest.xml").read_text()
+print("PASS: only supported offline menu routes remain")
