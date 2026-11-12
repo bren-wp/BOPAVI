@@ -5,6 +5,7 @@ root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
 main=(src/"MainActivity.kt").read_text()
 screen=(src/"GameOverScreen.kt").read_text()
+painted=(src/"GameOverCrown.kt").read_text()+"\n"+(src/"GameOverPodium.kt").read_text()
 stats=(src/"GameOverStats.kt").read_text()
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/GameOverStatsTest.kt").read_text()
 qa=(root/"tools/qa_android_emulator.sh").read_text()
@@ -42,7 +43,7 @@ for detail in (
     'for(i in 0..7)',
     'rock.moveTo(x,85f)',
 ):
-    assert detail in screen,detail
+    assert detail in screen+painted,detail
 emblem=(src/"ResultEmblemLabel.kt").read_text()
 wings=(src/"ResultWingDecoration.kt").read_text()
 assert "):TextView(context)" in emblem

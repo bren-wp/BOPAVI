@@ -16,7 +16,7 @@ required={
 }
 import re
 for symbol,filename in required.items():
-    declaration=re.compile(rf"(?m)^(?:internal )?(?:class|object) {symbol}\\b")
+    declaration=re.compile(rf"(?m)^(?:internal )?(?:class|object) {symbol}\b")
     hits=[name for name,src in sources.items() if declaration.search(src)]
     assert hits==[filename],f"{symbol}: expected {filename}, found {hits}"
 sim=sources["GameSimulation.kt"]

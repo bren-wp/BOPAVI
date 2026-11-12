@@ -9,7 +9,9 @@ assert "flightHudFeedback" not in view and "drawHudCaption" not in view
 assert "notice" not in layout and "ability = FlightHudBox" not in layout
 assert "drawHudHeart(" in view
 assert "if(game.impactPulse>0f)" in view
-assert "if(game.collectPulse>0f)" in view
+assert "val pickup=game.collectPulse" in view
+assert "drawFeedbackSparkles(c)" in view
+assert "drawRoyalRing(" not in view
 assert "FlightHudReadability.isFinalLife" in view
 assert "android.permission.INTERNET" not in (r/"android/app/src/main/AndroidManifest.xml").read_text()
 print("PASS: lives-only HUD and true physical feedback without redundant notice chips")
