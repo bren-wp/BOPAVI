@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from sync_release_docs import decode_pages, releases, render, section
+from sync_release_docs import decode_pages, releases, render, section, three_action_version, three_action_catalog, three_action_documents
 
 
 def record(tag, **opts):
@@ -75,6 +75,43 @@ class DocsTests(unittest.TestCase):
         item["body"] = "## v1.0.29 — Changes\n- Verified build.\n**Build 159 distribution:**"
         with self.assertRaisesRegex(ValueError, "Invalid published release notes"):
             section(item)
+
+
+    def test_new_published_three_action_docs_exclude_removed_routes(self):
+        self.assertFalse(three_action_version("v1.0.83"))
+        self.assertTrue(three_action_version("v1.0.84"))
+        self.assertTrue(three_action_version("v1.0.85"))
+        base={"screens":["home","flight","pause","results"],"features":[
+            {"id":x,"status":"visible"} for x in (
+                "home","flight","quick_options_overlay","local_records_overlay",
+                "shop_screen","skin_selection_screen","settings_screen",
+                "achievements_screen","records_screen","level_selection_screen",
+                "virtual_wallet_save","no_ads","no_account","offline")
+        ]}
+        transformed=three_action_catalog(base)
+        self.assertEqual(transformed["screens"],["home","skins","shop","settings"])
+        flags={f["id"]:f["status"] for f in transformed["features"]}
+        for item in ("shop_screen","skin_selection_screen","settings_screen",
+                     "three_home_actions","virtual_wallet_save"):
+            self.assertEqual(flags[item],"visible")
+        for item in ("quick_options_overlay","local_records_overlay",
+                     "achievements_screen","progress_screen","leaderboard_screen",
+                     "level_map_screen","records_screen"):
+            self.assertEqual(flags[item],"removed")
+        pages=three_action_documents("v1.0.84",214,transformed)
+        self.assertEqual(len(pages),4)
+        matrix=pages["docs/product/FEATURE-MATRIX.md"]
+        self.assertIn('"screens": [',matrix)
+        self.assertIn('"settings"',matrix)
+        for name in ("Shop","Skins","Settings"):
+            self.assertIn(name,pages["docs/product/CURRENT_SCREENS.md"])
+        self.assertNotIn("BOPAVI-Android-Records.png",
+                         pages["docs/product/CURRENT_SCREENS.md"])
+        self.assertNotIn("glavni gumb IGRAJ",
+                         pages["docs/play/STORE-LISTING-hr-HR.md"])
+        self.assertIn("nema dostupnog gumba za pokretanje novog leta",
+                      pages["docs/play/STORE-LISTING-hr-HR.md"])
+        self.assertIn("build 214",pages["docs/play/RELEASE-CHECKLIST.md"])
 
     def test_paginated_arrays(self):
         import json

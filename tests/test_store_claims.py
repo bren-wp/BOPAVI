@@ -43,7 +43,10 @@ class StoreClaimsTest(unittest.TestCase):
         data = matrix()
         self.assertEqual(data["schema"], 1)
         self.assertEqual(data["scope_decision"], "pending")
-        self.assertEqual(data["screens"], ["home", "flight", "pause", "results"])
+        expected=(["home","skins","shop","settings"]
+                  if tuple(map(int,data["release"].lstrip("v").split(".")))>=(1,0,84)
+                  else ["home", "flight", "pause", "results"])
+        self.assertEqual(data["screens"], expected)
         states = [f["status"] for f in data["features"]]
         self.assertTrue(set(states) <= {"visible", "internal-legacy", "planned", "removed"})
         ids = [f["id"] for f in data["features"]]
@@ -77,10 +80,16 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertTrue(all(catalog.get(claim) == "visible" for claim in claims), claims)
         self.assertLessEqual(len("BOPAVI"), 30)
         self.assertLessEqual(len(short), 80)
-        self.assertIsNone(BANNED_PUBLIC.search(short + "\n" + full))
+        if tuple(map(int,matrix()["release"].lstrip("v").split(".")))>=(1,0,84):
+            self.assertIn("Shop, Skins i Settings",full)
+            self.assertIn("nema dostupnog gumba za pokretanje novog leta",full)
+            for old in ("globalni poredak","Karta razina omogućuje"):
+                self.assertNotIn(old,full)
+        else:
+            self.assertIsNone(BANNED_PUBLIC.search(short + "\n" + full))
+            self.assertIn("bobice", full)
+            self.assertIn("pauzirati", full)
         self.assertIn("Bopiju", short)
-        self.assertIn("bobice", full)
-        self.assertIn("pauzirati", full)
         self.assertIn("lokalno", full)
 
     def test_native_nav_and_source_evidence(self):

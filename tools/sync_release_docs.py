@@ -54,6 +54,156 @@ def render(items):
     if not items:raise ValueError("No stable release")
     intro="# BOPAVI — Published stable releases\n\nOnly two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).\nAll previous versions remain at https://github.com/bren-wp/BOPAVI/releases.\n\n"
     return intro+"\n".join(section(r) for r in items[:2])
+
+def three_action_version(tag):
+    """Apply only to versions explicitly built with the three-action Home."""
+    match=STABLE.fullmatch(tag)
+    return match is not None and tuple(map(int,match.groups()))>=(1,0,84)
+
+def three_action_catalog(catalog):
+    """Describe reachable production UI, not debug-only gameplay or old saves."""
+    catalog["screens"]=["home","skins","shop","settings"]
+    catalog["scope_decision"]="owner-approved-three-action-home"
+    states={
+        "home":"visible",
+        "flight":"internal-legacy",
+        "tap_to_flap":"internal-legacy",
+        "procedural_obstacles":"internal-legacy",
+        "pause":"internal-legacy",
+        "results":"internal-legacy",
+        "score":"internal-legacy",
+        "berries":"internal-legacy",
+        "local_best":"internal-legacy",
+        "retry":"internal-legacy",
+        "offline":"visible",
+        "no_ads":"visible",
+        "no_account":"visible",
+        "inline_pilot_selection":"removed",
+        "quick_options_overlay":"removed",
+        "local_records_overlay":"removed",
+        "legacy_save_models":"internal-legacy",
+        "virtual_wallet_save":"visible",
+        "skin_selection_screen":"visible",
+        "shop_screen":"visible",
+        "settings_screen":"visible",
+        "powerup_shop":"visible",
+        "achievements_screen":"removed",
+        "records_screen":"removed",
+        "level_selection_screen":"removed",
+        "world_selection_screen":"removed",
+    }
+    for feature in catalog["features"]:
+        if feature["id"] in states:
+            feature["status"]=states[feature["id"]]
+    existing={f["id"] for f in catalog["features"]}
+    for name,state in (("three_home_actions","visible"),
+                       ("progress_screen","removed"),
+                       ("leaderboard_screen","removed"),
+                       ("level_map_screen","removed")):
+        if name not in existing:
+            catalog["features"].append({"id":name,"status":state})
+    return catalog
+
+def three_action_documents(tag,build,catalog):
+    """Generate truthful copy only AFTER a successful public stable release."""
+    matrix_json=json.dumps(catalog,ensure_ascii=False,indent=2)
+    matrix=(
+        "# BOPAVI — Current Android-only feature matrix\n\n"
+        "This file describes **reachable production UI** in the published APK. "
+        "Legacy game data is retained without restoring deleted navigation.\n\n"
+        "## Published release evidence\n\n~~~json\n"+matrix_json+"\n~~~\n\n"
+        "## Verified production screen routes\n\n"
+        "| Screen | Entry point | Available operations |\n"
+        "|---|---|---|\n"
+        "| Home | MainActivity.showHome | Exactly Shop, Skins, Settings; coin balance is passive |\n"
+        "| Skins | MainActivity.showSkins | Select and unlock pilots using local saved coins |\n"
+        "| Shop | MainActivity.showShop | Local virtual upgrades, wallet and bonuses |\n"
+        "| Settings | MainActivity.showSettingsScreen | Volume, controls, backup, reminders, language and legal notices |\n\n"
+        "Progress, Leaderboard, Records, Achievements and Level Map screens "
+        "and their entry points are removed. New gameplay cannot be started from Home. "
+        "The existing GameSimulation and save keys remain for backward compatibility "
+        "and debug-only regression tests; they are not advertised as playable UI.\n\n"
+        "Real Android emulator screenshots do not by themselves certify pixel-perfect "
+        "identity or physical-device stability. No third-party accounts, ads or Internet permission.\n"
+    )
+    screens=(
+        "# BOPAVI — Current Android screens\n\n"
+        "**Published release baseline:** "+tag+" (build "+str(build)+").\n\n"
+        "The production Home exposes **exactly three accessible actions**: "
+        "**Shop, Skins and Settings**. Coins are displayed as a passive balance. "
+        "No Play, Sound shortcut, Achievements, Progress, Leaderboard, "
+        "Records or Level Map action remains.\n\n"
+        "| Accessible screen | Genuine screenshot | Operation |\n"
+        "|---|---|---|\n"
+        "| Home | BOPAVI-Android-Home.png | Shop, Skins, Settings |\n"
+        "| Skins | BOPAVI-Android-Skins.png | Pilot selection and local unlocks |\n"
+        "| Shop | BOPAVI-Android-Shop.png | Offline perk inventory and virtual coins |\n"
+        "| Settings | BOPAVI-Android-Settings.png | Real settings, privacy, terms and SAF backup |\n"
+        "| Privacy (Settings dialog) | BOPAVI-Android-Privacy.png | Bundled offline privacy notice |\n"
+        "| Terms (Settings dialog) | BOPAVI-Android-Terms.png | Bundled offline service terms |\n\n"
+        "**Compatibility only:** flight simulation, pause and results still exist "
+        "internally and can be exercised by debuggable-only Android QA. "
+        "There is intentionally no production Home button for starting a flight. "
+        "Stored progress, virtual coins and purchased skins are preserved on update.\n\n"
+        "Original same-build emulator captures: https://github.com/bren-wp/BOPAVI/releases/tag/"
+        +tag+". Physical-device QA and exact 0% RGB parity are not claimed.\n"
+    )
+    listing=(
+        "# Google Play — BOPAVI (hr-HR) · objavljeno "+tag+
+        " (build "+str(build)+")\n\n"
+        "<!-- verified-feature-ids: home,three_home_actions,skin_selection_screen,shop_screen,settings_screen,virtual_wallet_save,offline,no_ads,no_account -->\n\n"
+        "**Naziv (do 30 znakova):** BOPAVI\n\n"
+        "**Kratki opis (do 80 znakova):** Bopiju prilagodi likove, nadogradnje i postavke, bez oglasa i prijave.\n\n"
+        "**Puni opis:**\n\n"
+        "BOPAVI prikazuje tri glavna izbornika: Shop, Skins i Settings. "
+        "U Skins odaberi dostupnog lika, u Shopu pogledaj poboljšanja "
+        "koja se otključavaju već spremljenim virtualnim novčićima, "
+        "a u Settingsu prilagodi zvuk, kontrole, jezik i sigurnosne kopije.\n\n"
+        "Napredak i virtualna sredstva spremljeni su lokalno i ostaju očuvani "
+        "nakon ažuriranja. Nisu potrebni registracija, oglasi ni internetska veza. "
+        "U postavkama su dostupni uvjeti korištenja i politika privatnosti.\n\n"
+        "Zasloni napretka, poretka, rekorda, postignuća i karte razina uklonjeni su. "
+        "U ovoj verziji nema dostupnog gumba za pokretanje novog leta s početnog zaslona. "
+        "Prijašnji rezultat i spremljene bobice nisu izbrisani.\n\n"
+        "**Kategorija:** Igra → Arkadne (potvrditi u Play Consoleu).\n\n"
+        "**Oglasi:** Ne. **Kupnje u aplikaciji:** Ne. "
+        "Shop koristi isključivo lokalne virtualne novčiće.\n\n"
+        "## Autentične slike — ugovor\n\n"
+        "Obvezno snimiti pravi Home, Shop, Skins i Settings iz istoga buil-da. "
+        "Dodatne gameplay/rezultat snimke služe tehničkoj transparentnosti, "
+        "ali nisu dokaz produkcijske navigacije. Izostaviti stare "
+        "Achievements, Progress, Leaderboard, Level-Map, Options i Records snimke.\n\n"
+        "GitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/"+tag+".\n"
+        "Provjera na fizičkom uređaju i Play Store odobrenje nisu potvrđeni.\n"
+    )
+    checklist=(
+        "# BOPAVI — Android release acceptance checklist\n\n"
+        "**Last published release evidence:** "+tag+" (build "+str(build)+").\n"
+        "**Application:** com.brendigo.bopavi · BRENDIGO · https://brendigo.com.\n\n"
+        "## Production UI\n\n"
+        "- [ ] Home has exactly three accessible controls: Shop, Skins, Settings.\n"
+        "- [ ] No links, buttons, gestures or standalone screens for Progress, "
+        "Leaderboard, Records, Achievements, Level Map or Play.\n"
+        "- [ ] Shop virtual purchases and Skins ownership stay transactional and offline.\n"
+        "- [ ] Settings privacy, legal controls, SAF backup, audio and accessibility work.\n"
+        "- [ ] Run Android 15/16 emulator UI and image checks at multiple densities.\n"
+        "- [ ] Check physical Android devices and TalkBack before claiming production parity.\n\n"
+        "## Data, security and distribution\n\n"
+        "- [ ] Preserve historical v1–v6 local save keys and virtual balances.\n"
+        "- [ ] No INTERNET permission, ad SDKs or new account requirement.\n"
+        "- [ ] Confirm 11 original emulator PNG captures, no removed-screen assets.\n"
+        "- [ ] Check Gradle Android Lint, JVM tests, R8 APK/AAB, SHA-256 manifests.\n"
+        "- [ ] Sign production distribution privately with publisher-approved key.\n"
+        "- [ ] Check Play Console policy, accessibility, data safety and physical-device stability.\n"
+        "- [ ] Never rewrite or delete older stable GitHub releases.\n"
+    )
+    return {
+        "docs/product/FEATURE-MATRIX.md":matrix,
+        "docs/product/CURRENT_SCREENS.md":screens,
+        "docs/play/STORE-LISTING-hr-HR.md":listing,
+        "docs/play/RELEASE-CHECKLIST.md":checklist,
+    }
+
 def sync(root,items,tag):
     public=releases(items)
     if not public or public[0]["tag_name"]!=tag:raise ValueError("Expected successful public stable release "+tag)
@@ -71,6 +221,11 @@ def sync(root,items,tag):
     for name in ACTIVE:
         old=(root/name).read_text(encoding="utf-8")
         updates[name]=old.replace(previous,tag).replace("build "+str(old_build),"build "+str(build))
+    if three_action_version(tag):
+        # The previous published baseline has different routes. Replacing
+        # version strings alone would falsely advertise deleted screens.
+        catalog=three_action_catalog(catalog)
+        updates.update(three_action_documents(tag,build,catalog))
     # The publication has finished: it is no longer an unreleased candidate.
     pending=(root/"docs/release/NEXT.md").read_text(encoding="utf-8")
     if re.search(rf"(?m)^## {re.escape(tag)}\s+[—-]",pending):
