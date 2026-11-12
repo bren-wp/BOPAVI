@@ -176,8 +176,8 @@ internal class LevelCompleteScreen(private val host:Activity) {
         }
         stage.place(reward,547f,1158f,269f,45f)
 
-        stage.place(HomePlayWings(host),113f,1234f,714f,151f)
-        stage.place(button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP",
+        stage.place(LevelCompleteActionWings(host),113f,1234f,714f,151f)
+        stage.place(button(if(data.nextAvailable)"NEXT LEVEL" else "RETRY LEVEL",
             true,onNext),151f,1234f,639f,151f,minTouch=true)
         stage.place(button("HOME",false,onHome),
             150f,1405f,301f,119f,minTouch=true)

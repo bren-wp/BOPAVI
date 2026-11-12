@@ -29,7 +29,7 @@ for phrase in (
     'for(index in 0..2)',
     'index<data.stars',
     'stage.place(LevelCompleteChest(host),567f,975f,222f,192f)',
-    'button(if(data.nextAvailable)"NEXT LEVEL" else "LEVEL MAP"',
+    'button(if(data.nextAvailable)"NEXT LEVEL" else "RETRY LEVEL"',
     'stage.place(button("HOME",false,onHome)',
     'stage.place(button("SHARE",false,onShare)',
     'stage.setOnApplyWindowInsetsListener',
@@ -60,7 +60,7 @@ assert 'BopaviUiIconDrawable.Kind.STAR' in view
 assert 'Score: ${data.scoreText}' in view
 assert 'status("SCORE",data.scoreText,' not in view
 assert 'R.drawable.reference_screenshot' not in view
-assert "stage.place(HomePlayWings(host),113f,1234f,714f,151f)" in view
+assert "stage.place(LevelCompleteActionWings(host),113f,1234f,714f,151f)" in view
 assert "ResultActionEnamelDrawable(gold)" in view
 assert "replayAndNonMilestoneDoNotPretendToGrantChestLoot" in unit
 assert "endOfWorldDoesNotProduceInvalidNextLevel" in unit

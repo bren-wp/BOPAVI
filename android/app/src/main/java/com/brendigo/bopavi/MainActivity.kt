@@ -1156,7 +1156,7 @@ class MainActivity : Activity() {
                 resultBackdrop,portraitDrawableIds[selectedPilotChoice],winData,
                 onNext={
                     if(winData.nextAvailable)startLevel(completed.first,completed.second+1L)
-                    else showHome()
+                    else startLevel(completed.first,completed.second)
                 },
                 onHome={showHome()},
                 onShare={

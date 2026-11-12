@@ -91,11 +91,11 @@ internal class HomeReferenceScreen(private val host:Activity,
             override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
                 if(childCount==2){
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
-                    val height=View.MeasureSpec.getSize(heightMeasureSpec)
+                    val measuredHeight=View.MeasureSpec.getSize(heightMeasureSpec)
                     measure.textSize=minOf(font*host.resources.displayMetrics.scaledDensity,
-                        height*.71f)
+                        measuredHeight*.71f)
                     val cluster=ReferenceButtonCluster.measure(
-                        w,height,measure.measureText(text),.61f,.29f)
+                        w,measuredHeight,measure.measureText(text),.61f,.29f)
                     (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
                         width=cluster.iconWidth
                         height=LinearLayout.LayoutParams.MATCH_PARENT

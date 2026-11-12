@@ -267,7 +267,7 @@ internal class PilotSelectionScreen(
                 minTouch=true)
             if(isLocked) {
                 // Passive overlay, no touch capture; the actual card is live.
-                stage.place(LevelMapLockGlyph(host),left+154f,
+                stage.place(PilotLockGlyph(host),left+154f,
                     PilotSelectionLayout.cardTop+8f,50f,54f)
             } else if(isSelected) {
                 stage.place(ImageView(host).apply {
