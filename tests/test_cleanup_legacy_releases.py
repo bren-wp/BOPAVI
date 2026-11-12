@@ -177,6 +177,21 @@ class RetentionTests(unittest.TestCase):
         self.assertNotIn("BOPAVI-Android-Splash.png",
                          cleanup.expected_release_assets("v1.0.58"))
 
+    def test_v1084_removes_only_obsolete_screenshots(self):
+        old = cleanup.expected_release_assets("v1.0.83")
+        updated = cleanup.expected_release_assets("v1.0.84")
+        removed = {
+            "BOPAVI-Android-Achievements.png",
+            "BOPAVI-Android-Progress.png",
+            "BOPAVI-Android-Leaderboard.png",
+            "BOPAVI-Android-Level-Map.png",
+            "BOPAVI-Android-Options.png",
+            "BOPAVI-Android-Records.png",
+        }
+        self.assertEqual(old-updated,removed)
+        self.assertEqual(updated,old-removed)
+        self.assertEqual(len(updated),17)
+
     def test_release_manifest_keeps_required_artifacts(self):
         tag = "v1.0.78"
         missing = "BOPAVI-Android-Shop.png"

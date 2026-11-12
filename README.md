@@ -24,14 +24,13 @@
 
 Iznad oblaka, između lebdećih otoka i razigranih prepreka, svaki zamah krila vodi prema novom rekordu. **BOPAVI** je arkadna igra za kratke letove i velike male pobjede. Odaberi junaka, uhvati ritam leta i otkrij koliko daleko možeš stići.
 
-Igra se **odmah otvara** na početnom zaslonu. Pritisni **IGRAJ** i poleti — bez registracije, bez internetske veze i bez obvezne prijave.
+Aplikacija se **odmah otvara** na početnom zaslonu s tri izbornika: **Shop, Skins i Settings**. Pokretanje novog leta nije dostupno s početnog zaslona ove inačice.
 
 ## Što te čeka? ✨
 
 - 🪽 **Let jednim dodirom** — izbjegavaj prepreke i svladaj ritam zamaha.
 - 🌤️ **Osam svjetova** — istražuj krajolike, prolaze i izazove.
 - 🦉 **Više junaka** — od Bopija do Sove, Lisca i dodatnih pilota.
-- 🏆 **Rekordi i postignuća** — svaki uspjeh vezan je uz stvarne rezultate igre.
 - 🛡️ **Nadogradnje za novčiće** — štitovi i magneti kupuju se lokalno zarađenom valutom.
 - 🔐 **Tvoj napredak ostaje tvoj** — lokalno spremljeni podaci i kopija koju sam odabireš.
 
@@ -48,7 +47,7 @@ Bopi predvodi pustolovinu. Sova leti s plavim šalom i pilotskim naočalama, a L
 
 ## Osam svjetova. Tvoja priča. 🌍
 
-**Sky Meadows**, **Crystal Ruins**, **Volcano Peaks**, **Night Castles**, **Pearl Sea**, **Sky Towers**, **Magic Forest** i **Star Abyss** čekaju na istraživanje. Karta razina pokazuje stvarno otključani put, a zaslon **Napredak** prati završene razine, rezultate, zvjezdice s prvih 20 razina svakog svijeta i druge spremljene statistike. **Dodirni karticu svijeta u Napretku** i otvori upravo taj svijet na Karti razina. Sve vrijednosti dolaze iz tvoje spremljene igre. Karta koristi jednu usklađenu 3D strelicu za povratak, dok kartice Napretka ostaju čitljive i pri različitim veličinama zaslona.
+Podaci iz ranijih letova i otključavanja ostaju spremljeni lokalno radi kompatibilnosti s postojećim instalacijama. Zasebni zasloni napretka, rezultatskog poretka, rekorda i karte razina uklonjeni su iz aplikacije.
 
 ## Prikupi. Nadogradi. Poleti ponovno. 🎮
 
@@ -56,7 +55,7 @@ Proleti između stupova, skupljaj nagrade i pokušaj srušiti vlastiti rekord. S
 
 ## Pogledaj sve zaslone igre
 
-Galerija donosi **17 autentičnih Android PNG snimki** iz stvarnih emulator testova: let, pauza, rezultati, Game Over, odabir junaka, nadogradnje, postavke, postignuća, napredak, poredak, karta i pomoćni izbornici. Nisu generirani mockupovi. Klikom na sliku otvaraš stvarnu snimku iz [najnovijeg GitHub izdanja](https://github.com/bren-wp/BOPAVI/releases/latest).
+Galerija donosi **11 autentičnih Android PNG snimki** iz stvarnih emulator testova: početni izbornik, Shop, Skins, Settings, let i njegova stanja, rezultati te pravni dokumenti. Nisu generirani mockupovi. Klikom na sliku otvaraš stvarnu snimku iz [najnovijeg GitHub izdanja](https://github.com/bren-wp/BOPAVI/releases/latest).
 
 <div align="center">
 
@@ -89,25 +88,7 @@ Galerija donosi **17 autentičnih Android PNG snimki** iz stvarnih emulator test
 <tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Settings.png" alt="Stvarna Android snimka: Detaljne postavke" width="270"></a><p><strong>Detaljne postavke</strong></p></td>
 </tr>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Achievements.png" alt="Stvarna Android snimka: Postignuća" width="270"></a><p><strong>Postignuća</strong></p></td>
-</tr>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Progress.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Progress.png" alt="Stvarna Android snimka: Napredak kroz osam svjetova" width="270"></a><p><strong>Napredak kroz osam svjetova</strong></p></td>
-</tr>
 
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Leaderboard.png" alt="Stvarna Android snimka: Poredak" width="270"></a><p><strong>Poredak</strong></p></td>
-</tr>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Level-Map.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Level-Map.png" alt="Stvarna Android snimka: Karta razina" width="270"></a><p><strong>Karta razina</strong></p></td>
-</tr>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Options.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Options.png" alt="Stvarna Android snimka: Opcije igre" width="270"></a><p><strong>Opcije igre</strong></p></td>
-</tr>
-<tr>
-<td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Records.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Records.png" alt="Stvarna Android snimka: Rekordi" width="270"></a><p><strong>Rekordi</strong></p></td>
-</tr>
 <tr>
 <td align="center"><a href="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Privacy.png"><img src="https://github.com/bren-wp/BOPAVI/releases/latest/download/BOPAVI-Android-Privacy.png" alt="Stvarna Android snimka: Privatnost" width="270"></a><p><strong>Privatnost</strong></p></td>
 </tr>
@@ -118,12 +99,13 @@ Galerija donosi **17 autentičnih Android PNG snimki** iz stvarnih emulator test
 
 </div>
 
-## Kako igrati? 🪽
+## Tri dostupna izbornika 🪽
 
-1. Odaberi junaka i pritisni **IGRAJ**.
-2. Dodiruj zaslon za svaki zamah krilima.
-3. Izbjegavaj prepreke, skupljaj nagrade i nadmaši vlastiti rezultat.
-4. Prati **Postignuća**, **Napredak** i **Rekorde** te pokušaj ponovno.
+1. U izborniku **Skins** pregledaj i odaberi otključane likove.
+2. U **Shopu** pregledaj nadogradnje dostupne za spremljene novčiće.
+3. U **Settingsu** prilagodi zvuk, kontrole, jezik i sigurnosne kopije.
+
+**Napomena:** Pokretanje leta s početnog zaslona uklonjeno je na zahtjev. Gameplay je zadržan u izvoru, ali nema produkcijsku Home navigaciju.
 
 U postavkama prilagodi zvuk, kontrole i podržane načine igranja.
 

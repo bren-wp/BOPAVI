@@ -14,9 +14,9 @@ class MarketingReadmeTests(unittest.TestCase):
         for path in ("docs/assets/logo.svg", "docs/assets/hero.svg", "docs/play/PRIVACY_POLICY.md"):
             self.assertIn(path, content)
             self.assertTrue((ROOT / path).is_file(), path)
-        for name in ("Home", "Skins", "Shop", "Settings", "Achievements", "Progress", "Game-Over", "Leaderboard", "Level-Map", "Options", "Records", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
+        for name in ("Home", "Skins", "Shop", "Settings", "Game-Over", "Privacy", "Terms", "Flight-Preview", "Flight-Active", "Pause", "Results"):
             self.assertIn(f"releases/latest/download/BOPAVI-Android-{name}.png", content)
-        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 34)
+        self.assertEqual(content.count("releases/latest/download/BOPAVI-Android-"), 22)
         self.assertIn("https://brendigo.com", content)
         self.assertNotIn("BOPAVI-Android-Splash.png",content)
         self.assertIn("odmah otvara",content)
@@ -34,7 +34,8 @@ class MarketingReadmeTests(unittest.TestCase):
             player_text = re.sub(r"<[^>]*>", "", content)
             self.assertNotIn(unwanted.casefold(), player_text.casefold(), unwanted)
         self.assertTrue(re.search(r"Bez oglasa.*Bez praćenja.*Bez registracije", content))
-        self.assertIn("IGRAJ", content)
+        self.assertIn("Shop, Skins i Settings", content)
+        self.assertNotIn("BOPAVI-Android-Progress.png",content)
 
 
 if __name__ == "__main__":
