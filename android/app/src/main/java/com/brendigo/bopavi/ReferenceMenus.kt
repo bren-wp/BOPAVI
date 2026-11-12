@@ -12,6 +12,4 @@ internal class ReferenceMenus(private val host:Activity, private val progress:Pr
     fun shop(onBuy:(Int)->Unit,onClaim:()->Unit,onBack:()->Unit):View =
         ShopScreen(host,progress).create(onBuy,onClaim,onBack)
 
-    fun levels(world:Int,onWorld:(Int)->Unit,onPlay:(Int,Long)->Unit,onBack:()->Unit):View =
-        LevelMapScreen(host,progress).create(world,onWorld,onPlay,onBack)
 }

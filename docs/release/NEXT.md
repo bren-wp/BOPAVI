@@ -1,11 +1,11 @@
-# BOPAVI — next Android release
+# BOPAVI — Next Android release
 
-## v1.0.83 — Safe backup lifecycle and stale-destination guards (build 213)
+## v1.0.84 — Home with Shop, Skins and Settings only (build 214)
 
-- Prevent background backup/restore tasks from scheduling onto a stopped executor or calling a destroyed Activity.
-- Invalidate queued auto-save and manual-save jobs when the user changes or disables the selected SAF document.
-- Persist destination removal before revoking provider access; release obsolete grants after successfully changing destinations.
-- Preserve work already writing to an external provider during Activity shutdown instead of interrupting a potentially non-atomic document write.
-- Add pure Kotlin/JVM regression tests for revision invalidation and closure, and a CI source contract for the backup lifecycle.
-- Keep offline operation, old v1–v6 save compatibility, the current launcher and 941×1672 screen artwork.
-- Limitations: a provider's SAF write still cannot be claimed atomically recoverable; external failure-injection and real Android-device tests remain outstanding.
+- Remove Home Play, Achievements, Leaderboard, Sound and all other interactive Home shortcuts on both reference and compact screens.
+- Retain exactly three native primary Home actions: Shop, Skins and Settings, with responsive large-text / landscape fallbacks.
+- Remove Progress, Achievements, Leaderboard/Records and Level Map destination screens, routes, and shortcut entries; remove unused rendering/support classes and their obsolete regression cases.
+- Remove the interactive star/map wallet; show the actual coin balance as passive information only.
+- Preserve existing local progress, earned currency, owned skins, backups, gameplay engine and Settings privacy controls to avoid destructive user migrations.
+- **Product behavior:** New gameplay no longer starts from Home because Play was explicitly removed. Gameplay/result paths remain in the source for compatibility and internal regression tests; reintroducing gameplay navigation would require a separate design decision.
+- Security/QA: prevent orphaned routes, check that the Home hierarchy has exactly three tappable app-owned controls, run Android emulator and offline backup regression tests.

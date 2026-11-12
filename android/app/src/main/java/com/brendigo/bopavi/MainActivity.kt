@@ -38,7 +38,6 @@ class MainActivity : Activity() {
     // display size/density; requestLayout alone leaves the old ScrollView
     // (and its previous scroll position) visible on the new reference grid.
     private var settingsReflowPending=false
-    private var progressMapReflowPending=false
     // Cancels an in-flight preflight callback when Back leaves Loading.
     private var loadingGeneration = 0
     // Unlike window focus, the Activity resume state does not flicker during
@@ -151,8 +150,7 @@ class MainActivity : Activity() {
                             android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                         controller?.hide(android.view.WindowInsets.Type.statusBars()
                             or android.view.WindowInsets.Type.navigationBars())
-                    } else if(selectedScreen=="shop" || selectedScreen=="levels" ||
-                        ownerImmersiveReferenceScreen()) {
+                    } else if(selectedScreen=="shop" || ownerImmersiveReferenceScreen()) {
                         // Owner 941px references show both Shop and Level Map
                         // as full-bleed illustrated screens. The same native
                         // swipe gesture still reveals transient system bars.
@@ -173,7 +171,7 @@ class MainActivity : Activity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 (if(selectedScreen=="game" || selectedScreen=="shop" ||
-                    selectedScreen=="levels" || ownerImmersiveReferenceScreen())
+                    ownerImmersiveReferenceScreen())
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                  else 0)
@@ -236,21 +234,7 @@ class MainActivity : Activity() {
                     showSettingsScreen()
             }
         }
-        // Native Map switches between the owner camera and compact scrolling
-        // layout. Progress card dimensions are dp-based. Recreate both when
-        // window size, density or orientation changes; never resize live GameView.
-        if((selectedScreen=="levels" || selectedScreen=="progress") &&
-                ::progress.isInitialized && !progressMapReflowPending){
-            progressMapReflowPending=true
-            val pendingScreen=selectedScreen
-            window.decorView.post {
-                progressMapReflowPending=false
-                if(!isFinishing && !isDestroyed && selectedScreen==pendingScreen){
-                    if(pendingScreen=="levels")showLevels()
-                    else showProgressOverview()
-                }
-            }
-        }
+
     }
 
     private fun showNativeView(root: View) {
@@ -574,233 +558,6 @@ class MainActivity : Activity() {
      * Native Home overlay, not a new navigation route. Existing preferences
      * keep their historical keys and stay local; all changes are opt-in.
      */
-    private fun showQuickOptions(){
-        val column=LinearLayout(this).apply {
-            orientation=LinearLayout.VERTICAL
-            setPadding(d(20),d(8),d(20),d(16))
-            background=gradient(0xff154c8d.toInt(),0xff061d42.toInt(),23).apply {
-                setStroke(d(2),0xff60dafe.toInt())
-            }
-        }
-        fun heading(value:String){
-            column.addView(TextView(this).apply{
-                text=value
-                textSize=16f
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(0xffe6f7ff.toInt())
-                setPadding(0,d(14),0,d(7))
-            })
-        }
-        fun toggle(caption:String,enabled:Boolean,onChange:(Boolean)->Unit){
-            column.addView(android.widget.Switch(this).apply {
-                text=caption
-                textSize=15f
-                setTextColor(0xffe6f7ff.toInt())
-                isChecked=enabled
-                // A fixed 48dp row clips Croatian multi-line labels at large
-                // font scales. Allow the switch and its full caption to grow
-                // together without ever shrinking the native hit area.
-                minHeight=d(64)
-                setPadding(d(6),d(9),d(6),d(9))
-                maxLines=4
-                contentDescription=caption
-                thumbTintList=ColorStateList.valueOf(0xff9ff6df.toInt())
-                trackTintList=ColorStateList.valueOf(0xff286d95.toInt())
-                setOnCheckedChangeListener{_,value->onChange(value)}
-            },LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT))
-        }
-        heading("Težina leta")
-        val difficulties=android.widget.RadioGroup(this).apply {
-            orientation=LinearLayout.VERTICAL
-        }
-        val labels=progress.difficultyNames
-        val radioIds=IntArray(labels.size){View.generateViewId()}
-        for(index in labels.indices) {
-            difficulties.addView(android.widget.RadioButton(this).apply {
-                id=radioIds[index]
-                text=labels[index]
-                textSize=15f
-                setTextColor(0xffe6f7ff.toInt())
-                contentDescription="Težina: "+labels[index]
-                buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())
-                minHeight=d(52)
-                setPadding(d(6),d(8),d(6),d(8))
-            },android.widget.RadioGroup.LayoutParams(
-                -1,android.widget.RadioGroup.LayoutParams.WRAP_CONTENT))
-        }
-        difficulties.check(radioIds[progress.difficulty()])
-        difficulties.setOnCheckedChangeListener{_,id->
-            val index=radioIds.indexOf(id)
-            if(index>=0){
-                progress.setDifficulty(index)
-                sound.effect("click")
-            }
-        }
-        column.addView(difficulties)
-        column.addView(TextView(this).apply{
-            text="Težina i smanjeni pokret primjenjuju se od sljedećeg leta."
-            textSize=12f
-            setTextColor(0xffe6f7ff.toInt())
-        })
-        heading("Zvuk i pristupačnost")
-        toggle("Zvuk uključen",progress.soundEnabled()){enabled->
-            progress.setSoundEnabled(enabled)
-            sound.enabled=enabled
-        }
-        toggle("Vibracija pri igranju",progress.hapticEnabled()){enabled->
-            progress.setHapticEnabled(enabled)
-        }
-        toggle("Smanjeni pokret i manje osvježavanja",progress.lessMotion()){enabled->
-            progress.setLessMotion(enabled)
-        }
-        fun volumeSlider(caption:String,initial:Int,music:Boolean){
-            val label=TextView(this).apply {
-                text=caption+": "+initial+" %"
-                textSize=14f
-                setTextColor(0xffe6f7ff.toInt())
-                setPadding(0,d(8),0,0)
-            }
-            column.addView(label)
-            // Avoid redundant disk writes, including repeated D-pad presses at
-            // a 0%/100% limit. A touch drag commits only once on release.
-            var lastSavedVolume=initial
-            fun persistVolume(value:Int) {
-                val safe=value.coerceIn(0,100)
-                if(safe==lastSavedVolume)return
-                if(music) this@MainActivity.progress.setMusicVolume(safe)
-                else this@MainActivity.progress.setEffectsVolume(safe)
-                lastSavedVolume=safe
-            }
-            column.addView(android.widget.SeekBar(this).apply {
-                max=100
-                progress=initial
-                contentDescription=caption
-                progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())
-                thumbTintList=ColorStateList.valueOf(0xffffde76.toInt())
-                progressBackgroundTintList=ColorStateList.valueOf(0xff395d7d.toInt())
-                // The 48dp LayoutParams size below works on API26+. ProgressBar's
-                // minHeight setter is API29-only and was rejected by Android Lint.
-                setOnSeekBarChangeListener(object:android.widget.SeekBar.OnSeekBarChangeListener {
-                    private var touchTracking=false
-                    override fun onProgressChanged(bar:android.widget.SeekBar?,value:Int,fromUser:Boolean){
-                        label.text=caption+": "+value+" %"
-                        if(fromUser) {
-                            if(music) sound.musicVolume=value/100f
-                            else sound.effectsVolume=value/100f
-                            // TalkBack, keyboard and D-pad change the SeekBar
-                            // without onStopTrackingTouch: save them now.
-                            if(VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking))
-                                persistVolume(value)
-                        }
-                    }
-                    override fun onStartTrackingTouch(bar:android.widget.SeekBar?){
-                        touchTracking=true
-                    }
-                    override fun onStopTrackingTouch(bar:android.widget.SeekBar?){
-                        touchTracking=false
-                        // Commit a continuous swipe once, with its final value.
-                        bar?.progress?.let(::persistVolume)
-                    }
-                })
-            },LinearLayout.LayoutParams(-1,d(48)))
-        }
-        volumeSlider("Glazba",progress.musicVolume(),true)
-        volumeSlider("Zvučni efekti",progress.effectsVolume(),false)
-        // Level Map stays reachable without adding an extra Home button that
-        // conflicts with the supplied Home composition.
-        lateinit var optionsDialog:android.app.AlertDialog
-        heading("Razine")
-        action(column,"LEVEL MAP",false){
-            optionsDialog.dismiss()
-            showLevels()
-        }
-        // New progress destination is deliberately in the existing scrollable
-        // menu, keeping the owner-approved Home button geometry unchanged.
-        action(column,"NAPREDAK",false){
-            optionsDialog.dismiss()
-            showProgressOverview()
-        }
-        heading("Pravni dokumenti")
-        fun legalButton(caption:String,description:String,onClick:()->Unit){
-            column.addView(Button(this).apply{
-                text=caption
-                isAllCaps=false
-                contentDescription=description
-                textSize=16f
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(Color.WHITE)
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    gradient(0xff2376ac.toInt(),0xff0a386d.toInt(),20),null)
-                minHeight=d(52)
-                setOnClickListener{sound.effect("click");onClick()}
-            },LinearLayout.LayoutParams(-1,d(56)).apply{topMargin=d(5)})
-        }
-        legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPrivacyNotice()}
-        legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}
-        val scroll=android.widget.ScrollView(this).apply{
-            isFillViewport=false
-            addView(column)
-        }
-        optionsDialog=android.app.AlertDialog.Builder(this)
-            .setTitle("OPCIJE IGRE")
-            .setCustomTitle(premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS))
-            .setView(scroll)
-            .setPositiveButton("GOTOVO",null)
-            .show().also { polishGameDialog(it) }
-    }
-
-    /** Match both in-game overlays to the midnight-blue/cyan Home palette. */
-    private fun premiumDialogHeader(text:String,kind:BopaviUiIconDrawable.Kind):TextView = TextView(this).apply {
-        this.text=text
-        setCompoundDrawablesRelativeWithIntrinsicBounds(
-            uiIcon(kind,0xff9be8ff.toInt(),24),null,null,null)
-        compoundDrawablePadding=d(9)
-        textSize=21f
-        gravity=Gravity.CENTER
-        typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-        setTextColor(Color.WHITE)
-        setPadding(d(18),d(18),d(18),d(14))
-        background=gradient(0xff17558b.toInt(),0xff103466.toInt(),22).apply {
-            setStroke(d(1),0xff60dafe.toInt())
-        }
-    }
-    private fun polishGameDialog(dialog:android.app.AlertDialog) {
-        dialog.window?.setBackgroundDrawable(
-            gradient(0xff103d71.toInt(),0xff051a36.toInt(),25).apply {
-                setStroke(d(2),0xff65ddf9.toInt())
-            })
-        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)
-            ?.setTextColor(0xff9be8ff.toInt())
-    }
-    /** Real saved progress across eight worlds, no fictional global stats. */
-    private fun showProgressOverview(){
-        showPauseAfterBackground=false
-        sound.stop()
-        selectedScreen="progress"
-        applyPremiumSystemBars()
-        showNativeView(ProgressOverviewScreen(this,progress).create(
-            onBack={showHome()},
-            onMap={showLevels()},
-            onWorld={world->
-                progress.chooseWorld(world)
-                showLevels()
-            }))
-    }
-
-    /** Read-only on-device records: no network, accounts or score submissions. */
-    private fun showLocalRecords(){
-        showPauseAfterBackground=false
-        sound.stop()
-        selectedScreen="records"
-        val summary=LeaderboardSummary(
-            progress.bestPoints(),progress.bestFood(),progress.endlessBest(),
-            progress.totalRuns(),progress.totalFlaps())
-        val scores=progress.leaderboard().map{
-            LeaderboardEntry(it.name,it.score,it.world,it.difficulty,it.gates)
-        }
-        showNativeView(LeaderboardScreen(this).create(summary,scores,onBack={showHome()}))
-    }
-
     /** Real navigation destinations backed exclusively by local state. */
     private fun showSkins(){
         showPauseAfterBackground=false
@@ -931,31 +688,6 @@ class MainActivity : Activity() {
             onBack={showHome()})
         showNativeView(view)
     }
-    private fun showLevels(){
-        showPauseAfterBackground=false
-        sound.stop()
-        selectedScreen="levels"
-        applyPremiumSystemBars()
-        val view=ReferenceMenus(this,progress).levels(progress.chosenWorld(),
-            onWorld={world->progress.chooseWorld(world);showLevels()},
-            onPlay={world,number->startLevel(world,number)},
-            onBack={showHome()})
-        showNativeView(view)
-    }
-
-    /** Read-only achievements: all eight values are from saved local runs. */
-    private fun showLocalAchievements(){
-        showPauseAfterBackground=false
-        sound.stop()
-        selectedScreen="achievements"
-        val snapshot=AchievementSnapshot(
-            wins=progress.wins(),runs=progress.totalRuns(),
-            flaps=progress.totalFlaps(),food=progress.bestFood(),
-            obstacles=progress.endlessBest(),score=progress.bestPoints(),
-            meadows=progress.collectibles(0),deaths=progress.deaths())
-        showNativeView(AchievementsScreen(this).create(snapshot,onBack={showHome()}))
-    }
-
     private fun showHome(){
         loadingGeneration++
         activeStage=null
@@ -973,15 +705,9 @@ class MainActivity : Activity() {
                 resources.configuration.fontScale)){
             val home=HomeReferenceScreen(this,progress).create(
                 pilotIndex=selectedPilotChoice,
-                onPlay={startGame()},
                 onSkins={showSkins()},
                 onShop={showShop()},
-                onSettings={showSettingsScreen()},
-                onAchievements={showLocalAchievements()},
-                onLeaderboard={showLocalRecords()},
-                onSound={showQuickOptions()},
-                onCoins={showShop()},
-                onStars={showLevels()})
+                onSettings={showSettingsScreen()})
             showNativeView(home)
             return
         }
@@ -1014,60 +740,19 @@ class MainActivity : Activity() {
             (resources.configuration.screenHeightDp-558).coerceIn(92,270)
         else (resources.configuration.screenHeightDp-468).coerceIn(225,320)
 
-        // The reference has two small upper-right wallet capsules, not two
-        // full-width score banners. Values always come from actual saved data.
-        val resourcesBar=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.END or Gravity.CENTER_VERTICAL
-        }
-        fun resourceChip(label:String,count:Int,kind:BopaviUiIconDrawable.Kind,
-                         destination:String,onClick:()->Unit){
-            val chip=LinearLayout(this).apply{
-                orientation=LinearLayout.HORIZONTAL
-                gravity=Gravity.CENTER_VERTICAL
-                setPadding(d(5),0,d(5),0)
-                background=RippleDrawable(ColorStateList.valueOf(0x44ffffff),
-                    gradient(0xff2073ba.toInt(),0xff061e4c.toInt(),22).apply{
-                        setStroke(d(2),0xff80d7ff.toInt())
-                    },null)
-                contentDescription="$label: $count. $destination"
-                isClickable=true;isFocusable=true
-                minimumHeight=d(48)
-                setOnClickListener{sound.effect("click");onClick()}
-            }
-            chip.addView(ImageView(this).apply{
-                setImageDrawable(uiIcon(kind,0xffffd44e.toInt(),25))
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(d(28),d(28)))
-            chip.addView(TextView(this).apply{
-                text=java.text.NumberFormat.getIntegerInstance().format(count)
-                textSize=if(tinyDisplay)14f else 16f
-                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-                setTextColor(Color.WHITE)
-                gravity=Gravity.CENTER
-                maxLines=1
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(0,-1,1f))
-            chip.addView(TextView(this).apply{
-                text="+"
-                textSize=21f
-                typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
-                setTextColor(Color.WHITE)
-                gravity=Gravity.CENTER
-                background=gradient(0xff72ee49.toInt(),0xff0f9e2b.toInt(),9)
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(d(25),d(29)))
-            resourcesBar.addView(chip,LinearLayout.LayoutParams(0,d(48),1f).apply{
-                setMargins(d(3),0,d(3),0)
-            })
-        }
-        resourceChip("COINS",progress.coins(),BopaviUiIconDrawable.Kind.COIN,
-            "Otvori trgovinu"){showShop()}
-        val stars=(0 until LevelEngine.WORLD_COUNT).sumOf { progress.worldStars(it) }
-        resourceChip("STARS",stars,BopaviUiIconDrawable.Kind.STAR,
-            "Otvori kartu razina"){showLevels()}
-        content.addView(resourcesBar,LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.51f).toInt(),d(49)).apply{
+        // Currency stays visible as a passive balance, not a fourth button.
+        content.addView(TextView(this).apply{
+            text="COINS  "+java.text.NumberFormat.getIntegerInstance().format(progress.coins())
+            textSize=if(tinyDisplay)14f else 17f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            contentDescription="Coins: "+progress.coins()
+            isClickable=false
+            isFocusable=false
+            background=HomeEnamelDrawable(0xff2073ba.toInt(),
+                0xff061e4c.toInt(),0xff114479.toInt(),0xff80d7ff.toInt())
+        },LinearLayout.LayoutParams(d(154),d(48)).apply{
             gravity=Gravity.END
         })
 
@@ -1102,30 +787,6 @@ class MainActivity : Activity() {
         content.addView(compactWingedBopi,LinearLayout.LayoutParams(-1,d(
             heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
-        // The reference places PLAY immediately after the flying hero,
-        // with no huge stretchable blank strip on tall 20:9 displays.
-        action(content,"▶  PLAY"){startGame()}
-        (content.getChildAt(content.childCount-1) as Button).apply{
-            text="PLAY"
-            contentDescription="▶  PLAY"
-            setCompoundDrawablesRelativeWithIntrinsicBounds(
-                HomeHeroIconDrawable(BopaviUiIconDrawable.Kind.PLAY,d(28)),
-                null,null,null)
-            compoundDrawablePadding=d(8)
-            background=HomeEnamelDrawable(0xffffe75f.toInt(),
-                0xffff9206.toInt(),0xffa35011.toInt(),0xfffff4ae.toInt())
-            setTextColor(Color.WHITE)
-            setShadowLayer(d(2).toFloat(),0f,d(3).toFloat(),0xff743c00.toInt())
-            setAutoSizeTextTypeUniformWithConfiguration(18,26,1,
-                android.util.TypedValue.COMPLEX_UNIT_SP)
-            textSize=if(tinyDisplay)20f else 26f
-            (layoutParams as LinearLayout.LayoutParams).apply{
-                width=(resources.displayMetrics.widthPixels*.67f).toInt()
-                gravity=Gravity.CENTER_HORIZONTAL
-                layoutParams=this
-            }
-        }
-
         val features=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
@@ -1190,48 +851,6 @@ class MainActivity : Activity() {
             topMargin=d(3);bottomMargin=d(5)
         })
 
-        val footer=LinearLayout(this).apply{
-            orientation=LinearLayout.HORIZONTAL
-            gravity=Gravity.CENTER
-        }
-        fun shortcut(label:String,kind:BopaviUiIconDrawable.Kind,
-                     description:String,onClick:()->Unit){
-            val group=LinearLayout(this).apply{
-                orientation=LinearLayout.VERTICAL
-                gravity=Gravity.CENTER
-                isClickable=true;isFocusable=true
-                contentDescription=description
-                setOnClickListener{sound.effect("click");onClick()}
-            }
-            group.addView(ImageView(this).apply{
-                setImageDrawable(uiIcon(kind,0xffffcd40.toInt(),35))
-                scaleType=ImageView.ScaleType.CENTER_INSIDE
-                background=HomeMedalDrawable()
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(d(if(tinyDisplay)43 else 53),
-                d(if(tinyDisplay)43 else 53)))
-            group.addView(TextView(this).apply{
-                text=label
-                textSize=if(tinyDisplay)10f else 11f
-                typeface=Typeface.create("sans-serif-rounded",Typeface.BOLD)
-                setTextColor(Color.WHITE)
-                gravity=Gravity.CENTER
-                importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },LinearLayout.LayoutParams(-1,d(21)))
-            footer.addView(group,LinearLayout.LayoutParams(0,d(77),1f))
-        }
-        shortcut("ACHIEVEMENTS",BopaviUiIconDrawable.Kind.RECORDS,
-            "Pogledaj svoja postignuća"){showLocalAchievements()}
-        shortcut("LEADERBOARD",BopaviUiIconDrawable.Kind.LEADERBOARD,
-            "Pogledaj svoje rekorde"){showLocalRecords()}
-        shortcut("SOUND",BopaviUiIconDrawable.Kind.SOUND,
-            "Otvori zvučne postavke"){showQuickOptions()}
-        content.addView(footer,LinearLayout.LayoutParams(
-            (resources.displayMetrics.widthPixels*.64f).toInt(),
-            d(if(tinyDisplay)68 else if(compactDisplay)72 else 79)).apply{
-            gravity=Gravity.CENTER_HORIZONTAL
-            topMargin=d(if(compactDisplay)6 else 23)
-        })
         // On tall displays the spare sky stays BELOW the controls; short
         // landscape/split-screen windows still scroll with full-size targets.
         content.addView(View(this),LinearLayout.LayoutParams(-1,0,1f))
@@ -1526,7 +1145,7 @@ class MainActivity : Activity() {
                 resultBackdrop,portraitDrawableIds[selectedPilotChoice],winData,
                 onNext={
                     if(winData.nextAvailable)startLevel(completed.first,completed.second+1L)
-                    else showLevels()
+                    else showHome()
                 },
                 onHome={showHome()},
                 onShare={
@@ -1699,7 +1318,7 @@ class MainActivity : Activity() {
             action(panel,"▶  NEXT LEVEL"){
                 val played=activeStage
                 if(played!=null)startLevel(played.first,played.second+1L)
-                else showLevels()
+                else showHome()
             }
         }
         action(panel,"▶  PONOVO"){
