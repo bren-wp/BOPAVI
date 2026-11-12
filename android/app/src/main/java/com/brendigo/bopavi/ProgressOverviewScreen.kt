@@ -57,7 +57,10 @@ internal class ProgressOverviewScreen(
         val stars=store.worldStars(world).coerceIn(0,60)
         val panel=LinearLayout(host).apply {
             orientation=LinearLayout.VERTICAL
-            setPadding(dp(14),dp(12),dp(14),dp(14))
+            // Keep the real star-milestone caption above the lower 3D bevel.
+            // The previous 14dp bottom inset crossed the brown trim on
+            // all eight cards in genuine 941x1672 scroll captures.
+            setPadding(dp(14),dp(12),dp(14),dp(32))
             // Preserve idle owner art, but give real tappable world cards
             // a native clipped ripple on activation (not a static bitmap).
             background=RippleDrawable(

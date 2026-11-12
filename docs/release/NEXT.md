@@ -13,3 +13,5 @@
 - **Napredak:** Android 15 prolazi kroz svih osam nativnih kartica i provjerava čitljivost pristupačnih naziva te dodirne površine od najmanje 48 dp. Dodatne stvarne snimke bilježe sredinu i dno popisa pri 941x1672.
 - **Karta razina:** dodatne nativne snimke i navigacijski testovi pokrivaju sve tri stranice svijeta, povratak na prvu stranicu i jedinstveni HOME. Kotlin JVM test provjerava da se šest čvorova ne preklapa s ostalim čvorovima, natpisima ili šest glavnih kontrola unutar 941x1672.
 - **Ograničenje:** potvrda stvarne geometrije i interaktivnosti ne dokazuje 0 % RGB odstupanja bez identičnog izvornog referentnog PNG-a i istog stanja igre.
+
+- **Čitljivost Napretka:** stvarna snimka donjeg dijela svih osam kartica pokazala je da se opis zvjezdica približavao donjem dekorativnom 3D luku. Povećan je isključivo unutarnji donji razmak s 14dp na 32dp, uz sačuvanu automatsku visinu, podudarnu tipografiju i podatke iz ProgressStore.
