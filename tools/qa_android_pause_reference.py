@@ -34,8 +34,8 @@ def main():
         adb("shell","wm","density","320")
         adb("shell","am","force-stop",APP)
         adb("shell","am","start","-W","-n",APP+"/.MainActivity",
-            "--ez","bopavi_qa_capture_first_flap","true")
-        tap(expect_one("▶  PLAY"))
+            "--ez","bopavi_qa_capture_first_flap","true",
+            "--ez","bopavi_qa_launch_flight","true")
         ready=expect_one("ŽIVOTI:")
         tap(ready)
         # After the real first flap the approved active HUD uses SCORE, coins,

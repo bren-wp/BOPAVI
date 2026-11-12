@@ -17,7 +17,9 @@ for expected in (
     'assert sum(n.get("content-desc")=="Loading level" for n in ref_nodes)==1',
 ):
     assert expected in qa,expected
-assert '"PLAY" in n.get("content-desc","").upper()' in qa
+assert 'Otvori izbor likova' in qa
+assert 'Otvori trgovinu nadogradnji' in qa
+assert 'Otvori opcije igre' in qa
 assert 'n.get("text","")=="PLAY"' not in qa
 assert "python3 tools/qa_android_loading.py" in runner
 assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in workflow
