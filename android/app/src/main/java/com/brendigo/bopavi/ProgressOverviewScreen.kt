@@ -50,7 +50,7 @@ internal class ProgressOverviewScreen(
             setOnClickListener{onPress()}
         }
 
-    private fun worldCard(world:Int):View {
+    private fun worldCard(world:Int,onOpenMap:()->Unit):View {
         val frontier=store.frontier(world)
         val completed=ProgressOverviewMetrics.completedLevels(frontier)
         val stars=store.worldStars(world).coerceIn(0,60)
@@ -60,8 +60,12 @@ internal class ProgressOverviewScreen(
             background=Bopavi3DTheme.panel(
                 if(world==store.chosenWorld())
                     Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.CREAM)
-            contentDescription=ProgressOverviewMetrics.detail(world,frontier,stars)
+            contentDescription=ProgressOverviewMetrics.detail(world,frontier,stars)+
+                ". Otvori kartu razina za ovaj svijet."
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            isClickable=true
+            isFocusable=true
+            setOnClickListener{onOpenMap()}
         }
         val header=LinearLayout(host).apply {
             orientation=LinearLayout.HORIZONTAL
@@ -75,6 +79,9 @@ internal class ProgressOverviewScreen(
             },LinearLayout.LayoutParams(0,dp(54),1f))
         header.addView(text("★ $stars/60",16f,0xff75421b.toInt()).apply {
             gravity=Gravity.END or Gravity.CENTER_VERTICAL
+            maxLines=1
+            setAutoSizeTextTypeUniformWithConfiguration(12,16,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
         },LinearLayout.LayoutParams(dp(85),dp(54)))
         panel.addView(header,LinearLayout.LayoutParams(-1,dp(54)))
         panel.addView(text("Dovršene razine: $completed",14f,
@@ -95,7 +102,7 @@ internal class ProgressOverviewScreen(
         return panel
     }
 
-    fun create(onBack:()->Unit,onMap:()->Unit):View {
+    fun create(onBack:()->Unit,onMap:()->Unit,onWorld:(Int)->Unit):View {
         val root=FrameLayout(host).apply {
             setBackgroundColor(0xff168cda.toInt())
         }
@@ -128,6 +135,9 @@ internal class ProgressOverviewScreen(
             gravity=Gravity.CENTER
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
             contentDescription="Napredak igrača"
+            maxLines=1
+            setAutoSizeTextTypeUniformWithConfiguration(24,32,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
             elevation=dp(5).toFloat()
         },LinearLayout.LayoutParams(-1,dp(88)).apply{topMargin=dp(18)})
 
@@ -136,7 +146,11 @@ internal class ProgressOverviewScreen(
             setPadding(dp(18),dp(12),dp(18),dp(12))
             background=Bopavi3DTheme.panel(Bopavi3DTheme.Finish.SKY)
         }
-        stats.addView(text("NAJBOLJI REZULTAT   ${store.bestPoints()}",16f),
+        stats.addView(text("NAJBOLJI REZULTAT   ${store.bestPoints()}",16f).apply {
+            maxLines=1
+            setAutoSizeTextTypeUniformWithConfiguration(10,16,1,
+                android.util.TypedValue.COMPLEX_UNIT_SP)
+        },
             LinearLayout.LayoutParams(-1,dp(31)))
         stats.addView(text("POBJEDE   ${store.wins()}    •    BESKRAJNI LETOVI   ${store.totalRuns()}",15f)
             .apply {
@@ -144,7 +158,12 @@ internal class ProgressOverviewScreen(
                 setAutoSizeTextTypeUniformWithConfiguration(10,15,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
             },LinearLayout.LayoutParams(-1,dp(31)))
-        stats.addView(text("NOVČIĆI   ${store.coins()}    •    ZAMASI KRILA   ${store.totalFlaps()}",14f),
+        stats.addView(text("NOVČIĆI   ${store.coins()}    •    ZAMASI KRILA   ${store.totalFlaps()}",14f)
+            .apply {
+                maxLines=1
+                setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },
             LinearLayout.LayoutParams(-1,dp(31)))
         column.addView(stats,LinearLayout.LayoutParams(-1,dp(119)).apply{
             topMargin=dp(14)
@@ -152,7 +171,7 @@ internal class ProgressOverviewScreen(
         })
 
         for(world in 0 until LevelEngine.WORLD_COUNT){
-            column.addView(worldCard(world),
+            column.addView(worldCard(world){onWorld(world)},
                 LinearLayout.LayoutParams(-1,dp(192)).apply{
                     topMargin=dp(10)
                 })

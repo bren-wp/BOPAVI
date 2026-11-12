@@ -190,7 +190,9 @@ internal class LevelMapScreen(
                 host.resources.displayMetrics.density)){
             return compactMap(selected,frontier,onWorld,onPlay,onBack)
         }
-        val stage=LevelMapStage(host)
+        // Art occupies the original 941x1672 owner reference grid while
+        // native controls still respect actual system-bar/cutout insets.
+        val stage=LevelMapStage(host).apply {useShopFullBleedReferenceCamera()}
         val root=FrameLayout(host).apply {
             setBackgroundColor(0xff168be1.toInt())
             contentDescription="LEVEL MAP"
@@ -529,6 +531,10 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
 internal class LevelMapLandscape(context:Context,private val selected:Int):View(context){
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private val path=Path()
+    // Cached at construction, avoiding color array allocation during frames.
+    private val lowerColors=LevelMapGeometry.islandPalette(selected,0)
+    private val middleColors=LevelMapGeometry.islandPalette(selected,1)
+    private val upperColors=LevelMapGeometry.islandPalette(selected,2)
     init {importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO}
     private fun color(value:Int){p.reset();p.isAntiAlias=true;p.color=value}
     private fun island(c:Canvas,cx:Float,y:Float,rx:Float,deep:Float,
@@ -855,11 +861,11 @@ internal class LevelMapLandscape(context:Context,private val selected:Int):View(
             canvas.drawOval(x-r,y-r*.58f,x+r,y+r*.58f,p)
         }
         island(canvas,709f,239f,231f,222f,
-            0xffe55b3d.toInt(),0xff664454.toInt(),0xfffa9b54.toInt())
+            upperColors[0],upperColors[1],upperColors[2])
         island(canvas,621f,690f,264f,252f,
-            0xff288fe2.toInt(),0xff646b96.toInt(),0xff8de6ff.toInt())
+            middleColors[0],middleColors[1],middleColors[2])
         island(canvas,347f,1140f,352f,290f,
-            0xff3eae59.toInt(),0xff8b7269.toInt(),0xffa6ef75.toInt())
+            lowerColors[0],lowerColors[1],lowerColors[2])
         cliffFacets(canvas,709f,239f,231f,222f)
         cliffFacets(canvas,621f,690f,264f,252f)
         cliffFacets(canvas,347f,1140f,352f,290f)

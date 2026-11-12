@@ -178,7 +178,7 @@ class ProgressStore(context: Context) {
             prefs.edit().putInt("level_star_${world}_${number}",value).apply()
         }
     }
-    /** True earned ratings across the first ten levels of this world (30 maximum). */
+    /** True earned ratings across the first twenty levels of this world (60 maximum). */
     fun worldStars(world:Int):Int = if(world in 0..7)
         (1L..20L).sumOf {bestLevelStars(world,it)} else 0
     private fun levelStarRecords():JSONArray {

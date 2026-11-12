@@ -68,3 +68,10 @@ mock button screenshots.
 - Javne PNG datoteke preuzimaju se s CI emulatora; korisničke izvorne ilustracije u `docs/assets/` ostaju jasno odvojene od stvarnih snimki zaslona.
 - Ovaj dodatak ne dokazuje 0 % RGB podudarnosti: bez provjere izvornog vlasničkog PNG-a i nove neizmijenjene usporedbe postotci se ne smiju prikazivati kao aktualni.
 - Verzijski release manifest zahtijeva dodatne dvije snimke od v1.0.79 i ostavlja povijesna izdanja nepromijenjenima.
+
+## Fokus v1.0.80 — Napredak i Karta razina
+
+- **Napredak:** world-card interakcija povezuje izabrani svijet s `ProgressStore.chooseWorld` i stvarnim `LevelMapScreen`, bez lažnog napretka. TextView vrijednosti koriste automatsko prilagođavanje kako veliki spremljeni brojevi ne bi izlazili iz 941px kompozicije.
+- **Karta razina:** full-bleed referentna kamera za ilustraciju 941×1672; nativne tipke prebacuju se na sigurnu geometriju izvan područja izreza zaslona. Paleta prve stranice sačuvana je u izvornim RGB vrijednostima; ostale stranice sada imaju različite palete bioma.
+- **Konfiguracija:** Activity rekonstruira Progress/Map nakon promjene dimenzija, DPI-ja i orijentacije, pa se ne zadržava zastarjeli raspored. Igra se ne resetira.
+- **Prihvat:** Android 15/16 screenshotovi i funkcionalne UI provjere potvrđuju stvarni prikaz/kontrolu, ali **nisu dokaz 0 % RGB odstupanja od izvorne reference**. Progress još nema potvrđenu izvornu vlasničku PNG referencu; za numeričku usporedbu obje stranice treba osigurati izvorne PNG-ove s istim stanjem igre.

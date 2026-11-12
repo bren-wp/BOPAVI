@@ -23,6 +23,37 @@ class LevelMapGeometryTest {
         assertFalse(LevelMapGeometry.supportsNodeTouch(941,1672,Float.NaN))
     }
 
+    @Test fun firstOwnerPageRetainsItsExactIslandColors() {
+        assertArrayEquals(intArrayOf(0xff3eae59.toInt(),0xff8b7269.toInt(),
+            0xffa6ef75.toInt()),LevelMapGeometry.islandPalette(0,0))
+        assertArrayEquals(intArrayOf(0xff288fe2.toInt(),0xff646b96.toInt(),
+            0xff8de6ff.toInt()),LevelMapGeometry.islandPalette(1,1))
+        assertArrayEquals(intArrayOf(0xffe55b3d.toInt(),0xff664454.toInt(),
+            0xfffa9b54.toInt()),LevelMapGeometry.islandPalette(2,2))
+    }
+    @Test fun laterPagesHaveDistinctWorldBiomesWithoutChangingStageGeometry() {
+        for(slot in 0..2) {
+            assertArrayEquals(LevelMapGeometry.islandPalette(0,slot),
+                LevelMapGeometry.islandPalette(2,slot))
+            assertArrayEquals(LevelMapGeometry.islandPalette(3,slot),
+                LevelMapGeometry.islandPalette(5,slot))
+            assertArrayEquals(LevelMapGeometry.islandPalette(6,slot),
+                LevelMapGeometry.islandPalette(7,slot))
+            assertFalse(LevelMapGeometry.islandPalette(0,slot)
+                .contentEquals(LevelMapGeometry.islandPalette(3,slot)))
+            assertFalse(LevelMapGeometry.islandPalette(3,slot)
+                .contentEquals(LevelMapGeometry.islandPalette(6,slot)))
+        }
+        try {
+            LevelMapGeometry.islandPalette(0,3)
+            fail("Invalid island slot should fail closed")
+        } catch(_:IllegalArgumentException) {
+            // expected
+        }
+        assertTrue(LevelMapGeometry.nodesInsideReference())
+        assertTrue(LevelMapGeometry.starStripsInsideReference())
+    }
+
     @Test fun realLevelNodesNeverExceedTheMillionLevelLimit() {
         for(frontier in listOf(1,2,3,20,100,1_048_576,1_048_577)){
             val levels=LevelMapGeometry.nearestLevels(frontier)

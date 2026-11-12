@@ -75,6 +75,7 @@ jobs:
       - run: python tests/test_settings_immersive_return_contract.py
       - run: python tests/test_achievements_screen_contract.py
       - run: python tests/test_progress_overview_contract.py
+      - run: python tests/test_progress_map_reflow_contract.py
       - run: python tests/test_leaderboard_screen_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py

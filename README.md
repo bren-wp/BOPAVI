@@ -48,7 +48,7 @@ Bopi predvodi pustolovinu. Sova leti s plavim šalom i pilotskim naočalama, a L
 
 ## Osam svjetova. Tvoja priča. 🌍
 
-**Sky Meadows**, **Crystal Ruins**, **Volcano Peaks**, **Night Castles**, **Pearl Sea**, **Sky Towers**, **Magic Forest** i **Star Abyss** čekaju na istraživanje. Karta razina pokazuje otključani put, a zaslon **Napredak** prati završene razine, rezultate, zvjezdice s prvih 20 razina svakog svijeta i druge spremljene statistike.
+**Sky Meadows**, **Crystal Ruins**, **Volcano Peaks**, **Night Castles**, **Pearl Sea**, **Sky Towers**, **Magic Forest** i **Star Abyss** čekaju na istraživanje. Karta razina pokazuje stvarno otključani put, a zaslon **Napredak** prati završene razine, rezultate, zvjezdice s prvih 20 razina svakog svijeta i druge spremljene statistike. **Dodirni karticu svijeta u Napretku** i otvori upravo taj svijet na Karti razina. Sve vrijednosti dolaze iz tvoje spremljene igre.
 
 ## Prikupi. Nadogradi. Poleti ponovno. 🎮
 

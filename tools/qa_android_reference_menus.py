@@ -192,8 +192,22 @@ def main():
             "FAIL: the first-20 stars milestone was not shown")
         width,height=capture_png("android-progress-reference-size")
         assert (width,height)==(941,1672),"FAIL: Progress capture is not 941x1672"
-        tap(node_with("HOME"))
-        print("PASS: real saved Progress page, native navigation and 941px capture",
+        # Verify real on-device layout reflow while the Progress page is open;
+        # a stale dp-sized view tree must never survive a display resize.
+        adb("shell","wm","size","720x1280")
+        time.sleep(1)
+        node_with("NAJBOLJI REZULTAT",clickable=False)
+        assert exists("SKY MEADOWS"),"FAIL: Progress missing after resize"
+        adb("shell","wm","size","941x1672")
+        time.sleep(1)
+        node_with("NAJBOLJI REZULTAT",clickable=False)
+        # Open the real saved world from its native Progress card, rather
+        # than taking a screenshot of a decorative unclickable panel.
+        tap(node_with("SKY MEADOWS",clickable=True))
+        node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
+        node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
+        tap(node_with("Home"))
+        print("PASS: real saved Progress page, world-card navigation, live viewport reflow and 941px capture",
               flush=True)
     finally:
         if resized:

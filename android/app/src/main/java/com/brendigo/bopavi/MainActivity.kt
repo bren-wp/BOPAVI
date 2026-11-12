@@ -38,6 +38,7 @@ class MainActivity : Activity() {
     // display size/density; requestLayout alone leaves the old ScrollView
     // (and its previous scroll position) visible on the new reference grid.
     private var settingsReflowPending=false
+    private var progressMapReflowPending=false
     // Cancels an in-flight preflight callback when Back leaves Loading.
     private var loadingGeneration = 0
     // Unlike window focus, the Activity resume state does not flicker during
@@ -233,6 +234,21 @@ class MainActivity : Activity() {
                 settingsReflowPending=false
                 if(!isFinishing && !isDestroyed && selectedScreen=="settings")
                     showSettingsScreen()
+            }
+        }
+        // Native Map switches between the owner camera and compact scrolling
+        // layout. Progress card dimensions are dp-based. Recreate both when
+        // window size, density or orientation changes; never resize live GameView.
+        if((selectedScreen=="levels" || selectedScreen=="progress") &&
+                ::progress.isInitialized && !progressMapReflowPending){
+            progressMapReflowPending=true
+            val pendingScreen=selectedScreen
+            window.decorView.post {
+                progressMapReflowPending=false
+                if(!isFinishing && !isDestroyed && selectedScreen==pendingScreen){
+                    if(pendingScreen=="levels")showLevels()
+                    else showProgressOverview()
+                }
             }
         }
     }
@@ -764,7 +780,11 @@ class MainActivity : Activity() {
         applyPremiumSystemBars()
         showNativeView(ProgressOverviewScreen(this,progress).create(
             onBack={showHome()},
-            onMap={showLevels()}))
+            onMap={showLevels()},
+            onWorld={world->
+                progress.chooseWorld(world)
+                showLevels()
+            }))
     }
 
     /** Read-only on-device records: no network, accounts or score submissions. */

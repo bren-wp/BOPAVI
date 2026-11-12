@@ -74,6 +74,34 @@ internal object LevelMapGeometry {
         }
     }
 
+    /**
+     * Three native illustrated islands per page. The first page retains the
+     * existing owner reference's precise meadow/crystal/volcano colors.
+     * Other page palettes distinguish actual worlds without altering
+     * hitboxes, unlock logic or previously saved progress.
+     * Slots: 0 lower, 1 middle, 2 upper island.
+     */
+    fun islandPalette(world:Int,slot:Int):IntArray {
+        require(slot in 0..2)
+        return when(pageStart(world)) {
+            0 -> when(slot) {
+                0 -> intArrayOf(0xff3eae59.toInt(),0xff8b7269.toInt(),0xffa6ef75.toInt())
+                1 -> intArrayOf(0xff288fe2.toInt(),0xff646b96.toInt(),0xff8de6ff.toInt())
+                else -> intArrayOf(0xffe55b3d.toInt(),0xff664454.toInt(),0xfffa9b54.toInt())
+            }
+            3 -> when(slot) {
+                0 -> intArrayOf(0xff6352aa.toInt(),0xff38345f.toInt(),0xffc2a5f6.toInt())
+                1 -> intArrayOf(0xff24b9cc.toInt(),0xff3b7493.toInt(),0xffa0fff1.toInt())
+                else -> intArrayOf(0xff84bce8.toInt(),0xff405888.toInt(),0xffe5f4ff.toInt())
+            }
+            else -> when(slot) {
+                0 -> intArrayOf(0xff39a567.toInt(),0xff466e64.toInt(),0xffbcf7b6.toInt())
+                1 -> intArrayOf(0xff745dc7.toInt(),0xff3d315e.toInt(),0xffc1b3ff.toInt())
+                else -> intArrayOf(0xff3e5b9e.toInt(),0xff292c65.toInt(),0xff9eaeef.toInt())
+            }
+        }
+    }
+
     fun pageStart(selected:Int):Int=(selected.coerceIn(0,7)/3)*3
     fun displayedWorlds(selected:Int):List<Int> {
         val start=pageStart(selected)
