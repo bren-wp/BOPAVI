@@ -21,8 +21,9 @@ for symbol,filename in required.items():
     assert hits==[filename],f"{symbol}: expected {filename}, found {hits}"
 sim=sources["GameSimulation.kt"]
 for entry in ("PillarCollision.sweptBodyHitsPillar(",
-              "BerryCollision.touched(","WorldCoordinates."):
+              "BerryCollision.touched("):
     assert entry in sim,entry
+assert "fun screenX(" in sources["WorldCoordinates.kt"]
 assert "fun sweptBodyHitsPillar(" in sources["PillarCollision.kt"]
 assert "fun touched(" in sources["BerryCollision.kt"]
 assert "internal class GameOverCrown" in sources["GameOverCrown.kt"]
