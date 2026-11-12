@@ -16,7 +16,7 @@ def fixture(entries):
     hierarchy=ET.Element("hierarchy")
     for package,caption,clickable,enabled in entries:
         ET.SubElement(hierarchy,"node",{
-            "package":package,"content-desc":caption,
+            "package":package,"content-desc":caption,"text":caption,
             "clickable":str(clickable).lower(),
             "enabled":str(enabled).lower(),
             "bounds":"[20,30][280,150]",
