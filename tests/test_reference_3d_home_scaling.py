@@ -13,7 +13,8 @@ assert "dp(if(isPlay)93 else 59)" not in home
 assert "HomeMedalDrawable()" in home
 assert "canvas.scale(bounds.width()/100f,bounds.height()/100f)" in medal
 for signature in ("RectF(3f,11f,97f,100f)",
-                  "0xffffbf36.toInt()","0xff197bde.toInt()",
+                  "0xffffbf36.toInt()","0xff06214e.toInt()",
+                  "0xff284e7b.toInt()",
                   "android.R.attr.state_pressed in states"):
     assert signature in medal,signature
 assert "HomeReferenceLayout" in layout
