@@ -39,6 +39,9 @@ assert "activity.runOnUiThread" in backup
 assert "activity.contentResolver.persistedUriPermissions.firstOrNull" in backup
 assert "releasePersistableUriPermission(" in backup
 assert "if(!ok)deactivate()" in backup
+assert "if(!gate.canRun(revision) || destination()!=uri)return@saveNow" in backup
+assert 'if(!uriPrefs.edit().remove("document_uri").commit())return' in backup
+assert "if(previous!=null && previous!=uri)releaseGrant(previous)" in backup
 assert "executor.shutdown()" in backup
 assert "if(!enabled || !allowed(context))return" in reminder
 assert 'prefs.getBoolean("notifications_enabled",false)' in store
