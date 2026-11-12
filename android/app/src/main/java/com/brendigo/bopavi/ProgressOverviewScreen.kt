@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
 import android.view.Gravity
 import android.view.View
@@ -51,6 +52,36 @@ internal class ProgressOverviewScreen(
             setOnClickListener{onPress()}
         }
 
+    /**
+     * Progress cards are large information panels, not short HOME buttons.
+     * The Home enamel arc occupied the text area on the real Android 15
+     * screenshots. A short, fixed-depth 3D sidewall keeps every caption
+     * inside the light readable surface at any measured card height.
+     */
+    private fun progressCardSurface(chosen:Boolean):RippleDrawable {
+        val wall=GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            if(chosen)intArrayOf(0xffae6b13.toInt(),0xff72410c.toInt())
+            else intArrayOf(0xffd7b489.toInt(),0xff986537.toInt())
+        ).apply {
+            cornerRadius=dp(30).toFloat()
+            setStroke(dp(2),0xfff8e6c0.toInt())
+        }
+        val face=GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            if(chosen)intArrayOf(0xfffff6ac.toInt(),0xffffdb76.toInt())
+            else intArrayOf(0xfffffff6.toInt(),0xffffe7bf.toInt())
+        ).apply {
+            cornerRadius=dp(29).toFloat()
+            setStroke(dp(2),0xfffffff1.toInt())
+        }
+        val layers=LayerDrawable(arrayOf(wall,face)).apply {
+            setLayerInset(1,dp(3),dp(2),dp(3),dp(13))
+        }
+        return RippleDrawable(ColorStateList.valueOf(0x33ffffff),
+            layers,null)
+    }
+
     private fun worldCard(world:Int,onOpenMap:()->Unit):View {
         val frontier=store.frontier(world)
         val completed=ProgressOverviewMetrics.completedLevels(frontier)
@@ -63,12 +94,7 @@ internal class ProgressOverviewScreen(
             setPadding(dp(14),dp(12),dp(14),dp(32))
             // Preserve idle owner art, but give real tappable world cards
             // a native clipped ripple on activation (not a static bitmap).
-            background=RippleDrawable(
-                ColorStateList.valueOf(0x33ffffff),
-                Bopavi3DTheme.panel(
-                    if(world==store.chosenWorld())
-                        Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.CREAM),
-                null)
+            background=progressCardSurface(world==store.chosenWorld())
             contentDescription=ProgressOverviewMetrics.detail(world,frontier,stars)+
                 ". Otvori kartu razina za ovaj svijet."
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES

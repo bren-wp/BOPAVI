@@ -34,6 +34,9 @@ for marker in ('ProgressOverviewMetrics.completedLevels(frontier)',
     assert marker in screen,marker
 
 assert "RippleDrawable(" in screen
+assert "private fun progressCardSurface(chosen:Boolean):RippleDrawable" in screen
+assert "LayerDrawable(arrayOf(wall,face))" in screen
+assert "setLayerInset(1,dp(3),dp(2),dp(3),dp(13))" in screen
 assert "setPadding(dp(14),dp(12),dp(14),dp(32))" in screen
 assert "LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT)" in screen
 assert 'coerceIn(0L,LevelEngine.LEVELS_PER_WORLD.toLong())' in model
