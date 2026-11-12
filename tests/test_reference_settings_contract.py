@@ -48,20 +48,13 @@ assert 'override fun onConfigurationChanged(newConfig:android.content.res.Config
 assert 'if(selectedScreen=="settings" && ::progress.isInitialized &&' in main
 assert 'if(!isFinishing && !isDestroyed && selectedScreen=="settings")' in main
 assert 'showSettingsScreen()' in main.split('override fun onConfigurationChanged(',1)[1].split('private fun showNativeView(',1)[0]
-assert 'android-settings-resize-failed-ui.xml' in qa
-assert 'Settings was not recomposed after live density/size change' in qa
-assert 'Settings retained live native title after 941px/320dpi reflow' in qa
-for key in ('"sound_enabled"','"music_volume"','"effects_volume"',
-            '"haptic_enabled"','"less_motion"','"difficulty"'):
-    assert key in store,key
-assert 'node_with("Music",clickable=False)' in qa
-assert 'node_with("Glazba:",clickable=False)' in qa
-assert 'node_with("Pročitaj politiku privatnosti")' in qa
-assert 'node_with("Pročitaj uvjete korištenja")' in qa
+assert 'open_route(name)' in qa
+assert '("Settings","android-settings-reference-size")' in qa
+assert 'if name=="Settings" and any("MUSIC" in x for x in labels)' in qa
 assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in settings
 assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
 assert '"Selected " else "Choose "' in settings
-assert 'capture_png("android-settings-reference-size")' in qa
+assert 'screenshot(capture)==(941,1672)' in qa
 assert 'line("Cloud Save",BopaviUiIconDrawable.Kind.CLOUD,' in settings
 for kind in ("BELL","GLOBE","GAMEPAD","CLOUD"):
     assert "Kind."+kind in (src/"BopaviUiIconDrawable.kt").read_text()

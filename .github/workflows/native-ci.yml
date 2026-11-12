@@ -63,6 +63,9 @@ jobs:
         run: |
           python tools/generate_audio.py
           python tools/verify_audio.py
+      - name: Run full source preflight and report every stale contract
+        run: python tools/run_source_preflight.py
+      - run: python tests/test_home_three_buttons_contract.py
       - run: python tests/test_native_files.py
       - run: python tests/test_three_pilots.py
       - run: python tests/test_bopavi_3d_shared_skin_contract.py
@@ -71,15 +74,10 @@ jobs:
       - run: python tests/test_modern_pilots_obstacles_contract.py
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_premium_cta_accessibility.py
-      - run: python tests/test_quick_options.py
       - run: python tests/test_reference_settings_contract.py
       - run: python tests/test_settings_cloud_notification_contract.py
       - run: python tests/test_backup_lifecycle_contract.py
       - run: python tests/test_settings_immersive_return_contract.py
-      - run: python tests/test_achievements_screen_contract.py
-      - run: python tests/test_progress_overview_contract.py
-      - run: python tests/test_progress_map_reflow_contract.py
-      - run: python tests/test_leaderboard_screen_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_legal_dialog_capture.py
@@ -121,9 +119,8 @@ jobs:
       - run: python tests/test_reference_skins_contract.py
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
+      - run: python tests/test_native_qa_helpers_contract.py
       - run: python tests/test_direct_home_shop_skins.py
-      - run: python tests/test_reference_level_map_contract.py
-      - run: python tests/test_level_map_single_home_contract.py
       - run: python tests/test_reference_pixel_diff_tool.py
       - run: python tests/test_two_owner_screen_comparator.py
       - run: python tests/test_owner_zero_pixel_comparator.py
@@ -489,11 +486,6 @@ jobs:
               'dist/real-screenshots/android/android-skins-reference-size.png':'BOPAVI-Android-Skins.png',
               'dist/real-screenshots/android/android-shop-reference-size.png':'BOPAVI-Android-Shop.png',
               'dist/real-screenshots/android/android-settings-reference-size.png':'BOPAVI-Android-Settings.png',
-              'dist/real-screenshots/android/android-achievements-reference-size.png':'BOPAVI-Android-Achievements.png',
-              'dist/real-screenshots/android/android-leaderboard-reference-size.png':'BOPAVI-Android-Leaderboard.png',
-              'dist/real-screenshots/android/android-level-map-reference-size.png':'BOPAVI-Android-Level-Map.png',
-              'dist/real-screenshots/android/android-options.png':'BOPAVI-Android-Options.png',
-              'dist/real-screenshots/android/android-records.png':'BOPAVI-Android-Records.png',
               'dist/real-screenshots/android/android-privacy.png':'BOPAVI-Android-Privacy.png',
               'dist/real-screenshots/android/android-terms.png':'BOPAVI-Android-Terms.png',
               'dist/real-screenshots/android/android-gameplay-ready.png':'BOPAVI-Android-Flight-Preview.png',
@@ -501,7 +493,6 @@ jobs:
               'dist/real-screenshots/android/android-pause.png':'BOPAVI-Android-Pause.png',
               'dist/real-screenshots/android/android-result.png':'BOPAVI-Android-Results.png',
               'dist/real-screenshots/android/android-game-over-reference-size.png':'BOPAVI-Android-Game-Over.png',
-              'dist/real-screenshots/android/android-progress-reference-size.png':'BOPAVI-Android-Progress.png'
           }
           for src, dest in captures.items():
               source=Path(src)
@@ -537,7 +528,7 @@ jobs:
           print('PASS: results UI screenshot distinct from both idle and active gameplay')
           # Every submenu is independently inspected and cannot silently
           # publish a duplicate Home or a different native dialog screenshot.
-          extra_names=['Skins','Shop','Settings','Achievements','Progress','Leaderboard','Level-Map','Game-Over','Options','Records','Privacy','Terms']
+          extra_names=['Skins','Shop','Settings','Game-Over','Privacy','Terms']
           distinct=[Path('dist/BOPAVI-Android-Home.png')]
           for name in extra_names:
               item=Path(f'dist/BOPAVI-Android-{name}.png')
@@ -545,7 +536,7 @@ jobs:
               if any(sha256(p.read_bytes()).digest()==digest for p in distinct):
                   raise SystemExit(f'{item.name} repeats an earlier screen; release blocked')
               distinct.append(item)
-          print('PASS: all 17 gallery pictures include distinct authentic captures')
+          print('PASS: all 11 gallery pictures include distinct authentic captures')
           PY
       - name: Assemble F-Droid source-build submission materials
         run: python3 tools/package_fdroid_submission.py --commit "$GITHUB_SHA" --screenshots-dir dist --output-dir dist
@@ -576,20 +567,14 @@ jobs:
             BOPAVI-Android-Skins.png \
             BOPAVI-Android-Shop.png \
             BOPAVI-Android-Settings.png \
-            BOPAVI-Android-Achievements.png \
-            BOPAVI-Android-Progress.png \
             BOPAVI-Android-Game-Over.png \
-            BOPAVI-Android-Leaderboard.png \
-            BOPAVI-Android-Level-Map.png \
-            BOPAVI-Android-Options.png \
-            BOPAVI-Android-Records.png \
             BOPAVI-Android-Privacy.png \
             BOPAVI-Android-Terms.png \
             BOPAVI-Android-Flight-Preview.png \
             BOPAVI-Android-Flight-Active.png \
             BOPAVI-Android-Pause.png \
             BOPAVI-Android-Results.png > SHA256SUMS.txt
-          test "$(wc -l < SHA256SUMS.txt)" -eq 22
+          test "$(wc -l < SHA256SUMS.txt)" -eq 16
       - name: Publish only a tested commit with verified binaries and real screenshots
         env:
           GH_TOKEN: ${{ github.token }}
@@ -614,13 +599,13 @@ jobs:
               exit 1
             fi
             existing_assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-            for file in app-debug.apk app-release.aab app-release-unsigned.apk "BOPAVI-FDroid-submission-${tag}.zip" "$BOPAVI_PLAY_ARCHIVE" SHA256SUMS.txt BOPAVI-Android-Home.png BOPAVI-Android-Skins.png BOPAVI-Android-Shop.png BOPAVI-Android-Settings.png BOPAVI-Android-Achievements.png BOPAVI-Android-Progress.png BOPAVI-Android-Game-Over.png BOPAVI-Android-Leaderboard.png BOPAVI-Android-Level-Map.png BOPAVI-Android-Options.png BOPAVI-Android-Records.png BOPAVI-Android-Privacy.png BOPAVI-Android-Terms.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Pause.png BOPAVI-Android-Results.png; do
+            for file in app-debug.apk app-release.aab app-release-unsigned.apk "BOPAVI-FDroid-submission-${tag}.zip" "$BOPAVI_PLAY_ARCHIVE" SHA256SUMS.txt BOPAVI-Android-Home.png BOPAVI-Android-Skins.png BOPAVI-Android-Shop.png BOPAVI-Android-Settings.png BOPAVI-Android-Game-Over.png BOPAVI-Android-Privacy.png BOPAVI-Android-Terms.png BOPAVI-Android-Flight-Preview.png BOPAVI-Android-Flight-Active.png BOPAVI-Android-Pause.png BOPAVI-Android-Results.png; do
               if ! grep -Fxq "$file" <<< "$existing_assets"; then
                 echo "::error::Existing $tag release is missing $file."
                 exit 1
               fi
             done
-            echo "Verified previous publication of $tag at the tested commit with all 23 Android distribution artifacts."
+            echo "Verified previous publication of $tag at the tested commit with all 17 Android distribution artifacts."
             exit 0
           fi
           python tools/release_notes.py > dist/release-notes.md
@@ -634,13 +619,7 @@ jobs:
                         dist/BOPAVI-Android-Skins.png \
             dist/BOPAVI-Android-Shop.png \
             dist/BOPAVI-Android-Settings.png \
-            dist/BOPAVI-Android-Achievements.png \
-            dist/BOPAVI-Android-Progress.png \
             dist/BOPAVI-Android-Game-Over.png \
-            dist/BOPAVI-Android-Leaderboard.png \
-            dist/BOPAVI-Android-Level-Map.png \
-            dist/BOPAVI-Android-Options.png \
-            dist/BOPAVI-Android-Records.png \
             dist/BOPAVI-Android-Privacy.png \
             dist/BOPAVI-Android-Terms.png \
             dist/BOPAVI-Android-Flight-Preview.png \

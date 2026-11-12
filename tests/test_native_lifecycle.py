@@ -17,7 +17,10 @@ assert "updateWorldCover(width,height)" in game
 assert "private var closed = false" in audio and "if(closed)return" in audio
 assert "if(closed || !enabled || effectsVolume<=0f)return" in audio
 home=activity.split("private fun showHome(){",1)[1].split("private fun showPremiumPause(",1)[0]
-assert 'action(content,"▶  PLAY"){startGame()}' in home
+assert 'action(content,"▶  PLAY"){startGame()}' not in home
+assert 'feature("SKINS"' in home and 'feature("SHOP"' in home
+assert 'text="SETTINGS"' in home
+assert 'bopavi_qa_launch_flight' in activity
 assert "progress.chooseArcadePilot(index)" in activity
 assert "selectedPilotChoice" in home and "showSkins()" in home
 assert "gamePauseButton" not in activity and "showPauseIcon(" not in activity
@@ -44,8 +47,8 @@ assert 'private fun showPremiumPause(game:GameView)' in activity
 assert 'game.paused=true' in activity and 'showPremiumPause(view)' in activity
 assert 'if(pauseDialog?.isShowing!=true)showPremiumPause(view)' in activity
 assert 'selectedScreen=="game"' in activity
-assert 'progressTintList=ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
-assert 'buttonTintList=ColorStateList.valueOf(0xff80eeed.toInt())' in activity
+assert "private fun showSettingsScreen(){" in activity
+assert "showQuickOptions(" not in activity
 # The exported launcher may not accept debug QA intent extras in release.
 assert 'private fun qaIntentEnabled(key:String):Boolean' in activity
 assert 'ApplicationInfo.FLAG_DEBUGGABLE != 0' in activity

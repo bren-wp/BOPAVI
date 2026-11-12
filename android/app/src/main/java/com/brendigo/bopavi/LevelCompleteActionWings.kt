@@ -7,10 +7,10 @@ import android.graphics.Path
 import android.view.View
 
 /**
- * White feather wings behind the real native PLAY button on Home.
+ * Decorative white feather wings behind Level Complete's genuine action.
  * They never intercept taps or simulate any action.
  */
-internal class HomePlayWings(context:Context):View(context) {
+internal class LevelCompleteActionWings(context:Context):View(context) {
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private val path=Path()
     init {

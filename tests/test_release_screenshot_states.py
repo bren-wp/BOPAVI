@@ -6,7 +6,7 @@ qa=(repo/"tools/qa_android_emulator.sh").read_text(encoding="utf-8")
 for label in (
     "STATE: flight-idle confirmed by native GameView",
     "STATE: real native active Gameplay with live SCORE, local coins, crystals and Pause",
-    "FAIL: tapping PLAY did not reach Flight",
+    "FAIL: debug-only native flight QA route did not reach Flight",
     "FAIL: active GameView score/coins/crystals/pause accessibility not found",
     "FAIL: RETRY did not reach idle Flight",
     "ŽIVOTI:", "TAP TO FLY WITH", "input keyevent 4",
@@ -21,8 +21,6 @@ assert "capture android-gameplay-active" in qa
 assert "capture android-game-over-reference-size" in qa
 assert 'struct.unpack(">II",data[16:24])==(941,1672)' in qa
 assert '"DODIRNI ZA ZAMAH KRILIMA" in labels' in qa
-for state in ("options","records"):
-    assert "capture android-"+state in qa,state
 for state in ("privacy","terms"):
     assert '"android-'+state+'"' in qa,state
 assert 'screencap","-p"' in qa
@@ -43,9 +41,8 @@ for contract in (
     "PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",
 ):
     assert contract in qa,contract
-assert 'for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE"' in qa
-assert "FAIL: Leaderboard Home action missing" in qa
-assert "PASS: local records screen visible and returns Home" in qa
+assert "PASS: Home only Shop, Skins, Settings; no obsolete destinations" in qa
+assert "--ez bopavi_qa_launch_flight true" in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa
 assert 'FAIL: real Pause dialog/buttons did not appear' in qa

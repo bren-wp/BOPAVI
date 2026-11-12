@@ -1,18 +1,22 @@
-"""Reference-driven navigation: Home, Skins, Shop, Levels, Flight, Pause and Results."""
+#!/usr/bin/env python3
+"""No obsolete destinations; supported Home actions use native UI routes."""
 from pathlib import Path
-p=Path(__file__).resolve().parents[1]
-a=(p/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
-for code in (a,):
-    assert "showHome()" in code and "showPremiumPause(" in code
-    assert "startGame(" in code and "showResult(" in code
-    for removed in ("showWorlds(", "showProfile(", "showCollection(", "showLeaderboard(", "showAchievements(", "showSettings("):
-        assert removed not in code,removed
-    assert "progress.recordRun(g)" in code
-    assert "NOVI REKORD!" in code
-    assert "previousRecord" in code
+r=Path(__file__).resolve().parents[1]
+src=r/"android/app/src/main/java/com/brendigo/bopavi"
+a=(src/"MainActivity.kt").read_text()
+m=(src/"ReferenceMenus.kt").read_text()
+assert all(s in a for s in ("private fun showHome(){",
+    "private fun showSkins(){","private fun showShop(){",
+    "private fun showSettingsScreen(){","showPremiumPause("))
+for removed in ("showLevels(","showLocalRecords(","showLocalAchievements(",
+                "showProgressOverview(","showQuickOptions("):
+    assert removed not in a,removed
+for s in ('onSkins={showSkins()}','onShop={showShop()}',
+          'onSettings={showSettingsScreen()}'):
+    assert s in a,s
+assert "fun levels(" not in m
+assert "fun skins(" in m and "fun shop(" in m
+assert "progress.recordRun(g)" in a
+assert "onBack={showHome()}" in a
 assert "gamePauseButton" not in a
-assert "game.paused=true" in a
-assert "if(pauseDialog?.isShowing!=true)showPremiumPause(view)" in a
-assert "pauseDialog?.isShowing==true" in a
-assert all(x in a for x in ("showLevels()","showShop()","showSkins()"))
-print("PASS: real BOPAVI menu destinations, flight and system-Back pause")
+print("PASS: exactly supported native Home routes and retained game lifecycle")

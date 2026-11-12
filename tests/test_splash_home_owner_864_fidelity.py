@@ -40,10 +40,10 @@ for trace in (
 ):
     assert trace in loading,trace
 for fragment in ("R.drawable.logo", "R.drawable.homeback",
-                 "HomeWingActor(host", "HomeReferenceLayout.play",
+                 "HomeWingActor(host",
                  "HomeReferenceLayout.skins", "HomeReferenceLayout.shop",
                  "HomeReferenceLayout.settings", "sourceHome=true",
-                 "progress.coins()", "progress.worldStars(it)"):
+                 "progress.coins()"):
     assert fragment in home,fragment
 assert "private val sourceHome:Boolean=false" in enamel
 assert "if(sourceHome)30f else 22f" in enamel

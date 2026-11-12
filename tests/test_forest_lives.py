@@ -25,15 +25,10 @@ assert "android.permission.INTERNET" not in manifest
 print("PASS: three lives, rare collectible hearts, mossy pillars and compact native HUD")
 
 activity=(src/"MainActivity.kt").read_text()
-assert "private fun polishGameDialog(" in activity
-assert "0xff154c8d.toInt(),0xff061d42.toInt()" in activity
-
+assert "showQuickOptions(" not in activity
+assert "showLocalRecords(" not in activity
 assert "if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext()" in sim
 assert "nextLevel=null" in sim
-
-assert "premiumDialogHeader(" in activity
-assert '.setTitle("OPCIJE IGRE")' in activity
-assert '.setCustomTitle(premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS))' in activity
 
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "open_legal_dialog()" in qa

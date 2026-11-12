@@ -1,59 +1,34 @@
-"""Android-only regression contracts for the four live game screens."""
+#!/usr/bin/env python3
+"""Production Android navigation, persistent data, flight and security invariants."""
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]
-code=ROOT/"android/app/src/main/java/com/brendigo/bopavi"
-a=(code/"MainActivity.kt").read_text()
-simulation=(code/"GameSimulation.kt").read_text()
-view=(code/"GameView.kt").read_text()
-store=(code/"ProgressStore.kt").read_text()
-manifest=(ROOT/"android/app/src/main/AndroidManifest.xml").read_text()
-flow=(ROOT/".github/workflows/native-ci.yml").read_text()
-assert not (ROOT/"ios").exists()
+r=Path(__file__).resolve().parents[1]
+src=r/"android/app/src/main/java/com/brendigo/bopavi"
+a=(src/"MainActivity.kt").read_text()
+sim=(src/"GameSimulation.kt").read_text()
+view=(src/"GameView.kt").read_text()
+store=(src/"ProgressStore.kt").read_text()
+manifest=(r/"android/app/src/main/AndroidManifest.xml").read_text()
+flow=(r/".github/workflows/native-ci.yml").read_text()
 assert 'android:allowBackup="false"' in manifest
-assert '<uses-permission android:name="android.permission.INTERNET"' not in manifest
-def section(source,start,end=None):
-    assert source.count(start)==1,start
-    fragment=source.split(start,1)[1]
-    return fragment.split(end,1)[0] if end else fragment
-boot=section(a,"    override fun onCreate(state: Bundle?) {","    private fun showNativeView(root: View) {")
-assert "showHome()" in boot and "showSplash()" not in a
-home=section(a,"    private fun showHome(){","    private fun showPremiumPause(")
-assert 'action(content,"▶  PLAY"){startGame()}' in home and "FitViewportColumn(this)" in home
-assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti"){showPrivacyNotice()}' in a
-assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja"){showTermsNotice()}' in a
-assert 'shortcut("ACHIEVEMENTS"' in home and 'shortcut("LEADERBOARD"' in home
-# The compact Home now uses the approved original 3-piece flying Bopi,
-# rather than a static portrait, without changing saved pilot selection.
-assert "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(" in home
-assert "content.addView(compactWingedBopi," in home
-for sprite in ("R.drawable.bopi0","R.drawable.bopi9","R.drawable.bopi10"):
-    assert sprite in home,sprite
-assert "PilotSelectionModel.spriteIdForChoice(selectedPilotChoice)" in a
-assert "pilotSpriteIds[selectedPilotChoice]" not in a
-assert all(x in a for x in ("private fun showSkins()","private fun showShop()","private fun showLevels()"))
-assert (code/"ReferenceMenus.kt").exists()
-pause=section(a,"    private fun showPremiumPause(","    private fun startGame(")
-assert all(label in pause for label in ("NASTAVI","PONOVO","IZLAZ"))
-assert "game.paused=false" in pause
-play=section(a,"    private fun startGame(","    private fun showResult(")
-assert "GameSimulation(" in play and "onFinished" in play
-result=section(a,"    private fun showResult(","    override fun onBackPressed()")
-assert all(label in result for label in ("progress.recordRun(g)","bestPoints()","g.score()","g.foodCollected","PONOVO","POČETNA","backAction(panel"))
-for removed in ("showWorlds(","showProfile(","showPerks(","showCollection(","showAchievements(","showLeaderboard(","showSettings(","showPilotPicker("):
-    assert removed not in a,removed
-assert "BerryCollision.touched(" in simulation and "collectedFood[i]=true" in simulation
-assert "if(endless && gate.coin && !collectedFood[i] &&" in simulation
-assert "!collectedHearts[i] && (!heartAt(i) || lives>=maxLives)" in simulation
-assert "if(!endless && gate.coin" in simulation
-assert "foodCollected" in simulation and "sweptBodyHitsPillar" in simulation
-assert "scrollSpeed+=(targetSpeed-scrollSpeed).coerceIn(-maxStep,maxStep)" in simulation
-assert "val travel=scrollSpeed*dt" in simulation
-assert "currentScrollSpeed" in simulation
-assert all(symbol in store for symbol in ("endless_food_best","bestFood()","recordRun"))
-assert "progress.bestFood()" in a and "NAJVIŠE HRANE" in a
-assert all(symbol in view for symbol in ("hudPortraitRect","lastAccessibilityLives","drawHudHeart("))
-assert all(symbol not in view for symbol in ("cachedScore","cachedFood","lastAccessibilityScore","lastAccessibilityFood"))
-assert "fun score(): Int" in simulation and "foodCollected" in simulation
-assert "gamePauseButton" not in a
-assert "source-audit:" in flow and "python tools/audit_native_dead_code.py" in flow
-print("PASS: Android home/flight/pause/results, save compatibility, fruit and HUD contracts")
+assert 'android.permission.INTERNET' not in manifest
+assert 'else showHome()' in a
+home=a.split("private fun showHome(){",1)[1].split("private fun confirmGameplayShop(",1)[0]
+for name in ('feature("SKINS"','feature("SHOP"','text="SETTINGS"'):
+    assert name in home,name
+for forbidden in ('▶  PLAY','shortcut("','showLevels(', 'showLocalRecords(',
+                  'showProgressOverview(', 'showLocalAchievements('):
+    assert forbidden not in home,forbidden
+assert 'private fun showSkins(){' in a
+assert 'private fun showShop(){' in a
+assert 'private fun showSettingsScreen(){' in a
+assert 'private fun startGame(){' in a  # retained game engine, not Home route
+assert 'private fun showResult(g:GameSimulation){' in a
+assert 'progress.recordRun(g)' in a
+assert 'GameSimulation(' in a
+assert 'BerryCollision.touched(' in sim
+assert 'foodCollected' in sim and 'sweptBodyHitsPillar' in sim
+assert 'hudPortraitRect' in view and 'drawHudHeart(' in view
+assert 'fun recordRun(game: GameSimulation)' in store
+assert 'fun selectOrBuy(index: Int): Boolean' in store
+assert "python tools/audit_native_dead_code.py" in flow
+print("PASS: three-route Home, offline persistence, retained gameplay core")

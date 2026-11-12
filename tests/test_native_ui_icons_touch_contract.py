@@ -39,9 +39,12 @@ for snippet in (
     "uiIcon(BopaviUiIconDrawable.Kind.HOME,Color.WHITE,23)",
     "compoundDrawablePadding=d(9)",
     "contentDescription=caption",
-    "LinearLayout.LayoutParams(0,d(77),1f)",
 ):
     assert snippet in activity, snippet
+home=(src/"HomeReferenceScreen.kt").read_text(encoding="utf-8")
+for control in ('pill("SKINS"','pill("SHOP"','pill("SETTINGS"'):
+    assert control in home,control
+assert 'minimumHeight=dp(48)' in home
 
 # The OS-themed icon is the real owner's Bopi alpha, not a second fabricated
 # bird, a surrogate vector or a separately maintained unreliable silhouette.

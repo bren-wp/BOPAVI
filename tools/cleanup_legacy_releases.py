@@ -120,6 +120,17 @@ def expected_release_assets(tag: str) -> set[str]:
         expected.update({
             "BOPAVI-Android-Game-Over.png", "BOPAVI-Android-Progress.png",
         })
+    # v1.0.84 intentionally retires six obsolete navigation screenshots.
+    # Earlier stable releases remain immutable and keep their own manifests.
+    if version >= (1, 0, 84):
+        expected.difference_update({
+            "BOPAVI-Android-Achievements.png",
+            "BOPAVI-Android-Progress.png",
+            "BOPAVI-Android-Leaderboard.png",
+            "BOPAVI-Android-Level-Map.png",
+            "BOPAVI-Android-Options.png",
+            "BOPAVI-Android-Records.png",
+        })
     # From v1.0.75 the game opens Home directly: 15 real captures, no
     # Splash screenshot. Historical v1.0.59–v1.0.74 assets stay immutable.
     if (1, 0, 59) <= version < (1, 0, 75):

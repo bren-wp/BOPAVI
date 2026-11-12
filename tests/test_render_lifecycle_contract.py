@@ -21,9 +21,8 @@ assert "fill(if(active)0xffff4f51.toInt() else 0x552c4b73)" in heart
 assert "p.strokeWidth=2.3f" in heart
 assert "p.style=Paint.Style.FILL" in heart
 assert "p.strokeCap=Paint.Cap.BUTT" in heart
-assert 'ColorStateList.valueOf(0xff80eeed.toInt())' in activity
-assert 'ColorStateList.valueOf(0xff4cdddc.toInt())' in activity
-assert 'ColorStateList.valueOf(0xffffde76.toInt())' in activity
+assert 'showQuickOptions(' not in activity
+assert 'private fun showSettingsScreen(){' in activity
 assert 'window.decorView.hasWindowFocus()' in activity
 assert "game.paused=true" in activity
 assert "if(pauseDialog?.isShowing!=true)showPremiumPause(view)" in activity

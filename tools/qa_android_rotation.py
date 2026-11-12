@@ -77,26 +77,33 @@ def main():
     adb("shell", "cmd", "window", "user-rotation", "lock", "0")
     # Debug-only QA holds a genuine first-flap GameSimulation state steady.
     # This makes a SCORE/crystals continuity comparison deterministic across rotation.
-    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity",
-        "--ez", "bopavi_qa_capture_first_flap", "true")
+    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
     try:
         initial_pid = adb("shell", "pidof", APP)
         assert initial_pid, "FAIL: missing BOPAVI process"
         w, h = rotate(1)
         assert w > h, "FAIL: landscape screenshot not wider than tall"
         root = hierarchy()
-        for _ in range(6):
-            plays = find_action(root, "PLAY")
-            if plays:
-                break
-            # Scroll the native Home if the landscape viewport is too short.
-            adb("shell", "input", "swipe", w//2, h*80//100, w//2, h*25//100, 380)
-            time.sleep(1)
-            root = hierarchy()
-        assert len(plays) == 1, "FAIL: landscape Home has no accessible Play"
         screenshot("android-home-landscape")
-        tap(plays[0])
-
+        for _ in range(10):
+            root=hierarchy()
+            buttons=[n for n in root.iter("node")
+                     if n.get("package")==APP and n.get("clickable")=="true"
+                     and n.get("enabled")=="true"]
+            descriptions={n.get("content-desc") for n in buttons}
+            expected={"Otvori izbor likova","Otvori trgovinu nadogradnji",
+                      "Otvori opcije igre"}
+            if len(buttons)==3 and descriptions==expected:break
+            adb("shell","input","swipe",w//2,h*80//100,w//2,h*25//100,380)
+            time.sleep(.5)
+        assert len(buttons)==3 and descriptions==expected, (
+            "FAIL: rotated Home must have exactly Shop, Skins, Settings")
+        adb("shell","am","force-stop",APP)
+        adb("shell","am","start","-W","-n",APP+"/.MainActivity",
+            "--ez","bopavi_qa_capture_first_flap","true",
+            "--ez","bopavi_qa_launch_flight","true")
+        initial_pid=adb("shell","pidof",APP)
+        assert initial_pid,"FAIL: debug flight route crashed after landscape Home"
         # Do not mistake the idle GameView preview for a real flight.
         idle = []
         for _ in range(10):

@@ -53,10 +53,10 @@ def main():
     adb("shell", "am", "start", "-W", "-a", "android.intent.action.MAIN",
         "-c", "android.intent.category.LAUNCHER",
         "-n", APP + "/.MainActivity",
-        "--ez", "bopavi_qa_capture_first_flap", "true")
+        "--ez", "bopavi_qa_capture_first_flap", "true",
+        "--ez","bopavi_qa_launch_flight","true")
     pid = adb("shell", "pidof", APP)
     assert pid, "FAIL: app did not start"
-    tap(one_control("PLAY"))
     # The idle GameView exposes this precise accessibility prompt. The
     # obsolete 'DODIRNI ZA LET' text was removed from gameplay; assert the
     # current live control instead of disabling the background-resume test.

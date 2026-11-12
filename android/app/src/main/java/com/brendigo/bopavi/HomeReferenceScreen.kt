@@ -40,15 +40,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         setShadowLayer(dp(2).toFloat(),0f,dp(3).toFloat(),0x77092050)
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
-    private fun glyph(kind:BopaviUiIconDrawable.Kind,pixels:Int):ImageView=
-        ImageView(host).apply {
-            setImageDrawable(HomeHeroIconDrawable(kind,dp(pixels)))
-            scaleType=ImageView.ScaleType.CENTER_INSIDE
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-
-    private fun wallet(title:String,amount:Int,kind:BopaviUiIconDrawable.Kind,
-                       destination:String,onClick:()->Unit):View{
+    private fun wallet(title:String,amount:Int,
+                       kind:BopaviUiIconDrawable.Kind):View{
         val group=LinearLayout(host).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER_VERTICAL
@@ -59,9 +52,9 @@ internal class HomeReferenceScreen(private val host:Activity,
             elevation=dp(5).toFloat()
             // The outer Stage uses 941px reference units, not dp.
             setPadding(2,0,2,0)
-            contentDescription="$title: $amount. $destination"
-            isClickable=true;isFocusable=true
-            setOnClickListener{onClick()}
+            contentDescription="$title: $amount"
+            isClickable=false
+            isFocusable=false
         }
         val token=FrameLayout(host).apply{
             elevation=dp(3).toFloat()
@@ -75,46 +68,33 @@ internal class HomeReferenceScreen(private val host:Activity,
         // dp-sized icons overflow a 64px rail on 3x-density phones.
         group.addView(token,LinearLayout.LayoutParams(0,-1,.26f))
         group.addView(label(NumberFormat.getIntegerInstance(Locale.US).format(amount),
-            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,.53f))
-        group.addView(label("+",22,Color.WHITE).apply{
-            background=HomeEnamelDrawable(0xffbaff8f.toInt(),
-                0xff21df28.toInt(),0xff078224.toInt(),0xffd2ffb4.toInt())
-        },LinearLayout.LayoutParams(0,-1,.21f))
+            24,Color.WHITE),LinearLayout.LayoutParams(0,-1,.74f))
         return group
     }
 
-    /** Glossy raised 3D CTA with native hit target, icon and label. */
+    /** Exactly three accessible native Home actions, preserving 3D artwork. */
     private fun pill(text:String,description:String,
                      kind:BopaviUiIconDrawable.Kind,
                      top:Int,bottom:Int,border:Int,
                      font:Int,onClick:()->Unit):View {
-        val isPlay=kind==BopaviUiIconDrawable.Kind.PLAY
-        val isWide=isPlay || kind==BopaviUiIconDrawable.Kind.SHIRT ||
-            kind==BopaviUiIconDrawable.Kind.SHOP ||
-            kind==BopaviUiIconDrawable.Kind.SETTINGS
-        val textMeasure=Paint(Paint.ANTI_ALIAS_FLAG).apply{
+        val measure=Paint(Paint.ANTI_ALIAS_FLAG).apply {
             typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
         }
         val group=object:LinearLayout(host){
             override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
-                // Measure actual painted text. Broad TextView columns used
-                // to produce an 80-120px apparent gap beside the 3D icon.
-                if(isWide && childCount==2){
+                if(childCount==2){
                     val w=View.MeasureSpec.getSize(widthMeasureSpec)
-                    val h=View.MeasureSpec.getSize(heightMeasureSpec)
-                    val heightFraction=if(isPlay).76f else .71f
-                    textMeasure.textSize=minOf(
-                        font*host.resources.displayMetrics.scaledDensity,
-                        h*heightFraction)
+                    val measuredHeight=View.MeasureSpec.getSize(heightMeasureSpec)
+                    measure.textSize=minOf(font*host.resources.displayMetrics.scaledDensity,
+                        measuredHeight*.71f)
                     val cluster=ReferenceButtonCluster.measure(
-                        w,h,textMeasure.measureText(text),
-                        if(isPlay).70f else .61f,.29f)
-                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply{
+                        w,measuredHeight,measure.measureText(text),.61f,.29f)
+                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
                         width=cluster.iconWidth
                         height=LinearLayout.LayoutParams.MATCH_PARENT
                         weight=0f
                     }
-                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply{
+                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
                         width=cluster.labelWidth
                         height=LinearLayout.LayoutParams.MATCH_PARENT
                         marginStart=cluster.gap
@@ -123,15 +103,15 @@ internal class HomeReferenceScreen(private val host:Activity,
                 }
                 super.onMeasure(widthMeasureSpec,heightMeasureSpec)
             }
-        }.apply{
-            orientation=if(isWide)LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+        }.apply {
+            orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
             background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                HomeEnamelDrawable(top,if(isPlay)0xffffaf12.toInt() else top,
-                    bottom,border,sourceHome=true),null)
+                HomeEnamelDrawable(top,top,bottom,border,sourceHome=true),null)
             elevation=dp(8).toFloat()
             contentDescription=description
-            isClickable=true;isFocusable=true
+            isClickable=true
+            isFocusable=true
             minimumHeight=dp(48)
             setOnClickListener{onClick()}
             if(!progress.lessMotion())setOnTouchListener{view,event->
@@ -144,93 +124,21 @@ internal class HomeReferenceScreen(private val host:Activity,
                 }
                 false
             }
-            // A fixed dp gutter changes the illustrated 3D button at 2x/3x
-            // screen densities. Give the native icon/text a proportional
-            // share of the same measured button rectangle instead.
             setPadding(0,0,0,0)
         }
-        val imageSize=if(isPlay)88 else 52
-        val symbol=ImageView(host).apply{
+        val picture=ImageView(host).apply{
             if(kind==BopaviUiIconDrawable.Kind.SHIRT)
                 setImageResource(skinPortraitRes)
-            else
-                setImageDrawable(HomeHeroIconDrawable(kind,dp(imageSize)))
+            else setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))
             scaleType=ImageView.ScaleType.FIT_CENTER
-            // Owner artwork uses a much larger facial portrait / shop
-            // pictogram than the old tiny square glyph. Transform only
-            // the decorative ImageView; retain the native parent hit box.
-            if(!isPlay){
-                scaleX=if(kind==BopaviUiIconDrawable.Kind.SHIRT)1.22f else 1.12f
-                scaleY=scaleX
-            }
+            scaleX=if(kind==BopaviUiIconDrawable.Kind.SHIRT)1.22f else 1.12f
+            scaleY=scaleX
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        val title=HomeEmbossedLabel(host,text,font.toFloat(),isPlay,
-            if(isPlay).76f else .71f,.94f)
-        if(isWide){
-            group.addView(symbol,LinearLayout.LayoutParams(0,-1))
-            group.addView(title,LinearLayout.LayoutParams(0,-1))
-        }else{
-            group.addView(symbol,LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,0,.72f))
-            group.addView(title,LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,0,.28f))
-        }
+        val caption=HomeEmbossedLabel(host,text,font.toFloat(),false,.71f,.94f)
+        group.addView(picture,LinearLayout.LayoutParams(0,-1))
+        group.addView(caption,LinearLayout.LayoutParams(0,-1))
         return group
-    }
-
-    /** Three actual Home shortcuts. Their icons are painted as circles,
-     * but every shortcut is one native accessible click target. */
-    private fun footerShortcut(text:String,description:String,
-        kind:BopaviUiIconDrawable.Kind,onClick:()->Unit):View {
-        val control=object:LinearLayout(host) {
-            override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
-                // Keep the circular 3D emblem ROUND and the caption below it.
-                // Absolute dp heights previously squeezed its icon into
-                // a flattened oval on high-density reference viewports.
-                val available=View.MeasureSpec.getSize(heightMeasureSpec)
-                // Owner reference circles are noticeably larger than the
-                // v1.0.51 footer: leave 23% for the caption, 77% for the
-                // true circular native medal, without changing touch bounds.
-                val caption=(available*.23f).toInt().coerceAtLeast(1)
-                val emblem=minOf((available-caption).coerceAtLeast(1),
-                    View.MeasureSpec.getSize(widthMeasureSpec).coerceAtLeast(1))
-                if(childCount==2){
-                    (getChildAt(0).layoutParams as LinearLayout.LayoutParams).apply {
-                        width=emblem
-                        height=emblem
-                        weight=0f
-                    }
-                    (getChildAt(1).layoutParams as LinearLayout.LayoutParams).apply {
-                        width=LinearLayout.LayoutParams.MATCH_PARENT
-                        height=caption
-                    }
-                }
-                super.onMeasure(widthMeasureSpec,heightMeasureSpec)
-            }
-        }.apply {
-            orientation=LinearLayout.VERTICAL
-            gravity=Gravity.CENTER
-            contentDescription=description
-            isClickable=true;isFocusable=true
-            minimumHeight=dp(48)
-            setOnClickListener { onClick() }
-        }
-        val round=FrameLayout(host).apply {
-            isDuplicateParentStateEnabled=true
-            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
-                HomeMedalDrawable(),null)
-            elevation=dp(4).toFloat()
-            // Pixel design coordinates within the reference Stage, not dp.
-            setPadding(4,4,4,4)
-            addView(glyph(kind,40),
-                FrameLayout.LayoutParams(-1,-1,Gravity.CENTER))
-        }
-        control.addView(round,LinearLayout.LayoutParams(-1,0,1f))
-        control.addView(HomeEmbossedLabel(host,text,21f,false,
-            footer=true),
-            LinearLayout.LayoutParams(-1,0,0f))
-        return control
     }
 
     private fun place(stage:LevelMapStage,view:View,b:HomeBounds,
@@ -239,10 +147,8 @@ internal class HomeReferenceScreen(private val host:Activity,
             referenceAligned=true,verticalAnchor=verticalAnchor)
     }
 
-    fun create(pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
-               onSettings:()->Unit,onAchievements:()->Unit,
-               onLeaderboard:()->Unit,onSound:()->Unit,
-               onCoins:()->Unit,onStars:()->Unit):View {
+    fun create(pilotIndex:Int,onSkins:()->Unit,onShop:()->Unit,
+               onSettings:()->Unit):View {
         val root=FrameLayout(host).apply{setBackgroundColor(0xff118edb.toInt())}
         root.addView(ImageView(host).apply{
             setImageResource(R.drawable.homeback)
@@ -266,13 +172,8 @@ internal class HomeReferenceScreen(private val host:Activity,
         stage.place(HomeOrbitDecoration(host),0f,0f,941f,1672f,
             referenceAligned=true)
         walletRail.attach(wallet("COINS",progress.coins(),
-            BopaviUiIconDrawable.Kind.COIN,"Otvori trgovinu",onCoins),
+            BopaviUiIconDrawable.Kind.COIN),
             HomeReferenceLayout.coins)
-        val earnedStars=(0 until LevelEngine.WORLD_COUNT)
-            .sumOf{progress.worldStars(it)}
-        walletRail.attach(wallet("STARS",earnedStars,
-            BopaviUiIconDrawable.Kind.STAR,"Otvori kartu razina",onStars),
-            HomeReferenceLayout.stars)
 
         val logoView=ImageView(host).apply{
             setImageResource(R.drawable.logo)
@@ -334,13 +235,6 @@ internal class HomeReferenceScreen(private val host:Activity,
             allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.25f)
 
-        // The white wings in the owner's Home sit BEHIND the gold native
-        // PLAY action; the hit target remains one accessible Android View.
-        place(stage,HomePlayWings(host),HomeReferenceLayout.playWings)
-        place(stage,pill("PLAY","▶  PLAY",
-            BopaviUiIconDrawable.Kind.PLAY,
-            0xfffff07a.toInt(),0xffff9904.toInt(),0xffa3560b.toInt(),58,onPlay),
-            HomeReferenceLayout.play,true,verticalAnchor=.50f)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
             0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),27,onSkins),
@@ -354,15 +248,6 @@ internal class HomeReferenceScreen(private val host:Activity,
             0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),22,onSettings),
             HomeReferenceLayout.settings,true,verticalAnchor=.73f)
 
-        place(stage,footerShortcut("ACHIEVEMENTS",
-            "Pogledaj svoja postignuća",BopaviUiIconDrawable.Kind.RECORDS,
-            onAchievements),HomeReferenceLayout.achievements,true,verticalAnchor=.95f)
-        place(stage,footerShortcut("LEADERBOARD",
-            "Pogledaj svoje rekorde",BopaviUiIconDrawable.Kind.LEADERBOARD,
-            onLeaderboard),HomeReferenceLayout.leaderboard,true,verticalAnchor=.95f)
-        place(stage,footerShortcut("SOUND",
-            "Otvori zvučne postavke",BopaviUiIconDrawable.Kind.SOUND,
-            onSound),HomeReferenceLayout.sound,true,verticalAnchor=.95f)
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
                 val bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()
