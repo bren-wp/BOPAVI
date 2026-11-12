@@ -63,6 +63,8 @@ jobs:
         run: |
           python tools/generate_audio.py
           python tools/verify_audio.py
+      - name: Run full source preflight and report every stale contract
+        run: python tools/run_source_preflight.py
       - run: python tests/test_home_three_buttons_contract.py
       - run: python tests/test_native_files.py
       - run: python tests/test_three_pilots.py

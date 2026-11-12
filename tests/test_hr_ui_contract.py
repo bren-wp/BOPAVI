@@ -9,10 +9,11 @@ l=(r/"LevelEngine.kt").read_text()
 for forbidden in ("GameLanguages", "hudVocabulary", "languageCode=", "Tap to fly with",
                   "▶  RETRY", "BEST SCORE:"):
     assert forbidden not in a+v+l, forbidden
-for term in ('"▶  PLAY"', '"REZULTAT"', '"HRANA"', "PONOVO",
+for term in ('"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
              'contentDescription=caption'):
     assert term in a,term
+assert '"▶  PLAY"' not in a.split('private fun showHome(){',1)[1].split('private fun confirmGameplayShop(',1)[0]
 # Visual text must match the owner's English gameplay screenshot, while
 # Croatian spoken assistance and saved data remain preserved.
 for term in ('drawTutorialText(c,"Tap to fly"',
