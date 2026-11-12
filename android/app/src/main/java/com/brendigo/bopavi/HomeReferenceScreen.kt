@@ -40,13 +40,6 @@ internal class HomeReferenceScreen(private val host:Activity,
         setShadowLayer(dp(2).toFloat(),0f,dp(3).toFloat(),0x77092050)
         importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
-    private fun glyph(kind:BopaviUiIconDrawable.Kind,pixels:Int):ImageView=
-        ImageView(host).apply {
-            setImageDrawable(HomeHeroIconDrawable(kind,dp(pixels)))
-            scaleType=ImageView.ScaleType.CENTER_INSIDE
-            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-
     private fun wallet(title:String,amount:Int,
                        kind:BopaviUiIconDrawable.Kind):View{
         val group=LinearLayout(host).apply{

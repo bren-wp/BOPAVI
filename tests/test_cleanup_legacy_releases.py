@@ -188,8 +188,10 @@ class RetentionTests(unittest.TestCase):
             "BOPAVI-Android-Options.png",
             "BOPAVI-Android-Records.png",
         }
-        self.assertEqual(old-updated,removed)
-        self.assertEqual(updated,old-removed)
+        versioned_old={name.replace("v1.0.83","{tag}") for name in old}
+        versioned_new={name.replace("v1.0.84","{tag}") for name in updated}
+        self.assertEqual(versioned_old-versioned_new,removed)
+        self.assertEqual(versioned_new,versioned_old-removed)
         self.assertEqual(len(updated),17)
 
     def test_release_manifest_keeps_required_artifacts(self):

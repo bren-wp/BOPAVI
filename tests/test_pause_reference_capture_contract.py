@@ -7,7 +7,7 @@ qa=(root/"tools/qa_android_emulator.sh").read_text()
 for required in (
     'adb("shell","wm","size","941x1672")',
     'adb("shell","wm","density","320")',
-    'tap(expect_one("▶  PLAY"))',
+    '"bopavi_qa_launch_flight","true"',
     'tap(ready)',
     'active=expect_one("REZULTAT:")',
     'resumed=expect_one("REZULTAT:")',

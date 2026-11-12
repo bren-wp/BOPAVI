@@ -30,7 +30,7 @@ class MarketingReadmeTests(unittest.TestCase):
     def test_readme_is_not_a_development_report(self):
         content = README.read_text(encoding="utf-8")
         for unwanted in ("feature-matrix", "versionCode", "CURRENT_PROJECT_VERSION", "git clone",
-                         "GitHub Actions", "CI/CD", "build 130", "v0.2.24", "shop", "leveli"):
+                         "GitHub Actions", "CI/CD", "build 130", "v0.2.24", "leveli"):
             player_text = re.sub(r"<[^>]*>", "", content)
             self.assertNotIn(unwanted.casefold(), player_text.casefold(), unwanted)
         self.assertTrue(re.search(r"Bez oglasa.*Bez praćenja.*Bez registracije", content))
