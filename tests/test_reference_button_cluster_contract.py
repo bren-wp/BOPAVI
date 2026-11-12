@@ -8,7 +8,7 @@ over=(src/"GameOverScreen.kt").read_text()
 model=(src/"ReferenceButtonCluster.kt").read_text()
 assert 'ReferenceButtonCluster.measure(' in home
 assert 'ReferenceButtonCluster.measure(' in over
-assert 'textMeasure.measureText(text)' in home
+assert 'measure.measureText(text)' in home
 assert 'textMeasure.measureText(label)' in over
 assert 'marginStart=cluster.gap' in home and 'marginStart=cluster.gap' in over
 assert 'val gap=(width*.016f).toInt().coerceIn(4,12)' in model

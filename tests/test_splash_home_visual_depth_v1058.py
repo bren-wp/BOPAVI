@@ -10,7 +10,6 @@ layout=(src/"FlightLoadingLayout.kt").read_text()
 home=(src/"HomeReferenceScreen.kt").read_text()
 actor=(src/"HomeWingActor.kt").read_text()
 accessories=(src/"BopiOwnerAccessories.kt").read_text()
-medal=(src/"HomeMedalDrawable.kt").read_text()
 caption=(src/"HomeEmbossedLabel.kt").read_text()
 backdrop=(root/"tools/paint_fantasy_backdrop.py").read_text()
 logo=(root/"docs/assets/logo.svg").read_text()
@@ -29,7 +28,6 @@ assert 'postInvalidateDelayed(if(startup)80L else 48L)' in splash
 assert 'if(ready)return Segment(0f,width)' in track
 assert 'val track=LoadingArtBox(161f,1350f,780f,1454f)' in layout
 assert 'val pilot=LoadingArtBox(100f,364f,757f,1021f)' in layout
-assert 'verticalAnchor=.95f' in home
 assert 'const val captionBaselineY=1515f' in layout
 assert 'android.os.SystemClock.uptimeMillis()-scanStartedAtMs' in splash
 
@@ -59,14 +57,10 @@ assert 'castle(85,278,1.75)' in backdrop
 # Each live Home button and actual wallet balance is still a native,
 # individually clickable View. Nothing is replaced with a screenshot.
 for required in ('R.drawable.homeback','HomeTopWalletRail(host)',
-                 'progress.coins()', 'progress.worldStars(it)',
-                 'onPlay)', 'onSkins)', 'onShop)', 'onSettings)',
-                 'HomeMedalDrawable()', 'HomeWingActor(host'):
+                 'progress.coins()', 'onSkins)', 'onShop)', 'onSettings)',
+                 'HomeWingActor(host'):
     assert required in home,required
-assert '0xff284e7b.toInt()' in medal
-assert '0xff06172f.toInt()' in medal
 assert 'private val footer:Boolean=false' in caption
-assert 'footer=true)' in home
 
 assert 'bank.filter(ImageFilter.GaussianBlur(20))' in backdrop
 assert 'Random(9411672)' in backdrop

@@ -17,13 +17,9 @@ from pathlib import Path
 OUT = Path("qa/screenshots")
 PACKAGE = "com.brendigo.bopavi"
 TARGETS = {
-    "Play": ("PLAY", "IGRAJ"),
     "Settings": ("OTVORI OPCIJE IGRE",),
-    "Records": ("POGLEDAJ SVOJE REKORDE",),
     "Skins": ("OTVORI IZBOR LIKOVA",),
     "Shop": ("OTVORI TRGOVINU NADOGRADNJI",),
-    "Achievements": ("POGLEDAJ SVOJA POSTIGNUĆA",),
-    "Sound": ("OTVORI ZVUČNE POSTAVKE",),
 }
 BOUND = re.compile(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]")
 

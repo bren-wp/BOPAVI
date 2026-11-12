@@ -3,7 +3,7 @@
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
-stage=(src/"LevelMapScreen.kt").read_text()
+stage=(src/"ReferenceStage.kt").read_text()
 home=(src/"HomeReferenceScreen.kt").read_text()
 result=(src/"GameOverScreen.kt").read_text()
 
@@ -41,7 +41,7 @@ assert "stage.setSafe(" in home and "stage.setSafe(" in result
 # immersive; compact fallback Home and non-reference menus restore navigation.
 activity=(src/"MainActivity.kt").read_text()
 assert 'if(selectedScreen=="game") {' in activity
-assert 'else if(selectedScreen=="shop" || selectedScreen=="levels" ||' in activity
+assert 'else if(selectedScreen=="shop" || ownerImmersiveReferenceScreen())' in activity
 assert 'ownerImmersiveReferenceScreen()' in activity
 assert 'if(selectedScreen=="loading")return true' in activity
 assert '"home" -> HomeReferenceLayout.supports(' in activity
@@ -53,7 +53,7 @@ assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="splash"' not in activity
 assert 'selectedScreen="loading"' in activity
 assert 'selectedScreen="shop"\n        applyPremiumSystemBars()' in activity
-assert 'selectedScreen="levels"\n        applyPremiumSystemBars()' in activity
+assert 'selectedScreen="levels"' not in activity
 assert 'android.view.WindowInsets.Type.navigationBars())' in activity
 assert 'controller?.show(android.view.WindowInsets.Type.navigationBars())' in activity
 assert 'View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY' in activity

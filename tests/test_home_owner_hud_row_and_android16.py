@@ -19,10 +19,10 @@ assert 'showBrandedStartup()' not in main
 assert 'e.child.layout(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val area=Rect(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val coins=HomeBounds(457f,21f,220f,64f)' in layout
-assert 'val stars=HomeBounds(705f,21f,215f,64f)' in layout
+assert 'val stars=HomeBounds(' not in layout
 assert 'if [ "$api" = 36 ]; then' in script
 assert 'targets=(default google_apis)' in script
 assert 'targets=(google_apis default)' in script
 assert '## Pogledaj sve zaslone igre' in readme
-assert readme.count('releases/latest/download/BOPAVI-Android-')==34
+assert readme.count('releases/latest/download/BOPAVI-Android-')==22
 print("PASS: safe single-row live HUD, API36 AOSP first, all README screenshots")

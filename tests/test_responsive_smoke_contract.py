@@ -14,7 +14,7 @@ layout=(r/"android/app/src/main/java/com/brendigo/bopavi/HomeReferenceLayout.kt"
 activity=(r/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
 assert "fontScale>=.85f && fontScale<1.3f" in layout
 assert "resources.configuration.fontScale" in activity
-assert "screenDensityAndLargeFontBreakpointMatrix" in (r/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
+assert "referenceModeKeepsBreakpointAndLargerFontsAccessible" in (r/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 assert 'adb shell wm size reset' in qa and 'adb shell wm density reset' in qa
 assert 'BOPAVI_RESIZE_IN_PROGRESS' in qa
 # The scroll-aware Android helper checks full native hit bounds on each page.
