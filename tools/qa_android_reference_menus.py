@@ -10,14 +10,61 @@ ACTIONS={
 }
 
 def matches(phrase, clickable=None):
-    found=[]
-    for n in hierarchy().iter("node"):
-        if n.get("package")!=APP or phrase.upper() not in label(n):
+    return matching_nodes(hierarchy(),phrase,clickable=clickable)
+
+# Native UIAutomation helpers are shared by the focused Shop/Skins
+# emulator tests. Match real app-owned Android nodes, never screenshots.
+def matching_nodes(root, phrase, clickable=None):
+    """Find enabled BOPAVI nodes by spoken or visible label in one hierarchy."""
+    needle=phrase.casefold()
+    return [
+        n for n in root.iter("node")
+        if n.get("package")==APP
+        and n.get("enabled","true")=="true"
+        and needle in ((n.get("text") or "")+" "+(n.get("content-desc") or "")).casefold()
+        and (clickable is None or (n.get("clickable")=="true")==clickable)
+    ]
+
+
+def acknowledge_native_fullscreen_education(root):
+    """Dismiss ONLY a verified Android-owned first-use immersive tutorial."""
+    nodes=list(root.iter("node"))
+    titles=[n for n in nodes
+            if n.get("package") in ("android","com.android.systemui")
+            and n.get("text")=="Viewing full screen"]
+    if len(titles)!=1:
+        return False
+    system_owner=titles[0].get("package")
+    if not any(n.get("package")==system_owner and
+               "To exit, swipe down from the top of your screen"
+               in (n.get("text") or "") for n in nodes):
+        return False
+    buttons=[n for n in nodes if n.get("package")==system_owner
+             and n.get("text")=="Got it"
+             and n.get("clickable")=="true"
+             and n.get("enabled","true")=="true"]
+    if len(buttons)!=1:
+        return False
+    tap(buttons[0])
+    return True
+
+
+def node_with(phrase, clickable=True, attempts=10):
+    """Require one unique real, enabled native control; never fabricate a tap."""
+    for attempt in range(attempts):
+        root=hierarchy()
+        if acknowledge_native_fullscreen_education(root):
+            time.sleep(.5)
             continue
-        if clickable is not None and (n.get("clickable")=="true")!=clickable:
-            continue
-        found.append(n)
-    return found
+        hits=matching_nodes(root,phrase,clickable=clickable)
+        if len(hits)>1:
+            raise AssertionError(
+                f"Duplicate native action {phrase!r}: {len(hits)} matches")
+        if len(hits)==1:
+            return hits[0]
+        time.sleep(.5)
+    raise AssertionError(f"Missing native BOPAVI action {phrase!r}")
+
 
 def home():
     actual=[n for n in hierarchy().iter("node")
