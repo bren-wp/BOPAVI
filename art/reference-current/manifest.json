@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "brand": "BOPAVI",
+  "author": "Brendigo",
+  "source_archive_name": "BOPAVI_Svi_Zasloni_i_Gameplay_Android(1).zip",
+  "archive_size_bytes": 33958345,
+  "archive_sha256": "0df582d495744b6c169c653a277a426c78f686dc240932fb4f931695aca1bb8c",
+  "root_directory": "BOPAVI_Svi_Zasloni_i_Gameplay_Android",
+  "source_type": "owner-provided static design reference, not live Android screenshot",
+  "webp_files": 50,
+  "screens": [
+    "01_Pocetni_zaslon.webp",
+    "02_Gameplay_upute.webp",
+    "03_Gameplay_let.webp",
+    "04_Gameplay_pauza.webp",
+    "05_Kraj_igre.webp",
+    "06_Kraj_igre_varijanta.webp",
+    "07_Skins.webp",
+    "08_Shop.webp",
+    "09_Settings.webp",
+    "10_Politika_privatnosti.webp"
+  ],
+  "viewports": {
+    "Android_16_9_1080x1920": [
+      1080,
+      1920
+    ],
+    "Android_20_9_1080x2400": [
+      1080,
+      2400
+    ],
+    "Android_FHD_1080x2280": [
+      1080,
+      2280
+    ],
+    "Android_FHD_Plus_1080x2340": [
+      1080,
+      2340
+    ],
+    "Android_QHD_1440x3040": [
+      1440,
+      3040
+    ]
+  },
+  "home_actions": [
+    "Shop",
+    "Skins",
+    "Settings"
+  ],
+  "golden_ring_trails_enabled": false
+}
