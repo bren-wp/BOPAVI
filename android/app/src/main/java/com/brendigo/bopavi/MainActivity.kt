@@ -43,6 +43,7 @@ class MainActivity : Activity() {
     // Unlike window focus, the Activity resume state does not flicker during
     // UIAutomator hierarchy dumps or transient non-pausing overlays.
     private var activityResumed = false
+    private var qaFlightLaunched = false
     private val textColor = Color.WHITE
     private val gold = 0xffffc24d.toInt()
     // Dark navy remains readable over every stop of the gold CTA gradients.
@@ -263,6 +264,16 @@ class MainActivity : Activity() {
         if(::sound.isInitialized && selectedScreen=="game" &&
             gameView?.game?.active == false && gameView?.game?.finished == false &&
             gameView?.paused == false) sound.resume()
+        // Debug-only direct flight test route. The production Activity does
+        // not honor Intent extras and has exactly three Home buttons.
+        if(!qaFlightLaunched && qaIntentEnabled("bopavi_qa_launch_flight") &&
+            selectedScreen=="home"){
+            qaFlightLaunched=true
+            window.decorView.post {
+                if(activityResumed && !isDestroyed && !isFinishing &&
+                    selectedScreen=="home")startGame()
+            }
+        }
     }
     override fun onWindowFocusChanged(hasFocus:Boolean) {
         super.onWindowFocusChanged(hasFocus)

@@ -384,9 +384,12 @@ import sys, xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 actions={n.get("content-desc","") for n in nodes
          if n.get("clickable")=="true" and n.get("enabled")=="true"}
-expected={"▶  PLAY","Otvori opcije igre","Otvori izbor likova",
+expected={"Otvori opcije igre","Otvori izbor likova",
           "Otvori trgovinu nadogradnji"}
-sys.exit(0 if expected.issubset(actions) else 1)
+owned={n.get("content-desc","") for n in nodes
+       if n.get("package")=="com.brendigo.bopavi"
+       and n.get("clickable")=="true" and n.get("enabled")=="true"}
+sys.exit(0 if expected==owned else 1)
 PY_HOME
   then home_ready=1; break; fi
   echo "Waiting for real Home buttons ($attempt/16)" >&2
@@ -682,77 +685,23 @@ echo "PASS: full native Settings, persisted difficulty and Home navigation"
 sleep 1
 dump_ui
 python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-records=[n for n in nodes if n.get("clickable")=="true" and
-    n.get("content-desc")=="Pogledaj svoje rekorde"]
-if len(records)!=1:raise SystemExit("FAIL: Home records action missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",records[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: records action bounds missing")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
+buttons=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
+         and n.get("clickable")=="true" and n.get("enabled")=="true"]
+actual={n.get("content-desc") for n in buttons}
+expected={"Otvori izbor likova","Otvori trgovinu nadogradnji","Otvori opcije igre"}
+assert len(buttons)==3 and actual==expected, ("FAIL: Home must have exactly three actions",actual)
+for old in ("PLAY","REKORDI","LEADERBOARD","NAPREDAK","LEVEL MAP","ACHIEVEMENTS"):
+    assert all(old not in (v or "").upper() for v in actual),old
+print("PASS: Home only Shop, Skins, Settings; no obsolete destinations",flush=True)
 PY
-sleep 1
-dump_ui
-capture android-records
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-alltext=" ".join(label(n) for n in nodes)
-for expected in ("LEADERBOARD","OFFLINE","THIS DEVICE","BEST SCORE","TOP 10 LOCAL SCORES","HOME"):
-    if expected not in alltext:raise SystemExit("FAIL: native offline leaderboard missing "+expected)
-home=[n for n in nodes if n.get("clickable")=="true"
-      and n.get("content-desc","").upper()=="HOME"]
-if len(home)!=1:raise SystemExit("FAIL: Leaderboard Home action missing")
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",home[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: Leaderboard Home hitbox invalid")
-a,b,c,d=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: local records screen visible and returns Home",flush=True)
-PY
-sleep 1
-dump_ui
-python3 - <<'PY'
-import re,subprocess,xml.etree.ElementTree as ET
-root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
-nodes=list(root.iter("node"))
-click=[n for n in nodes if n.get("clickable")=="true"]
-def label(n):return (n.get("text","")+" "+n.get("content-desc","")).upper()
-play=[n for n in click if "PLAY" in label(n) or "IGRAJ" in label(n)]
-if len(play)!=1:raise SystemExit("FAIL: one native PLAY action required")
-if any("BEST SCORE" in label(n) or "NAJBOLJI REZULTAT" in label(n) for n in nodes):raise SystemExit("FAIL: obsolete Home record badge returned")
-# HomeReferenceScreen uses a real clickable LinearLayout with the
-# TalkBack action on its parent and visible text on a child TextView.
-# Require BOTH the actionable parent and the actual visible label.
-for menu,action in (
-    ("SKINS","Otvori izbor likova"),
-    ("SHOP","Otvori trgovinu nadogradnji"),
-):
-    actions=[n for n in click if n.get("content-desc")==action]
-    labels=[n for n in nodes if n.get("text","").strip().upper()==menu]
-    if len(actions)!=1 or len(labels)!=1:
-        raise SystemExit("FAIL: Home "+menu+" must have one tappable action and visible label")
-    m=lambda n: re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.get("bounds",""))
-    parent,child=m(actions[0]),m(labels[0])
-    if not parent or not child:
-        raise SystemExit("FAIL: Home "+menu+" accessibility bounds invalid")
-    ax,ay,bx,by=map(int,parent.groups())
-    cx,cy,dx,dy=map(int,child.groups())
-    if not (ax<=cx<dx<=bx and ay<=cy<dy<=by):
-        raise SystemExit("FAIL: Home "+menu+" text not inside its real button")
-for bad in ("PROFILE","PROFIL","CLOUD SAVE","RESTORE PURCHASES"):
-    if any(bad in label(n) for n in click):raise SystemExit("FAIL: unsupported Home route: "+bad)
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
-if not m:raise SystemExit("FAIL: PLAY bounds unavailable")
-a,b,c,d=map(int,m.groups())
-if c-a<130 or d-b<40:raise SystemExit("FAIL: PLAY hit target too small")
-subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
-print("PASS: accessible Home Play, Skins and Shop with separate Settings route",flush=True)
-PY
-# A successful tap on the Home PLAY button is not proof that the Flight view
-# has appeared. Wait for the *actual native GameView accessibility state*.
-# The earlier flow sometimes captured a second Home animation as Flight Preview.
+# Test the retained flight engine through an explicit debuggable-only launch.
+# No fourth Home action and no release-build entry point are introduced.
+adb shell am force-stop com.brendigo.bopavi
+adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
+  --ez bopavi_qa_capture_first_flap true --ez bopavi_qa_launch_flight true
+sleep 2
 ready=0
 for attempt in $(seq 1 15); do
   adb shell pidof com.brendigo.bopavi >/dev/null || {
@@ -784,7 +733,7 @@ PY
   echo "Waiting for actual Flight idle GameView, attempt $attempt/15" >&2
   sleep 2
 done
-test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight" >&2; exit 1; }
+test "$ready" -eq 1 || { echo "FAIL: debug-only native flight QA route did not reach Flight" >&2; exit 1; }
 capture android-gameplay-ready
 printf 'STATE: flight-idle confirmed by native GameView\n' >> qa/screenshots/state-evidence.txt
 
@@ -1034,26 +983,22 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   adb shell wm size 941x1672
   adb shell wm density 320
   adb shell am force-stop com.brendigo.bopavi
-  adb shell am start -W -n com.brendigo.bopavi/.MainActivity --ez bopavi_qa_capture_first_flap true
-  sleep 4
-  reference_home=0
-  for attempt in $(seq 1 12); do
-    if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
-import re,subprocess,sys,xml.etree.ElementTree as ET
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity
+  sleep 3
+  dump_ui
+  python3 - qa/screenshots/android-current-ui.xml <<'PY'
+import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-label=lambda n:(n.get("text","")+" "+n.get("content-desc","")).upper()
-play=[n for n in nodes if n.get("clickable")=="true" and
-      ("▶  PLAY" in label(n) or "▶  IGRAJ" in label(n))]
-if len(play)!=1:sys.exit(1)
-m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",play[0].get("bounds",""))
-if not m:sys.exit(1)
-x1,y1,x2,y2=map(int,m.groups())
-subprocess.run(["adb","shell","input","tap",str((x1+x2)//2),str((y1+y2)//2)],check=True)
+actual={n.get("content-desc","") for n in nodes
+        if n.get("package")=="com.brendigo.bopavi" and n.get("clickable")=="true"}
+assert actual=={"Otvori opcije igre","Otvori izbor likova",
+               "Otvori trgovinu nadogradnji"},actual
 PY
-    then reference_home=1; break; fi
-    sleep 2
-  done
-  test "$reference_home" -eq 1 || { echo "FAIL: reference-size Home PLAY was not accessible" >&2; exit 1; }
+  capture android-home-reference-size
+  adb shell am force-stop com.brendigo.bopavi
+  adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
+    --ez bopavi_qa_capture_first_flap true --ez bopavi_qa_launch_flight true
+  sleep 2
   reference_ready=0
   for attempt in $(seq 1 15); do
     if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY'
@@ -1125,8 +1070,9 @@ import sys, xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 accessible={n.get("content-desc","") for n in nodes
             if n.get("clickable")=="true"}
-assert "▶  PLAY" in accessible and "Otvori opcije igre" in accessible, \
-    "Owner-size Home has no native Play/Settings controls"
+assert accessible=={"Otvori izbor likova","Otvori trgovinu nadogradnji",
+                    "Otvori opcije igre"}, \
+    "Owner-size Home must offer exactly Shop, Skins and Settings"
 PY_OWNER_HOME
   capture android-home-owner-native-864
   adb shell am force-stop com.brendigo.bopavi
