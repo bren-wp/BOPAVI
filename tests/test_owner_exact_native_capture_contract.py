@@ -7,7 +7,7 @@ strict=(repo/"tools/qa_owner_zero_pixel.py").read_text()
 assert "adb shell wm size 864x1536" in qa
 assert "capture android-home-owner-native-864" in qa
 assert "capture android-loading-owner-native-864" in qa
-assert '"▶  PLAY" in accessible and "Otvori opcije igre" in accessible' in qa
+assert 'Owner-size Home must offer exactly Shop, Skins and Settings' in qa
 assert 'n.get("content-desc")=="Loading level"' in qa
 assert "assert struct.unpack(\">II\",data[16:24])==(864,1536)" in qa
 assert "adb shell wm size reset" in qa

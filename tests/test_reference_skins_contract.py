@@ -122,7 +122,7 @@ assert '("Skins","android-skins-reference-size")' in qa
 assert 'CHOOSE ROYAL BOPI' in qa
 assert '941x1672' in qa
 assert "Locked STAR PILOT" in junit
-assert 'capture_png("android-skins-reference-size")' in qa
-assert '"941x1672"' in qa
+assert '("Skins","android-skins-reference-size")' in qa
+assert 'screenshot(capture)==(941,1672)' in qa
 assert "http://" not in screen and "https://" not in screen
 print("PASS: four real native skins; saved Orion lock, confirmation and earned-coin purchase")

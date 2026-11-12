@@ -67,7 +67,7 @@ assert 'stage.place(ShopBackControl(host,onBack),' in shop
 assert 'contentDescription="HOME"' in (src/"ReferenceBackArrow.kt").read_text()
 assert 'glyph.draw(canvas)' in (src/"ReferenceBackArrow.kt").read_text()
 assert 'stage.useShopFullBleedReferenceCamera()' in shop
-stage=(src/"LevelMapScreen.kt").read_text()
+stage=(src/"ReferenceStage.kt").read_text()
 assert 'fun useShopFullBleedReferenceCamera()' in stage
 assert 'if(!slot.referenceAligned && !shopFullBleed)return safe' in stage
 assert '},24f,302f,894f,276f)' in shop
@@ -127,8 +127,8 @@ assert 'val storefrontTitle:String get()' in model
 assert 'val perkEffect:String get()' in model
 assert 'val iconTierLabel:String get()' in model
 assert 'storefrontCardsHaveSixDistinctRealProducts' in test
-assert 'capture_png("android-shop-reference-size")' in qa
-assert '"GEMS COLLECTED"' in qa
+assert '("Shop","android-shop-reference-size")' in qa
+assert 'screenshot(capture)==(941,1672)' in qa
 assert 'R.drawable.reference_screenshot' not in shop
 assert 'http://' not in shop and 'https://' not in shop
 

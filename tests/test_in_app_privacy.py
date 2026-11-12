@@ -37,13 +37,13 @@ for term in ('private fun showPrivacyNotice()', 'private fun showTermsNotice()',
              'android.text.Html.fromHtml(markup,android.text.Html.FROM_HTML_MODE_COMPACT)',
              'android.widget.ScrollView(this)','assets.open("legal/$file")',
              'movementMethod=android.text.method.LinkMovementMethod.getInstance()',
-             "Pročitaj politiku privatnosti","Pročitaj uvjete korištenja",
-             "legalButton(", "LinearLayout.LayoutParams(-1,d(56))"):
+             ):
     assert term in main,term
-assert 'legalButton("Privacy Policy","Pročitaj politiku privatnosti")' in main
-assert 'legalButton("Terms of Service","Pročitaj uvjete korištenja")' in main
-assert 'setOnClickListener{sound.effect("click");onClick()}' in main
-assert 'background=RippleDrawable(ColorStateList.valueOf(0x44ffffff)' in main
+settings=(root/"android/app/src/main/java/com/brendigo/bopavi/SettingsScreen.kt").read_text()
+assert 'SettingsLegalArrow(host,"Pročitaj politiku privatnosti",onPrivacy)' in settings
+assert 'SettingsLegalArrow(host,"Pročitaj uvjete korištenja",onTerms)' in settings
+assert 'onPrivacy={showPrivacyNotice()}' in main
+assert 'onTerms={showTermsNotice()}' in main
 assert "compactDisplay=resources.configuration.screenHeightDp<770" in main
 assert "tinyDisplay=resources.configuration.screenHeightDp<610" in main
 assert "github.com" not in main.split("private fun showLegalNotice(",1)[1].split("private fun showHome()",1)[0]

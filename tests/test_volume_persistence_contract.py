@@ -10,29 +10,22 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 src=root/"android/app/src/main/java/com/brendigo/bopavi"
 activity=(src/"MainActivity.kt").read_text(encoding="utf-8")
+settings=(src/"SettingsScreen.kt").read_text(encoding="utf-8")
 policy=(src/"VolumeGesturePolicy.kt").read_text(encoding="utf-8")
 unit=(root/"android/app/src/test/java/com/brendigo/bopavi/VolumeGesturePolicyTest.kt").read_text(encoding="utf-8")
-menu=activity.split("    private fun showQuickOptions(){",1)[1].split("    private fun premiumDialogHeader(",1)[0]
-slider=menu.split("fun volumeSlider(caption:String,initial:Int,music:Boolean){",1)[1].split('volumeSlider("Glazba",',1)[0]
-
+# The deleted quick-options overlay no longer owns volume controls.
+# Real Settings sliders persist keyboard/TalkBack and drag changes.
 for required in (
-    "var lastSavedVolume=initial",
-    "if(safe==lastSavedVolume)return",
-    "this@MainActivity.progress.setMusicVolume(safe)",
-    "this@MainActivity.progress.setEffectsVolume(safe)",
-    "VolumeGesturePolicy.commitAsProgressChanges(fromUser,touchTracking)",
-    "private var touchTracking=false",
-    "touchTracking=true",
-    "touchTracking=false",
-    "bar?.progress?.let(::persistVolume)",
-    "if(music) sound.musicVolume=value/100f",
-    "else sound.effectsVolume=value/100f",
+    "VolumeGesturePolicy.commitAsProgressChanges(fromUser,tracking)",
+    "bar?.progress?.let(::save)",
+    "setOnSeekBarChangeListener(",
+    "onMusicVolume",
+    "onEffectsVolume",
 ):
-    assert required in slider,required
-assert slider.count("setMusicVolume(safe)")==1
-assert slider.count("setEffectsVolume(safe)")==1
-assert 'volumeSlider("Glazba",progress.musicVolume(),true)' in menu
-assert 'volumeSlider("Zvučni efekti",progress.effectsVolume(),false)' in menu
+    assert required in settings,required
+assert "progress.setMusicVolume(value)" in activity
+assert "progress.setEffectsVolume(value)" in activity
+assert "showQuickOptions(" not in activity
 assert 'fromUser && !touchTracking' in policy
 for name in (
     "keyboardAndAccessibilityAdjustmentsPersistWithoutTouchRelease",

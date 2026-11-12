@@ -76,7 +76,7 @@ assert '["System UI isn\'t responding"]' in qa
 assert 'subprocess.run(["adb","shell","am","force-stop",launcher],check=True)' in qa
 assert 'subprocess.run(["adb","shell","pidof","com.brendigo.bopavi"],check=True,' in qa
 # Dismissing the OS overlay must never substitute for real native screen checks.
-assert 'test "$ready" -eq 1 || { echo "FAIL: tapping PLAY did not reach Flight"' in qa
+assert 'test "$ready" -eq 1 || { echo "FAIL: debug-only native flight QA route did not reach Flight"' in qa
 assert 'if [ "$home_ready" -ne 1 ]; then' in qa
 assert 'assert "BOPAVI" not in titles' not in qa  # No broad ANR dismissal
 
