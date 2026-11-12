@@ -1,27 +1,18 @@
 # BOPAVI — Current Android screens
 
-**Published release baseline:** v1.0.83 (build 213). New candidate version
-metadata belongs in Gradle and docs/release/NEXT.md until publication.
+**Published release baseline:** v1.0.84 (build 214).
 
-The Android entry point is MainActivity.onCreate → showHome. There are four
-reachable states: Home, Flight, Pause (overlay) and Results. Home includes three direct
-character cards (Bopi, Sova, Lisac), two small options/records dialogs and two offline legal links. No shop,
-world selection, account page or monetization screen is reachable.
+The production Home exposes **exactly three accessible actions**: **Shop, Skins and Settings**. Coins are displayed as a passive balance. No Play, Sound shortcut, Achievements, Progress, Leaderboard, Records or Level Map action remains.
 
-| State | Action | Genuine Android screenshot |
+| Accessible screen | Genuine screenshot | Operation |
 |---|---|---|
-| Home | Choose one of three pilots, adjust native options, view local records, read legal notices or press IGRAJ | BOPAVI-Android-Home.png |
-| Options (Home dialog) | Difficulty, sound, vibration, reduced motion, music/effect sliders; expandable text/touch targets | BOPAVI-Android-Options.png (from v1.0.83) |
-| Records (Home dialog) | Five live offline statistics and a Close action | BOPAVI-Android-Records.png (from v1.0.83) |
-| Privacy (Home dialog) | Bundled offline Croatian policy and Close | BOPAVI-Android-Privacy.png (from v1.0.83) |
-| Terms (Home dialog) | Bundled offline Croatian terms and Close | BOPAVI-Android-Terms.png (from v1.0.83) |
-| Flight (preview) | First flap begins live simulation | BOPAVI-Android-Flight-Preview.png |
-| Flight (active) | Fly past pillars and collect red berries | BOPAVI-Android-Flight-Active.png |
-| Pause (overlay) | Continue, restart or exit | BOPAVI-Android-Pause.png (from v1.0.83) |
-| Results | Show saved best, food and retry/home | BOPAVI-Android-Results.png |
+| Home | BOPAVI-Android-Home.png | Shop, Skins, Settings |
+| Skins | BOPAVI-Android-Skins.png | Pilot selection and local unlocks |
+| Shop | BOPAVI-Android-Shop.png | Offline perk inventory and virtual coins |
+| Settings | BOPAVI-Android-Settings.png | Real settings, privacy, terms and SAF backup |
+| Privacy (Settings dialog) | BOPAVI-Android-Privacy.png | Bundled offline privacy notice |
+| Terms (Settings dialog) | BOPAVI-Android-Terms.png | Bundled offline service terms |
 
-Actual release assets: https://github.com/bren-wp/BOPAVI/releases/latest.
-Emulator screenshots are real captured frames from the application, not reference
-renders and not substitutes for physical-device QA. Gameplay, camera, HUD and
-collision all use the original 480×800 logical coordinate system; layout
-and system insets require independent validation across supported screens.
+**Compatibility only:** flight simulation, pause and results still exist internally and can be exercised by debuggable-only Android QA. There is intentionally no production Home button for starting a flight. Stored progress, virtual coins and purchased skins are preserved on update.
+
+Original same-build emulator captures: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.84. Physical-device QA and exact 0% RGB parity are not claimed.

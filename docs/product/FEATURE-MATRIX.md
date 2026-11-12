@@ -1,25 +1,23 @@
 # BOPAVI — Current Android-only feature matrix
 
-This file defines **actually reachable Android UI**, not features implied by
-unused graphics, dormant save keys or legacy Kotlin paths. The JSON payload
-is the source for the automated public-claims gate.
+This file describes **reachable production UI** in the published APK. Legacy game data is retained without restoring deleted navigation.
 
-## Machine-readable release evidence
+## Published release evidence
 
 ~~~json
 {
   "schema": 1,
   "baseline_sha": "c6eb1c18e8548cfdb5bb480296b33f1239a0ea27",
-  "release": "v1.0.83",
+  "release": "v1.0.84",
   "publication_status": "published",
-  "last_published_github_release": "v1.0.83",
-  "build": 213,
+  "last_published_github_release": "v1.0.84",
+  "build": 214,
   "scope_decision": "pending",
   "screens": [
     "home",
-    "flight",
-    "pause",
-    "results"
+    "skins",
+    "shop",
+    "settings"
   ],
   "features": [
     {
@@ -28,39 +26,39 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "flight",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "tap_to_flap",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "procedural_obstacles",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "pause",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "results",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "score",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "berries",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "local_best",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "retry",
-      "status": "visible"
+      "status": "internal-legacy"
     },
     {
       "id": "offline",
@@ -76,15 +74,15 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "inline_pilot_selection",
-      "status": "visible"
+      "status": "removed"
     },
     {
       "id": "quick_options_overlay",
-      "status": "visible"
+      "status": "removed"
     },
     {
       "id": "local_records_overlay",
-      "status": "visible"
+      "status": "removed"
     },
     {
       "id": "legacy_save_models",
@@ -104,7 +102,7 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "virtual_wallet_save",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "multiworld_premium_product",
@@ -112,7 +110,7 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "skin_selection_screen",
-      "status": "removed"
+      "status": "visible"
     },
     {
       "id": "world_selection_screen",
@@ -124,7 +122,7 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "shop_screen",
-      "status": "removed"
+      "status": "visible"
     },
     {
       "id": "profile_screen",
@@ -132,7 +130,7 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "settings_screen",
-      "status": "removed"
+      "status": "visible"
     },
     {
       "id": "achievements_screen",
@@ -148,30 +146,38 @@ is the source for the automated public-claims gate.
     },
     {
       "id": "powerup_shop",
+      "status": "visible"
+    },
+    {
+      "id": "three_home_actions",
+      "status": "visible"
+    },
+    {
+      "id": "progress_screen",
+      "status": "removed"
+    },
+    {
+      "id": "leaderboard_screen",
+      "status": "removed"
+    },
+    {
+      "id": "level_map_screen",
       "status": "removed"
     }
-  ]
+  ],
+  "home_navigation_decision": "approved-three-actions"
 }
 ~~~
 
-## Verified Android screen routes
+## Verified production screen routes
 
-| Live state | Android implementation | What players can do |
+| Screen | Entry point | Available operations |
 |---|---|---|
-| Home | MainActivity.showHome | Choose Bopi, Sova or Lisac, open native quick-options or read-only local-records dialogs, read both offline legal links and start an endless flight |
-| Flight | MainActivity.startGame, GameView, GameSimulation | Tap to flap, pass pillars and collect berries |
-| Pause | MainActivity.showPremiumPause | Resume, restart or exit |
-| Results | MainActivity.showResult, ProgressStore.recordRun | Read score/berries/best and retry or return Home |
+| Home | MainActivity.showHome | Exactly Shop, Skins, Settings; coin balance is passive |
+| Skins | MainActivity.showSkins | Select and unlock pilots using local saved coins |
+| Shop | MainActivity.showShop | Local virtual upgrades, wallet and bonuses |
+| Settings | MainActivity.showSettingsScreen | Volume, controls, backup, reminders, language and legal notices |
 
-The original approved Bopi art, level engine and eight generated biome asset
-sources remain preserved. Sova and Lisac are new selectable animal companions
-on Home, while only the first biome is presently accessible. Other stored fields are retained for backward compatibility;
-they are not advertised as player-accessible options.
+Progress, Leaderboard, Records, Achievements and Level Map screens and their entry points are removed. New gameplay cannot be started from Home. The existing GameSimulation and save keys remain for backward compatibility and debug-only regression tests; they are not advertised as playable UI.
 
-## Release and QA limitations
-
-- Public release details come from CHANGELOG.md, not an unmerged PR.
-- **Published baseline:** v1.0.6 (build 136). The v1.0.7 candidate is recorded only in Gradle and docs/release/NEXT.md until GitHub release verification. Do not pre-announce unreleased features as shipped.
-- Android API 35/36 emulator screenshots are useful evidence, not guarantees of
-  pixel-perfect reference matching, physical-device stability or Play approval.
-- Product-scope decision ADR-0001 is still pending; do not restore removed UI.
+Real Android emulator screenshots do not by themselves certify pixel-perfect identity or physical-device stability. No third-party accounts, ads or Internet permission.
