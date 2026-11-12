@@ -73,4 +73,22 @@ assert not matching_nodes(xml,"Nepostojeća opcija")
 from release_metadata import release_metadata
 version,build=release_metadata(root)
 assert build>=171 and tuple(map(int,version.split(".")))>=(1,0,41)
+
+# The Android system navigation Home is not a second BOPAVI HOME button.
+from qa_android_reference_menus import map_home_controls
+map_home_fixture=ET.Element("hierarchy")
+ET.SubElement(map_home_fixture,"node",{"package":"com.android.systemui",
+    "content-desc":"Home","clickable":"true","enabled":"true",
+    "class":"android.widget.Button"})
+actual=ET.SubElement(map_home_fixture,"node",{"package":"com.brendigo.bopavi",
+    "content-desc":"HOME","clickable":"true","enabled":"true",
+    "class":"com.brendigo.bopavi.LevelMapBackControl"})
+assert map_home_controls(map_home_fixture)==[actual]
+second=ET.SubElement(map_home_fixture,"node",{"package":"com.brendigo.bopavi",
+    "content-desc":"Home","clickable":"true","enabled":"true",
+    "class":"android.widget.Button"})
+assert len(map_home_controls(map_home_fixture))==2
+map_home_fixture.remove(second)
+assert len(map_home_controls(map_home_fixture))==1
+
 print("PASS: three real menus, persisted pilots, earned-coin shop and genuine level unlocks")

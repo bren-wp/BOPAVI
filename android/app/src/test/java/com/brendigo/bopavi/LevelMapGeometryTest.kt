@@ -75,6 +75,7 @@ class LevelMapGeometryTest {
         assertTrue(LevelMapGeometry.nodesInsideReference())
         assertTrue(LevelMapGeometry.starStripsInsideReference())
         assertTrue(LevelMapGeometry.firstThreeMarkersAndStarsDoNotOverlap())
+        assertTrue(LevelMapGeometry.controlAndNodeRectanglesSafe())
         assertEquals(LevelMapGeometry.Point(45f,969f),LevelMapGeometry.nodes[0])
         assertEquals(LevelMapGeometry.Point(421f,596f),LevelMapGeometry.nodes[3])
         assertEquals(LevelMapGeometry.Point(508f,207f),LevelMapGeometry.nodes[5])

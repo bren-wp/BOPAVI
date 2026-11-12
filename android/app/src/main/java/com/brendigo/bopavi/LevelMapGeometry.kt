@@ -74,6 +74,40 @@ internal object LevelMapGeometry {
         }
     }
 
+
+    /** Pure 941x1672 layout guard: markers must not collide with each other,
+     * world plaques or the six native navigation/currency controls. */
+    private fun intersects(a:FloatArray,b:FloatArray):Boolean =
+        a[0]<b[2] && a[2]>b[0] && a[1]<b[3] && a[3]>b[1]
+
+    fun controlAndNodeRectanglesSafe():Boolean {
+        val markers=nodes.map{floatArrayOf(it.x,it.y,
+            it.x+nodeWidth,it.y+nodeHeight)}
+        val signs=plaques.mapIndexed{index,p->
+            floatArrayOf(p.x,p.y,p.x+(if(index==0)342f else 286f),
+                p.y+109f)
+        }
+        val controls=listOf(
+            floatArrayOf(20f,16f,142f,111f), // HOME
+            floatArrayOf(481f,23f,684f,96f), // coins
+            floatArrayOf(706f,23f,917f,96f), // stars
+            floatArrayOf(138f,1449f,804f,1571f), // PLAY
+            floatArrayOf(19f,1353f,85f,1430f), // previous worlds
+            floatArrayOf(855f,1353f,921f,1430f)) // more worlds
+        val all=markers+signs+controls
+        if(all.any{it[0]<0f || it[1]<0f || it[2]>width ||
+            it[3]>height || it[0]>=it[2] || it[1]>=it[3]})return false
+        return markers.indices.all{i->
+            markers.indices.all{j->
+                i==j || !intersects(markers[i],markers[j])
+            } && (signs+controls).none{intersects(markers[i],it)}
+        } && controls.indices.all{i->
+            controls.indices.all{j->
+                i==j || !intersects(controls[i],controls[j])
+            }
+        }
+    }
+
     /**
      * Three native illustrated islands per page. The first page retains the
      * existing owner reference's precise meadow/crystal/volcano colors.

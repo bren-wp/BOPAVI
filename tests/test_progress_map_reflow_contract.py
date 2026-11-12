@@ -46,6 +46,12 @@ assert "laterPagesHaveDistinctWorldBiomesWithoutChangingStageGeometry" in unit
 assert 'adb("shell","wm","size","720x1280")' in qa
 assert 'tap(node_with("SKY MEADOWS",clickable=True))' in qa
 assert 'capture_png("android-progress-reference-size")' in qa
+assert 'verify_eight_progress_cards()' in qa
+assert 'android-progress-middle-reference-size' in qa
+assert 'android-progress-bottom-reference-size' in qa
+assert 'android-level-map-page-two-reference-size' in qa
+assert 'android-level-map-page-three-reference-size' in qa
+assert 'tap(unique_map_home())' in qa
 assert 'capture_png("android-level-map-reference-size")' in qa
 assert "onPlay(selected,frontier.toLong())" in map_source
 assert "if(enabled)onPlay(selected,level.toLong())" in map_source

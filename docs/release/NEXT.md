@@ -8,3 +8,8 @@
 - **Regresije:** dodana je zasebna provjera točno jedne 3D HOME kontrole na mapi te emulatorska provjera jedinstvene nativne HOME radnje; postojeći Android 15/16 testovi ostaju uključeni.
 - **Paketi:** novo GitHub izdanje uključuje Android APK, nepotpisane release APK/AAB datoteke, stvarne snimke zaslona i SHA-256 kontrolne vrijednosti.
 - **Ograničenje:** 0 % RGB odstupanja od vlasnikovih referenci još nije potvrđeno. Potrebna je usporedba neizmijenjenih izvornih PNG referenci s novim emulator snimkama pri jednakom stanju igre.
+
+- **Ispravak pada Android 15:** jedinstveni HOME gumb provjerava se točnim aplikacijskim paketom i pristupačnim opisom, bez Androidovog sistemskog HOME elementa. Stvarne aplikacijske duplikacije ostaju zabranjene i izazivaju pad testa uz spremanje XML dijagnostike.
+- **Napredak:** Android 15 prolazi kroz svih osam nativnih kartica i provjerava čitljivost pristupačnih naziva te dodirne površine od najmanje 48 dp. Dodatne stvarne snimke bilježe sredinu i dno popisa pri 941x1672.
+- **Karta razina:** dodatne nativne snimke i navigacijski testovi pokrivaju sve tri stranice svijeta, povratak na prvu stranicu i jedinstveni HOME. Kotlin JVM test provjerava da se šest čvorova ne preklapa s ostalim čvorovima, natpisima ili šest glavnih kontrola unutar 941x1672.
+- **Ograničenje:** potvrda stvarne geometrije i interaktivnosti ne dokazuje 0 % RGB odstupanja bez identičnog izvornog referentnog PNG-a i istog stanja igre.

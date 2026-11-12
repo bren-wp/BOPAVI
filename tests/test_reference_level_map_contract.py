@@ -41,6 +41,7 @@ assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
 assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
 # Exactly one native HOME view avoids a misaligned duplicate arrow.
 assert "stage.place(LevelMapBackControl(host,onBack)," in mapSource
+assert "def map_home_controls(root):" in (repo/"tools/qa_android_reference_menus.py").read_text()
 assert "stage.place(ReferenceArrowOverlayView(host)" not in mapSource
 assert 'stage.place(nativeButton("←","Home",blue)' not in mapSource
 chrome=(src/"LevelMapReferenceChrome.kt").read_text()

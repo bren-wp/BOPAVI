@@ -16,6 +16,90 @@ def matching_nodes(root, phrase, clickable=None, enabled=None):
             and (enabled is None or (n.get("enabled")=="true")==enabled)]
 
 
+def map_home_controls(root):
+    """Match BOPAVI's native HOME, not Android's system Home navigation."""
+    return [n for n in root.iter("node")
+            if n.get("package")==APP and n.get("clickable")=="true"
+            and n.get("enabled")=="true"
+            and (n.get("content-desc") or "").strip().casefold()=="home"]
+
+
+def unique_map_home():
+    root=hierarchy()
+    matches=map_home_controls(root)
+    if len(matches)!=1:
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        Path("qa/screenshots/android-map-home-identity-failed.xml").write_bytes(
+            ET.tostring(root,encoding="utf-8"))
+        candidates=[(n.get("package"),n.get("class"),n.get("text"),
+                     n.get("content-desc"),n.get("bounds"))
+                    for n in root.iter("node") if n.get("clickable")=="true"
+                    and "home" in label(n).casefold()]
+        print("FAIL: HOME candidates:",candidates,flush=True)
+        raise AssertionError(
+            f"FAIL: expected one app-owned HOME, got {len(matches)}")
+    assert matches[0].get("class") in (
+        "com.brendigo.bopavi.LevelMapBackControl",
+        "android.widget.Button"),"FAIL: unknown map HOME class"
+    return matches[0]
+
+
+def verify_eight_progress_cards():
+    """Scroll and inspect all eight live world cards at 941x1672."""
+    import re
+    worlds=("SKY MEADOWS","CRYSTAL RUINS","VOLCANO PEAKS",
+            "NIGHT CASTLES","PEARL SEA","SKY TOWERS","MAGIC FOREST",
+            "STAR ABYSS")
+    seen=set()
+    for scan in range(10):
+        root=hierarchy()
+        for node in root.iter("node"):
+            desc=(node.get("content-desc") or "").casefold()
+            if (node.get("package")!=APP or node.get("clickable")!="true"
+                    or node.get("enabled")!="true"
+                    or "otvori kartu razina" not in desc):
+                continue
+            bounds=re.fullmatch(
+                r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]",
+                node.get("bounds") or "")
+            if not bounds:
+                continue
+            x1,y1,x2,y2=map(int,bounds.groups())
+            if (x2-x1<96 or y2-y1<96 or x2<=0 or x1>=941
+                    or y2<=0 or y1>=1672):
+                continue
+            names=[name for name in worlds if name in label(node)]
+            assert len(names)==1,"FAIL: ambiguous Progress card accessible label"
+            seen.add(names[0])
+        if scan==2:
+            w,h=capture_png("android-progress-middle-reference-size")
+            assert (w,h)==(941,1672),"FAIL: Progress middle capture distorted"
+        if len(seen)==len(worlds):
+            break
+        adb("shell","input","swipe","470","1340","470","510","320")
+        time.sleep(.35)
+    assert seen==set(worlds),(
+        "FAIL: missing native Progress cards: "+repr(sorted(set(worlds)-seen)))
+    w,h=capture_png("android-progress-bottom-reference-size")
+    assert (w,h)==(941,1672),"FAIL: Progress bottom capture distorted"
+    print("PASS: all eight Progress cards accessible, enabled and >=48dp",
+          flush=True)
+    for _ in range(9):
+        first=[n for n in matching_nodes(hierarchy(),"SKY MEADOWS",clickable=True)
+               if n.get("package")==APP and "otvori kartu razina" in
+               (n.get("content-desc") or "").casefold()]
+        if len(first)==1:
+            b=re.fullmatch(r"\[(-?\d+),(-?\d+)\]\[(-?\d+),(-?\d+)\]",
+                first[0].get("bounds") or "")
+            if b and int(b.group(2))>=0 and int(b.group(4))<=1672:
+                return
+        adb("shell","input","swipe","470","450","470","1410","250")
+        time.sleep(.3)
+    raise AssertionError("FAIL: unable to return to first Progress world")
+
+
+
 def acknowledge_native_fullscreen_education(root):
     """Dismiss ONLY the exact OS-owned immersive prompt, never an app dialog.
 
@@ -203,10 +287,11 @@ def main():
         node_with("NAJBOLJI REZULTAT",clickable=False)
         # Open the real saved world from its native Progress card, rather
         # than taking a screenshot of a decorative unclickable panel.
+        verify_eight_progress_cards()
         tap(node_with("SKY MEADOWS",clickable=True))
         node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
         node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
-        tap(node_with("Home"))
+        tap(unique_map_home())
         print("PASS: real saved Progress page, world-card navigation, live viewport reflow and 941px capture",
               flush=True)
     finally:
@@ -358,8 +443,8 @@ def main():
     node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
     # The reference exposes only one native HOME action; the rendered
     # back-arrow art is part of that same View, not an offset overlay.
-    map_home=matching_nodes(hierarchy(),"HOME",clickable=True)
-    assert len(map_home)==1, "FAIL: duplicate map HOME native controls"
+    map_home=unique_map_home()
+    assert map_home.get("enabled")=="true","FAIL: map HOME disabled"
     # Verify alternate world pages through genuine native controls, and
     # return to the first world without unlocking any level.
     tap(node_with("MORE WORLDS"))
@@ -388,6 +473,24 @@ def main():
         # returns text for shell/UI commands and must never decode a PNG.
         width,height=capture_png("android-level-map-reference-size")
         assert (width,height)==(941,1672)
+        # Capture each genuine 941x1672 world page, preserving live controls.
+        tap(node_with("MORE WORLDS"))
+        node_with("SELECT WORLD 4, NIGHT CASTLES",clickable=True)
+        node_with("SELECT WORLD 5, PEARL SEA",clickable=True)
+        node_with("SELECT WORLD 6, SKY TOWERS",clickable=True)
+        unique_map_home()
+        w,h=capture_png("android-level-map-page-two-reference-size")
+        assert (w,h)==(941,1672),"FAIL: map page 2 distorted"
+        tap(node_with("MORE WORLDS"))
+        node_with("SELECT WORLD 7, MAGIC FOREST",clickable=True)
+        node_with("SELECT WORLD 8, STAR ABYSS",clickable=True)
+        unique_map_home()
+        w,h=capture_png("android-level-map-page-three-reference-size")
+        assert (w,h)==(941,1672),"FAIL: map page 3 distorted"
+        tap(node_with("PREVIOUS WORLDS"))
+        tap(node_with("PREVIOUS WORLDS"))
+        node_with("SELECT WORLD 1, SKY MEADOWS",clickable=True)
+        unique_map_home()
         print("PASS: real 941x1672 Level Map with enabled/locked native controls",flush=True)
     finally:
         if resized:
