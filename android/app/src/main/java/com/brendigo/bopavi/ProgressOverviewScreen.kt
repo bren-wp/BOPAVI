@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -57,9 +58,14 @@ internal class ProgressOverviewScreen(
         val panel=LinearLayout(host).apply {
             orientation=LinearLayout.VERTICAL
             setPadding(dp(14),dp(12),dp(14),dp(14))
-            background=Bopavi3DTheme.panel(
-                if(world==store.chosenWorld())
-                    Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.CREAM)
+            // Preserve idle owner art, but give real tappable world cards
+            // a native clipped ripple on activation (not a static bitmap).
+            background=RippleDrawable(
+                ColorStateList.valueOf(0x33ffffff),
+                Bopavi3DTheme.panel(
+                    if(world==store.chosenWorld())
+                        Bopavi3DTheme.Finish.GOLD else Bopavi3DTheme.Finish.CREAM),
+                null)
             contentDescription=ProgressOverviewMetrics.detail(world,frontier,stars)+
                 ". Otvori kartu razina za ovaj svijet."
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -85,7 +91,11 @@ internal class ProgressOverviewScreen(
         },LinearLayout.LayoutParams(dp(85),dp(54)))
         panel.addView(header,LinearLayout.LayoutParams(-1,dp(54)))
         panel.addView(text("Dovršene razine: $completed",14f,
-            0xff173b64.toInt()),LinearLayout.LayoutParams(-1,dp(32)))
+            0xff173b64.toInt()).apply {
+                maxLines=1
+                setAutoSizeTextTypeUniformWithConfiguration(11,14,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },LinearLayout.LayoutParams(-1,dp(32)))
         panel.addView(ProgressBar(host,null,android.R.attr.progressBarStyleHorizontal).apply{
             max=100
             progress=ProgressOverviewMetrics.firstTwentyStarPercent(stars)
@@ -98,7 +108,11 @@ internal class ProgressOverviewScreen(
             bottomMargin=dp(8)
         })
         panel.addView(text("Zvjezdice s prvih 20 razina",12f,
-            0xff365477.toInt()),LinearLayout.LayoutParams(-1,dp(28)))
+            0xff365477.toInt()).apply {
+                maxLines=1
+                setAutoSizeTextTypeUniformWithConfiguration(10,12,1,
+                    android.util.TypedValue.COMPLEX_UNIT_SP)
+            },LinearLayout.LayoutParams(-1,dp(28)))
         return panel
     }
 
@@ -172,7 +186,9 @@ internal class ProgressOverviewScreen(
 
         for(world in 0 until LevelEngine.WORLD_COUNT){
             column.addView(worldCard(world){onWorld(world)},
-                LinearLayout.LayoutParams(-1,dp(192)).apply{
+                // Natural measured content is ~166dp. The former fixed
+                // 192dp card left a large blank strip under the star label.
+                LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT).apply{
                     topMargin=dp(10)
                 })
         }

@@ -33,6 +33,8 @@ for marker in ('ProgressOverviewMetrics.completedLevels(frontier)',
                'Bopavi3DTheme.panel('):
     assert marker in screen,marker
 
+assert "RippleDrawable(" in screen
+assert "LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT)" in screen
 assert 'coerceIn(0L,LevelEngine.LEVELS_PER_WORLD.toLong())' in model
 assert 'earned.coerceIn(0,60)' in model
 assert 'first 20 levels' in model

@@ -356,6 +356,10 @@ def main():
     node_with("SELECT WORLD 2, CRYSTAL RUINS",clickable=True)
     node_with("SELECT WORLD 3, VOLCANO PEAKS",clickable=True)
     node_with("PLAY LEVEL 1, 0 STARS",clickable=True)
+    # The reference exposes only one native HOME action; the rendered
+    # back-arrow art is part of that same View, not an offset overlay.
+    map_home=matching_nodes(hierarchy(),"HOME",clickable=True)
+    assert len(map_home)==1, "FAIL: duplicate map HOME native controls"
     # Verify alternate world pages through genuine native controls, and
     # return to the first world without unlocking any level.
     tap(node_with("MORE WORLDS"))

@@ -75,3 +75,10 @@ mock button screenshots.
 - **Karta razina:** full-bleed referentna kamera za ilustraciju 941×1672; nativne tipke prebacuju se na sigurnu geometriju izvan područja izreza zaslona. Paleta prve stranice sačuvana je u izvornim RGB vrijednostima; ostale stranice sada imaju različite palete bioma.
 - **Konfiguracija:** Activity rekonstruira Progress/Map nakon promjene dimenzija, DPI-ja i orijentacije, pa se ne zadržava zastarjeli raspored. Igra se ne resetira.
 - **Prihvat:** Android 15/16 screenshotovi i funkcionalne UI provjere potvrđuju stvarni prikaz/kontrolu, ali **nisu dokaz 0 % RGB odstupanja od izvorne reference**. Progress još nema potvrđenu izvornu vlasničku PNG referencu; za numeričku usporedbu obje stranice treba osigurati izvorne PNG-ove s istim stanjem igre.
+
+## v1.0.81 — Uklanjanje dvostruke strelice i sažetiji Progress (Android 15/16)
+
+- **Izvor problema:** na stvarnoj referentno velikoj snimci Karte razina v1.0.80 HOME strelica i njezina vlastita plava podloga bili su prikazani na različitim vertikalnim položajima. Raspored je primjenjivao različite transformacije na nativni Button i njegov dekorativni overlay.
+- **Ispravak:** jedan `LevelMapBackControl` u rasteru 941×1672 crta pozadinu i `ReferenceBackArrow` u istom nativnom Viewu; koristi isti safe-inset/minTouch mehanizam. Potpunu stvarnu vizualnu provjeru treba napraviti iz novog Android 15 QA PNG-a.
+- **Napredak:** osam kartica koriste visinu izmjerenu iz stvarnog sadržaja (umjesto fiksnih 192dp), zadržavaju 48dp+ dodirne površine, stvarnu progresiju i Android ripple pri dodiru.
+- **Mjerne granice:** napredak i karta imaju stvarne screenshotove, ali bez odgovarajuće 941×1672 vlasnikove originalne slike u istom spremljenom stanju ne postoji utemeljena nova mjera RGB-MAE. Nije potvrđeno 0 % odstupanja.

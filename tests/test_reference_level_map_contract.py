@@ -39,11 +39,18 @@ assert 'canvas.drawOval(35f,220f,950f,1110f,p)' not in mapSource
 assert 'canvas.drawOval(focusX-110f' not in mapSource
 assert "LevelMapGeometry.nearestLevels(frontier)" in mapSource
 assert "LevelMapGeometry.isUnlocked(level,frontier)" in mapSource
-assert "stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)" in mapSource
-arrow=(src/"ReferenceBackArrow.kt").read_text()
-assert "internal class ReferenceArrowOverlayView(" in arrow
-assert "isClickable=false" in arrow and "isFocusable=false" in arrow
-assert "importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO" in arrow
+# Exactly one native HOME view avoids a misaligned duplicate arrow.
+assert "stage.place(LevelMapBackControl(host,onBack)," in mapSource
+assert "stage.place(ReferenceArrowOverlayView(host)" not in mapSource
+assert 'stage.place(nativeButton("←","Home",blue)' not in mapSource
+chrome=(src/"LevelMapReferenceChrome.kt").read_text()
+assert "internal class LevelMapBackControl(" in chrome
+assert "private val arrow=ReferenceBackArrow(58)" in chrome
+assert 'contentDescription="HOME"' in chrome
+assert "setOnClickListener { onBack() }" in chrome
+assert "minimumWidth=(48f*resources.displayMetrics.density).toInt()" in chrome
+assert "minimumHeight=(48f*resources.displayMetrics.density).toInt()" in chrome
+assert "arrow.setBounds(x,y,x+size,y+size)" in chrome
 assert "if(enabled)onPlay(selected,level.toLong())" in mapSource
 assert "root.addView(scroll,FrameLayout.LayoutParams(-1,-1))" in mapSource
 assert "compactAndLargeTextDevicesUseActualNativeScrollControls" in unit
@@ -58,7 +65,7 @@ assert "cliffCracks(canvas,709f,239f,231f,222f)" in mapSource
 assert "islandRim(canvas,621f,690f,264f)" in mapSource
 assert "c.drawRoundRect(fallX-16f,fallTop,fallX+26f,fallBottom" in mapSource
 assert "p.shader=android.graphics.LinearGradient(" in mapSource
-assert 'text="←"' in mapSource
+assert 'text="←"' not in mapSource
 assert "private fun meadowCastle(c:Canvas)" in mapSource
 assert 'contentDescription="LEVEL MAP"' in mapSource
 assert "LevelMapLockGlyph(host)" in mapSource
@@ -83,7 +90,7 @@ assert "setAutoSizeTextTypeUniformWithConfiguration(11,18,1," in mapSource
 assert "button.maxLines=3" in mapSource
 assert "button.setPadding(dp(3),0,dp(3),0)" in mapSource
 assert "setAutoSizeTextTypeUniformWithConfiguration(11,20,1," in mapSource
-assert 'stage.place(nativeButton("←","Home",blue)' in mapSource
+assert "stage.place(LevelMapBackControl(host,onBack)," in mapSource
 assert '"Coins: $number"' in mapSource
 assert '"Earned stars: $number"' in mapSource
 assert "stage.place(LevelMapLandscape(host,selected),0f,0f,941f,1672f)" in mapSource
@@ -122,7 +129,7 @@ assert "http://" not in mapSource and "https://" not in mapSource
 assert 'color(0xffffdeb2.toInt());p.style=Paint.Style.STROKE' in mapSource
 assert 'color(0xfffff5d8.toInt());p.style=Paint.Style.STROKE' in mapSource
 assert 'color(0xffffdeb2.toInt());p.strokeWidth=21f' not in mapSource
-assert 'stage.place(nativeButton("←","Home",blue)' in mapSource
+assert "stage.place(LevelMapBackControl(host,onBack)," in mapSource
 assert 'stage.place(ImageView(host).apply{' in mapSource
 
 print("PASS: interactive Level Map nodes, 8 worlds, saved ratings, native touch, no fake locks")

@@ -210,14 +210,11 @@ internal class LevelMapScreen(
         // Owner's map has a single primary Back action. Keep page-changing
         // controls available, but move them away from the currency header and
         // volcano sign so the top 110px remains reference-aligned.
-        stage.place(nativeButton("←","Home",blue){onBack()}.apply {
-            // Keep a visible native glyph even on GPU drivers that omit the
-            // passive vector overlay after texture-context restoration.
-            text="←"
-            textSize=42f
-        },20f,16f,122f,95f,minTouch=true)
-        // Decorative feather-edged arrow cannot consume native Back taps.
-        stage.place(ReferenceArrowOverlayView(host),20f,16f,122f,95f)
+        // A single native view owns the reference back art AND the HOME
+        // action. Previously a safe-area button and independent overlay
+        // used different transforms, rendering two visible arrows.
+        stage.place(LevelMapBackControl(host,onBack),
+            20f,16f,122f,95f,minTouch=true)
         // The native root exposes the accessible page title; reference sky
         // stays clear of an extra painted heading between currency capsules.
         if(LevelMapGeometry.pageStart(selected)>0) {

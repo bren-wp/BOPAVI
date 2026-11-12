@@ -32,6 +32,10 @@ for item in (
 ):
     assert item in main,item
 assert "LevelMapStage(host).apply {useShopFullBleedReferenceCamera()}" in map_source
+assert "stage.place(LevelMapBackControl(host,onBack)," in map_source
+assert "stage.place(ReferenceArrowOverlayView(host)" not in map_source
+assert "RippleDrawable(" in progress
+assert "LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT)" in progress
 assert "private val lowerColors=LevelMapGeometry.islandPalette(selected,0)" in map_source
 assert "private val middleColors=LevelMapGeometry.islandPalette(selected,1)" in map_source
 assert "private val upperColors=LevelMapGeometry.islandPalette(selected,2)" in map_source
