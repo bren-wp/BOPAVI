@@ -19,8 +19,8 @@ for required in (
     "VolumeGesturePolicy.commitAsProgressChanges(fromUser,tracking)",
     "bar?.progress?.let(::save)",
     "setOnSeekBarChangeListener(",
-    "onMusicVolume",
-    "onEffectsVolume",
+    "onMusic",
+    "onEffects",
 ):
     assert required in settings,required
 assert "progress.setMusicVolume(value)" in activity

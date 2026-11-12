@@ -627,7 +627,7 @@ class MainActivity : Activity() {
             onBack={showHome()})
         showNativeView(view)
     }
-    /** Native full-screen Settings; SOUND shortcut keeps the quick mixer. */
+    /** Native full-screen Settings; Home exposes it as one of three actions. */
     private fun showSettingsScreen(){
         showPauseAfterBackground=false
         selectedScreen="settings"

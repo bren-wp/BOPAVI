@@ -39,7 +39,7 @@ assert "if(value.isFinite()) value.coerceIn(0f,1f) else 0f" in policy
 assert "volume.isFinite() && volume>0f" in policy
 assert "sound.musicVolume=value/100f" in activity
 assert "progress.setMusicVolume(value)" in activity
-assert "onMusicVolume={value->" in activity
+assert "onMusic={value->" in activity
 for test in (
     "zeroVolumeIsRealMuteNotASilentFocusRequest",
     "focusIsOnlyNeededWhenAnAudibleActiveSessionWantsMusic",
