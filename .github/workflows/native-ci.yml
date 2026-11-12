@@ -145,6 +145,7 @@ jobs:
       - run: python tests/test_level_complete_reference_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh
+      - run: python tests/test_kotlin_modularization_contract.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_fdroid_distribution.py
