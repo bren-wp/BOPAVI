@@ -74,6 +74,7 @@ jobs:
       - run: python tests/test_quick_options.py
       - run: python tests/test_reference_settings_contract.py
       - run: python tests/test_settings_cloud_notification_contract.py
+      - run: python tests/test_backup_lifecycle_contract.py
       - run: python tests/test_settings_immersive_return_contract.py
       - run: python tests/test_achievements_screen_contract.py
       - run: python tests/test_progress_overview_contract.py

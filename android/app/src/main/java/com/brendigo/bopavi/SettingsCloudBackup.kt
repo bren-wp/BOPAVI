@@ -7,6 +7,7 @@ import android.net.Uri
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -30,7 +31,27 @@ internal class SettingsCloudBackup(
     private val executor=Executors.newSingleThreadExecutor()
     private val pending=AtomicBoolean(false)
     private val active=AtomicBoolean(false)
-    private var started=false
+    private val gate=BackupTaskGate()
+    @Volatile private var started=false
+
+    /** Work queued before stop/deactivate must not touch a stale Activity or URI. */
+    private fun schedule(work:()->Unit):Boolean {
+        if(gate.isClosed())return false
+        return try {
+            executor.execute { if(!gate.isClosed())work() }
+            true
+        } catch(_:RejectedExecutionException) {
+            false
+        }
+    }
+
+    private fun reportOnMain(report:(Boolean,String)->Unit,ok:Boolean,message:String) {
+        if(gate.isClosed())return
+        activity.runOnUiThread {
+            if(!gate.isClosed() && !activity.isFinishing && !activity.isDestroyed)
+                report(ok,message)
+        }
+    }
 
     private val changes=SharedPreferences.OnSharedPreferenceChangeListener { _,_->
         enqueueAutoSave()
@@ -39,44 +60,67 @@ internal class SettingsCloudBackup(
     fun enabled():Boolean = !uriPrefs.getString("document_uri",null).isNullOrEmpty()
 
     fun start(){
-        if(started)return
+        if(started || gate.isClosed())return
         started=true
         gamePrefs.registerOnSharedPreferenceChangeListener(changes)
     }
 
     fun stop(){
+        if(gate.isClosed())return
+        gate.close()
         if(started){
             gamePrefs.unregisterOnSharedPreferenceChangeListener(changes)
             started=false
         }
+        pending.set(false)
+        // Let an in-flight provider write finish. Queued work sees the closed
+        // gate and skips; do not interrupt a non-atomic SAF write mid-stream.
         executor.shutdown()
+    }
+
+    /** Return only persistable grants actually held for this specific document. */
+    private fun releaseGrant(uri:Uri) {
+        runCatching {
+            val grant=activity.contentResolver.persistedUriPermissions.firstOrNull {
+                it.uri==uri
+            } ?: return@runCatching
+            val flags=(if(grant.isReadPermission)
+                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
+                (if(grant.isWritePermission)
+                android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
+            if(flags!=0)activity.contentResolver.releasePersistableUriPermission(uri,flags)
+        }
     }
 
     /** Called only after ACTION_CREATE_DOCUMENT returned an actual document. */
     fun activate(uri:Uri,resultFlags:Int,report:(Boolean,String)->Unit){
+        if(gate.isClosed())return
+        val previous=destination()
         val flags=resultFlags and (
             android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
                 android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0){
-            report(false,"Odabrani pružatelj nije dodijelio pristup za pisanje.")
+            reportOnMain(report,false,"Odabrani pružatelj nije dodijelio pristup za pisanje.")
             return
         }
         try {
-            // Persist exactly what this document provider actually granted,
-            // never request permissions that were absent from the result.
+            // Persist exactly the flags granted by this provider.
             activity.contentResolver.takePersistableUriPermission(uri,flags)
         } catch(ex:Exception){
-            report(false,"Odabrani pružatelj ne dopušta trajni pristup kopiji.")
+            reportOnMain(report,false,"Odabrani pružatelj ne dopušta trajni pristup kopiji.")
             return
         }
-        // The URI belongs only in a private preference, never in exportJson().
+        // Do not keep a new provider grant if private destination persistence fails.
         if(!uriPrefs.edit().putString("document_uri",uri.toString()).commit()){
-            report(false,"Spremanje odredišta nije uspjelo.")
+            if(previous!=uri)releaseGrant(uri)
+            reportOnMain(report,false,"Spremanje odredišta nije uspjelo.")
             return
         }
+        val revision=gate.revise()
+        if(previous!=null && previous!=uri)releaseGrant(previous)
         saveNow { ok,message ->
-            // A denied, read-only or unavailable destination should not leave
-            // the visible Cloud Save switch enabled after initial setup.
+            // Completion from an old target must not disable a newer opt-in.
+            if(!gate.canRun(revision) || destination()!=uri)return@saveNow
             if(!ok)deactivate()
             report(ok,message)
         }
@@ -84,32 +128,29 @@ internal class SettingsCloudBackup(
 
     fun deactivate(){
         val previous=destination()
-        uriPrefs.edit().remove("document_uri").apply()
+        // Do not revoke a still-configured grant on a failed disk commit.
+        if(!uriPrefs.edit().remove("document_uri").commit())return
+        gate.revise()
         pending.set(false)
-        if(previous!=null){
-            val grant=activity.contentResolver.persistedUriPermissions.firstOrNull {
-                it.uri==previous
-            }
-            if(grant!=null){
-                val flags=(if(grant.isReadPermission)
-                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or
-                    (if(grant.isWritePermission)
-                    android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
-                if(flags!=0)runCatching {
-                    activity.contentResolver.releasePersistableUriPermission(
-                        previous,flags)
-                }
-            }
-        }
-        // Never delete the user's previously saved local/cloud document.
+        if(previous!=null)releaseGrant(previous)
+        // The user-owned SAF document is left intact.
     }
 
     private fun destination():Uri? =
         uriPrefs.getString("document_uri",null)?.let { runCatching {Uri.parse(it)}.getOrNull() }
 
-    private fun write(uri:Uri){
+    private fun write(uri:Uri,revision:Long){
+        // A scheduled task for a replaced/disabled destination cannot start a
+        // new destructive write. Already-open provider streams may still finish.
+        check(gate.canRun(revision) && destination()==uri) {
+            "Odredište je promijenjeno ili isključeno."
+        }
         val json=progress.exportJson()
         require(json.length<=550_000) { "Sigurnosna kopija je prevelika." }
+        check(gate.canRun(revision) && destination()==uri) {
+            "Odredište je promijenjeno ili isključeno."
+        }
+        // SAF does not guarantee atomic replacement for every provider.
         val stream=activity.contentResolver.openOutputStream(uri,"wt")
             ?: error("Odredišni dokument nije dostupan.")
         stream.use { file ->
@@ -123,40 +164,44 @@ internal class SettingsCloudBackup(
     fun saveNow(report:(Boolean,String)->Unit){
         val uri=destination()
         if(uri==null){
-            report(false,"Odaberite odredište sigurnosne kopije.")
+            reportOnMain(report,false,"Odaberite odredište sigurnosne kopije.")
             return
         }
-        executor.execute {
-            val result=runCatching { write(uri) }
-            activity.runOnUiThread {
-                if(result.isSuccess)report(true,"Sigurnosna kopija je spremljena.")
-                else report(false,"Spremanje nije uspjelo: "+
-                    (result.exceptionOrNull()?.localizedMessage ?: "Nepoznata pogreška"))
-            }
-        }
+        val revision=gate.currentRevision()
+        if(!schedule {
+            val result=runCatching { write(uri,revision) }
+            if(!gate.canRun(revision))return@schedule
+            if(result.isSuccess)reportOnMain(report,true,"Sigurnosna kopija je spremljena.")
+            else reportOnMain(report,false,"Spremanje nije uspjelo: "+
+                (result.exceptionOrNull()?.localizedMessage ?: "Nepoznata pogreška"))
+        })reportOnMain(report,false,"Spremanje nije dostupno nakon zatvaranja igre.")
     }
 
     private fun enqueueAutoSave(){
-        if(!started || !enabled())return
+        if(!started || gate.isClosed() || !enabled())return
         pending.set(true)
         if(!active.compareAndSet(false,true))return
-        executor.execute {
+        if(!schedule {
             try {
-                while(pending.getAndSet(false)) {
+                while(pending.getAndSet(false) && !gate.isClosed()){
+                    val revision=gate.currentRevision()
                     val uri=destination() ?: break
-                    // Do not automatically report "success" on screen; the
-                    // provider can be unavailable when the app is offline.
-                    runCatching { write(uri) }
+                    // Failed provider writes do not count as successful saves.
+                    runCatching { write(uri,revision) }
                 }
             } finally {
                 active.set(false)
-                if(pending.get() && started && enabled())enqueueAutoSave()
+                if(pending.get() && started && enabled() && !gate.isClosed())
+                    enqueueAutoSave()
             }
+        }){
+            active.set(false)
+            pending.set(false)
         }
     }
 
     fun restoreFrom(uri:Uri,report:(Boolean,String)->Unit){
-        executor.execute {
+        if(!schedule {
             val result=runCatching {
                 val source=activity.contentResolver.openInputStream(uri)
                     ?: error("Nije moguće otvoriti sigurnosnu kopiju.")
@@ -176,14 +221,13 @@ internal class SettingsCloudBackup(
                         content.toString()
                     }
                 }
+                check(!gate.isClosed()) { "Igra je zatvorena." }
                 progress.importJson(backup)
             }
-            activity.runOnUiThread {
-                if(result.isSuccess)report(true,
-                    "Lokalni napredak i otključavanja vraćeni su iz sigurnosne kopije.")
-                else report(false,"Vraćanje nije uspjelo: "+
-                    (result.exceptionOrNull()?.localizedMessage ?: "Nevaljana kopija"))
-            }
-        }
+            if(result.isSuccess)reportOnMain(report,true,
+                "Lokalni napredak i otključavanja vraćeni su iz sigurnosne kopije.")
+            else reportOnMain(report,false,"Vraćanje nije uspjelo: "+
+                (result.exceptionOrNull()?.localizedMessage ?: "Nevaljana kopija"))
+        })reportOnMain(report,false,"Vraćanje nije dostupno nakon zatvaranja igre.")
     }
 }
