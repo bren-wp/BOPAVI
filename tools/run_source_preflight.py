@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 WF=(ROOT/".github/workflows/native-ci.yml").read_text()
 # The graphics and publish jobs require cairosvg and prepared emulator artifacts.
 # This preflight only runs scripts from the source-audit job's own environment.
-WF=WF.split("  source-audit:\\n",1)[1].split("  android:\\n",1)[0]
+WF=WF.split("  source-audit:\n",1)[1].split("  android:\n",1)[0]
 commands=re.findall(r"^\s+- run: (python (?:tests/test_[^\n]+\.py|tools/[^\n]+\.py))\s*$",
                     WF,re.MULTILINE)
 assert len(commands)>=75, f"Missing registered source contracts: {len(commands)}"
