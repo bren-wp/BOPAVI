@@ -38,10 +38,13 @@ assert 'drawRoyalPillar(c,x,w,top,true,cliffSeed,spiked)' in game
 assert 'drawRoyalPillar(c,x,w,bottom,false,cliffSeed+3,spiked)' in game
 assert 'val base=if(upper)edge-25f else edge+25f' in game
 assert 'val tip=if(upper)edge-.6f else edge+.6f' in game
-assert 'if(game.level.world==0){drawRoyalRing(c,x,y);return}' in game
+assert 'drawRoyalRing(' not in game
+assert 'RoyalRingTrail' not in game
+assert 'RoyalRingTrail' not in sim
+assert 'collectedRoyalRingBits' not in sim
 assert 'if(game.coinVisible(index,incoming))drawGoldenCoin(c,mid,cy)' in game
 assert 'c.skew(-.045f,0f)' in game
 assert 'c.rotate(PilotFlightPose.pitchDegrees(game.velocity,reducedMotion))' in game
 assert 'PilotFlightPose.wingDegrees(game.time,game.flapPulse,reducedMotion)' in game
 assert 'val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(' in game
-print('PASS: active HUD real values and native hit targets, moving royal pillars, real gold ring pickups, 3D flight rigs')
+print('PASS: active HUD, native hit targets, moving pillars, no floating golden ring trails')

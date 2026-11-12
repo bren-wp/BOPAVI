@@ -51,6 +51,9 @@ def main():
         require(f"fun {helper}(" in simulation and f"game.{helper}(" in game,
                 f"Finite pickup visibility is orphaned: {helper}")
     require("starVisible(" not in joined,"Unreferenced old star visibility helper restored")
+    for obsolete in ("RoyalRingTrail", "collectedRoyalRingBits", "royalRingVisible",
+                     "drawRoyalRing("):
+        require(obsolete not in joined, "Retired golden-ring implementation restored: "+obsolete)
     require('drawStoneCourses(' in game and 'fun courses(yStart' not in game,
             "Per-obstacle renderer closure was reintroduced")
     require('Životi: $lives/' in game and 'drawHudHeart(' in game and 'cachedScore' not in game,
