@@ -25,28 +25,45 @@ def map_home_controls(root):
 
 
 def unique_map_home():
+    """Require one native HOME even after tests have scrolled compact maps.
+
+    UIAutomator excludes offscreen children of native ScrollView. On compact
+    1080x2400 maps the level-1 CTA is below the visible fold, and finding it
+    scrolls HOME above the fold. Scroll back to the top before concluding
+    that the game has lost its HOME action. Two visible APP HOME controls
+    always fail immediately.
+    """
     root=hierarchy()
-    matches=map_home_controls(root)
-    if len(matches)!=1:
-        import xml.etree.ElementTree as ET
-        from pathlib import Path
-        Path("qa/screenshots/android-map-home-identity-failed.xml").write_bytes(
-            ET.tostring(root,encoding="utf-8"))
-        candidates=[(n.get("package"),n.get("class"),n.get("text"),
-                     n.get("content-desc"),n.get("bounds"))
-                    for n in root.iter("node") if n.get("clickable")=="true"
-                    and "home" in label(n).casefold()]
-        print("FAIL: HOME candidates:",candidates,flush=True)
-        raise AssertionError(
-            f"FAIL: expected one app-owned HOME, got {len(matches)}")
-    # UIAutomator may expose a custom View as android.view.View on some
-    # Android 15 builds. The actual security/functional contract is stronger:
-    # exact APP package, exact HOME description, enabled, clickable, unique.
-    # Its click and subsequent Home-screen navigation are tested below.
-    widget_class=matches[0].get("class") or ""
-    assert widget_class,"FAIL: native map HOME has no accessibility class"
-    print("QA: unique BOPAVI map HOME class:",widget_class,flush=True)
-    return matches[0]
+    for scan in range(9):
+        matches=map_home_controls(root)
+        if len(matches)>1:
+            break
+        if len(matches)==1:
+            widget_class=matches[0].get("class") or ""
+            assert widget_class,"FAIL: native map HOME has no accessibility class"
+            print("QA: unique native BOPAVI HOME:",widget_class,flush=True)
+            return matches[0]
+        native_scroll=[n for n in root.iter("node")
+                       if n.get("package")==APP and
+                       n.get("class")=="android.widget.ScrollView"]
+        if not native_scroll or scan==8:
+            break
+        # Swipe finger DOWN to reveal the first row of the actual native
+        # ScrollView. Do not simulate an app button or skip any assertions.
+        adb("shell","input","swipe","440","320","440","1450","280")
+        time.sleep(.25)
+        root=hierarchy()
+    import xml.etree.ElementTree as ET
+    from pathlib import Path
+    Path("qa/screenshots/android-map-home-identity-failed.xml").write_bytes(
+        ET.tostring(root,encoding="utf-8"))
+    candidates=[(n.get("package"),n.get("class"),n.get("text"),
+                 n.get("content-desc"),n.get("bounds"))
+                for n in root.iter("node") if n.get("clickable")=="true"
+                and "home" in label(n).casefold()]
+    print("FAIL: HOME candidates:",candidates,flush=True)
+    raise AssertionError(
+        f"FAIL: expected exactly one app-owned HOME, got {len(matches)}")
 
 
 def verify_eight_progress_cards():
