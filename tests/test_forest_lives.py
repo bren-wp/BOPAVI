@@ -14,7 +14,9 @@ assert "game.foodCollected+game.coins+game.stars+game.heartsCollected" in view
 assert "if(game.lastImpactLostLife)" in view
 assert "private fun drawMossLedge(" in view and "private fun drawHeartPickup(" in view
 assert "private fun drawHudHeart(" in view
-assert "hudGlass(c,h.score.left,h.score.top,h.score.right,h.score.bottom)" in view
+assert "hudGlass(c,h.coinWallet.left,h.coinWallet.top," in view
+assert "hudGlass(c,h.crystalWallet.left,h.crystalWallet.top," in view
+assert 'drawHudEmbossed(c,"SCORE"' in view
 assert "hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)" in view
 assert "Životi:" in view
 assert "GameFramePacing.redrawDelayMillis(reducedMotion,powerSaveMode)" in view
@@ -30,8 +32,8 @@ assert "if(endless && nextLevel==null && passed>=level.gates.size/2)prepareNext(
 assert "nextLevel=null" in sim
 
 assert "premiumDialogHeader(" in activity
-assert 'setCustomTitle(premiumDialogHeader("⚙  OPCIJE IGRE"))' in activity
-assert 'setCustomTitle(premiumDialogHeader("★  MOJI REKORDI"))' in activity
+assert '.setTitle("OPCIJE IGRE")' in activity
+assert '.setCustomTitle(premiumDialogHeader("OPCIJE IGRE",BopaviUiIconDrawable.Kind.SETTINGS))' in activity
 
 qa=(root/"tools/qa_android_emulator.sh").read_text()
 assert "open_legal_dialog()" in qa

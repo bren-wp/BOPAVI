@@ -4,10 +4,17 @@ from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 source=root/"android/app/src/main/java/com/brendigo/bopavi"
 theme=(source/"Bopavi3DTheme.kt").read_text()
+# Shared enamel theme is used in these six menu screens.
 for filename in ("ShopScreen.kt","SettingsScreen.kt","PilotSelectionScreen.kt",
-                 "GameOverScreen.kt","LevelCompleteScreen.kt",
                  "AchievementsScreen.kt","LeaderboardScreen.kt","LevelMapScreen.kt"):
     assert "Bopavi3DTheme." in (source/filename).read_text(),filename
+# Results screens deliberately use their own native reference artwork and
+# still require real accessible controls; do not force an unused theme call.
+for filename in ("GameOverScreen.kt","LevelCompleteScreen.kt"):
+    screen=(source/filename).read_text()
+    for marker in ("BopaviUiIconDrawable.Kind.","setOnClickListener{onClick()}",
+                   "contentDescription=","GradientDrawable("):
+        assert marker in screen,(filename,marker)
 for name in ("GOLD","SKY","GREEN","VIOLET","CREAM","STONE"):
     assert "Finish."+name in theme,name
 assert "RippleDrawable" in theme and "HomeEnamelDrawable(" in theme
