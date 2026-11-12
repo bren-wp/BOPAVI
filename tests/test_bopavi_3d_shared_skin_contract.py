@@ -25,7 +25,11 @@ for guard in ("background=Bopavi3DTheme.button(when {",
               "background=Bopavi3DTheme.button(finish)",
               "background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)",
               "background=HomeEnamelDrawable(",
-              "dialog.dismiss();action()",
+              "if(pauseActionCommitted)return@setOnClickListener",
+              "pauseActionCommitted=true",
+              "isEnabled=false",
+              "dialog.dismiss()",
+              "action()",
               "onClick()"):
     assert guard in main,guard
 flight=(source/"GameView.kt").read_text()

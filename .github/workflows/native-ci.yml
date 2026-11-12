@@ -65,6 +65,8 @@ jobs:
           python tools/verify_audio.py
       - run: python tests/test_native_files.py
       - run: python tests/test_three_pilots.py
+      - run: python tests/test_bopavi_3d_shared_skin_contract.py
+      - run: python tests/test_forest_lives.py
       - run: python tests/test_pilot_abilities_contract.py
       - run: python tests/test_modern_pilots_obstacles_contract.py
       - run: python tests/test_hr_ui_contract.py
@@ -91,9 +93,11 @@ jobs:
       - run: python tests/test_loading_reference_geometry.py
       - run: python tests/test_reference_loading_contract.py
       - run: python tests/test_reference_home_geometry.py
+      - run: python tests/test_reference_3d_home_scaling.py
       - run: python tests/test_home_reference_screen_contract.py
       - run: python tests/test_home_owner_hud_row_and_android16.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
+      - run: python tests/test_splash_home_owner_864_fidelity.py
       - run: python tests/test_splash_home_visual_depth_v1058.py
       - run: python tools/paint_fantasy_backdrop.py
       - run: python tests/test_loading_reference_qa_contract.py
@@ -115,6 +119,7 @@ jobs:
       - run: python tests/test_reference_menus_contract.py
       - run: python tests/test_reference_skins_contract.py
       - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_direct_home_shop_skins.py
       - run: python tests/test_reference_level_map_contract.py
       - run: python tests/test_level_map_single_home_contract.py
@@ -161,6 +166,7 @@ jobs:
       - run: python tests/test_music_mute_contract.py
       - run: python tests/test_food_save_contract.py
       - run: python tests/test_native_perf_save_contract.py
+      - run: python tests/test_progress_transactions_contract.py
       - run: python tests/test_play_listing_asset_source.py
       - run: python tests/test_collision_overlay_contract.py
       - run: python tests/test_crash_triage_contract.py

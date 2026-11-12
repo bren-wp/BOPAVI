@@ -70,12 +70,13 @@ class ProgressStore(context: Context) {
     }
     fun skin(): Int = prefs.getInt("skin_index", 0).coerceIn(0, 8)
     fun owned(index: Int): Boolean = index == 6 || (index in 0..8 && ((prefs.getInt("owned_mask", 1) ushr index) and 1) != 0)
-    fun selectOrBuy(index: Int): Boolean {
+    @Synchronized fun selectOrBuy(index: Int): Boolean {
         if(index !in 0..8)return false
-        if(owned(index)) {prefs.edit().putInt("skin_index",index).apply();return true}
+        if(owned(index)) return prefs.edit().putInt("skin_index",index).commit()
         if(coins() < costs[index])return false
-        prefs.edit().putInt("coins",coins()-costs[index]).putInt("owned_mask",prefs.getInt("owned_mask",1) or (1 shl index)).putInt("skin_index",index).apply()
-        return true
+        return prefs.edit().putInt("coins",coins()-costs[index])
+            .putInt("owned_mask",prefs.getInt("owned_mask",1) or (1 shl index))
+            .putInt("skin_index",index).commit()
     }
     fun endlessBest(): Int = prefs.getInt("endless_best",0)
     /** Existing local counters exposed read-only; historic save format unchanged. */
@@ -127,7 +128,7 @@ class ProgressStore(context: Context) {
     fun completeLevelFromRecordedRun(world:Int,number:Long,score:Int):Int =
         advanceCompletedLevel(world,number,score,true)
 
-    private fun advanceCompletedLevel(world:Int,number:Long,score:Int,
+    @Synchronized private fun advanceCompletedLevel(world:Int,number:Long,score:Int,
                                       runAlreadyRecorded:Boolean):Int {
         if(world !in 0..7 || number != streamFrontier(world) ||
             number < 1L || number >= Long.MAX_VALUE-2) return 0
@@ -135,9 +136,10 @@ class ProgressStore(context: Context) {
         val e=prefs.edit().putLong("stream_frontier_$world",number+1)
             .putInt("frontier_$world",(number+1).coerceAtMost(LevelEngine.LEVELS_PER_WORLD.toLong()+1).toInt())
         e.putInt("best_$world",maxOf(best(world),score))
-        if(!runAlreadyRecorded)e.putInt("wins",wins()+1)
-        e.putInt("coins",(coins().toLong()+reward).coerceAtMost(100000000L).toInt()).apply()
-        return reward
+        if(!runAlreadyRecorded)e.putInt("wins",wins().coerceIn(0,99_999_999)+1)
+        // Record the next frontier and its reward in one committed editor.
+        return if(e.putInt("coins",(coins().toLong()+reward)
+                .coerceAtMost(100000000L).toInt()).commit())reward else 0
     }
     val perkNames=listOf("Početni štit", "Početni magnet", "Dvostruki štit", "Dugi magnet", "Trostruki štit", "Super magnet")
     val perkPrices=listOf(80,65,150,120,230,195)
@@ -155,15 +157,16 @@ class ProgressStore(context: Context) {
     fun previewPerks():Pair<Int,Float> = Pair(
         if(perkCount(4)>0)3 else if(perkCount(2)>0)2 else if(perkCount(0)>0)1 else 0,
         if(perkCount(5)>0)18f else if(perkCount(3)>0)12f else if(perkCount(1)>0)8f else 0f)
-    fun consumePerks():Pair<Int,Float> {
+    @Synchronized fun consumePerks():Pair<Int,Float> {
         val selected=previewPerks()
         val shieldTier=if(perkCount(4)>0)4 else if(perkCount(2)>0)2 else if(perkCount(0)>0)0 else -1
         val magnetTier=if(perkCount(5)>0)5 else if(perkCount(3)>0)3 else if(perkCount(1)>0)1 else -1
+        if(shieldTier<0 && magnetTier<0)return selected
         val editor=prefs.edit()
         for(index in listOf(shieldTier,magnetTier))if(index>=0)
             editor.putInt("perk_$index",perkCount(index)-1)
-        editor.apply()
-        return selected
+        // A failed disk write must not grant unconsumed inventory.
+        return if(editor.commit())selected else Pair(0,0f)
     }
 
     /** Earned star rating, independently saved for each real completed level. */
@@ -278,7 +281,7 @@ class ProgressStore(context: Context) {
         // system notifications or start cloud syncing without fresh opt-in.
         return JSONObject().put("format", "bopavi-save").put("exportVersion", 6).put("save", s).toString(2)
     }
-    fun importJson(contents: String) {
+    @Synchronized fun importJson(contents: String) {
         require(contents.length <= 550000) { "Datoteka je prevelika." }
         val body = JSONObject(contents)
         require(body.optString("format") == "bopavi-save")
@@ -385,6 +388,6 @@ class ProgressStore(context: Context) {
         val importedLanguage=s.optString("uiLanguage","en")
         if(importedLanguage=="hr" || importedLanguage=="en")
             e.putString("ui_language",importedLanguage)
-        e.apply()
+        check(e.commit()) { "Spremanje vraćenog napretka nije uspjelo." }
     }
 }
