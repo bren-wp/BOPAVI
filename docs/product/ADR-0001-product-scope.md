@@ -5,6 +5,11 @@
 Lisac (fox) are selectable directly on Home. This does not authorize shops,
 world selection, payments, inventory, or any old unreachable screens.
 
+> **Historical scope note:** This ADR records the earlier 20 October 2026
+> baseline. The owner's later Home/navigation decision is documented in
+> [ADR-0002](ADR-0002-home-three-actions.md) and supersedes the screen
+> inventory below. The broader A/B scope selection remains pending.
+
 ## Current executable baseline
 
 Native Android has three immediately playable pilots, continuous flight, scoring and

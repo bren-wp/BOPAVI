@@ -63,7 +63,7 @@ def three_action_version(tag):
 def three_action_catalog(catalog):
     """Describe reachable production UI, not debug-only gameplay or old saves."""
     catalog["screens"]=["home","skins","shop","settings"]
-    catalog["scope_decision"]="owner-approved-three-action-home"
+    catalog["home_navigation_decision"]="approved-three-actions"
     states={
         "home":"visible",
         "flight":"internal-legacy",

@@ -90,6 +90,7 @@ class DocsTests(unittest.TestCase):
         ]}
         transformed=three_action_catalog(base)
         self.assertEqual(transformed["screens"],["home","skins","shop","settings"])
+        self.assertEqual(transformed["home_navigation_decision"],"approved-three-actions")
         flags={f["id"]:f["status"] for f in transformed["features"]}
         for item in ("shop_screen","skin_selection_screen","settings_screen",
                      "three_home_actions","virtual_wallet_save"):
