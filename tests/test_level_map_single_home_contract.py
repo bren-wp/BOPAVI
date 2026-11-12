@@ -24,8 +24,16 @@ for token in (
     "background=Bopavi3DTheme.button(Bopavi3DTheme.Finish.SKY)",
 ):
     assert token in chrome,token
-assert 'map_home=matching_nodes(hierarchy(),"HOME",clickable=True)' in qa
-assert 'len(map_home)==1' in qa
+# Require exactly one app-owned, enabled and accessible HOME control.
+# A real second BOPAVI HOME remains a hard failure; Android's system
+# navigation bar must never be counted as a duplicate game button.
+assert "def map_home_controls(root):" in qa
+assert 'n.get("package")==APP' in qa
+assert '(n.get("content-desc") or "").strip().casefold()=="home"' in qa
+assert "def unique_map_home():" in qa
+assert "map_home=unique_map_home()" in qa
+assert "qa/screenshots/android-map-home-identity-failed.xml" in qa
+assert 'map_home=matching_nodes(hierarchy(),"HOME",clickable=True)' not in qa
 assert "RippleDrawable(" in progress
 assert "LinearLayout.LayoutParams(-1,LinearLayout.LayoutParams.WRAP_CONTENT)" in progress
 print("PASS: single HOME action, aligned vector and measured Progress cards")
