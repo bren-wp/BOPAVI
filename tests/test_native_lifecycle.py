@@ -66,6 +66,7 @@ assert "id: image35" in flow and "id: image36" in flow
 result=activity.split("    private fun showResult(g:GameSimulation){",1)[1].split("    override fun onBackPressed()",1)[0]
 assert result.index("sound.stop()") < result.index('sound.effect(if(g.won)"level" else "hit")')
 assert 'gameView?.game?.finished == false' in activity
-assert 'lastHudAccessibility="${flightHint()} Životi:' in game
+assert 'lastHudAccessibility="${flightHint()}$flightState Životi:' in game
+assert 'if(lives!=lastAccessibilityLives || game.active!=lastAccessibilityActive)' in game
 assert 'contentDescription=lastHudAccessibility.ifEmpty { flightHint() }' in game
 print("PASS: native lifecycle, offline audio, Back pause and minimal accessible HUD")
