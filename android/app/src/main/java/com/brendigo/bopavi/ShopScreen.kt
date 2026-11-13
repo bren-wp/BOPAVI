@@ -275,7 +275,7 @@ internal class ShopScreen(
         // separately drawn wooden winged storefront sign instead.
         // This keeps the SHOP wordmark sharp and accessible at every DPI.
         stage.place(ShopEmbossedTitle(host),
-            183f,123f,575f,201f)
+            183f,ShopHeaderLayout.titleTop,575f,201f)
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green

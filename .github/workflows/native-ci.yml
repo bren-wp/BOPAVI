@@ -150,6 +150,8 @@ jobs:
       - run: python tests/test_current_reference_pack.py
       - run: python tests/test_owner_home_reference_geometry.py
       - run: python tests/test_owner_viewport_capture_contract.py
+      - run: python tests/test_settings_dense_owner_camera_contract.py
+      - run: python tests/test_shop_header_owner_alignment_contract.py
       - run: python tests/test_kotlin_modularization_contract.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py

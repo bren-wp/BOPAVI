@@ -210,7 +210,14 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
         // Decorative layers render only within this exact 941x1672 stage,
         // with a proportional viewport transform managed by LevelMapStage.
         awning(c)
+        // The live gold title and its separate wooden winged backing must
+        // share the same owner-measured vertical correction. Previous Android
+        // 16 capture put gold title pixels near y=119 versus y=216 in owner
+        // 1080x1920 art. Keep kiosk, featured panel and six buttons fixed.
+        val titleSave=c.save()
+        c.translate(0f,ShopHeaderLayout.titleOffset)
         woodenBoard(c)
+        c.restoreToCount(titleSave)
         frame(c)
         lantern(c,87f,467f)
         lantern(c,853f,467f)
