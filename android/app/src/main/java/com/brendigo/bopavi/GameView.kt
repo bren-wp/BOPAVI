@@ -39,6 +39,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Keep only a cached lives accessibility label: no score text or
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
+    private var lastAccessibilityActive = false
     private val savedCoinsAtFlightStart=ProgressStore(context).coins()
     private var lastReferenceScore=-1
     private var lastReferenceCrystals=-1
@@ -1821,11 +1822,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
             c.restore()
         }
-        if(lives!=lastAccessibilityLives) {
+        if(lives!=lastAccessibilityLives || game.active!=lastAccessibilityActive) {
             lastAccessibilityLives=lives
+            lastAccessibilityActive=game.active
             val lifeNotice=if(FlightHudReadability.isFinalLife(lives,game.maxLives))
                 " Posljednji život." else ""
-            lastHudAccessibility="${flightHint()} Životi: $lives/${game.maxLives}.$lifeNotice"
+            // Explicitly distinguish ready and genuinely active gameplay for
+            // TalkBack and background/foreground QA, without changing physics.
+            val flightState=if(game.active)" Aktivan let." else " Prije prvog zamaha."
+            lastHudAccessibility="${flightHint()}$flightState Životi: $lives/${game.maxLives}.$lifeNotice"
             contentDescription=lastHudAccessibility
         }
     }

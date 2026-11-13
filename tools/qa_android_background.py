@@ -41,6 +41,7 @@ def active_flight():
         root = hierarchy()
         games = [n for n in root.iter("node")
                  if n.get("clickable") == "true" and "ŽIVOTI:" in label(n)
+                 and "AKTIVAN LET" in label(n)
                  and "BODOVI:" not in label(n) and "MOĆ:" not in label(n)]
         if len(games) == 1:
             return games[0]
@@ -62,7 +63,8 @@ def main():
     # current live control instead of disabling the background-resume test.
     tap(one_control("DODIRNI ZA ZAMAH KRILIMA"))
     before = active_flight().get("content-desc")
-    assert before and "Životi:" in before, "FAIL: no true initial live lives"
+    assert before and "Životi:" in before and "Aktivan let" in before, (
+        "FAIL: first flap never transitioned the actual simulation to active state")
 
     # System Home puts the active Activity in the background without force-stop.
     adb("shell", "input", "keyevent", "3")
