@@ -37,16 +37,38 @@ def one_control(phrase, attempts=16):
 
 
 def active_flight():
+    last_root = None
     for _ in range(15):
         root = hierarchy()
+        last_root = root
         games = [n for n in root.iter("node")
-                 if n.get("clickable") == "true" and "ŽIVOTI:" in label(n)
+                 if n.get("package") == APP
+                 and n.get("clickable") == "true" and "ŽIVOTI:" in label(n)
                  and "AKTIVAN LET" in label(n)
                  and "BODOVI:" not in label(n) and "MOĆ:" not in label(n)]
+        if len(games) > 1:
+            raise AssertionError("FAIL: duplicate native active flight controls")
         if len(games) == 1:
             return games[0]
         time.sleep(1)
-    raise AssertionError("FAIL: live flight with lives-only accessibility missing")
+    # This test must still FAIL for an inactive, reset or finished game.
+    # Collect genuine Android evidence on failure so an intermittent
+    # graphics/Activity transition is distinguishable from wrong labels.
+    details = []
+    if last_root is not None:
+        OUT.mkdir(parents=True, exist_ok=True)
+        (OUT / "android-background-active-failed-hierarchy.xml").write_bytes(
+            ET.tostring(last_root, encoding="utf-8"))
+        details = [label(n).strip() for n in last_root.iter("node")
+                   if n.get("package") == APP and
+                   (n.get("clickable") == "true" or "ŽIVOTI:" in label(n))]
+    try:
+        screenshot("android-background-active-failed-screen")
+    except Exception as exc:
+        details.append("native screenshot failed: " + str(exc))
+    raise AssertionError(
+        "FAIL: live flight with lives-only accessibility missing; "
+        "real app controls: " + repr(details[:12]))
 
 
 def main():
