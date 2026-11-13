@@ -125,9 +125,9 @@ internal class HomeReferenceScreen(private val host:Activity,
             setPadding(0,0,0,0)
         }
         val picture=ImageView(host).apply{
-            if(kind==BopaviUiIconDrawable.Kind.SHIRT)
-                setImageResource(skinPortraitRes)
-            else setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))
+            // Match the owner's actual shirt/cart/gear glyphs. The
+            // selected pilot remains visible in the large animated hero.
+            setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             scaleX=if(kind==BopaviUiIconDrawable.Kind.SHIRT)1.22f else 1.12f
             scaleY=scaleX
@@ -233,18 +233,21 @@ internal class HomeReferenceScreen(private val host:Activity,
             allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.25f)
 
+        val actionBoxes=HomeReferenceLayout.actionBounds(
+            host.resources.displayMetrics.widthPixels,
+            host.resources.displayMetrics.heightPixels)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),27,onSkins),
-            HomeReferenceLayout.skins,true,verticalAnchor=.62f)
+            0xff79ecff.toInt(),0xff148be7.toInt(),0xff064f9c.toInt(),27,onSkins),
+            actionBoxes[0],true,verticalAnchor=.5f)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),28,onShop),
-            HomeReferenceLayout.shop,true,verticalAnchor=.62f)
+            0xfffff095.toInt(),0xfff6a30a.toInt(),0xffba5705.toInt(),28,onShop),
+            actionBoxes[1],true,verticalAnchor=.5f)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),22,onSettings),
-            HomeReferenceLayout.settings,true,verticalAnchor=.73f)
+            0xffee9fff.toInt(),0xffa332e6.toInt(),0xff6410ae.toInt(),26,onSettings),
+            actionBoxes[2],true,verticalAnchor=.5f)
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){

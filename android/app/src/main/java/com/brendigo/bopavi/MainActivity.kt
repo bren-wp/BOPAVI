@@ -123,7 +123,7 @@ class MainActivity : Activity() {
         val fontScale=resources.configuration.fontScale
         return when(selectedScreen) {
             "home" -> HomeReferenceLayout.supports(
-                dm.widthPixels,dm.heightPixels,portrait,fontScale)
+                dm.widthPixels,dm.heightPixels,portrait,fontScale,dm.density)
             "skins","settings","result" -> portrait &&
                 dm.widthPixels>=860 && dm.heightPixels>=1480 &&
                 fontScale<1.25f
@@ -713,7 +713,8 @@ class MainActivity : Activity() {
                 resources.displayMetrics.heightPixels,
                 resources.configuration.orientation ==
                     android.content.res.Configuration.ORIENTATION_PORTRAIT,
-                resources.configuration.fontScale)){
+                resources.configuration.fontScale,
+                resources.displayMetrics.density)){
             val home=HomeReferenceScreen(this,progress).create(
                 pilotIndex=selectedPilotChoice,
                 onSkins={showSkins()},
