@@ -533,6 +533,26 @@ a,b,c,d=map(int,m.groups())
 subprocess.run(["adb","shell","input","tap",str((a+c)//2),str((b+d)//2)],check=True)
 PY
     then legal_opened=1;break; fi
+    # Preserve the real hierarchy for diagnostics. If the link opened a
+    # different legal modal, close that modal before retrying. Otherwise the
+    # wrong modal obscures Settings and makes every later tap fail too.
+    cp qa/screenshots/android-current-ui.xml \
+      "qa/screenshots/android-legal-attempt-${legal_attempt}.xml" || true
+    if python3 - <<'PY'
+import xml.etree.ElementTree as ET
+nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("node"))
+text=" ".join(((n.get("text") or "")+" "+(n.get("content-desc") or "")).upper()
+              for n in nodes)
+has_dialog_close=any(n.get("clickable")=="true" and
+                     "ZATVORI" in ((n.get("text") or "")+" "+(n.get("content-desc") or "")).upper()
+                     for n in nodes)
+raise SystemExit(0 if has_dialog_close else 1)
+PY
+    then
+      adb shell input keyevent KEYCODE_BACK
+      sleep 1
+      dump_ui
+    fi
     echo "Legal dialog not yet visible after native tap $legal_attempt/3" >&2
   done
   test "$legal_opened" -eq 1 || { echo "FAIL: native legal dialog did not open with owner text" >&2; return 1; }

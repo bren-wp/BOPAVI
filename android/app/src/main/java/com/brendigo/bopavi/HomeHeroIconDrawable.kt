@@ -171,54 +171,48 @@ internal class HomeHeroIconDrawable(
     }
 
     private fun shirt(canvas:Canvas){
-        setup(0xfff7faff.toInt(),Paint.Style.STROKE,6f)
-        canvas.drawArc(RectF(39f,3f,61f,29f),200f,220f,false,paint)
-        val jersey=polygon(30f,19f,43f,28f,57f,28f,70f,19f,
-            94f,33f,81f,52f,72f,48f,72f,88f,28f,88f,
-            28f,48f,19f,52f,6f,33f)
-        enamel(canvas,jersey,0xff48cbff.toInt(),0xff0458d2.toInt(),
-            0xffe2f5ff.toInt(),4f)
-        setup(0xffdffbff.toInt(),Paint.Style.STROKE,2.5f)
-        canvas.drawLine(32f,79f,68f,79f,paint)
-        val feather=Path().apply{
-            moveTo(30f,65f)
-            cubicTo(32f,47f,52f,37f,69f,39f)
-            cubicTo(65f,57f,48f,66f,30f,65f)
-            close()
+        // The new owner Home reference uses a white jersey with a gold star,
+        // not the selected pilot's face or the retired blue wing pictogram.
+        val jersey=polygon(30f,17f,43f,26f,57f,26f,70f,17f,
+            94f,34f,81f,54f,72f,49f,72f,87f,28f,87f,
+            28f,49f,19f,54f,6f,34f)
+        enamel(canvas,jersey,0xffffffff.toInt(),0xffcdeafa.toInt(),
+            0xff1b5798.toInt(),4f)
+        setup(0xfff7ffff.toInt(),Paint.Style.STROKE,2.5f)
+        canvas.drawLine(32f,77f,68f,77f,paint)
+        val star=Path()
+        for(i in 0 until 10){
+            val angle=-PI/2.0+i*PI/5.0
+            val radius=if(i%2==0)16.5 else 7.4
+            val x=50f+(cos(angle)*radius).toFloat()
+            val y=55f+(sin(angle)*radius).toFloat()
+            if(i==0)star.moveTo(x,y) else star.lineTo(x,y)
         }
-        enamel(canvas,feather,Color.WHITE,0xffc6eaff.toInt(),
-            0xff166dbd.toInt(),1f)
-        setup(0xff3288c8.toInt(),Paint.Style.STROKE,2f)
-        canvas.drawLine(28f,70f,65f,43f,paint)
+        star.close()
+        enamel(canvas,star,0xfffff7a0.toInt(),0xffffbd19.toInt(),
+            0xffa35b08.toInt(),2.5f)
     }
 
     private fun shop(canvas:Canvas){
-        val shopBody=Path().apply{
-            addRoundRect(RectF(15f,32f,85f,91f),7f,7f,Path.Direction.CW)
+        // Actual reference glyph is an illustrated shopping cart, not an
+        // awning/storefront. No added bitmap or unimplemented purchase route.
+        setup(0xff154a8e.toInt(),Paint.Style.STROKE,7f)
+        canvas.drawLine(6f,17f,18f,18f,paint)
+        canvas.drawLine(18f,18f,31f,67f,paint)
+        val basket=polygon(19f,24f,90f,24f,81f,62f,29f,62f)
+        enamel(canvas,basket,0xffffffff.toInt(),0xffcbeafa.toInt(),
+            0xff155298.toInt(),4f)
+        setup(0xff6bafd9.toInt(),Paint.Style.STROKE,2.5f)
+        for(x in floatArrayOf(43f,60f,77f))
+            canvas.drawLine(x,30f,x-4f,55f,paint)
+        setup(0xff195392.toInt(),Paint.Style.STROKE,5f)
+        canvas.drawLine(30f,66f,84f,66f,paint)
+        for(x in floatArrayOf(39f,76f)){
+            setup(0xff153b75.toInt())
+            canvas.drawCircle(x,81f,9f,paint)
+            setup(0xffffffff.toInt())
+            canvas.drawCircle(x,81f,5f,paint)
         }
-        enamel(canvas,shopBody,0xffffe3ab.toInt(),0xffe89028.toInt(),
-            0xffad4e16.toInt(),4f)
-        val window=Path().apply{
-            addRoundRect(RectF(26f,45f,60f,75f),3f,3f,Path.Direction.CW)
-        }
-        enamel(canvas,window,0xff62f7ff.toInt(),0xff1387e6.toInt(),
-            0xff00518f.toInt(),3f)
-        setup(0x99ffffff.toInt(),Paint.Style.STROKE,3f)
-        canvas.drawLine(32f,70f,52f,49f,paint)
-        val awning=polygon(19f,14f,78f,14f,87f,37f,12f,37f)
-        enamel(canvas,awning,0xfffff6f4.toInt(),0xfff6caca.toInt(),
-            0xffa22b32.toInt(),4f)
-        for(i in 0..3){
-            val x=20f+i*16f
-            setup(0xffee3543.toInt())
-            canvas.drawRect(x,18f,x+9f,34f,paint)
-        }
-        setup(0xffffd222.toInt())
-        canvas.drawCircle(78f,71f,16f,paint)
-        setup(0xffba6510.toInt(),Paint.Style.STROKE,4f)
-        canvas.drawCircle(78f,71f,14f,paint)
-        setup(0xfffff2b0.toInt(),Paint.Style.STROKE,2f)
-        canvas.drawCircle(78f,71f,10f,paint)
     }
 
     private fun gear(canvas:Canvas){

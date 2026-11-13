@@ -3,6 +3,7 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]/"android/app/src/main/java/com/brendigo/bopavi"
 view=(r/"GameView.kt").read_text()
 sim=(r/"GameSimulation.kt").read_text()
+collision=(r/"PillarCollision.kt").read_text()
 assert "((h/cameraScale-800f)*.5f).coerceAtLeast(0f)" in view
 for needle in (
     "pillarRenderTop=-25f-overflow",
@@ -21,7 +22,7 @@ for needle in (
     assert needle in view,needle
 assert 'text(c,"BODOVI"' not in view
 assert "fun courses(" not in view
-assert "val safeTop=max(fromOpening.top,toOpening.top)+radius" in sim
+assert "val safeTop=max(fromOpening.top,toOpening.top)+radius" in collision
 assert "val radius = 18f" in sim
 assert "sweptBodyHitsPillar" in sim
 print("PASS: improved collision-aligned pillars, lives-only HUD and unchanged physics")

@@ -39,6 +39,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // Keep only a cached lives accessibility label: no score text or
     // expensive formatting on the 60/90/120 Hz render path.
     private var lastHudAccessibility = ""
+    private var lastAccessibilityActive = false
     private val savedCoinsAtFlightStart=ProgressStore(context).coins()
     private var lastReferenceScore=-1
     private var lastReferenceCrystals=-1
@@ -365,8 +366,8 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // arch behind the real bird and playable obstacles. This is part of
         // the distant environment, NOT a fake collectible or damage hitbox.
         if(game.level.world==0)drawSkyMeadowsArchScenery(canvas)
-        // The 941x1672 owner ready frame already shows real obstacles and
-        // collectible rings. Draw the SAME cached gates in ready and active
+        // The new owner ready frame shows real obstacles without floating
+        // golden ring trails. Draw the SAME cached gates in ready and active
         // states; the first real tap still owns physics, travel, pickup
         // collection and damage. Finished runs hide hazards under the result.
         val showGameplayObstacles=FlightHazardPresentation.obstaclesVisible(
@@ -912,7 +913,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     /** Real finite coins (gate.coin), drawn around the existing pickup centre.
      * Every shade belongs to the collectible, never to the collision shaft. */
     private fun drawGoldenCoin(c:Canvas,x:Float,y:Float) {
-        if(game.level.world==0){drawRoyalRing(c,x,y);return}
         // Three metallic bevels are inside the unchanged 23-unit pickup range.
         // Each crown belongs to one actual uncollected gate.coin.
         oval(c,x-17f,y-12f,x+17f,y+18f,0x66082040)
@@ -947,25 +947,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         fill(0xffffe784.toInt());c.drawPath(path,p)
         oval(c,x-11f,y-12f,x-6f,y-8f,0xccffffff.toInt())
     }
-    /** Glowing GOLD RING centred on a genuine uncollected Gate.coin. */
-    private fun drawRoyalRing(c:Canvas,x:Float,y:Float){
-        fill(0x66fff0a0);p.style=Paint.Style.STROKE;p.strokeWidth=9f
-        c.drawOval(x-17f,y-19f,x+17f,y+19f,p)
-        fill(0xff7a360c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=7f
-        c.drawOval(x-15f,y-17f,x+15f,y+17f,p)
-        fill(0xffffba27.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=5f
-        c.drawOval(x-14f,y-16f,x+14f,y+16f,p)
-        fill(0xfffff4a6.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=2f
-        c.drawArc(x-14f,y-16f,x+14f,y+16f,185f,175f,false,p)
-        p.style=Paint.Style.FILL
-        path.reset()
-        path.moveTo(x+11f,y-20f);path.lineTo(x+13f,y-15f)
-        path.lineTo(x+18f,y-13f);path.lineTo(x+13f,y-11f)
-        path.lineTo(x+11f,y-6f);path.lineTo(x+9f,y-11f)
-        path.lineTo(x+4f,y-13f);path.lineTo(x+9f,y-15f)
-        path.close();fill(0xeeffffff.toInt());c.drawPath(path,p)
-    }
-
     /** The existing gate.star is represented as a sapphire crystal, matching
      * the reference. Collision/magnet semantics remain 'star' internally. */
     private fun drawBlueCrystal(c:Canvas,x:Float,y:Float) {
@@ -1320,23 +1301,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         drawSkyMace(c,g,x,index,a)
         val mid=x+w*.5f
         val cy=(a.top+a.bottom)*.5f
-        // The six curved golden rings are NOT fake scenery: each has a
-        // matching swept GameSimulation collector and per-gate run flag.
-        // Vary decorative size only, never the true pickup coordinate.
-        if(RoyalRingTrail.enabled(g)) {
-            for(ring in 0 until RoyalRingTrail.count) {
-                if(!game.royalRingVisible(index,ring,incoming))continue
-                val ringX=RoyalRingTrail.x(x,ring)
-                if(ringX < -24f || ringX > 504f)continue
-                val ringY=RoyalRingTrail.y(a,ring)
-                val ringScale=.60f+ring*.075f
-                c.save()
-                c.translate(ringX,ringY)
-                c.scale(ringScale,ringScale)
-                drawRoyalRing(c,0f,0f)
-                c.restore()
-            }
-        }
         if(game.endless) {
             if(game.heartVisible(index,incoming)) drawHeartPickup(c,mid,cy)
             else if(game.berryVisible(index,incoming)) drawBerry(c,mid,cy,13f)
@@ -1451,13 +1415,6 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         }
     }
     private fun drawBird(c:Canvas){
-        if(game.collectPulse>0f){
-            val portion=game.collectPulse/.36f
-            fill(0xffffe69c.toInt());p.style=Paint.Style.STROKE;p.strokeWidth=if(reducedMotion)2f else 3f
-            p.alpha=(190f*portion).toInt().coerceIn(0,190)
-            c.drawCircle(game.birdX,game.y,28f+(1f-portion)*38f,p)
-            p.style=Paint.Style.FILL;p.alpha=255
-        }
         if(game.impactPulse>0f){
             val portion=game.impactPulse/.65f
             fill(if(game.lastImpactLostLife)0xffffa1b2.toInt() else 0xffb8efff.toInt())
@@ -1750,11 +1707,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // uses a SCORE plaque rather than a separate hearts rail. A shield
         // hit can change lives without changing the score or crystal count.
         val livesChanged=lastReferenceLives!=game.lives
-        if(scoreChanged || crystalsChanged || livesChanged){
+        if(scoreChanged || crystalsChanged || livesChanged || !lastAccessibilityActive){
             lastReferenceLives=game.lives
-            contentDescription=flightHint()+" Životi: ${game.lives}/${game.maxLives}. "+
+            lastAccessibilityLives=game.lives
+            lastAccessibilityActive=true
+            // The native active HUD differs from the READY tutorial HUD:
+            // expose the correct runtime state to TalkBack and to real-device
+            // background/foreground tests, not stale pre-flap text.
+            lastHudAccessibility=flightHint()+" Aktivan let. Životi: ${game.lives}/${game.maxLives}. "+
                 "Rezultat: $score. Novčići: $savedCoinsAtFlightStart. "+
                 "Kristali: ${game.stars}. Gore desno pauza."
+            contentDescription=lastHudAccessibility
         }
         hudGlass(c,h.coinWallet.left,h.coinWallet.top,
             h.coinWallet.right,h.coinWallet.bottom)
@@ -1865,11 +1828,15 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
             drawHudHeart(c,h.heartCenters[i],h.heartBaseline,i<lives)
             c.restore()
         }
-        if(lives!=lastAccessibilityLives) {
+        if(lives!=lastAccessibilityLives || game.active!=lastAccessibilityActive) {
             lastAccessibilityLives=lives
+            lastAccessibilityActive=game.active
             val lifeNotice=if(FlightHudReadability.isFinalLife(lives,game.maxLives))
                 " Posljednji život." else ""
-            lastHudAccessibility="${flightHint()} Životi: $lives/${game.maxLives}.$lifeNotice"
+            // Explicitly distinguish ready and genuinely active gameplay for
+            // TalkBack and background/foreground QA, without changing physics.
+            val flightState=if(game.active)" Aktivan let." else " Prije prvog zamaha."
+            lastHudAccessibility="${flightHint()}$flightState Životi: $lives/${game.maxLives}.$lifeNotice"
             contentDescription=lastHudAccessibility
         }
     }

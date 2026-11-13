@@ -53,7 +53,8 @@ for stop in gold_stops:
 assert 'private fun flightHint():String' in view
 assert '"Bopi leti. Dodirni za zamah krilima."' in view
 assert 'else "$pilotName leti. Dodirni za zamah krilima."' in view
-assert 'lastHudAccessibility="${flightHint()} Životi: $lives/${game.maxLives}.$lifeNotice"' in view
+assert 'lastHudAccessibility="${flightHint()}$flightState Životi: $lives/${game.maxLives}.$lifeNotice"' in view
+assert 'if(game.active)" Aktivan let." else " Prije prvog zamaha."' in view
 assert 'FlightHudReadability.isFinalLife(lives,game.maxLives)' in view
 assert "contentDescription=lastHudAccessibility.ifEmpty { flightHint() }" in view
 assert 'contentDescription=if(selectedSkin==0)"Bopi leti"' not in view

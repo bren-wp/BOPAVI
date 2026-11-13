@@ -115,8 +115,13 @@ assert 'return if(value==3 && !owned(8))0 else value' in store
 assert 'val costs = listOf(0, 60, 80, 110, 130, 160, 0, 220, 240)' in store
 assert "selectOrBuy(" not in screen  # card tap does NOT silently spend coins
 assert "Selected ROYAL BOPI" in junit
-assert "bopiportrait8" in (src/"HomeReferenceScreen.kt").read_text()
-assert "portraits[pilotIndex.coerceIn(0,3)]" in (src/"HomeReferenceScreen.kt").read_text()
+home=(src/"HomeReferenceScreen.kt").read_text()
+# The new owner Home CTA uses a white shirt + yellow star glyph, while
+# selected pilots still render through the REAL body/wing Sprite rig.
+assert "val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)" in home
+assert "HomeWingActor(host," in home
+assert "setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))" in home
+assert "setImageResource(skinPortraitRes)" not in home
 assert 'open_route(name)' in qa
 assert '("Skins","android-skins-reference-size")' in qa
 assert 'CHOOSE ROYAL BOPI' in qa

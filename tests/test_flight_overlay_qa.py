@@ -22,8 +22,8 @@ assert "onPauseRequested()" in view
 # was replaced with the reference's winged SCORE plaque.
 assert 'private var lastReferenceLives=-1' in view
 assert 'val livesChanged=lastReferenceLives!=game.lives' in view
-assert '" Životi: ${game.lives}/${game.maxLives}. "' in view
-assert 'if(scoreChanged || crystalsChanged || livesChanged)' in view
+assert '" Aktivan let. Životi: ${game.lives}/${game.maxLives}. "' in view
+assert 'if(scoreChanged || crystalsChanged || livesChanged || !lastAccessibilityActive)' in view
 assert 'hudGlass(c,h.lives.left,h.lives.top,h.lives.right,h.lives.bottom)' in view
 assert "if (x > birdX + radius + (if(endless) 7f else 115f)) break" in physics
 assert "optimizedGateBroadphaseStillDetectsFirstPaintedLipContact" in units

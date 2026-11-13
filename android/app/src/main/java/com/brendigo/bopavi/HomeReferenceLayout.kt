@@ -43,28 +43,68 @@ internal object HomeReferenceLayout {
     val heroArtwork=HomeBounds(
         hero.x+18f*hero.w/512f,hero.y+86f*hero.h/512f,
         475f*hero.w/512f,339f*hero.h/512f)
-    // Three interactive entry points, without Play or legacy score screens.
-    val skins=HomeBounds(135f,965f,325f,137f)
-    val shop=HomeBounds(476f,965f,325f,137f)
-    val settings=HomeBounds(243f,1122f,453f,121f)
+    // Measured from the owner-supplied 1080×1920 screenshot, normalized
+    // onto the established 941×1672 native camera. The controls are an
+    // actual VERTICAL stack: blue SKINS, gold SHOP, violet SETTINGS.
+    // The obsolete side-by-side arrangement was visually incorrect.
+    val skins=HomeBounds(266f,1025f,410f,122f)
+    val shop=HomeBounds(265f,1182f,411f,119f)
+    val settings=HomeBounds(264f,1332f,412f,117f)
     val actions=listOf(skins,shop,settings)
-    // Large system text requires the native adaptive Home instead of
-    // squeezing labelled controls into the fixed reference artwork grid.
+
+    /**
+     * The same owner package depicts a ~19% larger button stack for the
+     * 1080×2280, 1080×2340, 1080×2400 and 1440×3040 aspect ratios.
+     * Enlarge about the REFERENCE CAMERA center, not the top of the page.
+     * Interpolate for intermediate aspect ratios instead of jumping when
+     * a handset crosses a device-model breakpoint.
+     */
+    fun actionScale(pxWidth:Int,pxHeight:Int):Float {
+        if(pxWidth<=0 || pxHeight<=0)return 1f
+        val aspect=pxHeight.toFloat()/pxWidth
+        val mix=((aspect-16f/9f)/(19f/9f-16f/9f)).coerceIn(0f,1f)
+        return 1f+.19f*mix
+    }
+    fun actionBounds(pxWidth:Int,pxHeight:Int):List<HomeBounds> {
+        val multiplier=actionScale(pxWidth,pxHeight)
+        val centerX=width/2f
+        val centerY=height/2f
+        return actions.map { b ->
+            HomeBounds(centerX+(b.x-centerX)*multiplier,
+                centerY+(b.y-centerY)*multiplier,
+                b.w*multiplier,b.h*multiplier)
+        }
+    }
+
+    /** Accessible controls must not silently stretch below 48dp.
+     * For too-small/high-density windows we use native compact controls,
+     * not a clipped imitation of the reference camera.
+     */
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,
-                 fontScale:Float=1f):Boolean =
-        // The reference stage uniformly fits a 720x1280 viewport.
-        // This enables the same 3D artwork/controls on compact phones,
-        // instead of switching to unrelated portrait/button art.
-        // Truly small devices retain the native scroll-safe composition.
-        portrait && pxWidth>=720 && pxHeight>=1280 &&
-        fontScale>=.85f && fontScale<1.3f
+                 fontScale:Float=1f,density:Float=2f):Boolean {
+        if(!portrait || pxWidth<720 || pxHeight<1280 ||
+            fontScale<.85f || fontScale>=1.3f || density<=0f)return false
+        val scale=minOf(pxWidth/width,pxHeight/height)
+        val targets=actionBounds(pxWidth,pxHeight)
+        val minTouch=48f*density
+        if(targets.any { it.w*scale<minTouch || it.h*scale<minTouch })return false
+        return targets.all { it.inside() } &&
+            targets.indices.all { i ->
+                ((i+1) until targets.size).all { j ->
+                    !targets[i].overlaps(targets[j])
+                }
+            }
+    }
 
     fun valid():Boolean {
         val all=listOf(coins,logo,logoArtwork,hero,heroArtwork)+actions
         if(!all.all{it.inside()})return false
         if(coins.bottom>=logoArtwork.y)return false
         if(logoArtwork.bottom>=heroArtwork.y || heroArtwork.bottom>=skins.y)return false
-        if(skins.y!=shop.y || settings.y<=skins.y || settings.y<=shop.bottom)
+        if(skins.bottom>=shop.y || shop.bottom>=settings.y ||
+            kotlin.math.abs(skins.x+skins.w/2f-width/2f)>3f ||
+            kotlin.math.abs(shop.x+shop.w/2f-width/2f)>3f ||
+            kotlin.math.abs(settings.x+settings.w/2f-width/2f)>3f)
             return false
         for(i in actions.indices)for(j in i+1 until actions.size){
             if(actions[i].overlaps(actions[j]))return false

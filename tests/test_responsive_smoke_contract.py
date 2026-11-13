@@ -12,7 +12,9 @@ for device in ("480x800:160:small","600x960:240:short",
     assert device in qa,device
 layout=(r/"android/app/src/main/java/com/brendigo/bopavi/HomeReferenceLayout.kt").read_text()
 activity=(r/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text()
-assert "fontScale>=.85f && fontScale<1.3f" in layout
+assert "fontScale<.85f || fontScale>=1.3f" in layout
+assert "actionBounds(pxWidth,pxHeight)" in layout
+assert "minTouch=48f*density" in layout
 assert "resources.configuration.fontScale" in activity
 assert "referenceModeKeepsBreakpointAndLargerFontsAccessible" in (r/"android/app/src/test/java/com/brendigo/bopavi/HomeReferenceLayoutTest.kt").read_text()
 assert 'adb shell wm size reset' in qa and 'adb shell wm density reset' in qa

@@ -130,6 +130,8 @@ jobs:
       - run: python tests/test_responsive_home_splash.py
       - run: python tests/test_responsive_home_splash_capture_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
+      - run: python tests/test_background_active_gate_contract.py
+      - run: python tests/test_legal_modal_retry_contract.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_reference_button_cluster_contract.py
       - run: python tests/test_reference_insets_alignment_contract.py
@@ -145,6 +147,10 @@ jobs:
       - run: python tests/test_level_complete_reference_contract.py
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh
+      - run: python tests/test_current_reference_pack.py
+      - run: python tests/test_owner_home_reference_geometry.py
+      - run: python tests/test_owner_viewport_capture_contract.py
+      - run: python tests/test_kotlin_modularization_contract.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py
       - run: python tests/test_fdroid_distribution.py
@@ -430,6 +436,7 @@ jobs:
             set -e
             sh tools/qa_android_emulator.sh
             python3 tools/qa_android_shop_focus.py
+            python3 tools/qa_android_owner_viewports.py
             # Both independent native suites have completed successfully.
             # On some Linux runners qemu keeps a headless child process alive
             # after adb's "OK: killing emulator" response. The emulator-runner

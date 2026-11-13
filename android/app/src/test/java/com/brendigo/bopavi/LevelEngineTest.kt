@@ -43,17 +43,13 @@ class LevelEngineTest {
             speed=140f,wind=0f),endless=false,initialMagnet=8f)
         legacy.flap()
         legacy.step(1f/120f)
-        // The central coin remains collectible at the old 108px magnet
-        // distance. Sky Meadows now also has six *real* golden trail rings,
-        // so asserting only one total coin silently rejects intended rewards.
+        // The new owner gameplay has no floating golden ring trail.
+        // Magnet still collects exactly the original central Gate.coin.
         val centralCoin=GameSimulation::class.java.getDeclaredField("collectedCoins")
             .apply { isAccessible=true }.get(legacy) as BooleanArray
         assertTrue("108px magnet must still collect the original central coin",centralCoin[0])
-        val ringFlags=GameSimulation::class.java.getDeclaredField("collectedRoyalRingBits")
-            .apply { isAccessible=true }.get(legacy) as IntArray
-        val genuineTrailCount=Integer.bitCount(ringFlags[0])
-        assertEquals("Central coin and real trail rewards must count exactly once",
-            1+genuineTrailCount,legacy.coins)
+        assertEquals("A single visible coin cannot award invisible ring currency",
+            1,legacy.coins)
     }
 
     @Test fun premiumShopBoostsHaveRealThreeHitAndEighteenSecondCapacity() {
@@ -580,9 +576,8 @@ class LevelEngineTest {
         assertFalse("Do not kill bird when its body remains inside visible opening",run.finished)
     }
     @Test fun physicsReplayAgreesAt30_60_90_120Hz() {
-        // Isolate frame-rate integration from genuine early ring pickups.
-        // A pillar now appears earlier in the first-world composition and its
-        // collectible trail can be touched during the opening 600ms.
+        // Isolate frame-rate integration from finite coin pickups.
+        // No golden ring trails remain in the current owner gameplay design.
         val baseline=LevelEngine.create(0,2)
         val noPickups=baseline.copy(gates=baseline.gates.map { it.copy(coin=false) })
         val runs = listOf(30,60,90,120).map { hz ->

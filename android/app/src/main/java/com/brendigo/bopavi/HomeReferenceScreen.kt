@@ -5,8 +5,6 @@ import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
@@ -28,7 +26,6 @@ import java.util.Locale
 internal class HomeReferenceScreen(private val host:Activity,
                                    private val progress:ProgressStore) {
     private fun dp(px:Int)=(px*host.resources.displayMetrics.density+.5f).toInt()
-    private var skinPortraitRes=R.drawable.bopiportrait0
     private fun label(s:String,font:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=font.toFloat()
@@ -127,9 +124,9 @@ internal class HomeReferenceScreen(private val host:Activity,
             setPadding(0,0,0,0)
         }
         val picture=ImageView(host).apply{
-            if(kind==BopaviUiIconDrawable.Kind.SHIRT)
-                setImageResource(skinPortraitRes)
-            else setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))
+            // Match the owner's actual shirt/cart/gear glyphs. The
+            // selected pilot remains visible in the large animated hero.
+            setImageDrawable(HomeHeroIconDrawable(kind,dp(52)))
             scaleType=ImageView.ScaleType.FIT_CENTER
             scaleX=if(kind==BopaviUiIconDrawable.Kind.SHIRT)1.22f else 1.12f
             scaleY=scaleX
@@ -223,10 +220,6 @@ internal class HomeReferenceScreen(private val host:Activity,
         // Save-backed pilot choices 0..3 resolve to real sprite IDs 0,9,10,8;
         // the fourth choice is the existing Orion collectible appearance.
         val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)
-        val portraits=intArrayOf(R.drawable.bopiportrait0,
-            R.drawable.bopiportrait9,R.drawable.bopiportrait10,
-            R.drawable.bopiportrait8)
-        skinPortraitRes=portraits[pilotIndex.coerceIn(0,3)]
         // Preserve the original sprite body + wing layers; only wings
         // animate and the actual collision geometry remains unchanged.
         // The actor stops all animators when the window is hidden/detached.
@@ -235,18 +228,21 @@ internal class HomeReferenceScreen(private val host:Activity,
             allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.25f)
 
+        val actionBoxes=HomeReferenceLayout.actionBounds(
+            host.resources.displayMetrics.widthPixels,
+            host.resources.displayMetrics.heightPixels)
         place(stage,pill("SKINS","Otvori izbor likova",
             BopaviUiIconDrawable.Kind.SHIRT,
-            0xffe671ff.toInt(),0xff9110e2.toInt(),0xff5e128e.toInt(),27,onSkins),
-            HomeReferenceLayout.skins,true,verticalAnchor=.62f)
+            0xff79ecff.toInt(),0xff148be7.toInt(),0xff064f9c.toInt(),27,onSkins),
+            actionBoxes[0],true,verticalAnchor=.5f)
         place(stage,pill("SHOP","Otvori trgovinu nadogradnji",
             BopaviUiIconDrawable.Kind.SHOP,
-            0xffb4ff65.toInt(),0xff2abe1c.toInt(),0xff1a7213.toInt(),28,onShop),
-            HomeReferenceLayout.shop,true,verticalAnchor=.62f)
+            0xfffff095.toInt(),0xfff6a30a.toInt(),0xffba5705.toInt(),28,onShop),
+            actionBoxes[1],true,verticalAnchor=.5f)
         place(stage,pill("SETTINGS","Otvori opcije igre",
             BopaviUiIconDrawable.Kind.SETTINGS,
-            0xff76e5ff.toInt(),0xff096fd8.toInt(),0xff0c347d.toInt(),22,onSettings),
-            HomeReferenceLayout.settings,true,verticalAnchor=.73f)
+            0xffee9fff.toInt(),0xffa332e6.toInt(),0xff6410ae.toInt(),26,onSettings),
+            actionBoxes[2],true,verticalAnchor=.5f)
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
@@ -278,84 +274,3 @@ internal class HomeReferenceScreen(private val host:Activity,
 }
 
 /** Layered candy hoops, sky glints and breeze trails behind live Home controls. */
-internal class HomeOrbitDecoration(host:Activity):View(host){
-    private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
-    private val path=Path()
-    init{importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO}
-
-    private fun sparkle(canvas:Canvas,x:Float,y:Float,r:Float){
-        path.reset()
-        path.moveTo(x,y-r*1.6f)
-        path.quadTo(x+r*.18f,y-r*.19f,x+r,y)
-        path.quadTo(x+r*.18f,y+r*.19f,x,y+r*1.6f)
-        path.quadTo(x-r*.18f,y+r*.19f,x-r,y)
-        path.quadTo(x-r*.18f,y-r*.19f,x,y-r*1.6f)
-        path.close()
-        paint.reset()
-        paint.isAntiAlias=true
-        paint.color=0x99b6eeff.toInt()
-        paint.style=Paint.Style.STROKE
-        paint.strokeWidth=7f
-        canvas.drawPath(path,paint)
-        paint.style=Paint.Style.FILL
-        paint.color=Color.WHITE
-        canvas.drawPath(path,paint)
-    }
-
-    /** Thin hollow GOLD rings recede behind Bopi's right wing.
-     * The large striped candy hoops in the old version were absent from
-     * the supplied Home reference.
-     */
-    private fun ring(canvas:Canvas,x:Float,y:Float,rx:Float,ry:Float,angle:Float){
-        val saved=canvas.save()
-        canvas.rotate(angle,x,y)
-        val oval=RectF(x-rx,y-ry,x+rx,y+ry)
-        paint.reset()
-        paint.isAntiAlias=true
-        paint.style=Paint.Style.STROKE
-        paint.strokeWidth=rx*.49f
-        paint.color=0x77032453
-        canvas.drawOval(RectF(oval.left+4f,oval.top+7f,
-            oval.right+4f,oval.bottom+7f),paint)
-        paint.strokeWidth=rx*.39f
-        paint.color=0xff9c5011.toInt()
-        canvas.drawOval(oval,paint)
-        paint.strokeWidth=rx*.32f
-        paint.color=0xffffc70a.toInt()
-        canvas.drawOval(oval,paint)
-        paint.strokeWidth=rx*.14f
-        paint.color=0xfffff0a6.toInt()
-        canvas.drawArc(oval,206f,141f,false,paint)
-        paint.strokeWidth=rx*.065f
-        paint.color=Color.WHITE
-        canvas.drawArc(oval,229f,78f,false,paint)
-        paint.style=Paint.Style.FILL
-        canvas.restoreToCount(saved)
-    }
-
-    override fun onDraw(canvas:Canvas){
-        val saved=canvas.save()
-        canvas.scale(width/941f,height/1672f)
-        paint.reset()
-        paint.isAntiAlias=true
-        paint.color=0x88e7ffff.toInt()
-        paint.style=Paint.Style.STROKE
-        paint.strokeCap=Paint.Cap.ROUND
-        paint.strokeWidth=10f
-        path.reset()
-        path.moveTo(90f,848f)
-        path.cubicTo(208f,708f,255f,857f,380f,820f)
-        canvas.drawPath(path,paint)
-        paint.color=0x88ffffff.toInt()
-        paint.strokeWidth=4f
-        canvas.drawArc(RectF(110f,475f,830f,911f),25f,81f,false,paint)
-        // Three small metallic golden hoops, all to the right of Bopi.
-        ring(canvas,761f,672f,18f,41f,-23f)
-        ring(canvas,810f,705f,14f,31f,-17f)
-        ring(canvas,852f,744f,10f,20f,-20f)
-        sparkle(canvas,264f,417f,13f)
-        sparkle(canvas,124f,726f,10f)
-        sparkle(canvas,182f,791f,6f)
-        canvas.restoreToCount(saved)
-    }
-}
