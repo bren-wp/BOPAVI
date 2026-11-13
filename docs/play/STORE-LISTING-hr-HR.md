@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR) · objavljeno v1.0.84 (build 214)
+# Google Play — BOPAVI (hr-HR) · objavljeno v1.0.85 (build 215)
 
 <!-- verified-feature-ids: home,three_home_actions,skin_selection_screen,shop_screen,settings_screen,virtual_wallet_save,offline,no_ads,no_account -->
 
@@ -22,5 +22,5 @@ Zasloni napretka, poretka, rekorda, postignuća i karte razina uklonjeni su. U o
 
 Obvezno snimiti pravi Home, Shop, Skins i Settings iz istoga buil-da. Dodatne gameplay/rezultat snimke služe tehničkoj transparentnosti, ali nisu dokaz produkcijske navigacije. Izostaviti stare Achievements, Progress, Leaderboard, Level-Map, Options i Records snimke.
 
-GitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.84.
+GitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.85.
 Provjera na fizičkom uređaju i Play Store odobrenje nisu potvrđeni.

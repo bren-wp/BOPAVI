@@ -8,10 +8,10 @@ This file describes **reachable production UI** in the published APK. Legacy gam
 {
   "schema": 1,
   "baseline_sha": "c6eb1c18e8548cfdb5bb480296b33f1239a0ea27",
-  "release": "v1.0.84",
+  "release": "v1.0.85",
   "publication_status": "published",
-  "last_published_github_release": "v1.0.84",
-  "build": 214,
+  "last_published_github_release": "v1.0.85",
+  "build": 215,
   "scope_decision": "pending",
   "screens": [
     "home",

@@ -1,6 +1,6 @@
 # BOPAVI — Android release acceptance checklist
 
-**Last published release evidence:** v1.0.84 (build 214).
+**Last published release evidence:** v1.0.85 (build 215).
 **Application:** com.brendigo.bopavi · BRENDIGO · https://brendigo.com.
 
 ## Production UI
