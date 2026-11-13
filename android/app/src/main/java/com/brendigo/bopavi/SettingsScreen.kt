@@ -295,8 +295,10 @@ internal class SettingsScreen(private val host:Activity,
         val reference=dm.widthPixels>=860 && dm.heightPixels>=1510 &&
             host.resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT &&
             host.resources.configuration.fontScale<1.25f &&
-            SettingsReferenceLayout.supportsNativeTouchTargets(
-                dm.widthPixels,dm.heightPixels,dm.density)
+            (SettingsReferenceLayout.supportsNativeTouchTargets(
+                dm.widthPixels,dm.heightPixels,dm.density) ||
+             SettingsReferenceLayout.supportsDenseOwnerCamera(
+                dm.widthPixels,dm.heightPixels,dm.density))
         val language=progress.uiLanguage()
         val croatian=language=="hr"
         fun name(en:String,hr:String)=if(croatian)hr else en
@@ -377,6 +379,10 @@ internal class SettingsScreen(private val host:Activity,
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
             },151f,1244f,638f,4f)
+            // Each real row remains at least 48dp tall. On owner-sized
+            // high-density phones its hit rectangle may slightly overlap the
+            // next visual row, but neither native control nor text is replaced
+            // by a flattened screenshot.
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],

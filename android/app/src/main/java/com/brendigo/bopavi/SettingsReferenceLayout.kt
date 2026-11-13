@@ -22,6 +22,29 @@ internal object SettingsReferenceLayout {
         return rowHeight*scale+0.001f>=minimum &&
             (rows[1]-rows[0])*scale+0.001f>=minimum
     }
+    /**
+     * The owner-supplied 1080p/QHD Settings mockups use 96px rows on the
+     * 941×1672 camera. At 420/560dpi this is slightly shorter than 48dp,
+     * even though the entire nine-row composition comfortably fits.
+     *
+     * The native reference stage *expands* touch bounds to 48dp. Allow
+     * its bounded <=16% vertical overlap on standard owner-sized portrait
+     * canvases rather than substituting the unrelated compact ScrollView.
+     * Larger fonts, truly small screens or excessive overlap retain the
+     * scrollable layout. This is a visual compromise, not certified 1:1.
+     */
+    fun supportsDenseOwnerCamera(screenW:Int,screenH:Int,density:Float):Boolean {
+        if(screenW<860 || screenH<1480 || density<=0f)return false
+        val scale=minOf(screenW/width,screenH/height)
+        val pitch=(rows[1]-rows[0])*scale
+        val touch=48f*density
+        if(touch>pitch*1.16f)return false
+        // The bottom restore action must remain on-screen once expanded.
+        val homeBottom=homeTop+112f
+        val restoreHeight=maxOf(112f*scale,touch)
+        return homeTop*scale+restoreHeight<=screenH &&
+            homeBottom*scale<=screenH
+    }
     fun fits():Boolean = rows.size==9 &&
         (0 until rows.lastIndex).all{rows[it+1]-rows[it]>=rowHeight} &&
         rows.last()+rowHeight<homeTop &&
