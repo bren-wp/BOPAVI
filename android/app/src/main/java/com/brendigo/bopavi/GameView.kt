@@ -1688,6 +1688,24 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         c.drawText(value,x,y,p)
     }
 
+    /**
+     * Accessibility represents the actual simulation state, not the timing
+     * of an Android Canvas redraw. Android 15 may defer a draw while
+     * UIAutomator inspects the window or its graphics buffer is recovering.
+     * Publish the active HUD synchronously on the FIRST genuine flap, then
+     * refresh on score/crystal/life changes from the render path.
+     */
+    private fun announceActiveFlight() {
+        if(!game.active || game.finished)return
+        lastReferenceLives=game.lives
+        lastAccessibilityLives=game.lives
+        lastAccessibilityActive=true
+        lastHudAccessibility=flightHint()+" Aktivan let. Životi: ${game.lives}/${game.maxLives}. "+
+            "Rezultat: ${game.score()}. Novčići: $savedCoinsAtFlightStart. "+
+            "Kristali: ${game.stars}. Gore desno pauza."
+        contentDescription=lastHudAccessibility
+    }
+
     private fun drawGameplayReferenceHud(c:Canvas){
         val h=GameplayReferenceHudLayout
         // Source of truth: actual local wallet, score and crystal pickups.
@@ -1708,16 +1726,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // hit can change lives without changing the score or crystal count.
         val livesChanged=lastReferenceLives!=game.lives
         if(scoreChanged || crystalsChanged || livesChanged || !lastAccessibilityActive){
-            lastReferenceLives=game.lives
-            lastAccessibilityLives=game.lives
-            lastAccessibilityActive=true
-            // The native active HUD differs from the READY tutorial HUD:
-            // expose the correct runtime state to TalkBack and to real-device
-            // background/foreground tests, not stale pre-flap text.
-            lastHudAccessibility=flightHint()+" Aktivan let. Životi: ${game.lives}/${game.maxLives}. "+
-                "Rezultat: $score. Novčići: $savedCoinsAtFlightStart. "+
-                "Kristali: ${game.stars}. Gore desno pauza."
-            contentDescription=lastHudAccessibility
+            announceActiveFlight()
         }
         hudGlass(c,h.coinWallet.left,h.coinWallet.top,
             h.coinWallet.right,h.coinWallet.bottom)
@@ -1891,8 +1900,10 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
                     if(qaCaptureEnabled) qaWaitingForCapture=true
                 }
             }
-            // Keep the same accessible lives/flap label instead of only
-            // the pilot name after each tap; reuse the HUD snapshot instead.
+            // Do not depend on a subsequent Canvas frame for the active
+            // gameplay label: QA and TalkBack can query it immediately.
+            // This is reached only after game.flap() on a REAL input event.
+            if(game.active)announceActiveFlight()
             contentDescription=lastHudAccessibility.ifEmpty { flightHint() }
             onFlap()
             invalidate()
