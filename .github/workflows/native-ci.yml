@@ -131,6 +131,7 @@ jobs:
       - run: python tests/test_responsive_home_splash_capture_contract.py
       - run: python tests/test_canvas_alpha_and_background_resume.py
       - run: python tests/test_background_active_gate_contract.py
+      - run: python tests/test_legal_modal_retry_contract.py
       - run: python tests/test_all_screens_spacing_contract.py
       - run: python tests/test_reference_button_cluster_contract.py
       - run: python tests/test_reference_insets_alignment_contract.py
