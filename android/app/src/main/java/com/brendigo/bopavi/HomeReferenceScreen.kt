@@ -26,7 +26,6 @@ import java.util.Locale
 internal class HomeReferenceScreen(private val host:Activity,
                                    private val progress:ProgressStore) {
     private fun dp(px:Int)=(px*host.resources.displayMetrics.density+.5f).toInt()
-    private var skinPortraitRes=R.drawable.bopiportrait0
     private fun label(s:String,font:Int,color:Int):TextView=TextView(host).apply{
         text=s
         textSize=font.toFloat()
@@ -221,10 +220,6 @@ internal class HomeReferenceScreen(private val host:Activity,
         // Save-backed pilot choices 0..3 resolve to real sprite IDs 0,9,10,8;
         // the fourth choice is the existing Orion collectible appearance.
         val chosen=PilotSelectionModel.spriteIdForChoice(pilotIndex)
-        val portraits=intArrayOf(R.drawable.bopiportrait0,
-            R.drawable.bopiportrait9,R.drawable.bopiportrait10,
-            R.drawable.bopiportrait8)
-        skinPortraitRes=portraits[pilotIndex.coerceIn(0,3)]
         // Preserve the original sprite body + wing layers; only wings
         // animate and the actual collision geometry remains unchanged.
         // The actor stops all animators when the window is hidden/detached.

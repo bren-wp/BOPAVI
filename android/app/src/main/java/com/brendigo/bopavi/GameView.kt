@@ -1707,11 +1707,17 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // uses a SCORE plaque rather than a separate hearts rail. A shield
         // hit can change lives without changing the score or crystal count.
         val livesChanged=lastReferenceLives!=game.lives
-        if(scoreChanged || crystalsChanged || livesChanged){
+        if(scoreChanged || crystalsChanged || livesChanged || !lastAccessibilityActive){
             lastReferenceLives=game.lives
-            contentDescription=flightHint()+" Životi: ${game.lives}/${game.maxLives}. "+
+            lastAccessibilityLives=game.lives
+            lastAccessibilityActive=true
+            // The native active HUD differs from the READY tutorial HUD:
+            // expose the correct runtime state to TalkBack and to real-device
+            // background/foreground tests, not stale pre-flap text.
+            lastHudAccessibility=flightHint()+" Aktivan let. Životi: ${game.lives}/${game.maxLives}. "+
                 "Rezultat: $score. Novčići: $savedCoinsAtFlightStart. "+
                 "Kristali: ${game.stars}. Gore desno pauza."
+            contentDescription=lastHudAccessibility
         }
         hudGlass(c,h.coinWallet.left,h.coinWallet.top,
             h.coinWallet.right,h.coinWallet.bottom)
