@@ -103,7 +103,7 @@ assert 'private fun priceButton(price:Int,gold:Boolean,' in shop
 assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
-assert '183f,123f,575f,201f' in shop
+assert '183f,ShopHeaderLayout.titleTop,575f,201f' in shop
 assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))' in shop
 assert '},LinearLayout.LayoutParams(-1,0,.86f))' in shop
 assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in shop
@@ -144,7 +144,7 @@ assert 'stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)' in shop
 assert 'stage.place(ShopCounterFront(host),23f,546f,895f,36f)' not in shop
 assert 'ShopEmbossedTitle(host)' in shop
 assert 'contentDescription="SHOP"' in (src/"ShopEmbossedTitle.kt").read_text()
-assert '183f,123f,575f,201f' in shop
+assert '183f,ShopHeaderLayout.titleTop,575f,201f' in shop
 headline=(src/"ShopEmbossedTitle.kt").read_text()
 assert 'internal class ShopEmbossedTitle(context:Context):TextView(context)' in headline
 assert 'text="SHOP"' in headline
