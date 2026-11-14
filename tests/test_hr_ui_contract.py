@@ -13,7 +13,8 @@ for term in ('"REZULTAT"', '"HRANA"', "PONOVO",
              '"←  IZLAZ"', 'backAction(panel,"POČETNA")',
              'contentDescription=caption'):
     assert term in a,term
-assert '"▶  PLAY"' not in a.split('private fun showHome(){',1)[1].split('private fun confirmGameplayShop(',1)[0]
+assert 'text="▶  PLAY"' in a.split('private fun showHome(){',1)[1].split('private fun confirmGameplayShop(',1)[0]
+assert 'contentDescription="Pokreni igru"' in a
 # Visual text must match the owner's English gameplay screenshot, while
 # Croatian spoken assistance and saved data remain preserved.
 for term in ('drawTutorialText(c,"Tap to fly"',
