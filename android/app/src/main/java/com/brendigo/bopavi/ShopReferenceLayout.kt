@@ -15,6 +15,20 @@ internal object ShopReferenceLayout {
     const val cardWidth=270f
     const val cardHeight=312f
 
+    /**
+     * The owner's original 1080×1920 WebP has centred illustrated gutters.
+     * The v1.0.87 native capture occupied almost the entire physical width.
+     * Measured at its wooden card frame (y=1267): owner x=101..979,
+     * live x=21..1062. The bounded x-camera factor is ~878/1041.
+     * Other owner viewports already use nearly edge-to-edge cards, so they
+     * MUST retain their existing horizontal framing.
+     *
+     * No design image is resized or used as a runtime control.
+     */
+    const val owner16x9HorizontalFactor=0.8435f
+    fun horizontalFactor(pxWidth:Int,pxHeight:Int):Float =
+        if(pxWidth==1080 && pxHeight==1920)owner16x9HorizontalFactor else 1f
+
     fun supports(pxWidth:Int,pxHeight:Int,portrait:Boolean,fontScale:Float):Boolean =
         portrait && pxWidth>=860 && pxHeight>=1480 && fontScale<1.25f
 
