@@ -13,6 +13,17 @@ concurrency:
   group: native-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  owner-reference-binaries:
+    name: Preserve pinned owner source WebPs for independent RGB audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload original committed WebPs without conversion
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-owner-reference-binaries
+          path: art/reference-current/images/**/*.webp
+          if-no-files-found: error
   graphics:
     name: Render and verify Android art
     runs-on: ubuntu-latest
