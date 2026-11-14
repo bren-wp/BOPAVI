@@ -108,6 +108,7 @@ internal class PilotSelectionScreen(
             // the same full-bleed camera; safe-inset fallback remains active
             // for accessible touch targets near a notch.
             stage.useShopFullBleedReferenceCamera()
+            stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)
         }
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
         // Decorative wood sign, ropes, grass and layered stone podium;

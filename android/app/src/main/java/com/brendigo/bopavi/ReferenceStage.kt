@@ -16,6 +16,17 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
     // art fills the original 941x1672 camera; actual tappable controls
     // still fall back to safe-area positioning around physical cutouts.
     private var shopFullBleed=false
+    private var defaultVerticalAnchor=.5f
+
+    /** A full-bleed reference scene can opt into a TOP-weighted camera on
+     * high-aspect devices, without changing any safe-window fallback, button
+     * hitbox or other reference screen. Must be set BEFORE placing children.
+     */
+    fun setReferenceVerticalAnchor(anchor:Float) {
+        defaultVerticalAnchor=anchor.coerceIn(0f,1f)
+        requestLayout()
+    }
+
     fun useShopFullBleedReferenceCamera() {
         shopFullBleed=true
         requestLayout()
@@ -33,7 +44,7 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
      */
     fun place(view:View,x:Float,y:Float,w:Float,h:Float,
               full:Boolean=false,minTouch:Boolean=false,
-              referenceAligned:Boolean=false,verticalAnchor:Float=.5f){
+              referenceAligned:Boolean=false,verticalAnchor:Float=defaultVerticalAnchor){
         // Default center anchoring leaves every non-Home map unchanged.
         slots.add(Slot(view,RectF(x,y,x+w,y+h),full,minTouch,
             referenceAligned,verticalAnchor.coerceIn(0f,1f)))

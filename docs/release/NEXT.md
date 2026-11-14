@@ -16,3 +16,5 @@
 - Settings groups now use independent measured viewport anchors (brand, portrait, title, nine accessible rows and bottom restore). Small/large-font fallback remains unchanged.
 - Android 15 QA still requires a genuinely active first flap, one native Pause after background and identical saved lives and process. Retry one *real* touchscreen tap only if Android reports the initial GameView is still idle, never synthesize game state or claim an emulator-only cause.
 - New visual acceptance must come from real Android 15/16 screenshots, all screen resolutions and updated RGB reports; release blocked until mandatory CI is green.
+
+- Skins portrait camera now uses an owner-measured top-weighted (.18) vertical anchor on long phones rather than the generic center (.50) anchor. On 1080×2400 that adjusts the complete native art/cards/selection panel by ~154 physical pixels together; on 16:9/compact viewports the old placement remains. Real screenshots must confirm actual improvement.
