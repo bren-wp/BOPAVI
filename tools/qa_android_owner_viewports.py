@@ -7,6 +7,7 @@ replace Android controls with WebP artwork.
 """
 from __future__ import annotations
 
+import json
 import re
 import time
 from pathlib import Path
@@ -33,6 +34,7 @@ DESTINATIONS = (
     ("Settings", "09_Settings"),
 )
 RECT = re.compile(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]")
+CAPTURE_MAP = {}
 
 def wait_home(width: int, height: int, density: int):
     for attempt in range(18):
@@ -66,6 +68,11 @@ def capture(name: str, width: int, height: int):
     assert (OUT/(name+".png")).stat().st_size>2000
     root=hierarchy()
     (OUT/(name+".xml")).write_bytes(ET.tostring(root,encoding="utf-8"))
+    # Only real screencap + UIAutomator evidence collected above can enter
+    # the same-run reference map. No synthetic or copied mockup is mapped.
+    prefix, folder, stem = name.split("-", 2)
+    assert prefix == "owner" and folder in {entry[0] for entry in VIEWPORTS}
+    CAPTURE_MAP.setdefault(folder, {})[stem + ".webp"] = name + ".png"
     print("PASS: real Android "+name+f" {width}x{height}",flush=True)
 
 def real_flight_screens(folder:str,width:int,height:int):
@@ -169,6 +176,10 @@ def main():
             real_flight_screens(folder,width,height)
             print("PASS: "+folder+" 9 real frames including natural Game Over",
                   flush=True)
+        assert sum(len(v) for v in CAPTURE_MAP.values()) == 45
+        (OUT / "owner-capture-map.json").write_text(
+            json.dumps(CAPTURE_MAP, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
         print("PASS: 45 authentic native screenshots, 5 owner viewports, "
               "real gameplay+Privacy; Game Over variant remains unverified",
               flush=True)
