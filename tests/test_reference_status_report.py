@@ -45,6 +45,11 @@ with tempfile.TemporaryDirectory() as folder:
     assert identical["identical"] == 1 and identical["different"] == 0
     assert identical["results"][0]["different_pixels"] == 0
     assert identical["results"][0]["mae_rgb_0_255"] == 0
+    assert set(identical["results"][0]["regions"]) == {
+        "top_third", "middle_third", "bottom_third"
+    }
+    assert all(row["different_pixels"] == 0
+               for row in identical["results"][0]["regions"].values())
     assert not identical["all_exact"], "Only all 50 can be certified"
 
     with Image.open(shot) as image:
@@ -54,6 +59,9 @@ with tempfile.TemporaryDirectory() as folder:
     mismatch = audit_records([row], refs, captures, mapped)
     assert mismatch["different"] == 1 and mismatch["identical"] == 0
     assert mismatch["results"][0]["different_pixels"] == 1
+    assert sum(row["different_pixels"] for row in
+               mismatch["results"][0]["regions"].values()) == 1
+    assert mismatch["results"][0]["regions"]["top_third"]["different_pixels"] == 1
 
     assert safe_capture_path(captures, "../../secret.png") is None
     assert safe_capture_path(captures, "/tmp/image.png") is None
