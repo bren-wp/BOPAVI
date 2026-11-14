@@ -163,7 +163,9 @@ assert "internal class ShopCounterFront(" in decor
 assert "if(item.tier>=2)drawSymbol" in decor
 assert "if(item.tier>=3)drawSymbol" in decor
 assert "isClickable=false" in decor and "isFocusable=false" in decor
-assert 'stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f)' in shop
+assert 'stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f,' in shop
+assert 'verticalAnchor=ShopBottomLayout.bottomAnchor' in shop
+assert 'stage.place(ShopBottomSill(host),0f,0f,941f,1672f,' in shop
 assert "if(featured.canBuy)onBuy(featured.index)" in shop
 assert "item.soldOut -> android.widget.Toast.makeText" in shop
 assert "!item.affordable -> android.widget.Toast.makeText" in shop

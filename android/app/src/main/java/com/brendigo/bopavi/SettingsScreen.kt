@@ -370,7 +370,10 @@ internal class SettingsScreen(private val host:Activity,
                 background=SettingsWoodPanelDrawable()
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },101f,559f,739f,1007f,
+            },101f,559f+SettingsReferenceLayout.panelOffset(
+                dm.widthPixels,dm.heightPixels),
+                739f,1007f+SettingsReferenceLayout.panelExtra(
+                    dm.widthPixels,dm.heightPixels),
                 verticalAnchor=SettingsReferenceLayout.contentAnchor)
             stage.place(SettingsEmbossedTitle(host).apply {
                 elevation=dp(8).toFloat()
@@ -383,7 +386,8 @@ internal class SettingsScreen(private val host:Activity,
                     intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },151f,1244f,638f,4f,
+            },151f,1244f+SettingsReferenceLayout.legalSeparatorOffset(
+                dm.widthPixels,dm.heightPixels),638f,4f,
                 verticalAnchor=SettingsReferenceLayout.contentAnchor)
             // Each real row remains at least 48dp tall. On owner-sized
             // high-density phones its hit rectangle may slightly overlap the
@@ -391,7 +395,8 @@ internal class SettingsScreen(private val host:Activity,
             // by a flattened screenshot.
             rows.forEachIndexed{index,row->
                 stage.place(row,SettingsReferenceLayout.left,
-                    SettingsReferenceLayout.rows[index],
+                    SettingsReferenceLayout.rows[index]+SettingsReferenceLayout.rowOffset(
+                        index,dm.widthPixels,dm.heightPixels),
                     SettingsReferenceLayout.rowWidth,
                     SettingsReferenceLayout.rowHeight,minTouch=true,
                     verticalAnchor=SettingsReferenceLayout.contentAnchor)

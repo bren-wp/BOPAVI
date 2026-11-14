@@ -19,9 +19,24 @@ assert reference.index("stage.useShopFullBleedReferenceCamera()") < reference.in
     "stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)")
 assert "fontScale<1.25f" in reference
 assert "stage.place(card,left,PilotSelectionLayout.cardTop," in screen
-assert "stage.place(selectedInfo,30f,1299f,881f,193f)" in screen
-# Same frame and all native children share one transform; no fake bitmap
-# buttons, no individual drift or positional perturbation of clickable cards.
+assert "stage.place(selectedInfo,30f,1299f,881f,193f," in screen
+assert "verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor" in screen
+# Real upper hero/podium/selection groups must NOT all inherit the same
+# .18f anchor on tall phones; it put real cards >150px too high.
+decor=(src/"SkinsReferenceDecor.kt").read_text()
+assert "private val podiumOnly:Boolean=false" in decor
+assert "if(!podiumOnly)" in decor and "if(podiumOnly)" in decor
+assert "SkinsReferenceDecor(host,podiumOnly=true)" in screen
+assert "const val heroVerticalAnchor=.25f" in layout
+assert "const val podiumVerticalAnchor=.37f" in layout
+assert "const val cardsVerticalAnchor=.5f" in layout
+assert "verticalAnchor=PilotSelectionLayout.heroVerticalAnchor" in screen
+assert "verticalAnchor=PilotSelectionLayout.podiumVerticalAnchor" in screen
+assert screen.count("verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor")>=4
+# Preserve card selection, unlock and purchase gating, no screenshot buttons.
+assert "setOnClickListener{chooseOrUnlock(index)}" in screen
+assert "if(PilotSelectionModel.locked(selected,orionOwned))onUnlock()" in screen
+assert "else onChoose(selected)" in screen
 def excess(h,w):
     scale=min(w/941,h/1672)
     return max(0,h-1672*scale)

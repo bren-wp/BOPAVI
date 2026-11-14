@@ -8,6 +8,12 @@ internal object PilotSelectionLayout {
     // centered camera on 1080×2400. With a 480px letterbox, .18 vs .5
     // removes 154px of displacement; at 16:9 both anchors are identical.
     const val ownerVerticalAnchor=.18f
+    // Owner 1080x2400 reference: hero ≈34px, stone podium ≈90px,
+    // 4 selection cards and EQUIP ≈150px lower than the old uniform
+    // top-anchored transform. 16:9 has zero letterboxing difference.
+    const val heroVerticalAnchor=.25f
+    const val podiumVerticalAnchor=.37f
+    const val cardsVerticalAnchor=.5f
     const val bannerLeft=250f
     const val bannerTop=166f
     const val bannerWidth=441f

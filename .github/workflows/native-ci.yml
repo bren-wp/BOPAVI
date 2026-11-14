@@ -80,6 +80,7 @@ jobs:
       - run: python tests/test_settings_immersive_return_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
+      - run: python tests/test_owner_legal_3d_dialog_contract.py
       - run: python tests/test_legal_dialog_capture.py
       - run: python tests/test_full_legal_docs.py
       - run: python tests/test_reference_navigation.py
@@ -96,6 +97,7 @@ jobs:
       - run: python tests/test_home_reference_screen_contract.py
       - run: python tests/test_home_owner_hud_row_and_android16.py
       - run: python tests/test_home_owner_ring_free_wallet_contract.py
+      - run: python tests/test_home_owner_hero_proportions_contract.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
       - run: python tests/test_splash_home_owner_864_fidelity.py
       - run: python tests/test_splash_home_visual_depth_v1058.py
@@ -153,7 +155,9 @@ jobs:
       - run: python tests/test_owner_home_reference_geometry.py
       - run: python tests/test_owner_viewport_capture_contract.py
       - run: python tests/test_settings_dense_owner_camera_contract.py
+      - run: python tests/test_settings_tall_panel_row_spacing_contract.py
       - run: python tests/test_shop_header_owner_alignment_contract.py
+      - run: python tests/test_shop_bottom_owner_bridge_contract.py
       - run: python tests/test_kotlin_modularization_contract.py
       - run: python tools/audit_native_dead_code.py
       - run: python tests/test_release_contract.py

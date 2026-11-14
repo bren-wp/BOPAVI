@@ -123,7 +123,9 @@ assert 'contentDescription=label' in lettering
 assert 'setOnClickListener { onTap() }' in lettering
 assert 'minimumWidth=0' in lettering and 'minimumHeight=0' in lettering
 assert 'background=null' in lettering
-assert '151f,1244f,638f,4f' in settings
+assert '151f,1244f+SettingsReferenceLayout.legalSeparatorOffset(' in settings
+assert 'SettingsReferenceLayout.rows[index]+SettingsReferenceLayout.rowOffset(' in settings
+assert 'SettingsReferenceLayout.rowHeight,minTouch=true,' in settings
 assert "background=SettingsGoldTitleDrawable()" in (src/"SettingsReferenceLettering.kt").read_text()
 assert "trackDrawable=StateListDrawable().apply" in settings
 assert "android.R.attr.state_checked" in settings

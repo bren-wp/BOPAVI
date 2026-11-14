@@ -31,14 +31,15 @@ internal object HomeReferenceLayout {
         logo.y+(logo.h-325f*logoScale)/2f+34f*logoScale,
         666f*logoScale,260f*logoScale)
     // The original Bopi layers use a SQUARE 512x512 transparency grid.
-    // Source canvas is square, and the painted alpha is inset. Align its
-    // visible upper feathers near reference y≈393, and feet near y≈830.
-    // Position the first visible alpha (y≈86 in the original 512px rig)
-    // immediately below the winged wordmark, not ~60px below the owner.
+    // Source canvas is square, and the painted alpha is inset. New genuine
+    // 1080x1920 owner art shows a ~430px-wide painted hero at y≈670–970px,
+    // not the ~720px-wide actor cropped into the preceding native Home.
+    // Position the first visible alpha after the winged wordmark at the
+    // real owner's lower hero height, preserving native original sprite.
     // All three original body/wing sprite layers retain equal square bounds.
-    // Source 864px Home: painted Bopi spans roughly x=118..651 and
-    // y=365..744. Keep source body and wing layers on a SQUARE canvas.
-    val hero=HomeBounds(80f,274f,680f,680f)
+    // Keep original 512px layered Bopi sprite proportions. Only its real
+    // camera rectangle changes; no image is generated or replaced.
+    val hero=HomeBounds(300f,520f,400f,400f)
     // Extents of alpha>12 in the approved classic 512px body/wing union:
     // x=18..493 and y=86..424. Only painted pixels, not the transparent
     // square canvas, must clear the logo and the native Play touch target.

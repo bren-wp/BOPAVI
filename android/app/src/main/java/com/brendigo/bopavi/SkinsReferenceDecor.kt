@@ -17,7 +17,9 @@ import android.view.View
  * wallet counter, navigation control and description remains a real Android
  * view above it. Geometry is expressed on the owner's 941 x 1672 stage.
  */
-internal class SkinsReferenceDecor(context:Context):View(context) {
+internal class SkinsReferenceDecor(
+    context:Context,private val podiumOnly:Boolean=false
+):View(context) {
     private val p=Paint(Paint.ANTI_ALIAS_FLAG)
     private val outline=Path()
 
@@ -59,6 +61,7 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
         if(width<=0 || height<=0)return
         val save=c.save()
         c.scale(width/941f,height/1672f)
+        if(!podiumOnly) {
         // The owner reference has a warm radial bloom and narrow light rays
         // BEHIND the floating hero. No taps, currency or UI are painted here.
         p.reset();p.isAntiAlias=true
@@ -137,7 +140,9 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
             leaf(c,723f-i*11f,295f,55f-i*17f,.95f)
         }
         c.restoreToCount(plaqueSave)
+        }
 
+        if(podiumOnly) {
         // The owner's podium is a floating cut-stone dais, NOT a flat
         // rectangular card. Keep all of its relief behind the native hero,
         // carousel arrows and selectable skin cards.
@@ -214,6 +219,7 @@ internal class SkinsReferenceDecor(context:Context):View(context) {
                 c.drawCircle(px,py,7f,p)
             }
             p.color=0xffffc12c.toInt();c.drawCircle(x,y,8f,p)
+        }
         }
         c.restoreToCount(save)
     }

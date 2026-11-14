@@ -410,14 +410,10 @@ class MainActivity : Activity() {
         }
         val scrolling=android.widget.ScrollView(this).apply {
             isFillViewport=false
-            setBackgroundColor(0xfff7fbff.toInt())
+            setBackgroundColor(0xfffff7e7.toInt())
             addView(body)
         }
-        android.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(scrolling)
-            .setPositiveButton("Zatvori",null)
-            .show()
+        BopaviLegalDialog.show(this,title,scrolling)
     }
     private fun showPrivacyNotice() {
         showLegalNotice("Politika privatnosti","privacy.html")

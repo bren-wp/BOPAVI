@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture genuine BOPAVI Home, Skins, Shop and Settings at all owner viewports.
+"""Capture 5 genuine BOPAVI screens, including native Privacy, per owner viewport.
 
 This is a navigation/accessibility/screen-size gate, NOT a declaration that
 its pixels are identical to the static mockups. Never resize screenshots or
@@ -12,9 +12,9 @@ import time
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot
+from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot, tap, label
 from qa_android_reference_menus import (
-    acknowledge_native_fullscreen_education, home, open_route,
+    acknowledge_native_fullscreen_education, home, open_route, node_with,
 )
 
 # Exact physical sizes in BOPAVI_Svi_Zasloni_i_Gameplay_Android(2).zip.
@@ -68,6 +68,71 @@ def capture(name: str, width: int, height: int):
     (OUT/(name+".xml")).write_bytes(ET.tostring(root,encoding="utf-8"))
     print("PASS: real Android "+name+f" {width}x{height}",flush=True)
 
+def real_flight_screens(folder:str,width:int,height:int):
+    # Debug-only route enters an actual GameSimulation from the native
+    # MainActivity. The first real input activates it; QA then freezes the
+    # genuine physics clock while UIAutomator captures the exact pixels.
+    adb("shell","am","force-stop",APP)
+    adb("shell","am","start","-W","-n",APP+"/.MainActivity",
+        "--ez","bopavi_qa_capture_first_flap","true",
+        "--ez","bopavi_qa_launch_flight","true")
+    ready=node_with("DODIRNI ZA ZAMAH KRILIMA",attempts=18)
+    assert "PRIJE PRVOG ZAMAHA" in label(ready),(
+        "Real GameView not in ready first-flap state")
+    capture(f"owner-{folder}-02_Gameplay_upute",width,height)
+    tap(ready)
+    try:
+        active=node_with("REZULTAT:",attempts=4)
+    except AssertionError:
+        # Android can drop an injected first touch during immersive setup.
+        # Retry ONE REAL input only while original GameView is still ready.
+        retry=node_with("PRIJE PRVOG ZAMAHA",attempts=3)
+        tap(retry)
+        active=node_with("REZULTAT:",attempts=10)
+    for term in ("NOVČIĆI:","KRISTALI:","GORE DESNO PAUZA"):
+        assert term in label(active),(term,"Active HUD not real")
+    capture(f"owner-{folder}-03_Gameplay_let",width,height)
+    adb("shell","input","keyevent","4")
+    pause=node_with("NASTAVI",attempts=12)
+    root=hierarchy()
+    for item in ("PAUZA","PONOVO","IZLAZ"):
+        assert any(item in label(n) for n in root.iter("node")),(
+            "Real Pause is missing "+item)
+    assert len([n for n in root.iter("node")
+                if n.get("package")==APP and n.get("clickable")=="true"
+                and "NASTAVI" in label(n)])==1,(
+        "Duplicated native pause continuation")
+    capture(f"owner-{folder}-04_Gameplay_pauza",width,height)
+
+    # Release the debug-only frozen first-flap state with a second REAL tap
+    # after actually continuing the unique native Pause dialog. Wait for a
+    # natural GameSimulation collision, never set finished/score/lives here.
+    tap(pause)
+    resumed=node_with("REZULTAT:",attempts=12)
+    tap(resumed)
+    result=None
+    for attempt in range(23):
+        root=hierarchy()
+        names=[label(n) for n in root.iter("node")
+               if n.get("package")==APP]
+        actions=[n for n in root.iter("node")
+                 if n.get("package")==APP and n.get("clickable")=="true"]
+        retry=[n for n in actions if "RETRY" in label(n) or "PONOVO" in label(n)]
+        home_buttons=[n for n in actions if "HOME" in label(n)
+                      or "POČETNA" in label(n)]
+        if len(retry)==1 and len(home_buttons)==1 and all(
+            token in " ".join(names) for token in (
+                "DISTANCE","FOOD COLLECTED","SCORE")):
+            result=root
+            break
+        time.sleep(2)
+    assert result is not None,(
+        "Real Game Over not reached via natural GameSimulation collision")
+    capture(f"owner-{folder}-05_Kraj_igre",width,height)
+    print("PASS: "+folder+" real ready/active/pause/Game Over, "
+          "native Retry and Home",flush=True)
+
+
 def main():
     try:
         for folder,width,height,density in VIEWPORTS:
@@ -80,11 +145,33 @@ def main():
             for route,stem in DESTINATIONS:
                 open_route(route)
                 capture(f"owner-{folder}-{stem}",width,height)
+                if route=="Settings":
+                    # An authentic legal HTML overlay is independently
+                    # captured as screen 10; it is NOT rendered from a WebP.
+                    tap(node_with("Pročitaj politiku privatnosti",attempts=10))
+                    notice=hierarchy()
+                    assert any("POLITIKA PRIVATNOSTI" in label(n)
+                               for n in notice.iter("node")), (
+                        "Privacy heading absent from real legal modal")
+                    assert any("ZATVORI" in label(n)
+                               for n in notice.iter("node")), (
+                        "Real legal close action missing")
+                    capture(f"owner-{folder}-10_Politika_privatnosti",
+                            width,height)
+                    adb("shell","input","keyevent","4")
+                    # Must return to the original interactive Settings
+                    # screen, then back to Home, not restart the process.
+                    assert len([n for n in hierarchy().iter("node")
+                                if n.get("package")==APP and
+                                "PROČITAJ POLITIKU PRIVATNOSTI" in label(n)])>=1
                 adb("shell","input","keyevent","4")
                 wait_home(width,height,density)
-            print("PASS: "+folder+" all 3 production routes and 4 native frames",flush=True)
-        print("PASS: 20 authentic native screenshots, 5 owner viewports, "
-              "three Home destinations; pixel equivalence not asserted",flush=True)
+            real_flight_screens(folder,width,height)
+            print("PASS: "+folder+" 9 real frames including natural Game Over",
+                  flush=True)
+        print("PASS: 45 authentic native screenshots, 5 owner viewports, "
+              "real gameplay+Privacy; Game Over variant remains unverified",
+              flush=True)
     finally:
         # Never leave the developer's Android emulator at a forged density.
         adb("shell","wm","size","reset")

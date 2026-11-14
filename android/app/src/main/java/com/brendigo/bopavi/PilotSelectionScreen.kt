@@ -115,6 +115,12 @@ internal class PilotSelectionScreen(
         // actual pilot choice and wallets remain native and clickable.
         stage.place(SkinsReferenceDecor(host),0f,0f,941f,1672f,
             referenceAligned=true)
+        // Independent decorative rock camera, still PASSIVE and underneath
+        // all real choice cards. Tall owner art places the dais midway
+        // between the high nameplate and the lower selection grid.
+        stage.place(SkinsReferenceDecor(host,podiumOnly=true),0f,0f,941f,1672f,
+            referenceAligned=true,
+            verticalAnchor=PilotSelectionLayout.podiumVerticalAnchor)
 
         // Unified enamel header, with a genuine Back button over one surface.
         stage.place(FrameLayout(host).apply {
@@ -205,7 +211,8 @@ internal class PilotSelectionScreen(
             heroLeftWings[heroChoice],heroRightWings[heroChoice],
             heroBodies[heroChoice],allowMotion=!progress.lessMotion()),
             PilotSelectionLayout.heroLeft,PilotSelectionLayout.heroTop,
-            PilotSelectionLayout.heroSize,PilotSelectionLayout.heroSize)
+            PilotSelectionLayout.heroSize,PilotSelectionLayout.heroSize,
+            verticalAnchor=PilotSelectionLayout.heroVerticalAnchor)
         val pilotCount=PilotSelectionModel.pilots.size
         val orionOwned=progress.owned(8)
         fun chooseOrUnlock(index:Int) {
@@ -214,10 +221,12 @@ internal class PilotSelectionScreen(
         }
         stage.place(cycleArrow("‹","Previous hero"){
             chooseOrUnlock((selected+pilotCount-1)%pilotCount)
-        },26f,613f,112f,112f,minTouch=true)
+        },26f,613f,112f,112f,minTouch=true,
+            verticalAnchor=PilotSelectionLayout.heroVerticalAnchor)
         stage.place(cycleArrow("›","Next hero"){
             chooseOrUnlock((selected+1)%pilotCount)
-        },803f,613f,112f,112f,minTouch=true)
+        },803f,613f,112f,112f,minTouch=true,
+            verticalAnchor=PilotSelectionLayout.heroVerticalAnchor)
 
         // Four real native cards, with Orion locked until owned(8).
         for(candidate in PilotSelectionModel.pilots) {
@@ -265,17 +274,20 @@ internal class PilotSelectionScreen(
             val left=PilotSelectionLayout.cardLefts[index]
             stage.place(card,left,PilotSelectionLayout.cardTop,
                 PilotSelectionLayout.cardWidth,PilotSelectionLayout.cardHeight,
-                minTouch=true)
+                minTouch=true,
+                verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor)
             if(isLocked) {
                 // Passive overlay, no touch capture; the actual card is live.
                 stage.place(PilotLockGlyph(host),left+154f,
-                    PilotSelectionLayout.cardTop+8f,50f,54f)
+                    PilotSelectionLayout.cardTop+8f,50f,54f,
+                    verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor)
             } else if(isSelected) {
                 stage.place(ImageView(host).apply {
                     setImageDrawable(SkinsEquippedBadgeDrawable())
                     importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     isClickable=false
-                },left+158f,PilotSelectionLayout.cardTop+4f,55f,55f)
+                },left+158f,PilotSelectionLayout.cardTop+4f,55f,55f,
+                    verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor)
             }
         }
 
@@ -327,7 +339,8 @@ internal class PilotSelectionScreen(
                 leftMargin=dp(4)
             })
         }
-        stage.place(selectedInfo,30f,1299f,881f,193f)
+        stage.place(selectedInfo,30f,1299f,881f,193f,
+            verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor)
         // The reference ends at the genuine selected-info panel; no extra
         // misleading "FREE • UNLOCKED" footer under the earnable fourth hero.
 

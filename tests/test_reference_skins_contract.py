@@ -47,7 +47,8 @@ assert "activeSelectionTop+193f<=referenceHeight" in layout
 assert 'textSize=30f' in screen # selected hero EQUIP
 assert "const val heroTop=244f" in layout
 assert "const val activeSelectionTop=1299f" in layout
-assert "stage.place(selectedInfo,30f,1299f,881f,193f)" in screen
+assert "stage.place(selectedInfo,30f,1299f,881f,193f," in screen
+assert "verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor" in screen
 assert "val heroId=PilotSelectionModel.spriteIdForChoice(selected)" in screen
 assert "heroLeftWings[heroChoice],heroRightWings[heroChoice]," in screen
 assert "allowMotion=!progress.lessMotion()" in screen

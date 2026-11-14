@@ -20,11 +20,40 @@ internal object SettingsReferenceLayout {
     // tall 19:9 and 20:9 phones. Measure each group independently against
     // real 1080×2400 captures; keep native controls and 48dp hit targets.
     const val logoAnchor=.08f
-    const val heroAnchor=.18f
+    const val heroAnchor=.05f
     const val backAnchor=.32f
-    const val titleAnchor=.14f
+    const val titleAnchor=.20f
     const val contentAnchor=.14f
-    const val restoreAnchor=.30f
+    const val restoreAnchor=.62f
+
+    /**
+     * Native Settings composition uses the full 941×1672 reference camera.
+     * The owner's 20:9 artwork spreads the nine enamel rows and grows the
+     * carved frame downward rather than letterboxing an immutable panel.
+     * Only the extra physical viewport height drives the adjustment; in a
+     * 16:9 camera the original measured locations are unchanged.
+     */
+    private fun extraPx(screenW:Int,screenH:Int):Float {
+        if(screenW<=0 || screenH<=0)return 0f
+        val scale=minOf(screenW/width,screenH/height)
+        return (screenH-height*scale).coerceAtLeast(0f)
+    }
+    private fun cameraScale(screenW:Int,screenH:Int):Float=
+        minOf(screenW/width,screenH/height).coerceAtLeast(.001f)
+    fun rowOffset(index:Int,screenW:Int,screenH:Int):Float {
+        require(index in rows.indices)
+        // Native row 1 was ~30px too high; row 9 ~150px too high
+        // in the real 1080×2400 capture. Keep each item interactive.
+        return (.06f+.0325f*index)*extraPx(screenW,screenH)/
+            cameraScale(screenW,screenH)
+    }
+    fun panelOffset(screenW:Int,screenH:Int):Float=
+        .06f*extraPx(screenW,screenH)/cameraScale(screenW,screenH)
+    fun panelExtra(screenW:Int,screenH:Int):Float=
+        .57f*extraPx(screenW,screenH)/cameraScale(screenW,screenH)
+    fun legalSeparatorOffset(screenW:Int,screenH:Int):Float=
+        rowOffset(6,screenW,screenH)
+
     fun supportsNativeTouchTargets(screenW:Int,screenH:Int,density:Float):Boolean {
         if(screenW<=0 || screenH<=0 || density<=0f)return false
         val scale=minOf(screenW/width,screenH/height)
