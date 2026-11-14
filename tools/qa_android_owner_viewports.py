@@ -103,8 +103,34 @@ def real_flight_screens(folder:str,width:int,height:int):
                 and "NASTAVI" in label(n)])==1,(
         "Duplicated native pause continuation")
     capture(f"owner-{folder}-04_Gameplay_pauza",width,height)
-    print("PASS: "+folder+" real ready/active/pause, one GameSimulation",
-          flush=True)
+
+    # Release the debug-only frozen first-flap state with a second REAL tap
+    # after actually continuing the unique native Pause dialog. Wait for a
+    # natural GameSimulation collision, never set finished/score/lives here.
+    tap(pause)
+    resumed=node_with("REZULTAT:",attempts=12)
+    tap(resumed)
+    result=None
+    for attempt in range(23):
+        root=hierarchy()
+        names=[label(n) for n in root.iter("node")
+               if n.get("package")==APP]
+        actions=[n for n in root.iter("node")
+                 if n.get("package")==APP and n.get("clickable")=="true"]
+        retry=[n for n in actions if "RETRY" in label(n) or "PONOVO" in label(n)]
+        home_buttons=[n for n in actions if "HOME" in label(n)
+                      or "POČETNA" in label(n)]
+        if len(retry)==1 and len(home_buttons)==1 and all(
+            token in " ".join(names) for token in (
+                "DISTANCE","FOOD COLLECTED","SCORE")):
+            result=root
+            break
+        time.sleep(2)
+    assert result is not None,(
+        "Real Game Over not reached via natural GameSimulation collision")
+    capture(f"owner-{folder}-05_Kraj_igre",width,height)
+    print("PASS: "+folder+" real ready/active/pause/Game Over, "
+          "native Retry and Home",flush=True)
 
 
 def main():
@@ -141,10 +167,10 @@ def main():
                 adb("shell","input","keyevent","4")
                 wait_home(width,height,density)
             real_flight_screens(folder,width,height)
-            print("PASS: "+folder+" 8 real frames including legal and gameplay",
+            print("PASS: "+folder+" 9 real frames including natural Game Over",
                   flush=True)
-        print("PASS: 40 authentic native screenshots, 5 owner viewports, "
-              "gameplay+Privacy; two Game Over variants not yet captured",
+        print("PASS: 45 authentic native screenshots, 5 owner viewports, "
+              "real gameplay+Privacy; Game Over variant remains unverified",
               flush=True)
     finally:
         # Never leave the developer's Android emulator at a forged density.
