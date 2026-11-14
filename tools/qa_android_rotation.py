@@ -29,6 +29,10 @@ def hierarchy():
             data = adb("exec-out", "cat", "/sdcard/bopavi-rotate.xml")
             root = ET.fromstring(data)
             if root.tag == "hierarchy" and list(root.iter("node")):
+                # Actual UIAutomator evidence is preserved for every failing
+                # orientation assert and uploaded by the existing CI workflow.
+                (OUT / "android-rotation-current-ui.xml").write_text(
+                    ET.tostring(root,encoding="unicode"),encoding="utf-8")
                 return root
         except (subprocess.CalledProcessError, ET.ParseError):
             pass
@@ -123,6 +127,8 @@ def main():
             time.sleep(1)
         assert len(idle) == 1, "FAIL: landscape GameView did not appear"
         native_w,native_h=screenshot("android-flight-landscape")
+        print("QA: after genuine landscape PLAY, screen is "
+              f"{native_w}x{native_h}, previously {w}x{h}",flush=True)
         assert (native_w,native_h)==(w,h) and native_w>native_h, (
             "FAIL: gameplay switched orientation after landscape PLAY",
             {"expected":(w,h),"actual":(native_w,native_h)})
