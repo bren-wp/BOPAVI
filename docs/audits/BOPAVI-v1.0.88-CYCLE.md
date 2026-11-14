@@ -57,10 +57,17 @@ source originals are jointly available.
 - R8 output shows minified/reachable mapping metadata, not proof of every
   unused Kotlin/resource path. Deletion requires source+runtime reachability
   and save migration impact review.
-- Game-launch conflict remains: production Home contains exactly Shop,
-  Skins and Settings. Adding a fourth visible button or changing the art
-  is not authorized. An existing-Bopi interaction remains an **unapproved
-  proposal**, not a changed behavior.
+- **New owner decision (2026-11-14):** add a visible PLAY control to Home
+  in both reference and compact modes, calling the existing `startGame()`.
+  See `docs/product/ADR-0003-restore-home-play.md`. The owner Home WebPs
+  still depict only three controls, so exact RGB match of the new PLAY
+  version to those historic images is impossible; obtain approved new
+  owner originals before 1:1 certification.
+- **Actual Android16 run 43647246363 failure:** `qa_android_shop_focus.py`
+  used `r"earned coins:\\\\s*([0-9]+)"`, so real `Earned coins: 0`
+  failed to match. Script corrected to `r"earned coins:\\s*([0-9]+)"`
+  and the owned-count expression; candidate awaiting exact-head emulator
+  result, rather than suppressing the Shop action test.
 
 ## Release rules
 
