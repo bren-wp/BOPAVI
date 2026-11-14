@@ -9,6 +9,11 @@ import time
 from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot, tap
 from qa_android_reference_menus import matching_nodes, node_with, acknowledge_native_fullscreen_education
 
+# Compile real Android accessibility labels once. Keep an executable unit test:
+# raw strings contain ONE backslash before regex classes, never doubled ones.
+COIN_AMOUNT = re.compile(r"earned coins:\s*([0-9]+)", re.IGNORECASE)
+OWNED_AMOUNT = re.compile(r"owned\s+(\d+)\s+of\s+99", re.IGNORECASE)
+
 
 def require(phrase,clickable=None,minimum=1):
     for _ in range(12):
@@ -29,15 +34,14 @@ def wallet_and_inventory(name, price):
     coin_nodes = matching_nodes(root, "EARNED COINS:")
     assert len(coin_nodes) == 1, "Shop must expose one actual local wallet"
     wallet = coin_nodes[0].get("content-desc") or coin_nodes[0].get("text") or ""
-    match = re.search(r"earned coins:\s*([0-9]+)", wallet, re.IGNORECASE)
+    match = COIN_AMOUNT.search(wallet)
     assert match, f"Cannot read real wallet: {wallet}"
     all_buttons = matching_nodes(root, f"{name}, price {price} coins", clickable=True)
     # Featured SUPER MAGNET appears twice; select its ordinary SKU card.
     buttons = [n for n in all_buttons
                if not (n.get("content-desc") or "").startswith("Featured ")]
     assert len(buttons) == 1, (name, price, len(buttons))
-    match_owned = re.search(r"owned\s+(\d+)\s+of\s+99",
-                            buttons[0].get("content-desc") or "", re.IGNORECASE)
+    match_owned = OWNED_AMOUNT.search(buttons[0].get("content-desc") or "")
     assert match_owned, f"Shop has no truthful inventory for {name}"
     return int(match.group(1)), int(match_owned.group(1)), buttons[0]
 
