@@ -32,7 +32,7 @@ for marker in (
     assert marker in backup,marker
 assert 'getSharedPreferences("bopavi_cloud_destination_v1"' in backup
 assert "contentResolver.takePersistableUriPermission" in backup
-assert "if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0)" in backup
+assert "if(flags and required != required)" in backup
 assert "takePersistableUriPermission(uri,flags)" in backup
 assert "return if(result.isSuccess)" not in backup  # completion is reported only after writing
 assert "activity.runOnUiThread" in backup
@@ -41,7 +41,7 @@ assert "releasePersistableUriPermission(" in backup
 assert "if(!ok)deactivate()" in backup
 assert "if(!gate.canRun(revision) || destination()!=uri)return@saveNow" in backup
 assert 'if(!uriPrefs.edit().remove("document_uri").commit())return' in backup
-assert "if(previous!=null && previous!=uri)releaseGrant(previous)" in backup
+assert "if(previous!=null && previous!=uri)releaseGrantWhenSafe(previous)" in backup
 assert "executor.shutdown()" in backup
 assert "if(!enabled || !allowed(context))return" in reminder
 assert 'prefs.getBoolean("notifications_enabled",false)' in store
