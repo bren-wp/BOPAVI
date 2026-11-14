@@ -20,6 +20,11 @@ assert 'android-background-active-failed-hierarchy.xml' in qa
 assert 'android-background-active-failed-screen' in qa
 assert 'duplicate native active flight controls' in qa
 assert '"AKTIVAN LET" in label(n)' in qa
+assert "started = active_flight(attempts=4,fail_closed=False)" in qa
+assert '"PRIJE PRVOG ZAMAHA" in label(node)' in qa
+assert 'tap(ready[0])' in qa
+assert 'started = active_flight()' in qa
+assert 'fail_closed=True' in qa
 assert 'first flap never transitioned the actual simulation to active state' in qa
 assert 'showPauseAfterBackground=true' in (src/"MainActivity.kt").read_text()
 print("PASS: background flow requires genuine active first flap, never ready-game accessibility")
