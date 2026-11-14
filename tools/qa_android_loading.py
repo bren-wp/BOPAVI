@@ -72,18 +72,23 @@ def main():
         # The preview is not a navigable game route and must never strand QA.
         adb("shell", "am", "force-stop", APP)
         adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
-    # The three production Home actions must survive Loading QA.
+    # Require the *actual four* production Home controls after a debug-only
+    # Loading preview is closed. Never accept duplicate, disabled, or invented
+    # UI nodes in place of real BOPAVI-owned clickable actions.
+    expected={"Pokreni igru", "Otvori izbor likova",
+              "Otvori trgovinu nadogradnji", "Otvori opcije igre"}
     actions=[]
     for attempt in range(8):
         home=hierarchy()
         actions=[n.get("content-desc") for n in home.iter("node")
-            if n.get("package")==APP and n.get("clickable")=="true"]
-        if set(actions)=={"Otvori izbor likova","Otvori trgovinu nadogradnji",
-                         "Otvori opcije igre"} and len(actions)==3:break
+                 if n.get("package")==APP and n.get("clickable")=="true"
+                 and n.get("enabled")=="true"]
+        if set(actions)==expected and len(actions)==4:break
         time.sleep(.5)
-    assert len(actions)==3, "FAIL: three-action Home missing after Loading preview"
-    assert adb("shell", "pidof", APP).strip(), "FAIL: application crashed after Splash"
-    print("PASS: Loading preview returns to three-action Home",flush=True)
+    assert len(actions)==4 and set(actions)==expected, (
+        "FAIL: four-action Home missing after Loading preview", actions)
+    assert adb("shell", "pidof", APP).strip(), "FAIL: application crashed after Loading"
+    print("PASS: Loading preview returns to four real Home actions including PLAY",flush=True)
 
 if __name__=="__main__":
     main()
