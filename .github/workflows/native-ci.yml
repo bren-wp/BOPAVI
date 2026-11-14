@@ -153,6 +153,7 @@ jobs:
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tests/test_current_reference_pack.py
       - run: python tests/test_reference_status_report.py
+      - run: python tests/test_android_dependency_report.py
       - run: python tests/test_owner_home_reference_geometry.py
       - run: python tests/test_owner_viewport_capture_contract.py
       - run: python tests/test_settings_dense_owner_camera_contract.py
@@ -246,6 +247,29 @@ jobs:
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
         run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
+      - name: Capture actual Gradle runtime component graph and R8 mapping
+        working-directory: android
+        run: |
+          mkdir -p ../qa/audit
+          gradle :app:dependencies --configuration releaseRuntimeClasspath --offline --no-daemon > ../qa/audit/release-runtime-deps.txt
+          gradle buildEnvironment --offline --no-daemon > ../qa/audit/build-environment.txt
+          test -s app/build/outputs/mapping/release/mapping.txt
+      - name: Check Gradle pins and produce partial resolved-dependency inventory
+        run: |
+          python tools/audit_android_dependency_report.py \
+            --runtime qa/audit/release-runtime-deps.txt \
+            --json-out qa/audit/resolved-runtime-inventory.json
+      - name: Preserve actual build dependency, R8 and lint evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-build-supply-chain-R8-lint
+          path: |
+            qa/audit/*.txt
+            qa/audit/*.json
+            android/app/build/outputs/mapping/release/mapping.txt
+            android/app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
       - name: Verify Play API 36 and unsigned bundle structure
         run: python tools/verify_play_release.py --aab android/app/build/outputs/bundle/release/app-release.aab
       - name: Verify signable release-mode APK is unsigned
