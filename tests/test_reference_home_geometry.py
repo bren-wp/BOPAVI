@@ -11,7 +11,7 @@ for marker in ("FitViewportColumn(this)",
                "content.addView(compactWingedBopi,",
                'text="▶  PLAY"',
                'contentDescription="Pokreni igru"',
-               'feature("SKINS"','feature("SHOP"'
+               'feature("SKINS"','feature("SHOP"',
                'text="SETTINGS"',
                'contentDescription="Otvori opcije igre"',
                "viewport.requestApplyInsets()",
