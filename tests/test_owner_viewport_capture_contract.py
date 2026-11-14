@@ -19,8 +19,13 @@ assert 'assert actual==(width,height)' in src
 assert 'min(right-left,bottom-top)>=minimum-1' in src
 assert 'wait_home(width,height,density)' in src
 assert 'open_route(route)' in src
+assert '10_Politika_privatnosti' in src
+assert 'tap(node_with("Pročitaj politiku privatnosti",attempts=10))' in src
+assert '"ZATVORI" in label(n)' in src
+assert 'capture(f"owner-{folder}-10_Politika_privatnosti",' in src
+assert '25 authentic native screenshots' in src
 assert '.resize(' not in src and 'Image.new(' not in src
 assert 'adb("shell","wm","size","reset")' in src
 flow=(root/".github/workflows/native-ci.yml").read_text()
 assert 'python3 tools/qa_android_owner_viewports.py' in flow
-print("PASS: native 20-frame owner viewport QA, no fake captures or undersized controls")
+print("PASS: native 25-frame owner viewport QA including real Privacy, no fake captures")

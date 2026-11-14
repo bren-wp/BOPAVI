@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture genuine BOPAVI Home, Skins, Shop and Settings at all owner viewports.
+"""Capture 5 genuine BOPAVI screens, including native Privacy, per owner viewport.
 
 This is a navigation/accessibility/screen-size gate, NOT a declaration that
 its pixels are identical to the static mockups. Never resize screenshots or
@@ -12,9 +12,9 @@ import time
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot
+from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot, tap, label
 from qa_android_reference_menus import (
-    acknowledge_native_fullscreen_education, home, open_route,
+    acknowledge_native_fullscreen_education, home, open_route, node_with,
 )
 
 # Exact physical sizes in BOPAVI_Svi_Zasloni_i_Gameplay_Android(2).zip.
@@ -80,11 +80,30 @@ def main():
             for route,stem in DESTINATIONS:
                 open_route(route)
                 capture(f"owner-{folder}-{stem}",width,height)
+                if route=="Settings":
+                    # An authentic legal HTML overlay is independently
+                    # captured as screen 10; it is NOT rendered from a WebP.
+                    tap(node_with("Pročitaj politiku privatnosti",attempts=10))
+                    notice=hierarchy()
+                    assert any("POLITIKA PRIVATNOSTI" in label(n)
+                               for n in notice.iter("node")), (
+                        "Privacy heading absent from real legal modal")
+                    assert any("ZATVORI" in label(n)
+                               for n in notice.iter("node")), (
+                        "Real legal close action missing")
+                    capture(f"owner-{folder}-10_Politika_privatnosti",
+                            width,height)
+                    adb("shell","input","keyevent","4")
+                    # Must return to the original interactive Settings
+                    # screen, then back to Home, not restart the process.
+                    assert len([n for n in hierarchy().iter("node")
+                                if n.get("package")==APP and
+                                "PROČITAJ POLITIKU PRIVATNOSTI" in label(n)])>=1
                 adb("shell","input","keyevent","4")
                 wait_home(width,height,density)
-            print("PASS: "+folder+" all 3 production routes and 4 native frames",flush=True)
-        print("PASS: 20 authentic native screenshots, 5 owner viewports, "
-              "three Home destinations; pixel equivalence not asserted",flush=True)
+            print("PASS: "+folder+" 3 production routes, 5 native frames including Privacy",flush=True)
+        print("PASS: 25 authentic native screenshots, 5 owner viewports, "
+              "real Privacy navigation; pixel equivalence not asserted",flush=True)
     finally:
         # Never leave the developer's Android emulator at a forged density.
         adb("shell","wm","size","reset")
