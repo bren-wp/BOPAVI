@@ -60,7 +60,7 @@ def wait_home(width: int, height: int, density: int):
             assert min(right-left,bottom-top)>=minimum-1, (
                 "Home control smaller than 48dp",node.attrib,minimum)
         return native
-    raise AssertionError("Home with three accessible native actions unavailable")
+    raise AssertionError("Home with four accessible native actions unavailable")
 
 def capture(name: str, width: int, height: int):
     actual=screenshot(name)
