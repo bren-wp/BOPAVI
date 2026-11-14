@@ -24,8 +24,10 @@ class SettingsReferenceLayoutTest {
     }
     @Test fun tallOwnerRowPitchAndWoodPanelMatchRealScreenshotGeometry() {
         val s=SettingsReferenceLayout
-        assertEquals(0f,s.rowOffset(0,1080,1920),.01f)
-        assertEquals(0f,s.panelExtra(1080,1920),.01f)
+        // 1080:1920 and the source 941:1672 ratio differ by about 1px
+        // of letterboxing. Accept subpixel projection, not bogus exact zero.
+        assertEquals(0f,s.rowOffset(0,1080,1920),.1f)
+        assertEquals(0f,s.panelExtra(1080,1920),.6f)
         assertTrue(s.rowOffset(0,1080,2400)>20f)
         assertTrue(s.rowOffset(8,1080,2400)>110f)
         assertTrue(s.panelExtra(1080,2400)>230f)
