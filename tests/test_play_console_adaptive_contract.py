@@ -54,8 +54,10 @@ assert "python3 tools/qa_android_rotation.py" in qa
 assert "python3 tools/qa_android_background.py" in qa
 assert '"user-rotation", "lock"' in rotate
 assert "android-home-landscape" in rotate and "android-flight-landscape" in rotate
-assert '"bopavi_qa_capture_first_flap","true"' in rotate
-assert '"bopavi_qa_launch_flight","true"' in rotate
+assert '"bopavi_qa_capture_first_flap", "true"' in rotate
+assert '"bopavi_qa_launch_flight"' not in rotate
+assert 'tap(play[0])' in rotate
+assert '(native_w,native_h)==(w,h) and native_w>native_h' in rotate
 assert "ŽIVOTI:" in rotate and "flight_before" in rotate
 assert "active = active_flight()" in rotate and "assert_flight_visible" in rotate
 assert "android-flight-portrait-active" in rotate
