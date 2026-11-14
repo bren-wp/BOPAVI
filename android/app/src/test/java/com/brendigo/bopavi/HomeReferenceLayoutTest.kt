@@ -41,6 +41,8 @@ class HomeReferenceLayoutTest {
     @Test fun balanceIsPassiveAndLogoStaysClear() {
         val home=HomeReferenceLayout
         assertTrue(home.coins.inside())
+        assertEquals(708f,home.coins.x,0f)
+        assertTrue(home.coins.right<=home.width)
         assertTrue(home.coins.bottom<home.logoArtwork.y)
         assertTrue(home.logoArtwork.bottom<home.heroArtwork.y)
         assertFalse(home.coins.overlaps(home.logoArtwork))

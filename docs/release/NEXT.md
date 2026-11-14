@@ -18,3 +18,5 @@
 - New visual acceptance must come from real Android 15/16 screenshots, all screen resolutions and updated RGB reports; release blocked until mandatory CI is green.
 
 - Skins portrait camera now uses an owner-measured top-weighted (.18) vertical anchor on long phones rather than the generic center (.50) anchor. On 1080×2400 that adjusts the complete native art/cards/selection panel by ~154 physical pixels together; on 16:9/compact viewports the old placement remains. Real screenshots must confirm actual improvement.
+
+- Home: original owner reference shows the single earned-coin wallet against the top-right edge (x≈708 on 941px camera), not over the central brand. Removed remaining decorative gold ring trail from Home; retained sparkles, natural streaks, native 3D buttons, real saved coins and accessibility.

@@ -18,7 +18,7 @@ assert '},3500L)' not in main
 assert 'showBrandedStartup()' not in main
 assert 'e.child.layout(x,sharedTop,x+e.child.measuredWidth,' in hud
 assert 'val area=Rect(x,sharedTop,x+e.child.measuredWidth,' in hud
-assert 'val coins=HomeBounds(457f,21f,220f,64f)' in layout
+assert 'val coins=HomeBounds(708f,21f,220f,64f)' in layout
 assert 'val stars=HomeBounds(' not in layout
 assert 'if [ "$api" = 36 ]; then' in script
 assert 'targets=(default google_apis)' in script

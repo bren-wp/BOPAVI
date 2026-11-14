@@ -15,7 +15,9 @@ internal object HomeReferenceLayout {
 
     // The supplied 941×1672 Home illustration places both live balances
     // in the upper right. Never hardcode the illustration's sample numbers.
-    val coins=HomeBounds(457f,21f,220f,64f)
+    // Owner 1080×1920 and 1080×2400 both put the live coin pill
+    // against the RIGHT safe edge, not over the center of BOPAVI's logo.
+    val coins=HomeBounds(708f,21f,220f,64f)
     // The approved logo including crown, enamel and feathers is higher and
     // slightly wider than the previous reference box. Preserve the SVG
     // aspect ratio inside this box; Home does not stretch logo pixels.
