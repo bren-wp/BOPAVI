@@ -384,7 +384,7 @@ import sys, xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
 actions={n.get("content-desc","") for n in nodes
          if n.get("clickable")=="true" and n.get("enabled")=="true"}
-expected={"Otvori opcije igre","Otvori izbor likova",
+expected={"Pokreni igru","Otvori opcije igre","Otvori izbor likova",
           "Otvori trgovinu nadogradnji"}
 owned={n.get("content-desc","") for n in nodes
        if n.get("package")=="com.brendigo.bopavi"
@@ -710,14 +710,61 @@ nodes=list(ET.parse("qa/screenshots/android-current-ui.xml").getroot().iter("nod
 buttons=[n for n in nodes if n.get("package")=="com.brendigo.bopavi"
          and n.get("clickable")=="true" and n.get("enabled")=="true"]
 actual={n.get("content-desc") for n in buttons}
-expected={"Otvori izbor likova","Otvori trgovinu nadogradnji","Otvori opcije igre"}
-assert len(buttons)==3 and actual==expected, ("FAIL: Home must have exactly three actions",actual)
-for old in ("PLAY","REKORDI","LEADERBOARD","NAPREDAK","LEVEL MAP","ACHIEVEMENTS"):
+expected={"Pokreni igru","Otvori izbor likova",
+          "Otvori trgovinu nadogradnji","Otvori opcije igre"}
+assert len(buttons)==4 and actual==expected, (
+    "FAIL: Home must have exactly four actions including PLAY",actual)
+for old in ("REKORDI","LEADERBOARD","NAPREDAK","LEVEL MAP","ACHIEVEMENTS"):
     assert all(old not in (v or "").upper() for v in actual),old
-print("PASS: Home only Shop, Skins, Settings; no obsolete destinations",flush=True)
+print("PASS: Home PLAY, Shop, Skins, Settings; no obsolete destinations",flush=True)
 PY
-# Test the retained flight engine through an explicit debuggable-only launch.
-# No fourth Home action and no release-build entry point are introduced.
+# First verify that ordinary users can start gameplay by touching the real
+# accessible PLAY button. Only after that independent production-path check
+# do we restart with debug-only QA capture extras for deterministic flight
+# screenshots. A source-level callback assertion is not sufficient.
+python3 - <<'PY_REAL_PLAY'
+import re,subprocess,xml.etree.ElementTree as ET
+root=ET.parse("qa/screenshots/android-current-ui.xml").getroot()
+matches=[n for n in root.iter("node")
+         if n.get("package")=="com.brendigo.bopavi"
+         and n.get("content-desc")=="Pokreni igru"
+         and n.get("clickable")=="true"
+         and n.get("enabled")=="true"]
+if len(matches)!=1:
+    raise SystemExit("FAIL: one accessible native PLAY action required")
+m=re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",matches[0].get("bounds",""))
+if not m:raise SystemExit("FAIL: PLAY native bounds unavailable")
+l,t,r,b=map(int,m.groups())
+subprocess.run(["adb","shell","input","tap",str((l+r)//2),str((t+b)//2)],check=True)
+PY_REAL_PLAY
+production_play_ready=0
+for attempt in $(seq 1 15); do
+  adb shell pidof com.brendigo.bopavi >/dev/null || {
+    echo "FAIL: production PLAY crashed BOPAVI" >&2; exit 1;
+  }
+  if dump_ui && python3 - qa/screenshots/android-current-ui.xml <<'PY_REAL_FLIGHT'
+import sys,xml.etree.ElementTree as ET
+root=ET.parse(sys.argv[1]).getroot()
+app=[n for n in root.iter("node") if n.get("package")=="com.brendigo.bopavi"]
+game=[n for n in app if n.get("class")=="android.view.View"
+      and n.get("clickable")=="true"
+      and "DODIRNI ZA ZAMAH KRILIMA" in
+        (n.get("text","")+" "+n.get("content-desc","")).upper()]
+play=[n for n in app if n.get("clickable")=="true"
+      and n.get("content-desc")=="Pokreni igru"]
+sys.exit(0 if len(game)==1 and not play else 1)
+PY_REAL_FLIGHT
+  then production_play_ready=1; break; fi
+  if acknowledge_verified_fullscreen_education; then
+    echo "System fullscreen guidance dismissed; rechecking real PLAY route"
+  fi
+  sleep 2
+done
+test "$production_play_ready" -eq 1 || {
+  echo "FAIL: production Home PLAY never reached genuine GameView" >&2; exit 1;
+}
+capture android-production-play-ready
+echo "PASS: native Home PLAY launches real GameView without debug launch extras"
 adb shell am force-stop com.brendigo.bopavi
 adb shell am start -W -n com.brendigo.bopavi/.MainActivity \
   --ez bopavi_qa_capture_first_flap true --ez bopavi_qa_launch_flight true
