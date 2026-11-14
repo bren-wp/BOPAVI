@@ -180,11 +180,10 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
             round(c,x-13f,587f,26f,959f,8f,0xff81421e.toInt())
             shiny(c,x-8f,590f,16f,946f,7f,0xfff1b46a.toInt(),0xff743516.toInt())
         }
-        round(c,0f,1566f,941f,106f,19f,0xff4b2518.toInt())
-        shiny(c,0f,1560f,941f,49f,18f,0xffcf8a4b.toInt(),0xff81431e.toInt())
-        for(i in 0..7){
-            round(c,4f+i*119f,1616f,110f,11f,5f,0x55351613)
-        }
+        // The lower sill is intentionally NOT drawn here: on 20:9
+        // viewports this centered stage ended ~200 physical pixels above
+        // the owner-supplied wooden base. ShopBottomSill owns the footer
+        // on a separate bottom-aligned, passive camera.
     }
     private fun featuredAura(c:Canvas){
         // Violet radial gold-edged feature, under the live Featured contents.
@@ -237,6 +236,61 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
         c.translate(0f,ShopHeaderLayout.titleOffset)
         woodenBoard(c)
         c.restoreToCount(titleSave)
+    }
+}
+
+/**
+ * Bottom-aligned extension of the owner's 3D wooden Shop counter.
+ * On tall portrait displays the centred card grid ends too early to carry
+ * the wooden base into the last ~200 screen pixels. This view shares the
+ * original 941×1672 scale but anchors to the BOTTOM of the full viewport.
+ *
+ * It paints no values, prices, product labels, buttons or screenshot pixels.
+ * Native SKU cards remain on their original camera and retain all touches.
+ */
+internal class ShopBottomSill(context:Context):View(context) {
+    private val ink=Paint(Paint.ANTI_ALIAS_FLAG)
+    init {
+        importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
+        isClickable=false
+        isFocusable=false
+    }
+    private fun plank(c:Canvas,l:Float,t:Float,r:Float,b:Float,
+                      radius:Float,top:Int,bottom:Int) {
+        ink.reset()
+        ink.isAntiAlias=true
+        ink.shader=LinearGradient(0f,t,0f,b,top,bottom,Shader.TileMode.CLAMP)
+        c.drawRoundRect(l,t,r,b,radius,radius,ink)
+        ink.shader=null
+    }
+    override fun onDraw(c:Canvas) {
+        if(width<=0 || height<=0)return
+        val saved=c.save()
+        c.scale(width/ShopReferenceLayout.width,
+            height/ShopReferenceLayout.height)
+        // Overlap the centre-stage frame by ~50 native pixels. This leaves
+        // no sky-coloured seam while keeping the bottom shelf behind cards.
+        plank(c,19f,ShopBottomLayout.woodTop,922f,1655f,27f,
+            0xffb97736.toInt(),0xff603016.toInt())
+        plank(c,27f,ShopBottomLayout.woodTop+18f,914f,1564f,23f,
+            0xff9b5629.toInt(),0xff6b3119.toInt())
+        // Two recessed planks continue the three-dimensional cut-wood body.
+        plank(c,29f,1492f,913f,1520f,8f,
+            0xffd9954c.toInt(),0xff7e3a1e.toInt())
+        plank(c,25f,1550f,916f,1604f,12f,
+            0xffffc47c.toInt(),0xff985021.toInt())
+        plank(c,0f,1600f,941f,1672f,12f,
+            0xffb7783c.toInt(),0xff542c17.toInt())
+        plank(c,0f,1600f,941f,1627f,9f,
+            0xfff0bb75.toInt(),0xff97501e.toInt())
+        ink.reset()
+        ink.isAntiAlias=true
+        ink.color=0x55351510
+        for(i in 0..7) {
+            val left=5f+i*119f
+            c.drawRoundRect(left,1644f,left+109f,1656f,6f,6f,ink)
+        }
+        c.restoreToCount(saved)
     }
 }
 

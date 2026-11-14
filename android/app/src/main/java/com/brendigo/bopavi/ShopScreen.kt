@@ -265,6 +265,10 @@ internal class ShopScreen(
         // Full storefront artwork is a separate passive native Canvas layer.
         // Dynamic prices, avatar, balances and buttons remain Android Views.
         stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)
+        // Purely decorative, real 3D wood: bridge the central card frame to
+        // the physical bottom of tall devices without moving any purchase.
+        stage.place(ShopBottomSill(host),0f,0f,941f,1672f,
+            verticalAnchor=ShopBottomLayout.bottomAnchor)
         stage.place(ShopHeaderScene(host),0f,0f,941f,1672f,
             verticalAnchor=ShopHeaderLayout.headerAnchor)
         // Native header, real locally saved counters and original character.
@@ -413,7 +417,8 @@ internal class ShopScreen(
         }
 
         // Entirely passive flower/leaf foreground, preserving all touches.
-        stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f)
+        stage.place(ShopForegroundFoliage(host),0f,0f,941f,1672f,
+            verticalAnchor=ShopBottomLayout.bottomAnchor)
 
         stage.setOnApplyWindowInsetsListener{_,insets->
             if(Build.VERSION.SDK_INT>=30){
