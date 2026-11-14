@@ -125,8 +125,8 @@ def main():
                 try:home();break
                 except AssertionError:continue
             home()
-            print("PASS: native "+name+" returns to three-action Home",flush=True)
-        print("PASS: exactly three Home buttons; real Shop, Skins and Settings captures")
+            print("PASS: native "+name+" returns to four-action Home",flush=True)
+        print("PASS: exactly four Home buttons; real Shop, Skins and Settings captures")
     finally:
         if resized:
             adb("shell","wm","size","reset")
