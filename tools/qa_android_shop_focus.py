@@ -6,7 +6,7 @@ balances, stub purchases, or silently successful duplicate actions.
 """
 import re
 import time
-from qa_android_rotation import APP, adb, hierarchy, screenshot, tap
+from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot, tap
 from qa_android_reference_menus import matching_nodes, node_with, acknowledge_native_fullscreen_education
 
 
@@ -115,7 +115,15 @@ def main():
         assert adb("shell","pidof",APP)==pid,"FAIL: Skins screen restarted process"
         tap(node_with("BACK TO HOME",attempts=8))
         require("OTVORI TRGOVINU NADOGRADNJI",clickable=True)
-        print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, four live pilots, no process restart")
+        # This records genuine emulator telemetry, not an invented FPS score.
+        # CPU, jank, PSS and battery acceptance still require physical devices.
+        gfx = adb("shell", "dumpsys", "gfxinfo", APP, "framestats")
+        mem = adb("shell", "dumpsys", "meminfo", APP)
+        assert gfx.strip() and mem.strip(), "Android performance instrumentation unavailable"
+        (OUT / "bopavi-api36-gfxinfo-framestats.txt").write_text(gfx + "\n", encoding="utf-8")
+        (OUT / "bopavi-api36-meminfo.txt").write_text(mem + "\n", encoding="utf-8")
+        print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, "
+              "verified real-wallet taps, four live pilots, emulator performance logs", flush=True)
     finally:
         adb("shell","wm","size","reset")
         adb("shell","wm","density","reset")
