@@ -91,13 +91,13 @@ def main():
                      if n.get("package")==APP and n.get("clickable")=="true"
                      and n.get("enabled")=="true"]
             descriptions={n.get("content-desc") for n in buttons}
-            expected={"Otvori izbor likova","Otvori trgovinu nadogradnji",
-                      "Otvori opcije igre"}
-            if len(buttons)==3 and descriptions==expected:break
+            expected={"Pokreni igru","Otvori izbor likova",
+                      "Otvori trgovinu nadogradnji", "Otvori opcije igre"}
+            if len(buttons)==4 and descriptions==expected:break
             adb("shell","input","swipe",w//2,h*80//100,w//2,h*25//100,380)
             time.sleep(.5)
-        assert len(buttons)==3 and descriptions==expected, (
-            "FAIL: rotated Home must have exactly Shop, Skins, Settings")
+        assert len(buttons)==4 and descriptions==expected, (
+            "FAIL: rotated Home must have Play, Shop, Skins and Settings")
         adb("shell","am","force-stop",APP)
         adb("shell","am","start","-W","-n",APP+"/.MainActivity",
             "--ez","bopavi_qa_capture_first_flap","true",
