@@ -1056,10 +1056,13 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   python3 - qa/screenshots/android-current-ui.xml <<'PY'
 import sys,xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-actual={n.get("content-desc","") for n in nodes
-        if n.get("package")=="com.brendigo.bopavi" and n.get("clickable")=="true"}
-assert actual=={"Otvori opcije igre","Otvori izbor likova",
-               "Otvori trgovinu nadogradnji"},actual
+actual=[n.get("content-desc","") for n in nodes
+        if n.get("package")=="com.brendigo.bopavi"
+        and n.get("clickable")=="true" and n.get("enabled")=="true"]
+expected={"Pokreni igru","Otvori opcije igre","Otvori izbor likova",
+          "Otvori trgovinu nadogradnji"}
+assert len(actual)==4 and set(actual)==expected, (
+    "FAIL: reference-size Home does not expose four real actions",actual)
 PY
   capture android-home-reference-size
   adb shell am force-stop com.brendigo.bopavi
@@ -1135,11 +1138,14 @@ if [ "${BOPAVI_VIEWPORT_QA:-0}" = "1" ]; then
   python3 - qa/screenshots/android-current-ui.xml <<'PY_OWNER_HOME'
 import sys, xml.etree.ElementTree as ET
 nodes=list(ET.parse(sys.argv[1]).getroot().iter("node"))
-accessible={n.get("content-desc","") for n in nodes
-            if n.get("clickable")=="true"}
-assert accessible=={"Otvori izbor likova","Otvori trgovinu nadogradnji",
-                    "Otvori opcije igre"}, \
-    "Owner-size Home must offer exactly Shop, Skins and Settings"
+accessible=[n.get("content-desc","") for n in nodes
+            if n.get("package")=="com.brendigo.bopavi"
+            and n.get("clickable")=="true" and n.get("enabled")=="true"]
+expected={"Pokreni igru","Otvori izbor likova",
+          "Otvori trgovinu nadogradnji","Otvori opcije igre"}
+assert len(accessible)==4 and set(accessible)==expected, (
+    "FAIL: owner-size Home must offer PLAY, Shop, Skins and Settings",
+    accessible)
 PY_OWNER_HOME
   capture android-home-owner-native-864
   adb shell am force-stop com.brendigo.bopavi
