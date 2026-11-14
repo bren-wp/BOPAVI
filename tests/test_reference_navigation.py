@@ -11,7 +11,8 @@ assert all(s in a for s in ("private fun showHome(){",
 for removed in ("showLevels(","showLocalRecords(","showLocalAchievements(",
                 "showProgressOverview(","showQuickOptions("):
     assert removed not in a,removed
-for s in ('onSkins={showSkins()}','onShop={showShop()}',
+for s in ('onPlay={sound.effect("click");startGame()}',
+          'onSkins={showSkins()}','onShop={showShop()}',
           'onSettings={showSettingsScreen()}'):
     assert s in a,s
 assert "fun levels(" not in m
@@ -19,4 +20,4 @@ assert "fun skins(" in m and "fun shop(" in m
 assert "progress.recordRun(g)" in a
 assert "onBack={showHome()}" in a
 assert "gamePauseButton" not in a
-print("PASS: exactly supported native Home routes and retained game lifecycle")
+print("PASS: Play reaches native game lifecycle and original Home routes stay intact")
