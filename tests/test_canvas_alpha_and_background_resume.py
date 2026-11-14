@@ -37,7 +37,12 @@ assert 'keyevent", "3"' in qa and 'one_control("NASTAVI")' in qa
 assert 'one_control("DODIRNI ZA ZAMAH KRILIMA")' in qa
 assert 'one_control("DODIRNI ZA LET")' not in qa
 assert 'Dodirni za zamah krilima.' in view
-assert "before = active_flight().get(" in qa
+assert 'before = started.get("content-desc")' in qa
+assert 'started = active_flight(attempts=4,fail_closed=False)' in qa
+assert '"PRIJE PRVOG ZAMAHA" in label(node)' in qa
+assert 'tap(ready[0])' in qa
+assert 'started = active_flight()' in qa
+assert 'resumed = active_flight()' in qa
 assert 'resumed.get("content-desc") == before' in qa
 assert "python3 tools/qa_android_background.py" in runner
 assert "python tests/test_canvas_alpha_and_background_resume.py" in ci
