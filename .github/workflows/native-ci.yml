@@ -259,6 +259,10 @@ jobs:
           python tools/audit_android_dependency_report.py \
             --runtime qa/audit/release-runtime-deps.txt \
             --json-out qa/audit/resolved-runtime-inventory.json
+      - name: Inventory bundled art, original assets and generated audio
+        run: |
+          python tools/audit_android_asset_inventory.py \
+            --json-out qa/audit/android-asset-rights-inventory.json
       - name: Preserve actual build dependency, R8 and lint evidence
         if: always()
         uses: actions/upload-artifact@v4
