@@ -94,16 +94,20 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
             y+b.bottom*scale<=height-safeBottom
         return if(inside)aligned else safe
     }
+    private fun ownerShopXFactor(width:Int,height:Int):Float =
+        if(shopFullBleed)ShopReferenceLayout.horizontalFactor(width,height) else 1f
+
     override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
         val w=View.MeasureSpec.getSize(widthMeasureSpec)
         val h=View.MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(w,h)
         val safe=transform(w,h)
         val reference=referenceTransform(w,h)
+        val ownerX=ownerShopXFactor(w,h)
         val minimum=(48f*resources.displayMetrics.density).toInt()
         for(slot in slots){
             val (scale,_,_)=placement(slot,w,h,safe,reference)
-            val cw=if(slot.full)w else maxOf((slot.bounds.width()*scale).toInt(),
+            val cw=if(slot.full)w else maxOf((slot.bounds.width()*scale*ownerX).toInt(),
                 if(slot.minTouch)minimum else 1)
             val ch=if(slot.full)h else maxOf((slot.bounds.height()*scale).toInt(),
                 if(slot.minTouch)minimum else 1)
@@ -116,10 +120,15 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
         val h=bottom-top
         val safe=transform(w,h)
         val reference=referenceTransform(w,h)
+        val ownerX=ownerShopXFactor(w,h)
         for(slot in slots){
             val child=slot.view
             val (scale,ox,oy)=placement(slot,w,h,safe,reference)
-            val x=if(slot.full)0 else (ox+slot.bounds.left*scale).toInt()
+            // Compress only the 1080×1920 Shop reference stage around the
+            // real physical screen centre. Y camera and all other screens
+            // are unchanged; native >=48dp minimum hit width is preserved.
+            val px=ox+slot.bounds.left*scale
+            val x=if(slot.full)0 else (w*.5f+(px-w*.5f)*ownerX).toInt()
             val y=if(slot.full)0 else (oy+slot.bounds.top*scale).toInt()
             child.layout(x,y,x+child.measuredWidth,y+child.measuredHeight)
         }
