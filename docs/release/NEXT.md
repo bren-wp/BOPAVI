@@ -8,6 +8,9 @@
 - Require readable SAF targets for recoverable overwrite and serialize old-document grant release behind writes. Do not modify the local v1–v6 JSON save schema or virtual wallet.
 - Add JVM fault-injection tests for truncation, power-loss-style restart and stale destination; provider behavior and out-of-process writes remain to be tested on real devices.
 - Track 50 original owner WebPs and genuine Android PNGs independently of build success. Block a new release when any original is missing, a capture is absent/duplicated, or even one RGB pixel differs.
+- Restore a real production PLAY button (both full reference camera and compact Home) wired to `MainActivity.startGame()`. This implements the user's 2026-11-14 correction in `docs/product/ADR-0003-restore-home-play.md`.
+- Fix the Android 16 Shop QA crash caused by double-escaped regex parsing of the real coin/inventory labels; add an actual visible-PLAY-to-GameView emulator test.
 - Known blockers: 10 missing original 1440×3040 WebPs, incomplete native Game Over B evidence, no zero-difference results, legal MIT/assets/Terms review and physical SAF-provider tests.
+- **Home original references depict no PLAY button**. The owner-requested new visible control is intentionally not RGB-identical to historical Home WebPs: new original owner Home references for all five formats are required for an honest 1:1 claim.
 
 Unsigned debug/release APK and AAB artifacts may be built for QA. Do not represent any artifact as publisher-signed or overwrite v1.0.87.
