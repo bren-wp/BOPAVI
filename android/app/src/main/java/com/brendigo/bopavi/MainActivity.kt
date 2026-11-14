@@ -713,6 +713,7 @@ class MainActivity : Activity() {
                 resources.displayMetrics.density)){
             val home=HomeReferenceScreen(this,progress).create(
                 pilotIndex=selectedPilotChoice,
+                onPlay={sound.effect("click");startGame()},
                 onSkins={showSkins()},
                 onShop={showShop()},
                 onSettings={showSettingsScreen()})
@@ -745,8 +746,8 @@ class MainActivity : Activity() {
         // Reference Home: the hero is the dominant center artwork. Keep
         // it larger on tall phones without reducing native 48dp tap targets.
         val heroHeight=if(compactDisplay)
-            (resources.configuration.screenHeightDp-558).coerceIn(92,270)
-        else (resources.configuration.screenHeightDp-468).coerceIn(225,320)
+            (resources.configuration.screenHeightDp-610).coerceIn(92,240)
+        else (resources.configuration.screenHeightDp-523).coerceIn(170,300)
 
         // Currency stays visible as a passive balance, not a fourth button.
         content.addView(TextView(this).apply{
@@ -795,6 +796,33 @@ class MainActivity : Activity() {
         content.addView(compactWingedBopi,LinearLayout.LayoutParams(-1,d(
             heroHeight
         )).apply{topMargin=d(if(compactDisplay)0 else 7)})
+        // The owner Home art had no launch control; a real playable app
+        // must visibly connect the Home UI to the existing flight engine.
+        // This compact/landscape CTA has the same title, callback and 48dp
+        // minimum as the full owner-camera native PLAY pill.
+        content.addView(TextView(this).apply{
+            text="▶  PLAY"
+            textSize=if(tinyDisplay)19f else 23f
+            typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+            setTextColor(Color.WHITE)
+            gravity=Gravity.CENTER
+            contentDescription="Pokreni igru"
+            background=RippleDrawable(ColorStateList.valueOf(0x55ffffff),
+                HomeEnamelDrawable(0xff9cf5b5.toInt(),
+                    0xff118148.toInt(),0xff075d36.toInt(),
+                    0xffd5ffe2.toInt()),null)
+            elevation=d(5).toFloat()
+            minimumHeight=d(48)
+            isClickable=true
+            isFocusable=true
+            setOnClickListener{sound.effect("click");startGame()}
+        },LinearLayout.LayoutParams(
+            (resources.displayMetrics.widthPixels*.66f).toInt(),
+            d(if(tinyDisplay)50 else 59)).apply {
+            gravity=Gravity.CENTER_HORIZONTAL
+            topMargin=d(2);bottomMargin=d(7)
+        })
+
         val features=LinearLayout(this).apply{
             orientation=LinearLayout.HORIZONTAL
             gravity=Gravity.CENTER
