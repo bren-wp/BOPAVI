@@ -10,7 +10,7 @@ e=(src/"HomeEnamelDrawable.kt").read_text()
 assert 'HomeReferenceScreen(this,progress).create(' in m
 for item in ('R.drawable.homeback','R.drawable.logo','HomeWingActor(host',
              'HomeOrbitDecoration(host)','HomeTopWalletRail(host)',
-             'pill("PLAY"','pill("SKINS"','pill("SHOP"','pill("SETTINGS"'
+             'pill("PLAY"','pill("SKINS"','pill("SHOP"','pill("SETTINGS"',
              'ReferenceButtonCluster.measure(','HomeEnamelDrawable(',
              'setOnClickListener{onClick()}','minimumHeight=dp(48)',
              'stage.setOnApplyWindowInsetsListener','stage.setSafe('):
