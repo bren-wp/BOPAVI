@@ -15,13 +15,14 @@ assert 'else showHome()' in a
 home=a.split("private fun showHome(){",1)[1].split("private fun confirmGameplayShop(",1)[0]
 for name in ('feature("SKINS"','feature("SHOP"','text="SETTINGS"'):
     assert name in home,name
-for forbidden in ('▶  PLAY','shortcut("','showLevels(', 'showLocalRecords(',
+for forbidden in ('shortcut("','showLevels(', 'showLocalRecords(',
                   'showProgressOverview(', 'showLocalAchievements('):
     assert forbidden not in home,forbidden
 assert 'private fun showSkins(){' in a
 assert 'private fun showShop(){' in a
 assert 'private fun showSettingsScreen(){' in a
-assert 'private fun startGame(){' in a  # retained game engine, not Home route
+assert 'private fun startGame(){' in a  # existing engine, now reachable via PLAY
+assert 'text="▶  PLAY"' in home and 'startGame()' in home
 assert 'private fun showResult(g:GameSimulation){' in a
 assert 'progress.recordRun(g)' in a
 assert 'GameSimulation(' in a
@@ -31,4 +32,4 @@ assert 'hudPortraitRect' in view and 'drawHudHeart(' in view
 assert 'fun recordRun(game: GameSimulation)' in store
 assert 'fun selectOrBuy(index: Int): Boolean' in store
 assert "python tools/audit_native_dead_code.py" in flow
-print("PASS: three-route Home, offline persistence, retained gameplay core")
+print("PASS: four-route Home including real Play, offline persistence")
