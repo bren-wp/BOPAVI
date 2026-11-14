@@ -136,6 +136,7 @@ jobs:
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_shop_focus_native_labels.py
+      - run: python tests/test_android_home_four_actions_smoke_contract.py
       - run: python tests/test_native_qa_helpers_contract.py
       - run: python tests/test_direct_home_shop_skins.py
       - run: python tests/test_reference_pixel_diff_tool.py
