@@ -122,8 +122,19 @@ def main():
         assert gfx.strip() and mem.strip(), "Android performance instrumentation unavailable"
         (OUT / "bopavi-api36-gfxinfo-framestats.txt").write_text(gfx + "\n", encoding="utf-8")
         (OUT / "bopavi-api36-meminfo.txt").write_text(mem + "\n", encoding="utf-8")
+        # Production-like Home path: the user's new visible PLAY control
+        # must load an actual GameSimulation without a debug-only launch extra.
+        tap(node_with("POKRENI IGRU", attempts=12))
+        gameplay=node_with("DODIRNI ZA ZAMAH KRILIMA", attempts=20)
+        assert "PRIJE PRVOG ZAMAHA" in (
+            (gameplay.get("text") or "") + (gameplay.get("content-desc") or "")
+        ).upper(), "PLAY did not reach genuine ready-to-flap gameplay"
+        w,h=screenshot("android-home-play-real-gameplay")
+        assert (w,h)==(941,1672),(w,h)
+        assert adb("shell","pidof",APP)==pid, "PLAY launch restarted the process"
         print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, "
-              "verified real-wallet taps, four live pilots, emulator performance logs", flush=True)
+              "verified real-wallet taps, four live pilots, emulator performance logs "
+              "and visible PLAY opens real GameSimulation", flush=True)
     finally:
         adb("shell","wm","size","reset")
         adb("shell","wm","density","reset")
