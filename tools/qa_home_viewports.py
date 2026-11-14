@@ -17,6 +17,7 @@ from pathlib import Path
 OUT = Path("qa/screenshots")
 PACKAGE = "com.brendigo.bopavi"
 TARGETS = {
+    "Play": ("POKRENI IGRU",),
     "Settings": ("OTVORI OPCIJE IGRE",),
     "Skins": ("OTVORI IZBOR LIKOVA",),
     "Shop": ("OTVORI TRGOVINU NADOGRADNJI",),
@@ -114,7 +115,7 @@ def audit(width: int, height: int, density: int, label: str) -> None:
             ET.tostring(root, encoding="unicode"), encoding="utf-8")
     missing = sorted(set(TARGETS) - all_found)
     assert not missing, (label, "Home targets not reachable after swipes", missing)
-    # In the 941x1672 owner reference, all seven controls must fit at once.
+    # The 941x1672 native Home must expose all four real controls at once.
     if label == "reference":
         assert not scrolled, "Reference Home unexpectedly needs scrolling"
     if scrolled:
