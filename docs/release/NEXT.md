@@ -8,3 +8,7 @@
 - Preserve smaller-window native scrolling, accessibility minimum touch sizes and all existing gameplay/HUD/collision physics.
 - This is not a screenshot-based UI replacement. All prices, product state and CTA actions are still real Android Views.
 - Final release blocked pending full source/security, Android 15 and Android 16 emulator suites, and NEW post-change pixel comparisons of all owner viewports. 0% RGB difference is not yet confirmed. No Play-signed output.
+
+- Skins: decoupled top hanging wooden title, hero, stone 3D podium, four real native cards and EQUIP panel into calibrated vertical cameras, rather than shifting all elements 154px upward together. Original owner tall art puts cards near y≈1350px on 1080×2400; the old shared .18 anchor put them around y≈1200px. On 16:9 the new anchors have no effect.
+- Settings: owner tall art spreads nine preference rows progressively from ~30px at the top to ~150px at the last legal row and extends the decorative wood behind them. Preserved real switches, native SeekBars, accessible 48dp taps, compact/large-font scrolling and both legal links.
+- Home: original animated 512px Bopi body+wing set uses a smaller 400×400 reference viewport centered near x=500, with a lower native vertical position. Projection puts painted sprite top near y≈676 on 1080×1920 and ≈840 on 1080×2400 while retaining the three real Shop/Skins/Settings buttons.

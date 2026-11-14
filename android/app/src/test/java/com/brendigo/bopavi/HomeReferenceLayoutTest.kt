@@ -14,6 +14,16 @@ class HomeReferenceLayoutTest {
         assertTrue(home.skins.bottom<home.shop.y)
         assertTrue(home.shop.bottom<home.settings.y)
         assertTrue(home.heroArtwork.bottom<home.skins.y)
+        assertEquals(300f,home.hero.x,0f)
+        assertEquals(520f,home.hero.y,0f)
+        assertEquals(400f,home.hero.w,0f)
+        assertEquals(400f,home.hero.h,0f)
+        val scale=1080f/941f
+        val firstPainted16=home.heroArtwork.y*scale
+        val firstPainted20=firstPainted16+
+            (2400f-home.height*scale)*.35f
+        assertTrue(firstPainted16 in 660f..690f)
+        assertTrue(firstPainted20 in 820f..870f)
         for(i in home.actions.indices)for(j in i+1 until home.actions.size)
             assertFalse(home.actions[i].overlaps(home.actions[j]))
     }

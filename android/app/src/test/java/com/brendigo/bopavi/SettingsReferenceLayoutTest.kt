@@ -33,7 +33,7 @@ class SettingsReferenceLayoutTest {
             <s.rows[1]+s.rowOffset(1,1080,2400))
         assertTrue(s.rows[8]+s.rowOffset(8,1080,2400)+s.rowHeight
             <s.homeTop+(s.restoreAnchor-s.contentAnchor)*418f)
-        for(w to h in listOf(1080 to 2280,1080 to 2340,
+        for((w,h) in listOf(1080 to 2280,1080 to 2340,
                             1080 to 2400,1440 to 3040)) {
             val starts=s.rows.indices.map{idx->s.rows[idx]+s.rowOffset(idx,w,h)}
             assertTrue(starts.zipWithNext().all{it.second-it.first>=s.rowHeight})

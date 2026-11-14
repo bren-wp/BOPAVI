@@ -226,7 +226,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         val actor=HomeWingActor(host,
             left[chosen],right[chosen],bodies[chosen],
             allowMotion=!progress.lessMotion())
-        place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.25f)
+        place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.35f)
 
         val actionBoxes=HomeReferenceLayout.actionBounds(
             host.resources.displayMetrics.widthPixels,
