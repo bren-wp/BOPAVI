@@ -20,19 +20,19 @@ import java.security.MessageDigest
 internal class SafBackupJournal(private val directory: File) {
     companion object {
         const val MAX_BYTES = 550_000
-        private const val MAGIC = 0x42535631 // "BSV1"
+        private const val MAGIC = 0x42535632 // "BSV2": stores both verified document versions
         private const val MAX_URI_BYTES = 8_192
     }
 
     internal enum class Recovery { NONE, PREVIOUS_INTACT, NEW_WRITE_INTACT, RESTORED_PREVIOUS }
 
-    private val record = File(directory, "saf_backup_recovery_v1.bin")
-    private val temp = File(directory, "saf_backup_recovery_v1.tmp")
+    private val record = File(directory, "saf_backup_recovery_v2.bin")
+    private val temp = File(directory, "saf_backup_recovery_v2.tmp")
 
     private data class Entry(
         val destination: String,
         val original: ByteArray,
-        val nextDigest: ByteArray
+        val replacement: ByteArray
     )
 
     fun hasPending(): Boolean = record.exists()
@@ -45,7 +45,7 @@ internal class SafBackupJournal(private val directory: File) {
         check(directory.isDirectory || directory.mkdirs()) { "Cannot create backup recovery directory." }
         val uriBytes = entry.destination.toByteArray(Charsets.UTF_8)
         require(uriBytes.isNotEmpty() && uriBytes.size <= MAX_URI_BYTES)
-        require(entry.original.size <= MAX_BYTES)
+        require(entry.original.size <= MAX_BYTES && entry.replacement.size <= MAX_BYTES)
         FileOutputStream(temp, false).use { stream ->
             DataOutputStream(stream).use { output ->
                 output.writeInt(MAGIC)
@@ -54,7 +54,9 @@ internal class SafBackupJournal(private val directory: File) {
                 output.writeInt(entry.original.size)
                 output.write(entry.original)
                 output.write(digest(entry.original))
-                output.write(entry.nextDigest)
+                output.writeInt(entry.replacement.size)
+                output.write(entry.replacement)
+                output.write(digest(entry.replacement))
                 output.flush()
                 stream.fd.sync()
             }
@@ -77,18 +79,44 @@ internal class SafBackupJournal(private val directory: File) {
             input.readFully(original)
             val originalDigest = ByteArray(32)
             input.readFully(originalDigest)
-            val nextDigest = ByteArray(32)
-            input.readFully(nextDigest)
+            val replacementLength = input.readInt()
+            check(replacementLength in 0..MAX_BYTES) {
+                "Invalid SAF intended replacement length."
+            }
+            val replacement = ByteArray(replacementLength)
+            input.readFully(replacement)
+            val replacementDigest = ByteArray(32)
+            input.readFully(replacementDigest)
             check(input.read() == -1) { "Unexpected trailing SAF recovery data." }
             check(digest(original).contentEquals(originalDigest)) {
                 "SAF recovery record has failed integrity verification."
             }
-            return Entry(String(uriBytes, Charsets.UTF_8), original, nextDigest)
+            check(digest(replacement).contentEquals(replacementDigest)) {
+                "SAF intended replacement has failed integrity verification."
+            }
+            return Entry(String(uriBytes, Charsets.UTF_8), original, replacement)
         }
     }
 
     private fun clear() {
         check(record.delete()) { "Cannot clear verified SAF recovery record." }
+    }
+
+    private fun safePartial(current: ByteArray, full: ByteArray): Boolean =
+        current.size < full.size && current.indices.all { current[it] == full[it] }
+
+    /**
+     * SAF has no portable compare-and-swap. Never overwrite clearly unrelated
+     * bytes during recovery: an external editor may have modified the file.
+     * Interrupted writes are accepted only when they contain a prefix of the
+     * intended JSON or previous complete content. A race after comparison
+     * cannot be ruled out for external providers and needs physical QA.
+     */
+    private fun ensureRecognized(current: ByteArray, entry: Entry) {
+        check(safePartial(current, entry.replacement) ||
+            safePartial(current, entry.original)) {
+            "SAF document differs from both journal versions; manual recovery required."
+        }
     }
 
     /**
@@ -108,7 +136,7 @@ internal class SafBackupJournal(private val directory: File) {
         val before = read()
         require(before.size <= MAX_BYTES) { "Existing backup exceeds safe recovery limit." }
         check(canStart()) { "SAF destination changed before backup started." }
-        persist(Entry(destination, before, digest(replacement)))
+        persist(Entry(destination, before, replacement))
         var destructiveWriteAttempted = false
         try {
             check(canStart()) { "SAF destination changed before backup stream was opened." }
@@ -124,11 +152,21 @@ internal class SafBackupJournal(private val directory: File) {
                 throw failure
             }
             try {
-                // Recovery is allowed even if the Activity gate closed AFTER
-                // opening a stream: do not leave a truncated provider document.
-                write(before)
-                check(read().contentEquals(before)) { "SAF rollback verification failed." }
-                clear()
+                // Never replace an unrelated externally edited document.
+                val current = read()
+                require(current.size <= MAX_BYTES) { "Provider document too large." }
+                if (current.contentEquals(before)) {
+                    clear()
+                } else if (current.contentEquals(replacement)) {
+                    // The bytes are intact but verification or provider close
+                    // failed. Retain the journal for an explicit later recheck.
+                    // Do not revert a possibly fully finished write.
+                } else {
+                    ensureRecognized(current, Entry(destination, before, replacement))
+                    write(before)
+                    check(read().contentEquals(before)) { "SAF rollback verification failed." }
+                    clear()
+                }
             } catch (rollback: Exception) {
                 failure.addSuppressed(rollback)
             }
@@ -154,12 +192,12 @@ internal class SafBackupJournal(private val directory: File) {
             clear()
             return Recovery.PREVIOUS_INTACT
         }
-        if (digest(current).contentEquals(entry.nextDigest)) {
+        if (current.contentEquals(entry.replacement)) {
             clear()
             return Recovery.NEW_WRITE_INTACT
         }
-        // The provider document may have been partially overwritten. Restore
-        // our exact prior bytes; this cannot detect an independent external edit.
+        // A conflicting external edit must never be silently rolled back.
+        ensureRecognized(current, entry)
         write(entry.original)
         check(read().contentEquals(entry.original)) { "Recovered bytes could not be verified." }
         clear()
