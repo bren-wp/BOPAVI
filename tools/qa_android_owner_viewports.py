@@ -68,6 +68,45 @@ def capture(name: str, width: int, height: int):
     (OUT/(name+".xml")).write_bytes(ET.tostring(root,encoding="utf-8"))
     print("PASS: real Android "+name+f" {width}x{height}",flush=True)
 
+def real_flight_screens(folder:str,width:int,height:int):
+    # Debug-only route enters an actual GameSimulation from the native
+    # MainActivity. The first real input activates it; QA then freezes the
+    # genuine physics clock while UIAutomator captures the exact pixels.
+    adb("shell","am","force-stop",APP)
+    adb("shell","am","start","-W","-n",APP+"/.MainActivity",
+        "--ez","bopavi_qa_capture_first_flap","true",
+        "--ez","bopavi_qa_launch_flight","true")
+    ready=node_with("DODIRNI ZA ZAMAH KRILIMA",attempts=18)
+    assert "PRIJE PRVOG ZAMAHA" in label(ready),(
+        "Real GameView not in ready first-flap state")
+    capture(f"owner-{folder}-02_Gameplay_upute",width,height)
+    tap(ready)
+    try:
+        active=node_with("REZULTAT:",attempts=4)
+    except AssertionError:
+        # Android can drop an injected first touch during immersive setup.
+        # Retry ONE REAL input only while original GameView is still ready.
+        retry=node_with("PRIJE PRVOG ZAMAHA",attempts=3)
+        tap(retry)
+        active=node_with("REZULTAT:",attempts=10)
+    for term in ("NOVČIĆI:","KRISTALI:","GORE DESNO PAUZA"):
+        assert term in label(active),(term,"Active HUD not real")
+    capture(f"owner-{folder}-03_Gameplay_let",width,height)
+    adb("shell","input","keyevent","4")
+    pause=node_with("NASTAVI",attempts=12)
+    root=hierarchy()
+    for item in ("PAUZA","PONOVO","IZLAZ"):
+        assert any(item in label(n) for n in root.iter("node")),(
+            "Real Pause is missing "+item)
+    assert len([n for n in root.iter("node")
+                if n.get("package")==APP and n.get("clickable")=="true"
+                and "NASTAVI" in label(n)])==1,(
+        "Duplicated native pause continuation")
+    capture(f"owner-{folder}-04_Gameplay_pauza",width,height)
+    print("PASS: "+folder+" real ready/active/pause, one GameSimulation",
+          flush=True)
+
+
 def main():
     try:
         for folder,width,height,density in VIEWPORTS:
@@ -101,9 +140,12 @@ def main():
                                 "PROČITAJ POLITIKU PRIVATNOSTI" in label(n)])>=1
                 adb("shell","input","keyevent","4")
                 wait_home(width,height,density)
-            print("PASS: "+folder+" 3 production routes, 5 native frames including Privacy",flush=True)
-        print("PASS: 25 authentic native screenshots, 5 owner viewports, "
-              "real Privacy navigation; pixel equivalence not asserted",flush=True)
+            real_flight_screens(folder,width,height)
+            print("PASS: "+folder+" 8 real frames including legal and gameplay",
+                  flush=True)
+        print("PASS: 40 authentic native screenshots, 5 owner viewports, "
+              "gameplay+Privacy; two Game Over variants not yet captured",
+              flush=True)
     finally:
         # Never leave the developer's Android emulator at a forged density.
         adb("shell","wm","size","reset")
