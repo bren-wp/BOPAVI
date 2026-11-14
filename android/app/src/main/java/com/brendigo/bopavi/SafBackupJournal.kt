@@ -110,14 +110,20 @@ internal class SafBackupJournal(private val directory: File) {
         require(before.size <= MAX_BYTES) { "Existing backup exceeds safe recovery limit." }
         check(canStart()) { "SAF destination changed before backup started." }
         persist(Entry(destination, before, digest(replacement)))
+        var destructiveWriteAttempted = false
         try {
             check(canStart()) { "SAF destination changed before backup stream was opened." }
+            destructiveWriteAttempted = true
             write(replacement)
             check(read().contentEquals(replacement)) {
                 "SAF provider did not return the complete written backup."
             }
             clear()
         } catch (failure: Exception) {
+            if (!destructiveWriteAttempted) {
+                clear()
+                throw failure
+            }
             try {
                 // Recovery is allowed even if the Activity gate closed AFTER
                 // opening a stream: do not leave a truncated provider document.
