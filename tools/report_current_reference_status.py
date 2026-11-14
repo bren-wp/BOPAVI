@@ -29,6 +29,25 @@ def safe_capture_path(root, name):
     return root.joinpath(*rel.parts)
 
 
+def region_metrics(reference, actual):
+    """Non-masked supplementary RGB metrics on actual-size horizontal bands.
+
+    Full-frame comparison is always performed first. Bands are never
+    resized/filtered, and never replace or reduce full-frame acceptance.
+    """
+    width, height = reference.size
+    bounds = (
+        ("top_third", 0, height // 3),
+        ("middle_third", height // 3, 2 * height // 3),
+        ("bottom_third", 2 * height // 3, height),
+    )
+    return {
+        name: pixel_metrics(reference.crop((0, top, width, bottom)),
+                            actual.crop((0, top, width, bottom)))
+        for name, top, bottom in bounds
+    }
+
+
 def audit_records(rows, reference_dir, captures_dir, capture_map):
     mapped = {}
     for row in rows:
@@ -65,7 +84,9 @@ def audit_records(rows, reference_dir, captures_dir, capture_map):
                         if actual.format != "PNG":
                             raise ValueError("Capture is not a genuine PNG file")
                         metrics = pixel_metrics(original, actual)
+                        regions = region_metrics(original, actual)
                     result.update(metrics)
+                    result["regions"] = regions
                     result["capture_sha256"] = hashlib.sha256(capture.read_bytes()).hexdigest()
                     result["status"] = "identical" if metrics["pixel_identical"] else "different"
             except (AssertionError, OSError, ValueError) as error:
@@ -102,6 +123,16 @@ def main():
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k != "results"}, indent=2))
+    for item in report["results"]:
+        if item["status"] == "different" or item["status"] == "identical":
+            print(f'{item["reference"]}: {item["different_pixels"]} RGB pixels '
+                  f'({item["different_pixels_percent"]}%), '
+                  f'MAE={item["mae_rgb_0_255"]}/255, '
+                  f'regions=' + ', '.join(
+                      f'{name}:{value["different_pixels_percent"]}%'
+                      for name, value in item["regions"].items()))
+        else:
+            print(f'{item["reference"]}: UNVERIFIED — {item.get("reason", "unknown")}')
     if args.require_50_exact and not report["all_exact"]:
         raise SystemExit("VISUAL ACCEPTANCE FAIL: no claim of 50/50 exact native RGB parity")
 
