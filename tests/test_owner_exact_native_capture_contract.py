@@ -9,7 +9,7 @@ assert "capture android-home-owner-native-864" in qa
 assert "capture android-loading-owner-native-864" in qa
 # Exact-size native owner captures must now expose all four actual
 # production Home destinations, rather than the superseded three-button UI.
-section=qa.split("<<'PY_OWNER_HOME'\\n",1)[1].split("\\nPY_OWNER_HOME",1)[0]
+section=qa.split("<<'PY_OWNER_HOME'",1)[1].split("PY_OWNER_HOME",1)[0]
 for label in ("Pokreni igru", "Otvori izbor likova",
               "Otvori trgovinu nadogradnji", "Otvori opcije igre"):
     assert label in section,label
