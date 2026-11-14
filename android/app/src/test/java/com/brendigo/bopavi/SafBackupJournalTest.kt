@@ -55,7 +55,7 @@ class SafBackupJournalTest {
             firstProcess.protectedWrite(target, "new".toByteArray(),
                 read = { document.copyOf() },
                 write = {
-                    document = byteArrayOf(1, 2, 3)
+                    document = byteArrayOf('n'.code.toByte(), 'e'.code.toByte())
                     throw IOException("offline")
                 })
             fail("Provider failure must propagate")
@@ -84,6 +84,87 @@ class SafBackupJournalTest {
         } catch (_: IllegalStateException) {
             assertEquals(0, writes)
             assertFalse(guard.hasPending())
+        }
+    }
+
+    @Test fun manualExternalEditIsNeverOverwrittenAfterInterruptedWrite() {
+        val target = "content://owner/backup"
+        var document = "old-complete-backup".toByteArray()
+        val journal = SafBackupJournal(folder.root)
+        try {
+            journal.protectedWrite(target, "new-complete-backup".toByteArray(),
+                read = { document.copyOf() },
+                write = {
+                    document = "ne".toByteArray()
+                    throw IOException("remote provider stopped")
+                })
+            fail("Provider error must be surfaced")
+        } catch (_: IOException) {
+            assertTrue(journal.hasPending())
+        }
+        val ownerEdit = "third-party-owned-edits".toByteArray()
+        document = ownerEdit.copyOf()
+        var rollbackWrites = 0
+        try {
+            SafBackupJournal(folder.root).recover(target,
+                read = { document.copyOf() },
+                write = {
+                    rollbackWrites++
+                    document = it.copyOf()
+                })
+            fail("An external edit must require manual review")
+        } catch (expected: IllegalStateException) {
+            assertTrue(expected.message.orEmpty().contains("manual recovery"))
+        }
+        assertEquals(0, rollbackWrites)
+        assertArrayEquals(ownerEdit, document)
+        assertTrue(journal.hasPending())
+    }
+
+    @Test fun unknownProviderBytesOnFailureCannotTriggerAutomaticRollback() {
+        var document = "existing".toByteArray()
+        val journal = SafBackupJournal(folder.root)
+        var attempts = 0
+        try {
+            journal.protectedWrite("content://owner/backup", "replacement".toByteArray(),
+                read = { document.copyOf() },
+                write = {
+                    attempts++
+                    document = "external-state".toByteArray()
+                    throw IOException("write failed with unrelated provider state")
+                })
+            fail("Write failure expected")
+        } catch (expected: IOException) {
+            assertTrue(expected.suppressed.isNotEmpty())
+        }
+        assertEquals(1, attempts)
+        assertEquals("external-state", String(document))
+        assertTrue(journal.hasPending())
+    }
+
+    @Test fun recoveryBelongingToAnotherDocumentMustNotWrite() {
+        var document = "before".toByteArray()
+        val journal = SafBackupJournal(folder.root)
+        try {
+            journal.protectedWrite("content://owner/A", "after".toByteArray(),
+                read = { document.copyOf() },
+                write = {
+                    document = "af".toByteArray()
+                    throw IOException("offline")
+                })
+            fail("Write was expected to fail")
+        } catch (_: IOException) {
+            assertTrue(journal.hasPending())
+        }
+        var writes = 0
+        try {
+            journal.recover("content://owner/B",
+                read = { document.copyOf() },
+                write = { writes++ })
+            fail("Old document recovery must not be directed to another URI")
+        } catch (_: IllegalStateException) {
+            assertEquals(0, writes)
+            assertTrue(journal.hasPending())
         }
     }
 
