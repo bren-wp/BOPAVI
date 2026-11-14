@@ -15,6 +15,16 @@ internal object SettingsReferenceLayout {
     const val left=137f
     const val rowWidth=667f
     const val homeTop=1486f
+
+    // The owner artwork is not vertically centered as a SINGLE block on
+    // tall 19:9 and 20:9 phones. Measure each group independently against
+    // real 1080×2400 captures; keep native controls and 48dp hit targets.
+    const val logoAnchor=.08f
+    const val heroAnchor=.18f
+    const val backAnchor=.32f
+    const val titleAnchor=.14f
+    const val contentAnchor=.14f
+    const val restoreAnchor=.30f
     fun supportsNativeTouchTargets(screenW:Int,screenH:Int,density:Float):Boolean {
         if(screenW<=0 || screenH<=0 || density<=0f)return false
         val scale=minOf(screenW/width,screenH/height)

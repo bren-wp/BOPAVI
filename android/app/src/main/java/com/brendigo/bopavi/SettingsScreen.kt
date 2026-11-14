@@ -358,19 +358,24 @@ internal class SettingsScreen(private val host:Activity,
             val stage=LevelMapStage(host)
             stage.useShopFullBleedReferenceCamera()
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
-            stage.place(artwork(R.drawable.logo),203f,20f,535f,213f)
-            stage.place(artwork(R.drawable.bopiportrait0),266f,216f,409f,332f)
+            stage.place(artwork(R.drawable.logo),203f,20f,535f,213f,
+                verticalAnchor=SettingsReferenceLayout.logoAnchor)
+            stage.place(artwork(R.drawable.bopiportrait0),266f,216f,409f,332f,
+                verticalAnchor=SettingsReferenceLayout.heroAnchor)
             stage.place(button("‹",click=onBack).apply {
                 contentDescription="HOME"
-            },27f,22f,102f,102f,minTouch=true)
+            },27f,22f,102f,102f,minTouch=true,
+                verticalAnchor=SettingsReferenceLayout.backAnchor)
             stage.place(View(host).apply {
                 background=SettingsWoodPanelDrawable()
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },101f,559f,739f,1007f)
+            },101f,559f,739f,1007f,
+                verticalAnchor=SettingsReferenceLayout.contentAnchor)
             stage.place(SettingsEmbossedTitle(host).apply {
                 elevation=dp(8).toFloat()
-            },182f,486f,577f,101f)
+            },182f,486f,577f,101f,
+                verticalAnchor=SettingsReferenceLayout.titleAnchor)
             // An etched separator groups the actual legal links below the
             // six real offline preferences. It is visual-only and non-clickable.
             stage.place(View(host).apply {
@@ -378,7 +383,8 @@ internal class SettingsScreen(private val host:Activity,
                     intArrayOf(0xffffffff.toInt(),0xffcaaa83.toInt()))
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 isClickable=false
-            },151f,1244f,638f,4f)
+            },151f,1244f,638f,4f,
+                verticalAnchor=SettingsReferenceLayout.contentAnchor)
             // Each real row remains at least 48dp tall. On owner-sized
             // high-density phones its hit rectangle may slightly overlap the
             // next visual row, but neither native control nor text is replaced
@@ -387,12 +393,14 @@ internal class SettingsScreen(private val host:Activity,
                 stage.place(row,SettingsReferenceLayout.left,
                     SettingsReferenceLayout.rows[index],
                     SettingsReferenceLayout.rowWidth,
-                    SettingsReferenceLayout.rowHeight,minTouch=true)
+                    SettingsReferenceLayout.rowHeight,minTouch=true,
+                    verticalAnchor=SettingsReferenceLayout.contentAnchor)
             }
             // Real recovery of earned coin items and unlocks from an owner
             // selected JSON backup. This is not Play Billing restoration.
             stage.place(restoreButton(onRestore),203f,
-                SettingsReferenceLayout.homeTop,535f,112f,minTouch=true)
+                SettingsReferenceLayout.homeTop,535f,112f,minTouch=true,
+                verticalAnchor=SettingsReferenceLayout.restoreAnchor)
             stage.place(title("v"+installedVersion(),13,0xffe1edf5.toInt()).apply {
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 setShadowLayer(1f,0f,1f,0xff183c56.toInt())

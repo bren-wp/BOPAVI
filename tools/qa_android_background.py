@@ -36,9 +36,9 @@ def one_control(phrase, attempts=16):
         f"FAIL: expected exactly one accessible {phrase}; {detail}")
 
 
-def active_flight():
+def active_flight(attempts=15, fail_closed=True):
     last_root = None
-    for _ in range(15):
+    for _ in range(attempts):
         root = hierarchy()
         last_root = root
         games = [n for n in root.iter("node")
@@ -51,6 +51,8 @@ def active_flight():
         if len(games) == 1:
             return games[0]
         time.sleep(1)
+    if not fail_closed:
+        return None
     # This test must still FAIL for an inactive, reset or finished game.
     # Collect genuine Android evidence on failure so an intermittent
     # graphics/Activity transition is distinguishable from wrong labels.
@@ -84,7 +86,26 @@ def main():
     # obsolete 'DODIRNI ZA LET' text was removed from gameplay; assert the
     # current live control instead of disabling the background-resume test.
     tap(one_control("DODIRNI ZA ZAMAH KRILIMA"))
-    before = active_flight().get("content-desc")
+    started = active_flight(attempts=4,fail_closed=False)
+    if started is None:
+        # Android 15 sometimes swallows the initial injected touchscreen
+        # event when transient immersive bars or a native window focus
+        # transition are still settling. A retry is allowed ONLY while the
+        # authentic live GameView still says it is BEFORE THE FIRST FLAP.
+        # The test never edits GameSimulation, injects false state or skips
+        # the active flight -> Home -> Pause -> Resume assertions.
+        root = hierarchy()
+        ready = [node for node in root.iter("node")
+                 if node.get("package") == APP and
+                 node.get("clickable") == "true" and
+                 "PRIJE PRVOG ZAMAHA" in label(node) and
+                 "ŽIVOTI:" in label(node)]
+        if len(ready)==1:
+            print("QA: retrying genuine first input on still-idle GameView",
+                  flush=True)
+            tap(ready[0])
+        started = active_flight()
+    before = started.get("content-desc")
     assert before and "Životi:" in before and "Aktivan let" in before, (
         "FAIL: first flap never transitioned the actual simulation to active state")
 

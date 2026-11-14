@@ -204,30 +204,59 @@ internal class ShopStorefrontDecor(context:Context):View(context) {
             p.style=Paint.Style.FILL
         }
     }
+    /** The six-item frame and all product sockets stay on the centered
+     * reference camera. The owner's Shop header is TOP-anchored on tall
+     * devices; mixing the two in one Canvas created a large vertical drift.
+     */
     override fun onDraw(c:Canvas){
+        if(width<=0 || height<=0)return
         val saved=c.save()
         c.scale(width/941f,height/1672f)
-        // Decorative layers render only within this exact 941x1672 stage,
-        // with a proportional viewport transform managed by LevelMapStage.
-        awning(c)
-        // The live gold title and its separate wooden winged backing must
-        // share the same owner-measured vertical correction. Previous Android
-        // 16 capture put gold title pixels near y=119 versus y=216 in owner
-        // 1080x1920 art. Keep kiosk, featured panel and six buttons fixed.
-        val titleSave=c.save()
-        c.translate(0f,ShopHeaderLayout.titleOffset)
-        woodenBoard(c)
-        c.restoreToCount(titleSave)
         frame(c)
+        featuredAura(c)
+        // Countertop stays aligned with the 3×2 purchase grid.
+        round(c,24f,550f,891f,39f,10f,0xff613118.toInt())
+        shiny(c,23f,546f,895f,26f,8f,0xfff9c778.toInt(),0xffaf6629.toInt())
+        c.restoreToCount(saved)
+    }
+
+    /** Passive upper scene; kiosk and sign use the same physical top anchor
+     * while native purchases, currencies and product state remain separate.
+     */
+    internal fun drawUpperScene(c:Canvas) {
+        awning(c)
         lantern(c,87f,467f)
         lantern(c,853f,467f)
         chest(c,138f,518f,78f,45f)
         chest(c,666f,474f,101f,88f)
         kioskSparkles(c)
-        featuredAura(c)
-        // Countertop is in front of the mascot's feet but behind all buttons.
-        round(c,24f,550f,891f,39f,10f,0xff613118.toInt())
-        shiny(c,23f,546f,895f,26f,8f,0xfff9c778.toInt(),0xffaf6629.toInt())
+    }
+
+    internal fun drawWoodenTitle(c:Canvas) {
+        val titleSave=c.save()
+        c.translate(0f,ShopHeaderLayout.titleOffset)
+        woodenBoard(c)
+        c.restoreToCount(titleSave)
+    }
+}
+
+/**
+ * Upper Shop illustration follows the top of the actual phone viewport.
+ * The wooden title must render AFTER the kiosk, or its native gold letters
+ * are covered by the kiosk ImageView; neither layer captures any touch.
+ */
+internal class ShopHeaderScene(context:Context,private val titleLayer:Boolean=false):View(context) {
+    private val painter=ShopStorefrontDecor(context)
+    init {
+        importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_NO
+        isClickable=false
+        isFocusable=false
+    }
+    override fun onDraw(c:Canvas){
+        if(width<=0 || height<=0)return
+        val saved=c.save()
+        c.scale(width/941f,height/1672f)
+        if(titleLayer)painter.drawWoodenTitle(c) else painter.drawUpperScene(c)
         c.restoreToCount(saved)
     }
 }

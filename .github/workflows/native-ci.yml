@@ -95,6 +95,7 @@ jobs:
       - run: python tests/test_reference_3d_home_scaling.py
       - run: python tests/test_home_reference_screen_contract.py
       - run: python tests/test_home_owner_hud_row_and_android16.py
+      - run: python tests/test_home_owner_ring_free_wallet_contract.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
       - run: python tests/test_splash_home_owner_864_fidelity.py
       - run: python tests/test_splash_home_visual_depth_v1058.py
@@ -117,6 +118,7 @@ jobs:
       - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_reference_menus_contract.py
       - run: python tests/test_reference_skins_contract.py
+      - run: python tests/test_skins_owner_vertical_camera_contract.py
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_native_qa_helpers_contract.py
