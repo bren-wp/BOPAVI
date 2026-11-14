@@ -37,6 +37,28 @@ assert "Home must have exactly three actions" not in shell
 assert "exactly three Home buttons" not in menus
 assert "len(actual)==4" in menus
 
+# The first two gates passed in earlier runs, but Android15 subsequently
+# failed in Loading and the reference/owner-sized capture tail. Require
+# these *later* real-native-action gates too before booting an emulator.
+reference_section=shell.split("# Matched-pixel source reference capture",1)[1]
+reference_gate=reference_section.split("<<'PY'\n",1)[1].split("\nPY",1)[0]
+owner_gate=shell.split("<<'PY_OWNER_HOME'\n",1)[1].split("\nPY_OWNER_HOME",1)[0]
+loading=(root / "tools/qa_android_loading.py").read_text(encoding="utf-8")
+for name,gate in (("reference",reference_gate),("owner",owner_gate),
+                  ("loading",loading)):
+    values=set(re.findall(
+        r'"(Pokreni igru|Otvori izbor likova|Otvori trgovinu nadogradnji|Otvori opcije igre)"',
+        gate))
+    assert values==required,(name,values,required)
+    assert "len(actual)==4" in gate or "len(accessible)==4" in gate or "len(actions)==4" in gate,name
+assert "set(actual)==expected" in reference_gate
+assert "set(accessible)==expected" in owner_gate
+assert "set(actions)==expected" in loading
+assert 'n.get("enabled")=="true"' in reference_gate
+assert 'n.get("enabled")=="true"' in owner_gate
+assert 'n.get("enabled")=="true"' in loading
+assert "three-action Home missing" not in loading
+
 # Play is a real production entry point. The debug-only capture route must
 # come AFTER the live no-extra PLAY test; fake QA flags must not be needed.
 tap = shell.index("<<'PY_REAL_PLAY'")
