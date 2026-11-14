@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,6 +32,7 @@ internal class SettingsCloudBackup(
     private val pending=AtomicBoolean(false)
     private val active=AtomicBoolean(false)
     private val gate=BackupTaskGate()
+    private val journal=SafBackupJournal(activity.noBackupFilesDir)
     @Volatile private var started=false
 
     /** Work queued before stop/deactivate must not touch a stale Activity or URI. */
@@ -62,6 +63,10 @@ internal class SettingsCloudBackup(
     fun start(){
         if(started || gate.isClosed())return
         started=true
+        // Resolve interrupted provider writes before any new queued autosave.
+        schedule {
+            runCatching { recoverPending() }
+        }
         gamePrefs.registerOnSharedPreferenceChangeListener(changes)
     }
 
@@ -117,7 +122,7 @@ internal class SettingsCloudBackup(
             return
         }
         val revision=gate.revise()
-        if(previous!=null && previous!=uri)releaseGrant(previous)
+        if(previous!=null && previous!=uri)releaseGrantWhenSafe(previous)
         saveNow { ok,message ->
             // Completion from an old target must not disable a newer opt-in.
             if(!gate.canRun(revision) || destination()!=uri)return@saveNow
@@ -132,33 +137,77 @@ internal class SettingsCloudBackup(
         if(!uriPrefs.edit().remove("document_uri").commit())return
         gate.revise()
         pending.set(false)
-        if(previous!=null)releaseGrant(previous)
+        if(previous!=null)releaseGrantWhenSafe(previous)
         // The user-owned SAF document is left intact.
     }
 
     private fun destination():Uri? =
         uriPrefs.getString("document_uri",null)?.let { runCatching {Uri.parse(it)}.getOrNull() }
 
+    /** Read full previous backup before opening a truncating provider stream. */
+    private fun readDocument(uri:Uri):ByteArray {
+        val stream=activity.contentResolver.openInputStream(uri)
+            ?: error("Odredišni dokument ne dopušta čitanje.")
+        return stream.use { source ->
+            val buffer=ByteArray(8192)
+            val result=ByteArrayOutputStream()
+            while(true){
+                val count=source.read(buffer)
+                if(count<0)break
+                require(result.size()+count<=SafBackupJournal.MAX_BYTES) {
+                    "Sigurnosna kopija je prevelika za siguran oporavak."
+                }
+                result.write(buffer,0,count)
+            }
+            result.toByteArray()
+        }
+    }
+
+    private fun overwriteDocument(uri:Uri,bytes:ByteArray){
+        val stream=activity.contentResolver.openOutputStream(uri,"wt")
+            ?: error("Odredišni dokument nije dostupan.")
+        stream.use { file ->
+            file.write(bytes)
+            file.flush()
+        }
+    }
+
+    /** Recover a saved pre-overwrite snapshot after a crash or provider failure. */
+    private fun recoverPending(){
+        val pendingUri=journal.pendingDestination() ?: return
+        val uri=Uri.parse(pendingUri)
+        journal.recover(pendingUri,
+            read={readDocument(uri)},
+            write={bytes->overwriteDocument(uri,bytes)})
+    }
+
+    /** Do not revoke the old provider grant while an in-flight write can still
+     * need it for rollback. The single writer executor serializes the release.
+     */
+    private fun releaseGrantWhenSafe(uri:Uri){
+        schedule {
+            if(journal.hasPending())runCatching{recoverPending()}
+            if(!journal.hasPending())releaseGrant(uri)
+        }
+    }
+
     private fun write(uri:Uri,revision:Long){
-        // A scheduled task for a replaced/disabled destination cannot start a
-        // new destructive write. Already-open provider streams may still finish.
         check(gate.canRun(revision) && destination()==uri) {
             "Odredište je promijenjeno ili isključeno."
         }
         val json=progress.exportJson()
-        require(json.length<=550_000) { "Sigurnosna kopija je prevelika." }
-        check(gate.canRun(revision) && destination()==uri) {
-            "Odredište je promijenjeno ili isključeno."
+        val bytes=json.toByteArray(Charsets.UTF_8)
+        require(bytes.size<=SafBackupJournal.MAX_BYTES) {
+            "Sigurnosna kopija je prevelika."
         }
-        // SAF does not guarantee atomic replacement for every provider.
-        val stream=activity.contentResolver.openOutputStream(uri,"wt")
-            ?: error("Odredišni dokument nije dostupan.")
-        stream.use { file ->
-            OutputStreamWriter(file,Charsets.UTF_8).use { writer ->
-                writer.write(json)
-                writer.flush()
-            }
-        }
+        // Keep the previous user-owned document recoverable even when a SAF
+        // provider truncates on openOutputStream("wt"). Existing documents
+        // lacking READ access fail closed instead of being destroyed.
+        recoverPending()
+        journal.protectedWrite(uri.toString(),bytes,
+            read={readDocument(uri)},
+            write={value->overwriteDocument(uri,value)},
+            canStart={gate.canRun(revision) && destination()==uri})
     }
 
     fun saveNow(report:(Boolean,String)->Unit){
