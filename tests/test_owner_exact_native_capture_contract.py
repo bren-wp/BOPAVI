@@ -7,7 +7,16 @@ strict=(repo/"tools/qa_owner_zero_pixel.py").read_text()
 assert "adb shell wm size 864x1536" in qa
 assert "capture android-home-owner-native-864" in qa
 assert "capture android-loading-owner-native-864" in qa
-assert 'Owner-size Home must offer exactly Shop, Skins and Settings' in qa
+# Exact-size native owner captures must now expose all four actual
+# production Home destinations, rather than the superseded three-button UI.
+section=qa.split("<<'PY_OWNER_HOME'\\n",1)[1].split("\\nPY_OWNER_HOME",1)[0]
+for label in ("Pokreni igru", "Otvori izbor likova",
+              "Otvori trgovinu nadogradnji", "Otvori opcije igre"):
+    assert label in section,label
+assert "len(accessible)==4 and set(accessible)==expected" in section
+assert 'n.get("enabled")=="true"' in section
+assert "FAIL: owner-size Home must offer PLAY, Shop, Skins and Settings" in section
+assert "Owner-size Home must offer exactly Shop, Skins and Settings" not in qa
 assert 'n.get("content-desc")=="Loading level"' in qa
 assert "assert struct.unpack(\">II\",data[16:24])==(864,1536)" in qa
 assert "adb shell wm size reset" in qa
