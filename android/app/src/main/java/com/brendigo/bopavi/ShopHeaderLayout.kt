@@ -11,4 +11,9 @@ package com.brendigo.bopavi
 internal object ShopHeaderLayout {
     const val titleOffset=85f
     const val titleTop=123f+titleOffset
+    // Native reference camera is centered for the lower product grid, but
+    // top artwork in the supplied 20:9 mocks is only ~18% letterboxed.
+    // A shared anchor prevents the canopy, header art and real CTA from
+    // drifting apart by ~150px on a 1080×2400 phone.
+    const val headerAnchor=.18f
 }

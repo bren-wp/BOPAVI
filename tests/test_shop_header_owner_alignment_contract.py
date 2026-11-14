@@ -11,6 +11,12 @@ assert "const val titleTop=123f+titleOffset" in header
 assert "183f,ShopHeaderLayout.titleTop,575f,201f" in shop
 assert "c.translate(0f,ShopHeaderLayout.titleOffset)" in decor
 assert "woodenBoard(c)" in decor
+assert "internal fun drawUpperScene(c:Canvas)" in decor
+assert "internal fun drawWoodenTitle(c:Canvas)" in decor
+assert "ShopHeaderScene(host,titleLayer=true)" in shop
+assert "verticalAnchor=ShopHeaderLayout.headerAnchor" in shop
+assert "const val headerAnchor=.18f" in header
+assert shop.index("ShopEmbossedTitle(host)")>shop.index("R.drawable.bopavi_owner_shop_kiosk")
 assert "c.restoreToCount(titleSave)" in decor
 assert "stage.place(priceButton(featured.price,true," in shop
 assert "ShopReferenceLayout.rows[row]" in shop

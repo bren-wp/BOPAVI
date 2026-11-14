@@ -265,17 +265,20 @@ internal class ShopScreen(
         // Full storefront artwork is a separate passive native Canvas layer.
         // Dynamic prices, avatar, balances and buttons remain Android Views.
         stage.place(ShopStorefrontDecor(host),0f,0f,941f,1672f)
+        stage.place(ShopHeaderScene(host),0f,0f,941f,1672f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         // Native header, real locally saved counters and original character.
         // One native clickable control paints its own enamel and arrow,
         // avoiding the displaced twin-button look on API36.
         stage.place(ShopBackControl(host,onBack),
-            24f,18f,119f,99f,minTouch=true)
+            24f,18f,119f,99f,minTouch=true,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         // The source title raster is low-resolution and distorted on real
         // 941px captures. Reuse the native gold enamel lettering over the
         // separately drawn wooden winged storefront sign instead.
         // This keeps the SHOP wordmark sharp and accessible at every DPI.
-        stage.place(ShopEmbossedTitle(host),
-            183f,ShopHeaderLayout.titleTop,575f,201f)
+        // The sign and its live SHOP TextView render after the kiosk.
+        // Putting the title before the kiosk made its lower letters disappear.
         val coins=progress.coins()
         val stars=(0 until LevelEngine.WORLD_COUNT).sumOf{progress.worldStars(it)}
         // Two glass counters retain only REAL offline values (coins and stars). Their green
@@ -284,44 +287,52 @@ internal class ShopScreen(
         // explains the actual level-based reward (no fictitious gems).
         stage.place(FrameLayout(host).apply {
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
-        },458f,20f,214f,78f)
+        },458f,20f,214f,78f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(message(NumberFormat.getIntegerInstance().format(coins),
             27).apply {
             contentDescription="Earned coins: $coins"
             isFocusable=true
-        },520f,31f,101f,53f)
+        },520f,31f,101f,53f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(ImageView(host).apply {
             setImageDrawable(HomeHeroIconDrawable(
                 BopaviUiIconDrawable.Kind.COIN,dp(31)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },461f,21f,59f,63f)
+        },461f,21f,59f,63f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(ShopPlusControl(host,
             if(progress.bonusCoinsAvailable()>0)"Claim earned coins"
             else "How to earn coins") {
             if(progress.bonusCoinsAvailable()>0)onClaim()
             else android.widget.Toast.makeText(host,
                 "Earn coins by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
-        },598f,0f,96f,99f,minTouch=true)
+        },598f,0f,96f,99f,minTouch=true,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
 
         stage.place(FrameLayout(host).apply {
             background=plate(0xff2a91db.toInt(),navy,0xffacebff.toInt(),22)
-        },695f,20f,220f,78f)
+        },695f,20f,220f,78f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(message(NumberFormat.getIntegerInstance().format(stars),
             27).apply {
             contentDescription="Earned stars: $stars"
             isFocusable=true
-        },762f,31f,102f,53f)
+        },762f,31f,102f,53f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         // An earned STAR balance must not use a GEM pictogram: BOPAVI has
         // no spendable gem wallet, and implying one would mislead players.
         stage.place(ImageView(host).apply {
             setImageDrawable(BopaviUiIconDrawable(
                 BopaviUiIconDrawable.Kind.STAR,0xffffcf3d.toInt(),dp(34)))
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },694f,22f,65f,65f)
+        },694f,22f,65f,65f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(ShopPlusControl(host,"How to earn stars") {
             android.widget.Toast.makeText(host,
                 "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
-        },833f,0f,96f,99f,minTouch=true)
+        },833f,0f,96f,99f,minTouch=true,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
         // Real 941×1672 Android screenshot comparison showed the original
         // merchant/kiosk decorative crop preserves the owner's scene much
         // more accurately than a stretched, unrelated full-body portrait:
@@ -334,7 +345,13 @@ internal class ShopScreen(
             isClickable=false
             isFocusable=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },24f,302f,894f,276f)
+        },24f,302f,894f,276f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
+        stage.place(ShopHeaderScene(host,titleLayer=true),0f,0f,941f,1672f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
+        stage.place(ShopEmbossedTitle(host),
+            183f,ShopHeaderLayout.titleTop,575f,201f,
+            verticalAnchor=ShopHeaderLayout.headerAnchor)
 
         // A *real* featured perk; no fake gems, payment or random skin.
         val items=ShopItemState.fromStore(progress)
