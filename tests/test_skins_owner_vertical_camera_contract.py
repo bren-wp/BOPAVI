@@ -19,7 +19,8 @@ assert reference.index("stage.useShopFullBleedReferenceCamera()") < reference.in
     "stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)")
 assert "fontScale<1.25f" in reference
 assert "stage.place(card,left,PilotSelectionLayout.cardTop," in screen
-assert "stage.place(selectedInfo,30f,1299f,881f,193f)" in screen
+assert "stage.place(selectedInfo,30f,1299f,881f,193f," in screen
+assert "verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor" in screen
 # Real upper hero/podium/selection groups must NOT all inherit the same
 # .18f anchor on tall phones; it put real cards >150px too high.
 decor=(src/"SkinsReferenceDecor.kt").read_text()
