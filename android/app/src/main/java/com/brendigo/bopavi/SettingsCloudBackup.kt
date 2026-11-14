@@ -104,8 +104,10 @@ internal class SettingsCloudBackup(
         val flags=resultFlags and (
             android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
                 android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        if(flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION==0){
-            reportOnMain(report,false,"Odabrani pružatelj nije dodijelio pristup za pisanje.")
+        val required=android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+            android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        if(flags and required != required){
+            reportOnMain(report,false,"Za sigurnu kopiju potreban je pristup čitanju i pisanju.")
             return
         }
         try {
