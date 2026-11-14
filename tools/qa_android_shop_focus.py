@@ -29,14 +29,14 @@ def wallet_and_inventory(name, price):
     coin_nodes = matching_nodes(root, "EARNED COINS:")
     assert len(coin_nodes) == 1, "Shop must expose one actual local wallet"
     wallet = coin_nodes[0].get("content-desc") or coin_nodes[0].get("text") or ""
-    match = re.search(r"earned coins:\\s*([0-9]+)", wallet, re.IGNORECASE)
+    match = re.search(r"earned coins:\s*([0-9]+)", wallet, re.IGNORECASE)
     assert match, f"Cannot read real wallet: {wallet}"
     all_buttons = matching_nodes(root, f"{name}, price {price} coins", clickable=True)
     # Featured SUPER MAGNET appears twice; select its ordinary SKU card.
     buttons = [n for n in all_buttons
                if not (n.get("content-desc") or "").startswith("Featured ")]
     assert len(buttons) == 1, (name, price, len(buttons))
-    match_owned = re.search(r"owned\\s+(\\d+)\\s+of\\s+99",
+    match_owned = re.search(r"owned\s+(\d+)\s+of\s+99",
                             buttons[0].get("content-desc") or "", re.IGNORECASE)
     assert match_owned, f"Shop has no truthful inventory for {name}"
     return int(match.group(1)), int(match_owned.group(1)), buttons[0]
