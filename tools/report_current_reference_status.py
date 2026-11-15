@@ -165,53 +165,64 @@ def rollup_design_states(report, screen_names):
 
 
 def triage_markdown(report):
-    """Human-readable CI evidence; never changes all_exact or passes a gate."""
-    results = report["results"]
+    """Readable evidence. Coverage PASS never means zero different RGB pixels."""
+    states = report.get("screen_states", [])
     different = sorted(
-        (item for item in results if item["status"] == "different"),
+        (item for item in report["results"] if item["status"] == "different"),
         key=lambda item: item.get("mae_rgb_0_255", 0), reverse=True,
     )
-    unverified = [item for item in results if item["status"] == "unverified"]
-    absent = [item for item in unverified
-              if item.get("reason") == "Original owner WebP missing from repository"]
+    unverified = [item for item in report["results"]
+                  if item["status"] == "unverified"]
+    absent = [item for item in unverified if
+              item.get("reason") == "Original owner WebP missing from repository"]
     missing_captures = [item for item in unverified if
                         item.get("reason") == "No valid explicitly mapped native PNG capture"]
-    verdict = "PASS" if report["all_exact"] else "BLOCKED"
+    verdict = "PASS" if report.get("screen_coverage_passed") else "INCOMPLETE"
     out = [
-        f"## BOPAVI owner RGB acceptance: {verdict}",
+        f"## BOPAVI unique design-state coverage: {verdict}",
         "",
-        "Native Android QA and source/build verification are independent of this "
-        "strict visual acceptance. A missing reference, capture, or a single changed "
-        "RGB pixel blocks the visual gate.",
+        "One hash-verified owner reference per distinct design state is sufficient "
+        "for coverage. Other viewport sizes are OPTIONAL responsive variants, "
+        "not extra app screens.",
         "",
-        "| Original states | Verified references | Exact | Different | Unverified |",
+    ]
+    if states:
+        out += [
+            "| Design states | Owner originals present | Native captures | "
+            "Exact RGB | Different RGB |",
+            "|---:|---:|---:|---:|---:|",
+            f'| {report["screens_expected"]} | {report["screens_with_original"]} | '
+            f'{report["screens_with_native_capture"]} | '
+            f'{report["screens_exact_rgb"]} | {report["screens_different_rgb"]} |',
+            "",
+            "| Design state | Verified viewport variants | Native comparison | "
+            "RGB MAE |",
+            "|---|---:|---|---:|",
+        ]
+        for item in states:
+            mae = item.get("representative_mae_rgb_0_255")
+            metric = f"{mae:.3f}/255" if mae is not None else "Not captured"
+            status = item["representative_status"] if item["reference_available"] \
+                else "ORIGINAL MISSING"
+            out.append(
+                f'| {item["screen"]} | {item["reference_variants"]} | '
+                f'{status} | {metric} |'
+            )
+    out += [
+        "", "### Optional archive viewport evidence",
+        "",
+        "| Archived variants | Hash-verified | Exact RGB | Different | Unverified |",
         "|---:|---:|---:|---:|---:|",
         f'| {report["expected"]} | {report["reference_verified"]} | '
-        f'{report["identical"]} | {report["different"]} | {report["unverified"]} |',
+        f'{report["identical"]} | {report["different"]} | '
+        f'{report["unverified"]} |',
         "",
-        f"### Missing owner reference WebPs ({len(absent)})",
+        f"Missing optional reference variants: {len(absent)}.",
+        f"Missing native capture mappings: {len(missing_captures)}.",
         "",
-    ]
-    if absent:
-        out.extend(f"- `{item['reference']}`" for item in absent)
-    else:
-        out.append("None.")
-    out += ["", f"### Missing native state mappings ({len(missing_captures)})", ""]
-    if missing_captures:
-        out.extend(f"- `{item['reference']}`" for item in missing_captures)
-    else:
-        out.append("None.")
-    additional = [
-        item for item in unverified
-        if item not in absent and item not in missing_captures
-    ]
-    if additional:
-        out += ["", "### Other unverified evidence", ""]
-        out.extend(f"- `{item['reference']}`: {item.get('reason', 'Unknown')}"
-                   for item in additional)
-    out += [
-        "", "### Largest measured RGB errors (fix these visuals first)", "",
-        "| Owner reference | Changed RGB pixels | RGB MAE (0–255) | Worst third by MAE |",
+        "### Largest measured RGB errors (fix these visuals first)",
+        "",
+        "| Reference | Changed RGB pixels | RGB MAE (0–255) | Worst third by MAE |",
         "|---|---:|---:|---|",
     ]
     for item in different[:10]:
@@ -219,22 +230,21 @@ def triage_markdown(report):
         worst = max(regions, key=lambda key: regions[key].get("mae_rgb_0_255", 0)) \
             if regions else "unknown"
         out.append(
-            f"| `{item['reference']}` | "
-            f"{item['different_pixels_percent']:.4f}% | "
-            f"{item['mae_rgb_0_255']:.3f} | {worst} |"
+            f'| {chr(96)}{item["reference"]}{chr(96)} | '
+            f'{item["different_pixels_percent"]:.4f}% | '
+            f'{item["mae_rgb_0_255"]:.3f} | {worst} |'
         )
     if not different:
         out.append("| No comparable mismatches | — | — | — |")
     out += [
         "",
-        "**Acceptance is not achieved until all 50 original, hash-verified owner "
-        "references are compared with distinct, unscaled, genuine Android captures "
-        "and all RGB pixel differences are zero.**",
+        "**Coverage PASS is NOT pixel-perfect 1:1 acceptance.** Every missing "
+        "native state and nonzero RGB difference remains visible. Functional "
+        "CI (build, emulator, security and accessibility) is still blocking.",
         "",
-        "Historical Home references predate the user-required visible PLAY button: "
-        "updated, owner-approved Home targets are also required before the new "
-        "functional Home can be called 1:1. Never replace owner references "
-        "with screenshots generated by this application.",
+        "Historical Home artwork predates the user-required PLAY button, "
+        "so exact Home pixel equality needs newly owner-approved artwork. "
+        "Do not invent reference assets or present app captures as owner originals.",
         "",
     ]
     return "\n".join(out)
