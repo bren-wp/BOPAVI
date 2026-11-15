@@ -135,12 +135,12 @@ def triage_markdown(report):
         "",
     ]
     if absent:
-        out.extend(f"- \`{item['reference']}\`" for item in absent)
+        out.extend(f"- `{item['reference']}`" for item in absent)
     else:
         out.append("None.")
     out += ["", f"### Missing native state mappings ({len(missing_captures)})", ""]
     if missing_captures:
-        out.extend(f"- \`{item['reference']}\`" for item in missing_captures)
+        out.extend(f"- `{item['reference']}`" for item in missing_captures)
     else:
         out.append("None.")
     additional = [
@@ -149,7 +149,7 @@ def triage_markdown(report):
     ]
     if additional:
         out += ["", "### Other unverified evidence", ""]
-        out.extend(f"- \`{item['reference']}\`: {item.get('reason', 'Unknown')}"
+        out.extend(f"- `{item['reference']}`: {item.get('reason', 'Unknown')}"
                    for item in additional)
     out += [
         "", "### Largest measured RGB errors (fix these visuals first)", "",
@@ -161,7 +161,7 @@ def triage_markdown(report):
         worst = max(regions, key=lambda key: regions[key].get("mae_rgb_0_255", 0)) \
             if regions else "unknown"
         out.append(
-            f"| \`{item['reference']}\` | "
+            f"| `{item['reference']}` | "
             f"{item['different_pixels_percent']:.4f}% | "
             f"{item['mae_rgb_0_255']:.3f} | {worst} |"
         )
