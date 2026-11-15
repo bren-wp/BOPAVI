@@ -5,7 +5,9 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from sync_release_docs import decode_pages, releases, render, section, three_action_version, three_action_catalog, three_action_documents
+from sync_release_docs import (decode_pages, releases, render, section, three_action_version,
+    three_action_catalog, three_action_documents, four_action_version,
+    four_action_catalog, four_action_documents, assert_home_play_contract)
 
 
 def record(tag, **opts):
@@ -81,6 +83,10 @@ class DocsTests(unittest.TestCase):
         self.assertFalse(three_action_version("v1.0.83"))
         self.assertTrue(three_action_version("v1.0.84"))
         self.assertTrue(three_action_version("v1.0.85"))
+        self.assertFalse(three_action_version("v1.0.88"))
+        self.assertFalse(four_action_version("v1.0.87"))
+        self.assertTrue(four_action_version("v1.0.88"))
+        self.assertTrue(four_action_version("v1.0.89"))
         base={"screens":["home","flight","pause","results"],"features":[
             {"id":x,"status":"visible"} for x in (
                 "home","flight","quick_options_overlay","local_records_overlay",
@@ -113,6 +119,36 @@ class DocsTests(unittest.TestCase):
         self.assertIn("nema dostupnog gumba za pokretanje novog leta",
                       pages["docs/play/STORE-LISTING-hr-HR.md"])
         self.assertIn("build 214",pages["docs/play/RELEASE-CHECKLIST.md"])
+
+    def test_four_action_catalog_and_published_documents(self):
+        base={"screens":["home","skins","shop","settings"],"features":[
+            {"id":x,"status":"internal-legacy"} for x in (
+                "home","flight","tap_to_flap","pause","results","retry",
+                "shop_screen","skin_selection_screen","settings_screen",
+                "virtual_wallet_save","three_home_actions","offline","no_ads","no_account")
+        ]}
+        result=four_action_catalog(base)
+        self.assertEqual(result["screens"],["home","loading","flight","pause","results",
+                                             "skins","shop","settings"])
+        self.assertEqual(result["home_navigation_decision"],"approved-four-actions-play")
+        flags={f["id"]:f["status"] for f in result["features"]}
+        for feature in ("flight","four_home_actions","gameplay_start_from_home",
+                        "skin_selection_screen","shop_screen","settings_screen"):
+            self.assertEqual(flags[feature],"visible")
+        self.assertEqual(flags["three_home_actions"],"removed")
+        pages=four_action_documents("v1.0.88",218,result)
+        self.assertEqual(len(pages),4)
+        for page in pages.values():
+            self.assertIn("PLAY",page)
+            self.assertNotIn("nema dostupnog gumba za pokretanje novog leta",page)
+            self.assertNotIn("New gameplay cannot be started from Home",page)
+            self.assertIn("v1.0.88",page)
+        self.assertIn('"four_home_actions"',pages["docs/product/FEATURE-MATRIX.md"])
+        self.assertIn("Loading",pages["docs/product/CURRENT_SCREENS.md"])
+        self.assertIn("Six virtual upgrades",pages["docs/product/FEATURE-MATRIX.md"])
+
+    def test_pub_claim_guard_detects_current_repo(self):
+        assert_home_play_contract(Path(__file__).resolve().parents[1])
 
     def test_paginated_arrays(self):
         import json

@@ -1,3 +1,5 @@
+> **Historical audit:** This document applies to the v1.0.82 candidate dated 2026-11-12, not the current release. For current publication consult CHANGELOG.md and the GitHub release tag. Outstanding verification claims below were not automatically closed by later releases.
+
 # BOPAVI — Production readiness, v1.0.82 candidate
 Prepared on 2026-11-12; status: **NOT VERIFIED / NOT YET PUBLISHED**.
 

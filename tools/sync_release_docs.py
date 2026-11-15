@@ -58,7 +58,12 @@ def render(items):
 def three_action_version(tag):
     """Apply only to versions explicitly built with the three-action Home."""
     match=STABLE.fullmatch(tag)
-    return match is not None and tuple(map(int,match.groups()))>=(1,0,84)
+    return match is not None and (1,0,84)<=tuple(map(int,match.groups()))<(1,0,88)
+
+def four_action_version(tag):
+    """From v1.0.88, PLAY is an approved user-facing Home route."""
+    match=STABLE.fullmatch(tag)
+    return match is not None and tuple(map(int,match.groups()))>=(1,0,88)
 
 def three_action_catalog(catalog):
     """Describe reachable production UI, not debug-only gameplay or old saves."""
@@ -204,6 +209,84 @@ def three_action_documents(tag,build,catalog):
         "docs/play/RELEASE-CHECKLIST.md":checklist,
     }
 
+
+def four_action_catalog(catalog):
+    """Play is a real production action from v1.0.88 onward (ADR-0003)."""
+    catalog=three_action_catalog(catalog)
+    catalog["screens"]=["home","loading","flight","pause","results","skins","shop","settings"]
+    catalog["home_navigation_decision"]="approved-four-actions-play"
+    visible={"home","flight","tap_to_flap","procedural_obstacles","pause","results",
+             "score","berries","local_best","retry","offline","no_ads","no_account",
+             "virtual_wallet_save","skin_selection_screen","shop_screen",
+             "settings_screen","powerup_shop","four_home_actions",
+             "gameplay_start_from_home","flight_loading","game_over_screen"}
+    for feature in catalog["features"]:
+        if feature["id"] in visible:feature["status"]="visible"
+        if feature["id"]=="three_home_actions":feature["status"]="removed"
+    existing={feature["id"] for feature in catalog["features"]}
+    for item in ("four_home_actions","gameplay_start_from_home","flight_loading","game_over_screen"):
+        if item not in existing:
+            catalog["features"].append({"id":item,"status":"visible"})
+    return catalog
+
+def four_action_documents(tag,build,catalog):
+    """Current published docs: history lives in CHANGELOG, candidate in NEXT."""
+    templates={
+        "docs/product/FEATURE-MATRIX.md": "# BOPAVI — Current Android-only feature matrix\n\nThis file describes the reachable production UI of the **published** Android release @@TAG@@ (build @@BUILD@@), not an unreleased candidate. Historical three-action navigation ended with ADR-0003; retained save formats and intentionally removed standalone pages are distinguished below.\n\n## Published release evidence\n\n~~~json\n@@CATALOG@@\n~~~\n\n## Verified source-level production routes (device acceptance remains separate)\n\n| Screen/state | Entry point | Available operations |\n|---|---|---|\n| Home | MainActivity.showHome | Four accessible actions: PLAY, SKINS, SHOP, SETTINGS; passive coin balance |\n| Loading / Ready | MainActivity.startGame | Production PLAY calls the existing flight preparation pipeline |\n| Flight | GameView / GameSimulation | Tap-to-flap, obstacles, coins and gameplay score |\n| Pause / Game Over / Results | GameView and result handlers | Resume, Retry, Home, locally stored results |\n| Skins | MainActivity.showSkins | Select and unlock pilots using saved coins |\n| Shop | MainActivity.showShop | Six virtual upgrades, wallet and inventory |\n| Settings | MainActivity.showSettingsScreen | Audio, controls, backups, reminders, language and legal notices |\n\nProgress, Leaderboard, Records, Achievements and Level Map remain removed as standalone pages. Gameplay is **reachable from Home using PLAY**, not debug-only. Older local save data and historical JSON formats remain supported; their reliability needs independent testing.\n\n**Visual evidence is not pixel-perfect certification.** Ten distinct owner design states have 40 original WebP reference files across four available resolutions; the additional indexed resolution remains optional. Native emulator PNGs, complete RGB comparisons, physical-device SAF recovery, accessibility, FPS and battery results are separate acceptance gates.\n",
+        "docs/product/CURRENT_SCREENS.md": "# BOPAVI — Current Android screens\n\n**Published release baseline:** @@TAG@@ (build @@BUILD@@). This corrects the post-publication documentation generator; it does not rewrite the original GitHub release.\n\nThe production Home has **four functional accessible actions**: **PLAY, SKINS, SHOP and SETTINGS**. PLAY starts the actual game through MainActivity.startGame(), Loading and GameView. The passive coin balance is not a fifth action.\n\n| Accessible screen or state | Genuine release screenshot / evidence | Operation |\n|---|---|---|\n| Home | BOPAVI-Android-Home.png | PLAY, SKINS, SHOP, SETTINGS |\n| Loading / Ready | BOPAVI-Android-Flight-Preview.png (ready state) | Transition from PLAY to playable flight |\n| Flight | BOPAVI-Android-Flight-Active.png | Tap-to-flap, obstacles, score and coins |\n| Pause | BOPAVI-Android-Pause.png | Resume and navigation |\n| Game Over | BOPAVI-Android-Game-Over.png | End-state feedback |\n| Results | BOPAVI-Android-Results.png | Saved results, Retry and Home |\n| Skins | BOPAVI-Android-Skins.png | Pilot selection and local unlocks |\n| Shop | BOPAVI-Android-Shop.png | Six offline upgrades and virtual coins |\n| Settings | BOPAVI-Android-Settings.png | Audio, accessibility, privacy, terms and SAF |\n| Privacy (Settings dialog) | BOPAVI-Android-Privacy.png | Bundled privacy notice |\n| Terms (Settings dialog) | BOPAVI-Android-Terms.png | Bundled terms of use |\n\nRemoved standalone pages: Progress, Leaderboard, Records, Achievements and Level Map. Their removal does not disable gameplay or delete compatible historical player data.\n\n**Reference design:** 10 distinct states; 40 genuine owner originals over four available resolutions. Screenshots are real release assets, but source checks and the existence of screenshots alone do **not** establish 1:1 RGB parity or real-device stability.\n\nPublished screenshots: https://github.com/bren-wp/BOPAVI/releases/tag/@@TAG@@. Unreleased changes are documented separately in `docs/release/NEXT.md`.\n",
+        "docs/play/STORE-LISTING-hr-HR.md": "# Google Play — BOPAVI (hr-HR) · objavljeno @@TAG@@ (build @@BUILD@@)\n\n<!-- verified-feature-ids: home,four_home_actions,gameplay_start_from_home,flight,skin_selection_screen,shop_screen,settings_screen,virtual_wallet_save,offline,no_ads,no_account -->\n\n**Naziv (do 30 znakova):** BOPAVI\n\n**Kratki opis (do 80 znakova):** Pomozi Bopiju letjeti dodirom; otključaj likove i nadogradnje bez oglasa.\n\n**Puni opis:**\n\nBOPAVI je offline arkadna igra u kojoj Bopi leti jednim dodirom. Na početnom zaslonu dostupne su četiri stvarne opcije: PLAY, SKINS, SHOP i SETTINGS. PLAY pokreće učitavanje i stvarni let: zamahni dodirom, izbjegavaj prepreke, prikupljaj novčiće i pokušaj ostvariti bolji rezultat.\n\nU Skins odaberi lika i upravljaj lokalnim otključavanjima. U Shopu je dostupno šest nadogradnji koje se kupuju virtualnim novčićima, bez kupnje pravim novcem. U Settingsu prilagodi zvuk, kontrole, jezik i sigurnosne kopije te pregledaj uvjete korištenja i privatnost.\n\nNapredak i virtualna sredstva čuvaju se lokalno. Igra ne zahtijeva registraciju, oglase ni internetsku vezu. Zasebni zasloni poretka, postignuća, rekorda i karte razina nisu dio trenutačne navigacije; to ne sprječava pokretanje igre pomoću PLAY.\n\n**Kategorija:** Igra → Arkadne (potvrditi u Play Consoleu).\n\n**Oglasi:** Ne. **Kupnje u aplikaciji:** Ne. Shop koristi lokalne virtualne novčiće.\n\n## Autentične slike — ugovor\n\nObjavljuju se stvarne snimke istoga Android builda: Home, Shop, Skins, Settings, stanje leta, pauza, rezultati i pravni dijalozi. Ne predstavljati pokrivenost snimkama kao dokaz potpune 1:1 RGB usklađenosti. Izostaviti uklonjene samostalne zaslone.\n\nGitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/@@TAG@@.\nProvjera na fizičkom uređaju i Play Store odobrenje nisu potvrđeni.\n",
+        "docs/play/RELEASE-CHECKLIST.md": "# BOPAVI — Android release acceptance checklist\n\n**Last published release evidence:** @@TAG@@ (build @@BUILD@@).\n**Application:** com.brendigo.bopavi · BRENDIGO · https://brendigo.com.\n\n## Production UI\n\n- [ ] Home exposes exactly four accessible controls: PLAY, SKINS, SHOP, SETTINGS.\n- [ ] PLAY reaches Loading and actual playable GameView without QA-only intent extras.\n- [ ] Flight, collisions, score, Pause/Resume, Retry, Home and lifecycle transitions work.\n- [ ] Shop has six real local upgrades with atomic wallet/inventory updates; Skins persist.\n- [ ] Settings audio, legal controls, SAF backup, language and accessibility work.\n- [ ] Progress, Leaderboard, Records, Achievements and Level Map remain absent as standalone pages.\n- [ ] Android 15/16 UIAutomator/emulator tests and screenshots pass at actual densities.\n- [ ] Compare authentic native PNGs against original owner WebPs per distinct state, without resizing; disclose RGB differences.\n- [ ] Test TalkBack, large fonts, rotation and physical Android devices before parity/stability claims.\n\n## Data, security and distribution\n\n- [ ] Preserve v1–v6 historical JSON formats, saved coins, skins, purchases and scores.\n- [ ] Test failed, concurrent, interrupted and externally edited SAF DocumentsProvider operations on physical devices.\n- [ ] Audit Kotlin, manifest, intents, R8, asset licenses and transitive dependencies.\n- [ ] No INTERNET permission, ad SDKs or new account requirement.\n- [ ] Run Android Lint, JVM tests, R8 APK/AAB and checksum verification for the exact commit.\n- [ ] Publish no release with stale three-action or no-PLAY claims; validate release notes before upload.\n- [ ] Sign production distribution privately with publisher-approved key.\n- [ ] Do not rewrite or delete historical GitHub releases.\n",
+    }
+    data=json.dumps(catalog,ensure_ascii=False,indent=2)
+    return {path:value.replace("@@TAG@@",tag).replace("@@BUILD@@",str(build)).replace("@@CATALOG@@",data)
+            for path,value in templates.items()}
+
+def assert_home_play_contract(root,notes=None):
+    """Fail closed before publishing if playable Home is misrepresented."""
+    version,_=release_metadata(root)
+    if tuple(map(int,version.split(".")))<(1,0,88):
+        return
+    activity=(root/"android/app/src/main/java/com/brendigo/bopavi/MainActivity.kt").read_text(encoding="utf-8")
+    home=(root/"android/app/src/main/java/com/brendigo/bopavi/HomeReferenceScreen.kt").read_text(encoding="utf-8")
+    required=('onPlay={sound.effect("click");startGame()}','onSkins={showSkins()}',
+              'onShop={showShop()}','onSettings={showSettingsScreen()}')
+    if not all(action in activity for action in required):
+        raise ValueError("Production Home does not expose all four genuine callbacks")
+    if not all('pill("'+name+'"' in home for name in ("PLAY","SKINS","SHOP","SETTINGS")):
+        raise ValueError("Native Home does not contain four labeled controls")
+    matrix=(root/"docs/product/FEATURE-MATRIX.md").read_text(encoding="utf-8")
+    match=re.search(r"~~~json\s*(\{.*?\})\s*~~~",matrix,re.S)
+    if not match:
+        raise ValueError("Missing published feature matrix")
+    features=json.loads(match.group(1))
+    states={entry["id"]:entry["status"] for entry in features["features"]}
+    if features["home_navigation_decision"]!="approved-four-actions-play" or any(
+        states.get(feature)!="visible" for feature in ("four_home_actions","gameplay_start_from_home","flight")
+    ):
+        raise ValueError("Published feature matrix advertises obsolete Home navigation")
+    banned=("new gameplay cannot be started from home",
+            "there is intentionally no production home button",
+            "no production home button for starting a flight",
+            "nema dostupnog gumba za pokretanje novog leta",
+            "pokretanje novog leta nije dostupno",
+            "exactly three accessible actions",
+            "home has exactly three accessible controls")
+    for name in ("README.md","docs/product/CURRENT_SCREENS.md",
+                 "docs/play/STORE-LISTING-hr-HR.md","docs/play/RELEASE-CHECKLIST.md"):
+        content=(root/name).read_text(encoding="utf-8")
+        if any(claim in content.lower() for claim in banned):
+            raise ValueError("Obsolete three-action/disabled-PLAY claim in "+name)
+    for name,token in (("README.md","PLAY"),("docs/product/CURRENT_SCREENS.md","PLAY"),
+                       ("docs/play/STORE-LISTING-hr-HR.md","PLAY"),
+                       ("docs/play/RELEASE-CHECKLIST.md","PLAY")):
+        if token not in (root/name).read_text(encoding="utf-8"):
+            raise ValueError("Missing explicit Play route in "+name)
+    if notes is not None:
+        content=notes.read_text(encoding="utf-8").lower()
+        if any(claim in content for claim in banned) or "candidate / not published" in content:
+            raise ValueError("Release notes still contain stale candidate or disabled-PLAY claims")
+
+
 def sync(root,items,tag):
     public=releases(items)
     if not public or public[0]["tag_name"]!=tag:raise ValueError("Expected successful public stable release "+tag)
@@ -221,9 +304,11 @@ def sync(root,items,tag):
     for name in ACTIVE:
         old=(root/name).read_text(encoding="utf-8")
         updates[name]=old.replace(previous,tag).replace("build "+str(old_build),"build "+str(build))
-    if three_action_version(tag):
-        # The previous published baseline has different routes. Replacing
-        # version strings alone would falsely advertise deleted screens.
+    if four_action_version(tag):
+        catalog=four_action_catalog(catalog)
+        updates.update(four_action_documents(tag,build,catalog))
+    elif three_action_version(tag):
+        # Historical v1.0.84–v1.0.87 releases had only three Home actions.
         catalog=three_action_catalog(catalog)
         updates.update(three_action_documents(tag,build,catalog))
     # The publication has finished: it is no longer an unreleased candidate.
@@ -240,7 +325,18 @@ def sync(root,items,tag):
         if dest.read_text(encoding="utf-8")!=value:dest.write_text(value,encoding="utf-8");modified.append(name)
     return modified
 if __name__=="__main__":
-    p=argparse.ArgumentParser();p.add_argument("--releases",type=Path,required=True);p.add_argument("--expected-tag",required=True)
+    p=argparse.ArgumentParser()
+    p.add_argument("--releases",type=Path)
+    p.add_argument("--expected-tag")
+    p.add_argument("--check-home-play",action="store_true")
+    p.add_argument("--notes",type=Path)
     args=p.parse_args()
-    changed=sync(Path(__file__).resolve().parents[1],decode_pages(args.releases.read_text()),args.expected_tag)
-    print("PASS: idempotent published-release documentation:",changed or "unchanged")
+    root=Path(__file__).resolve().parents[1]
+    if args.check_home_play:
+        assert_home_play_contract(root,args.notes)
+        print("PASS: published Home PLAY contract and release notes")
+    else:
+        if args.releases is None or args.expected_tag is None:
+            p.error("--releases and --expected-tag are required when syncing")
+        changed=sync(root,decode_pages(args.releases.read_text()),args.expected_tag)
+        print("PASS: idempotent published-release documentation:",changed or "unchanged")

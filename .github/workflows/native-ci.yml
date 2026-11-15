@@ -181,6 +181,8 @@ jobs:
       - run: python tests/test_release_contract.py
       - run: python tests/test_fdroid_distribution.py
       - run: python tests/test_sync_release_docs.py
+      - run: python tests/test_published_play_guard.py
+      - run: python tools/sync_release_docs.py --check-home-play
       - run: python tests/test_store_claims.py
       - run: python tests/test_marketing_readme.py
       - run: python tests/test_full_readme_gallery_release.py
@@ -702,6 +704,7 @@ jobs:
             exit 0
           fi
           python tools/release_notes.py > dist/release-notes.md
+          python tools/sync_release_docs.py --check-home-play --notes dist/release-notes.md
           gh release create "$tag" \
             dist/app-debug.apk \
             dist/app-release.aab \

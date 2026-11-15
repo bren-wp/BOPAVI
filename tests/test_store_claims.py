@@ -43,9 +43,11 @@ class StoreClaimsTest(unittest.TestCase):
         data = matrix()
         self.assertEqual(data["schema"], 1)
         self.assertEqual(data["scope_decision"], "pending")
-        expected=(["home","skins","shop","settings"]
-                  if tuple(map(int,data["release"].lstrip("v").split(".")))>=(1,0,84)
-                  else ["home", "flight", "pause", "results"])
+        v=tuple(map(int,data["release"].lstrip("v").split(".")))
+        expected=(["home","loading","flight","pause","results","skins","shop","settings"]
+                  if v>=(1,0,88) else
+                  ["home","skins","shop","settings"] if v>=(1,0,84)
+                  else ["home","flight","pause","results"])
         self.assertEqual(data["screens"], expected)
         states = [f["status"] for f in data["features"]]
         self.assertTrue(set(states) <= {"visible", "internal-legacy", "planned", "removed"})
@@ -80,11 +82,16 @@ class StoreClaimsTest(unittest.TestCase):
         self.assertTrue(all(catalog.get(claim) == "visible" for claim in claims), claims)
         self.assertLessEqual(len("BOPAVI"), 30)
         self.assertLessEqual(len(short), 80)
-        if tuple(map(int,matrix()["release"].lstrip("v").split(".")))>=(1,0,84):
+        published=tuple(map(int,matrix()["release"].lstrip("v").split(".")))
+        if published>=(1,0,88):
+            self.assertIn("PLAY, SKINS, SHOP i SETTINGS",full)
+            self.assertIn("stvarni let",full)
+            self.assertNotIn("nema dostupnog gumba za pokretanje novog leta",full)
+            self.assertIn("four_home_actions",claims)
+            self.assertIn("gameplay_start_from_home",claims)
+        elif published>=(1,0,84):
             self.assertIn("Shop, Skins i Settings",full)
             self.assertIn("nema dostupnog gumba za pokretanje novog leta",full)
-            for old in ("globalni poredak","Karta razina omogućuje"):
-                self.assertNotIn(old,full)
         else:
             self.assertIsNone(BANNED_PUBLIC.search(short + "\n" + full))
             self.assertIn("bobice", full)
