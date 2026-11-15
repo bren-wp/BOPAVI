@@ -77,7 +77,8 @@ assert 'BopaviUiIconDrawable.Kind.GEM,0xfff554ef.toInt(),dp(34)' not in shop
 assert 'if(bonus>0)' in shop
 assert 'assertTrue(ShopReferenceLayout.valid())' in test
 assert 'assertFalse(poor.canBuy)' in test and 'assertFalse(full.canBuy)' in test
-assert 'LinearLayout.LayoutParams(-1,0,1.00f)' in shop
+assert 'ShopCardRowWeights.BUY' in shop
+assert 'const val BUY=1.00f' in (src/"ShopCardRowWeights.kt").read_text()
 assert 'val hit=Rect()' in shop
 assert 'buy.getHitRect(hit)' in shop
 assert 'card.touchDelegate=TouchDelegate(hit,buy)' in shop
@@ -104,8 +105,8 @@ assert 'return button(NumberFormat.getIntegerInstance().format(price),' in shop
 assert 'setCompoundDrawablesRelative(coin,null,null,null)' in shop
 assert 'Bopavi3DTheme.Finish.GREEN' in shop
 assert '183f,ShopHeaderLayout.titleTop,575f,201f' in shop
-assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))' in shop
-assert '},LinearLayout.LayoutParams(-1,0,.86f))' in shop
+assert 'card.addView(illustration,LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.ILLUSTRATION))' in shop
+assert '},LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.EFFECT))' in shop
 assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in shop
 assert 'includeFontPadding=false' in shop
 
