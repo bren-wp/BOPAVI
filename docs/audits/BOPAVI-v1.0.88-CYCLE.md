@@ -1,3 +1,5 @@
+> **Post-publication clarification (2026-11-15):** This is the historical PR #236 candidate audit. PR #236 was subsequently merged and GitHub published v1.0.88 (build 218). The status and baseline below record the pre-merge context and must not be interpreted as current release status. External SAF-provider, RGB parity, licensing and device-level performance gaps were not automatically closed by publication. See the new documentation-correction Draft PR for the four-button Home contract.
+
 # BOPAVI v1.0.88 — evidence-based audit and acceptance (PR #236)
 
 **Status: DRAFT, UNMERGED, UNRELEASED.**

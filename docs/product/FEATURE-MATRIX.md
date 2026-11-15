@@ -1,6 +1,6 @@
 # BOPAVI — Current Android-only feature matrix
 
-This file describes **reachable production UI** in the published APK. Legacy game data is retained without restoring deleted navigation.
+This file describes the reachable production UI of the **published** Android release v1.0.88 (build 218), not an unreleased candidate. Historical three-action navigation ended with ADR-0003; retained save formats and intentionally removed standalone pages are distinguished below.
 
 ## Published release evidence
 
@@ -15,6 +15,10 @@ This file describes **reachable production UI** in the published APK. Legacy gam
   "scope_decision": "pending",
   "screens": [
     "home",
+    "loading",
+    "flight",
+    "pause",
+    "results",
     "skins",
     "shop",
     "settings"
@@ -26,39 +30,39 @@ This file describes **reachable production UI** in the published APK. Legacy gam
     },
     {
       "id": "flight",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "tap_to_flap",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "procedural_obstacles",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "pause",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "results",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "score",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "berries",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "local_best",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "retry",
-      "status": "internal-legacy"
+      "status": "visible"
     },
     {
       "id": "offline",
@@ -150,7 +154,7 @@ This file describes **reachable production UI** in the published APK. Legacy gam
     },
     {
       "id": "three_home_actions",
-      "status": "visible"
+      "status": "removed"
     },
     {
       "id": "progress_screen",
@@ -163,21 +167,40 @@ This file describes **reachable production UI** in the published APK. Legacy gam
     {
       "id": "level_map_screen",
       "status": "removed"
+    },
+    {
+      "id": "four_home_actions",
+      "status": "visible"
+    },
+    {
+      "id": "gameplay_start_from_home",
+      "status": "visible"
+    },
+    {
+      "id": "flight_loading",
+      "status": "visible"
+    },
+    {
+      "id": "game_over_screen",
+      "status": "visible"
     }
   ],
-  "home_navigation_decision": "approved-three-actions"
+  "home_navigation_decision": "approved-four-actions-play"
 }
 ~~~
 
-## Verified production screen routes
+## Verified source-level production routes (device acceptance remains separate)
 
-| Screen | Entry point | Available operations |
+| Screen/state | Entry point | Available operations |
 |---|---|---|
-| Home | MainActivity.showHome | Exactly Shop, Skins, Settings; coin balance is passive |
-| Skins | MainActivity.showSkins | Select and unlock pilots using local saved coins |
-| Shop | MainActivity.showShop | Local virtual upgrades, wallet and bonuses |
-| Settings | MainActivity.showSettingsScreen | Volume, controls, backup, reminders, language and legal notices |
+| Home | MainActivity.showHome | Four accessible actions: PLAY, SKINS, SHOP, SETTINGS; passive coin balance |
+| Loading / Ready | MainActivity.startGame | Production PLAY calls the existing flight preparation pipeline |
+| Flight | GameView / GameSimulation | Tap-to-flap, obstacles, coins and gameplay score |
+| Pause / Game Over / Results | GameView and result handlers | Resume, Retry, Home, locally stored results |
+| Skins | MainActivity.showSkins | Select and unlock pilots using saved coins |
+| Shop | MainActivity.showShop | Six virtual upgrades, wallet and inventory |
+| Settings | MainActivity.showSettingsScreen | Audio, controls, backups, reminders, language and legal notices |
 
-Progress, Leaderboard, Records, Achievements and Level Map screens and their entry points are removed. New gameplay cannot be started from Home. The existing GameSimulation and save keys remain for backward compatibility and debug-only regression tests; they are not advertised as playable UI.
+Progress, Leaderboard, Records, Achievements and Level Map remain removed as standalone pages. Gameplay is **reachable from Home using PLAY**, not debug-only. Older local save data and historical JSON formats remain supported; their reliability needs independent testing.
 
-Real Android emulator screenshots do not by themselves certify pixel-perfect identity or physical-device stability. No third-party accounts, ads or Internet permission.
+**Visual evidence is not pixel-perfect certification.** Ten distinct owner design states have 40 original WebP reference files across four available resolutions; the additional indexed resolution remains optional. Native emulator PNGs, complete RGB comparisons, physical-device SAF recovery, accessibility, FPS and battery results are separate acceptance gates.

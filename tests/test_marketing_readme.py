@@ -34,7 +34,9 @@ class MarketingReadmeTests(unittest.TestCase):
             player_text = re.sub(r"<[^>]*>", "", content)
             self.assertNotIn(unwanted.casefold(), player_text.casefold(), unwanted)
         self.assertTrue(re.search(r"Bez oglasa.*Bez praćenja.*Bez registracije", content))
-        self.assertIn("Shop, Skins i Settings", content)
+        self.assertIn("PLAY, SKINS, SHOP i SETTINGS", content)
+        self.assertIn("Odaberi **PLAY**", content)
+        self.assertNotIn("Pokretanje novog leta nije dostupno",content)
         self.assertNotIn("BOPAVI-Android-Progress.png",content)
 
 

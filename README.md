@@ -24,12 +24,12 @@
 
 Iznad oblaka, između lebdećih otoka i razigranih prepreka, svaki zamah krila vodi prema novom rekordu. **BOPAVI** je arkadna igra za kratke letove i velike male pobjede. Odaberi junaka, uhvati ritam leta i otkrij koliko daleko možeš stići.
 
-Aplikacija se **odmah otvara** na početnom zaslonu s tri izbornika: **Shop, Skins i Settings**. Pokretanje novog leta nije dostupno s početnog zaslona ove inačice.
+Aplikacija se **odmah otvara** na početnom zaslonu s četiri stvarna gumba: **PLAY, SKINS, SHOP i SETTINGS**. Odaberi **PLAY** za učitavanje i stvarni let jednim dodirom.
 
 ## Što te čeka? ✨
 
 - 🪽 **Let jednim dodirom** — izbjegavaj prepreke i svladaj ritam zamaha.
-- 🌤️ **Osam svjetova** — istražuj krajolike, prolaze i izazove.
+- 🌤️ **Ilustrirani svjetovi** — igra sadrži osam okolišnih resursa; zaseban izbor svjetova nije dio trenutačne navigacije.
 - 🦉 **Više junaka** — od Bopija do Sove, Lisca i dodatnih pilota.
 - 🛡️ **Nadogradnje za novčiće** — štitovi i magneti kupuju se lokalno zarađenom valutom.
 - 🔐 **Tvoj napredak ostaje tvoj** — lokalno spremljeni podaci i kopija koju sam odabireš.

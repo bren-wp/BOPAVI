@@ -5,19 +5,23 @@
 
 ## Production UI
 
-- [ ] Home has exactly three accessible controls: Shop, Skins, Settings.
-- [ ] No links, buttons, gestures or standalone screens for Progress, Leaderboard, Records, Achievements, Level Map or Play.
-- [ ] Shop virtual purchases and Skins ownership stay transactional and offline.
-- [ ] Settings privacy, legal controls, SAF backup, audio and accessibility work.
-- [ ] Run Android 15/16 emulator UI and image checks at multiple densities.
-- [ ] Check physical Android devices and TalkBack before claiming production parity.
+- [ ] Home exposes exactly four accessible controls: PLAY, SKINS, SHOP, SETTINGS.
+- [ ] PLAY reaches Loading and actual playable GameView without QA-only intent extras.
+- [ ] Flight, collisions, score, Pause/Resume, Retry, Home and lifecycle transitions work.
+- [ ] Shop has six real local upgrades with atomic wallet/inventory updates; Skins persist.
+- [ ] Settings audio, legal controls, SAF backup, language and accessibility work.
+- [ ] Progress, Leaderboard, Records, Achievements and Level Map remain absent as standalone pages.
+- [ ] Android 15/16 UIAutomator/emulator tests and screenshots pass at actual densities.
+- [ ] Compare authentic native PNGs against original owner WebPs per distinct state, without resizing; disclose RGB differences.
+- [ ] Test TalkBack, large fonts, rotation and physical Android devices before parity/stability claims.
 
 ## Data, security and distribution
 
-- [ ] Preserve historical v1–v6 local save keys and virtual balances.
+- [ ] Preserve v1–v6 historical JSON formats, saved coins, skins, purchases and scores.
+- [ ] Test failed, concurrent, interrupted and externally edited SAF DocumentsProvider operations on physical devices.
+- [ ] Audit Kotlin, manifest, intents, R8, asset licenses and transitive dependencies.
 - [ ] No INTERNET permission, ad SDKs or new account requirement.
-- [ ] Confirm 11 original emulator PNG captures, no removed-screen assets.
-- [ ] Check Gradle Android Lint, JVM tests, R8 APK/AAB, SHA-256 manifests.
+- [ ] Run Android Lint, JVM tests, R8 APK/AAB and checksum verification for the exact commit.
+- [ ] Publish no release with stale three-action or no-PLAY claims; validate release notes before upload.
 - [ ] Sign production distribution privately with publisher-approved key.
-- [ ] Check Play Console policy, accessibility, data safety and physical-device stability.
-- [ ] Never rewrite or delete older stable GitHub releases.
+- [ ] Do not rewrite or delete historical GitHub releases.
