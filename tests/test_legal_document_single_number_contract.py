@@ -7,7 +7,7 @@ dlg=(p/"BopaviLegalDialog.kt").read_text()
 main=(p/"MainActivity.kt").read_text()
 for f,label in (("privacy.html","Dokument 01"),("terms.html","Dokument 02")):
  html=(r/"android/app/src/main/assets/legal"/f).read_text()
- assert html.count('class="section-label"')==1
+ assert html.count('class="section-label">'+label)==1  # Terms also has 'Službeni kontakt'.
  assert label in html
 assert "val docNumber=TextView(host)" not in dlg
 assert "root.addView(docNumber," not in dlg
