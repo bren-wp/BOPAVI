@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="844" height="352" viewBox="-42 -37 844 352" role="img" aria-label="BOPAVI">
   <title>BOPAVI</title>
-  <desc>Locally rendered winged crown logo with orange BOPA and bright blue Vi enamel letters.</desc>
+  <desc>Locally rendered crowned wordmark matching the owner reference's icy BOP and warm-gold AVI colors.</desc>
   <defs>
     <linearGradient id="goldText" x1="0" y1="0" x2="0" y2="1">
       <stop stop-color="#fff994"/><stop offset=".31" stop-color="#ffd42d"/>
@@ -80,22 +80,33 @@
     <use href="#ownerWarm" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
     <use href="#ownerBlue" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
     <use href="#ownerI" transform="translate(0 11)" fill="#061b49" stroke="#061839" stroke-width="18"/>
-    <use href="#ownerWarm" transform="translate(0 6)" fill="#a43a0b" stroke="#092659" stroke-width="13"/>
-    <use href="#ownerBlue" transform="translate(0 6)" fill="#084c9a" stroke="#092659" stroke-width="13"/>
-    <use href="#ownerI" transform="translate(0 6)" fill="#084c9a" stroke="#092659" stroke-width="13"/>
-    <use href="#ownerWarm" fill="url(#goldText)" stroke="#8d320d" stroke-width="5"/>
-    <use href="#ownerBlue" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
-    <use href="#ownerI" fill="url(#cyanText)" stroke="#055eac" stroke-width="5"/>
-    <path d="M157 135 Q169 123 196 122 M264 158 Q273 132 289 128 M372 129 Q385 116 409 120 M456 158 Q466 132 483 129"
-       fill="none" stroke="#fffcc2" stroke-width="5" stroke-opacity=".74"/>
-    <path d="M164 235 Q183 238 198 234 M263 205 Q276 226 297 227 M371 221 Q378 228 393 225 M505 234 Q517 241 529 236"
+    <use href="#ownerWarm" transform="translate(0 6)" fill="#0755ae" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerA" transform="translate(0 6)" fill="#aa480a" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerBlue" transform="translate(0 6)" fill="#a34d07" stroke="#092659" stroke-width="13"/>
+    <use href="#ownerI" transform="translate(0 6)" fill="#a34d07" stroke="#092659" stroke-width="13"/>
+    <!-- The approved reference paints B/O/P icy cyan, A/V/I warm gold.
+         Each vector remains an independent real letter, preserving its
+         negative counters and native SVG/Raster proportions. -->
+    <use href="#ownerB" fill="url(#cyanText)" stroke="#06569e" stroke-width="5"/>
+    <use href="#ownerO" fill="url(#cyanText)" stroke="#06569e" stroke-width="5"/>
+    <use href="#ownerP" fill="url(#cyanText)" stroke="#06569e" stroke-width="5"/>
+    <use href="#ownerA" fill="url(#goldText)" stroke="#a75009" stroke-width="5"/>
+    <use href="#ownerBlue" fill="url(#goldText)" stroke="#a75009" stroke-width="5"/>
+    <use href="#ownerI" fill="url(#goldText)" stroke="#a75009" stroke-width="5"/>
+    <path d="M157 135 Q169 123 196 122 M264 158 Q273 132 289 128 M372 129 Q385 116 409 120"
+       fill="none" stroke="#f6ffff" stroke-width="5" stroke-opacity=".82"/>
+    <path d="M456 158 Q466 132 483 129"
+       fill="none" stroke="#fffcc2" stroke-width="5" stroke-opacity=".78"/>
+    <path d="M164 235 Q183 238 198 234 M263 205 Q276 226 297 227 M371 221 Q378 228 393 225"
+       fill="none" stroke="#083c84" stroke-width="4" stroke-opacity=".5"/>
+    <path d="M505 234 Q517 241 529 236"
        fill="none" stroke="#8a2507" stroke-width="4" stroke-opacity=".47"/>
     <path d="M541 130Q549 119 555 133 M626 148Q645 126 663 141"
-       fill="none" stroke="#e1fbff" stroke-width="4" stroke-opacity=".64"/>
+       fill="none" stroke="#fff2b6" stroke-width="4" stroke-opacity=".64"/>
     <!-- The separated round dot above the small blue i is an essential
          hand-painted owner logo feature; it is not a substituted font glyph. -->
     <ellipse cx="675" cy="119" rx="17" ry="17"
-       fill="#19bdf9" stroke="#092553" stroke-width="9"/>
+       fill="#ffd041" stroke="#092553" stroke-width="9"/>
     <ellipse cx="669" cy="111" rx="5.5" ry="6.2"
        fill="#e7ffff" opacity=".80"/>
   </g>

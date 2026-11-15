@@ -4,7 +4,8 @@
 
 **CANDIDATE / NOT PUBLISHED.** This is the first screen-by-screen fidelity iteration, not a claim of 1:1 completion. Production Kotlin/layout is changed, so an Android versionCode increase is mandatory before a future release.
 
-- Shrink and raise the actual native winged-logo ImageView based on the owner's 1080×1920 painted wordmark bounds (from approximately 840px wide in v1.0.88 toward approximately 560px). Keep the real logo asset and SVG; do not embed the owner screenshot in the app.
+- Shrink and raise the actual native winged-logo ImageView based on the owner's 1080×1920 painted wordmark bounds (from approximately 840px wide in v1.0.88 toward approximately 560px). Keep the real logo vector and native ImageView; do not embed the owner screenshot in the app.
+- Recolor the original six independent vector glyphs to the reference palette (B/O/P cyan, A/V/I warm gold) while preserving their contours, crown, wings and source-generated Android asset. Asset artwork changes require the full candidate build and genuine screenshot validation.
 - Validate the wallet and painted logo using true 2-D non-overlap rather than an unnecessary vertical ordering rule. Preserve the four real PLAY/SKINS/SHOP/SETTINGS callbacks, original button slots and saved data.
 - Add direct Kotlin/JVM camera geometry assertions; publish separate original-versus-real-Android RGB evidence across the four available viewport references. Full RGB 1:1 is **not** claimed.
 - Continue in order: Home geometry and art, Skins, Shop (six real purchases), Settings, Game Over variants, Gameplay/Loading, Pause, Results and legal dialogs. Do not merge until source + Android 15/16 emulator tests succeed and real pixel measurements are reviewed.
