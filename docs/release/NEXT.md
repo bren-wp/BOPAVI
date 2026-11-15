@@ -1,27 +1,16 @@
-# BOPAVI v1.0.91 — Shop native card typography candidate (build 221)
+# Next Android release — v1.0.92 / build 222 (unpublished candidate)
 
-## v1.0.91 — Two-line Shop items, unchanged real wallet/purchases (build 221)
+## v1.0.92 — Screen-by-screen native owner-reference corrections (build 222)
 
-**CANDIDATE / NOT PUBLISHED.** This is stacked on the independently pending v1.0.89 Home PR #239 and v1.0.90 Skins PR #240; **do not merge or release** out of order or without exact-head CI + native RGB screenshots.
+**CANDIDATE / NOT PUBLISHED.** Dependent on #239 Home, #240 Skins and #242 Shop; do not merge or release before all exact-head QA, safety, functional and screenshot checkpoints pass. This file tracks pending work, NOT the public changelog.
 
-- The 6 native 3×2 Shop cards previously allocated only 0.65/4.04 of their vertical weight to two-line headings. Genuine prior native 1080×1920 screenshots clip the second line of long names (DOUBLE SHIELD, SUPER MAGNET) despite the original owner WebP showing both.
-- Make pure Kotlin `ShopCardRowWeights` (header .90, illustration 1.35, description .79, buy 1.00), preserving the original total 4.04 so frame geometry and purchase button portion are unchanged. This is a measured-source targeted heading correction, **not** a claim of improved whole-frame RGB.
-- Keep six actual buy buttons and `ProgressStore.buyPerk` synchronized/committed coin and inventory transaction, price/ability item data, featured panel and original decorative kiosk asset. Do not invent IAP or hide owned state.
-- Register Python source and Kotlin/JVM tests for weights, long names and unchanged buy behavior.
-- Require real Android 15/16 UIAutomator, native unresized screenshots and comparisons against **all four** owner Shop WebPs, font-scale/rotation and TalkBack checks before visual acceptance.
+- Settings: enlarge native menu text/icon while preserving all 9 original reference rows, real switches, sliders, SAF restore and two legal routes; retained compact scroll layout for inaccessible viewport sizes.
+- Game Over: add missing genuine BOPAVI winged logo above the real loss/result scene while preserving painted GAME/OVER, score data, selected character and RETRY/HOME.
+- Gameplay Ready: use generated local BOPAVI logo only in the genuine ready-to-tap state, not active flight, no touched hitboxes/physics.
+- Pause: refine genuine modal spacing and accessibility without changing gameplay state transitions.
+- Results: improve native presented result text and hit targets without inventing a fake score or winning state.
+- Privacy/Terms: remove duplicate document number in the legal dialog; preserve actual full native selectable offline legal HTML, scroll, links, explicit close.
+- Mandatory: compare genuine exact-head Android 15/16 screenshots against owner SHA-pinned WebPs at all four known viewports (1080×1920/2280/2340/2400), without scaling/masking/copying artwork. Include screen-state UIAutomator assertions and real-device checks where available. **Do not claim RGB=0 from a green source build.**
+- Explicit constraints: owner Game Over B does not have a separate real native capture; user-provided Results and legal Terms visual references are not in current ten-state archive. Do not pretend exact match for missing states.
 
-### Published v1.0.88 Shop reference baseline (not this candidate)
-
-Original SHA-pinned owner WebPs vs same-build authentic Android PNGs from successful main CI [43765935322](https://github.com/bren-wp/BOPAVI/actions/runs/43765935322):
-
-| Physical viewport | Full-frame RGB MAE (0–255) | Changed RGB pixels |
-| --- | ---: | ---: |
-| 1080×1920 | 63.659683 | 99.994117% |
-| 1080×2280 | 73.176275 | 99.992122% |
-| 1080×2340 | 71.954981 | 99.991651% |
-| 1080×2400 | 70.903066 | 99.992207% |
-
-None is pixel-perfect. Original Shop kiosk detail/illustration, scene color and bottom foliage remain major differences. Do not replace real controls with screenshot crops or stretch screenshot PNGs to claim 1:1.
-
-### Acceptance/continuation
-After Home and Skins candidate native results are reviewed, compare Shop on the true v1.0.91 head, revise if it worsens/does not materially improve correct visual text. Next screens: Settings → Game Over A/B → Loading/Game → Pause → Results → Privacy/Terms, including functional dialogs.
+The published version remains v1.0.88 until explicit release acceptance. No native release artifact or signing change is authorized by this Draft.
