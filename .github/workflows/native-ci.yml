@@ -213,7 +213,9 @@ jobs:
           # Keep the version-bump gate for every product/runtime/asset edit.
           pr="$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")"
           changed="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$pr/files" --paginate --jq '.[].filename')"
-          if ! printf '%s\n' "$changed" | grep -Ev '^(docs/|tests/|android/app/src/test/|README\.md$|\.github/workflows/native-ci\.yml$|tools/cleanup_legacy_releases\.py$|tools/sync_release_docs\.py$)' | grep -q .; then
+          # Share one metadata allowlist with the post-merge duplicate-tag guard.
+          # CHANGELOG.md is generated after a stable release, not a build input.
+          if printf '%s\n' "$changed" | python3 tests/release_publish_guard.py; then
             echo "Metadata/tests-only PR: release version remains unchanged"
             exit 0
           fi

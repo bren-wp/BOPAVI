@@ -3,7 +3,13 @@
 import sys
 from pathlib import PurePosixPath
 
-SAFE_FILES = {"README.md", ".github/workflows/native-ci.yml", "tools/cleanup_legacy_releases.py", "tools/sync_release_docs.py"}
+SAFE_FILES = {
+    "CHANGELOG.md",  # Post-publish stable release index, not an app input.
+    "README.md",
+    ".github/workflows/native-ci.yml",
+    "tools/cleanup_legacy_releases.py",
+    "tools/sync_release_docs.py",
+}
 SAFE_PREFIXES = ("docs/", "tests/", "android/app/src/test/")
 UNSAFE_PREFIXES = ("docs/assets/",)
 
@@ -24,7 +30,7 @@ def is_metadata_only(paths):
 if __name__ == "__main__":
     changed=sys.stdin.read().splitlines()
     if is_metadata_only(changed):
-        print("PASS: unchanged distributable app inputs; skip duplicate GitHub release.")
+        print("PASS: metadata-only diff; distributable inputs are unchanged.")
         sys.exit(0)
     print("BLOCK: code/build/assets change requires a new version.",file=sys.stderr)
     sys.exit(1)
