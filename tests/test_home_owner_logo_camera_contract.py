@@ -13,6 +13,8 @@ assert 'val play=HomeBounds(304f,899f,333f,115f)' in layout
 assert "setImageResource(R.drawable.logo)" in screen
 assert "setImageResource(R.drawable.homeback)" in screen
 assert "walletRail.onRowBottomChanged={rowBottom->" in screen
+assert "walletRail.intersectsPaintedLogo(" in screen
+assert "val paintedLeft=logoView.left+logoView.width*(57f/780f)" in screen
 for name in ("PLAY","SKINS","SHOP","SETTINGS"):
     assert screen.count('pill("'+name+'"')==1,name
 assert "setOnClickListener{onClick()}" in screen

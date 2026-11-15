@@ -189,7 +189,16 @@ internal class HomeReferenceScreen(private val host:Activity,
                     // Only shrink when the real PAINTED crown overlaps
                     // the native wallet, never for empty logo PNG padding.
                     val paintedTop=logoView.top+logoView.height*.12f
-                    val placement=if(rowBottom+gap<=paintedTop)
+                    // The approved smaller crown and feathers sit to the
+                    // LEFT of the top-right wallet. Never shrink a title for
+                    // a vertical band overlap when no painted pixels actually
+                    // intersect the HUD horizontally. Use measured children
+                    // so cutout/safe-right wallet shifts are respected.
+                    val paintedLeft=logoView.left+logoView.width*(57f/780f)
+                    val paintedRight=logoView.left+logoView.width*(723f/780f)
+                    val placement=if(!walletRail.intersectsPaintedLogo(
+                            paintedLeft,paintedRight) ||
+                        rowBottom+gap<=paintedTop)
                         HomeLogoFit(1f,0f)
                     else HomeLogoPlacement.fit(
                         rowBottom.toFloat(),logoView.top.toFloat(),

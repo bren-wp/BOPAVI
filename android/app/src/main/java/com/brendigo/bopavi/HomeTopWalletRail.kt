@@ -26,6 +26,16 @@ internal class HomeTopWalletRail(context:Context):ViewGroup(context) {
         addView(view,ViewGroup.LayoutParams(-2,-2))
     }
 
+    /** Called after native child layout; no assumption about wallet count or
+     * actual safe-area offset on Android phones with display cutouts.
+     */
+    fun intersectsPaintedLogo(paintedLeft:Float,paintedRight:Float):Boolean =
+        entries.any { e ->
+            HomeLogoPlacement.horizontalOverlap(
+                paintedLeft,paintedRight,
+                e.child.left.toFloat(),e.child.right.toFloat())
+        }
+
     fun setSafe(left:Int,top:Int,right:Int,
                 displayCutouts:List<Rect> = emptyList()){
         val newCutouts=displayCutouts.map { Rect(it) }

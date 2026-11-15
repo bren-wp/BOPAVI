@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class HomeLogoPlacementTest {
+    @Test fun disjointOwnerWordmarkDoesNotNeedWalletClearance() {
+        assertFalse(HomeLogoPlacement.horizontalOverlap(270f,808f,812f,1064f))
+        assertFalse(HomeLogoPlacement.horizontalOverlap(270f,812f,812f,1064f))
+        assertTrue(HomeLogoPlacement.horizontalOverlap(270f,815f,812f,1064f))
+        assertTrue(HomeLogoPlacement.horizontalOverlap(820f,1000f,812f,1064f))
+    }
+
     @Test fun referenceHomeKeepsFullSizeLogoBelowCurrencyRow() {
         val fit=HomeLogoPlacement.fit(85f,100f,285f,8f)
         assertEquals(1f,fit.scale,.0001f)

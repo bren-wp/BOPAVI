@@ -15,6 +15,14 @@ internal data class HomeLogoFit(val scale:Float,val offsetY:Float) {
 internal object HomeLogoPlacement {
     const val MIN_READABLE_SCALE=.62f
 
+    /** A coin chip touching only the same Y band must not shrink the brand.
+     * Only genuine X-axis overlap can require vertical clearance. The
+     * half-open comparisons prevent edge-to-edge neighbors from colliding.
+     */
+    fun horizontalOverlap(logoLeft:Float,logoRight:Float,
+                          walletLeft:Float,walletRight:Float):Boolean =
+        logoLeft<walletRight && logoRight>walletLeft
+
     fun fit(walletBottom:Float,logoTop:Float,
             logoHeight:Float,gap:Float):HomeLogoFit {
         if(logoHeight<=0f) return HomeLogoFit(1f,0f)
