@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Actual native Home targets are exactly three on compact and owner cameras."""
+"""Four accessible Home actions must be visible on compact and owner cameras."""
 from pathlib import Path
 import importlib.util
 import xml.etree.ElementTree as ET
 p=Path(__file__).resolve().parents[1]/"tools/qa_home_viewports.py"
 spec=importlib.util.spec_from_file_location("home_viewports",p)
 m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-assert set(m.TARGETS)=={"Settings","Skins","Shop"}
+assert set(m.TARGETS)=={"Play","Settings","Skins","Shop"}
 root=ET.Element("hierarchy")
 for i,(name,label) in enumerate((
+  ("Play","Pokreni igru"),
   ("Settings","Otvori opcije igre"),
   ("Skins","Otvori izbor likova"),
   ("Shop","Otvori trgovinu nadogradnji"))):
@@ -23,4 +24,4 @@ try:
 except AssertionError as exc:
     assert "duplicate" in str(exc)
 else: raise AssertionError("Duplicate Home action must fail")
-print("PASS: 3 native Home targets and duplicate-control guard")
+print("PASS: 4 native Home targets and duplicate-control guard")

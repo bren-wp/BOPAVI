@@ -4,7 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class HomeReferenceLayoutTest {
-    @Test fun exactlyThreeIndependentHomeActions() {
+    @Test fun threeOriginalMenuSlotsAndNewNonOverlappingPlay() {
         val home=HomeReferenceLayout
         assertTrue(home.valid())
         assertEquals(3,home.actions.size)
@@ -13,6 +13,11 @@ class HomeReferenceLayoutTest {
         assertEquals(1672f,home.height,0f)
         assertTrue(home.skins.bottom<home.shop.y)
         assertTrue(home.shop.bottom<home.settings.y)
+        assertTrue(home.heroArtwork.bottom<home.play.y)
+        assertTrue(home.play.bottom<home.skins.y)
+        assertTrue(home.play.w>0f && home.play.h>=96f)
+        assertTrue(home.play.inside())
+        for(button in home.actions) assertFalse(home.play.overlaps(button))
         assertTrue(home.heroArtwork.bottom<home.skins.y)
         assertEquals(300f,home.hero.x,0f)
         assertEquals(520f,home.hero.y,0f)

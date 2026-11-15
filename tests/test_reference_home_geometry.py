@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Responsive compact Home has exactly three true click destinations."""
+"""Responsive compact Home has four true click destinations, including PLAY."""
 from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 src=r/"android/app/src/main/java/com/brendigo/bopavi"
@@ -9,6 +9,8 @@ layout=(src/"HomeReferenceLayout.kt").read_text()
 for marker in ("FitViewportColumn(this)",
                "val compactWingedBopi=when(PilotSelectionModel.spriteIdForChoice(",
                "content.addView(compactWingedBopi,",
+               'text="▶  PLAY"',
+               'contentDescription="Pokreni igru"',
                'feature("SKINS"','feature("SHOP"',
                'text="SETTINGS"',
                'contentDescription="Otvori opcije igre"',
@@ -20,6 +22,7 @@ for marker in ('action(content,"▶  PLAY"', 'shortcut("',
     assert marker not in home,marker
 assert 'isClickable=false' in home
 assert 'val actions=listOf(skins,shop,settings)' in layout
+assert 'val play=HomeBounds(' in layout
 assert 'HomeReferenceScreen(this,progress).create(' in home
 assert 'HomeReferenceLayout.supports(resources.displayMetrics.widthPixels,' in home
-print("PASS: reference/compact Home preserve logo, hero and three navigation actions")
+print("PASS: reference/compact Home preserve logo and hero with real Play navigation")

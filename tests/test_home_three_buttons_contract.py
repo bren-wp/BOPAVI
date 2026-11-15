@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify removed navigation is absent, not just hidden by View visibility."""
+"""Verify four live Home actions and absence of retired navigation pages."""
 from pathlib import Path
 
 root=Path(__file__).resolve().parents[1]
@@ -9,10 +9,11 @@ home=(src/"HomeReferenceScreen.kt").read_text()
 layout=(src/"HomeReferenceLayout.kt").read_text()
 routes=(src/"ReferenceMenus.kt").read_text()
 compact=activity.split("private fun showHome(){",1)[1].split("private fun confirmGameplayShop(",1)[0]
-for key in ('onSkins={showSkins()}','onShop={showShop()}',
+for key in ('onPlay={sound.effect("click");startGame()}',
+            'onSkins={showSkins()}','onShop={showShop()}',
             'onSettings={showSettingsScreen()}'):
     assert key in compact,key
-for key in ('pill("SKINS"','pill("SHOP"','pill("SETTINGS"'):
+for key in ('pill("PLAY"','pill("SKINS"','pill("SHOP"','pill("SETTINGS"'):
     assert home.count(key)==1,key
 assert 'val actions=listOf(skins,shop,settings)' in layout
 assert 'isClickable=false' in home
@@ -28,7 +29,7 @@ for marker in ('showLocalRecords(', 'showLocalAchievements(','showLevels(',
                'action(content,"▶  PLAY"', 'shortcut("LEADERBOARD"',
                'shortcut("ACHIEVEMENTS"', 'shortcut("SOUND"'):
     assert marker not in activity,marker
-for marker in ('HomePlayWings(', 'HomeMedalDrawable()', 'pill("PLAY"',
+for marker in ('HomePlayWings(', 'HomeMedalDrawable()',
                'footerShortcut(', 'onAchievements:', 'onLeaderboard:',
                'onSound:', 'onStars:', '"Otvori kartu razina"'):
     assert marker not in home,marker
@@ -43,4 +44,7 @@ for suffix in (
     assert not (src/suffix).exists(),suffix
 assert (src/"ReferenceStage.kt").exists()
 assert "internal class LevelMapStage(" in (src/"ReferenceStage.kt").read_text()
-print("PASS: exactly three Home actions, no legacy pages, offline data retained")
+assert 'val play=HomeBounds(' in layout
+assert 'onPlay:()->Unit' in home
+assert 'text="▶  PLAY"' in compact
+print("PASS: four clickable Home controls, no legacy pages, offline save retained")

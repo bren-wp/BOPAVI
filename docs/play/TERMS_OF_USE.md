@@ -6,7 +6,7 @@ Za mobilnu igru BOPAVI, koju objavljuje Brendigo. Datum stupanja na snagu: 20. l
 
 Ovi Uvjeti uređuju preuzimanje, instalaciju i korištenje igre **BOPAVI** (u nastavku: „igra”) koju razvija i objavljuje Brendigo, obrt za programiranje, Rijeka, Republika Hrvatska. Instaliranjem ili korištenjem igre prihvaćate ove uvjete u mjeri dopuštenoj primjenjivim pravom. Ako se ne slažete s uvjetima, možete prestati koristiti igru i deinstalirati je.
 
-Ovi Uvjeti uređuju službena izdanja igre koja Brendigo zakonito distribuira pod vlasničkom licencom. Ne isključuju obvezna prava potrošača, zakonska ograničenja autorskog prava niti prava koja su za određeni kod ili ranije objavljena izdanja valjano dodijeljena zasebnim licencama.
+Ovi Uvjeti uređuju korištenje službenih izdanja igre, ali ne mijenjaju prava koja za javno dostupne dijelove programskog koda i dokumentacije proizlaze iz MIT licence u repozitoriju. Prava nad pojedinim umjetničkim resursima ovise o njihovim valjanim licencama i podrijetlu. Ovi Uvjeti ne isključuju obvezna prava potrošača niti opozivaju već zakonito dodijeljena prava.
 
 ## 2. Opis igre i dostupnost
 
@@ -16,21 +16,21 @@ Pojedine mogućnosti, izgled, kompatibilnost i ponašanje mogu se razlikovati me
 
 ## 3. Dopušteno korištenje
 
-Brendigo vam, pod uvjetom zakonitog pribavljanja službenog izdanja igre i poštovanja ovih Uvjeta, daje **ograničenu, neisključivu, osobnu i neprenosivu licencu** za instalaciju i korištenje igre na vašim kompatibilnim uređajima u svrhu igranja. Igra se trenutačno distribuira bez naknade, ali licenca ostaje vlasnička i komercijalna po svojoj pravnoj naravi. Ne stječete vlasništvo nad igrom ni pravo gospodarskog iskorištavanja njezinih zaštićenih dijelova.
+Brendigo vam daje **ograničenu, neisključivu dozvolu** za instalaciju i igranje službene distribucije igre, bez naknade. Ta dozvola ne umanjuje pravo kopiranja, izmjene, distribucije i komercijalne uporabe MIT-licenciranog materijala pod uvjetima te licence. Dozvola za igranje sama po sebi ne daje pravo gospodarskog iskorištavanja zasebno zaštićenih znakova ili resursa na koje se MIT licenca ne primjenjuje.
 
 Nije dopušteno upotrebljavati igru za nezakonite svrhe, namjerno ometati njezin rad ni zaobilaziti zaštitne mjere radi povrede prava ili sigurnosti. Ako igru preuzmete putem trgovine aplikacija, primjenjuju se i njezini relevantni uvjeti. Licenca ne ograničava korištenja koja su izričito dopuštena prisilnim propisima ili važećom zasebnom licencom za određeni materijal.
 
-## 4. Autorska prava i vlasnička komercijalna licenca
+## 4. Autorska prava, MIT licenca i zaštićeni identitet
 
-**BOPAVI je autorsko djelo koje izdaje Brendigo.** Naziv BOPAVI, naziv i lik Bopi, programski kod, mehanike izvedene u kodu, korisničko sučelje, originalna grafika, animacije, zvukovi, glazba, logotipi, tekstovi i drugi zaštićeni dijelovi igre pripadaju Brendigu odnosno njihovim zakonitim nositeljima prava, u opsegu priznatome važećim propisima. Sva prava koja nisu izričito dana korisniku ostaju pridržana njihovim nositeljima.
+**BOPAVI izdaje Brendigo.** Programske datoteke i dokumentacija za koje vrijedi MIT licenca ostaju pod MIT uvjetima. Naziv, logotip i zaštićeni identitet BOPAVI te grafika, animacije, zvukovi i drugi resursi mogu imati različita prava nositelja ili zasebne licence. Za svaki resurs mjerodavna je valjana, dokaziva licenca; ovim se Uvjetima nijedno već dodijeljeno pravo ne ograničava.
 
-**Vlasnička licenca, a ne slobodna licenca:** za službena izdanja distribuirana pod ovim Uvjetima dozvoljena je uporaba igre za igranje prema članku 3.; nije dodijeljena opća dozvola za kopiranje izvornog koda, preradu igre, izradu i objavu izvedenih verzija ni daljnju distribuciju ili komercijalno iskorištavanje njezinih zaštićenih materijala. Činjenica da je igra besplatna za krajnjeg korisnika ne znači da je njezin kod slobodan za uporabu u drugim projektima.
+**MIT i ostala prava:** materijal valjano objavljen pod MIT licencom slobodno je koristiti, kopirati, mijenjati, distribuirati i komercijalno iskorištavati u granicama MIT uvjeta, uključujući obvezu očuvanja licencne obavijesti. To ne predstavlja dopuštenje za lažno predstavljanje povezanosti s Brendigom ili za iskorištavanje drugih materijala koji nisu obuhvaćeni tom licencom.
 
 Bez prethodnoga pisanog odobrenja nositelja odgovarajućih prava, osim u opsegu koji dopuštaju zakon ili posebna valjana licenca, osobito nije dopušteno:
 
-- umnožavati, objavljivati, prodavati, ustupati, sublicencirati ili dalje distribuirati igru, njezine prerađene verzije ili zaštićene sastavne dijelove izvan zakonito dopuštenog opsega;
+- distribuirati materijal za koji nema odgovarajuće dozvole iz MIT licence, druge valjane licence ili zakona;
 
-- mijenjati programski kod i stvarati ili javno distribuirati neovlaštene izvedenice koje koriste zaštićeni sadržaj BOPAVI;
+- pripisivati si službeno autorstvo ili odobrenje Brendiga za izvedenu verziju bez odgovarajuće dozvole;
 
 - izdvajati ili ponovno koristiti grafiku, likove, zvukove, glazbu, logotipe ili naziv igre radi predstavljanja druge igre ili proizvoda kao službenog ili povezanog s Brendigom;
 
@@ -40,7 +40,7 @@ Bez prethodnoga pisanog odobrenja nositelja odgovarajućih prava, osim u opsegu 
 
 Zakonski dopuštena sigurnosna istraživanja, interoperabilnost, nužne sigurnosne kopije te druga korištenja koja se ne mogu ugovorom zabraniti ostaju dopuštena u granicama propisanim pravom. Uobičajene snimke igranja, recenzije i dijeljenje vlastitih rezultata nisu zabranjeni ovim Uvjetima, pod uvjetom da se ne krše prava trećih osoba i ne stvara lažan dojam službenog odobrenja.
 
-**Ranije objavljene licence.** Ako je određena ranija verzija programskog koda ili drugi dio igre već zakonito objavljen pod posebnom licencom, prava koja su valjano dodijeljena tom licencom ostaju na snazi za taj materijal. Ova vlasnička licenca ne opoziva niti sužava takva ranije stečena prava.
+**Ranije objavljene licence.** Ako je određena ranija verzija programskog koda ili drugi dio igre već zakonito objavljen pod posebnom licencom, prava koja su valjano dodijeljena tom licencom ostaju na snazi za taj materijal. Ovi Uvjeti ne opozivaju niti sužavaju takva ranije stečena prava.
 
 ## 5. Rezultati i napredak
 

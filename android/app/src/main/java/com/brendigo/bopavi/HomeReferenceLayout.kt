@@ -46,6 +46,11 @@ internal object HomeReferenceLayout {
     val heroArtwork=HomeBounds(
         hero.x+18f*hero.w/512f,hero.y+86f*hero.h/512f,
         475f*hero.w/512f,339f*hero.h/512f)
+    // Owner-approved functional addition: PLAY occupies the otherwise empty
+    // gap BELOW the actual hero artwork and ABOVE the original three CTAs.
+    // This intentionally differs from historical three-button Home WebPs.
+    // Preserve SKINS/SHOP/SETTINGS coordinates for future owner RGB review.
+    val play=HomeBounds(304f,899f,333f,115f)
     // Measured from the owner-supplied 1080×1920 screenshot, normalized
     // onto the established 941×1672 native camera. The controls are an
     // actual VERTICAL stack: blue SKINS, gold SHOP, violet SETTINGS.
@@ -88,7 +93,7 @@ internal object HomeReferenceLayout {
         if(!portrait || pxWidth<720 || pxHeight<1280 ||
             fontScale<.85f || fontScale>=1.3f || density<=0f)return false
         val scale=minOf(pxWidth/width,pxHeight/height)
-        val targets=actionBounds(pxWidth,pxHeight)
+        val targets=actionBounds(pxWidth,pxHeight)+play
         val minTouch=48f*density
         if(targets.any { it.w*scale<minTouch || it.h*scale<minTouch })return false
         return targets.all { it.inside() } &&
@@ -100,17 +105,19 @@ internal object HomeReferenceLayout {
     }
 
     fun valid():Boolean {
-        val all=listOf(coins,logo,logoArtwork,hero,heroArtwork)+actions
+        val all=listOf(coins,logo,logoArtwork,hero,heroArtwork,play)+actions
         if(!all.all{it.inside()})return false
         if(coins.bottom>=logoArtwork.y)return false
-        if(logoArtwork.bottom>=heroArtwork.y || heroArtwork.bottom>=skins.y)return false
+        if(logoArtwork.bottom>=heroArtwork.y ||
+            heroArtwork.bottom>=play.y || play.bottom>=skins.y)return false
         if(skins.bottom>=shop.y || shop.bottom>=settings.y ||
             kotlin.math.abs(skins.x+skins.w/2f-width/2f)>3f ||
             kotlin.math.abs(shop.x+shop.w/2f-width/2f)>3f ||
             kotlin.math.abs(settings.x+settings.w/2f-width/2f)>3f)
             return false
-        for(i in actions.indices)for(j in i+1 until actions.size){
-            if(actions[i].overlaps(actions[j]))return false
+        val touchTargets=actions+play
+        for(i in touchTargets.indices)for(j in i+1 until touchTargets.size){
+            if(touchTargets[i].overlaps(touchTargets[j]))return false
         }
         return true
     }

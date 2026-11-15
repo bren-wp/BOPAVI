@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive Android 15/16 smoke for the three remaining Home destinations."""
+"""Interactive Android 15/16 smoke for four real Home destinations."""
 import time
 from qa_android_rotation import APP, adb, hierarchy, label, tap, screenshot
 
@@ -71,9 +71,10 @@ def home():
             if n.get("package")==APP and n.get("clickable")=="true"
             and n.get("enabled")=="true"]
     descriptions={n.get("content-desc") for n in actual}
-    assert len(actual)==3 and descriptions=={
-        "Otvori izbor likova","Otvori trgovinu nadogradnji","Otvori opcije igre"
-    }, f"FAIL: Home controls are not exactly Shop, Skins and Settings: {descriptions}"
+    assert len(actual)==4 and descriptions=={
+        "Pokreni igru", "Otvori izbor likova",
+        "Otvori trgovinu nadogradnji", "Otvori opcije igre"
+    }, f"FAIL: Home controls are not Play, Shop, Skins and Settings: {descriptions}"
     return actual
 
 def open_route(name):
@@ -124,8 +125,8 @@ def main():
                 try:home();break
                 except AssertionError:continue
             home()
-            print("PASS: native "+name+" returns to three-action Home",flush=True)
-        print("PASS: exactly three Home buttons; real Shop, Skins and Settings captures")
+            print("PASS: native "+name+" returns to four-action Home",flush=True)
+        print("PASS: exactly four Home buttons; real Shop, Skins and Settings captures")
     finally:
         if resized:
             adb("shell","wm","size","reset")

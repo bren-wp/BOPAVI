@@ -24,7 +24,7 @@ for source_id,asset,sections in (("privatnost","privacy.html",12),("uvjeti","ter
 
 terms=(legal/"terms.html").read_text(encoding="utf-8")
 privacy=(legal/"privacy.html").read_text(encoding="utf-8")
-for term in ("Vlasnička licenca, a ne slobodna licenca","Ranije objavljene licence.",
+for term in ("MIT i ostala prava:","Ranije objavljene licence.",
              "prava potrošača","pravo gospodarskog iskorištavanja"):
     assert term in terms,term
 for term in ("Agenciji za zaštitu osobnih podataka (AZOP)","Obriši podatke",

@@ -29,6 +29,10 @@ def hierarchy():
             data = adb("exec-out", "cat", "/sdcard/bopavi-rotate.xml")
             root = ET.fromstring(data)
             if root.tag == "hierarchy" and list(root.iter("node")):
+                # Actual UIAutomator evidence is preserved for every failing
+                # orientation assert and uploaded by the existing CI workflow.
+                (OUT / "android-rotation-current-ui.xml").write_text(
+                    ET.tostring(root,encoding="unicode"),encoding="utf-8")
                 return root
         except (subprocess.CalledProcessError, ET.ParseError):
             pass
@@ -75,9 +79,11 @@ def find_action(root, phrase):
 def main():
     adb("shell", "am", "force-stop", APP)
     adb("shell", "cmd", "window", "user-rotation", "lock", "0")
-    # Debug-only QA holds a genuine first-flap GameSimulation state steady.
-    # This makes a SCORE/crystals continuity comparison deterministic across rotation.
-    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity")
+    # Freeze only the first *real* flap for deterministic screenshot/score QA.
+    # Do not use a debug-only flight-launch shortcut: the owner-visible PLAY
+    # must work from landscape and keep the same process/rotation.
+    adb("shell", "am", "start", "-W", "-n", APP + "/.MainActivity",
+        "--ez", "bopavi_qa_capture_first_flap", "true")
     try:
         initial_pid = adb("shell", "pidof", APP)
         assert initial_pid, "FAIL: missing BOPAVI process"
@@ -91,19 +97,23 @@ def main():
                      if n.get("package")==APP and n.get("clickable")=="true"
                      and n.get("enabled")=="true"]
             descriptions={n.get("content-desc") for n in buttons}
-            expected={"Otvori izbor likova","Otvori trgovinu nadogradnji",
-                      "Otvori opcije igre"}
-            if len(buttons)==3 and descriptions==expected:break
+            expected={"Pokreni igru","Otvori izbor likova",
+                      "Otvori trgovinu nadogradnji", "Otvori opcije igre"}
+            if len(buttons)==4 and descriptions==expected:break
             adb("shell","input","swipe",w//2,h*80//100,w//2,h*25//100,380)
             time.sleep(.5)
-        assert len(buttons)==3 and descriptions==expected, (
-            "FAIL: rotated Home must have exactly Shop, Skins, Settings")
-        adb("shell","am","force-stop",APP)
-        adb("shell","am","start","-W","-n",APP+"/.MainActivity",
-            "--ez","bopavi_qa_capture_first_flap","true",
-            "--ez","bopavi_qa_launch_flight","true")
-        initial_pid=adb("shell","pidof",APP)
-        assert initial_pid,"FAIL: debug flight route crashed after landscape Home"
+        assert len(buttons)==4 and descriptions==expected, (
+            "FAIL: rotated Home must have Play, Shop, Skins and Settings")
+        # The failed 2026-11-14 Android15 run restarted the Activity after
+        # locking landscape, which yielded a PORTRAIT 1080x2400 GameView
+        # despite retaining earlier 2400x1080 landscape dimensions.
+        # Tap the real native PLAY while the existing landscape window lives;
+        # this directly tests the production navigation path as well.
+        play=[n for n in buttons if n.get("content-desc")=="Pokreni igru"]
+        assert len(play)==1, "FAIL: exactly one landscape PLAY action expected"
+        tap(play[0])
+        assert adb("shell","pidof",APP)==initial_pid, (
+            "FAIL: PLAY launch restarted the landscape process")
         # Do not mistake the idle GameView preview for a real flight.
         idle = []
         for _ in range(10):
@@ -116,8 +126,14 @@ def main():
                 break
             time.sleep(1)
         assert len(idle) == 1, "FAIL: landscape GameView did not appear"
-        screenshot("android-flight-landscape")
-        assert adb("shell", "pidof", APP) == initial_pid, "FAIL: rotation recreated process"
+        native_w,native_h=screenshot("android-flight-landscape")
+        print("QA: after genuine landscape PLAY, screen is "
+              f"{native_w}x{native_h}, previously {w}x{h}",flush=True)
+        assert (native_w,native_h)==(w,h) and native_w>native_h, (
+            "FAIL: gameplay switched orientation after landscape PLAY",
+            {"expected":(w,h),"actual":(native_w,native_h)})
+        assert adb("shell", "pidof", APP) == initial_pid, (
+            "FAIL: landscape PLAY recreated the process")
 
         # A genuine touch begins the run. The debug-only capture gate freezes
         # simulation time after that first flap, preserving real HUD values;
@@ -143,13 +159,20 @@ def main():
             assert match, "FAIL: active flight has no native bounds"
             left, top, right, bottom = map(int, match.groups())
             assert 0 <= left < right <= width and 0 <= top < bottom <= height, (
-                "FAIL: flight touch target is clipped after rotation")
+                "FAIL: flight touch target is clipped after rotation",
+                {"bounds":(left,top,right,bottom),"frame":(width,height),
+                 "native_label":label(flight)[:140]})
 
+        # UIAutomator must refer to the exact same landscape frame that
+        # Screencap measured; never reuse dimensions from an earlier Home.
+        measured_w,measured_h=screenshot("android-flight-landscape-active")
+        assert (measured_w,measured_h)==(w,h), (
+            "FAIL: active GameView unexpectedly rotated before capture",
+            {"expected":(w,h),"actual":(measured_w,measured_h)})
         active = active_flight()
         flight_before = active.get("content-desc")
         assert flight_before and "Rezultat:" in flight_before
-        assert_flight_visible(active, w, h)
-        screenshot("android-flight-landscape-active")
+        assert_flight_visible(active, measured_w, measured_h)
 
         portrait_w, portrait_h = rotate(0)
         active = active_flight()

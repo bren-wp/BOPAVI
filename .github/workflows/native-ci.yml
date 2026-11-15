@@ -13,6 +13,17 @@ concurrency:
   group: native-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  owner-reference-binaries:
+    name: Preserve pinned owner source WebPs for independent RGB audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload original committed WebPs without conversion
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-owner-reference-binaries
+          path: art/reference-current/images/**/*.webp
+          if-no-files-found: error
   graphics:
     name: Render and verify Android art
     runs-on: ubuntu-latest
@@ -80,6 +91,7 @@ jobs:
       - run: python tests/test_settings_immersive_return_contract.py
       - run: python tests/test_volume_persistence_contract.py
       - run: python tests/test_in_app_privacy.py
+      - run: python tests/test_mit_terms_alignment.py
       - run: python tests/test_owner_legal_3d_dialog_contract.py
       - run: python tests/test_legal_dialog_capture.py
       - run: python tests/test_full_legal_docs.py
@@ -123,6 +135,9 @@ jobs:
       - run: python tests/test_skins_owner_vertical_camera_contract.py
       - run: python tests/test_reference_shop_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
+      - run: python tests/test_shop_focus_native_labels.py
+      - run: python tests/test_android_home_four_actions_smoke_contract.py
+      - run: python tests/test_native_rotation_play_contract.py
       - run: python tests/test_native_qa_helpers_contract.py
       - run: python tests/test_direct_home_shop_skins.py
       - run: python tests/test_reference_pixel_diff_tool.py
@@ -152,6 +167,9 @@ jobs:
       - run: python tests/test_release_screenshot_states.py
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tests/test_current_reference_pack.py
+      - run: python tests/test_reference_status_report.py
+      - run: python tests/test_unique_owner_screen_coverage_contract.py
+      - run: python tests/test_android_dependency_report.py
       - run: python tests/test_owner_home_reference_geometry.py
       - run: python tests/test_owner_viewport_capture_contract.py
       - run: python tests/test_settings_dense_owner_camera_contract.py
@@ -245,6 +263,33 @@ jobs:
       - name: Lint, JVM unit tests, compile APK and unsigned release AAB
         working-directory: android
         run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app:bundleRelease --no-daemon --stacktrace
+      - name: Capture actual Gradle runtime component graph and R8 mapping
+        working-directory: android
+        run: |
+          mkdir -p ../qa/audit
+          gradle :app:dependencies --configuration releaseRuntimeClasspath --offline --no-daemon > ../qa/audit/release-runtime-deps.txt
+          gradle buildEnvironment --offline --no-daemon > ../qa/audit/build-environment.txt
+          test -s app/build/outputs/mapping/release/mapping.txt
+      - name: Check Gradle pins and produce partial resolved-dependency inventory
+        run: |
+          python tools/audit_android_dependency_report.py \
+            --runtime qa/audit/release-runtime-deps.txt \
+            --json-out qa/audit/resolved-runtime-inventory.json
+      - name: Inventory bundled art, original assets and generated audio
+        run: |
+          python tools/audit_android_asset_inventory.py \
+            --json-out qa/audit/android-asset-rights-inventory.json
+      - name: Preserve actual build dependency, R8 and lint evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-build-supply-chain-R8-lint
+          path: |
+            qa/audit/*.txt
+            qa/audit/*.json
+            android/app/build/outputs/mapping/release/mapping.txt
+            android/app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
       - name: Verify Play API 36 and unsigned bundle structure
         run: python tools/verify_play_release.py --aab android/app/build/outputs/bundle/release/app-release.aab
       - name: Verify signable release-mode APK is unsigned
@@ -468,12 +513,45 @@ jobs:
             qa/screenshots/*.png
             qa/screenshots/*.xml
             qa/screenshots/*.txt
+            qa/screenshots/owner-capture-map.json
           if-no-files-found: warn
           overwrite: true
+  visual-acceptance:
+    name: Owner design-state coverage and RGB evidence (separate from Android build)
+    needs: [android-smoke, android16-smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --quiet pillow
+      - uses: actions/download-artifact@v4
+        with:
+          name: QA-Android16-visual-flow
+          path: qa/screenshots
+      - name: Verify one original per distinct design state and report every available RGB mismatch
+        run: |
+          python tools/report_current_reference_status.py \
+            --reference-dir art/reference-current/images \
+            --screenshots qa/screenshots \
+            --capture-map qa/screenshots/owner-capture-map.json \
+            --json-out qa/reference-current-rgb-status.json \
+            --markdown-out qa/reference-current-rgb-triage.md \
+            --require-screen-coverage
+      - name: Preserve report including all unverified states
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOPAVI-owner-reference-rgb-report
+          path: |
+            qa/reference-current-rgb-status.json
+            qa/reference-current-rgb-triage.md
+          if-no-files-found: warn
   publish:
     name: Publish versioned GitHub Release
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [graphics, source-audit, android, android-smoke, android16-smoke, play-listing]
+    needs: [graphics, source-audit, android, android-smoke, android16-smoke, play-listing, visual-acceptance]
     runs-on: ubuntu-latest
     permissions:
       contents: write

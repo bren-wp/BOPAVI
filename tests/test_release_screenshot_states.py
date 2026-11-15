@@ -41,7 +41,10 @@ for contract in (
     "PASS: real nine-row Settings, dynamic difficulty dialog and persisted selection",
 ):
     assert contract in qa,contract
-assert "PASS: Home only Shop, Skins, Settings; no obsolete destinations" in qa
+assert "PASS: Home PLAY, Shop, Skins, Settings; no obsolete destinations" in qa
+assert "PASS: native Home PLAY launches real GameView without debug launch extras" in qa
+assert "capture android-production-play-ready" in qa
+assert qa.index("<<'PY_REAL_PLAY'") < qa.index("--ez bopavi_qa_launch_flight true")
 assert "--ez bopavi_qa_launch_flight true" in qa
 assert "capture android-pause" in qa
 assert 'STATE: pause verified by real NASTAVI/PONOVO/IZLAZ dialog' in qa

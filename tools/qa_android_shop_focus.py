@@ -4,9 +4,15 @@
 Captures the unscaled 941x1672 pixels. No fake screenshots, prerecorded wallet
 balances, stub purchases, or silently successful duplicate actions.
 """
+import re
 import time
-from qa_android_rotation import APP, adb, hierarchy, screenshot, tap
+from qa_android_rotation import APP, OUT, adb, hierarchy, screenshot, tap
 from qa_android_reference_menus import matching_nodes, node_with, acknowledge_native_fullscreen_education
+
+# Compile real Android accessibility labels once. Keep an executable unit test:
+# raw strings contain ONE backslash before regex classes, never doubled ones.
+COIN_AMOUNT = re.compile(r"earned coins:\s*([0-9]+)", re.IGNORECASE)
+OWNED_AMOUNT = re.compile(r"owned\s+(\d+)\s+of\s+99", re.IGNORECASE)
 
 
 def require(phrase,clickable=None,minimum=1):
@@ -20,6 +26,54 @@ def require(phrase,clickable=None,minimum=1):
             return hits
         time.sleep(.5)
     raise AssertionError(f"Shop must expose {phrase!r} (min {minimum})")
+
+
+def wallet_and_inventory(name, price):
+    # Read only genuine UIAutomator-owned state from the installed app.
+    root = hierarchy()
+    coin_nodes = matching_nodes(root, "EARNED COINS:")
+    assert len(coin_nodes) == 1, "Shop must expose one actual local wallet"
+    wallet = coin_nodes[0].get("content-desc") or coin_nodes[0].get("text") or ""
+    match = COIN_AMOUNT.search(wallet)
+    assert match, f"Cannot read real wallet: {wallet}"
+    all_buttons = matching_nodes(root, f"{name}, price {price} coins", clickable=True)
+    # Featured SUPER MAGNET appears twice; select its ordinary SKU card.
+    buttons = [n for n in all_buttons
+               if not (n.get("content-desc") or "").startswith("Featured ")]
+    assert len(buttons) == 1, (name, price, len(buttons))
+    match_owned = OWNED_AMOUNT.search(buttons[0].get("content-desc") or "")
+    assert match_owned, f"Shop has no truthful inventory for {name}"
+    return int(match.group(1)), int(match_owned.group(1)), buttons[0]
+
+
+def exercise_real_purchases(original_pid):
+    # No fake balance, stub purchase or direct SharedPreferences edit:
+    # if a prior test legitimately earned coins, purchases must debit them
+    # exactly once. Otherwise they must leave the saved wallet unchanged.
+    for name, price in (
+        ("Početni štit", 80), ("Početni magnet", 65),
+        ("Dvostruki štit", 150), ("Dugi magnet", 120),
+        ("Trostruki štit", 230), ("Super magnet", 195),
+    ):
+        before_coins, before_owned, button = wallet_and_inventory(name, price)
+        tap(button)
+        expected_purchase = before_coins >= price and before_owned < 99
+        expected_coins = before_coins - price if expected_purchase else before_coins
+        expected_owned = before_owned + 1 if expected_purchase else before_owned
+        for attempt in range(8):
+            time.sleep(.5)
+            current_coins, current_owned, _ = wallet_and_inventory(name, price)
+            if (current_coins, current_owned) == (expected_coins, expected_owned):
+                break
+        assert (current_coins, current_owned) == (expected_coins, expected_owned), (
+            "Real Shop debit/inventory mismatch", name,
+            (before_coins, before_owned), (current_coins, current_owned),
+            (expected_coins, expected_owned))
+        assert adb("shell", "pidof", APP) == original_pid, (
+            "A purchase or insufficient-funds tap restarted the application", name)
+        print(f"PASS: Shop {name}: "
+              f"{'persisted exact-price purchase' if expected_purchase else 'no unauthorized debit'}",
+              flush=True)
 
 
 def main():
@@ -43,6 +97,7 @@ def main():
         w,h=screenshot("android-shop-focus-reference-size")
         assert (w,h)==(941,1672),(w,h)
         assert adb("shell","pidof",APP)==pid,"FAIL: Shop screen restarted process"
+        exercise_real_purchases(pid)
         # The star + button must not mint currency or navigate to a fake gem store.
         tap(require("HOW TO EARN STARS",clickable=True)[0])
         require("EARNED STARS:")
@@ -64,7 +119,26 @@ def main():
         assert adb("shell","pidof",APP)==pid,"FAIL: Skins screen restarted process"
         tap(node_with("BACK TO HOME",attempts=8))
         require("OTVORI TRGOVINU NADOGRADNJI",clickable=True)
-        print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, four live pilots, no process restart")
+        # This records genuine emulator telemetry, not an invented FPS score.
+        # CPU, jank, PSS and battery acceptance still require physical devices.
+        gfx = adb("shell", "dumpsys", "gfxinfo", APP, "framestats")
+        mem = adb("shell", "dumpsys", "meminfo", APP)
+        assert gfx.strip() and mem.strip(), "Android performance instrumentation unavailable"
+        (OUT / "bopavi-api36-gfxinfo-framestats.txt").write_text(gfx + "\n", encoding="utf-8")
+        (OUT / "bopavi-api36-meminfo.txt").write_text(mem + "\n", encoding="utf-8")
+        # Production-like Home path: the user's new visible PLAY control
+        # must load an actual GameSimulation without a debug-only launch extra.
+        tap(node_with("POKRENI IGRU", attempts=12))
+        gameplay=node_with("DODIRNI ZA ZAMAH KRILIMA", attempts=20)
+        assert "PRIJE PRVOG ZAMAHA" in (
+            (gameplay.get("text") or "") + (gameplay.get("content-desc") or "")
+        ).upper(), "PLAY did not reach genuine ready-to-flap gameplay"
+        w,h=screenshot("android-home-play-real-gameplay")
+        assert (w,h)==(941,1672),(w,h)
+        assert adb("shell","pidof",APP)==pid, "PLAY launch restarted the process"
+        print("PASS: real Shop and Skins 941x1672 screenshots; six Shop SKUs, "
+              "verified real-wallet taps, four live pilots, emulator performance logs "
+              "and visible PLAY opens real GameSimulation", flush=True)
     finally:
         adb("shell","wm","size","reset")
         adb("shell","wm","density","reset")

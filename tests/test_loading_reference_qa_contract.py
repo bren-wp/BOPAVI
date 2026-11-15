@@ -17,10 +17,18 @@ for expected in (
     'assert sum(n.get("content-desc")=="Loading level" for n in ref_nodes)==1',
 ):
     assert expected in qa,expected
-assert 'Otvori izbor likova' in qa
-assert 'Otvori trgovinu nadogradnji' in qa
-assert 'Otvori opcije igre' in qa
+# The user-approved PLAY button is now part of production Home. Regression
+# run 43653896270 proved a stale three-action Loading QA assumption blocked
+# Android15 after successful rotation, gameplay and reference Loading capture.
+for action in ("Pokreni igru", "Otvori izbor likova",
+               "Otvori trgovinu nadogradnji", "Otvori opcije igre"):
+    assert action in qa, action
+assert 'if set(actions)==expected and len(actions)==4:break' in qa
+assert 'assert len(actions)==4 and set(actions)==expected' in qa
+assert 'n.get("enabled")=="true"' in qa
+assert 'three-action Home missing' not in qa
+assert 'len(actions)==3' not in qa
 assert 'n.get("text","")=="PLAY"' not in qa
 assert "python3 tools/qa_android_loading.py" in runner
 assert "BOPAVI_VIEWPORT_QA=1 sh tools/qa_android_emulator.sh" in workflow
-print("PASS: reference Loading capture is native, checked and reset")
+print("PASS: reference Loading native capture/reset and four real Home actions including PLAY")

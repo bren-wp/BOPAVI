@@ -20,7 +20,8 @@ import java.util.Locale
 
 /**
  * Real native Home controls on the reference's 941×1672 coordinate system.
- * Not a flattened mockup: every CTA is tappable and navigates to the game.
+ * Not a flattened mockup: PLAY launches the actual flight, and three original
+ * menu controls retain native Android navigation.
  * The original sky and all Bopi sprites are local Android resources.
  */
 internal class HomeReferenceScreen(private val host:Activity,
@@ -69,7 +70,7 @@ internal class HomeReferenceScreen(private val host:Activity,
         return group
     }
 
-    /** Exactly three accessible native Home actions, preserving 3D artwork. */
+    /** Four accessible native Home actions; three original owner menu slots remain. */
     private fun pill(text:String,description:String,
                      kind:BopaviUiIconDrawable.Kind,
                      top:Int,bottom:Int,border:Int,
@@ -144,7 +145,7 @@ internal class HomeReferenceScreen(private val host:Activity,
             referenceAligned=true,verticalAnchor=verticalAnchor)
     }
 
-    fun create(pilotIndex:Int,onSkins:()->Unit,onShop:()->Unit,
+    fun create(pilotIndex:Int,onPlay:()->Unit,onSkins:()->Unit,onShop:()->Unit,
                onSettings:()->Unit):View {
         val root=FrameLayout(host).apply{setBackgroundColor(0xff118edb.toInt())}
         root.addView(ImageView(host).apply{
@@ -227,6 +228,14 @@ internal class HomeReferenceScreen(private val host:Activity,
             left[chosen],right[chosen],bodies[chosen],
             allowMotion=!progress.lessMotion())
         place(stage,actor,HomeReferenceLayout.hero,verticalAnchor=.35f)
+
+        // A visible, independent PLAY button uses real game navigation and
+        // Android accessibility. The owner references have no PLAY artwork;
+        // explicitly track this user-requested addition as a visual delta.
+        place(stage,pill("PLAY","Pokreni igru",
+            BopaviUiIconDrawable.Kind.PLAY,
+            0xff9cf5b5.toInt(),0xff118148.toInt(),0xff075d36.toInt(),
+            28,onPlay),HomeReferenceLayout.play,true,verticalAnchor=.5f)
 
         val actionBoxes=HomeReferenceLayout.actionBounds(
             host.resources.displayMetrics.widthPixels,
