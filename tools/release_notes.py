@@ -10,7 +10,13 @@ def release_notes(root:Path=ROOT)->str:
         source=path.read_text(encoding="utf-8")
         entry=re.search(rf"(?ms)^## v{re.escape(version)}\s+[—-]\s+[^\n]+\n.*?(?=^## v\d+\.\d+\.\d+\b|\Z)",source)
         if entry is not None and f"(build {build})" in entry.group(0).splitlines()[0]:
-            return (entry.group(0).strip()+f"\n\n**Build {build} distribution:** "
+            # NEXT.md is intentionally a review-only candidate document.
+            # A successful release must never publish its NOT-PUBLISHED
+            # disclaimer as if it described the already-published artifact.
+            # Keep the actual change bullets and unresolved limitations.
+            clean="\n".join(line for line in entry.group(0).strip().splitlines()
+                if not line.strip().startswith("**CANDIDATE / NOT PUBLISHED.**"))
+            return (clean+f"\n\n**Build {build} distribution:** "
                     "The debug APK is for QA. The release APK and Google Play AAB "
                     "are unsigned and must be signed privately with an appropriate existing key. "
                     "The F-Droid ZIP contains a pinned source-build recipe and actual QA screenshots; "
