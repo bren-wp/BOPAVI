@@ -3,6 +3,20 @@
 Only two latest published stable versions are shown. Unreleased notes: [NEXT.md](docs/release/NEXT.md).
 All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 
+## v1.0.88 — SAF recovery journal and fail-closed owner screenshot QA (build 218)
+
+**Published:** 2026-11-15 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.88)
+
+- Save the previous SAF document bytes in a synced, integrity-checked private recovery journal before beginning a potentially truncating provider write. Verify the completed bytes and try to restore the old backup on I/O failure; preserve a journal across process restart if recovery fails.
+- Require readable SAF targets for recoverable overwrite and serialize old-document grant release behind writes. Do not modify the local v1–v6 JSON save schema or virtual wallet.
+- Add JVM fault-injection tests for truncation, power-loss-style restart and stale destination; provider behavior and out-of-process writes remain to be tested on real devices.
+- The owner archive **historically indexes 50 WebPs: 10 unique design states × 5 resolutions**. Four resolution sets (40 genuine, checksum-verified originals) are present. Require **at least one original per state** for the reference coverage gate; other resolution variants remain supplementary evidence. Keep the 50-entry source manifest unmodified for provenance. Record native Android PNG availability and every actual RGB difference honestly in a downloadable report, but do not allow absent optional viewport variants to fail otherwise functional CI.
+- Restore a real production PLAY button (both full reference camera and compact Home) wired to `MainActivity.startGame()`. This implements the user's 2026-11-14 correction in `docs/product/ADR-0003-restore-home-play.md`.
+- Fix the Android 16 Shop QA crash caused by double-escaped regex parsing of the real coin/inventory labels; add an actual visible-PLAY-to-GameView emulator test.
+- **2026-11-14 Android15/16 QA regression:** the genuine XML hierarchy had all four Home actions including PLAY, but `tools/qa_android_emulator.sh` still demanded the obsolete three-action set twice. The source audit/build passed while API35/API36 smoked tests failed in run `43650096430`. Update both gates to require exactly PLAY, Skins, Shop, Settings, test a real PLAY tap through to a GameView before debug-only flags, and guard it with `tests/test_android_home_four_actions_smoke_contract.py`. This is a test-contract correction, not proof of zero RGB deviation.
+- Remaining **visual audit gaps, not functional CI blockers**: 10 optional original 1440×3040 viewport variants, incomplete native Game Over B evidence, no exact pixel matches. **Release readiness blockers requiring independent review**: legal MIT/assets/Terms alignment and real SAF-provider/device tests.
+- **Home original references depict no PLAY button**. The required new visible PLAY control intentionally differs from historical images. An owner-approved updated reference for the Home state is needed for a truthful 1:1 claim; it does **not** require creating five more identical design states merely because devices have different resolutions.
+
 ## v1.0.87 — Owner Shop 3D footer and responsive frame (build 217)
 
 **Published:** 2026-11-14 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.87)
@@ -19,20 +33,3 @@ All previous versions remain at https://github.com/bren-wp/BOPAVI/releases.
 - Expanded real API36 owner-viewport capture suite from 20 to 25 authentic native screenshots by entering the **actual Privacy Policy** from Settings on each of five viewport sizes; verify its heading and real close button and preserve the ability to return to Settings/Home. A captured dialog is not presumed pixel-identical to the owner's privacy mockup.
 - Added actual 02_Gameplay_upute, 03_Gameplay_let and 04_Gameplay_pauza captures on the same five reference device resolutions. This requires a real GameSimulation, first tap and PAUZA/Nastavi/Ponovo/Izlaz native dialog, with a strictly bounded retry only if the first input was genuinely lost. Brings real unscaled capture inventory to 40/50; both Game Over variants remain UNVERIFIED and are not falsely marked 1:1.
 - Legal page: replaced the generic white Android AlertDialog with an accessible, responsive, wooden 3D native dialog, blue enamel heading, cream paper body and green close CTA. Preserved the **verbatim bundled legal HTML**, links, ScrollView and real close/background dismiss. No screenshot contains fake clickable legal content.
-
-## v1.0.86 — Owner visual fidelity: Settings and Shop (build 216)
-
-**Published:** 2026-11-14 · [GitHub release](https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.86)
-
-- Branch-only quality pass based on the owner's 10-screen, five-viewport archive.
-- Baseline 20 real Android 16 screenshots from v1.0.85: measured approximate RGB MAE on every fourth pixel: Settings 75.1/255; Shop 73.0; Skins 67.7; Home 67.1. None are RGB-identical. Comparison is for prioritization, not a 0%-deviation certification.
-- Settings portrait owner view now uses the nine-row reference camera when touch target expansion is within a measured 16% row pitch. Native buttons, volume sliders, switches, legal actions and save-backed controls remain intact. Scrollable native fallback remains for small, high-density and large-font configurations.
-- Shop wooden winged header and actual native SHOP wordmark now share an 85-grid-unit vertical offset, correcting an approximately 97-pixel title misalignment in the 1080×1920 source capture without moving balances, featured product or purchase grid.
-- Remaining work: review real emulator screenshots and address the highest Shop/Skins layout and 3D differences, verify exact RGB across 50 owner references, run all Android 15/16 and regression jobs. No historic published asset is removed.
-- Release stays blocked until all mandatory CI jobs pass; the new version has not been signed or published.
-- Real 20-view owner benchmark using genuine v1.0.85/v1.0.86 Android 16 PNGs and the matching original 50-image ZIP: Shop 73.01→73.45 RGB MAE (regression on tall displays); Settings 75.13→68.52 (improvement); Skins and Home unchanged. Sample every fourth pixel on each axis; this is not a pixel-perfect claim.
-- Separate upper Shop canopy/kiosk/wooden sign from its centered 3×2 purchasable card grid. Header art, actual SHOP TextView, wallet counters and Back move together using a consistent physical top anchor; card positions, genuine currencies and purchase interactions are preserved.
-- Settings groups now use independent measured viewport anchors (brand, portrait, title, nine accessible rows and bottom restore). Small/large-font fallback remains unchanged.
-- Android 15 QA still requires a genuinely active first flap, one native Pause after background and identical saved lives and process. Retry one *real* touchscreen tap only if Android reports the initial GameView is still idle, never synthesize game state or claim an emulator-only cause.
-- New visual acceptance must come from real Android 15/16 screenshots, all screen resolutions and updated RGB reports; release blocked until mandatory CI is green.
-- Skins portrait camera now uses an owner-measured top-weighted (.18) vertical anchor on long phones rather than the generic center (.50) anchor. On 1080×2400 that adjusts the complete native art/cards/selection panel by ~154 physical pixels together; on 16:9/compact viewports the old placement remains. Real screenshots must confirm actual improvement.
