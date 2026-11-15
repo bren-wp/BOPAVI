@@ -536,13 +536,16 @@ jobs:
             --screenshots qa/screenshots \
             --capture-map qa/screenshots/owner-capture-map.json \
             --json-out qa/reference-current-rgb-status.json \
+            --markdown-out qa/reference-current-rgb-triage.md \
             --require-50-exact
       - name: Preserve report including all unverified states
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: BOPAVI-owner-reference-rgb-report
-          path: qa/reference-current-rgb-status.json
+          path: |
+            qa/reference-current-rgb-status.json
+            qa/reference-current-rgb-triage.md
           if-no-files-found: warn
   publish:
     name: Publish versioned GitHub Release
