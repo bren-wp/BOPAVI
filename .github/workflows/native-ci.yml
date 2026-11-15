@@ -168,6 +168,7 @@ jobs:
       - run: sh -n tools/qa_android_emulator.sh
       - run: python tests/test_current_reference_pack.py
       - run: python tests/test_reference_status_report.py
+      - run: python tests/test_unique_owner_screen_coverage_contract.py
       - run: python tests/test_android_dependency_report.py
       - run: python tests/test_owner_home_reference_geometry.py
       - run: python tests/test_owner_viewport_capture_contract.py
