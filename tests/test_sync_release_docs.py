@@ -145,7 +145,7 @@ class DocsTests(unittest.TestCase):
             self.assertIn("v1.0.88",page)
         self.assertIn('"four_home_actions"',pages["docs/product/FEATURE-MATRIX.md"])
         self.assertIn("Loading",pages["docs/product/CURRENT_SCREENS.md"])
-        self.assertIn("Six",pages["docs/product/FEATURE-MATRIX.md"].replace("six","Six"))
+        self.assertIn("Six virtual upgrades",pages["docs/product/FEATURE-MATRIX.md"])
 
     def test_pub_claim_guard_detects_current_repo(self):
         assert_home_play_contract(Path(__file__).resolve().parents[1])
