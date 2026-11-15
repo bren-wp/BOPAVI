@@ -106,6 +106,64 @@ def audit_records(rows, reference_dir, captures_dir, capture_map):
     return summary
 
 
+
+# Only distinct design states require one owner source. The immutable
+# 50-record reference archive retains its original per-resolution checks.
+PREFERRED_VIEWPORTS = (
+    "Android_FHD_1080x2280",
+    "Android_20_9_1080x2400",
+    "Android_FHD_Plus_1080x2340",
+    "Android_16_9_1080x1920",
+    "Android_QHD_1440x3040",
+)
+
+
+def rollup_design_states(report, screen_names):
+    """One hash-verified reference per unique state; retain full RGB metrics."""
+    if not screen_names or len(set(screen_names)) != len(screen_names):
+        raise ValueError("Design-state names must be nonempty and unique")
+    items = []
+    for screen in screen_names:
+        matching = [
+            x for x in report["results"]
+            if x["reference"].split("/", 1)[-1] == screen
+        ]
+        verified = [x for x in matching if x.get("reference_verified")]
+        compared = [x for x in verified
+                    if x["status"] in ("identical", "different")]
+        def rank(x):
+            viewport = x["reference"].split("/", 1)[0]
+            return (PREFERRED_VIEWPORTS.index(viewport)
+                    if viewport in PREFERRED_VIEWPORTS
+                    else len(PREFERRED_VIEWPORTS), x["reference"])
+        candidates = sorted(compared or verified, key=rank)
+        chosen = candidates[0] if candidates else None
+        items.append({
+            "screen": screen,
+            "reference_available": bool(verified),
+            "reference_variants": len(verified),
+            "native_capture_available": bool(compared),
+            "representative_reference": chosen["reference"] if chosen else None,
+            "representative_capture": chosen.get("capture") if chosen else None,
+            "representative_status": chosen["status"] if chosen else "unverified",
+            "representative_mae_rgb_0_255":
+                chosen.get("mae_rgb_0_255") if chosen else None,
+            "reason": chosen.get("reason") if chosen else "No original owner reference",
+        })
+    report["screen_states"] = items
+    report["screens_expected"] = len(items)
+    report["screens_with_original"] = sum(x["reference_available"] for x in items)
+    report["screens_with_native_capture"] = sum(
+        x["native_capture_available"] for x in items)
+    report["screens_exact_rgb"] = sum(
+        x["representative_status"] == "identical" for x in items)
+    report["screens_different_rgb"] = sum(
+        x["representative_status"] == "different" for x in items)
+    report["screen_coverage_passed"] = (
+        report["screens_with_original"] == report["screens_expected"])
+    return report
+
+
 def triage_markdown(report):
     """Human-readable CI evidence; never changes all_exact or passes a gate."""
     results = report["results"]
@@ -189,15 +247,17 @@ def main():
     parser.add_argument("--capture-map", type=Path, default=ROOT / "qa/new-owner-capture-map.json")
     parser.add_argument("--json-out", type=Path, required=True)
     parser.add_argument("--require-50-exact", action="store_true")
+    parser.add_argument("--require-screen-coverage", action="store_true")
     parser.add_argument("--markdown-out", type=Path)
     args = parser.parse_args()
-    _, rows = read_index()
+    manifest, rows = read_index()
     # An absent mapping is an explicit unverified result, NEVER auto-pair
     # design mockups with a convenient but unrelated release screenshot.
     capture_map = json.loads(args.capture_map.read_text("utf-8")) if args.capture_map.is_file() else {}
     if not isinstance(capture_map, dict):
         raise SystemExit("Capture map must be a JSON object")
     report = audit_records(rows, args.reference_dir, args.screenshots, capture_map)
+    rollup_design_states(report, manifest["screens"])
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if args.markdown_out:
@@ -219,6 +279,8 @@ def main():
                       for name, value in item["regions"].items()))
         else:
             print(f'{item["reference"]}: UNVERIFIED — {item.get("reason", "unknown")}')
+    if args.require_screen_coverage and not report["screen_coverage_passed"]:
+        raise SystemExit("DESIGN-STATE COVERAGE FAIL: no valid original for every distinct screen")
     if args.require_50_exact and not report["all_exact"]:
         raise SystemExit("VISUAL ACCEPTANCE FAIL: no claim of 50/50 exact native RGB parity")
 
