@@ -94,6 +94,7 @@ jobs:
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_mit_terms_alignment.py
       - run: python tests/test_owner_legal_3d_dialog_contract.py
+      - run: python tests/test_legal_document_single_number_contract.py
       - run: python tests/test_legal_dialog_capture.py
       - run: python tests/test_full_legal_docs.py
       - run: python tests/test_reference_navigation.py
@@ -163,8 +164,10 @@ jobs:
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
       - run: python tests/test_pause_reference_contract.py
+      - run: python tests/test_pause_owner_legible_controls_contract.py
       - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
+      - run: python tests/test_results_orion_accessibility_contract.py
       - run: python tests/test_game_over_reference_contract.py
       - run: python tests/test_ground_spikes_and_result_3d_contract.py
       - run: python tests/test_game_over_owner_brand_contract.py

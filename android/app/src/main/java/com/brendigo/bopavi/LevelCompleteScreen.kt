@@ -86,7 +86,8 @@ internal class LevelCompleteScreen(private val host:Activity) {
         }
 
     fun create(backdrop:Int,pilot:Int,data:LevelCompleteState,
-               onNext:()->Unit,onHome:()->Unit,onShare:()->Unit):View{
+               onNext:()->Unit,onHome:()->Unit,onShare:()->Unit,
+               reducedMotion:Boolean=false):View{
         val root=FrameLayout(host).apply{
             setBackgroundColor(0xff2a97d7.toInt())
         }
@@ -134,11 +135,17 @@ internal class LevelCompleteScreen(private val host:Activity) {
                 R.drawable.bopileft9,R.drawable.bopiright9,R.drawable.bopi9)
             R.drawable.bopiportrait10 -> Triple(
                 R.drawable.bopileft10,R.drawable.bopiright10,R.drawable.bopi10)
+            // Saved fourth Star Pilot / Orion must stay visible on victory.
+            // v1.0.88 silently replaced selected Orion with the classic
+            // Bopi sprite in Results, despite retaining its saved choice.
+            R.drawable.bopiportrait8 -> Triple(
+                R.drawable.bopileft8,R.drawable.bopiright8,R.drawable.bopi8)
             else -> Triple(
                 R.drawable.bopileft0,R.drawable.bopiright0,R.drawable.bopi0)
         }
         stage.place(HomeWingActor(host,heroLayers.first,heroLayers.second,
-            heroLayers.third,allowMotion=android.animation.ValueAnimator.areAnimatorsEnabled()),
+            heroLayers.third,allowMotion=!reducedMotion &&
+                android.animation.ValueAnimator.areAnimatorsEnabled()),
             209f,348f,523f,523f)
         stage.place(stars,259f,811f,423f,142f)
 
