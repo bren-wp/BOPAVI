@@ -219,6 +219,16 @@ def triage_markdown(report):
         "",
         f"Missing optional reference variants: {len(absent)}.",
         f"Missing native capture mappings: {len(missing_captures)}.",
+    ]
+    if absent:
+        out += ["", "#### Missing optional original files (not an extra screen)", ""]
+        out.extend("- " + chr(96) + item["reference"] + chr(96)
+                   for item in absent)
+    if missing_captures:
+        out += ["", "#### Missing native captures (not pixel-perfect)", ""]
+        out.extend("- " + chr(96) + item["reference"] + chr(96)
+                   for item in missing_captures)
+    out += [
         "",
         "### Largest measured RGB errors (fix these visuals first)",
         "",
