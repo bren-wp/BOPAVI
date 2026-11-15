@@ -38,15 +38,20 @@ deliberate visual delta, so 0 different RGB pixels against those historic
 Home images is mathematically impossible without updating the owner
 reference. **Do not call this branch's Home 1:1.**
 
-Before strict 50/50 RGB sign-off: obtain an updated original owner Home
-WebP *for every supported native resolution* showing the approved Play
-placement and verify their SHA-256 against the owner source pack. Do not
-forge owner reference files or overwrite the original historical ZIP.
-Other nine screens remain subject to their original measured references.
+One original owner-approved Home reference that includes PLAY is sufficient
+to define the design state; other resolutions are responsive variants, not
+separate screens. Require the original reference to be checksum-verified,
+and measure authentic native captures at their own pixel dimensions.
+Never resize a screenshot to manufacture exact RGB parity. Do not forge
+owner artwork or overwrite the historical ZIP. All other distinct states
+retain measurable reference comparisons, reported independently of
+functional CI success.
 
 ## QA and release
 
-Source+unit tests, Android15/16 emulator, accessible native bounds and
-four-route navigation, real gameplay launch, SAF provider, graphics and
-strict per-screen RGB must all be reported separately. Publish or merge
-only after true acceptance and publisher-authorized signing.
+Source/unit tests, Android15/16 emulators, native accessible targets,
+four-route navigation, real gameplay, SAF provider and graphics remain
+required functional checks. Separate owner-design coverage by unique
+screen state from optional viewport checks and strict RGB measurement.
+Do not claim 1:1 while RGB differences exist. Merge/release decisions
+must also respect app security, platform rules and publisher signing.
