@@ -4,7 +4,7 @@
 
 **Naziv (do 30 znakova):** BOPAVI
 
-**Kratki opis (do 80 znakova):** Bopi leti jednim dodirom; otključaj likove i nadogradnje bez oglasa.
+**Kratki opis (do 80 znakova):** Pomozi Bopiju letjeti dodirom; otključaj likove i nadogradnje bez oglasa.
 
 **Puni opis:**
 
