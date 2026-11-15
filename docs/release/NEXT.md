@@ -1,29 +1,27 @@
-# BOPAVI v1.0.90 — Skins visual layout candidate (build 220)
+# BOPAVI v1.0.91 — Shop native card typography candidate (build 221)
 
-## v1.0.90 — Owner Skins hero sizing and native arrow clearance (build 220)
+## v1.0.91 — Two-line Shop items, unchanged real wallet/purchases (build 221)
 
-**CANDIDATE / NOT PUBLISHED.** Stacked on Home v1.0.89 draft PR #239. Merge the Home candidate only after exact-head CI and native RGB review. This Skins PR must be independently reviewed and merged AFTER the Home release candidate is accepted. No version or release is published automatically from a Draft PR.
+**CANDIDATE / NOT PUBLISHED.** This is stacked on the independently pending v1.0.89 Home PR #239 and v1.0.90 Skins PR #240; **do not merge or release** out of order or without exact-head CI + native RGB screenshots.
 
-- Reduce the complete real Skins animated hero square from 688 to 626 units on the existing 941×1672 reference stage and recenter at x=157. New top=260 keeps the aviator and feathers above selection cards while clearing both genuine 112-unit carousel arrow hit rectangles. No menu callback or user data changes.
-- Preserve four card choices, purchased/owned state, actual star/coin balances, unlock confirmation, selected hero equipment, v1–v6 data compatibility, native 48dp targets and source animation layers.
-- Extend source + JUnit geometric regression tests. Actual Android 15/16 UIAutomator and 4 matching owner viewport native screenshots remain mandatory. No screenshot resampling or copied reference art.
+- The 6 native 3×2 Shop cards previously allocated only 0.65/4.04 of their vertical weight to two-line headings. Genuine prior native 1080×1920 screenshots clip the second line of long names (DOUBLE SHIELD, SUPER MAGNET) despite the original owner WebP showing both.
+- Make pure Kotlin `ShopCardRowWeights` (header .90, illustration 1.35, description .79, buy 1.00), preserving the original total 4.04 so frame geometry and purchase button portion are unchanged. This is a measured-source targeted heading correction, **not** a claim of improved whole-frame RGB.
+- Keep six actual buy buttons and `ProgressStore.buyPerk` synchronized/committed coin and inventory transaction, price/ability item data, featured panel and original decorative kiosk asset. Do not invent IAP or hide owned state.
+- Register Python source and Kotlin/JVM tests for weights, long names and unchanged buy behavior.
+- Require real Android 15/16 UIAutomator, native unresized screenshots and comparisons against **all four** owner Shop WebPs, font-scale/rotation and TalkBack checks before visual acceptance.
 
-### Pre-change owner Skins RGB baseline
+### Published v1.0.88 Shop reference baseline (not this candidate)
 
-Evidence from main v1.0.88 [43765935322](https://github.com/bren-wp/BOPAVI/actions/runs/43765935322), original 40 owner WebPs and authentic matched native captures:
+Original SHA-pinned owner WebPs vs same-build authentic Android PNGs from successful main CI [43765935322](https://github.com/bren-wp/BOPAVI/actions/runs/43765935322):
 
-| Owner physical viewport | Full RGB MAE (0–255) | Changed pixels |
-|---|---:|---:|
-| 1080×1920 | 66.597206 | 99.979938% |
-| 1080×2280 | 59.683949 | 99.973968% |
-| 1080×2340 | 59.350665 | 99.971747% |
-| 1080×2400 | 60.881106 | 99.959684% |
+| Physical viewport | Full-frame RGB MAE (0–255) | Changed RGB pixels |
+| --- | ---: | ---: |
+| 1080×1920 | 63.659683 | 99.994117% |
+| 1080×2280 | 73.176275 | 99.992122% |
+| 1080×2340 | 71.954981 | 99.991651% |
+| 1080×2400 | 70.903066 | 99.992207% |
 
-**All different, zero 1:1 matches.** Stacked Home and Skins changes must be evaluated together using exact native PNGs on the new Skins SHA, then corrected further until measurable deviation improves; a green functional build is not parity.
+None is pixel-perfect. Original Shop kiosk detail/illustration, scene color and bottom foliage remain major differences. Do not replace real controls with screenshot crops or stretch screenshot PNGs to claim 1:1.
 
-### Blockers before merge/release
-
-- Genuine 4-viewport native Skins snapshots at this exact source SHA and fresh RGB MAE, including selected, locked/unlocked, equip and confirmation states.
-- Retest both arrows, touch targets, TalkBack, insufficient coins, selected state persistence, rotation and large fonts.
-- No proof of pixel-perfect owner equivalence or physical-device performance from source tests alone.
-
+### Acceptance/continuation
+After Home and Skins candidate native results are reviewed, compare Shop on the true v1.0.91 head, revise if it worsens/does not materially improve correct visual text. Next screens: Settings → Game Over A/B → Loading/Game → Pause → Results → Privacy/Terms, including functional dialogs.
