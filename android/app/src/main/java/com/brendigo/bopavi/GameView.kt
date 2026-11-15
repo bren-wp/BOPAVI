@@ -53,6 +53,12 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
     // A center-camera cutout does not overlap the left HUD on normal phones.
     private var hudTopSafeInsetPx=0
     private val headerTypeface=Typeface.create("sans-serif-black",Typeface.BOLD)
+    // Original ready-to-fly reference prominently displays BOPAVI above
+    // the waiting pilot. Decode ONCE, not on the 60/90/120Hz frame path.
+    // Only the not-yet-active game state paints this local real vector export.
+    private var readyWordmark=BitmapFactory.decodeResource(resources,
+        R.drawable.logo,BitmapFactory.Options().apply{inScaled=false})
+    private val readyWordmarkRect=RectF(104f,120f,376f,233f)
     // One validated skin index for the body and both detached wing sprites.
     private val selectedSkin=skinIndex.coerceIn(0,10) // All pilots have the same verified 18px collider.
     private val pilotName=listOf("Bopi","Sunny","Berry","Luna","Mint","Shadow","Vihor","Iskra","Orion","Orao","Lisac")[selectedSkin]
@@ -397,6 +403,9 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         // phones the 480x800 flight camera is letterboxed vertically; keep the
         // actual wallet, level progress and powers pinned to the physical top.
         if(!game.active && !game.finished) {
+            // The reference ready art has a separate crown/winged title;
+            // active gameplay must NEVER paint this decorative wordmark.
+            drawReadyWordmark(canvas)
             drawFlightReadyTutorial(canvas)
         }
         // Native modal owns pause controls; no second painted faux pause panel.
@@ -1533,6 +1542,14 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
      * remain unchanged: the whole GameView still responds to the first tap.
      * Display only while idle; no faux HUD after an actual flap.
      */
+    private fun drawReadyWordmark(c:Canvas) {
+        val logo=readyWordmark ?: return
+        p.reset()
+        p.isAntiAlias=true
+        p.isFilterBitmap=true
+        c.drawBitmap(logo,null,readyWordmarkRect,p)
+    }
+
     private fun drawFlightReadyTutorial(c:Canvas) {
         val a=FlightReadyOverlayLayout
         // 3D cyan-glass CTA is only a visual cue: the whole GameView
@@ -1926,6 +1943,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         if(wingLeftBitmap==null) wingLeftBitmap=BitmapFactory.decodeResource(resources,leftWings[selectedSkin],opts)
         if(wingRightBitmap==null) wingRightBitmap=BitmapFactory.decodeResource(resources,rightWings[selectedSkin],opts)
         if(worldBitmap==null) worldBitmap=BitmapFactory.decodeResource(resources,worldBitmaps[game.level.world],opts)
+        if(readyWordmark==null)readyWordmark=BitmapFactory.decodeResource(resources,R.drawable.logo,opts)
         updateWorldCover(width,height)
         invalidate()
     }
@@ -1947,6 +1965,7 @@ class GameView(context: Context, val game: GameSimulation, private val reducedMo
         paused=true
         frameClock.reset()
         birdBitmap=null;hudPortraitBitmap=null;wingLeftBitmap=null;wingRightBitmap=null;worldBitmap=null
+        readyWordmark=null
         super.onDetachedFromWindow()
     }
 }
