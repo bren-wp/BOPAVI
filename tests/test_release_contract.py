@@ -49,9 +49,9 @@ class ReleaseContractTests(unittest.TestCase):
             self.assertIn("Android only.",notes)
             self.assertNotIn("Historical.",notes)
             (root/"docs/release/NEXT.md").write_text(
-                "## v1.0.1 — Candidate Android (build 131)\\n"
-                "**CANDIDATE / NOT PUBLISHED.** Development-only status.\\n"
-                "- Verified in-app Home PLAY and actual four-button actions.\\n")
+                "## v1.0.1 — Candidate Android (build 131)\n"
+                "**CANDIDATE / NOT PUBLISHED.** Development-only status.\n"
+                "- Verified in-app Home PLAY and actual four-button actions.\n")
             candidate_notes=release_notes(root)
             self.assertNotIn("CANDIDATE / NOT PUBLISHED",candidate_notes)
             self.assertIn("Verified in-app Home PLAY",candidate_notes)
