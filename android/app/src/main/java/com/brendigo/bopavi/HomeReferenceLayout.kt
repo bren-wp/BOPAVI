@@ -18,10 +18,13 @@ internal object HomeReferenceLayout {
     // Owner 1080×1920 and 1080×2400 both put the live coin pill
     // against the RIGHT safe edge, not over the center of BOPAVI's logo.
     val coins=HomeBounds(708f,21f,220f,64f)
-    // The approved logo including crown, enamel and feathers is higher and
-    // slightly wider than the previous reference box. Preserve the SVG
-    // aspect ratio inside this box; Home does not stretch logo pixels.
-    val logo=HomeBounds(72f,72f,798f,351f)
+    // Measured from the original 1080×1920 owner Home (not a generated
+    // screenshot): the painted winged wordmark is ~550px wide in the upper
+    // centre. The v1.0.88 native wordmark was ~840px wide and pushed the
+    // painted title far below the owner's crown/feather bounds.
+    // Retain the ORIGINAL SVG+PNG as a separate real native ImageView,
+    // reduce only its camera bounds; never bake static owner buttons/art.
+    val logo=HomeBounds(194f,48f,552f,229f)
     // Source logo PNG is 780x325; its real nontransparent pixels occupy
     // x=57..723 and y=34..294. The 941px reference must compare PAINTED
     // logo with Bopi, not the unused transparent bleed in its ImageView.
@@ -107,7 +110,10 @@ internal object HomeReferenceLayout {
     fun valid():Boolean {
         val all=listOf(coins,logo,logoArtwork,hero,heroArtwork,play)+actions
         if(!all.all{it.inside()})return false
-        if(coins.bottom>=logoArtwork.y)return false
+        // The coin HUD and winged logo may share a Y band on the owner's
+        // artwork. Actual 2-D intersection, not 'coins below logo', is the
+        // correct constraint when the wordmark is smaller and centered.
+        if(coins.overlaps(logoArtwork))return false
         if(logoArtwork.bottom>=heroArtwork.y ||
             heroArtwork.bottom>=play.y || play.bottom>=skins.y)return false
         if(skins.bottom>=shop.y || shop.bottom>=settings.y ||

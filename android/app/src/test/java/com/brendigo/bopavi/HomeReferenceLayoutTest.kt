@@ -58,7 +58,16 @@ class HomeReferenceLayoutTest {
         assertTrue(home.coins.inside())
         assertEquals(708f,home.coins.x,0f)
         assertTrue(home.coins.right<=home.width)
-        assertTrue(home.coins.bottom<home.logoArtwork.y)
+        assertFalse(home.coins.overlaps(home.logoArtwork))
+        // Native 1080×1920 reference camera: paint-only bounding box.
+        // These coarse tolerances check geometry, NOT pixel-perfect RGB.
+        val factor=1080f/home.width
+        assertTrue(home.logoArtwork.x*factor in 245f..295f)
+        assertTrue(home.logoArtwork.right*factor in 790f..830f)
+        assertTrue(home.logoArtwork.y*factor in 75f..110f)
+        assertTrue(home.logoArtwork.bottom*factor in 280f..320f)
+        assertEquals(552f,home.logo.w,0f)
+        assertEquals(229f,home.logo.h,0f)
         assertTrue(home.logoArtwork.bottom<home.heroArtwork.y)
         assertFalse(home.coins.overlaps(home.logoArtwork))
     }

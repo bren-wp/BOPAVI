@@ -110,6 +110,7 @@ jobs:
       - run: python tests/test_home_owner_hud_row_and_android16.py
       - run: python tests/test_home_owner_ring_free_wallet_contract.py
       - run: python tests/test_home_owner_hero_proportions_contract.py
+      - run: python tests/test_home_owner_logo_camera_contract.py
       - run: python tests/test_splash_home_fantasy_backdrop.py
       - run: python tests/test_splash_home_owner_864_fidelity.py
       - run: python tests/test_splash_home_visual_depth_v1058.py
