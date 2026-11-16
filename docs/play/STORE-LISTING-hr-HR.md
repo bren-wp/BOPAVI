@@ -1,4 +1,4 @@
-# Google Play — BOPAVI (hr-HR) · objavljeno v1.0.89 (build 219)
+# Google Play — BOPAVI (hr-HR) · objavljeno v1.0.92 (build 222)
 
 <!-- verified-feature-ids: home,four_home_actions,gameplay_start_from_home,flight,skin_selection_screen,shop_screen,settings_screen,virtual_wallet_save,offline,no_ads,no_account -->
 
@@ -22,5 +22,5 @@ Napredak i virtualna sredstva čuvaju se lokalno. Igra ne zahtijeva registraciju
 
 Objavljuju se stvarne snimke istoga Android builda: Home, Shop, Skins, Settings, stanje leta, pauza, rezultati i pravni dijalozi. Ne predstavljati pokrivenost snimkama kao dokaz potpune 1:1 RGB usklađenosti. Izostaviti uklonjene samostalne zaslone.
 
-GitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.89.
+GitHub izdanje: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.92.
 Provjera na fizičkom uređaju i Play Store odobrenje nisu potvrđeni.
