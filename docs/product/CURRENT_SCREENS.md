@@ -1,6 +1,6 @@
 # BOPAVI — Current Android screens
 
-**Published release baseline:** v1.0.88 (build 218). This corrects the post-publication documentation generator; it does not rewrite the original GitHub release.
+**Published release baseline:** v1.0.89 (build 219). This corrects the post-publication documentation generator; it does not rewrite the original GitHub release.
 
 The production Home has **four functional accessible actions**: **PLAY, SKINS, SHOP and SETTINGS**. PLAY starts the actual game through MainActivity.startGame(), Loading and GameView. The passive coin balance is not a fifth action.
 
@@ -22,4 +22,4 @@ Removed standalone pages: Progress, Leaderboard, Records, Achievements and Level
 
 **Reference design:** 10 distinct states; 40 genuine owner originals over four available resolutions. Screenshots are real release assets, but source checks and the existence of screenshots alone do **not** establish 1:1 RGB parity or real-device stability.
 
-Published screenshots: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.88. Unreleased changes are documented separately in `docs/release/NEXT.md`.
+Published screenshots: https://github.com/bren-wp/BOPAVI/releases/tag/v1.0.89. Unreleased changes are documented separately in `docs/release/NEXT.md`.
