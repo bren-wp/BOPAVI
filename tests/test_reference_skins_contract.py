@@ -39,13 +39,13 @@ assert 'cardLefts=floatArrayOf(23f,252f,481f,710f)' in layout
 assert "cardLefts.size==4" in layout
 assert "const val cardWidth=207f" in layout
 assert "const val cardHeight=307f" in layout
-assert "const val heroSize=688f" in layout
+assert "const val heroSize=626f" in layout
 assert "const val bannerLeft=250f" in layout
 assert "const val bannerWidth=441f" in layout
-assert "const val heroLeft=127f" in layout
+assert "const val heroLeft=157f" in layout
 assert "activeSelectionTop+193f<=referenceHeight" in layout
 assert 'textSize=30f' in screen # selected hero EQUIP
-assert "const val heroTop=244f" in layout
+assert "const val heroTop=260f" in layout
 assert "const val activeSelectionTop=1299f" in layout
 assert "stage.place(selectedInfo,30f,1299f,881f,193f," in screen
 assert "verticalAnchor=PilotSelectionLayout.cardsVerticalAnchor" in screen

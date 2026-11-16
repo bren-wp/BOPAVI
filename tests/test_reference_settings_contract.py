@@ -68,11 +68,11 @@ assert 'addedRows[2],legacyRows[3],addedRows[3],legacyRows[6],legacyRows[7]' in 
 assert 'setPadding(dp(12),0,dp(9),0)' in settings
 assert 'Bopavi3DTheme.panel(when(kind){' in settings
 assert 'BopaviUiIconDrawable.Kind.MUSIC->Bopavi3DTheme.Finish.VIOLET' in settings
-assert 'FrameLayout.LayoutParams(dp(27),dp(27),Gravity.CENTER)' in settings
+assert 'FrameLayout.LayoutParams(dp(30),dp(30),Gravity.CENTER)' in settings
 assert 'setSingleLine(true)' in settings
 assert 'ellipsize=android.text.TextUtils.TruncateAt.END' in settings
 # Row labels and difficulty values must never rely on clipped visible text.
-assert 'row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{' in settings
+assert 'row.addView(title(text,if(text=="Mode")13 else 16,navy).apply{' in settings
 # A 13..12sp TextView autosize range crashed both emulator Settings flows.
 # The pure policy and JVM test ensure 12sp controls and fallback footer are safe.
 sizing=(src/"SettingsTextSizePolicy.kt").read_text()
@@ -83,7 +83,7 @@ assert 'if(maxSp>13) 13 else (maxSp-2).coerceAtLeast(1)' in sizing
 assert 'for(maximum in 2..100)' in sizing_test
 assert 'SettingsTextSizePolicy.minSp(12)' in sizing_test
 assert 'setAutoSizeTextTypeUniformWithConfiguration(13,size,1,' not in settings
-assert 'setAutoSizeTextTypeUniformWithConfiguration(10,14,1,' in settings
+assert 'setAutoSizeTextTypeUniformWithConfiguration(11,16,1,' in settings
 assert 'val shortLabel=when(index)' in settings
 for label in ('"EASY"','"NORMAL"','"HARD"'):
     assert label in settings,label
