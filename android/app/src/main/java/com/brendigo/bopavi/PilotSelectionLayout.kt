@@ -18,17 +18,17 @@ internal object PilotSelectionLayout {
     const val bannerTop=166f
     const val bannerWidth=441f
     const val bannerHeight=128f
-    // Increase the complete winged hero silhouette toward the owner's
-    // dominant central character, without moving interactive skin cards.
-    // The full-size transparency/wing layers add substantial silhouettes.
-    // Refine the real hero toward the owner's centred character without
-    // overlapping the native left/right navigation or skin cards.
-    // The previous 760px actor obscured the carousel arrows and stone rim.
-    // Owner reference (941x1672): wingtip-to-wingtip character lives roughly
-    // between x=165..735, y=355..790, above the stone dais at y=811.
-    const val heroLeft=127f
-    const val heroTop=244f
-    const val heroSize=688f
+    // The v1.0.88 same-resolution Android capture has a wider Bopi silhouette
+    // than the original owner Skins art. Its square actor also overlaps BOTH
+    // carousel arrow rectangles, which risks illustrated/interaction overlap.
+    // Keep the hero center at the 941px stage midpoint, preserve the actual
+    // animated 512px sprite and stored skin mapping, but reduce its camera
+    // box from 688px to 626px. This leaves visible space around each arrow
+    // and lifts the painted lower feathers above the cards and native info.
+    // Exact RGB parity requires fresh candidate emulator PNG measurements.
+    const val heroLeft=157f
+    const val heroTop=260f
+    const val heroSize=626f
     const val platformLeft=166f
     const val platformTop=811f
     const val platformWidth=612f
@@ -46,6 +46,8 @@ internal object PilotSelectionLayout {
         bannerLeft>=0f && bannerLeft+bannerWidth<=referenceWidth &&
         heroLeft>=0f && heroLeft+heroSize<=referenceWidth &&
         heroTop+heroSize<cardTop &&
+        // Native left/right arrow touch areas: [26,138] and [803,915].
+        heroLeft>=138f && heroLeft+heroSize<=803f &&
         platformTop+platformHeight<cardTop &&
         cardTop+cardHeight<activeSelectionTop &&
         activeSelectionTop+193f<=referenceHeight

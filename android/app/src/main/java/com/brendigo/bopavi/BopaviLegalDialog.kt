@@ -69,15 +69,11 @@ internal object BopaviLegalDialog {
             bottomMargin=dp(host,4)
         })
 
-        val docNumber=TextView(host).apply {
-            text=if(title=="Politika privatnosti")"Dokument 01" else "Dokument 02"
-            textSize=14f
-            gravity=Gravity.CENTER_VERTICAL or Gravity.START
-            typeface=Typeface.create("sans-serif",Typeface.BOLD)
-            setTextColor(0xff11457f.toInt())
-            setPadding(dp(host,17),0,0,0)
-        }
-        root.addView(docNumber,LinearLayout.LayoutParams(-1,dp(host,30)))
+        // The full offline privacy/terms HTML already starts with
+        // "Dokument 01/02" and its heading. Rendering a second standalone
+        // native number above the ScrollView duplicates that content and
+        // wastes 30dp of available scrolling space (confirmed on API36).
+        // Preserve source HTML verbatim and render it ONLY inside scrolling.
         scrolling.background=parchment
         scrolling.isFillViewport=false
         root.addView(scrolling,LinearLayout.LayoutParams(-1,0,1f).apply {

@@ -970,7 +970,7 @@ class MainActivity : Activity() {
         content.addView(hero,
             LinearLayout.LayoutParams(-1,d(PauseModalLayout.heroHeightDp(compactPause)))
                 .apply { bottomMargin=d(7) })
-        title(content,"PAUZA",if(compactPause)27 else 32,Color.WHITE)
+        title(content,"PAUZA",if(compactPause)30 else 38,Color.WHITE)
         // Gold plaque is a native TextView with real accessible lettering,
         // never Canvas-only embossing or a clickable screenshot.
         (content.getChildAt(content.childCount-1) as TextView).apply {
@@ -991,10 +991,10 @@ class MainActivity : Activity() {
                     null,null,null)
                 compoundDrawablePadding=d(9)
                 gravity=Gravity.CENTER
-                isAllCaps=false;textSize=18f
+                isAllCaps=false;textSize=21f
                 typeface=Typeface.create("sans-serif-black",Typeface.BOLD)
                 setTextColor(if(style==0)primaryButtonInk else Color.WHITE)
-                setAutoSizeTextTypeUniformWithConfiguration(12,18,1,
+                setAutoSizeTextTypeUniformWithConfiguration(12,21,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
                 background=Bopavi3DTheme.button(finish)
                 elevation=d(5).toFloat()
@@ -1196,7 +1196,8 @@ class MainActivity : Activity() {
                         android.widget.Toast.makeText(this,"Sharing unavailable",
                             android.widget.Toast.LENGTH_SHORT).show()
                     }
-                })
+                },
+                reducedMotion=progress.lessMotion())
             showNativeView(screen)
             return
         }

@@ -105,19 +105,19 @@ internal class SettingsScreen(private val host:Activity,
             elevation=dp(3).toFloat()
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
             addView(ImageView(host).apply{
-                setImageDrawable(BopaviUiIconDrawable(kind,Color.WHITE,dp(27)))
+                setImageDrawable(BopaviUiIconDrawable(kind,Color.WHITE,dp(30)))
                 scaleType=ImageView.ScaleType.FIT_CENTER
                 importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            },FrameLayout.LayoutParams(dp(27),dp(27),Gravity.CENTER))
-        },LinearLayout.LayoutParams(dp(30),dp(30)))
-        row.addView(title(text,if(text=="Mode")12 else 14,navy).apply{
+            },FrameLayout.LayoutParams(dp(30),dp(30),Gravity.CENTER))
+        },LinearLayout.LayoutParams(dp(34),dp(34)))
+        row.addView(title(text,if(text=="Mode")13 else 16,navy).apply{
             gravity=Gravity.CENTER_VERTICAL or Gravity.START
             setSingleLine(true)
             ellipsize=android.text.TextUtils.TruncateAt.END
-            setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
+            setAutoSizeTextTypeUniformWithConfiguration(11,16,1,
                 android.util.TypedValue.COMPLEX_UNIT_SP)
             setShadowLayer(0f,0f,0f,Color.TRANSPARENT)
-        },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(9)})
+        },LinearLayout.LayoutParams(0,-1,1f).apply{marginStart=dp(11)})
         // Difficulty is a three-way selector. A 140dp group makes each option
         // narrower than the 48dp accessibility minimum once margins are added.
         row.addView(control,LinearLayout.LayoutParams(dp(controlWidthDp),-1))

@@ -113,10 +113,14 @@ internal class ShopScreen(
             elevation=dp(4).toFloat()
             contentDescription="OWNED: ${item.owned}/99. "+item.accessibility
         }
+        // Two-line products ("DOUBLE SHIELD", "SUPER MAGNET") previously
+        // received only 0.65 of 4.04 row-weight units. On a 941px native
+        // card this is too short to paint both lines at the allowed font
+        // sizes. Do not remove a line or replace live labels with graphics.
         card.addView(message(item.storefrontTitle,17,0xff5f260e.toInt()).apply{
             maxLines=2
             setShadowLayer(1.5f,0f,1.5f,0x66f8ba72)
-        },LinearLayout.LayoutParams(-1,0,.65f))
+        },LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.HEADER))
         // Product art now occupies the full card width, as in the reference.
         // Tier remains a small passive corner badge instead of squeezing the
         // actual shield/magnet into a narrow horizontal row.
@@ -139,14 +143,14 @@ internal class ShopScreen(
         // On actual 941px captures the old 0.58-weight caption clipped
         // "Attracts rewards for 12s/18s". Give real two-line descriptions
         // sufficient height; keep the product art legible and price tappable.
-        card.addView(illustration,LinearLayout.LayoutParams(-1,0,1.53f))
+        card.addView(illustration,LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.ILLUSTRATION))
         card.addView(message(item.perkEffect,14,0xff723d20.toInt()).apply {
                 maxLines=2
                 isSingleLine=false
                 includeFontPadding=false
                 setAutoSizeTextTypeUniformWithConfiguration(10,14,1,
                     android.util.TypedValue.COMPLEX_UNIT_SP)
-        },LinearLayout.LayoutParams(-1,0,.86f))
+        },LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.EFFECT))
         // Keep the true inventory count accessible without adding a fifth
         // visible row that the approved six-card storefront does not have.
         // Reference buy capsules stay saturated emerald even for a new
@@ -163,7 +167,7 @@ internal class ShopScreen(
                 else -> onBuy(item.index)
             }
         }
-        card.addView(buy,LinearLayout.LayoutParams(-1,0,1.00f).apply{
+        card.addView(buy,LinearLayout.LayoutParams(-1,0,ShopCardRowWeights.BUY).apply{
             topMargin=dp(4)
         })
         // Match the slimmer green price capsules without shrinking their

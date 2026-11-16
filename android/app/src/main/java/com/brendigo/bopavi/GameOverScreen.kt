@@ -136,6 +136,17 @@ internal class GameOverScreen(private val host:Activity) {
 
         val stage=LevelMapStage(host)
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))
+        // The owner Game Over reference has the complete BOPAVI crown/wing
+        // wordmark above the GAME/OVER title. v1.0.88 omitted it entirely.
+        // Keep this as a genuine separate native ImageView backed by the
+        // existing locally generated SVG logo; never paste reference pixels
+        // or put fake text/buttons into the bitmap.
+        stage.place(ImageView(host).apply {
+            setImageResource(R.drawable.logo)
+            scaleType=ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            isClickable=false
+        },260f,6f,421f,116f,referenceAligned=true)
         // Original local wood and leaves sit behind the raised wordmark.
         stage.place(GameOverTitlePlank(host),198f,333f,545f,135f,
             referenceAligned=true)

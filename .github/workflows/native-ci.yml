@@ -86,6 +86,7 @@ jobs:
       - run: python tests/test_hr_ui_contract.py
       - run: python tests/test_premium_cta_accessibility.py
       - run: python tests/test_reference_settings_contract.py
+      - run: python tests/test_settings_owner_legibility_contract.py
       - run: python tests/test_settings_cloud_notification_contract.py
       - run: python tests/test_backup_lifecycle_contract.py
       - run: python tests/test_settings_immersive_return_contract.py
@@ -93,12 +94,14 @@ jobs:
       - run: python tests/test_in_app_privacy.py
       - run: python tests/test_mit_terms_alignment.py
       - run: python tests/test_owner_legal_3d_dialog_contract.py
+      - run: python tests/test_legal_document_single_number_contract.py
       - run: python tests/test_legal_dialog_capture.py
       - run: python tests/test_full_legal_docs.py
       - run: python tests/test_reference_navigation.py
       - run: python tests/test_world_camera_coverage.py
       - run: python tests/test_reference_hud_geometry.py
       - run: python tests/test_reference_gameplay_contract.py
+      - run: python tests/test_flight_ready_owner_wordmark_contract.py
       - run: python tests/test_gameplay_reference_hud_and_pillars.py
       - run: python tests/test_reference_ready_overlay_contract.py
       - run: python tests/test_flight_reference_diff.py
@@ -134,8 +137,10 @@ jobs:
       - run: python tests/test_play_console_adaptive_contract.py
       - run: python tests/test_reference_menus_contract.py
       - run: python tests/test_reference_skins_contract.py
+      - run: python tests/test_skins_owner_hero_spacing_contract.py
       - run: python tests/test_skins_owner_vertical_camera_contract.py
       - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_shop_card_two_line_titles_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_shop_focus_native_labels.py
       - run: python tests/test_android_home_four_actions_smoke_contract.py
@@ -159,10 +164,13 @@ jobs:
       - run: python tests/test_large_font_qa.py
       - run: python tests/test_premium_result_layout.py
       - run: python tests/test_pause_reference_contract.py
+      - run: python tests/test_pause_owner_legible_controls_contract.py
       - run: python tests/test_pause_reference_capture_contract.py
       - run: python tests/test_results_icon_and_insets_contract.py
+      - run: python tests/test_results_orion_accessibility_contract.py
       - run: python tests/test_game_over_reference_contract.py
       - run: python tests/test_ground_spikes_and_result_3d_contract.py
+      - run: python tests/test_game_over_owner_brand_contract.py
       - run: python tests/test_gameplay_first_flap_hazards_contract.py
       - run: python tests/test_game_over_seated_bopi_contract.py
       - run: python tests/test_level_complete_reference_contract.py
