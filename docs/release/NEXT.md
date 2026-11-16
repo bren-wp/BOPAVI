@@ -1,16 +1,19 @@
-# Next Android release — v1.0.92 / build 222 (unpublished candidate)
+# Sljedeće Android izdanje — kandidat v1.0.92 / build 222
 
-## v1.0.92 — Screen-by-screen native owner-reference corrections (build 222)
+Jedini aktivni razvojni PR: #244, izravno prema `main`. Prethodno javno izdanje: **v1.0.89**. PR-ovi #240 (Skins), #242 (Shop) i #243 (ostali ekrani) zatvoreni su bez spajanja; sve njihove odobrene izmjene prenesene su u #244. Nisu potrebni dodatni PR-ovi za ovu iteraciju.
 
-**CANDIDATE / NOT PUBLISHED.** Dependent on #239 Home, #240 Skins and #242 Shop; do not merge or release before all exact-head QA, safety, functional and screenshot checkpoints pass. This file tracks pending work, NOT the public changelog.
+## v1.0.92 — Objedinjene nativne korekcije zaslona i QA (build 222)
 
-- Settings: enlarge native menu text/icon while preserving all 9 original reference rows, real switches, sliders, SAF restore and two legal routes; retained compact scroll layout for inaccessible viewport sizes.
-- Game Over: add missing genuine BOPAVI winged logo above the real loss/result scene while preserving painted GAME/OVER, score data, selected character and RETRY/HOME.
-- Gameplay Ready: use generated local BOPAVI logo only in the genuine ready-to-tap state, not active flight, no touched hitboxes/physics.
-- Pause: refine genuine modal spacing and accessibility without changing gameplay state transitions.
-- Results: improve native presented result text and hit targets without inventing a fake score or winning state.
-- Privacy/Terms: remove duplicate document number in the legal dialog; preserve actual full native selectable offline legal HTML, scroll, links, explicit close.
-- Mandatory: compare genuine exact-head Android 15/16 screenshots against owner SHA-pinned WebPs at all four known viewports (1080×1920/2280/2340/2400), without scaling/masking/copying artwork. Include screen-state UIAutomator assertions and real-device checks where available. **Do not claim RGB=0 from a green source build.**
-- Explicit constraints: owner Game Over B does not have a separate real native capture; user-provided Results and legal Terms visual references are not in current ten-state archive. Do not pretend exact match for missing states.
+**CANDIDATE / NOT PUBLISHED.** Svi sadržaji navedeni u nastavku implementirani su u izvornom kodu, ali konačno izdanje i vizualna jednakost 1:1 zahtijevaju provjeru izvornog commita i stvarnih Android snimki prije spajanja.
 
-The published version remains v1.0.88 until explicit release acceptance. No native release artifact or signing change is authorized by this Draft.
+- **Skins:** ispravljen položaj i veličina animiranog lika uz dvije funkcionalne strelice i četiri kartice za odabir.
+- **Shop:** čitljivi nazivi proizvoda u dva retka, bez promjene šest transakcijskih offline kupnji, cijena, pohranjenih novčića ili inventara.
+- **Settings:** veća slova i ikone nativnih postavki, očuvani svi stvarni prekidači, glasnoća, SAF backup/restore i pravne poveznice.
+- **Game Over:** originalni lokalni BOPAVI logotip, stvarni rezultati, sačuvani lik i funkcionalne akcije RETRY/HOME.
+- **Gameplay Ready:** lokalni vektorski logotip prikazuje se samo prije prvog zamaha krila, ne tijekom aktivne igre; fizika i kolizije ne mijenjaju se.
+- **Pause:** čitljiviji naslov i tri stvarna gumba NASTAVI/PONOVO/IZLAZ, bez dupliciranja dijaloga ili mijenjanja aktivnog leta.
+- **Results:** prikaz odabranog Oriona umjesto zadanog lika i poštovanje postavke smanjenog pokreta; nagrade ostaju stvarne.
+- **Privacy i Terms:** uklonjena dodatna duplicirana oznaka broja dokumenta, a cjeloviti offline HTML, poveznice, pomicanje i ZATVORI ostaju funkcionalni.
+- **Provjere:** izvorni Python/Kotlin testovi, Android lint, R8, APK/AAB, emulatorski Android 15/16 funkcionalni testovi i izvorni RGB audit. Native snimke i originalne WebP reference nikada se ne zamjenjuju simulacijom ili rastezanjem.
+- **Poznata ograničenja:** vizualna identičnost 1:1 još nije potvrđena; Game Over B, Results i Terms nemaju sve zasebne odgovarajuće referentne ili nativne snimke za potpunu ocjenu.
+
