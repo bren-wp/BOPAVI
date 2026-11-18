@@ -140,6 +140,7 @@ jobs:
       - run: python tests/test_skins_owner_hero_spacing_contract.py
       - run: python tests/test_skins_owner_vertical_camera_contract.py
       - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_shop_owner_kiosk_generation.py
       - run: python tests/test_shop_card_two_line_titles_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_shop_focus_native_labels.py
