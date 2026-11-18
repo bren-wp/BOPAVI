@@ -6,6 +6,8 @@
 
 - Fix the confirmed Game Over P2 review issue: keep the original measured 3D crown coordinates but render the crown behind the native BOPAVI logo so it cannot cover brand letters.
 - Add a native-view source regression test to prevent the crown from returning above the wordmark, while preserving the real Retry/Home controls and gameplay-derived statistics.
+- Isolate Shop's 0.8435 horizontal camera correction: Settings and Skins now use full-width portrait reference camera so their native row titles and selectable cards cannot inherit Shop's 16:9 compression.
+- Add a regression source contract for Shop versus Settings/Skins camera selection and preserve all native touch controls.
 - Enhance the strict original-WebP-versus-native-PNG RGB reporter with a non-masked 3×3 per-region diagnostic grid and the worst ninth per screen to prioritize the next UI correction.
 - Extend synthetic test fixtures to check exact and one-pixel-different captures without fabricated emulator evidence.
 - Preserve existing coins, saves, skin ownership, offline privacy, playable physics and all approved source references.

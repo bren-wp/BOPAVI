@@ -356,7 +356,8 @@ internal class SettingsScreen(private val host:Activity,
         // scrollable layout; no row is drawn off-screen as static decoration.
         if(reference){
             val stage=LevelMapStage(host)
-            stage.useShopFullBleedReferenceCamera()
+            // Settings must not inherit Shop's 1080x1920 horizontal crop.
+            stage.useOwnerFullBleedReferenceCamera()
             root.addView(stage,FrameLayout.LayoutParams(-1,-1))
             stage.place(artwork(R.drawable.logo),203f,20f,535f,213f,
                 verticalAnchor=SettingsReferenceLayout.logoAnchor)

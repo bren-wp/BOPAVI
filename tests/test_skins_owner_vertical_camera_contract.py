@@ -15,7 +15,7 @@ assert "const val ownerVerticalAnchor=.18f" in layout
 assert "stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)" in screen
 reference=screen.split("if(host.resources.configuration.orientation==",1)[1].split(
     "root.addView(stage,",1)[0]
-assert reference.index("stage.useShopFullBleedReferenceCamera()") < reference.index(
+assert reference.index("stage.useOwnerFullBleedReferenceCamera()") < reference.index(
     "stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)")
 assert "fontScale<1.25f" in reference
 assert "stage.place(card,left,PilotSelectionLayout.cardTop," in screen

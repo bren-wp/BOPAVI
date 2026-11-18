@@ -13,8 +13,9 @@ This is an honest, traceable visual backlog. An Android emulator screenshot is *
 ## Current candidate modifications
 
 1. **Game Over P2:** preserve reference-aligned crown and brand positions but paint crown below wordmark. Old sibling order painted an opaque 3D crown across BOPAVI logo. New source regression checks strict order.
-2. **All ten owner states:** add 3×3 exact-pixel regions to existing full-frame RGB MAE and different-pixel reporting. Every region is cropped equally from the authentic original and matching native PNG; no screenshot is resized, fabricated or substituted.
-3. Source and Python fixture checks must pass before interpreting a new emulator report.
+2. **Settings and Skins:** remove inadvertent Shop-only horizontal compression on 1080×1920. The previous shared camera applied the measured Shop scale of 0.8435 to unrelated screens. Real owner references and native screenshots establish this as a layout mismatch; newly captured RGB metrics are still required.
+3. **All ten owner states:** add 3×3 exact-pixel regions to existing full-frame RGB MAE and different-pixel reporting. Every region is cropped equally from the authentic original and matching native PNG; no screenshot is resized, fabricated or substituted.
+4. Source and Python fixture checks must pass before interpreting a new emulator report.
 
 ## Remaining acceptance criteria
 
