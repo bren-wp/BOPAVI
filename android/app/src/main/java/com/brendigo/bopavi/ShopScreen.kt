@@ -341,19 +341,27 @@ internal class ShopScreen(
                 "Earn stars by completing levels.",android.widget.Toast.LENGTH_SHORT).show()
         },833f,0f,96f,99f,minTouch=true,
             verticalAnchor=ShopHeaderLayout.headerAnchor)
-        // Real 941×1672 Android screenshot comparison showed the original
-        // merchant/kiosk decorative crop preserves the owner's scene much
-        // more accurately than a stretched, unrelated full-body portrait:
-        // storefront ROI RGB-MAE 8.86% before vs 30.76% after replacement.
-        // The crop is decoration only: currency, prices, buttons, purchases
-        // and the 3D title all remain separate native Android components.
+        // Native controls remain live. A pinned original-owner WebP supplies
+        // only the passive merchant, awning and stall, losslessly extracted
+        // per approved viewport at build time. This replaces the tiny
+        // 260x80 decorative crop that was severely upscaled on 1080p.
+        // Unknown/compact viewports retain the original fallback art.
+        val originalStall=if(host.resources.displayMetrics.widthPixels==1080) {
+            when(host.resources.displayMetrics.heightPixels) {
+                1920->R.drawable.bopavi_owner_shop_kiosk_1920
+                2280->R.drawable.bopavi_owner_shop_kiosk_2280
+                2340->R.drawable.bopavi_owner_shop_kiosk_2340
+                2400->R.drawable.bopavi_owner_shop_kiosk_2400
+                else->R.drawable.bopavi_owner_shop_kiosk
+            }
+        } else R.drawable.bopavi_owner_shop_kiosk
         stage.place(ImageView(host).apply {
-            setImageResource(R.drawable.bopavi_owner_shop_kiosk)
+            setImageResource(originalStall)
             scaleType=ImageView.ScaleType.FIT_XY
             isClickable=false
             isFocusable=false
             importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        },24f,302f,894f,276f,
+        },24f,400f,894f,276f,
             verticalAnchor=ShopHeaderLayout.headerAnchor)
         stage.place(ShopHeaderScene(host,titleLayer=true),0f,0f,941f,1672f,
             verticalAnchor=ShopHeaderLayout.headerAnchor)

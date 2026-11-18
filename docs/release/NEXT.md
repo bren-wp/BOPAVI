@@ -8,6 +8,8 @@
 - Add a native-view source regression test to prevent the crown from returning above the wordmark, while preserving the real Retry/Home controls and gameplay-derived statistics.
 - Isolate Shop's 0.8435 horizontal camera correction: Settings and Skins now use full-width portrait reference camera so their native row titles and selectable cards cannot inherit Shop's 16:9 compression.
 - Add a regression source contract for Shop versus Settings/Skins camera selection and preserve all native touch controls.
+- Replace the 260×80 Shop merchant decoration with four SHA-verified, lossless, viewport-matched owner WebP scenery crops; the SHOP logo, FEATURED label, product prices and all buy buttons remain live native views. Adjust the stall's vertical stage position from y=302 to y=400 to follow real owner art.
+- Repair the stale reference-insets CI assertion that still demanded the Shop-only camera on Settings and Skins; assert both use the correct owner-wide camera.
 - Enhance the strict original-WebP-versus-native-PNG RGB reporter with a non-masked 3×3 per-region diagnostic grid and the worst ninth per screen to prioritize the next UI correction.
 - Extend synthetic test fixtures to check exact and one-pixel-different captures without fabricated emulator evidence.
 - Preserve existing coins, saves, skin ownership, offline privacy, playable physics and all approved source references.
