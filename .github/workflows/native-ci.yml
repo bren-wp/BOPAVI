@@ -171,6 +171,7 @@ jobs:
       - run: python tests/test_game_over_reference_contract.py
       - run: python tests/test_ground_spikes_and_result_3d_contract.py
       - run: python tests/test_game_over_owner_brand_contract.py
+      - run: python tests/test_game_over_crown_draw_order.py
       - run: python tests/test_gameplay_first_flap_hazards_contract.py
       - run: python tests/test_game_over_seated_bopi_contract.py
       - run: python tests/test_level_complete_reference_contract.py

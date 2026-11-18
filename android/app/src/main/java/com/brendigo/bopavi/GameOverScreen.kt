@@ -141,6 +141,11 @@ internal class GameOverScreen(private val host:Activity) {
         // Keep this as a genuine separate native ImageView backed by the
         // existing locally generated SVG logo; never paste reference pixels
         // or put fake text/buttons into the bitmap.
+        // The owner art already places the crown in this central region.
+        // Draw it UNDER the complete BOPAVI wordmark so the vector crown cannot
+        // paint over lettering. Keep its measured coordinates unchanged.
+        stage.place(GameOverCrown(host),431f,53f,79f,76f,
+            referenceAligned=true)
         stage.place(ImageView(host).apply {
             setImageResource(R.drawable.logo)
             scaleType=ImageView.ScaleType.FIT_CENTER
@@ -151,8 +156,6 @@ internal class GameOverScreen(private val host:Activity) {
         stage.place(GameOverTitlePlank(host),198f,333f,545f,135f,
             referenceAligned=true)
         stage.place(ResultWingDecoration(host),145f,177f,650f,165f,
-            referenceAligned=true)
-        stage.place(GameOverCrown(host),431f,53f,79f,76f,
             referenceAligned=true)
         stage.place(ResultEmblemLabel(host,"GAME",97f,
             ResultEmblemLabel.Tone.ICE).apply {

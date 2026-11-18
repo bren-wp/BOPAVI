@@ -48,6 +48,27 @@ def region_metrics(reference, actual):
         for name, top, bottom in bounds
     }
 
+def grid_metrics(reference, actual):
+    """Nine exact-size regions to localize UI deviations without resampling.
+
+    The complete RGB comparison remains authoritative; this diagnostic grid
+    never masks pixels or converts a differing frame into a passing one.
+    """
+    width, height = reference.size
+    if width < 3 or height < 3:
+        raise ValueError("3x3 diagnostic grid requires at least 3x3 pixels")
+    positions = ("left", "center", "right")
+    rows = ("top", "middle", "bottom")
+    return {
+        f"{rows[row]}_{positions[column]}": pixel_metrics(
+            reference.crop((width * column // 3, height * row // 3,
+                            width * (column + 1) // 3, height * (row + 1) // 3)),
+            actual.crop((width * column // 3, height * row // 3,
+                         width * (column + 1) // 3, height * (row + 1) // 3)),
+        )
+        for row in range(3) for column in range(3)
+    }
+
 
 def audit_records(rows, reference_dir, captures_dir, capture_map):
     mapped = {}
@@ -86,8 +107,10 @@ def audit_records(rows, reference_dir, captures_dir, capture_map):
                             raise ValueError("Capture is not a genuine PNG file")
                         metrics = pixel_metrics(original, actual)
                         regions = region_metrics(original, actual)
+                        grid = grid_metrics(original, actual)
                     result.update(metrics)
                     result["regions"] = regions
+                    result["grid_regions"] = grid
                     result["capture_sha256"] = hashlib.sha256(capture.read_bytes()).hexdigest()
                     result["status"] = "identical" if metrics["pixel_identical"] else "different"
             except (AssertionError, OSError, ValueError) as error:
@@ -232,17 +255,20 @@ def triage_markdown(report):
         "",
         "### Largest measured RGB errors (fix these visuals first)",
         "",
-        "| Reference | Changed RGB pixels | RGB MAE (0–255) | Worst third by MAE |",
-        "|---|---:|---:|---|",
+        "| Reference | Changed RGB pixels | RGB MAE (0–255) | Worst third by MAE | Worst ninth by MAE |",
+        "|---|---:|---:|---|---|",
     ]
     for item in different[:10]:
         regions = item.get("regions", {})
         worst = max(regions, key=lambda key: regions[key].get("mae_rgb_0_255", 0)) \
             if regions else "unknown"
+        cells = item.get("grid_regions", {})
+        worst_cell = max(cells, key=lambda key: cells[key].get("mae_rgb_0_255", 0)) \
+            if cells else "unknown"
         out.append(
             f'| {chr(96)}{item["reference"]}{chr(96)} | '
             f'{item["different_pixels_percent"]:.4f}% | '
-            f'{item["mae_rgb_0_255"]:.3f} | {worst} |'
+            f'{item["mae_rgb_0_255"]:.3f} | {worst} | {worst_cell} |'
         )
     if not different:
         out.append("| No comparable mismatches | — | — | — |")

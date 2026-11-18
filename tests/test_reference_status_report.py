@@ -62,6 +62,13 @@ with tempfile.TemporaryDirectory() as folder:
     }
     assert all(row["different_pixels"] == 0
                for row in identical["results"][0]["regions"].values())
+    exact_cells = identical["results"][0]["grid_regions"]
+    assert set(exact_cells) == {
+        "top_left", "top_center", "top_right",
+        "middle_left", "middle_center", "middle_right",
+        "bottom_left", "bottom_center", "bottom_right",
+    }
+    assert all(cell["different_pixels"] == 0 for cell in exact_cells.values())
     assert not identical["all_exact"], "Only all 50 archived variants can be certified"
     rollup_design_states(identical, ["owner.webp"])
     assert identical["screen_coverage_passed"]
@@ -87,6 +94,11 @@ with tempfile.TemporaryDirectory() as folder:
     assert sum(row["different_pixels"] for row in
                mismatch["results"][0]["regions"].values()) == 1
     assert mismatch["results"][0]["regions"]["top_third"]["different_pixels"] == 1
+    # Original synthetic 12x20 frame, changed pixel (2,3) is top-left only.
+    cells = mismatch["results"][0]["grid_regions"]
+    assert sum(cell["different_pixels"] for cell in cells.values()) == 1
+    assert cells["top_left"]["different_pixels"] == 1
+    assert "top_left" in markdown_diff
 
     assert safe_capture_path(captures, "../../secret.png") is None
     assert safe_capture_path(captures, "/tmp/image.png") is None
