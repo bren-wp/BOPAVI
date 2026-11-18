@@ -380,4 +380,9 @@ if photo_bopi:
     Image.alpha_composite(background,legacy_layer).convert('RGB').resize(
         (512,512),Image.Resampling.LANCZOS).save(
             a/'drawable/app_icon.png',optimize=True)
+# Four verified owner-viewport-only passive stall layers. The original WebPs
+# are SHA-checked; all live storefront controls stay distinct Android Views.
+from generate_owner_shop_kiosk import generate_all as generate_shop_stalls
+_shop_stalls=generate_shop_stalls(r,a/'drawable-nodpi')
+assert len(_shop_stalls)==4
 print('Generated native art: 11 complete glowing portraits, 11 bodies, 22 flapping wings and 8 biomes; owner-reference Bopi:',photo_bopi)

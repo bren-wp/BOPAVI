@@ -35,7 +35,7 @@ for marker in (
             else "import android.widget.ScrollView" in settings),marker
 assert 'val rows=floatArrayOf(610f,706f,802f,898f,994f,1090f,1186f,1282f,1378f)' in geometry
 assert 'const val homeTop=1486f' in geometry
-assert 'stage.useShopFullBleedReferenceCamera()' in settings
+assert 'stage.useOwnerFullBleedReferenceCamera()' in settings
 assert 'SettingsReferenceLayout.supportsNativeTouchTargets(' in settings
 assert 'col.addView(button("‹  HOME",click=onBack).apply {' in settings
 assert 'contentDescription="HOME"' in settings

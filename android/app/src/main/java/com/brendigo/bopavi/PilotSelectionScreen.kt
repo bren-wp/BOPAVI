@@ -107,7 +107,8 @@ internal class PilotSelectionScreen(
             // Keep the complete owner art and native hero/card geometry on
             // the same full-bleed camera; safe-inset fallback remains active
             // for accessible touch targets near a notch.
-            stage.useShopFullBleedReferenceCamera()
+            // Preserve the owner-wide Skins art and selectable native cards.
+            stage.useOwnerFullBleedReferenceCamera()
             stage.setReferenceVerticalAnchor(PilotSelectionLayout.ownerVerticalAnchor)
         }
         root.addView(stage,FrameLayout.LayoutParams(-1,-1))

@@ -140,6 +140,7 @@ jobs:
       - run: python tests/test_skins_owner_hero_spacing_contract.py
       - run: python tests/test_skins_owner_vertical_camera_contract.py
       - run: python tests/test_reference_shop_contract.py
+      - run: python tests/test_shop_owner_kiosk_generation.py
       - run: python tests/test_shop_card_two_line_titles_contract.py
       - run: python tests/test_shop_single_screen_qa_contract.py
       - run: python tests/test_shop_focus_native_labels.py
@@ -151,6 +152,7 @@ jobs:
       - run: python tests/test_two_owner_screen_comparator.py
       - run: python tests/test_owner_zero_pixel_comparator.py
       - run: python tests/test_shop_skins_settings_owner_comparator.py
+      - run: python tests/test_owner_camera_horizontal_isolation.py
       - run: python tests/test_qa_owner_941_all_screens.py
       - run: python tests/test_owner_exact_native_capture_contract.py
       - run: python tests/test_responsive_home_splash.py
@@ -171,6 +173,7 @@ jobs:
       - run: python tests/test_game_over_reference_contract.py
       - run: python tests/test_ground_spikes_and_result_3d_contract.py
       - run: python tests/test_game_over_owner_brand_contract.py
+      - run: python tests/test_game_over_crown_draw_order.py
       - run: python tests/test_gameplay_first_flap_hazards_contract.py
       - run: python tests/test_game_over_seated_bopi_contract.py
       - run: python tests/test_level_complete_reference_contract.py

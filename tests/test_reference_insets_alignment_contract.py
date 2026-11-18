@@ -46,8 +46,10 @@ assert 'ownerImmersiveReferenceScreen()' in activity
 assert 'if(selectedScreen=="loading")return true' in activity
 assert '"home" -> HomeReferenceLayout.supports(' in activity
 assert '"skins","settings","result" -> portrait &&' in activity
-assert 'stage.useShopFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.kt").read_text()
-assert 'stage.useShopFullBleedReferenceCamera()' in (src/"SettingsScreen.kt").read_text()
+# Shop-only x compression must not be inherited by Skins or Settings.
+assert 'stage.useOwnerFullBleedReferenceCamera()' in (src/"PilotSelectionScreen.kt").read_text()
+assert 'stage.useOwnerFullBleedReferenceCamera()' in (src/"SettingsScreen.kt").read_text()
+assert 'if(shopFullBleed && shopWidthCorrection)' in stage
 assert 'selectedScreen="skins"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="settings"\n        applyPremiumSystemBars()' in activity
 assert 'selectedScreen="splash"' not in activity

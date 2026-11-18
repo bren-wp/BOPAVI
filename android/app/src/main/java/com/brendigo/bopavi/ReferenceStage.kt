@@ -16,6 +16,10 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
     // art fills the original 941x1672 camera; actual tappable controls
     // still fall back to safe-area positioning around physical cutouts.
     private var shopFullBleed=false
+    // The 1080x1920 width correction was measured for SHOP only.
+    // Settings and Skins need a full-width portrait camera: sharing Shop's
+    // x factor compressed their labels, icons and cards to 84.35% width.
+    private var shopWidthCorrection=false
     private var defaultVerticalAnchor=.5f
 
     /** A full-bleed reference scene can opt into a TOP-weighted camera on
@@ -29,6 +33,13 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
 
     fun useShopFullBleedReferenceCamera() {
         shopFullBleed=true
+        shopWidthCorrection=true
+        requestLayout()
+    }
+    /** Full-bleed owner reference without Shop-specific 16:9 compression. */
+    fun useOwnerFullBleedReferenceCamera() {
+        shopFullBleed=true
+        shopWidthCorrection=false
         requestLayout()
     }
     private var safeLeft=0
@@ -95,7 +106,8 @@ internal class LevelMapStage(context:Context):ViewGroup(context){
         return if(inside)aligned else safe
     }
     private fun ownerShopXFactor(width:Int,height:Int):Float =
-        if(shopFullBleed)ShopReferenceLayout.horizontalFactor(width,height) else 1f
+        if(shopFullBleed && shopWidthCorrection)
+            ShopReferenceLayout.horizontalFactor(width,height) else 1f
 
     override fun onMeasure(widthMeasureSpec:Int,heightMeasureSpec:Int){
         val w=View.MeasureSpec.getSize(widthMeasureSpec)
