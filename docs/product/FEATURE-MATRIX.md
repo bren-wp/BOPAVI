@@ -1,6 +1,6 @@
 # BOPAVI — Current Android-only feature matrix
 
-This file describes the reachable production UI of the **published** Android release v1.0.92 (build 222), not an unreleased candidate. Historical three-action navigation ended with ADR-0003; retained save formats and intentionally removed standalone pages are distinguished below.
+This file describes the reachable production UI of the **published** Android release v1.0.93 (build 223), not an unreleased candidate. Historical three-action navigation ended with ADR-0003; retained save formats and intentionally removed standalone pages are distinguished below.
 
 ## Published release evidence
 
@@ -8,10 +8,10 @@ This file describes the reachable production UI of the **published** Android rel
 {
   "schema": 1,
   "baseline_sha": "c6eb1c18e8548cfdb5bb480296b33f1239a0ea27",
-  "release": "v1.0.92",
+  "release": "v1.0.93",
   "publication_status": "published",
-  "last_published_github_release": "v1.0.92",
-  "build": 222,
+  "last_published_github_release": "v1.0.93",
+  "build": 223,
   "scope_decision": "pending",
   "screens": [
     "home",
